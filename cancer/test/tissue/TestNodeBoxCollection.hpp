@@ -208,29 +208,29 @@ public:
         
         node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
         
-        std::set< std::pair<unsigned, unsigned > > pairs_returned;
+        std::set< std::pair<Node<2>*, Node<2>* > > pairs_returned;
         node_based_tissue.GetNodeBoxCollection()->CalculateNodePairs(nodes,pairs_returned);
         
-        std::set< std::pair<unsigned, unsigned > > pairs_should_be;
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(0,1));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,3));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,4));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,5));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,7));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(2,8));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,4));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,5));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,7));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(3,8));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(4,5));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(4,7));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(4,8));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(5,6));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(5,7));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(5,8));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(6,7));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(6,8));
-        pairs_should_be.insert(std::pair<unsigned,unsigned>(7,8));
+        std::set< std::pair<Node<2>*, Node<2>* > > pairs_should_be;
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[0],nodes[1]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[2],nodes[3]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[2],nodes[4]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[2],nodes[5]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[2],nodes[7]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[2],nodes[8]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[3],nodes[4]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[3],nodes[5]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[3],nodes[7]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[3],nodes[8]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[4],nodes[5]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[4],nodes[7]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[4],nodes[8]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[5],nodes[6]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[5],nodes[7]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[5],nodes[8]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[6],nodes[7]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[6],nodes[8]));
+        pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[7],nodes[8]));
         
         TS_ASSERT_EQUALS(pairs_should_be,pairs_returned );
         

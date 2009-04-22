@@ -86,7 +86,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     // two nodes located a distance apart greater than mUseCutoffPoint
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= this->mCutoffPoint)
+        if (distance_between_nodes >= CancerParameters::Instance()->GetMechanicsCutOffLength())
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }

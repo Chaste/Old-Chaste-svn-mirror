@@ -490,7 +490,6 @@ public:
 
             // Test the member data
             TS_ASSERT_EQUALS(p_crypt_projection_force->mUseCutoffPoint, true);
-            TS_ASSERT_DELTA(p_crypt_projection_force->mCutoffPoint, 1.1, 1e-12);
             TS_ASSERT_DELTA(p_crypt_projection_force->GetA(), 1.0, 1e-12);
             TS_ASSERT_DELTA(p_crypt_projection_force->GetB(), 2.0, 1e-12);
 

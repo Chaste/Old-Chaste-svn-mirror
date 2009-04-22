@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "NodeBoxCollection.hpp"
-#include "Debug.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 // NodeBox methods
@@ -82,7 +81,7 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
         {
             mNumBoxesEachDirection(0) = 0;
             double box_min_x = domainSize(0);
-            while (box_min_x <  domainSize(1))
+            while (box_min_x <=  domainSize(1))
             {
                 c_vector<double, 2*DIM> box_coords;
                 box_coords(0) = box_min_x;
@@ -101,11 +100,11 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
         {
             mNumBoxesEachDirection(0) = 0;
             double box_min_x = domainSize(0);
-            while (box_min_x <  domainSize(1))
+            while (box_min_x <=  domainSize(1))
             {
                 double box_min_y = domainSize(2);
                 mNumBoxesEachDirection(1) = 0;
-                while (box_min_y < domainSize(3))
+                while (box_min_y <= domainSize(3))
                 {
                     c_vector<double, 2*DIM> box_coords;
                     box_coords(0) = box_min_x;
@@ -134,14 +133,19 @@ template<unsigned DIM>
 unsigned NodeBoxCollection<DIM>::CalculateContainingBox(Node<DIM>* pNode)
 {
     assert(DIM==2);
-
+    
     double x,y;
     x = pNode->rGetLocation()[0];
     y = pNode->rGetLocation()[1];
-        
+    
+    for (unsigned i=0; i<DIM; i++)
+    {
+        assert(pNode->rGetLocation()[i] >= mDomainSize(2*i));
+        assert(pNode->rGetLocation()[i] <= mDomainSize(2*i+1));
+    }
     unsigned box_x_index = (unsigned) floor((x-mDomainSize(0))/mCutOffLength);
     unsigned box_y_index = (unsigned) floor((y-mDomainSize(2))/mCutOffLength);
-        
+    assert(mNumBoxesEachDirection(1)*box_x_index + box_y_index < mBoxes.size());
     return mNumBoxesEachDirection(1)*box_x_index + box_y_index;
 }
 
@@ -230,17 +234,15 @@ std::set<unsigned> NodeBoxCollection<DIM>::GetLocalBoxes(unsigned boxIndex)
 
 ///\todo -> std::pair<Node<DIM>*,Node<DIM>*> 
 template<unsigned DIM>
-void NodeBoxCollection<DIM>::CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<unsigned, unsigned> >& rNodePairs)
+void NodeBoxCollection<DIM>::CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<Node<DIM>*, Node<DIM>*> >& rNodePairs)
 {
     rNodePairs.clear();
     for(unsigned node_index=0; node_index<rNodes.size(); node_index++)
     {
         // get the box containing this node
         unsigned box_index = CalculateContainingBox(rNodes[node_index]);
-        
         // get the local boxes to this node
         std::set<unsigned> local_boxes_indices = GetLocalBoxes(box_index);
-        
         // loop over all the local boxes
         for(std::set<unsigned>::iterator iter = local_boxes_indices.begin();
             iter != local_boxes_indices.end();
@@ -258,7 +260,7 @@ void NodeBoxCollection<DIM>::CalculateNodePairs(std::vector<Node<DIM>*>& rNodes,
                 // if node_index1 < node_index2 add the pair to the set.
                 if(node_index < index2)
                 {
-                    rNodePairs.insert(std::pair<unsigned,unsigned>(node_index,index2));
+                    rNodePairs.insert(std::pair<Node<DIM>*,Node<DIM>*>(rNodes[node_index],rNodes[index2]));
                 }
             }
         }

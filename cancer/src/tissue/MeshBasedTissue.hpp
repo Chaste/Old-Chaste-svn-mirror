@@ -355,10 +355,13 @@ public:
                              bool outputCellAncestors);
 
     /**
-     * Overridden Update() method.
+     * Overridden Update(bool hasHadBirthsOrDeaths) method.
      * Fixes up the mappings between cells and nodes.
+     * 
+     * @param hasHadBirthsOrDeaths - a bool saying whether tissue has had Births Or Deaths
+     * not needed in this tissue class
      */
-    virtual void Update();
+    virtual void Update(bool hasHadBirthsOrDeaths=true);
 
     /**
      * Overridden GetNode() method.

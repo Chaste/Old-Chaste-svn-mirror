@@ -270,8 +270,10 @@ public:
     /**
      * Remove the Nodes (for cell-centre) or VertexElements (for cell-vertex) which
      * have been marked as deleted and update the correspondence with TissueCells.
+     * 
+     * @param hasHadBirthsOrDeaths - a bool saying whether tissue has had Births Or Deaths
      */
-    virtual void Update()=0;
+    virtual void Update(bool hasHadBirthsOrDeaths=true)=0;
 
     /**
      * Find out how many cells of each mutation state there are

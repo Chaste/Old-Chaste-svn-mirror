@@ -121,7 +121,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     // two nodes located a distance apart greater than mUseCutoffPoint
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= this->mCutoffPoint)
+        if (distance_between_nodes >= CancerParameters::Instance()->GetMechanicsCutOffLength())
         {
             // Return zero (2D projected) force
             return zero_vector<double>(2);

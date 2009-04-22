@@ -507,6 +507,7 @@ void TissueSimulation<DIM>::Solve()
          * method at each time step. Otherwise, we only need to call Update()
          * after there has been any cell birth or cell death.
          */
+        bool has_had_births_or_deaths = ( (births_this_step>0) || (deaths_this_step>0) );
         if (mrTissue.HasMesh())
         {
             //This assertion is not necessarily true
@@ -517,7 +518,7 @@ void TissueSimulation<DIM>::Solve()
         else
         {
             mUpdateTissue = false;
-            if ( (births_this_step>0) || (deaths_this_step>0) )
+            if ( has_had_births_or_deaths )
             {
                 mUpdateTissue = true;
             }
@@ -528,7 +529,7 @@ void TissueSimulation<DIM>::Solve()
         if (mUpdateTissue)
         {
             LOG(1, "\tUpdating tissue...");
-            mrTissue.Update();
+            mrTissue.Update(has_had_births_or_deaths);
             LOG(1, "\tdone.\n");
         }
         CancerEventHandler::EndEvent(CancerEventHandler::UPDATE);
@@ -630,7 +631,9 @@ void TissueSimulation<DIM>::AfterSolve()
     LOG(1, "\tNum births = " << mNumBirths << "\n");
     CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
 
+    
     // Carry out a final tissue update if necessary
+    bool has_had_births_or_deaths = ((mNumBirths>0) || (mNumDeaths>0));
     if (mrTissue.HasMesh())
     {
         //This assertion is not necessarily true
@@ -641,7 +644,7 @@ void TissueSimulation<DIM>::AfterSolve()
     else
     {
         mUpdateTissue = false;
-        if ( (mNumBirths>0) || (mNumDeaths>0) )
+        if ( has_had_births_or_deaths )
         {
             mUpdateTissue = true;
         }
@@ -650,7 +653,7 @@ void TissueSimulation<DIM>::AfterSolve()
     if (mUpdateTissue)
     {
         LOG(1, "\tUpdating tissue...");
-        mrTissue.Update();
+        mrTissue.Update(has_had_births_or_deaths);
         LOG(1, "\tdone.\n");
     }
 }

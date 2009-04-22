@@ -245,7 +245,7 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::Update()
+void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
 {
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);

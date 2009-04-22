@@ -58,6 +58,7 @@ CancerParameters::CancerParameters()
  * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
  * mSpringStiffness has units of N/m  = kg s^-2
+ * mMechanicsCutOffLength has units of cell size at equilibrium rest length
  * mDampingConstantNormal has units of kg s^-1
  * mDampingConstantMutant has units of kg s^-1
  * mBetaCatSpringScaler has no units
@@ -97,6 +98,7 @@ void CancerParameters::Reset()
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
     mSpringStiffness = 15.0;        // this is mu in Meineke
+    mMechanicsCutOffLength = 1.5;             
     mDampingConstantNormal = 1.0;   // this is nu in Meineke
     mDampingConstantMutant = 2.0;
     mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin
@@ -179,6 +181,10 @@ double CancerParameters::GetCryptWidth()
 double CancerParameters::GetSpringStiffness()
 {
     return mSpringStiffness;
+}
+double CancerParameters::GetMechanicsCutOffLength()
+{
+    return mMechanicsCutOffLength;
 }
 double CancerParameters::GetDampingConstantNormal()
 {
@@ -335,6 +341,12 @@ void CancerParameters::SetSpringStiffness(double springStiffness)
     assert(springStiffness > 0.0);
     mSpringStiffness = springStiffness;
 }
+void CancerParameters::SetMechanicsCutOffLength(double mechanicsCutOffLength)
+{
+    assert(mechanicsCutOffLength > 0.0);
+    mMechanicsCutOffLength = mechanicsCutOffLength;
+}
+
 void CancerParameters::SetDampingConstantNormal(double dampingConstantNormal)
 {
     assert(dampingConstantNormal > 0.0);

@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "Debug.hpp"
 
 
 class TestNodeBasedTissue : public AbstractCancerTestSuite
@@ -178,10 +179,20 @@ public:
         double birth_time = -4.0;
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);
-
-        TS_ASSERT_THROWS_NOTHING(NodeBasedTissue<2> tissue(nodes, cells));
+        
+        NodeBasedTissue<2> tissue(nodes, cells);
+        // Set Up boxes
+        c_vector<double, 2*2> domain_size;
+        domain_size(0) = -1.0;
+        domain_size(1) = 2.0;
+        domain_size(2) = -1.0;
+        domain_size(3) = 2.0;
+        tissue.SplitUpIntoBoxes(0.5, domain_size);
+        
+        std::set< std::pair<Node<2>*, Node<2>* > > node_pairs = tissue.GetNodePairs();
+        node_pairs.clear();
     }
-
+    
     void TestAddCell()
     {
         // Create two nodes
@@ -334,7 +345,14 @@ public:
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
-
+        
+        c_vector<double, 2*2> domain_size;
+        domain_size(0) = 0.0;
+        domain_size(1) = 1.0;
+        domain_size(2) = 0.0;
+        domain_size(3) = 1.0;
+        node_based_tissue.SplitUpIntoBoxes(0.2, domain_size);
+        
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_tissue.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), 81u);
@@ -342,8 +360,8 @@ public:
         p_simulation_time->IncrementTimeOneStep();
 
         unsigned num_removed = node_based_tissue.RemoveDeadCells();
-        node_based_tissue.Update();
-
+        node_based_tissue.Update(true);
+        
         // Test that one cell has been removed
         TS_ASSERT_EQUALS(num_removed, 1u);
         TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), 80u);

@@ -44,8 +44,6 @@ private:
     c_vector<double, 2*DIM> mMinAndMaxValues;
     /** Nodes contained in this box */
     std::set< Node<DIM>* > mNodesContained;
-    
-    
         
 public:
     /** Constructor just takes in the extremal values of the box */
@@ -114,15 +112,23 @@ private:
 
     
 public:
-    /** Constructor takes in the width of each box (cutOffLength) and the size of the domain, in the form
-     *  (xmin, xmax, ymin, ymax) (etc)
+    /** 
+     * Constructor 
+     * 
+     * @param cutOffLength  the width of each box (cutOffLength) 
+     * @param domainSize  the size of the domain, in the form (xmin, xmax, ymin, ymax) (etc)
      */ 
     NodeBoxCollection(double cutOffLength, c_vector<double, 2*DIM> domainSize);
 
     /** Calculate which box this node is contained in */
     unsigned CalculateContainingBox(Node<DIM>* pNode);
 
-    /** Get a box */
+    /** 
+     * Get a box 
+     *
+     * @param boxIndex  the index of the box to return
+     * @return a NodeBox 
+     */
     NodeBox<DIM>& rGetBox(unsigned boxIndex);
 
     /** Get the number of boxes */
@@ -143,7 +149,7 @@ public:
      *  @rNodes All the nodes to be consider
      *  @rNodePairs The return value, a set of pairs of nodes
      */
-    void CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<unsigned, unsigned> >& rNodePairs);
+    void CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<Node<DIM>*, Node<DIM>*> >& rNodePairs);
 };
     
 

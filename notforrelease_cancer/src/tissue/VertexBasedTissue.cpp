@@ -278,7 +278,7 @@ bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell& rCell)
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::Update()
+void VertexBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
 {
     VertexElementMap element_map(mrMesh.GetNumAllElements());
 

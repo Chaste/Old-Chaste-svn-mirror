@@ -50,6 +50,9 @@ class AbstractForce
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        CancerParameters* p_params = CancerParameters::Instance();
+        archive & *p_params;
+        archive & p_params;
     }
 
 public :

@@ -267,8 +267,11 @@ public:
      * Remove the VertexElements which have been marked as deleted, perform
      * any cell rearrangements if required, and update the correspondence
      * with TissueCells.
+     * 
+     * @param hasHadBirthsOrDeaths - a bool saying whether tissue has had Births Or Deaths
+     * not needed in this tissue class
      */
-    void Update();
+    void Update(bool hasHadBirthsOrDeaths=true);
 
     /**
      * Get the target area of a given cell. This grows linearly from

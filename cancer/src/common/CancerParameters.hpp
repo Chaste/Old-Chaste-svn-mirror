@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/access.hpp>
 #include <cassert>
+#include "Debug.hpp"
 
 /**
  * A special singleton class which holds all of the parameters used in the cancer simulations
@@ -100,6 +101,10 @@ public:
      * @return mSpringStiffness
      */
     double GetSpringStiffness();
+    /**
+     * @return mMechanicsCutOffLength
+     */
+    double GetMechanicsCutOffLength();
     /**
      * @return mDampingConstantNormal
      */
@@ -241,6 +246,10 @@ public:
      * Set mSpringStiffness.
      */
     void SetSpringStiffness(double);
+    /**
+     * Set mMechanicsCutOffLength.
+     */
+    void SetMechanicsCutOffLength(double);
     /**
      * Set mDampingConstantNormal.
      */
@@ -432,6 +441,12 @@ private:
      * Represented by the parameter mu in the model by Meineke et al (2001).
      */
     double mSpringStiffness;
+    
+    /**
+     * Mechanics cut off length.
+     * Used in NodeBasedTissue.
+     */
+    double mMechanicsCutOffLength;
 
     /**
      * Damping constant for normal cells.
@@ -592,6 +607,7 @@ private:
         archive & mCryptLength;
         archive & mCryptWidth;
         archive & mSpringStiffness;
+        archive & mMechanicsCutOffLength;
         archive & mDampingConstantNormal;
         archive & mDampingConstantMutant;
         archive & mBetaCatSpringScaler;

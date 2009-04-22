@@ -56,8 +56,16 @@ private :
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
         archive & mUseCutoffPoint;
         archive & mCutoffPoint;
+        CancerParameters::Instance()->SetMechanicsCutOffLength(mCutoffPoint);
     }
 
+protected:
+    /** Whether to have zero force if the cells are far enough apart */
+    bool mUseCutoffPoint;
+    
+    /** max distance before connections are ignored. */
+    double mCutoffPoint;
+    
 public :
 
     /**
@@ -65,11 +73,6 @@ public :
      */
     AbstractTwoBodyInteractionForce();
 
-    /** Whether to have zero force if the cells are far enough apart */
-    bool mUseCutoffPoint;
-
-    /** Have zero force if the cells are this distance apart (and mUseCutoffPoint==true) */
-    double mCutoffPoint;
 
     /**
      * Use a cutoff point, ie specify zero force if two cells are greater
@@ -82,7 +85,7 @@ public :
     /**
      * Get the cutoff point.
      *
-     * @return mCutoffPoint
+     * @return CutoffPoint
      */
     double GetCutoffPoint();
 
@@ -117,6 +120,7 @@ AbstractTwoBodyInteractionForce<DIM>::AbstractTwoBodyInteractionForce()
 {
     mUseCutoffPoint = false;
     mCutoffPoint = 1e10;
+    CancerParameters::Instance()->SetMechanicsCutOffLength(mCutoffPoint);
 }
 
 
@@ -126,12 +130,13 @@ void AbstractTwoBodyInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
     assert(cutoffPoint > 0.0);
     mUseCutoffPoint = true;
     mCutoffPoint = cutoffPoint;
+    CancerParameters::Instance()->SetMechanicsCutOffLength(cutoffPoint);
 }
 
 template<unsigned DIM>
 double AbstractTwoBodyInteractionForce<DIM>::GetCutoffPoint()
 {
-    return mCutoffPoint;
+    return CancerParameters::Instance()->GetMechanicsCutOffLength();
 }
 
 template<unsigned DIM>

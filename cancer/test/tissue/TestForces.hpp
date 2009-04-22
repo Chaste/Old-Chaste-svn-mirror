@@ -631,12 +631,12 @@ public:
 
             // Test the member data
             TS_ASSERT_EQUALS(p_linear_force->mUseCutoffPoint,true);
+            TS_ASSERT_EQUALS(CancerParameters::Instance()->GetMechanicsCutOffLength(), 1.1);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseMutantSprings, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseBCatSprings, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseApoptoticSprings, true);
-            TS_ASSERT_DELTA(p_linear_force->mCutoffPoint,1.1,1e-12);
             TS_ASSERT_DELTA(p_linear_force->mMutantMutantMultiplier, 0.2, 1e-12);
             TS_ASSERT_DELTA(p_linear_force->mNormalMutantMultiplier, 0.3, 1e-12);
 

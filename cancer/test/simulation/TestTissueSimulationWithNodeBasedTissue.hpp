@@ -131,7 +131,58 @@ public:
     //          with 10000 cells, and t_end=0.05, (fixed cell cycle) takes 6.5 mins
     //          => 2 hours real time to do 1hr simulation time
     //   run commented test before to see how meineke does with 10000 cells
+    void TestSimulationWithNodeBoxes() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
+        // Set up cells, one for each node. Get each a random birth time.
+        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+
+        // Create a node based tissue
+        NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
+        
+        // Create a mechanics system
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&linear_force);
+        
+        // Set Up boxes
+//        c_vector<double, 2*2> domain_size;
+//        domain_size(0) = 0.0;
+//        domain_size(1) = 6.0;
+//        domain_size(2) = 0.0;
+//        domain_size(3) = 6.0;
+//        node_based_tissue.SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domain_size);
+        
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(node_based_tissue, force_collection);
+        simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissue");
+        simulator.SetEndTime(10.0);
+
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+        // Check that nothing's gone badly wrong by testing that nodes aren't too close together
+        double min_distance_between_cells = 1.0;
+
+        for (unsigned i=0; i<simulator.rGetTissue().GetNumNodes(); i++)
+        {
+            for (unsigned j=i+1; j<simulator.rGetTissue().GetNumNodes(); j++)
+            {
+                double distance = norm_2(simulator.rGetTissue().GetNode(i)->rGetLocation()-simulator.rGetTissue().GetNode(j)->rGetLocation());
+                if (distance < min_distance_between_cells)
+                {
+                    min_distance_between_cells = distance;
+                }
+            }
+        }
+
+        TS_ASSERT(min_distance_between_cells > 1e-3);
+    }
 //    void TestSimpleMonolayer2() throw (Exception)
 //    {
 //        // Create a simple mesh
@@ -267,7 +318,6 @@ public:
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissueSaveAndLoad");
         simulator.SetEndTime(0.1);
-
         // Solve
         simulator.Solve();
 
@@ -282,7 +332,6 @@ public:
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 1.0
         TissueSimulation<2>* p_simulator1;
-
         p_simulator1 = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 0.1);
         p_simulator1->SetEndTime(1.0);
         p_simulator1->Solve();
@@ -290,13 +339,11 @@ public:
         // Save, then reload and run from 1.0 to 2.5
 
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(p_simulator1);
-
         TissueSimulation<2>* p_simulator2
             = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 1.0);
 
         p_simulator2->SetEndTime(2.5);
         p_simulator2->Solve();
-
         // These results are from time 2.5 in TestStandardResultForArchivingTestBelow()
         std::vector<double> node_3_location = p_simulator2->GetNodeLocation(3);
         TS_ASSERT_DELTA(node_3_location[0], 2.9415, 1e-4);
