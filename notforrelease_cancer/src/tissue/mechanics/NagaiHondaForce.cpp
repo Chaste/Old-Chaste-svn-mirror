@@ -45,6 +45,8 @@ template<unsigned DIM>
 void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                        AbstractTissue<DIM>& rTissue)
 {
+    //PRINT_VARIABLE(SimulationTime::Instance()->GetTime());
+    
     // Helper instance of CancerParameters
     CancerParameters* p_params = CancerParameters::Instance();
 
@@ -54,7 +56,7 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
     // Iterate over vertices in the tissue
     for (unsigned node_index=0; node_index<p_tissue->GetNumNodes(); node_index++)
     {
-        //PRINT_VARIABLE(SimulationTime::Instance()->GetTime());
+        //PRINT_VARIABLES(node_index,SimulationTime::Instance()->GetTime());
         // Compute the force on this node
 
         /*
@@ -98,7 +100,8 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
 
             // Get the target area of the cell
             double cell_target_area = p_tissue->GetTargetAreaOfCell(p_tissue->rGetCellUsingLocationIndex(element_index));
-            //PRINT_VARIABLE(cell_target_area);
+            //PRINT_VARIABLES(element_area, cell_target_area);
+            
             // Add the force contribution from this cell's deformation energy (note the minus sign)
             deformation_contribution -= 2*p_params->GetDeformationEnergyParameter()*(element_area - cell_target_area)*element_area_gradient;
 

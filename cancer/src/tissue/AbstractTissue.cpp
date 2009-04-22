@@ -527,6 +527,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
     }
 
     // Write node data to file
+    /// \todo - this should be using a node iterator from the mesh instead of this loop. If we did this we would need to output node index along with position.
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
     {
         // Write node data to file
@@ -536,7 +537,15 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
 
             for (unsigned i=0; i<DIM; i++)
             {
-                *mpVizNodesFile << position[i] << " ";
+                /// \todo Vertex meshes output nans here if the node does not exist.
+                if (std::isnan(position[i]))
+                {
+                    *mpVizNodesFile << 0 << " ";
+                }
+                else
+                {
+                    *mpVizNodesFile << position[i] << " ";
+                }
             }
         }
     }

@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A vertex-based mesh class, for use in vertex-based tissue simulations.
+ * 
+ * \todo - Make this inherit from AbstractMesh, please do this, please.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMesh
@@ -200,8 +202,7 @@ public:
                std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements,
                double cellRearrangementThreshold=0.01,
                double edgeDivisionThreshold=1.5,
-               double t2Threshold=0.01
-               );
+               double t2Threshold=0.001);
 
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.

@@ -246,10 +246,10 @@ public:
         // vertex simulations, so set the apoptosis time to something large
                 
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
+        VertexMesh<2,2> mesh(5, 5, 0.1, 2.0);
 
         //mesh.SetCellRearrangementThreshold(0.1);
-        //mesh.SetT2Threshold(0.1);
+        //mesh.SetT2Threshold(0.001);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index
@@ -283,7 +283,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(1.5);
 
         // Create a cell killer and pass in to simulation (note we must account for element index changes following each kill)
         TargetedCellKiller cell0_killer(&tissue, 0);    // element on the bottom boundary
@@ -322,7 +322,7 @@ public:
         std::vector<VertexElement<2,2>*> elements;
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
-        double cell_swap_threshold = 0.01;
+        double cell_swap_threshold = 0.1;
         double edge_division_threshold = 2.0;
         VertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
 
@@ -365,7 +365,9 @@ public:
         
         simulator.SetEndTime(4.0);
         simulator.Solve();
-
+        
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 0.0065, 1e-4);
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 0.3701, 1e-3);
     }
 
 

@@ -898,6 +898,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
             recheck_mesh = false;
 
             // Loop over elements
+            /// \todo USE AN ITERATOR to avoid deleted elements!! See #987 for this.
             for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
             {
                 if (!recheck_mesh)
@@ -1464,12 +1465,20 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2SwapIfNecessary(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
+    unsigned reindex_required = false;
     if(pElement->GetNumNodes() == 3u)
     {
         if(GetAreaOfElement(pElement->GetIndex()) < GetT2Threshold())
         {
             PerformT2Swap(pElement);
+            reindex_required = true;
         }
+    }
+    
+    if (reindex_required)
+    {
+        /// \todo 
+        //  this->ReIndex(); 
     }
 }   
 
