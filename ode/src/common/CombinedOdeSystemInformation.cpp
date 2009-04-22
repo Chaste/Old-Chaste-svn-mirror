@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cassert>
 
-CombinedOdeSystemInformation* CombinedOdeSystemInformation::Instance(const std::vector<AbstractOdeSystem*>& rSubsystems)
+boost::shared_ptr<CombinedOdeSystemInformation> CombinedOdeSystemInformation::Instance(const std::vector<AbstractOdeSystem*>& rSubsystems)
 {
     // Get the information for the subsystems
     std::vector<boost::shared_ptr<const AbstractOdeSystemInformation> > info_vec;
@@ -41,7 +41,7 @@ CombinedOdeSystemInformation* CombinedOdeSystemInformation::Instance(const std::
         info_vec.push_back(rSubsystems[i]->GetSystemInformation());
     }
     
-    CombinedOdeSystemInformation* p_inst = NULL;
+    boost::shared_ptr<CombinedOdeSystemInformation> p_inst;
     
     // Search to see if we have an information object for this sequence of
     // subsystems already.
@@ -67,9 +67,9 @@ CombinedOdeSystemInformation* CombinedOdeSystemInformation::Instance(const std::
     }
     
     // Create a new object if needed
-    if (p_inst == NULL)
+    if (!p_inst)
     {
-        p_inst = new CombinedOdeSystemInformation(info_vec);
+        p_inst.reset(new CombinedOdeSystemInformation(info_vec));
         struct InstancePointers inst;
         inst.subsystemInformation = info_vec;
         inst.pInfoInstance = p_inst;
@@ -112,10 +112,13 @@ CombinedOdeSystemInformation::CombinedOdeSystemInformation(const std::vector<boo
     mInitialised = true;
 }
 
+#define COVERAGE_IGNORE
 void CombinedOdeSystemInformation::Initialise()
 {
     // does nothing; work done in constructor
+    // but we need the method because it is pure in our base class
 }
+#undef COVERAGE_IGNORE
 
 /**
  * Definition of the instance static member.

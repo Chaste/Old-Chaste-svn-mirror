@@ -50,7 +50,7 @@ private:
     struct InstancePointers
     {
         /** The 'singleton' instance. */
-        CombinedOdeSystemInformation* pInfoInstance;
+        boost::shared_ptr<CombinedOdeSystemInformation> pInfoInstance;
         /** The subsystem information objects that contribute to this 'singleton' instance. */
         std::vector<boost::shared_ptr<const AbstractOdeSystemInformation> > subsystemInformation;
     };
@@ -67,7 +67,7 @@ protected:
      *
      * Not user accessible - to obtain an instance of this class use the Instance method.
      * 
-     * @param subsystems  the ODE systems used to construct the system we are providing information about.
+     * @param rSubsystemInfo  the ODE systems used to construct the system we are providing information about.
      */
     CombinedOdeSystemInformation(const std::vector<boost::shared_ptr<const AbstractOdeSystemInformation> >& rSubsystemInfo);
 
@@ -92,9 +92,9 @@ public:
     /**
      * Return a pointer to the singleton instance, creating it if necessary.
      * 
-     * @param subsystems  the ODE systems used to construct the system we are providing information about.
+     * @param rSubsystems  the ODE systems used to construct the system we are providing information about.
      */
-    static CombinedOdeSystemInformation* Instance(const std::vector<AbstractOdeSystem*>& rSubsystems);
+    static boost::shared_ptr<CombinedOdeSystemInformation> Instance(const std::vector<AbstractOdeSystem*>& rSubsystems);
 
 };
 

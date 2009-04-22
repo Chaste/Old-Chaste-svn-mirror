@@ -40,7 +40,7 @@ CombinedOdeSystem::CombinedOdeSystem(std::vector<AbstractOdeSystem*> odeSystems)
     {
         mNumberOfStateVariables += odeSystems[i]->GetNumberOfStateVariables();
     }
-    mpSystemInfo.reset(CombinedOdeSystemInformation::Instance(odeSystems));
+    mpSystemInfo = CombinedOdeSystemInformation::Instance(odeSystems);
     SetStateVariables(GetInitialConditions());
     
     // Set up working memory

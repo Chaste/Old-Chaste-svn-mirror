@@ -111,8 +111,8 @@ public:
     void TestSimpleCombinedOdeSystem() throw (Exception)
     {
         // Create two ODE systems
-        SimpleOde1 ode_for_y;
-        SimpleOde2 ode_for_x;
+        SimpleOde1 ode_for_y; // dy/dt = x
+        SimpleOde2 ode_for_x; // dx/dt = -y
 
         std::vector<AbstractOdeSystem*> ode_systems;
         ode_systems.push_back(&ode_for_y);
@@ -162,6 +162,50 @@ public:
         double global_error = 0.5*(exp(2)-1)*h;
         TS_ASSERT_DELTA(solutions.rGetSolutions().back()[0], sin(2), global_error);
         TS_ASSERT_DELTA(solutions.rGetSolutions().back()[1], cos(2), global_error);
+        
+        // Check that if we create the same combination, we get the same information object
+        boost::shared_ptr<const AbstractOdeSystemInformation> info1 = combined_ode_system.GetSystemInformation();
+        CombinedOdeSystem combined_ode_system2(ode_systems);
+        boost::shared_ptr<const AbstractOdeSystemInformation> info2 = combined_ode_system2.GetSystemInformation();
+        TS_ASSERT_EQUALS(info1, info2);
+    }
+    
+    void TestSimpleSystemWithOrderSwapped()
+    {
+        // The solution should be the same, but we'll have to construct a new CombinedOdeSystemInformation
+        // object, because the order of subsystems has changed.
+        
+        SimpleOde1 ode_for_y; // dy/dt = x
+        SimpleOde2 ode_for_x; // dx/dt = -y
+
+        std::vector<AbstractOdeSystem*> ode_systems;
+        ode_systems.push_back(&ode_for_x);
+        ode_systems.push_back(&ode_for_y);
+
+        // Create combined ODE system
+        CombinedOdeSystem combined_ode_system(ode_systems);
+
+        // Tell the combined ODE system which state variables in the first ODE system
+        // correspond to which parameters in the second ODE system...
+        std::map<unsigned, unsigned> variable_parameter_map;
+        variable_parameter_map[0] = 0;
+
+        combined_ode_system.Configure(variable_parameter_map, &ode_for_y, &ode_for_x);
+
+        // ...and vice versa (we can re-use the map in this case)
+        combined_ode_system.Configure(variable_parameter_map, &ode_for_x, &ode_for_y);
+
+        // Test solving the combined system.
+        // This is dy/dt = x, dx/dt = -y, y(0) = 0, x(0) = 1.
+        // The analytic solution is y = sin(t), x = cos(t).
+        EulerIvpOdeSolver solver;
+        OdeSolution solutions;
+        double h = 0.01;
+        std::vector<double> inits = combined_ode_system.GetInitialConditions(); 
+        solutions = solver.Solve(&combined_ode_system, inits, 0.0, 2.0, h, h);
+        double global_error = 0.5*(exp(2)-1)*h;
+        TS_ASSERT_DELTA(solutions.rGetSolutions().back()[1], sin(2), global_error);
+        TS_ASSERT_DELTA(solutions.rGetSolutions().back()[0], cos(2), global_error);
     }
     
 };

@@ -835,8 +835,8 @@ class IntelP4(Intel):
     def __init__(self, *args, **kwargs):
         Intel.__init__(self, *args, **kwargs)
         # -xN = P4 + SSE2 while -xW = P4 (suitable for AMD CPUs)
-        self._cc_flags.extend(['-xW', '-O3', '-ip']) # Used to have '-ipo0' too, but caused build failure
-        #self._link_flags.extend(['-ipo0'])
+        self._cc_flags.extend(['-xW', '-O3', '-ip', '-ipo0'])
+        self._link_flags.extend(['-ipo0'])
         self.build_dir = 'intel_p4'
 
 class IntelProduction(IntelP4):
