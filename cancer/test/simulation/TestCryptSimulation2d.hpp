@@ -910,8 +910,11 @@ public:
     }
 
 
-void TestVoronoiWriter() throw (Exception)
+void TestCellIdOutput() throw (Exception)
     {             
+        // Resetting the Maximum cell Id to zero (to account for previous tests)
+        TissueCell::ResetMaxCellId();
+        
         // Create mesh
         unsigned cells_across = 6;
         unsigned cells_up = 8;
@@ -944,27 +947,19 @@ void TestVoronoiWriter() throw (Exception)
 
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
-        simulator.SetOutputDirectory("Crypt2DCylindricalCellsLogged");
-        simulator.SetEndTime(0.6);
+        simulator.SetOutputDirectory("Crypt2DCylindricalCellIdLogged");
+        simulator.SetEndTime(2.0);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
        
         //Cover writing logged cell
-        crypt.SetWriteLoggedCellData(true);
-
-        // Set the first cell to be logged
-        crypt.Begin()->SetLogged();
+        crypt.SetWriteCellIdData(true);
+        
 
         simulator.Solve();
-
-        // Tidy up
-        WntConcentration::Destroy();
     }
-
-
-
 
     // This is a strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though... [comment no longer valid?]

@@ -77,6 +77,8 @@ private:
         archive & mIsDead;
         archive & mIsLogged;
         archive & mAncestor;
+        archive & mCellId;
+		archive & mMaxCellId;
     }
 
 protected:
@@ -94,6 +96,13 @@ protected:
 
     /** An index which is inherited by all children of this cell */
     unsigned mAncestor;
+
+    /** An identifier which is unique to this cell */
+    unsigned mCellId;
+    
+
+    /** maximum cell identifier */
+    static unsigned mMaxCellId;
 
     /** When the cell will/did die */
     double mDeathTime;
@@ -269,6 +278,24 @@ public:
      * used for monoclonality experiments.
      */
     unsigned GetAncestor() const;
+
+    /**
+     * Give the TissueCell a unique identifier.
+     * @param CellId
+     */
+    void SetCellId(unsigned CellId);
+
+    /**
+     * @return The cell identifier.
+     */
+    unsigned GetCellId() const;
+
+    /**
+     * Reset the current max Id.
+     */
+    static void ResetMaxCellId();
+    
+    
 };
 
 

@@ -92,7 +92,7 @@ protected:
     out_stream mpVoronoiFile;
 
     /** Results file for logged cell data. */
-    out_stream mpLoggedCellFile;
+    out_stream mpCellIdFile;
 
     /** Results file for tissue area data. */
     out_stream mpTissueAreasFile;
@@ -214,7 +214,7 @@ public:
      *
      * @param followLoggedCell  whether to follow the logged cell 
      */
-    void SetWriteLoggedCellData(bool followLoggedCell);
+    void SetWriteCellIdData(bool followLoggedCell);
 
     /**
      * Overridden AddNode() method.
@@ -390,7 +390,7 @@ public:
     /**
      * Write logged cell data to mpLoggedCellFile.
      */
-    void WriteLoggedCellDataToFile();
+    void WriteCellIdDataToFile();
 
     /**
      * Write current results to mpTissueAreasFile.

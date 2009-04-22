@@ -367,7 +367,7 @@ void MeshBasedTissue<DIM>::SetWriteVoronoiData(bool writeVoronoiData)
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetWriteLoggedCellData(bool followLoggedCell)
+void MeshBasedTissue<DIM>::SetWriteCellIdData(bool followLoggedCell)
 {
     assert(DIM == 2);
     mFollowLoggedCell = followLoggedCell;
@@ -437,7 +437,7 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
     }
     if (mFollowLoggedCell)
     {
-        mpLoggedCellFile = output_file_handler.OpenOutputFile("loggedcell.dat");
+        mpCellIdFile = output_file_handler.OpenOutputFile("loggedcell.dat");
     }
     if (mWriteTissueAreas)
     {
@@ -465,7 +465,7 @@ void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
     }
     if (mFollowLoggedCell)
     {
-        mpLoggedCellFile->close();
+        mpCellIdFile->close();
     }
     if (mWriteTissueAreas)
     {
@@ -520,7 +520,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         // Write logged cell data if required
         if (mFollowLoggedCell)
         {
-            WriteLoggedCellDataToFile();
+            WriteCellIdDataToFile();
         }
       
         if (mpVoronoiTessellation!=NULL)
@@ -572,33 +572,38 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::WriteLoggedCellDataToFile()
+void MeshBasedTissue<DIM>::WriteCellIdDataToFile()
 {     
     // Write time to file
-    *mpLoggedCellFile << SimulationTime::Instance()->GetTime() << " ";
+    *mpCellIdFile << SimulationTime::Instance()->GetTime() << " ";
       
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
          ++cell_iter)
     {
-        // if a cell is logged  
-        if (cell_iter->IsLogged())
+        unsigned cell_id = cell_iter ->GetCellId();
+        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+        
+        if (DIM==1)
         {
-            // \todo this should work in more than just 2D
-            unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+            double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
+            *mpCellIdFile << cell_id << " " << node_index << " " << x << " ";
+        }
+        if (DIM==2)
+        {
             double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
             double y = this->GetLocationOfCellCentre(&(*cell_iter))[1];
-
-            //double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
-            //double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);
-
-            *mpLoggedCellFile << node_index << " " << x << " " << y << " "; // << cell_area << " " << cell_perimeter << " ";
-            
-            break;
-            
+            *mpCellIdFile << cell_id << " " << node_index << " " << x << " " << y << " ";
+        }
+        if (DIM==3)
+        {
+            double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
+            double y = this->GetLocationOfCellCentre(&(*cell_iter))[1];
+            double z = this->GetLocationOfCellCentre(&(*cell_iter))[2];
+            *mpCellIdFile << cell_id << " " << node_index << " " << x << " " << y << " " << z << " ";
         }
     }
-    *mpLoggedCellFile << "\n";
+    *mpCellIdFile << "\n";
 }
 
 template<unsigned DIM>

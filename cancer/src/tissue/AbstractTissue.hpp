@@ -59,7 +59,7 @@ protected:
 
     /** Map cells to location (node or VertexElement) indices */
     std::map<TissueCell*, unsigned> mCellLocationMap;
-
+        
     /** Current cell mutation state counts */
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> mCellMutationStateCount;
 

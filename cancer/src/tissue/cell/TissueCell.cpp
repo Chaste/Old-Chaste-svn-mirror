@@ -27,6 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TissueCell.hpp"
 
+unsigned TissueCell::mMaxCellId = 0;
+
 
 TissueCell::TissueCell(CellType cellType,
                        CellMutationState mutationState,
@@ -53,6 +55,9 @@ TissueCell::TissueCell(CellType cellType,
     }
 
     mpCellCycleModel->SetCell(this);
+    
+    // Set Cell identifier
+    mCellId = ++ mMaxCellId -1;
 }
 
 
@@ -69,6 +74,7 @@ void TissueCell::CommonCopy(const TissueCell &otherCell)
     mDeathTime = otherCell.mDeathTime;
     mIsLogged = otherCell.mIsLogged;
     mAncestor = otherCell.mAncestor;
+    mCellId = otherCell.mCellId;
    
     // Copy cell cycle model
     // Create a new object of the correct child type and copy its state
@@ -227,12 +233,25 @@ void TissueCell::SetAncestor(unsigned ancestorIndex)
     mAncestor = ancestorIndex;
 }
 
-
 unsigned TissueCell::GetAncestor() const
 {
     return mAncestor;
 }
 
+void TissueCell::SetCellId(unsigned cellId)
+{
+    mCellId = cellId;
+}
+
+unsigned TissueCell::GetCellId() const
+{
+    return mCellId;
+}
+
+void TissueCell::ResetMaxCellId()
+{
+    mMaxCellId = 0;
+}
 
 bool TissueCell::ReadyToDivide()
 {

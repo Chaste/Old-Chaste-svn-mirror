@@ -54,7 +54,7 @@ protected:
     }
 
     /**
-     * Overridden setUp() method. Clears up singleton classes.
+     * Overridden teardown() method. Clears up singleton classes.
      */
     void tearDown()
     {
