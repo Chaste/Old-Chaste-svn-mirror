@@ -98,6 +98,8 @@ public:
      */
     void TestPostSolve() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         // Change the hypoxic concentration, just for this test
         CancerParameters::Instance()->SetHepaOneCellHypoxicConcentration(0.9);
         CancerParameters::Instance()->SetHepaOneCellQuiescentConcentration(0.9);
@@ -193,6 +195,8 @@ public:
 
     void TestWithOxygen() throw(Exception)
     {
+        EXIT_IF_PARALLEL; //defined in PetscTools
+
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
@@ -265,6 +269,8 @@ public:
      */
     void TestVisualizerOutput() throw (Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         // Work out where one of the previous tests wrote its files
         OutputFileHandler handler("TissueSimulationWithOxygen", false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
@@ -289,6 +295,8 @@ public:
 
     void TestWithPointwiseNutrientSink() throw(Exception)
     {
+        EXIT_IF_PARALLEL; //defined in PetscTools
+
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
@@ -371,6 +379,8 @@ public:
 
     void TestSpheroidStatistics() throw (Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
@@ -473,6 +483,8 @@ public:
 
     void TestCoarseNutrientMesh() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
@@ -625,6 +637,8 @@ public:
 
     void TestCoarseNutrientMeshBoundaryConditionImplementation() throw(Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Create a cigar-shaped mesh
@@ -698,6 +712,8 @@ public:
 
     void TestArchivingWithSimplePde() throw (Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         CancerParameters::Instance()->SetHepaOneParameters();
 
         // Set up mesh
@@ -886,6 +902,8 @@ public:
 
     void Test3DTissueSimulationWithNutrients() throw(Exception)
     {
+        EXIT_IF_PARALLEL; //defined in PetscTools
+
         CancerParameters::Instance()->SetHepaOneParameters();
 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");

@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef ABSTRACTCANCERTESTSUITE_HPP_
 #define ABSTRACTCANCERTESTSUITE_HPP_
-
+#define CXXTEST_ABORT_TEST_ON_FAIL
 #include "SimulationTime.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "CancerParameters.hpp"
@@ -46,7 +46,8 @@ protected:
      */
     void setUp()
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
+        //The following won't work.  It returns from this setup method, but not the test suite
+        //EXIT_IF_PARALLEL; // defined in PetscTools
 
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
