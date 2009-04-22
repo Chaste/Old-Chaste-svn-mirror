@@ -816,7 +816,7 @@ public:
         // Create mesh
         unsigned cells_across = 2;
         unsigned cells_up = 2;
-        double crypt_width = 0.5;
+        double crypt_width = 0.5; // Make this bigger if want to visualise output
         unsigned thickness_of_ghost_layer = 1;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false, crypt_width/cells_across);
@@ -948,7 +948,7 @@ void TestCellIdOutput() throw (Exception)
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DCylindricalCellIdLogged");
-        simulator.SetEndTime(2.0);
+        simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
@@ -964,7 +964,7 @@ void TestCellIdOutput() throw (Exception)
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/loggedcell.dat";
 
         NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DCylindricalCellIdLogged/loggedcell.dat");
-        TS_ASSERT(comp.CompareFiles(2e-6));
+        TS_ASSERT(comp.CompareFiles(2e-4));
     }
 
     // This is a strange test -- all cells divide within a quick time, it gives
