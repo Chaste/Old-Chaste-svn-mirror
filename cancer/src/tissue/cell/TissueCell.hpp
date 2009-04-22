@@ -74,6 +74,7 @@ private:
         archive & mpCellCycleModel;
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
+        archive & mStartOfApoptosisTime;
         archive & mIsDead;
         archive & mIsLogged;
         archive & mAncestor;
@@ -100,12 +101,14 @@ protected:
     /** An identifier which is unique to this cell */
     unsigned mCellId;
     
-
     /** maximum cell identifier */
     static unsigned mMaxCellId;
 
     /** When the cell will/did die */
     double mDeathTime;
+    
+    /** When the cell was commanded to start apoptosis */
+    double mStartOfApoptosisTime;
 
     /** Whether the cell is currently in apoptosis - don't divide */
     bool mUndergoingApoptosis;
@@ -192,6 +195,11 @@ public:
      * Get the cell's birth time from its cell cycle model.
      */
     double GetBirthTime() const;
+    
+    /**
+     * Get the time at which apoptosis was commanded to start.
+     */
+    double GetStartOfApoptosisTime() const;
 
     /**
      * Get method for mCellType.
@@ -233,8 +241,10 @@ public:
 
     /**
      * Makes the cell enter apoptosis and sets mDeathTime using the apoptosis time from the cancer parameters.
+     * 
+     * @parameter setDeathTime  Tell the cell exactly when to die.
      */
-    void StartApoptosis();
+    void StartApoptosis(bool setDeathTime=true);
 
     /**
      * This labels the cell as dead, it does not delete the cell, it remains
@@ -255,7 +265,7 @@ public:
     /**
      * Return whether the cell is dead or undergoing apoptosis.
      */
-    bool IsDead() const;
+    bool IsDead();
 
     /**
      * Sets a flag to perform special output on this cell only.

@@ -354,15 +354,22 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     if (rCell.GetCellType()==APOPTOTIC)
     {
         // Age of cell when apoptosis begins
-        double cell_age_at_death = cell_age - CancerParameters::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath(); 
+        //double cell_age_at_death = cell_age - CancerParameters::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath(); 
         
-        if (cell_age_at_death < g1_duration)
+        if (rCell.GetStartOfApoptosisTime() - rCell.GetBirthTime() < g1_duration)
         {
-            cell_target_area *= 0.5*(1 + cell_age_at_death/g1_duration);
+            cell_target_area *= 0.5*(1 + (rCell.GetStartOfApoptosisTime() - rCell.GetBirthTime())/g1_duration);
         }
 
-        // The target area of an apoptotic cell decreases linearly to zero 
-        cell_target_area *= rCell.TimeUntilDeath()/CancerParameters::Instance()->GetApoptosisTime();
+        // The target area of an apoptotic cell decreases linearly to zero (and past it negative)        
+        cell_target_area = cell_target_area - cell_target_area/(CancerParameters::Instance()->GetApoptosisTime())*(SimulationTime::Instance()->GetTime()-rCell.GetStartOfApoptosisTime());
+    
+        // Don't allow a negative target area
+        if(cell_target_area <0)
+        {
+            cell_target_area = 0;
+        }
+    
     }
     else 
     {

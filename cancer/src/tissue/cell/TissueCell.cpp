@@ -39,7 +39,8 @@ TissueCell::TissueCell(CellType cellType,
       mMutationState(mutationState),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
-      mDeathTime(DBL_MAX), // This has to be initialised for archiving
+      mDeathTime(DBL_MAX), // This has to be initialised for archiving,
+      mStartOfApoptosisTime(DBL_MAX),
       mUndergoingApoptosis(false),
       mIsDead(false),
       mIsLogged(false)
@@ -72,6 +73,7 @@ void TissueCell::CommonCopy(const TissueCell &otherCell)
     mUndergoingApoptosis = otherCell.mUndergoingApoptosis;
     mIsDead = otherCell.mIsDead;
     mDeathTime = otherCell.mDeathTime;
+    mStartOfApoptosisTime = otherCell.mStartOfApoptosisTime;
     mIsLogged = otherCell.mIsLogged;
     mAncestor = otherCell.mAncestor;
     mCellId = otherCell.mCellId;
@@ -183,7 +185,7 @@ bool TissueCell::IsLogged()
 }
 
 
-void TissueCell::StartApoptosis()
+void TissueCell::StartApoptosis(bool setDeathTime)
 {
     assert(!IsDead());
 
@@ -192,8 +194,15 @@ void TissueCell::StartApoptosis()
         EXCEPTION("StartApoptosis() called when already undergoing apoptosis");
     }
     mUndergoingApoptosis = true;
-
-    mDeathTime = SimulationTime::Instance()->GetTime() + CancerParameters::Instance()->GetApoptosisTime();
+    mStartOfApoptosisTime = SimulationTime::Instance()->GetTime();
+    if (setDeathTime)
+    {
+        mDeathTime = mStartOfApoptosisTime + CancerParameters::Instance()->GetApoptosisTime();
+    }
+    else
+    {
+        mDeathTime = DBL_MAX;
+    }
 
     mCellType = APOPTOTIC;
 }
@@ -204,21 +213,32 @@ bool TissueCell::HasApoptosisBegun() const
     return mUndergoingApoptosis;
 }
 
+double TissueCell::GetStartOfApoptosisTime() const
+{
+    return mStartOfApoptosisTime;   
+}
 
 double TissueCell::TimeUntilDeath() const
 {
-    if (!mUndergoingApoptosis)
+    if (!mUndergoingApoptosis || mDeathTime==DBL_MAX)
     {
-        EXCEPTION("Shouldn't be checking time until apoptosis as it isn't undergoing apoptosis");
+        EXCEPTION("Shouldn't be checking time until apoptosis as it isn't set");
     }
 
     return mDeathTime - SimulationTime::Instance()->GetTime();
 }
 
 
-bool TissueCell::IsDead() const
+bool TissueCell::IsDead()
 {
-    return ( mIsDead || ( (mUndergoingApoptosis) && (SimulationTime::Instance()->GetTime() >= mDeathTime)) );
+    if (mUndergoingApoptosis)
+    {
+        if (SimulationTime::Instance()->GetTime() >= mDeathTime)
+        {
+            this->Kill();   
+        }
+    }
+    return mIsDead;
 }
 
 
@@ -226,7 +246,6 @@ void TissueCell::Kill()
 {
     mIsDead = true;
 }
-
 
 void TissueCell::SetAncestor(unsigned ancestorIndex)
 {

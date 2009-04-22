@@ -244,10 +244,12 @@ public:
     {
         // we don't want apoptosing cells to be labelled as dead after a certain time in
         // vertex simulations, so set the apoptosis time to something large
-        CancerParameters::Instance()->SetApoptosisTime(1e200);
-        
+                
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
+
+        //mesh.SetCellRearrangementThreshold(0.1);
+        //mesh.SetT2Threshold(0.1);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index
@@ -260,7 +262,7 @@ public:
 
             if(elem_index==18)
             {
-                cell.StartApoptosis();
+                cell.StartApoptosis(false);
             }
 
             cells.push_back(cell);
@@ -304,6 +306,66 @@ public:
         TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-5);
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements-3);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells-3);
+    }
+    
+    void TestSingleCellRelaxationAndApoptosis() throw (Exception)
+    {
+        // Construct a 2D vertex mesh consisting of a single element
+        std::vector<Node<2>*> nodes;
+        unsigned num_nodes = 20;
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            double theta = M_PI+2.0*M_PI*(double)(i)/(double)(num_nodes);
+            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
+        }
+
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes));
+
+        double cell_swap_threshold = 0.01;
+        double edge_division_threshold = 2.0;
+        VertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
+
+        // Set up cells, one for each VertexElement. Give each cell
+        // a birth time of 0
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            CellType cell_type = DIFFERENTIATED;
+            double birth_time = -1.0;
+
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+
+        // Create a force system
+        NagaiHondaForce<2> force;
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&force);
+
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(tissue, force_collection);
+        simulator.SetOutputDirectory("TestSingleCellApoptosis");
+        simulator.SetEndTime(2.0);
+
+        // Run simulation
+        simulator.Solve();
+        
+        // Test relaxes to circle (can be more stringent with more nodes and more time)
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 1.0, 1e-1);
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 1e-1);
+        
+        TissueCell& r_cell = simulator.rGetTissue().rGetCellUsingLocationIndex(0);
+        bool set_death_time = false;
+        r_cell.StartApoptosis(set_death_time);
+        
+        simulator.SetEndTime(4.0);
+        simulator.Solve();
+
     }
 
 

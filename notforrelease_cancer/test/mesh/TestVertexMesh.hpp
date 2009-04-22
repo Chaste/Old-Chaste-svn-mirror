@@ -987,6 +987,8 @@ public:
         // Make a vertex mesh
         VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
 
+        vertex_mesh.SetT2Threshold(0.01);
+
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
         
