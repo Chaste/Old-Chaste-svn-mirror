@@ -67,17 +67,6 @@ private:
     static BackwardEulerIvpOdeSolver msSolver;
 #endif  //CHASTE_CVODE
 
-    /**
-    * A private constructor for daughter cells called only by the CreateDaughterCellCycleModel function
-     *
-    * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations
-    * @param divideTime the SimulationTime when the cell divided (birth time of parent cell)
-    * @param lastTime the SimulationTime when the odes were last evaluated
-    * 
-    */
-    TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
-                             double divideTime, double lastTime);
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**

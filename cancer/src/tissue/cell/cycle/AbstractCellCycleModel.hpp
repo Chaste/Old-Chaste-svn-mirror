@@ -85,8 +85,11 @@ private:
         archive & mG1Duration;
         archive & mReadyToDivide;
     }
+
     /**
      * Assignment operator has no definition and can't be called.  (This is to prevent running the default assignment operator.)
+     *  
+     *  @param other  the cell cycle model being copied.
      */
     AbstractCellCycleModel & operator = (const AbstractCellCycleModel & other);
 

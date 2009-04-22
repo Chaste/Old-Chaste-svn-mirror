@@ -57,19 +57,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
 }
 
 
-TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations,
-                                                   double divideTime, double lastTime)
-    : AbstractOdeBasedCellCycleModel(divideTime)
-{
-    mpOdeSystem = new TysonNovak2001OdeSystem;
-#ifdef CHASTE_CVODE
-    mpOdeSystem->SetStateVariables(parentProteinConcentrations);
-#else
-    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-#endif
-}
-
-
 void TysonNovakCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModel::ResetForDivision();
