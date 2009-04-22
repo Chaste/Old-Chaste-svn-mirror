@@ -55,16 +55,12 @@ private :
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
         archive & mUseCutoffPoint;
-        archive & mCutoffPoint;
-        CancerParameters::Instance()->SetMechanicsCutOffLength(mCutoffPoint);
+       // CancerParameters::Instance()->SetMechanicsCutOffLength(mCutoffPoint);
     }
 
 protected:
     /** Whether to have zero force if the cells are far enough apart */
     bool mUseCutoffPoint;
-    
-    /** max distance before connections are ignored. */
-    double mCutoffPoint;
     
 public :
 
@@ -119,8 +115,6 @@ AbstractTwoBodyInteractionForce<DIM>::AbstractTwoBodyInteractionForce()
    : AbstractForce<DIM>()
 {
     mUseCutoffPoint = false;
-    mCutoffPoint = 1e10;
-    CancerParameters::Instance()->SetMechanicsCutOffLength(mCutoffPoint);
 }
 
 
@@ -129,7 +123,6 @@ void AbstractTwoBodyInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
 {
     assert(cutoffPoint > 0.0);
     mUseCutoffPoint = true;
-    mCutoffPoint = cutoffPoint;
     CancerParameters::Instance()->SetMechanicsCutOffLength(cutoffPoint);
 }
 
@@ -163,24 +156,48 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
     }
     else
     {
-        // Iterate over nodes
-        for (unsigned node_a_index=0; node_a_index<rTissue.GetNumNodes(); node_a_index++)
+        std::set< std::pair<Node<DIM>*, Node<DIM>* > >& r_node_pairs = (static_cast<NodeBasedTissue<DIM>*>(&rTissue))->rGetNodePairs();
+        
+        assert(DIM==2);
+        for(typename std::set< std::pair<Node<DIM>*, Node<DIM>* > >::iterator iter = r_node_pairs.begin();
+            iter != r_node_pairs.end();
+            iter++)
         {
-            // Iterate over nodes
-            for (unsigned node_b_index=node_a_index+1; node_b_index<rTissue.GetNumNodes(); node_b_index++)
+            std::pair<Node<DIM>*, Node<DIM>* > pair = *iter;
+            
+            unsigned node_a_index = pair.first->GetIndex();
+            unsigned node_b_index = pair.second->GetIndex();
+            
+            // Calculate the force between nodes
+            c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
+            for (unsigned j=0; j<DIM; j++)
             {
-                // Calculate the force between nodes
-                c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
-                for (unsigned j=0; j<DIM; j++)
-                {
-                    assert(!std::isnan(force[j]));
-                }
-
-                // Add the force contribution to each node
-                rForces[node_a_index] += force;
-                rForces[node_b_index] -= force;
+                assert(!std::isnan(force[j]));
             }
+
+            // Add the force contribution to each node
+            rForces[node_a_index] += force;
+            rForces[node_b_index] -= force;
         }
+            
+//        // Iterate over nodes
+//        for (unsigned node_a_index=0; node_a_index<rTissue.GetNumNodes(); node_a_index++)
+//        {
+//            // Iterate over nodes
+//            for (unsigned node_b_index=node_a_index+1; node_b_index<rTissue.GetNumNodes(); node_b_index++)
+//            {
+//                // Calculate the force between nodes
+//                c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
+//                for (unsigned j=0; j<DIM; j++)
+//                {
+//                    assert(!std::isnan(force[j]));
+//                }
+//
+//                // Add the force contribution to each node
+//                rForces[node_a_index] += force;
+//                rForces[node_b_index] -= force;
+//            }
+//        }
     }
 }
 

@@ -508,30 +508,12 @@ void TissueSimulation<DIM>::Solve()
          * after there has been any cell birth or cell death.
          */
         bool has_had_births_or_deaths = ( (births_this_step>0) || (deaths_this_step>0) );
-        if (mrTissue.HasMesh())
-        {
-            //This assertion is not necessarily true
-            //assert(mUpdateTissue);
-            //See TestCryptSimulation2dNightly::Test2DSpringSystem where the
-            //default value is over-written
-        }
-        else
-        {
-            mUpdateTissue = false;
-            if ( has_had_births_or_deaths )
-            {
-                mUpdateTissue = true;
-            }
-        }
 
         // Update the topology of the tissue (and tessellate if needed)
         CancerEventHandler::BeginEvent(CancerEventHandler::UPDATE);
-        if (mUpdateTissue)
-        {
-            LOG(1, "\tUpdating tissue...");
-            mrTissue.Update(has_had_births_or_deaths);
-            LOG(1, "\tdone.\n");
-        }
+        LOG(1, "\tUpdating tissue...");
+        mrTissue.Update(has_had_births_or_deaths);
+        LOG(1, "\tdone.\n");
         CancerEventHandler::EndEvent(CancerEventHandler::UPDATE);
 
         /////////////////////////

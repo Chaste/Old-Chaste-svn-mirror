@@ -244,30 +244,38 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     
         Validate();
     }
-    if (mpNodeBoxCollection==NULL)
+    
+    if (mpNodeBoxCollection!=NULL)
     {
-        FindMaxAndMin();
-        // Something here to set up the domain size (max and min of each node position dimension)
-        c_vector<double, 2*DIM> domainSize;
-        
-        for (unsigned i=0; i<DIM; i++)
-        {
-            domainSize(2*i) = mMinSpatialPositions(i);
-            domainSize(2*i+1) = mMaxSpatialPositions(i);
-        }
-        
-        // Add this cancer parameter and suggest that mechanics systems set it.
-        SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domainSize);
+        delete mpNodeBoxCollection;
     }
+
+    FindMaxAndMin();
+    // Something here to set up the domain size (max and min of each node position dimension)
+    c_vector<double, 2*DIM> domainSize;
+    
+    for (unsigned i=0; i<DIM; i++)
+    {
+        domainSize(2*i) = mMinSpatialPositions(i);
+        domainSize(2*i+1) = mMaxSpatialPositions(i);
+    }
+    
+    double cut_off_length = CancerParameters::Instance()->GetMechanicsCutOffLength();
+    if(cut_off_length==DBL_MAX)
+    {
+        std::string error =  std::string("NodeBasedTissue cannot create boxes if the cut-off length has not been set - ")
+                           + std::string("Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on CancerParameters");
+        EXCEPTION(error);
+    }
+    
+    // Add this cancer parameter and suggest that mechanics systems set it.
+    // Allocates memory for mpNodeBoxCollection and does the splitting and putting nodes into boxes
+    SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domainSize);
+
     mpNodeBoxCollection->CalculateNodePairs(mNodes,mNodePairs);
-    /// \todo #899 update the node pairs here.
-//    c_vector<double, 2*DIM>& mpNodeBoxCollection->rGetBox(CalculateContainingBox(this->GetNode(node_index)))
-//                                                                                            ->rGetMinAndMaxValues();
-//        
-//        for (unsigned i=0; i<DIM; i++)
-//        {
-//            if (new_node_location[i] < )
-//        c_vector<double, 2*DIM>& rGetMinAndMaxValues();
+    
+    assert(mNodePairs.size() > 0);
+    
 }
 
 
@@ -330,8 +338,12 @@ NodeBoxCollection<DIM>* NodeBasedTissue<DIM>::GetNodeBoxCollection()
 }
 
 template<unsigned DIM>
-std::set< std::pair<Node<DIM>*, Node<DIM>* > > NodeBasedTissue<DIM>::GetNodePairs()
+std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedTissue<DIM>::rGetNodePairs()
 {
+    if(mNodePairs.size()==0)
+    {
+        EXCEPTION("No node pairs set up, rGetNodePairs probably called before Update");
+    }    
     return mNodePairs;
 }
 /////////////////////////////////////////////////////////////////////////////

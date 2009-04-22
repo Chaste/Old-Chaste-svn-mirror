@@ -238,7 +238,7 @@ public:
     /**
      * @return Node pairs for force calculation.
      */
-    std::set< std::pair<Node<DIM>*, Node<DIM>* > > GetNodePairs();
+    std::set< std::pair<Node<DIM>*, Node<DIM>* > >& rGetNodePairs();
 };
 
 

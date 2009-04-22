@@ -127,10 +127,7 @@ public:
         TS_ASSERT(min_distance_between_cells > 1e-3);
     }
 
-    // results: with a few cells and small end times, Simple was twice as fast as meineke
-    //          with 10000 cells, and t_end=0.05, (fixed cell cycle) takes 6.5 mins
-    //          => 2 hours real time to do 1hr simulation time
-    //   run commented test before to see how meineke does with 10000 cells
+
     void TestSimulationWithNodeBoxes() throw (Exception)
     {
         // Create a simple mesh
@@ -151,13 +148,6 @@ public:
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&linear_force);
         
-        // Set Up boxes
-//        c_vector<double, 2*2> domain_size;
-//        domain_size(0) = 0.0;
-//        domain_size(1) = 6.0;
-//        domain_size(2) = 0.0;
-//        domain_size(3) = 6.0;
-//        node_based_tissue.SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domain_size);
         
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
@@ -183,6 +173,12 @@ public:
 
         TS_ASSERT(min_distance_between_cells > 1e-3);
     }
+
+    // results: with a few cells and small end times, Simple was twice as fast as meineke
+    //          with 10000 cells, and t_end=0.05, (fixed cell cycle) takes 6.5 mins
+    //          => 2 hours real time to do 1hr simulation time
+    //   run commented test before to see how meineke does with 10000 cells
+    //
 //    void TestSimpleMonolayer2() throw (Exception)
 //    {
 //        // Create a simple mesh

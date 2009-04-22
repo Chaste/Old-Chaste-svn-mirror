@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <cassert>
 #include "Debug.hpp"
+#include "Exception.hpp"
 
 /**
  * A special singleton class which holds all of the parameters used in the cancer simulations

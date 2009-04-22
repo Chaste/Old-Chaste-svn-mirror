@@ -98,7 +98,7 @@ void CancerParameters::Reset()
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
     mSpringStiffness = 15.0;        // this is mu in Meineke
-    mMechanicsCutOffLength = 1.5;             
+    mMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller             
     mDampingConstantNormal = 1.0;   // this is nu in Meineke
     mDampingConstantMutant = 2.0;
     mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin

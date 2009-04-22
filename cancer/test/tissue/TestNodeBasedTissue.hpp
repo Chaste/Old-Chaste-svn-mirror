@@ -180,17 +180,12 @@ public:
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);
         
+        CancerParameters::Instance()->SetMechanicsCutOffLength(1.2);
         NodeBasedTissue<2> tissue(nodes, cells);
-        // Set Up boxes
-        c_vector<double, 2*2> domain_size;
-        domain_size(0) = -1.0;
-        domain_size(1) = 2.0;
-        domain_size(2) = -1.0;
-        domain_size(3) = 2.0;
-        tissue.SplitUpIntoBoxes(0.5, domain_size);
+        tissue.Update();
         
-        std::set< std::pair<Node<2>*, Node<2>* > > node_pairs = tissue.GetNodePairs();
-        node_pairs.clear();
+        std::set< std::pair<Node<2>*, Node<2>* > >& r_node_pairs = tissue.rGetNodePairs();
+        r_node_pairs.clear();
     }
     
     void TestAddCell()
@@ -346,13 +341,6 @@ public:
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
         
-        c_vector<double, 2*2> domain_size;
-        domain_size(0) = 0.0;
-        domain_size(1) = 1.0;
-        domain_size(2) = 0.0;
-        domain_size(3) = 1.0;
-        node_based_tissue.SplitUpIntoBoxes(0.2, domain_size);
-        
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_tissue.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), 81u);
@@ -360,6 +348,8 @@ public:
         p_simulation_time->IncrementTimeOneStep();
 
         unsigned num_removed = node_based_tissue.RemoveDeadCells();
+
+        CancerParameters::Instance()->SetMechanicsCutOffLength(1.2);
         node_based_tissue.Update(true);
         
         // Test that one cell has been removed
@@ -421,6 +411,7 @@ public:
 
         // Test that the apoptotic cell has been removed
         unsigned num_removed = node_based_tissue.RemoveDeadCells();
+        CancerParameters::Instance()->SetMechanicsCutOffLength(1.2);
         node_based_tissue.Update();
 
         TS_ASSERT_EQUALS(num_removed, 1u);
