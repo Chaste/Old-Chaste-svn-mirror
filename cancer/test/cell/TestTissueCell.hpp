@@ -1258,6 +1258,29 @@ public:
         TS_ASSERT_EQUALS(cell.GetAncestor(), 2u);
         TS_ASSERT_EQUALS(cell2.GetAncestor(), 2u);
     }
+    
+    void TestCellId() throw (Exception)
+    {
+        // Resetting the Maximum cell Id to zero (to account for previous tests)
+        TissueCell::ResetMaxCellId();
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 2);
+
+        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        cell.InitialiseCellCycleModel();
+        
+        p_simulation_time->IncrementTimeOneStep();
+        p_simulation_time->IncrementTimeOneStep();
+
+        TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
+
+        TissueCell cell2 = cell.Divide();
+
+        TS_ASSERT_EQUALS(cell.GetCellId(), 0u);
+        TS_ASSERT_EQUALS(cell2.GetCellId(), 1u);
+    }
+    
 
 };
 

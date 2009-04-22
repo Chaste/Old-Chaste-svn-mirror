@@ -956,9 +956,15 @@ void TestCellIdOutput() throw (Exception)
        
         //Cover writing logged cell
         crypt.SetWriteCellIdData(true);
-        
 
         simulator.Solve();
+        
+        // Check writing of cell data
+        OutputFileHandler handler("Crypt2DCylindricalCellIdLogged",false);
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/loggedcell.dat";
+
+        NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DCylindricalCellIdLogged/loggedcell.dat");
+        TS_ASSERT(comp.CompareFiles(2e-6));
     }
 
     // This is a strange test -- all cells divide within a quick time, it gives
