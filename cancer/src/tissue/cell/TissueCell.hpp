@@ -240,9 +240,10 @@ public:
     TissueCell Divide();
 
     /**
-     * Makes the cell enter apoptosis and sets mDeathTime using the apoptosis time from the cancer parameters.
+     * Makes the cell enter apoptosis and sets #mDeathTime using the apoptosis
+     * time from the cancer parameters.
      * 
-     * @parameter setDeathTime  Tell the cell exactly when to die.
+     * @param setDeathTime  Tell the cell exactly when to die.
      */
     void StartApoptosis(bool setDeathTime=true);
 
