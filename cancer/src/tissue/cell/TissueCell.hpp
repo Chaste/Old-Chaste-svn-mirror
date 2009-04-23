@@ -291,12 +291,6 @@ public:
     unsigned GetAncestor() const;
 
     /**
-     * Give the TissueCell a unique identifier.
-     * @param CellId
-     */
-    void SetCellId(unsigned CellId);
-
-    /**
      * @return The cell identifier.
      */
     unsigned GetCellId() const;

@@ -257,11 +257,6 @@ unsigned TissueCell::GetAncestor() const
     return mAncestor;
 }
 
-void TissueCell::SetCellId(unsigned cellId)
-{
-    mCellId = cellId;
-}
-
 unsigned TissueCell::GetCellId() const
 {
     return mCellId;
