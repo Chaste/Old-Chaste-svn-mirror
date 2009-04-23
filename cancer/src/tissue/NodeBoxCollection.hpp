@@ -52,10 +52,15 @@ public:
     /** Get the coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc) */
     c_vector<double, 2*DIM>& rGetMinAndMaxValues();
     
-    /** Add a node to this box */
-    void AddNode(Node<DIM>* p_node);
-    /** Remove a node from this box */
-    void RemoveNode(Node<DIM>* p_node);
+    /** Add a node to this box.
+     *  @param pNode Address of the node to be added
+     */
+    void AddNode(Node<DIM>* pNode);
+
+    /** Remove a node from this box.
+     *  @param pNode Address of the node to be removed
+     */
+    void RemoveNode(Node<DIM>* pNode);
     
     /** Get all the nodes in this box */
     std::set< Node<DIM>* >& rGetNodesContained();
@@ -83,28 +88,37 @@ private:
     /** The boxes local (itself and nearest neighbour) to a given box */
     std::vector< std::set<unsigned> > mLocalBoxes;
     
-    ////////////////////////////////
-    // helper methods - 2d specific
-    ////////////////////////////////
-    /** Whether a box is on the bottom row of all the boxes */
+    /** 2D specific helper method - whether a box is on the bottom row of 
+     *  all the boxes.
+     *  @param boxIndex The box
+     */
     bool IsBottomRow(unsigned boxIndex)
     {
         return boxIndex % mNumBoxesEachDirection(1)==0;
     }
 
-    /** Whether a box is on the top row of all the boxes */
+    /** 2D specific helper methods - whether a box is on the top row of 
+     *  all the boxes.
+     *  @param boxIndex The box
+     */
     bool IsTopRow(unsigned boxIndex)
     {
         return boxIndex % mNumBoxesEachDirection(1)==mNumBoxesEachDirection(1)-1;
     }
 
-    /** Whether a box is on the left side of the boxes */
+    /** 2D specific helper methods - whether a box is on the left side of 
+     *  the boxes.
+     *  @param boxIndex The box
+     */
     bool IsLeftColumn(unsigned boxIndex)
     {
         return boxIndex < mNumBoxesEachDirection(1);
     }
     
-    /** Whether a box is on the right side of the boxes */
+    /** 2D specific helper methods - whether a box is on the right side of 
+     *  the boxes.
+     *  @param boxIndex The box
+     */
     bool IsRightColumn(unsigned boxIndex)
     {
         return boxIndex >= mBoxes.size() - mNumBoxesEachDirection(1);

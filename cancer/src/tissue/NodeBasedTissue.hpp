@@ -120,8 +120,8 @@ private:
     /**
      * Method for Initially Splitting up tissue into neighbouring boxes, to decrease runtime.
      *
-     * @params cutOffLength length of spring cut off between nodes
-     * @params domainSize c_vector of size 2*dimension reads minX, maxX, minY, maxY, etc
+     * @param cutOffLength length of spring cut off between nodes
+     * @param domainSize c_vector of size 2*dimension reads minX, maxX, minY, maxY, etc
      */
     void SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize);
     
