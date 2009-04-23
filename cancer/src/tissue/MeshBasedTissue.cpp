@@ -522,7 +522,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         {
             WriteCellIdDataToFile();
         }
-      
+
         if (mpVoronoiTessellation!=NULL)
         {
             // Write Voronoi data to file if required
@@ -530,7 +530,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
             {
                 WriteVoronoiResultsToFile();
             }
-       
+
             // Write tissue area data to file if required
             if (mWriteTissueAreas)
             {
@@ -553,7 +553,7 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 {
     // Write time to file
     *mpVoronoiFile << SimulationTime::Instance()->GetTime() << " ";
-    
+
     // Output vizvoronoi for all nodes
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
@@ -573,34 +573,22 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteCellIdDataToFile()
-{     
+{
     // Write time to file
-    *mpCellIdFile << SimulationTime::Instance()->GetTime() << " ";
-      
+    *mpCellIdFile << SimulationTime::Instance()->GetTime();
+
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
          ++cell_iter)
     {
         unsigned cell_id = cell_iter ->GetCellId();
         unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-        
-        if (DIM==1)
+        *mpCellIdFile << " " << cell_id << " " << node_index;
+
+        c_vector<double, DIM> co_ords = this->GetLocationOfCellCentre(&(*cell_iter));
+        for (unsigned i=0; i<DIM; i++)
         {
-            double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
-            *mpCellIdFile << cell_id << " " << node_index << " " << x << " ";
-        }
-        if (DIM==2)
-        {
-            double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
-            double y = this->GetLocationOfCellCentre(&(*cell_iter))[1];
-            *mpCellIdFile << cell_id << " " << node_index << " " << x << " " << y << " ";
-        }
-        if (DIM==3)
-        {
-            double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
-            double y = this->GetLocationOfCellCentre(&(*cell_iter))[1];
-            double z = this->GetLocationOfCellCentre(&(*cell_iter))[2];
-            *mpCellIdFile << cell_id << " " << node_index << " " << x << " " << y << " " << z << " ";
+            *mpCellIdFile << " " << co_ords[i];
         }
     }
     *mpCellIdFile << "\n";

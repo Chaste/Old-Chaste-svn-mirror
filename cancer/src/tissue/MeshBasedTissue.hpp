@@ -209,10 +209,10 @@ public:
      * @param writeVoronoiData whether to output cell area and perimeter information
      */
     void SetWriteVoronoiData(bool writeVoronoiData);
-    
+
     /** Set method for mFollowLoggedCell.
      *
-     * @param followLoggedCell  whether to follow the logged cell 
+     * @param followLoggedCell  whether to follow the logged cell
      */
     void SetWriteCellIdData(bool followLoggedCell);
 
@@ -357,7 +357,7 @@ public:
     /**
      * Overridden Update(bool hasHadBirthsOrDeaths) method.
      * Fixes up the mappings between cells and nodes.
-     * 
+     *
      * @param hasHadBirthsOrDeaths - a bool saying whether tissue has had Births Or Deaths
      * not needed in this tissue class
      */
@@ -388,10 +388,10 @@ public:
     /**
      * Write current results to mpVoronoiFile.
      */
-    void WriteVoronoiResultsToFile();    
+    void WriteVoronoiResultsToFile();
 
     /**
-     * Write logged cell data to mpLoggedCellFile.
+     * Write logged cell data to mpCellIdFile.
      */
     void WriteCellIdDataToFile();
 
