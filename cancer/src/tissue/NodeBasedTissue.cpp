@@ -77,7 +77,13 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
 template<unsigned DIM>
 NodeBasedTissue<DIM>::~NodeBasedTissue()
 {
+    if(mpNodeBoxCollection!=NULL)
+    {
+        delete mpNodeBoxCollection;
+    }
+
     Clear();
+
     // Free node memory
     if (mDeleteNodes)
     {
