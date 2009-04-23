@@ -30,9 +30,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "VertexMeshReader2d.hpp"
+#include "VertexMeshReader.hpp"
 
-class TestVertexMeshReader2d : public CxxTest::TestSuite
+/*
+ * This typedef is just because we can't have lines such as 
+ * TS_ASSERT_THROWS_NOTHING(p_mesh_reader=new VertexMeshReader<2,2>(name));
+ * because the macro thinks the comma separates two arguments
+ */
+typedef VertexMeshReader<2,2> READER_2D;
+
+class TestVertexMeshReader : public CxxTest::TestSuite
 {
 public:
 
@@ -41,7 +48,7 @@ public:
      */
     void TestFilesOpen() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
     }
 
 
@@ -52,11 +59,11 @@ public:
      */
     void TestNodesDataRead() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 7u);
 
-        VertexMeshReader2d mesh_reader2("notforrelease_cancer/test/data/baddata/vertex_mesh_bad_nodes");
+        VertexMeshReader<2,2> mesh_reader2("notforrelease_cancer/test/data/baddata/vertex_mesh_bad_nodes");
 
         // Reads node 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
@@ -73,12 +80,12 @@ public:
      */
     void TestElementsDataRead() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
 
         // Read element 0 from file
-        VertexElementData data = mesh_reader.GetNextElementData();
+        ElementData data = mesh_reader.GetNextElementData();
 
         TS_ASSERT_EQUALS(data.NodeIndices.size(), 5u);
         TS_ASSERT_EQUALS(data.NodeIndices[0], 0u);
@@ -88,7 +95,7 @@ public:
         TS_ASSERT_EQUALS(data.NodeIndices[4], 4u);
 
         // Read element 1 from file
-        VertexElementData data2 = mesh_reader.GetNextElementData();
+        ElementData data2 = mesh_reader.GetNextElementData();
 
         TS_ASSERT_EQUALS(data2.NodeIndices.size(), 3u);
         TS_ASSERT_EQUALS(data2.NodeIndices[0], 2u);
@@ -100,11 +107,11 @@ public:
         mesh_reader.Reset();
         for (unsigned i=1; i<mesh_reader.GetNumElements(); i++)
         {
-            VertexElementData data = mesh_reader.GetNextElementData();
+            ElementData data = mesh_reader.GetNextElementData();
             TS_ASSERT_EQUALS(data.AttributeValue, 0u);
         }
 
-        VertexMeshReader2d mesh_reader2("notforrelease_cancer/test/data/baddata/vertex_mesh_bad_elements");
+        VertexMeshReader<2,2> mesh_reader2("notforrelease_cancer/test/data/baddata/vertex_mesh_bad_elements");
 
         // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
@@ -123,7 +130,7 @@ public:
      */
     void TestPermutedNodesFail() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_permuted_nodes");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_permuted_nodes");
         TS_ASSERT_THROWS_ANYTHING(for(unsigned i=0;i<mesh_reader.GetNumNodes();i++){mesh_reader.GetNextNode();})
     }
 
@@ -136,7 +143,7 @@ public:
      */
     void TestGetNextNode() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
         std::vector<double> first_node;
         first_node = mesh_reader.GetNextNode();
@@ -166,7 +173,7 @@ public:
      */
     void TestGetNextElementData() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
 
         std::vector<unsigned> next_element;
         for (unsigned i=0; i<mesh_reader.GetNumElements(); i++)
@@ -180,13 +187,13 @@ public:
 
     void TestReadingElementAttributes() throw(Exception)
     {
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
 
-        VertexElementData next_element_info = mesh_reader.GetNextElementData();
+        ElementData next_element_info = mesh_reader.GetNextElementData();
         std::vector<unsigned> nodes = next_element_info.NodeIndices;
         TS_ASSERT_EQUALS(nodes.size(), 5u);
         TS_ASSERT_EQUALS(next_element_info.AttributeValue, 97u);
@@ -199,8 +206,8 @@ public:
 
     void TestOtherExceptions() throw(Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/nonexistent_file"));
-        TS_ASSERT_THROWS_ANYTHING(VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_without_element_file"));
+        TS_ASSERT_THROWS_ANYTHING(READER_2D mesh_reader("notforrelease_cancer/test/data/nonexistent_file"));
+        TS_ASSERT_THROWS_ANYTHING(READER_2D mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_without_element_file"));
     }
 
 };

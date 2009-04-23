@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include <algorithm>
 
-#include <boost/serialization/access.hpp>
 
 //Jonathan Shewchuk's triangle
 #define REAL double
@@ -56,7 +55,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "PetscTools.hpp"
 
-#include <boost/serialization/export.hpp>
 
 //////////////////////////////////////////////////////////////////////////
 //   DECLARATION
@@ -72,20 +70,6 @@ class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
 
 private:
-
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Serialize the mesh.
-     *
-     * @param archive
-     * @param version
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-       // Don't do anything - this is just so subclasses can archive member variables.
-    }
 
 //    std::vector<unsigned> mNodesPerProcessor;
 

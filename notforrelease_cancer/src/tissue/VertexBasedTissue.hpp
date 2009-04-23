@@ -380,7 +380,7 @@ inline void load_construct_data(
 
     // Re-initialise the mesh
     p_mesh->Clear();
-    VertexMeshReader2d mesh_reader(MeshArchiveInfo::meshPathname);
+    VertexMeshReader<DIM, DIM> mesh_reader(MeshArchiveInfo::meshPathname);
     p_mesh->ConstructFromMeshReader(mesh_reader);
 
     // Remesh

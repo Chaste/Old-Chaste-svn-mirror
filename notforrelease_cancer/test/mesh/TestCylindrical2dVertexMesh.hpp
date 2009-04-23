@@ -288,7 +288,7 @@ public:
 
             // Re-initialise the mesh
             p_mesh2->Clear();
-            VertexMeshReader2d mesh_reader(mesh_pathname);
+            VertexMeshReader<2,2> mesh_reader(mesh_pathname);
             p_mesh2->ConstructFromMeshReader(mesh_reader);
 
             // Compare the loaded mesh against the original

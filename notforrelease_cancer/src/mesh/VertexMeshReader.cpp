@@ -25,10 +25,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "VertexMeshReader2d.hpp"
+#include "VertexMeshReader.hpp"
 
 
-VertexMeshReader2d::VertexMeshReader2d(std::string pathBaseName)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::VertexMeshReader(std::string pathBaseName)
     : mFilesBaseName(pathBaseName),
       mIndexFromZero(false), // initially assume that nodes are not numbered from zero
       mNumNodes(0),
@@ -41,26 +42,43 @@ VertexMeshReader2d::VertexMeshReader2d(std::string pathBaseName)
     ReadHeaders();
 }
 
-
-unsigned VertexMeshReader2d::GetNumElements() const
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mNumElements;
 }
 
-
-unsigned VertexMeshReader2d::GetNumNodes() const
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return mNumNodes;
 }
 
-
-unsigned VertexMeshReader2d::GetNumElementAttributes() const
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() const
 {
     return mNumElementAttributes;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
+{
+    /// \todo Implement this method
+    return 0;
+}
 
-void VertexMeshReader2d::Reset()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
+{
+    /// \todo Implement this method
+    ElementData ret;
+    ret.NodeIndices = std::vector<unsigned>();
+    ret.AttributeValue = 0;
+    return ret;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 {
     CloseFiles();
     OpenFiles();
@@ -70,8 +88,8 @@ void VertexMeshReader2d::Reset()
     mElementsRead = 0;
 }
 
-
-std::vector<double> VertexMeshReader2d::GetNextNode()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
     std::vector<double> node_data;
 
@@ -102,10 +120,10 @@ std::vector<double> VertexMeshReader2d::GetNextNode()
     return node_data;
 }
 
-
-VertexElementData VertexMeshReader2d::GetNextElementData()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 {
-    VertexElementData element_data;
+    ElementData element_data;
 
     std::string buffer;
     GetNextLineFromStream(mElementsFile, buffer);
@@ -150,15 +168,15 @@ VertexElementData VertexMeshReader2d::GetNextElementData()
     return element_data;
 }
 
-
-void VertexMeshReader2d::OpenFiles()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFiles()
 {
     OpenNodeFile();
     OpenElementsFile();
 }
 
-
-void VertexMeshReader2d::OpenNodeFile()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenNodeFile()
 {
     // Nodes definition
     std::string file_name = mFilesBaseName + ".node";
@@ -169,8 +187,8 @@ void VertexMeshReader2d::OpenNodeFile()
     }
 }
 
-
-void VertexMeshReader2d::OpenElementsFile()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenElementsFile()
 {
     // Elements definition
     std::string file_name;
@@ -183,8 +201,8 @@ void VertexMeshReader2d::OpenElementsFile()
     }
 }
 
-
-void VertexMeshReader2d::ReadHeaders()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 {
     std::string buffer;
 
@@ -212,15 +230,15 @@ void VertexMeshReader2d::ReadHeaders()
     element_buffer_stream >> mNumElements >> mNumElementAttributes;
 }
 
-
-void VertexMeshReader2d::CloseFiles()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::CloseFiles()
 {
     mNodesFile.close();
     mElementsFile.close();
 }
 
-
-void VertexMeshReader2d::GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
 {
     bool line_is_blank;
 
@@ -240,3 +258,14 @@ void VertexMeshReader2d::GetNextLineFromStream(std::ifstream& fileStream, std::s
     }
     while (line_is_blank);
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+template class VertexMeshReader<1,1>;
+template class VertexMeshReader<1,2>;
+template class VertexMeshReader<2,2>;
+template class VertexMeshReader<2,3>;
+template class VertexMeshReader<3,3>;

@@ -336,7 +336,7 @@ public:
     void TestMeshConstructionFromMeshReader()
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -357,7 +357,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(5));
 
         // Create mesh in which elements have attributes
-        VertexMeshReader2d mesh_reader2("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_with_attributes");
+        VertexMeshReader<2,2> mesh_reader2("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_with_attributes");
         VertexMesh<2,2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);
 
@@ -386,7 +386,7 @@ public:
     void TestMeshConstructionFromMeshReaderIndexedFromOne()
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -411,7 +411,7 @@ public:
     void TestSetNode()
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -440,7 +440,7 @@ public:
     void TestAddNodeAndReMesh() throw (Exception)
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -615,7 +615,7 @@ public:
 
             // Re-initialise the mesh
             p_mesh2->Clear();
-            VertexMeshReader2d mesh_reader(mesh_pathname);
+            VertexMeshReader<2,2> mesh_reader(mesh_pathname);
             p_mesh2->ConstructFromMeshReader(mesh_reader);
 
             // Compare the loaded mesh against the original
@@ -1152,7 +1152,7 @@ public:
     void TestReMesh() throw(Exception)
     {
         // Create mesh
-        VertexMeshReader2d mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/test_remesh_mesh");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/test_remesh_mesh");
         VertexMesh<2,2> vertex_mesh;
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);

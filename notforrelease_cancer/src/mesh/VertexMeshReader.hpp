@@ -34,21 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "Exception.hpp"
+#include "AbstractMeshReader.hpp"
+
 
 /**
- * Helper structure that stores the nodes and any attribute value
- * associated with a VertexElement.
+ * A mesh reader class for vertex-based meshes. So far implemented in 2D only.
  */
-struct VertexElementData
-{
-    std::vector<unsigned> NodeIndices; /**< Vector of Node indices owned by the VertexElement. */
-    unsigned AttributeValue; /**< Attribute value associated with the VertexElement. */
-};
-
-/**
- * A mesh reader class for 2D vertex-based meshes.
- */
-class VertexMeshReader2d
+ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class VertexMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 
@@ -122,12 +115,12 @@ public:
      *
      * @param pathBaseName the base name for results files
      */
-    VertexMeshReader2d(std::string pathBaseName);
+    VertexMeshReader(std::string pathBaseName);
 
     /**
      * Destructor.
      */
-    ~VertexMeshReader2d()
+    ~VertexMeshReader()
     {}
 
     /**
@@ -146,6 +139,16 @@ public:
     unsigned GetNumElementAttributes() const;
 
     /**
+     * Returns the number of faces in the mesh (synonym of GetNumEdges()).
+     */
+    unsigned GetNumFaces() const;
+
+    /**
+     * Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()).
+     */
+    ElementData GetNextFaceData();
+
+    /**
      * Reset pointers to beginning.
      */
     void Reset();
@@ -158,7 +161,7 @@ public:
     /**
      * @return the nodes of each element (and any attribute infomation, if there is any) in turn
      */
-    VertexElementData GetNextElementData();
+    ElementData GetNextElementData();
 
 };
 

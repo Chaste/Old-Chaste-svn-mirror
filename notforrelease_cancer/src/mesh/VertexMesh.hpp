@@ -34,26 +34,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/base_object.hpp>
 
 #include "AbstractMesh.hpp"
-#include "VertexMeshReader2d.hpp"
+#include "VertexMeshReader.hpp"
 #include "VertexElement.hpp"
 #include "VertexElementMap.hpp"
 
 /**
  * A vertex-based mesh class, for use in vertex-based tissue simulations.
- * 
- * \todo - Make this inherit from AbstractMesh, please do this, please.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class VertexMesh
+class VertexMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestVertexMesh;
 
 protected:
-
-    /** Vector of pointers to nodes. */
-    std::vector<Node<SPACE_DIM>*> mNodes;
 
     /** Vector of pointers to VertexElements. */
     std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> mElements;
@@ -169,6 +165,10 @@ protected:
      */
     void MoveOverlappingNodeOntoEdgeOfElement(Node<SPACE_DIM>* pNode, unsigned elementIndex);
 
+    unsigned SolveNodeMapping(unsigned index) const;
+    unsigned SolveElementMapping(unsigned index) const;
+    unsigned SolveBoundaryElementMapping(unsigned index) const;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -184,6 +184,7 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
         archive & mCellRearrangementThreshold;
         archive & mEdgeDivisionThreshold;
     }
@@ -270,7 +271,6 @@ public:
      * @return mT2Threshold
      */
     double GetT2Threshold() const;
-
 
     /**
      * Calculates the `width' of any dimension of the mesh.
@@ -485,11 +485,13 @@ public:
     std::set<unsigned> GetNeighbouringNodeNotAlsoInElement(unsigned nodeIndex, unsigned elemIndex);
 
     /**
-     * Construct the mesh using a mesh reader.
+     * Construct the mesh using a MeshReader.
      *
      * @param rMeshReader the mesh reader
+     * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(VertexMeshReader2d& rMeshReader);
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
+                                 bool cullInternalFaces=false);
 
     /**
      * Scale the mesh.
@@ -586,6 +588,13 @@ public:
     void ReMesh();
 
 };
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS2(VertexMesh, 1, 1)
+EXPORT_TEMPLATE_CLASS2(VertexMesh, 1, 2)
+EXPORT_TEMPLATE_CLASS2(VertexMesh, 2, 2)
+EXPORT_TEMPLATE_CLASS2(VertexMesh, 2, 3)
+EXPORT_TEMPLATE_CLASS2(VertexMesh, 3, 3)
 
 namespace boost
 {

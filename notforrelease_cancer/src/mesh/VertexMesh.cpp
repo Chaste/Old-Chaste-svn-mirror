@@ -49,7 +49,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
     {
         Node<SPACE_DIM>* temp_node = nodes[node_index];
-        mNodes.push_back(temp_node);
+        this->mNodes.push_back(temp_node);
     }
 
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
@@ -113,7 +113,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                             {
                                 p_node->SetAsBoundaryNode(true);
                             }
-                            mNodes.push_back(p_node);
+                            this->mNodes.push_back(p_node);
                             node_index++;
                         }
                     }
@@ -132,7 +132,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                             {
                                 p_node->SetAsBoundaryNode(true);
                             }
-                            mNodes.push_back(p_node);
+                            this->mNodes.push_back(p_node);
                             node_index++;
                         }
                     }
@@ -216,7 +216,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
 
                 for (int i=0; i<6; i++)
                 {
-                   element_nodes.push_back(mNodes[node_indices[i]]);
+                   element_nodes.push_back(this->mNodes[node_indices[i]]);
                 }
                 VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(element_index, element_nodes);
                 mElements.push_back(p_element);
@@ -230,6 +230,30 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 {
     Clear();
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
+{
+    assert(index < this->mNodes.size() );
+    return index;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
+{
+    assert(index < this->mElements.size() );
+    return index;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
+{
+    assert(index < this->mBoundaryElements.size() );
+    return index;
 }
 
 
@@ -298,12 +322,12 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     {
         delete mElements[i];
     }
-    for (unsigned i=0; i<mNodes.size(); i++)
+    for (unsigned i=0; i<this->mNodes.size(); i++)
     {
-        delete mNodes[i];
+        delete this->mNodes[i];
     }
 
-    mNodes.clear();
+    this->mNodes.clear();
     mElements.clear();
 }
 
@@ -328,9 +352,9 @@ c_vector<double, 2> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const u
 
     for (unsigned i=0; i<GetNumNodes(); i++)
     {
-        if (!mNodes[i]->IsDeleted())
+        if (!this->mNodes[i]->IsDeleted())
         {
-            double this_node_value = mNodes[i]->rGetLocation()[rDimension];
+            double this_node_value = this->mNodes[i]->rGetLocation()[rDimension];
             if (this_node_value>max)
             {
                 max = this_node_value;
@@ -353,13 +377,13 @@ c_vector<double, 2> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const u
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
-    return mNodes.size() - mDeletedNodeIndices.size();
+    return this->mNodes.size() - mDeletedNodeIndices.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
 {
-    return mNodes.size();
+    return this->mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -378,8 +402,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
 {
-    assert(index < mNodes.size());
-    return mNodes[index];
+    assert(index < this->mNodes.size());
+    return this->mNodes[index];
 }
 
 
@@ -674,7 +698,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
 {
-    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(mNodes[indexA]->rGetLocation(), mNodes[indexB]->rGetLocation());
+    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(this->mNodes[indexA]->rGetLocation(), this->mNodes[indexB]->rGetLocation());
     return norm_2(vector);
 }
 
@@ -692,16 +716,16 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
 {
     if (mDeletedNodeIndices.empty())
     {
-        pNewNode->SetIndex(mNodes.size());
-        mNodes.push_back(pNewNode);
+        pNewNode->SetIndex(this->mNodes.size());
+        this->mNodes.push_back(pNewNode);
     }
     else
     {
         unsigned index = mDeletedNodeIndices.back();
         pNewNode->SetIndex(index);
         mDeletedNodeIndices.pop_back();
-        delete mNodes[index];
-        mNodes[index] = pNewNode;
+        delete this->mNodes[index];
+        this->mNodes[index] = pNewNode;
     }
     mAddedNodes = true;
     return pNewNode->GetIndex();
@@ -731,7 +755,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DI
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point)
 {
-    mNodes[nodeIndex]->SetPoint(point);
+    this->mNodes[nodeIndex]->SetPoint(point);
 }
 
 
@@ -787,7 +811,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
     p_new_node->SetPoint(new_node_position);
 
     // Add node to mesh
-    mNodes.push_back(p_new_node);
+    this->mNodes.push_back(p_new_node);
 
     // Iterate over common elements
     for (std::set<unsigned>::iterator iter=shared_elements.begin();
@@ -851,7 +875,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
         std::vector<Node<SPACE_DIM>*> live_nodes;
         for (unsigned i=0; i<this->mNodes.size(); i++)
         {
-            if (mNodes[i]->IsDeleted())
+            if (this->mNodes[i]->IsDeleted())
             {
                 delete this->mNodes[i];
             }
@@ -861,8 +885,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
             }
         }
 
-        assert(mDeletedNodeIndices.size() == mNodes.size() - live_nodes.size());
-        mNodes = live_nodes;
+        assert(mDeletedNodeIndices.size() == this->mNodes.size() - live_nodes.size());
+        this->mNodes = live_nodes;
         mDeletedNodeIndices.clear();
 
         for (unsigned i=0; i<mElements.size(); i++)
@@ -870,7 +894,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
             mElements[i]->ResetIndex(i);
         }
 
-        for (unsigned i=0; i<mNodes.size();i++)
+        for (unsigned i=0; i<this->mNodes.size();i++)
         {
             this->mNodes[i]->SetIndex(i);
         }
@@ -1707,14 +1731,15 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReader2d& rMeshReader)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
+                                                                 bool cullInternalFaces)
 {
     // Store numbers of nodes and elements
     unsigned num_nodes = rMeshReader.GetNumNodes();
     unsigned num_elements = rMeshReader.GetNumElements();
 
     // Reserve memory for nodes
-    mNodes.reserve(num_nodes);
+    this->mNodes.reserve(num_nodes);
 
     rMeshReader.Reset();
 
@@ -1725,7 +1750,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
         node_data = rMeshReader.GetNextNode();
         unsigned is_boundary_node = (unsigned) node_data[2];
         node_data.pop_back();
-        mNodes.push_back(new Node<SPACE_DIM>(i, node_data, is_boundary_node));
+        this->mNodes.push_back(new Node<SPACE_DIM>(i, node_data, is_boundary_node));
     }
 
     rMeshReader.Reset();
@@ -1736,14 +1761,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(VertexMeshReade
     // Add elements
     for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
     {
-        VertexElementData element_data = rMeshReader.GetNextElementData();
+        ElementData element_data = rMeshReader.GetNextElementData();
         std::vector<Node<SPACE_DIM>*> nodes;
 
         unsigned num_nodes_in_element = element_data.NodeIndices.size();
         for (unsigned j=0; j<num_nodes_in_element; j++)
         {
-            assert(element_data.NodeIndices[j] < mNodes.size());
-            nodes.push_back(mNodes[element_data.NodeIndices[j]]);
+            assert(element_data.NodeIndices[j] < this->mNodes.size());
+            nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
         }
 
         VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
@@ -1764,7 +1789,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double
 {
     for (unsigned i=0; i<GetNumNodes(); i++)
     {
-        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+        c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
 
         if (SPACE_DIM>=3)
         {

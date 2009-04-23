@@ -29,10 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTMESH_HPP_
 #define ABSTRACTMESH_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
+
 #include "Node.hpp"
 #include "BoundaryElement.hpp"
 #include "Element.hpp"
 #include "AbstractMeshReader.hpp"
+
 
 /**
  * Abstract base class for all meshes.
@@ -65,6 +69,20 @@ private:
      * @param index
      */
     virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0;
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Serialize the mesh.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       // Don't do anything - this is just so subclasses can archive member variables.
+    }
 
 protected:  // Give access of these variables to subclasses
 
@@ -271,5 +289,25 @@ public:
      */
     std::vector<unsigned>& rGetNodePermutation();
 };
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Since this abstract class is templated, we cannot use
+ * the preprocessor macro BOOST_IS_ABSTRACT, and instead
+ * must drop down to the underlying source code.
+ */
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct is_abstract<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >
+{
+    /** The type that is an abstract class. */
+    typedef mpl::bool_<true> type;
+    /** The type is an abstract class, so value=true. */
+    BOOST_STATIC_CONSTANT(bool, value=true);
+};
+}
+}
 
 #endif /*ABSTRACTMESH_HPP_*/
