@@ -179,9 +179,16 @@ public:
         double birth_time = -4.0;
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);
-        
-        CancerParameters::Instance()->SetMechanicsCutOffLength(1.2);
+
         NodeBasedTissue<2> tissue(nodes, cells);
+        
+        // throws exception as update hasn't been called so no node pairs set up yet
+        TS_ASSERT_THROWS_ANYTHING(tissue.rGetNodePairs());
+        
+        // throws exception as the cut-off length hasn't been set and has its default value of DBL_MAX
+        TS_ASSERT_THROWS_ANYTHING(tissue.Update());
+
+        CancerParameters::Instance()->SetMechanicsCutOffLength(1.2);
         tissue.Update();
         
         std::set< std::pair<Node<2>*, Node<2>* > >& r_node_pairs = tissue.rGetNodePairs();

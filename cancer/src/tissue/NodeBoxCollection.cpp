@@ -74,28 +74,30 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
     : mDomainSize(domainSize),
       mCutOffLength(cutOffLength)   
 {
-    assert(DIM<3); //todo: 3d
+    assert(DIM==2); //todo: 3d node box collection
     switch (DIM)
     {
-        case 1:
-        {
-            mNumBoxesEachDirection(0) = 0;
-            double box_min_x = domainSize(0);
-            while (box_min_x <=  domainSize(1))
-            {
-                c_vector<double, 2*DIM> box_coords;
-                box_coords(0) = box_min_x;
-                box_coords(1) = box_min_x + cutOffLength;
-
-                NodeBox<DIM> new_box(box_coords);
-                mBoxes.push_back(new_box);
-                mNumBoxesEachDirection(0)++;
-
-                box_min_x += cutOffLength;
-            }
-            
-            break;
-        }
+//// commented out as the 1d case is not tested or covered - do we really care about 1d? if so ///\todo 1d node box collection
+////
+//        case 1:
+//        {
+//            mNumBoxesEachDirection(0) = 0;
+//            double box_min_x = domainSize(0);
+//            while (box_min_x <=  domainSize(1))
+//            {
+//                c_vector<double, 2*DIM> box_coords;
+//                box_coords(0) = box_min_x;
+//                box_coords(1) = box_min_x + cutOffLength;
+//
+//                NodeBox<DIM> new_box(box_coords);
+//                mBoxes.push_back(new_box);
+//                mNumBoxesEachDirection(0)++;
+//
+//                box_min_x += cutOffLength;
+//            }
+//            
+//            break;
+//        }
         case 2:
         {
             mNumBoxesEachDirection(0) = 0;
