@@ -29,11 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTissue.hpp"
 #include "AbstractOdeBasedCellCycleModel.hpp"
 
+
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
-      mTissueContainsMesh(false)
+      mTissueContainsMesh(false),
+      mWriteCellIdData(false)
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
@@ -119,6 +121,13 @@ void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
     {
         cell_iter->SetAncestor( mCellLocationMap[&(*cell_iter)] );
     }
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetWriteCellIdData(bool writeCellIdData)
+{
+    assert(DIM == 2);
+    mWriteCellIdData = writeCellIdData;
 }
 
 template<unsigned DIM>
@@ -219,6 +228,10 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
     {
         mpCellCyclePhasesFile = output_file_handler.OpenOutputFile("cellcyclephases.dat");
     }
+    if (mWriteCellIdData)
+    {
+        mpCellIdFile = output_file_handler.OpenOutputFile("loggedcell.dat");
+    }
 }
 
 template<unsigned DIM>
@@ -250,6 +263,10 @@ void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
     if (outputCellAncestors)
     {
         mpCellAncestorsFile->close();
+    }
+    if (mWriteCellIdData)
+    {
+        mpCellIdFile->close();
     }
 }
 
@@ -553,6 +570,45 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
     *mpVizNodesFile << "\n";
 }
 
+template<unsigned DIM>
+void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
+                                              bool outputCellTypes,
+                                              bool outputCellVariables,
+                                              bool outputCellCyclePhases,
+                                              bool outputCellAncestors)
+{
+    if (DIM==2)
+    {
+        // Write logged cell data if required
+        if (mWriteCellIdData)
+        {
+            WriteCellIdDataToFile();
+        }
+    }
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::WriteCellIdDataToFile()
+{
+    // Write time to file
+    *mpCellIdFile << SimulationTime::Instance()->GetTime();
+
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = Begin();
+         cell_iter != End();
+         ++cell_iter)
+    {
+        unsigned cell_id = cell_iter ->GetCellId();
+        unsigned node_index = mCellLocationMap[&(*cell_iter)];
+        *mpCellIdFile << " " << cell_id << " " << node_index;
+
+        c_vector<double, DIM> coords = GetLocationOfCellCentre(&(*cell_iter));
+        for (unsigned i=0; i<DIM; i++)
+        {
+            *mpCellIdFile << " " << coords[i];
+        }
+    }
+    *mpCellIdFile << "\n";
+}
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "AbstractCancerTestSuite.hpp"
 
-#include "Debug.hpp"
 
 class TestNodeBoxCollection : public AbstractCancerTestSuite
 {

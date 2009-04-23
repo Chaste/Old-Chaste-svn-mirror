@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexBasedTissue.hpp"
 #include "VertexMeshWriter.hpp"
-#include "Debug.hpp"
 
 
 template<unsigned DIM>

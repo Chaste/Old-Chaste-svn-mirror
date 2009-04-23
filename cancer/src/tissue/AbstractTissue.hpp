@@ -90,8 +90,14 @@ protected:
     /** Results file for cell variables */
     out_stream mpCellVariablesFile;
 
+    /** Results file for logged cell data. */
+    out_stream mpCellIdFile;
+
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
+
+    /** Whether to write cell ID data to file. */
+    bool mWriteCellIdData;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -108,6 +114,7 @@ protected:
         archive & mLocationCellMap;
         archive & mCellLocationMap;
         archive & mTissueContainsMesh;
+        archive & mWriteCellIdData;
     }
 
     /**
@@ -332,6 +339,18 @@ public:
     void SetCellAncestorsToNodeIndices();
 
     /**
+     * Set method for mWriteCellIdData.
+     *
+     * @param writeCellIdData  whether to write cell ID data to file.
+     */
+    void SetWriteCellIdData(bool writeCellIdData);
+
+    /**
+     * Write cell ID data to mpCellIdFile.
+     */
+    void WriteCellIdDataToFile();
+
+    /**
      * Loops over cells and makes a list of the ancestors that
      * are part of the tissue.
      *
@@ -405,7 +424,7 @@ public:
                                      bool outputCellTypes,
                                      bool outputCellVariables,
                                      bool outputCellCyclePhases,
-                                     bool outputCellAncestors)=0;
+                                     bool outputCellAncestors);
 
     /**
      * Write the current time and node results to output files.

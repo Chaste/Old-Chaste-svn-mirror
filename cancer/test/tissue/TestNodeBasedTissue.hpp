@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include "Debug.hpp"
 
 
 class TestNodeBasedTissue : public AbstractCancerTestSuite

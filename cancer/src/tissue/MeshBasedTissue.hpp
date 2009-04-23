@@ -76,11 +76,8 @@ protected:
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
 
-    /** Whether to print out cell area and perimeter information. */
+    /** Whether to write cell area and perimeter information to file. */
     bool mWriteVoronoiData;
-
-    /** Whether to follow only the logged cell if writing Voronoi data. */
-    bool mFollowLoggedCell;
 
     /** Whether to print out tissue areas. */
     bool mWriteTissueAreas;
@@ -90,9 +87,6 @@ protected:
 
     /** Results file for Voronoi data. */
     out_stream mpVoronoiFile;
-
-    /** Results file for logged cell data. */
-    out_stream mpCellIdFile;
 
     /** Results file for tissue area data. */
     out_stream mpTissueAreasFile;
@@ -129,7 +123,6 @@ protected:
 
         archive & mMarkedSprings;
         archive & mWriteVoronoiData;
-        archive & mFollowLoggedCell;
         archive & mWriteTissueAreas;
         archive & mUseAreaBasedDampingConstant;
 
@@ -204,17 +197,12 @@ public:
     /** @return mUseAreaBasedDampingConstant. */
     bool UseAreaBasedDampingConstant();
 
-    /** Set method for mWriteVoronoiData and mFollowLoggedCell.
+    /**
+     * Set method for mWriteVoronoiData.
      *
      * @param writeVoronoiData whether to output cell area and perimeter information
      */
     void SetWriteVoronoiData(bool writeVoronoiData);
-
-    /** Set method for mFollowLoggedCell.
-     *
-     * @param followLoggedCell  whether to follow the logged cell
-     */
-    void SetWriteCellIdData(bool followLoggedCell);
 
     /**
      * Overridden AddNode() method.
@@ -389,11 +377,6 @@ public:
      * Write current results to mpVoronoiFile.
      */
     void WriteVoronoiResultsToFile();
-
-    /**
-     * Write logged cell data to mpCellIdFile.
-     */
-    void WriteCellIdDataToFile();
 
     /**
      * Write current results to mpTissueAreasFile.

@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "VertexElement.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "Debug.hpp"
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

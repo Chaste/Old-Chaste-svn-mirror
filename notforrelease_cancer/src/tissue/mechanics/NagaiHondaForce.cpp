@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "NagaiHondaForce.hpp"
-#include "Debug.hpp"
+
 
 template<unsigned DIM>
 NagaiHondaForce<DIM>::NagaiHondaForce()

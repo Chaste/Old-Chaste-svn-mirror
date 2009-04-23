@@ -434,9 +434,6 @@ public:
         TS_ASSERT_EQUALS(cell_types[3], 1u);
     }
 
-
-
-
     void TestGetLocationOfCellCentreAndGetNodeCorrespondingToCell() throw (Exception)
     {
         // Create a simple mesh

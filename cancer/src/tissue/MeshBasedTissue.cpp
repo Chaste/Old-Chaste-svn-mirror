@@ -40,7 +40,6 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
       mpVoronoiTessellation(NULL),
       mDeleteMesh(deleteMesh),
       mWriteVoronoiData(false),
-      mFollowLoggedCell(false),
       mWriteTissueAreas(false),
       mUseAreaBasedDampingConstant(false)
 {
@@ -367,13 +366,6 @@ void MeshBasedTissue<DIM>::SetWriteVoronoiData(bool writeVoronoiData)
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetWriteCellIdData(bool followLoggedCell)
-{
-    assert(DIM == 2);
-    mFollowLoggedCell = followLoggedCell;
-}
-
-template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 {
     mWriteTissueAreas = writeTissueAreas;
@@ -435,10 +427,6 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
     {
         mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
     }
-    if (mFollowLoggedCell)
-    {
-        mpCellIdFile = output_file_handler.OpenOutputFile("loggedcell.dat");
-    }
     if (mWriteTissueAreas)
     {
         mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
@@ -462,10 +450,6 @@ void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
     if (mWriteVoronoiData)
     {
         mpVoronoiFile->close();
-    }
-    if (mFollowLoggedCell)
-    {
-        mpCellIdFile->close();
     }
     if (mWriteTissueAreas)
     {
@@ -517,12 +501,6 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
 
     if (DIM==2)
     {
-        // Write logged cell data if required
-        if (mFollowLoggedCell)
-        {
-            WriteCellIdDataToFile();
-        }
-
         if (mpVoronoiTessellation!=NULL)
         {
             // Write Voronoi data to file if required
@@ -569,29 +547,6 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
         *mpVoronoiFile << node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
     }
     *mpVoronoiFile << "\n";
-}
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::WriteCellIdDataToFile()
-{
-    // Write time to file
-    *mpCellIdFile << SimulationTime::Instance()->GetTime();
-
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
-         cell_iter != this->End();
-         ++cell_iter)
-    {
-        unsigned cell_id = cell_iter ->GetCellId();
-        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-        *mpCellIdFile << " " << cell_id << " " << node_index;
-
-        c_vector<double, DIM> co_ords = this->GetLocationOfCellCentre(&(*cell_iter));
-        for (unsigned i=0; i<DIM; i++)
-        {
-            *mpCellIdFile << " " << co_ords[i];
-        }
-    }
-    *mpCellIdFile << "\n";
 }
 
 template<unsigned DIM>
