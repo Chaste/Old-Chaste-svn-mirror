@@ -365,11 +365,10 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
         cell_target_area = cell_target_area - cell_target_area/(CancerParameters::Instance()->GetApoptosisTime())*(SimulationTime::Instance()->GetTime()-rCell.GetStartOfApoptosisTime());
     
         // Don't allow a negative target area
-        if(cell_target_area <0)
+        if (cell_target_area < 0)
         {
             cell_target_area = 0;
         }
-    
     }
     else 
     {

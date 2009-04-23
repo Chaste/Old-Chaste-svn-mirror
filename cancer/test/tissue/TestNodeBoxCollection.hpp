@@ -55,7 +55,7 @@ public:
         
         NodeBox<2> test_box(box_size);
         c_vector<double, 2*2> returned_min_max_values = test_box.rGetMinAndMaxValues();
-        for(unsigned i=0;i<4;i++)
+        for (unsigned i=0;i<4;i++)
         {
             TS_ASSERT_EQUALS(returned_min_max_values(i),box_size(i));
         }
@@ -111,12 +111,12 @@ public:
         
         TS_ASSERT_EQUALS(node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(),49u);
         
-        for(unsigned i=0;i<node_based_tissue.GetNodeBoxCollection()->GetNumBoxes();i++)
+        for (unsigned i=0;i<node_based_tissue.GetNodeBoxCollection()->GetNumBoxes();i++)
         {
             std::set< Node<2>* > nodes_in_box = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetNodesContained();
             c_vector<double, 2*2> box_min_max_values = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetMinAndMaxValues();
             
-            for(std::set< Node<2>* >::iterator it_nodes_in_box = nodes_in_box.begin();
+            for (std::set< Node<2>* >::iterator it_nodes_in_box = nodes_in_box.begin();
                 it_nodes_in_box != nodes_in_box.end();
                 it_nodes_in_box++)
             {

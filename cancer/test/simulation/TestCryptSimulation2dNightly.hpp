@@ -601,9 +601,6 @@ public:
         WntConcentration::Destroy();
     }
 
-    /// \todo changed test below because once ghost nodes are not
-    /// associated with cells, we will never be able to get to
-    /// a situation where there are no real cells
     void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;

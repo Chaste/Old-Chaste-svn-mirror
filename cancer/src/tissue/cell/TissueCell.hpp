@@ -155,10 +155,6 @@ public:
      * Copy all the attributes of one cell to another.
      *
      * @param otherCell  An existing TissueCell
-     *
-     * \todo
-     * Since cell cycle models don't have an operator=, this operator only copies
-     * data members of AbstractCellCycleModel when the model is copied (see #840)
      */
     TissueCell& operator=(const TissueCell &otherCell);
 

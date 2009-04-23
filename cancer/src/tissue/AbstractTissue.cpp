@@ -527,7 +527,8 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
     }
 
     // Write node data to file
-    /// \todo - this should be using a node iterator from the mesh instead of this loop. If we did this we would need to output node index along with position.
+    /// \todo - Once #987 is implemented, use a node iterator from the mesh instead of this loop. 
+    ///         Note that we then need to output node index along with position.
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
     {
         // Write node data to file

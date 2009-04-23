@@ -260,7 +260,7 @@ public:
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
 
-            if(elem_index==18)
+            if (elem_index==18)
             {
                 cell.StartApoptosis(false);
             }

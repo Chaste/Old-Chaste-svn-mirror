@@ -1116,7 +1116,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
         
-        for(unsigned i=0;i<4;i++)
+        for (unsigned i=0;i<4;i++)
         {
             vertex_mesh.PerformT2SwapIfNecessary(vertex_elements[i]);
         }
@@ -1137,7 +1137,7 @@ public:
         new_location_2(1) = 0.251;
 
         // T2 swaps should now happen
-        for(unsigned i=0;i<4;i++)
+        for (unsigned i=0;i<4;i++)
         {
             vertex_mesh.PerformT2SwapIfNecessary(vertex_elements[i]);
         }

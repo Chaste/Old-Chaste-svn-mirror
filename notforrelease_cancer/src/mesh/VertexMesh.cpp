@@ -1431,7 +1431,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
      VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_2 = this->GetElement(neighbouring_elem_nums(2));
      
      // Need to check that none of the neighbouring elements are triangles
-     if(    (p_neighbouring_element_0->GetNumNodes() > 3u)
+     if (    (p_neighbouring_element_0->GetNumNodes() > 3u)
          && (p_neighbouring_element_1->GetNumNodes() > 3u)
          && (p_neighbouring_element_2->GetNumNodes() > 3u) )
      {    
@@ -1458,7 +1458,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
      {
         EXCEPTION("One of the neighbours of a apoptosing triangular element is also a triangle - dealing with this has not been implemented yet");
      }
-    
 } 
 
 
@@ -1466,21 +1465,21 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2SwapIfNecessary(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     unsigned reindex_required = false;
-    if(pElement->GetNumNodes() == 3u)
+    if (pElement->GetNumNodes() == 3u)
     {
-        if(GetAreaOfElement(pElement->GetIndex()) < GetT2Threshold())
+        if (GetAreaOfElement(pElement->GetIndex()) < GetT2Threshold())
         {
             PerformT2Swap(pElement);
             reindex_required = true;
         }
     }
-    
+
     if (reindex_required)
     {
         /// \todo 
         //  this->ReIndex(); 
     }
-}   
+}
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

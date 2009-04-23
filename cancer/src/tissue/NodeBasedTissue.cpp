@@ -77,7 +77,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
 template<unsigned DIM>
 NodeBasedTissue<DIM>::~NodeBasedTissue()
 {
-    if(mpNodeBoxCollection!=NULL)
+    if (mpNodeBoxCollection!=NULL)
     {
         delete mpNodeBoxCollection;
     }
@@ -141,6 +141,7 @@ const std::vector<Node<DIM>* >& NodeBasedTissue<DIM>::rGetNodes() const
     return mNodes;
 }
 
+
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize)
 {
@@ -152,6 +153,7 @@ void NodeBasedTissue<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double
         mpNodeBoxCollection->rGetBox(box_index).AddNode(mNodes[i]);
     }       
 }
+
 
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::FindMaxAndMin()
@@ -187,6 +189,7 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
         mMaxSpatialPositions(i) = max_posn(i);
     }
 }
+
 
 template<unsigned DIM>
 Node<DIM>* NodeBasedTissue<DIM>::GetNode(unsigned index)
@@ -232,14 +235,16 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         this->mLocationCellMap.clear();
         this->mCellLocationMap.clear();
     
-        // Update mNodes to new indices which go from 0 to NumNodes-1.
+        // Update mNodes to new indices which go from 0 to NumNodes-1
         for (unsigned i=0; i<old_nodes.size() ; i++)
         {
             // Get the living cell associated with the old node
             TissueCell* p_live_cell = old_map[old_nodes[i]->GetIndex()];
+
             // Set the node up
             mNodes.push_back(old_nodes[i]);
             mNodes[i]->SetIndex(i);
+
             // Set the maps up
             this->mLocationCellMap[i] = p_live_cell;
             this->mCellLocationMap[p_live_cell] = i;
@@ -257,6 +262,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     }
 
     FindMaxAndMin();
+
     // Something here to set up the domain size (max and min of each node position dimension)
     c_vector<double, 2*DIM> domainSize;
     
@@ -267,7 +273,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     }
     
     double cut_off_length = CancerParameters::Instance()->GetMechanicsCutOffLength();
-    if(cut_off_length==DBL_MAX)
+    if (cut_off_length==DBL_MAX)
     {
         std::string error =  std::string("NodeBasedTissue cannot create boxes if the cut-off length has not been set - ")
                            + std::string("Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on CancerParameters");
@@ -278,10 +284,9 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     // Allocates memory for mpNodeBoxCollection and does the splitting and putting nodes into boxes
     SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domainSize);
 
-    mpNodeBoxCollection->CalculateNodePairs(mNodes,mNodePairs);
+    mpNodeBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
     
     assert(mNodePairs.size() > 0);
-    
 }
 
 
@@ -336,26 +341,27 @@ unsigned NodeBasedTissue<DIM>::GetNumNodes()
 }
 
 
-
 template<unsigned DIM>
 NodeBoxCollection<DIM>* NodeBasedTissue<DIM>::GetNodeBoxCollection()
 {
     return mpNodeBoxCollection;   
 }
 
+
 template<unsigned DIM>
 std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedTissue<DIM>::rGetNodePairs()
 {
-    if(mNodePairs.size()==0)
+    if (mNodePairs.size()==0)
     {
         EXCEPTION("No node pairs set up, rGetNodePairs probably called before Update");
     }    
     return mNodePairs;
 }
+
+
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
-
 
 template class NodeBasedTissue<1>;
 template class NodeBasedTissue<2>;

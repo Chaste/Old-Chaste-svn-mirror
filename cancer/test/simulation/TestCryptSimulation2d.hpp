@@ -1327,10 +1327,6 @@ void TestCellIdOutput() throw (Exception)
     }
 
 
-    /// \todo changed test below because once ghost nodes are not
-    /// associated with cells, we will never be able to get to
-    /// a situation where there are no real cells
-
     // Test death on a non-periodic mesh. Note that birth does occur too.
     void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {

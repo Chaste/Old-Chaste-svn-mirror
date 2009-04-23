@@ -160,7 +160,8 @@ public:
             // Restore from the archive
             input_arch >> p_chemotactic_force;
 
-            /// \todo Test the member data (see #627)
+            /// \todo This currently doesn't test anything as ChemotacticForce has no member data. 
+            ///       Either find something to test, or remove this archiving test.
 
             // Tidy up
             delete p_chemotactic_force;

@@ -60,24 +60,6 @@ private:
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
     }
 
-    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
-    bool mUseEdgeBasedSpringConstant;
-
-    /** Whether to use different stiffnesses depending on whether either cell is a mutant */
-    bool mUseMutantSprings;
-
-    /** Multiplier for spring stiffness if mutant */
-    double mMutantMutantMultiplier;
-
-    /** Multiplier for spring stiffness if mutant */
-    double mNormalMutantMultiplier;
-
-    /** Use springs which are dependent on beta-catenin levels */
-    bool mUseBCatSprings;
-
-    /** Use springs which are dependent on whether cells are necrotic */
-    bool mUseApoptoticSprings;
-
 public:
 
     /**
