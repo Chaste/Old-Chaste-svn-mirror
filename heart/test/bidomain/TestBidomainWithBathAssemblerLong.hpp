@@ -186,6 +186,9 @@ public:
             }
         }
 
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+
         //boundary flux for Phi_e
         //-4e3 is enough to trigger an action potential, -3e3 is below threshold, -5e3 crashes the cell model.
         double boundary_flux = -9e3;
@@ -193,9 +196,6 @@ public:
 
         Electrodes<2> electrodes(mesh,true,0,0.0,0.1,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
-
-        bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.Initialise();
 
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
@@ -258,15 +258,15 @@ public:
             }
         }
 
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+
         //boundary flux for Phi_e
         double boundary_flux = -4e3;
         double duration = 2.5; //ms
 
         Electrodes<3> electrodes(mesh,true,0,0.0,0.2,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
-
-        bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.Initialise();
 
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
