@@ -30,41 +30,52 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Node.hpp"
 
-//#include <boost/serialization/set.hpp>
-//#include <boost/serialization/vector.hpp>
 
-/** A small class for a nD 'box' defined by its min/max x/y/z values which
- *  contains a list of nodes located in that box
+/**
+ * A small class for a nD 'box' defined by its min/max x/y/z values which
+ * contains a list of nodes located in that box
  */ 
 template<unsigned DIM>
 class NodeBox
 {
 private:
-    /** Coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc) */
+
+    /** Coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc). */
     c_vector<double, 2*DIM> mMinAndMaxValues;
-    /** Nodes contained in this box */
+
+    /** Nodes contained in this box. */
     std::set< Node<DIM>* > mNodesContained;
-        
+
 public:
-    /** Constructor just takes in the extremal values of the box */
+
+    /**
+     * Constructor just takes in the extremal values of the box.
+     * 
+     * @param minAndMaxValues the extremal values
+     */
     NodeBox(c_vector<double, 2*DIM> minAndMaxValues);
-    
-    /** Get the coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc) */
+
+    /** Get the coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc). */
     c_vector<double, 2*DIM>& rGetMinAndMaxValues();
-    
-    /** Add a node to this box.
-     *  @param pNode Address of the node to be added
+
+    /**
+     * Add a node to this box.
+     * 
+     * @param pNode Address of the node to be added
      */
     void AddNode(Node<DIM>* pNode);
 
-    /** Remove a node from this box.
-     *  @param pNode Address of the node to be removed
+    /**
+     * Remove a node from this box.
+     * 
+     * @param pNode Address of the node to be removed
      */
     void RemoveNode(Node<DIM>* pNode);
-    
-    /** Get all the nodes in this box */
+
+    /** Get all the nodes in this box. */
     std::set< Node<DIM>* >& rGetNodesContained();
 };
+
 
 /**
  *  A collection of 'boxes' partitioning the domain with information on which nodes are located in which box
@@ -73,60 +84,69 @@ template<unsigned DIM>
 class NodeBoxCollection 
 {
 private:
-    /** A vector of boxes to store rough node positions */
+
+    /** A vector of boxes to store rough node positions. */
     std::vector< NodeBox<DIM> > mBoxes;
-    
-    /** The domain being partitioned */
+
+    /** The domain being partitioned. */
     c_vector<double,2*DIM> mDomainSize;
 
-    /** The width of each box */
+    /** The width of each box. */
     double mCutOffLength;
-    
-    /** Number of boxes in each direction */
+
+    /** Number of boxes in each direction. */
     c_vector<unsigned,DIM> mNumBoxesEachDirection;
-    
-    /** The boxes local (itself and nearest neighbour) to a given box */
+
+    /** The boxes local (itself and nearest neighbour) to a given box. */
     std::vector< std::set<unsigned> > mLocalBoxes;
-    
-    /** 2D specific helper method - whether a box is on the bottom row of 
-     *  all the boxes.
-     *  @param boxIndex The box
+
+    /**
+     * 2D specific helper method - whether a box is on the bottom row of 
+     * all the boxes.
+     * 
+     * @param boxIndex The box
      */
     bool IsBottomRow(unsigned boxIndex)
     {
         return boxIndex % mNumBoxesEachDirection(1)==0;
     }
 
-    /** 2D specific helper methods - whether a box is on the top row of 
-     *  all the boxes.
-     *  @param boxIndex The box
+    /**
+     * 2D specific helper methods - whether a box is on the top row of 
+     * all the boxes.
+     * 
+     * @param boxIndex The box
      */
     bool IsTopRow(unsigned boxIndex)
     {
         return boxIndex % mNumBoxesEachDirection(1)==mNumBoxesEachDirection(1)-1;
     }
 
-    /** 2D specific helper methods - whether a box is on the left side of 
-     *  the boxes.
-     *  @param boxIndex The box
+    /**
+     * 2D specific helper methods - whether a box is on the left side of 
+     * the boxes.
+     * 
+     * @param boxIndex The box
      */
     bool IsLeftColumn(unsigned boxIndex)
     {
         return boxIndex < mNumBoxesEachDirection(1);
     }
-    
-    /** 2D specific helper methods - whether a box is on the right side of 
-     *  the boxes.
-     *  @param boxIndex The box
+
+    /**
+     * 2D specific helper methods - whether a box is on the right side of 
+     * the boxes.
+     *  
+     * @param boxIndex The box
      */
     bool IsRightColumn(unsigned boxIndex)
     {
         return boxIndex >= mBoxes.size() - mNumBoxesEachDirection(1);
     }
 
-    
 public:
-    /** 
+
+    /**
      * Constructor 
      * 
      * @param cutOffLength  the width of each box (cutOffLength) 
@@ -134,34 +154,42 @@ public:
      */ 
     NodeBoxCollection(double cutOffLength, c_vector<double, 2*DIM> domainSize);
 
-    /** Calculate which box this node is contained in */
+    /**
+     * Calculate which box this node is contained in.
+     * 
+     * @param pNode Address of the node
+     */
     unsigned CalculateContainingBox(Node<DIM>* pNode);
 
     /** 
-     * Get a box 
+     * Get a box.
      *
      * @param boxIndex  the index of the box to return
      * @return a NodeBox 
      */
     NodeBox<DIM>& rGetBox(unsigned boxIndex);
 
-    /** Get the number of boxes */
+    /** Get the number of boxes. */
     unsigned GetNumBoxes();
-    
-    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes */
+
+    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. */
     void CalculateLocalBoxes();
 
-    /** Get the set of all the local boxes, ie itself and its nearest-neighbours */
+    /**
+     * Get the set of all the local boxes, i.e. itself and its nearest-neighbours.
+     * 
+     * @param boxIndex  the index of the box
+     */
     std::set<unsigned> GetLocalBoxes(unsigned boxIndex);
-    
+
     /** 
      *  Compute all the pairs of (potentially) connected nodes, ie nodes which are in a local box
      *  to the box containing the first node. **Note that the user still has to check that the node
      *  pairs are less than the cut-off distance apart.** The pairs are checked so that index1 < index2,
      *  so each connected pair of nodes is only in the set once.   
      * 
-     *  @rNodes All the nodes to be consider
-     *  @rNodePairs The return value, a set of pairs of nodes
+     *  @param rNodes All the nodes to be consider
+     *  @param rNodePairs The return value, a set of pairs of nodes
      */
     void CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<Node<DIM>*, Node<DIM>*> >& rNodePairs);
 };

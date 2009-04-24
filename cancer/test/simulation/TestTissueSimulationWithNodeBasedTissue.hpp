@@ -90,7 +90,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Get each a random birth time.
+        // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
@@ -127,7 +127,6 @@ public:
         TS_ASSERT(min_distance_between_cells > 1e-3);
     }
 
-
     void TestSimulationWithNodeBoxes() throw (Exception)
     {
         // Create a simple mesh
@@ -136,19 +135,18 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Get each a random birth time.
+        // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
-        
+
         // Create a mechanics system
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.UseCutoffPoint(1.5);
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&linear_force);
-        
-        
+
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissue");
@@ -187,7 +185,7 @@ public:
 //        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
 //        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 //
-//        // Set up cells, one for each node. Get each a random birth time.
+//        // Set up cells, one for each node. Give each a random birth time.
 //        std::vector<TissueCell> cells = SetUpCells(p_mesh);
 //
 //        // Create a tissue
@@ -215,7 +213,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Get each a random birth time.
+        // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
@@ -259,7 +257,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Get each a random birth time.
+        // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
@@ -298,7 +296,7 @@ public:
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Set up cells, one for each node. Get each a random birth time.
+        // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
@@ -320,7 +318,6 @@ public:
         // Save the results
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
     }
-
 
     // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception)

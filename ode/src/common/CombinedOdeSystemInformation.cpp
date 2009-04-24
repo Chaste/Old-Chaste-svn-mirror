@@ -120,6 +120,5 @@ void CombinedOdeSystemInformation::Initialise()
 }
 
 /** Definition of the instance static member. */
-#undef COVERAGE_IGNORE
 std::vector<struct CombinedOdeSystemInformation::InstancePointers> CombinedOdeSystemInformation::msInstances;
-
+#undef COVERAGE_IGNORE

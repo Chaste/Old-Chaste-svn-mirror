@@ -66,7 +66,7 @@ private:
         TetrahedralMesh<DIM,DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -111,7 +111,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -149,7 +149,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node apart from one.
-        // Get each a birth time of -node_index,
+        // Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
@@ -243,7 +243,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -338,7 +338,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -386,15 +386,12 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
         // Make one cell start apoptosis
         cells[27].StartApoptosis();
-
-        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-        new_cell.SetBirthTime(0);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -404,9 +401,11 @@ public:
         TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), 81u);
 
         // Add a cell to the tissue
+        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        new_cell.SetBirthTime(0);
         c_vector<double,2> new_location;
         new_location[0] = 0.3433453454443;
-        new_location[0] = 0.3435346344234;
+        new_location[1] = 0.3435346344234;
         node_based_tissue.AddCell(new_cell, new_location);
 
         // Test that the numbers of nodes and cells has been updated
@@ -430,7 +429,7 @@ public:
 
         c_vector<double,2> new_location2;
         new_location2[0] = 0.6433453454443;
-        new_location2[0] = 0.6435346344234;
+        new_location2[1] = 0.6435346344234;
         node_based_tissue.AddCell(new_cell2, new_location2);
 
         // Test that the numbers of nodes and cells has been updated
@@ -445,7 +444,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -489,7 +488,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -517,7 +516,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
 
@@ -650,7 +649,7 @@ public:
             TetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
 
-            // Set up cells, one for each node. Get each a birth time of -node_index,
+            // Set up cells, one for each node. Give each a birth time of -node_index,
             // so the age = node_index
             std::vector<TissueCell> cells = SetUpCells(&mesh);
 

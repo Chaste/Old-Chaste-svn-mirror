@@ -113,7 +113,7 @@ public:
         VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
 
         // Set up cells, one for each element.
-        // Get each a birth time of -element_index, so the age = element_index.
+        // Give each a birth time of -element_index, so the age = element_index.
         std::vector<TissueCell> cells;
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumElements()-1; i++)

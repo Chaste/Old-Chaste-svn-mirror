@@ -45,15 +45,15 @@ c_vector<double, 2*DIM>& NodeBox<DIM>::rGetMinAndMaxValues()
 }
 
 template<unsigned DIM>
-void NodeBox<DIM>::AddNode(Node<DIM>* p_node)
+void NodeBox<DIM>::AddNode(Node<DIM>* pNode)
 {
-    mNodesContained.insert(p_node);
+    mNodesContained.insert(pNode);
 }
 
 template<unsigned DIM>
-void NodeBox<DIM>::RemoveNode(Node<DIM>* p_node)
+void NodeBox<DIM>::RemoveNode(Node<DIM>* pNode)
 {
-    mNodesContained.erase(p_node);
+    mNodesContained.erase(pNode);
 }
 
 template<unsigned DIM>
@@ -136,7 +136,7 @@ unsigned NodeBoxCollection<DIM>::CalculateContainingBox(Node<DIM>* pNode)
 
     double x = pNode->rGetLocation()[0];
     double y = pNode->rGetLocation()[1];
-    
+
     for (unsigned i=0; i<DIM; i++)
     {
         assert(pNode->rGetLocation()[i] >= mDomainSize(2*i));
@@ -164,63 +164,55 @@ unsigned NodeBoxCollection<DIM>::GetNumBoxes()
 template<unsigned DIM>
 void NodeBoxCollection<DIM>::CalculateLocalBoxes()
 {
+    assert(DIM==2);
+
     mLocalBoxes.clear();
     for (unsigned box_index=0; box_index<mBoxes.size(); box_index++)
     {
         std::set<unsigned> local_boxes;
         local_boxes.insert(box_index);
-    
-        assert(DIM==2);
-    
+
         if (!IsBottomRow(box_index))
         {
             local_boxes.insert(box_index-1);
         }
-        
+
         if (!IsTopRow(box_index))
         {
             local_boxes.insert(box_index+1);
         }
-    
+
         if (!IsLeftColumn(box_index))
         {
             local_boxes.insert(box_index-mNumBoxesEachDirection(1));
         }
-    
+
         if (!IsRightColumn(box_index))
         {
             local_boxes.insert(box_index+mNumBoxesEachDirection(1));
         }
-        
+
         if ( (!IsBottomRow(box_index)) && (!IsLeftColumn(box_index)) )
         {
             local_boxes.insert(box_index-mNumBoxesEachDirection(1)-1);
         }
-    
+
         if ( (!IsBottomRow(box_index)) && (!IsRightColumn(box_index)) )
         {
             local_boxes.insert(box_index+mNumBoxesEachDirection(1)-1);
         }
-        
+
         if ( (!IsTopRow(box_index)) && (!IsRightColumn(box_index)) )
         {
             local_boxes.insert(box_index+mNumBoxesEachDirection(1)+1);
         }
-    
+
         if ( (!IsTopRow(box_index)) && (!IsLeftColumn(box_index)) )
         {
             local_boxes.insert(box_index-mNumBoxesEachDirection(1)+1);
         }
 
-        mLocalBoxes.push_back( local_boxes );
-
-//        for (std::set<unsigned>::iterator iter = mLocalBoxes[box_index].begin();
-//            iter!= mLocalBoxes[box_index].end();
-//            iter++)
-//        {
-//            std::cout << *iter << " ";
-//        }
-//        std::cout << "\n";
+        mLocalBoxes.push_back(local_boxes);
     }
 }
 
@@ -231,32 +223,34 @@ std::set<unsigned> NodeBoxCollection<DIM>::GetLocalBoxes(unsigned boxIndex)
     return mLocalBoxes[boxIndex];
 }
 
-///\todo -> std::pair<Node<DIM>*,Node<DIM>*> 
 template<unsigned DIM>
 void NodeBoxCollection<DIM>::CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<Node<DIM>*, Node<DIM>*> >& rNodePairs)
 {
     rNodePairs.clear();
     for (unsigned node_index=0; node_index<rNodes.size(); node_index++)
     {
-        // get the box containing this node
+        // Get the box containing this node
         unsigned box_index = CalculateContainingBox(rNodes[node_index]);
-        // get the local boxes to this node
+
+        // Get the local boxes to this node
         std::set<unsigned> local_boxes_indices = GetLocalBoxes(box_index);
-        // loop over all the local boxes
+
+        // Loop over all the local boxes
         for (std::set<unsigned>::iterator iter = local_boxes_indices.begin();
-            iter != local_boxes_indices.end();
-            iter++)
+             iter != local_boxes_indices.end();
+             iter++)
         {
             NodeBox<DIM>& r_box = mBoxes[*iter];
             std::set< Node<DIM>* >& r_contained_nodes = r_box.rGetNodesContained();
-            
-            // get all the nodes in the local boxes in the original node
+
+            // Get all the nodes in the local boxes in the original node
             for (typename std::set<Node<DIM>*>::iterator node_iter = r_contained_nodes.begin();
                 node_iter != r_contained_nodes.end();
                 ++node_iter)
             {
                 unsigned index2 = (*node_iter)->GetIndex();
-                // if node_index1 < node_index2 add the pair to the set.
+
+                // If node_index1 < node_index2 add the pair to the set.
                 if (node_index < index2)
                 {
                     rNodePairs.insert(std::pair<Node<DIM>*,Node<DIM>*>(rNodes[node_index],rNodes[index2]));
@@ -269,7 +263,6 @@ void NodeBoxCollection<DIM>::CalculateNodePairs(std::vector<Node<DIM>*>& rNodes,
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
-
 
 template class NodeBox<1>;
 template class NodeBox<2>;

@@ -79,13 +79,12 @@ public:
     
     void TestBoxGeneration2d() throw (Exception)
     {
-        
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -95,22 +94,23 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
+
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
-        
+
         double cut_off_length = 0.2;
-        
+
         c_vector<double, 2*2> domain_size;
         domain_size(0) = -0.1;
         domain_size(1) = 1.15;
         domain_size(2) = -0.1;
         domain_size(3) = 1.15;
-            
+
         node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
-        
-        TS_ASSERT_EQUALS(node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(),49u);
-        
-        for (unsigned i=0;i<node_based_tissue.GetNodeBoxCollection()->GetNumBoxes();i++)
+
+        TS_ASSERT_EQUALS(node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(), 49u);
+
+        for (unsigned i=0; i<node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(); i++)
         {
             std::set< Node<2>* > nodes_in_box = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetNodesContained();
             c_vector<double, 2*2> box_min_max_values = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetMinAndMaxValues();
@@ -125,14 +125,14 @@ public:
                 
                 double epsilon = 1e-12;
                 
-                TS_ASSERT_LESS_THAN(box_min_max_values(0)-epsilon,x_position);
-                TS_ASSERT_LESS_THAN(x_position,box_min_max_values(1)+epsilon);
-                TS_ASSERT_LESS_THAN(box_min_max_values(2)-epsilon,y_position);
-                TS_ASSERT_LESS_THAN(y_position,box_min_max_values(3)+epsilon);
+                TS_ASSERT_LESS_THAN(box_min_max_values(0)-epsilon, x_position);
+                TS_ASSERT_LESS_THAN(x_position, box_min_max_values(1)+epsilon);
+                TS_ASSERT_LESS_THAN(box_min_max_values(2)-epsilon, y_position);
+                TS_ASSERT_LESS_THAN(y_position, box_min_max_values(3)+epsilon);
             }
         }
-        
-        // have checked that all the local boxes are calculated correctly on a 5 by 6 grid - here we
+
+        // Have checked that all the local boxes are calculated correctly on a 5 by 6 grid - here we
         // hardcode a few checks on the 7 by 7 grid. 
         std::set<unsigned> local_boxes_to_box_0 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(0);
         std::set<unsigned> correct_answer_0;
@@ -164,7 +164,6 @@ public:
         correct_answer_10.insert(17);
         correct_answer_10.insert(18);
         TS_ASSERT_EQUALS(local_boxes_to_box_10, correct_answer_10);
-
 
         std::set<unsigned> local_boxes_to_box_48 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(48);
         std::set<unsigned> correct_answer_48;
@@ -234,7 +233,8 @@ public:
         TS_ASSERT_EQUALS(pairs_should_be,pairs_returned );
         
         for (unsigned i=0; i<points.size(); i++)
-        {   // Tissue deletes the nodes
+        {
+            // Tissue deletes the nodes
             delete points[i];
         }
     }

@@ -55,7 +55,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index,
+        // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
@@ -155,7 +155,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells, one for each node. Get each a birth time of -node_index, so the age = node_index
+        // Set up cells, one for each node. Give each a birth time of -node_index, so the age = node_index
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());

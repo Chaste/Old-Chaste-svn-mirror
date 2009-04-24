@@ -165,9 +165,11 @@ protected:
      */
     void MoveOverlappingNodeOntoEdgeOfElement(Node<SPACE_DIM>* pNode, unsigned elementIndex);
 
+#define COVERAGE_IGNORE /// \todo Implement methods and remove coverage ignore
     unsigned SolveNodeMapping(unsigned index) const;
     unsigned SolveElementMapping(unsigned index) const;
     unsigned SolveBoundaryElementMapping(unsigned index) const;
+#undef COVERAGE_IGNORE
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -198,6 +200,7 @@ public:
      * @param vertexElements vector of pointers to VertexElements
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
      * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
+     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
      */
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements,
@@ -212,6 +215,7 @@ public:
      * @param numUp number of VertexElements up
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
      * @param edgeDivisionThreshold the maximum threshold distance for edge division
+     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.01)
      */
     VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold, double t2Threshold = 0.01);
 
@@ -220,6 +224,7 @@ public:
      *
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
      * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
+     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.01)
      */
     VertexMesh(double cellRearrangementThreshold=0.01, double edgeDivisionThreshold=1.5, double t2Threshold=0.01);
 

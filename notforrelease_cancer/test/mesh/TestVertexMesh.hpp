@@ -173,7 +173,6 @@ public:
     }
 
 
-
     void TestVertexElementAreaAndPerimeter()
     {
         // Create nodes
@@ -661,6 +660,7 @@ public:
         }
     }
 
+
     void TestNodesMerging() throw(Exception)
     {
         // Make 4 nodes to assign to 2 elements
@@ -741,6 +741,7 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(1), 0.5,1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 2.0+sqrt(2), 1e-6);
     }
+
 
     void TestPerformT1Swap() throw(Exception)
     {
@@ -938,11 +939,10 @@ public:
         TS_ASSERT_EQUALS(three_element_mesh.GetElement(2)->GetNode(3)->GetIndex(), 4u);
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
 
     void TestPerformT2Swap() throw(Exception)
     {
-    // Make 6 nodes to assign to four elements
+        // Make 6 nodes to assign to four elements
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
@@ -1013,7 +1013,8 @@ public:
             TS_ASSERT_EQUALS(vertex_mesh.GetElement(j)->GetNode(2)->GetIndex(), 3u);
         }
     }
-    
+
+
     void TestT2SwapsDontOccurWithTriangularNeighbours() throw(Exception)
     {
         // Make 6 nodes to assign to four elements
@@ -1065,8 +1066,9 @@ public:
         // Attempt to perform a T2 swap on the middle triangle element
         TS_ASSERT_THROWS_ANYTHING( vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0)) );        
     }
-    
-     void TestPerformT2SwapIfNecessary() throw(Exception)
+
+
+    void TestPerformT2SwapIfNecessary() throw(Exception)
     {
         // Make 6 nodes to assign to four elements
         std::vector<Node<2>*> nodes;
@@ -1146,7 +1148,29 @@ public:
     }
 
 
+    void TestVertexElementMap()
+    {
+        VertexElementMap map(10);
+        TS_ASSERT_EQUALS(map.Size(), 10u);
 
+        map.ResetToIdentity();
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
+
+        map.SetNewIndex(0,1);
+        map.SetNewIndex(1,0);
+
+        TS_ASSERT_EQUALS(map.GetNewIndex(0), 1u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(1), 0u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(2), 2u);
+
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+
+        map.ResetToIdentity();
+        map.SetDeleted(4);
+        TS_ASSERT_EQUALS(map.IsDeleted(4), true);
+        TS_ASSERT_EQUALS(map.IsDeleted(5), false);
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+    }
 
 
     void TestReMesh() throw(Exception)

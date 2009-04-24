@@ -163,7 +163,7 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
     for (unsigned i=0; i<DIM; i++)
     {
         min_posn(i) = DBL_MAX;
-        max_posn(i) = -DBL_MIN;
+        max_posn(i) = -DBL_MIN; /// \todo Shouldn't this be -DBL_MAX?
     }
     for (unsigned i=0; i<mNodes.size(); i++)
     {
@@ -185,7 +185,7 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
         assert(min_posn(i) != DBL_MAX);
         mMinSpatialPositions(i) = min_posn(i);
         
-        assert(max_posn(i) != -DBL_MIN);
+        assert(max_posn(i) != -DBL_MIN); /// \todo Shouldn't this be -DBL_MAX?
         mMaxSpatialPositions(i) = max_posn(i);
     }
 }
@@ -227,14 +227,14 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
                 delete mNodes[i];
             }
         }
-    
+
         std::map<unsigned,TissueCell*> old_map = this->mLocationCellMap;
         mNodes.clear();
-    
+
         // Clear maps
         this->mLocationCellMap.clear();
         this->mCellLocationMap.clear();
-    
+
         // Update mNodes to new indices which go from 0 to NumNodes-1
         for (unsigned i=0; i<old_nodes.size() ; i++)
         {
@@ -249,13 +249,13 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
             this->mLocationCellMap[i] = p_live_cell;
             this->mCellLocationMap[p_live_cell] = i;
         }
-    
+
         // Remove current dead indices data
         Clear();
-    
+
         Validate();
     }
-    
+
     if (mpNodeBoxCollection!=NULL)
     {
         delete mpNodeBoxCollection;
@@ -264,14 +264,14 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     FindMaxAndMin();
 
     // Something here to set up the domain size (max and min of each node position dimension)
-    c_vector<double, 2*DIM> domainSize;
-    
+    c_vector<double, 2*DIM> domain_size;
+
     for (unsigned i=0; i<DIM; i++)
     {
-        domainSize(2*i) = mMinSpatialPositions(i);
-        domainSize(2*i+1) = mMaxSpatialPositions(i);
+        domain_size(2*i) = mMinSpatialPositions(i);
+        domain_size(2*i+1) = mMaxSpatialPositions(i);
     }
-    
+
     double cut_off_length = CancerParameters::Instance()->GetMechanicsCutOffLength();
     if (cut_off_length==DBL_MAX)
     {
@@ -279,13 +279,13 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
                            + std::string("Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on CancerParameters");
         EXCEPTION(error);
     }
-    
+
     // Add this cancer parameter and suggest that mechanics systems set it.
     // Allocates memory for mpNodeBoxCollection and does the splitting and putting nodes into boxes
-    SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domainSize);
+    SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domain_size);
 
     mpNodeBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
-    
+
     assert(mNodePairs.size() > 0);
 }
 

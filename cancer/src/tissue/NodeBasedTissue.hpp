@@ -57,18 +57,17 @@ private:
     /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
     
-    /** pointer to a Node box collection */
+    /** Pointer to a Node box collection */
     NodeBoxCollection<DIM>* mpNodeBoxCollection;
     
-    /** vector of minimal spatial positions in each dimension */ 
+    /** Vector of minimal spatial positions in each dimension */ 
     c_vector<double, DIM> mMinSpatialPositions;
     
-    /** vector of maximal spatial positions in each dimension */ 
+    /** Vector of maximal spatial positions in each dimension */ 
     c_vector<double, DIM> mMaxSpatialPositions;
     
     /** Node pairs for force calculations */
     std::set< std::pair<Node<DIM>*, Node<DIM>* > > mNodePairs;
-    
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
