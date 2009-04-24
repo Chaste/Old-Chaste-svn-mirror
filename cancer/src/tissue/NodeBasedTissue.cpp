@@ -165,6 +165,7 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
         min_posn(i) = DBL_MAX;
         max_posn(i) = -DBL_MAX;
     }
+    
     for (unsigned i=0; i<mNodes.size(); i++)
     {
         for (unsigned j=0; j<DIM; j++)
