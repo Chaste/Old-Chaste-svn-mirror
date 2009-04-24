@@ -163,7 +163,7 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
     for (unsigned i=0; i<DIM; i++)
     {
         min_posn(i) = DBL_MAX;
-        max_posn(i) = -DBL_MIN; /// \todo Shouldn't this be -DBL_MAX?
+        max_posn(i) = -DBL_MAX;
     }
     for (unsigned i=0; i<mNodes.size(); i++)
     {
@@ -185,7 +185,7 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
         assert(min_posn(i) != DBL_MAX);
         mMinSpatialPositions(i) = min_posn(i);
         
-        assert(max_posn(i) != -DBL_MIN); /// \todo Shouldn't this be -DBL_MAX?
+        assert(max_posn(i) != -DBL_MAX);
         mMaxSpatialPositions(i) = max_posn(i);
     }
 }
