@@ -46,7 +46,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
 
     // check min x_i = a and max x_i = b, where i = index
     double local_min = DBL_MAX;
-    double local_max = -DBL_MIN;
+    double local_max = -DBL_MIN; /// \todo should this be -DBL_MAX?
     for (DistributedVector::Iterator node_it = DistributedVector::Begin();
      node_it != DistributedVector::End();
      ++node_it)
