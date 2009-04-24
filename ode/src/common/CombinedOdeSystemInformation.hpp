@@ -67,7 +67,8 @@ protected:
      *
      * Not user accessible - to obtain an instance of this class use the Instance method.
      * 
-     * @param rSubsystemInfo  the ODE systems used to construct the system we are providing information about.
+     * @param rSubsystemInfo  the information objects of the ODE systems used to construct
+     *     the system we are providing information about.
      */
     CombinedOdeSystemInformation(const std::vector<boost::shared_ptr<const AbstractOdeSystemInformation> >& rSubsystemInfo);
 

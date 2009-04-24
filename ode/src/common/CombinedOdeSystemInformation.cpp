@@ -118,8 +118,8 @@ void CombinedOdeSystemInformation::Initialise()
     // does nothing; work done in constructor
     // but we need the method because it is pure in our base class
 }
-#undef COVERAGE_IGNORE
 
 /** Definition of the instance static member. */
+#undef COVERAGE_IGNORE
 std::vector<struct CombinedOdeSystemInformation::InstancePointers> CombinedOdeSystemInformation::msInstances;
 
