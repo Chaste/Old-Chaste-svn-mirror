@@ -53,18 +53,19 @@ class MonodomainDg0Assembler
     : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
 {
 public:
-    static const unsigned E_DIM = ELEMENT_DIM;
-    static const unsigned S_DIM = SPACE_DIM;
-    static const unsigned P_DIM = 1u;
+    static const unsigned E_DIM = ELEMENT_DIM; /**< The element dimension (to save typing). */
+    static const unsigned S_DIM = SPACE_DIM; /**< The space dimension (to save typing). */
+    static const unsigned P_DIM = 1u; /**< The problem dimension (to save typing). */
 
 protected:
     double mSourceTerm;
 
+    /** The PDE to be solved. */
     MonodomainPde<SPACE_DIM>* mpMonodomainPde;
 
     // Save typing
-    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType;
-    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, SelfType> BaseClassType;
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType; /**< This type (to save typing). */
+    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, SelfType> BaseClassType; /**< Base class type (to save typing). */
 
     /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1u, false, BaseClassType>;
@@ -72,13 +73,20 @@ protected:
 protected:
 
     /**
-     *  ComputeVectorTerm()
+     * ComputeVectorTerm()
      *
-     *  This method is called by AssembleOnElement() and tells the assembler
-     *  the contribution to add to the element stiffness vector.
+     * This method is called by AssembleOnElement() and tells the assembler
+     * the contribution to add to the element stiffness vector.
      *
-     *  Here, the SimpleDg0ParabolicAssembler version of this method is
-     *  overloaded using the interpolated source term
+     * Here, the SimpleDg0ParabolicAssembler version of this method is
+     * overloaded using the interpolated source term.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param u The unknown as a vector, u(i) = u_i
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -88,28 +96,48 @@ protected:
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
+    /**
+     * Overridden ResetInterpolatedQuantities() method.
+     */
+    void ResetInterpolatedQuantities();
 
-    void ResetInterpolatedQuantities( void );
-
-
-    void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode);
-
+    /**
+     * Overridden IncrementInterpolatedQuantities() method.
+     *
+     * @param phi_i \todo This should be phiI
+     * @param pNode
+     */
+    void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode);
 
     virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime);
 
-
+    /**
+     * Create the linear system object if it hasn't been already.
+     * Can use an initial solution as PETSc template, or base it on the mesh size.
+     * 
+     * @param initialSolution an initial guess
+     */
     void InitialiseForSolve(Vec initialSolution);
 
 
 public:
+
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
+     * 
+     * @param pMesh pointer to the mesh
+     * @param pPde pointer to the PDE
+     * @param pBoundaryConditions pointer to the boundary conditions
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MonodomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            MonodomainPde<SPACE_DIM>* pPde,
                            BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
                            unsigned numQuadPoints = 2);
 
+    /**
+     * Destructor.
+     */
     ~MonodomainDg0Assembler();
 };
 
@@ -122,9 +150,12 @@ public:
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct AssemblerTraits<MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
 {
+    /** The class in which ComputeVectorTerm is defined. */
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
+    /** The class in which ComputeMatrixTerm is defined. */
     typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
             CMT_CLS;
+    /** The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLS;
 };
 

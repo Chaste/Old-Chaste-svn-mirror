@@ -62,11 +62,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<class T>
 struct AssemblerTraits
 {
-    /** The class in which ComputeVectorTerm is defined */
+    /** The class in which ComputeVectorTerm is defined. */
     typedef T CVT_CLS;
-    /** The class in which ComputeMatrixTerm is defined */
+    /** The class in which ComputeMatrixTerm is defined. */
     typedef T CMT_CLS;
-    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef AbstractAssembler<T::E_DIM, T::S_DIM, T::P_DIM> INTERPOLATE_CLS;
 };
 
@@ -74,8 +74,11 @@ struct AssemblerTraits
 template<>
 struct AssemblerTraits<boost::mpl::void_>
 {
+    /** The class in which ComputeVectorTerm is defined. */
     typedef boost::mpl::void_ CVT_CLS;
+    /** The class in which ComputeMatrixTerm is defined. */
     typedef boost::mpl::void_ CMT_CLS;
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef boost::mpl::void_ INTERPOLATE_CLS;
 };
 
@@ -124,7 +127,7 @@ protected:
 
     /**
      *  The linear system that is assembled in linear pde problems. Not used in
-     *  nonlinear problems
+     *  nonlinear problems.
      */
     LinearSystem *mpLinearSystem;
 
@@ -138,9 +141,6 @@ protected:
      *  @param rBElem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
-     *  @param currentSolutionOrGuess For the parabolic linear case, the solution at the current
-     *     timestep. NULL for the static linear case. In the nonlinear case, the current
-     *     guess.
      *  @param assembleVector a bool stating whether to assemble the load vector (in the
      *     linear case) or the residual vector (in the nonlinear case)
      *  @param assembleMatrix a bool stating whether to assemble the stiffness matrix (in
@@ -217,6 +217,9 @@ protected:
 
     /**
      * Get the value of the current solution (or guess) vector at the given node
+     * 
+     * @param nodeIndex
+     * @param indexOfUnknown
      */
     virtual double GetCurrentSolutionOrGuessValue(unsigned nodeIndex, unsigned indexOfUnknown);
 
@@ -225,7 +228,7 @@ public:
     /**
      * Default constructor. Uses linear basis functions.
      *
-     * @param numQuadPoints Number of quadrature points to use per dimension.
+     * @param numQuadPoints Number of quadrature points to use per dimension (defaults to 2)
      */
     AbstractStaticAssembler(unsigned numQuadPoints=2);
 
@@ -236,12 +239,14 @@ public:
      * points is not supported. (///\todo: There may be a small memory leak if this
      * occurs.)
      *
-     * @param numQuadPoints Number of quadrature points to use per dimension.
+     * @param numQuadPoints Number of quadrature points to use per dimension (defaults to 2)
      */
     void SetNumberOfQuadraturePointsPerDimension(unsigned numQuadPoints);
 
     /**
      * Set the mesh.
+     * 
+     * @param pMesh Pointer to a mesh
      */
     void SetMesh(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 

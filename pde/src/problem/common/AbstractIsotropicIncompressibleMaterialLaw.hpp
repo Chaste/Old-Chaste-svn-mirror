@@ -55,6 +55,7 @@ protected :
     virtual double Get_d2W_dI1I2(double I1, double I2)=0;
 
 public :
+
     /**
      *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE
      *  for a given strain.
@@ -83,6 +84,9 @@ public :
                                           FourthOrderTensor2<DIM>&  dTdE,
                                           bool                      computeDTdE);
 
+    /**
+     * Destructor.
+     */
     virtual ~AbstractIsotropicIncompressibleMaterialLaw();
 
     /**

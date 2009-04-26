@@ -48,6 +48,7 @@ template<unsigned DIM>
 class AbstractIncompressibleMaterialLaw
 {
 public :
+
     /**
      *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE for
      *  a given strain.
@@ -73,7 +74,6 @@ public :
                                                   FourthOrderTensor2<DIM>&   dTdE,
                                                   bool                      computeDTdE)=0;
 
-
     /**
      *  Compute the Cauchy stress (the true stress), given the deformation gradient
      *  F and the pressure. The Cauchy stress is given by
@@ -90,7 +90,7 @@ public :
      *  part), just pass in pressure=0.0
      */
     void ComputeCauchyStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& sigma);
-;
+
     /**
      *  Compute the 1st Piola Kirchoff stress, given the deformation gradient F
      *  and the pressure. The 1st Piola Kirchoff stress given by

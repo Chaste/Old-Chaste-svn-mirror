@@ -29,15 +29,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FunctionalBoundaryCondition.hpp"
 
 template<unsigned SPACE_DIM>
-FunctionalBoundaryCondition<SPACE_DIM>::FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& x))
+FunctionalBoundaryCondition<SPACE_DIM>::FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& rX))
     : mFunction(func)
 {
 }
 
 template<unsigned SPACE_DIM>
-double FunctionalBoundaryCondition<SPACE_DIM>::GetValue( const ChastePoint<SPACE_DIM>& x) const
+double FunctionalBoundaryCondition<SPACE_DIM>::GetValue( const ChastePoint<SPACE_DIM>& rX) const
 {
-    return mFunction(x);
+    return mFunction(rX);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

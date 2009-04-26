@@ -37,13 +37,13 @@ CellwiseNutrientSinkPde<DIM>::CellwiseNutrientSinkPde(MeshBasedTissue<DIM>& rTis
 }
 
 template<unsigned DIM>
-double CellwiseNutrientSinkPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x)
+double CellwiseNutrientSinkPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
 {
     return 0.0;
 }
 
 template<unsigned DIM>
-double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>* pElement)
+double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
 {
     NEVER_REACHED;
     return 0.0;
@@ -64,7 +64,7 @@ double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(con
 }
 
 template<unsigned DIM>
-c_matrix<double,DIM,DIM> CellwiseNutrientSinkPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& x)
+c_matrix<double,DIM,DIM> CellwiseNutrientSinkPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
 {
     return identity_matrix<double>(DIM);
 }

@@ -40,8 +40,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractStimulusFunction
 {
 public:
-    /** Returns stimulus at time 'time' */
+
+    /**
+     * Returns the stimulus at a given time.
+     * 
+     * @param time  time at which to return the stimulus
+     */
     virtual double GetStimulus(double time) = 0;
+
+    /**
+     * Destructor.
+     */
     virtual ~AbstractStimulusFunction()
     {}
 };

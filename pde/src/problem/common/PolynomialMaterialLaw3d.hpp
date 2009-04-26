@@ -57,31 +57,89 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PolynomialMaterialLaw3d : public AbstractIsotropicIncompressibleMaterialLaw<3>
 {
 private :
+
+    /** Parameter N. */
     unsigned mN;
+
+    /** Matrix of parameters alpha. */
     std::vector< std::vector<double> > mAlpha;
 
 public :
+
+    /**
+     * Get the first derivative dW/dI1.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_dW_dI1(double I1, double I2);
 
-
+    /**
+     * Get the first derivative dW/dI2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_dW_dI2(double I1, double I2);
 
-
+    /**
+     * Get the second derivative d^2W/dI1^2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_d2W_dI1(double I1, double I2);
 
-
+    /**
+     * Get the second derivative d^2W/dI2^2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_d2W_dI2(double I1, double I2);
 
+    /**
+     * Get the second derivative d^2W/dI1dI2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_d2W_dI1I2(double I1, double I2);
 
+    /**
+     * Get the parameter alpha_{ij}.
+     * 
+     * @param i index i
+     * @param j index j
+     */
     double GetAlpha(unsigned i, unsigned j);
 
 public :
+
+    /**
+     * Constructor.
+     * 
+     * @param N the parameter N \todo This should be n
+     * @param alpha the matrix of parameters alpha
+     */
     PolynomialMaterialLaw3d(unsigned N, std::vector<std::vector<double> > alpha);
 
+    /**
+     * Resize the matrix alpha to be of size (N+1)*(N+1) and zero all entries.
+     * 
+     * @param N the parameter N \todo This should be n
+     */
     static std::vector<std::vector<double> > GetZeroedAlpha(unsigned N);
 };
-
-
 
 #endif /*POLYNOMIALMATERIALLAW3D_HPP_*/

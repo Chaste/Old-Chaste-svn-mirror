@@ -55,22 +55,22 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
             c_vector<double, ELEMENT_DIM+1> &rPhi,
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
             ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,1> &u,
+            c_vector<double,1>& rU,
             c_matrix<double,1,SPACE_DIM> &rGradU,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
 
-    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
-    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX,u(0));
+    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX, rU(0));
+    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX, rU(0));
 
-    //LinearSourceTerm(x)   not needed as it is a constant wrt u
-    double forcing_term_prime = mpNonlinearEllipticPde->ComputeNonlinearSourceTermPrime(rX, u(0));
+    // LinearSourceTerm(x)  not needed as it is a constant wrt u
+    double forcing_term_prime = mpNonlinearEllipticPde->ComputeNonlinearSourceTermPrime(rX, rU(0));
 
     // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
     // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector
-    matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
-    c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,rGradU0);
+    matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0(rGradU, 0);
+    c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime, rGradU0);
     c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, rGradPhi);
 
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, rPhi);
@@ -86,11 +86,11 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,1*(ELEMENT_DIM+1)>
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeVectorTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,1> &u,
-            c_matrix<double,1,SPACE_DIM> &rGradU,
+            c_vector<double, ELEMENT_DIM+1>& rPhi,
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            ChastePoint<SPACE_DIM>& rX,
+            c_vector<double,1>& rU,
+            c_matrix<double,1,SPACE_DIM>& rGradU,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     c_vector<double, 1*(ELEMENT_DIM+1)> ret;
@@ -102,14 +102,14 @@ c_vector<double,1*(ELEMENT_DIM+1)>
     // d/dx [f(U,x) du/dx ] = -g
     // where g(x,U) is the forcing term
     double ForcingTerm = mpNonlinearEllipticPde->ComputeLinearSourceTerm(rX);
-    ForcingTerm += mpNonlinearEllipticPde->ComputeNonlinearSourceTerm(rX, u(0));
+    ForcingTerm += mpNonlinearEllipticPde->ComputeNonlinearSourceTerm(rX, rU(0));
     //make RHS general: consists of linear and nonlinear source terms
 
-    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
+    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX, rU(0));
 
     // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
     // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector.
-    matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
+    matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0(rGradU, 0);
     c_vector<double, ELEMENT_DIM+1> integrand_values1 =
         prod(c_vector<double, ELEMENT_DIM>(prod(rGradU0, FOfU)), rGradPhi);
 
@@ -121,8 +121,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, 1*ELEMENT_DIM>
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeVectorSurfaceTerm(
             const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-            c_vector<double, ELEMENT_DIM> &rPhi,
-            ChastePoint<SPACE_DIM> &rX)
+            c_vector<double, ELEMENT_DIM>& rPhi,
+            ChastePoint<SPACE_DIM>& rX)
 {
     double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
 

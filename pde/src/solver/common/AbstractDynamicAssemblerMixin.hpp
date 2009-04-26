@@ -46,19 +46,24 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractDynamicAssemblerMixin : virtual public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
+
     /** Simulation start time. */
     double mTstart;
+
     /** Simulation end time. */
     double mTend;
+
     /** The simulation time step. */
     double mDt;
+
     /** The inverse of the current time step. */
     double mDtInverse;
+
     /** Whether SetTimes has been called with suitable parameters. */
-    bool   mTimesSet;
+    bool mTimesSet;
 
     /** The initial condition vector. */
-    Vec    mInitialCondition;
+    Vec mInitialCondition;
 
     /** Whether the matrix has been assembled for the current time step. */
     bool mMatrixIsAssembled;
@@ -68,21 +73,27 @@ protected:
 
     /** Whether the RHS vector of a linear problem is created by a matrix-vector multiplication */
     bool mUseMatrixBasedRhsAssembly;
+
     /** If doing matrix-based assembly for the RHS b, the matrix B in Bz=b */
     Mat* mpMatrixForMatrixBasedRhsAssembly;
+
     /** If doing matrix-based assembly for the RHS b, the vector z in Bz=b */
     Vec mVectorForMatrixBasedRhsAssembly;
 
     /**
-     *  This method is only called if mUseMatrixBasedRhsAssembly has been set to
-     *  true (by a sub-class), in which case the subclass should have set up a matrix
-     *  to do matrix-based RHS assembly, and implemented
-     *  ConstructVectorForMatrixBasedRhsAssembly. This method just assembles the RHS
-     *  matrix b by setting up z and doing Bz=b.
+     * This method is only called if mUseMatrixBasedRhsAssembly has been set to
+     * true (by a sub-class), in which case the subclass should have set up a matrix
+     * to do matrix-based RHS assembly, and implemented
+     * ConstructVectorForMatrixBasedRhsAssembly. This method just assembles the RHS
+     * matrix b by setting up z and doing Bz=b.
+     * 
+     * @param currentSolution
+     * @param time
      */
     void DoMatrixBasedRhsAssembly(Vec currentSolution, double time);
 
 public:
+
     /**
      * Constructor notes we haven't been initialised fully yet.
      * The user needs to call SetTimes and SetInitialCondition.
@@ -112,6 +123,9 @@ public:
      */
     void SetMatrixIsConstant(bool matrixIsConstant=true);
 
+    /**
+     * Set the boolean mMatrixIsAssembled to false.
+     */
     void SetMatrixIsNotAssembled();
 
     /**

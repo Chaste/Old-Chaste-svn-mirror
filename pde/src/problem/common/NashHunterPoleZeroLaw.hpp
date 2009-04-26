@@ -44,6 +44,10 @@ class NashHunterPoleZeroLaw : public PoleZeroMaterialLaw<DIM>
 friend class TestMaterialLaws;
 
 public :
+
+    /**
+     * Constructor.
+     */
     NashHunterPoleZeroLaw();
 };
 

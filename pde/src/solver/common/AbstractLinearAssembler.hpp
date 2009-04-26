@@ -43,6 +43,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NO
 class AbstractLinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>
 {
 private:
+
+    /** Whether the matrix is unchanged each time Solve() is called */
     bool mMatrixIsConstant;
 
 protected:
@@ -57,17 +59,27 @@ protected:
 
     /**
      * Create the linear system object if it hasn't been already.
-     *
      * Can use an initial solution as PETSc template, or base it on the mesh size.
+     * 
+     * @param initialSolution an initial guess
      */
     virtual void InitialiseForSolve(Vec initialSolution);
 
+    /**
+     * Whether grad_u should be calculated
+     */
     bool ProblemIsNonlinear();
 
     /**
      * Solve a static pde, or a dynamic pde for 1 timestep.
      *
      * The mesh, pde and boundary conditions container must be set first.
+     *
+     * @param currentSolutionOrGuess  either the current solution (dynamic problem) or
+     *     initial guess (static problem) (defaults to NULL)
+     * @param currentTime  for a dynamic problem, the current time (defaults to 0.0)
+     * @param assembleMatrix  whether to assemble the matrix (defaults to true)
+     * @return the solution vector
      */
     virtual Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
                             double currentTime=0.0,
@@ -75,18 +87,26 @@ protected:
 
 public:
 
+    /**
+     * Constructors just call the base class versions.
+     * 
+     * @param numQuadPoints number of quadrature points (defaults to 2)
+     */
     AbstractLinearAssembler(unsigned numQuadPoints=2);
 
     /**
-     *  Destructor: ensures that the linear solver is thrown away.
+     * Destructor: ensures that the linear solver is thrown away.
      */
     ~AbstractLinearAssembler();
 
     /**
-     *  Solve the static pde.
+     * Solve the static pde.
      *
-     *  The mesh, pde and boundary conditions container must be set before Solve()
-     *  is called.
+     * The mesh, pde and boundary conditions container must be set before Solve()
+     * is called.
+     * 
+     * @param currentSolutionOrGuess either the current solution or initial guess (defaults to NULL)
+     * @param currentTime the current time (defaults to 0.0)
      */
     virtual Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0);
 

@@ -57,25 +57,71 @@ template<unsigned DIM>
 class MooneyRivlinMaterialLaw : public AbstractIsotropicIncompressibleMaterialLaw<DIM>
 {
 private :
+
+    /** Parameter c1. */
     double mC1;
+
+    /** Parameter c2. */
     double mC2;
 
 public :
+
+    /**
+     * Get the first derivative dW/dI1.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_dW_dI1(double I1, double I2);
 
+    /**
+     * Get the first derivative dW/dI2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_dW_dI2(double I1, double I2);
 
+    /**
+     * Get the second derivative d^2W/dI1^2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_d2W_dI1(double I1, double I2);
 
+    /**
+     * Get the second derivative d^2W/dI2^2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_d2W_dI2(double I1, double I2);
 
+    /**
+     * Get the second derivative d^2W/dI1dI2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     double Get_d2W_dI1I2(double I1, double I2);
 
+    /** Get method for mC1. */
     double GetC1();
 
+    /** Get method for mC2. */
     double GetC2();
 
-public :
     /**
      *  Constructor, Taking in mooney-rivlin parameters c1 and c2.
      *  Note: c2 is not used if the dimension is 2. Just pass in c1 if 2d.

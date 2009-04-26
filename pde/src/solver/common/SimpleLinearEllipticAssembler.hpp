@@ -186,13 +186,13 @@ struct AssemblerTraits<SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CON
                                      typename AssemblerTraits<CONCRETE>::CVT_CLS>::type
             CVT_CLS;
 
-    /** The class in which ComputeMatrixTerm is defined */
+    /** The class in which ComputeMatrixTerm is defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE>,
                                      typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
             CMT_CLS;
 
-    /** The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+    /** The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                      AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1u>,
                      typename AssemblerTraits<CONCRETE>::CMT_CLS>::type

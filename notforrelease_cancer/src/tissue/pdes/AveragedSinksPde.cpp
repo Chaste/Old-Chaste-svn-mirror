@@ -63,24 +63,23 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMe
     {
         mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume();
     }
-
 }
 
 template<unsigned DIM>
-double AveragedSinksPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& x)
+double AveragedSinksPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
 {
     return 0.0;
 }
 
 template<unsigned DIM>
-double AveragedSinksPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& x, Element<DIM,DIM>* pElement) // now takes in element
+double AveragedSinksPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement) // now takes in element
 {
     assert(mCellDensityOnCoarseElements.size() > 0);
     return mCoefficient*mCellDensityOnCoarseElements[pElement->GetIndex()];
 }
 
 template<unsigned DIM>
-c_matrix<double,DIM,DIM> AveragedSinksPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& x)
+c_matrix<double,DIM,DIM> AveragedSinksPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
 {
     return identity_matrix<double>(DIM);
 }

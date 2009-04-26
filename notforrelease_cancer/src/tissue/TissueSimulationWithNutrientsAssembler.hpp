@@ -85,15 +85,15 @@ protected:
         Element<DIM, DIM>* pElement);
 
     /**
-     *  The SimpleLinearEllipticAssembler version of this method is
-     *  overloaded using the interpolated source term.
-     *
-     * @param rPhi
-     * @param rGradPhi
-     * @param rX
-     * @param rU
-     * @param rGradU
-     * @param pElement
+     * The SimpleLinearEllipticAssembler version of this method is
+     * overloaded using the interpolated source term.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_matrix<double, 1*(DIM+1), 1*(DIM+1)> ComputeMatrixTerm(
         c_vector<double, DIM+1>& rPhi,
@@ -109,7 +109,7 @@ protected:
     void ResetInterpolatedQuantities();
 
     /**
-     * Overridden ResetInterpolatedQuantities() method.
+     * Overridden IncrementInterpolatedQuantities() method.
      *
      * @param phiI
      * @param pNode
@@ -120,11 +120,11 @@ public:
 
     /**
      * Constructor stores the mesh and PDE and boundary conditions.
-     *
-     * @param pMesh
-     * @param pPde
-     * @param pBoundaryConditions
-     * @param numQuadPoints
+     * 
+     * @param pMesh pointer to the mesh
+     * @param pPde pointer to the PDE
+     * @param pBoundaryConditions pointer to the boundary conditions
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
                                   AbstractLinearEllipticPde<DIM,DIM>* pPde,
@@ -132,7 +132,7 @@ public:
                                   unsigned numQuadPoints=2);
 
     /**
-     *  Destructor
+     *  Destructor.
      */
     ~TissueSimulationWithNutrientsAssembler();
 

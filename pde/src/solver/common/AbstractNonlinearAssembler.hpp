@@ -76,19 +76,31 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes,
  *  AbstractNonlinearAssembler
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
-class AbstractNonlinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,CONCRETE>
+class AbstractNonlinearAssembler : public AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, CONCRETE>
 {
-    typedef AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,CONCRETE> BaseClassType;
+    typedef AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, CONCRETE> BaseClassType; /**< Base class type (to save typing). */
+
 private:
+
+    /** PETSc vector storing an initial guess for the solution. */
     Vec mInitialGuess;
+
 protected:
+
+    /** The nonlinear solver. */
     AbstractNonlinearSolver* mpSolver;
+
+    /* Whether memory has been allocated for the solver. */
     bool mWeAllocatedSolverMemory;
 
+    /** Whether to use an analytical expression for the Jacobian. */
     bool mUseAnalyticalJacobian;
 
     /**
      * Apply Dirichlet boundary conditions to either the residual or jacobian.
+     * 
+     * @param currentGuess
+     * @param applyToMatrix
      */
     void ApplyDirichletConditions(Vec currentGuess, bool applyToMatrix);
 
@@ -118,7 +130,7 @@ public :
      * NOTE: this method is called indirectly by the PETSc iterative
      * solvers, so must be public.
      */
-    PetscErrorCode AssembleJacobian(const Vec currentGuess, Mat *pGlobalJacobian);
+    PetscErrorCode AssembleJacobian(const Vec currentGuess, Mat* pGlobalJacobian);
 
 protected:
 
@@ -131,16 +143,43 @@ protected:
      *
      * @return An error code if any PETSc routines fail.
      */
-    PetscErrorCode AssembleJacobianNumerically(const Vec currentGuess, Mat *pJacobian);
+    PetscErrorCode AssembleJacobianNumerically(const Vec currentGuess, Mat* pJacobian);
 
+    /**
+     *  AssembleSystem - the major method for all assemblers
+     *
+     *  Assemble the linear system for a linear PDE, or the residual or Jacobian for
+     *  nonlinear PDEs. Loops over each element (and each each surface element if
+     *  there are non-zero Neumann boundary conditions), calls AssembleOnElement()
+     *  and adds the contribution to the linear system.
+     *
+     *  Takes in current solution and time if necessary but only used if the problem
+     *  is a dynamic one. This method uses PROBLEM_DIM and can assemble linear systems
+     *  for any number of unknown variables.
+     *
+     *  @param assembleVector  Whether to assemble the RHS vector of the linear system
+     *     (i.e. the residual vector for nonlinear problems).
+     *  @param assembleMatrix  Whether to assemble the LHS matrix of the linear system
+     *     (i.e. the jacobian matrix for nonlinear problems).
+     *  @param currentSolutionOrGuess The current solution in a linear dynamic problem,
+     *     or the current guess in a nonlinear problem. Should be NULL for linear static
+     *     problems. Defaults to NULL.
+     *  @param currentTime The current time for dynamic problems. Not used in static
+     *     problems. Defaults to 0.0.
+     */
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentGuess=NULL, double currentTime=0.0);
 
+    /**
+     * Whether grad_u should be calculated
+     */
     bool ProblemIsNonlinear();
 
     /**
      * No separate initialisation is needed in the nonlinear case; PrepareForSolve does
      * everything.  We just check the size of the initial guess.
+     * 
+     * @param initialGuess an initial guess
      */
     void InitialiseForSolve(Vec initialGuess);
 
@@ -160,6 +199,8 @@ public:
 
     /**
      * Constructors just call the base class versions.
+     * 
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     AbstractNonlinearAssembler(unsigned numQuadPoints = 2);
 

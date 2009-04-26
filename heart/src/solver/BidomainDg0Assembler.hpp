@@ -70,18 +70,19 @@ class BidomainDg0Assembler
       public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 2>
 {
 public:
-    static const unsigned E_DIM = ELEMENT_DIM;
-    static const unsigned S_DIM = SPACE_DIM;
-    static const unsigned P_DIM = 2u;
+    static const unsigned E_DIM = ELEMENT_DIM; /**< The element dimension (to save typing). */
+    static const unsigned S_DIM = SPACE_DIM; /**< The space dimension (to save typing). */
+    static const unsigned P_DIM = 2u; /**< The problem dimension (to save typing). */
 
 protected:
     // Save typing
-    typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType;
-    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, SelfType> BaseClassType;
+    typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType; /**< This type (to save typing). */
+    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, SelfType> BaseClassType; /**< Base class type (to save typing). */
 
     /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 2, false, SelfType>;
 
+    /** The PDE to be solved. */
     BidomainPde<SPACE_DIM>* mpBidomainPde;
 
     HeartConfig* mpConfig;
@@ -98,23 +99,45 @@ protected:
 
     unsigned mRowForAverageOfPhiZeroed;
 
-    void ResetInterpolatedQuantities( void );
+    /**
+     * Overridden ResetInterpolatedQuantities() method.
+     */
+    void ResetInterpolatedQuantities();
 
+    /**
+     * Create the linear system object if it hasn't been already.
+     * Can use an initial solution as PETSc template, or base it on the mesh size.
+     * 
+     * @param initialSolution an initial guess
+     */
     void InitialiseForSolve(Vec initialSolution);
 
+    /**
+     * Overridden IncrementInterpolatedQuantities() method.
+     *
+     * @param phi_i \todo This should be phiI
+     * @param pNode
+     */
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode);
 
     /**
-     *  ComputeMatrixTerm()
+     * ComputeMatrixTerm()
      *
-     *  This method is called by AssembleOnElement() and tells the assembler
-     *  the contribution to add to the element stiffness matrix.
+     * This method is called by AssembleOnElement() and tells the assembler
+     * the contribution to add to the element stiffness matrix.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &u,
+        c_vector<double,2> &rU,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
@@ -123,6 +146,13 @@ protected:
      *
      *  This method is called by AssembleOnElement() and tells the assembler
      *  the contribution to add to the element stiffness vector.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param u The unknown as a vector, u(i) = u_i
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -132,16 +162,21 @@ protected:
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-    /** ComputeVectorSurfaceTerm()
+    /**
+     * ComputeVectorSurfaceTerm()
      *
-     *  This method is called by AssembleOnSurfaceElement() and tells the
-     *  assembler what to add to the element stiffness matrix arising
-     *  from surface element contributions.
+     * This method is called by AssembleOnSurfaceElement() and tells the
+     * assembler what to add to the element stiffness matrix arising
+     * from surface element contributions.
      *
-     *  NOTE: this method has to be implemented but shouldn't ever be called -
-     *  because all bidomain problems (currently) just have zero Neumann boundary
-     *  conditions and the AbstractLinearAssmebler::AssembleSystem() method
-     *  will realise this and not loop over surface elements.
+     * NOTE: this method has to be implemented but shouldn't ever be called -
+     * because all bidomain problems (currently) just have zero Neumann boundary
+     * conditions and the AbstractLinearAssmebler::AssembleSystem() method
+     * will realise this and not loop over surface elements.
+     *
+     * @param rSurfaceElement the element which is being considered.
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rX The point in space
      */
 #define COVERAGE_IGNORE //see NOTE above
     virtual c_vector<double, 2*ELEMENT_DIM> ComputeVectorSurfaceTerm(
@@ -168,17 +203,24 @@ protected:
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime);
 
-
 public:
 
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
+     * 
+     * @param pMesh pointer to the mesh
+     * @param pPde pointer to the PDE
+     * @param pBoundaryConditions pointer to the boundary conditions
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     BidomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
                          BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                          unsigned numQuadPoints = 2);
 
+    /**
+     * Destructor.
+     */
     ~BidomainDg0Assembler();
 
     /**
@@ -203,11 +245,11 @@ public:
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct AssemblerTraits<BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
 {
-    /** The class in which ComputeVectorTerm is defined */
+    /** The class in which ComputeVectorTerm is defined. */
     typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
-    /** The class in which ComputeMatrixTerm is defined */
+    /** The class in which ComputeMatrixTerm is defined. */
     typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CMT_CLS;
-    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLS;
 };
 

@@ -126,10 +126,13 @@ protected:
     void FormInitialGuess();
 
     /**
-     *  Assemble the residual vector (using the current solution stored
-     *  in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
-     *  or Jacobian matrix (using the current solution stored in
-     *  mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
+     * Assemble the residual vector (using the current solution stored
+     * in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
+     * or Jacobian matrix (using the current solution stored in
+     * mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
+     * 
+     * @param assembleResidual
+     * @param assembleJacobian
      */
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
 
@@ -137,10 +140,19 @@ protected:
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations);
 
 public:
+
     /**
-     *  Constructor taking in mesh, material law (assuming homogeniety at the moment)
-     *  body force, density, the fixed nodes (all the fixed nodes, including non-vertices),
-     *  and the output directory.
+     * Constructor taking in mesh, material law (assuming homogeniety at the moment)
+     * body force, density, the fixed nodes (all the fixed nodes, including non-vertices),
+     * and the output directory.
+     * 
+     * @param pQuadMesh
+     * @param pMaterialLaw
+     * @param bodyForce
+     * @param density
+     * @param outputDirectory
+     * @param fixedNodes
+     * @param pFixedNodeLocations (defaults to NULL)
      */
     NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
                                  AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
@@ -150,7 +162,17 @@ public:
                                  std::vector<unsigned>& fixedNodes,
                                  std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
-    /** Variant constructor taking a vector of material laws */
+    /**
+     * Variant constructor taking a vector of material laws.
+     * 
+     * @param pQuadMesh
+     * @param rMaterialLaws
+     * @param bodyForce
+     * @param density
+     * @param outputDirectory
+     * @param fixedNodes
+     * @param pFixedNodeLocations (defaults to NULL)
+     */
     NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
                                  std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
                                  c_vector<double,DIM> bodyForce,
@@ -159,13 +181,16 @@ public:
                                  std::vector<unsigned>& fixedNodes,
                                  std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
-    /** Destructor frees memory for quadrature rules */
+    /** Destructor frees memory for quadrature rules. */
     ~NonlinearElasticityAssembler();
 
     /**
-     *  Specify traction boundary conditions (if this is not called zero surface
-     *  tractions are assumed. This method takes in a list of boundary elements
-     *  and a corresponding list of surface tractions
+     * Specify traction boundary conditions (if this is not called zero surface
+     * tractions are assumed. This method takes in a list of boundary elements
+     * and a corresponding list of surface tractions.
+     * 
+     * @param rBoundaryElements
+     * @param rSurfaceTractions
      */
     void SetSurfaceTractionBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
                                               std::vector<c_vector<double,DIM> >& rSurfaceTractions);
@@ -173,14 +198,20 @@ public:
     /**
       * Set a function which gives the surface traction as a function of X (undeformed position),
       * together with the surface elements which make up the Neumann part of the boundary.
+      * 
+      * @param rBoundaryElements
       */
     void SetFunctionalTractionBoundaryCondition(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
                                                 c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
 
+
+    /**
+     * Get pressures.
+     */
     std::vector<double>& rGetPressures();
 
     /**
-     *  Get the deformed position. Note returnvalue[i](j) = x_j for node i
+     *  Get the deformed position. Note returnvalue[i](j) = x_j for node i.
      */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 };

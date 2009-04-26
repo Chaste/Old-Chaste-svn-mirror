@@ -200,6 +200,28 @@ protected:
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
                                           c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem)=0;
 
+    /**
+     *  AssembleSystem - the major method for all assemblers
+     *
+     *  Assemble the linear system for a linear PDE, or the residual or Jacobian for
+     *  nonlinear PDEs. Loops over each element (and each each surface element if
+     *  there are non-zero Neumann boundary conditions), calls AssembleOnElement()
+     *  and adds the contribution to the linear system.
+     *
+     *  Takes in current solution and time if necessary but only used if the problem
+     *  is a dynamic one. This method uses PROBLEM_DIM and can assemble linear systems
+     *  for any number of unknown variables.
+     *
+     *  @param assembleVector  Whether to assemble the RHS vector of the linear system
+     *     (i.e. the residual vector for nonlinear problems).
+     *  @param assembleMatrix  Whether to assemble the LHS matrix of the linear system
+     *     (i.e. the jacobian matrix for nonlinear problems).
+     *  @param currentSolutionOrGuess The current solution in a linear dynamic problem,
+     *     or the current guess in a nonlinear problem. Should be NULL for linear static
+     *     problems. Defaults to NULL.
+     *  @param currentTime The current time for dynamic problems. Not used in static
+     *     problems. Defaults to 0.0.
+     */
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix,
                                 Vec currentSolutionOrGuess=NULL, double currentTime=0.0)=0;
 
@@ -279,9 +301,13 @@ protected:
     virtual void InitialiseForSolve(Vec initialGuess)=0;
 
     /**
-     * Accessor methods that subclasses can use to get to useful data.
+     * Accessor method that subclasses can use to get to useful data.
      */
     virtual LinearSystem** GetLinearSystem()=0;
+
+    /**
+     * Accessor method that subclasses can use to get to useful data.
+     */
     virtual ReplicatableVector& rGetCurrentSolutionOrGuess()=0;
 
     /**

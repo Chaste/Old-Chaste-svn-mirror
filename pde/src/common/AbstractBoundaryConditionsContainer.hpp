@@ -37,6 +37,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "LinearSystem.hpp"
 //#include "PetscException.hpp"
 
+/**
+ * Helper struct storing an operator for computing whether one node 
+ * has a lower index than another.
+ */
 template<unsigned SPACE_DIM>
 struct LessThanNode
 {
@@ -46,6 +50,9 @@ struct LessThanNode
     }
 };
 
+/**
+ * Abstract boundary conditions container.
+ */
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractBoundaryConditionsContainer
 {
@@ -62,7 +69,9 @@ public:
      */
     AbstractBoundaryConditionsContainer();
 
-
+    /**
+     * Destructor.
+     */
     ~AbstractBoundaryConditionsContainer();
 
     /** {
@@ -76,9 +85,12 @@ public:
      */
     bool HasDirichletBoundaryConditions();
 
-
+    /**
+     * Delete list of Dirichlet boundary conditions.
+     * 
+     * @param deletedConditions (optional)
+     */
     void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>());
-
 
     /**
      * Obtain value of Dirichlet boundary condition at specified node

@@ -45,10 +45,13 @@ template<unsigned DIM>
 class QuadraturePointsGroup
 {
 private :
+
     /** The quadrature points in physical space */
     std::vector<c_vector<double,DIM> > data;
+
     /** Number of elements in given mesh */
     unsigned mNumElements;
+
     /** Number of quad points per element in given rule */
     unsigned mNumQuadPointsPerElement;
 

@@ -1167,6 +1167,7 @@ public:
 
         map.ResetToIdentity();
         map.SetDeleted(4);
+        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(4));
         TS_ASSERT_EQUALS(map.IsDeleted(4), true);
         TS_ASSERT_EQUALS(map.IsDeleted(5), false);
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);

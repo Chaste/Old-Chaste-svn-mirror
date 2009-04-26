@@ -72,11 +72,11 @@ Vec SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::So
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE>
 c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
     SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::ComputeMatrixTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,1> &u,
-            c_matrix<double,1,SPACE_DIM> &rGradU /* not used */,
+            c_vector<double, ELEMENT_DIM+1>& rPhi,
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            ChastePoint<SPACE_DIM>& rX,
+            c_vector<double,1>& rU,
+            c_matrix<double,1,SPACE_DIM>& rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX, pElement);
@@ -88,24 +88,24 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE>
 c_vector<double,1*(ELEMENT_DIM+1)>
     SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::ComputeVectorTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,1> &u,
-            c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
+            c_vector<double, ELEMENT_DIM+1>& rPhi,
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            ChastePoint<SPACE_DIM>& rX,
+            c_vector<double,1>& rU,
+            c_matrix<double, 1, SPACE_DIM>& rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 
 {
-    return (mpParabolicPde->ComputeNonlinearSourceTerm(rX, u(0)) + mpParabolicPde->ComputeLinearSourceTerm(rX)
-            + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * u(0)) * rPhi;
+    return (mpParabolicPde->ComputeNonlinearSourceTerm(rX, rU(0)) + mpParabolicPde->ComputeLinearSourceTerm(rX)
+            + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * rU(0)) * rPhi;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE>
 c_vector<double, ELEMENT_DIM>
     SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::ComputeVectorSurfaceTerm(
-            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-            c_vector<double, ELEMENT_DIM> &rPhi,
-            ChastePoint<SPACE_DIM> &rX )
+            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+            c_vector<double, ELEMENT_DIM>& rPhi,
+            ChastePoint<SPACE_DIM>& rX)
 {
     // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
     double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);

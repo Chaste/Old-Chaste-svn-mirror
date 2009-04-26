@@ -36,7 +36,7 @@ StimulusBoundaryCondition<SPACE_DIM>::StimulusBoundaryCondition(AbstractStimulus
 }
 
 template<unsigned SPACE_DIM>
-double StimulusBoundaryCondition<SPACE_DIM>::GetValue( const ChastePoint<SPACE_DIM>& ) const
+double StimulusBoundaryCondition<SPACE_DIM>::GetValue(const ChastePoint<SPACE_DIM>& rX) const
 {
     return mpStimulus->GetStimulus(PdeSimulationTime::GetTime());
 }

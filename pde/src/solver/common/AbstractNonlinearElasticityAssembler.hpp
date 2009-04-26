@@ -55,13 +55,13 @@ class AbstractNonlinearElasticityAssembler
 {
 protected:
 
-    /** Maximum absolute tolerance for newton solve  */
+    /** Maximum absolute tolerance for Newton solve.  */
     static const double MAX_NEWTON_ABS_TOL;
 
-    /** Minimum absolute tolerance for newton solve  */
+    /** Minimum absolute tolerance for Newton solv.e  */
     static const double MIN_NEWTON_ABS_TOL;
 
-    /** Relative tolerance for newton solve  */
+    /** Relative tolerance for Newton solve.  */
     static const double NEWTON_REL_TOL;
 
     /**
@@ -140,7 +140,7 @@ protected:
      */
     FourthOrderTensor2<DIM> dTdE;
 
-    /** Number of newton iterations taken in last solve */
+    /** Number of Newton iterations taken in last solve */
     unsigned mNumNewtonIterations;
 
     /** Deformed position: mDeformedPosition[i](j) = x_j for node i */
@@ -173,12 +173,34 @@ protected:
     /** Whether the functional version of the surface traction is being used or not */
     bool mUsingTractionBoundaryConditionFunction;
 
+    /**
+     * Set up the current guess to be the solution given no displacement.
+     * Must be overridden in concrete derived classes.
+     */
     virtual void FormInitialGuess()=0;
+
+    /**
+     * Assemble the residual vector (using the current solution stored
+     * in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
+     * or Jacobian matrix (using the current solution stored in
+     * mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
+     * Must be overridden in concrete derived classes.
+     * 
+     * @param assembleResidual
+     * @param assembleJacobian
+     */
     virtual void AssembleSystem(bool assembleResidual, bool assembleJacobian)=0;
+
+    /**
+     * Get the deformed position.
+     * Must be overridden in concrete derived classes.
+     */
     virtual std::vector<c_vector<double,DIM> >& rGetDeformedPosition()=0;
 
     /**
-     *  Apply the Dirichlet boundary conditions to the linear system
+     * Apply the Dirichlet boundary conditions to the linear system.
+     * 
+     * @param applyToMatrix
      */
     void ApplyBoundaryConditions(bool applyToMatrix);
 
@@ -195,13 +217,26 @@ protected:
     double TakeNewtonStep();
 
     /**
-     *  This function may be overloaded by subclasses. It is called after each Newton
-     *  iteration.
+     * This function may be overloaded by subclasses. It is called after each Newton
+     * iteration.
+     * 
+     * @param counter
+     * @param normResidual
      */
     virtual void PostNewtonStep(unsigned counter, double normResidual);
 
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param numDofs
+     * @param pMaterialLaw
+     * @param bodyForce
+     * @param density
+     * @param outputDirectory
+     * @param fixedNodes
+     */
     AbstractNonlinearElasticityAssembler(unsigned numDofs,
                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                          c_vector<double,DIM> bodyForce,
@@ -209,6 +244,16 @@ public:
                                          std::string outputDirectory,
                                          std::vector<unsigned>& fixedNodes);
 
+    /**
+     * Variant constructor taking a vector of material laws.
+     * 
+     * @param numDofs
+     * @param rMaterialLaws
+     * @param bodyForce
+     * @param density
+     * @param outputDirectory
+     * @param fixedNodes
+     */
     AbstractNonlinearElasticityAssembler(unsigned numDofs,
                                          std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
                                          c_vector<double,DIM> bodyForce,
@@ -222,7 +267,12 @@ public:
     virtual ~AbstractNonlinearElasticityAssembler();
 
     /**
-     *  Solve the problem.
+     * Solve the problem.
+     * 
+     * @param tol (defaults to -1.0)
+     * @param offset (defaults to 0)
+     * @param maxNumNewtonIterations (defaults to INT_MAX)
+     * @param quitIfNoConvergence (defaults to true)
      */
     void Solve(double tol=-1.0,
                unsigned offset=0,
@@ -230,10 +280,15 @@ public:
                bool quitIfNoConvergence=true);
 
     /**
-     *  Write the current solution for the file outputdir/solution_[counter].nodes
+     * Write the current solution for the file outputdir/solution_[counter].nodes
+     * 
+     * @param counter
      */
     void WriteOutput(unsigned counter);
 
+    /**
+     * Get number of Newton iterations taken in last solve.
+     */
     unsigned GetNumNewtonIterations();
 
     /**
@@ -242,6 +297,11 @@ public:
      */
     void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
 
+    /**
+     * Set whether to write any output.
+     * 
+     * @param writeOutput (defaults to true)
+     */
     void SetWriteOutput(bool writeOutput=true);
 
 };
@@ -721,7 +781,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::SetFunctionalBodyForce(c_vector<
 template<unsigned DIM>
 void AbstractNonlinearElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
 {
-    if(writeOutput && (mOutputDirectory==""))
+    if (writeOutput && (mOutputDirectory==""))
     {
         EXCEPTION("Can't write output if no output directory was given in constructor");
     }

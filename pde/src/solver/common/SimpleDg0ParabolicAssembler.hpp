@@ -54,59 +54,83 @@ class SimpleDg0ParabolicAssembler
       public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>
 {
 public:
-    static const unsigned E_DIM = ELEMENT_DIM;
-    static const unsigned S_DIM = SPACE_DIM;
-    static const unsigned P_DIM = 1u;
+    static const unsigned E_DIM = ELEMENT_DIM; /**< The element dimension (to save typing). */
+    static const unsigned S_DIM = SPACE_DIM; /**< The space dimension (to save typing). */
+    static const unsigned P_DIM = 1u; /**< The problem dimension (to save typing). */
 private:
+
+    /** The PDE to be solved. */
     AbstractLinearParabolicPde<SPACE_DIM>* mpParabolicPde;
 
-    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> SelfType;
-    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType> BaseClassType;
+    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> SelfType; /**< This type (to save typing). */
+    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType> BaseClassType; /**< Base class type (to save typing). */
     /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
     friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType>;
 
 #define COVERAGE_IGNORE //In case these protoypes show up as code
 protected:
     /**
-     *  The term to be added to the element stiffness matrix:
+     * The term to be added to the element stiffness matrix:
      *
      *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) +
      *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU /* not used */,
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double,1,SPACE_DIM>& rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     *  The term to be added to the element stiffness vector:
+     * The term to be added to the element stiffness vector.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double, 1, SPACE_DIM>& rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-
     /**
-     *  The term arising from boundary conditions to be added to the element
-     *  stiffness vector
+     * The term arising from boundary conditions to be added to the element
+     * stiffness vector.
+     * 
+     * @param rSurfaceElement the element which is being considered.
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rX The point in space
      */
     virtual c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-        c_vector<double, ELEMENT_DIM> &rPhi,
-        ChastePoint<SPACE_DIM> &rX );
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+        c_vector<double, ELEMENT_DIM>& rPhi,
+        ChastePoint<SPACE_DIM>& rX);
 #undef COVERAGE_IGNORE //In case these protoypes show up as code
 
-
 public:
+
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
+     * 
+     * @param pMesh pointer to the mesh
+     * @param pPde pointer to the PDE
+     * @param pBoundaryConditions pointer to the boundary conditions
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     SimpleDg0ParabolicAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 AbstractLinearParabolicPde<SPACE_DIM>* pPde,
@@ -114,10 +138,19 @@ public:
                                 unsigned numQuadPoints = 2);
 
     /**
-     * Called by AbstractDynamicAssemblerMixin at the beginning of Solve()
+     * Called by AbstractDynamicAssemblerMixin at the beginning of Solve().
      */
     virtual void PrepareForSolve();
 
+    /**
+     * Solve the static pde.
+     *
+     * The mesh, pde and boundary conditions container must be set before Solve()
+     * is called.
+     * 
+     * @param currentSolutionOrGuess either the current solution or initial guess (defaults to NULL)
+     * @param currentTime the current time (defaults to 0.0)
+     */
     Vec Solve(Vec currentSolutionOrGuess=NULL, double currentTime=0.0);
 };
 
@@ -138,15 +171,19 @@ public:
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE>
 struct AssemblerTraits<SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> >
 {
+    /** The class in which ComputeVectorTerm is defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>,
                                      typename AssemblerTraits<CONCRETE>::CVT_CLS>::type
             CVT_CLS;
+
+    /** The class in which ComputeMatrixTerm is defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>,
                                      typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
             CMT_CLS;
-    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined */
+
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                      AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1u>,
                      typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS>::type

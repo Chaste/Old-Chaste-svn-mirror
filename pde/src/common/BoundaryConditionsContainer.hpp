@@ -52,8 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Various operations are currently very inefficient - there is certainly scope for
  * optimisation here!
  */
-
-
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>
 {

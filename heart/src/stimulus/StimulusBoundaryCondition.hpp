@@ -51,10 +51,10 @@ public:
     StimulusBoundaryCondition(AbstractStimulusFunction* pStimulus);
 
     /**
-     * @param x The point at which this boundary condition is to be evaluated.
+     * @param rX The point at which this boundary condition is to be evaluated.
      * @return The constant value given in the constructor.
      */
-    double GetValue( const ChastePoint<SPACE_DIM>& ) const;
+    double GetValue(const ChastePoint<SPACE_DIM>& rX) const;
 };
 
 #endif /*STIMULUSBOUNDARYCONDITION_HPP_*/

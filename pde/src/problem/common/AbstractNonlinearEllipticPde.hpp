@@ -64,14 +64,25 @@ public:
     /**
      * Compute diffusion term.
      * 
-     * @param rX The point in space at which the diffusion term is computed.
-     * @param pElement The mesh element that x is contained in (optional).
-     * @return A matrix.
+     * @param rX the point in space at which the diffusion term is computed.
+     * @param u the value of the dependent variable at the point
      */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
+    /**
+     * Compute derivative of diffusion term.
+     * 
+     * @param rX the point in space at which the diffusion term is computed.
+     * @param u the value of the dependent variable at the point
+     */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
+    /**
+     * Compute derivative of nonlinear source term.
+     * 
+     * @param rX the point in space at which the nonlinear source term is computed
+     * @param u the value of the dependent variable at the point
+     */
     virtual double ComputeNonlinearSourceTermPrime(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
     /**

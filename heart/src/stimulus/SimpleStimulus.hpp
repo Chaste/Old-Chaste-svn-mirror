@@ -47,8 +47,26 @@ private:
     double mTimeOfStimulus;
 
 public:
+
+    /**
+     * Constructor.
+     * 
+     * @param magnitudeOfStimulus  The stimulus magnitude
+     * @param duration  Duration of initial stimulus
+     * @param timeOfStimulus  The time at which the stimulus starts (defaults to 0.0)
+     */
     SimpleStimulus(double magnitudeOfStimulus, double duration, double timeOfStimulus=0.0);
+
+    /**
+     * Destructor.
+     */
     virtual ~SimpleStimulus();
+
+    /**
+     * Returns the stimulus at a given time.
+     * 
+     * @param time  time at which to return the stimulus
+     */
     double GetStimulus(double time);
 };
 

@@ -54,13 +54,20 @@ class MonodomainRhsMatrixAssembler
     : public AbstractLinearAssembler<DIM, DIM, 1, false, MonodomainRhsMatrixAssembler<DIM> >
 {
 public:
-    static const unsigned E_DIM = DIM;
-    static const unsigned S_DIM = DIM;
-    static const unsigned P_DIM = 1u;
+    static const unsigned E_DIM = DIM; /**< The element dimension (to save typing). */
+    static const unsigned S_DIM = DIM; /**< The space dimension (to save typing). */
+    static const unsigned P_DIM = 1u; /**< The problem dimension (to save typing). */
 
 public:
     /**
-     *  Integrand in matrix definition integral (see class documentation)
+     *  Integrand in matrix definition integral (see class documentation).
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param u The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
         c_vector<double, DIM+1> &rPhi,
@@ -71,8 +78,15 @@ public:
         Element<DIM,DIM>* pElement);
 
     /**
-     *  The term to be added to the element stiffness vector - except this class
-     *  is only used for constructing a matrix so this is never called.
+     * The term to be added to the element stiffness vector - except this class
+     * is only used for constructing a matrix so this is never called.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param u The unknown as a vector, u(i) = u_i
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_vector<double,1*(DIM+1)> ComputeVectorTerm(
         c_vector<double, DIM+1> &rPhi,
@@ -84,22 +98,29 @@ public:
 
 
     /**
-     *  The term arising from boundary conditions to be added to the element
-     *  stiffness vector - except this class is only used for constructing a matrix
-     *  so this is never called.
+     * The term arising from boundary conditions to be added to the element
+     * stiffness vector - except this class is only used for constructing a matrix
+     * so this is never called.
+     * 
+     * @param rSurfaceElement the element which is being considered.
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rX The point in space
      */
     virtual c_vector<double, DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
         c_vector<double, DIM> &rPhi,
-        ChastePoint<DIM> &rX );
-
+        ChastePoint<DIM> &rX);
 
 public:
+
     /**
      * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
      */
     MonodomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
 
+    /**
+     * Destructor.
+     */
     ~MonodomainRhsMatrixAssembler();
 
     /**
@@ -117,8 +138,11 @@ public:
 template<unsigned DIM>
 struct AssemblerTraits<MonodomainRhsMatrixAssembler<DIM> >
 {
+    /** The class in which ComputeVectorTerm is defined. */
     typedef MonodomainRhsMatrixAssembler<DIM> CVT_CLS;
+    /** The class in which ComputeMatrixTerm is defined. */
     typedef MonodomainRhsMatrixAssembler<DIM> CMT_CLS;
+    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef AbstractAssembler<DIM, DIM, 1> INTERPOLATE_CLS;
 };
 
@@ -148,12 +172,20 @@ protected:
 public:
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
+     * 
+     * @param pMesh pointer to the mesh
+     * @param pPde pointer to the PDE
+     * @param pBcc pointer to the boundary conditions
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MonodomainMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                    MonodomainPde<SPACE_DIM>* pPde,
                                    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
                                    unsigned numQuadPoints = 2);
 
+    /**
+     * Destructor.
+     */
     ~MonodomainMatrixBasedAssembler();
 
     /**

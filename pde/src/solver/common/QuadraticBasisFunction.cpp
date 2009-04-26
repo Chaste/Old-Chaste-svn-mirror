@@ -58,7 +58,6 @@ void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoi
     rReturnValue(0) = ComputeBasisFunction(rPoint, 0);
 }
 
-
 /**
  * Compute a basis function at a point within an element.
  *
@@ -170,8 +169,6 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
     return 0.0; // Avoid compiler warning
 }
 
-
-
 /**
  * Compute the derivative of a basis function at a point within an canonical element.
  *
@@ -192,11 +189,11 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
     switch(ELEM_DIM)
     {
     case 1:
-        x=rPoint[0];
+        x = rPoint[0];
         switch (basisIndex)
         {
             case 0:
-                gradN(0) =  4.0*x-3.0;
+                gradN(0) = 4.0*x-3.0;
                 break;
             case 1:
                 gradN(0) = 4.0*x-1.0;
@@ -307,7 +304,6 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
     return gradN;
 }
 
-
 /**
  * Compute all basis functions at a point within an element.
  *
@@ -321,14 +317,11 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<E
 {
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
 
-    for(unsigned i=0;i<(ELEM_DIM+1)*(ELEM_DIM+2)/2;i++)
+    for (unsigned i=0; i<(ELEM_DIM+1)*(ELEM_DIM+2)/2; i++)
     {
-        rReturnValue(i) = ComputeBasisFunction(rPoint,i);
+        rReturnValue(i) = ComputeBasisFunction(rPoint, i);
     }
-
 }
-
-
 
 /**
  * Compute the derivatives of all basis functions at a point within an element.
@@ -345,7 +338,7 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Cha
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
 
-    for (unsigned j=0;j<(ELEM_DIM+1)*(ELEM_DIM+2)/2;j++)
+    for (unsigned j=0; j<(ELEM_DIM+1)*(ELEM_DIM+2)/2; j++)
     {
         matrix_column<c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2> > column(rReturnValue, j);
         column = ComputeBasisFunctionDerivative(rPoint, j);

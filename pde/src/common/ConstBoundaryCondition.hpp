@@ -37,10 +37,12 @@ template<unsigned SPACE_DIM>
 class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private:
+
     /** The constant value of the boundary condition. */
     double mValue;
 
 public:
+
     /**
      * Create a new boundary condition object.
      *

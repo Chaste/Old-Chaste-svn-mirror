@@ -94,6 +94,7 @@ private:
                                             std::vector<double>& rPeakPotentials);
 
 public:
+
     /**
      * Constructor sets the data and calls CalculateProperties
      */
@@ -105,7 +106,6 @@ public:
         CalculateProperties();
     }
 
-
     /**
      * Returns the maximum upstroke velocity for all APs.
      */
@@ -114,7 +114,7 @@ public:
         return mMaxUpstrokeVelocities;
     }
 
-     /**
+    /**
      * Returns the maximum upstroke velocity for the last AP.
      * If only one incomplete AP is generated, it returns the maximal upstroke so far.
      * If the threshold is never crossed, it throws an exception.
@@ -122,17 +122,18 @@ public:
     double GetLastMaxUpstrokeVelocity();
 
     /**
-    * Returns the time at which the maximum upstroke velocity occured for all APs.
-    */
+     * Returns the time at which the maximum upstroke velocity occured for all APs.
+     */
     std::vector<double> GetTimesAtMaxUpstrokeVelocity()
     {
         return mTimesAtMaxUpstrokeVelocity;
     }
+
     /**
-    * Returns the time at which the maximum upstroke velocity for the last complete AP occurred.
-    * If only one incomplete AP is generated, it returns the time of the maximal upstroke so far.
-    * If the threshold is never crossed, it throws an exception.
-    */
+     * Returns the time at which the maximum upstroke velocity for the last complete AP occurred.
+     * If only one incomplete AP is generated, it returns the time of the maximal upstroke so far.
+     * If the threshold is never crossed, it throws an exception.
+     */
     double GetTimeAtLastMaxUpstrokeVelocity();
 
     /**
@@ -169,7 +170,7 @@ public:
      */
     std::vector<double> GetAllActionPotentialDurations(const double percentage);
 
-     /**
+    /**
      * Returns the amplitude of the last action potential generated.
      * Throws an exception if no AP is generated.
      *
@@ -178,7 +179,7 @@ public:
      */
     double GetLastActionPotentialDuration(const double percentage);
 
-     /**
+    /**
      * Returns the amplitude of all the action potentials calculated.
      */
     std::vector<double> GetActionPotentialAmplitudes();

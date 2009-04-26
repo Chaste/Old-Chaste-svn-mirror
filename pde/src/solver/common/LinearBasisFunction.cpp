@@ -159,7 +159,7 @@ double LinearBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0> &rPoint
  */
 template <>
 c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
-    const ChastePoint<3>&,
+    const ChastePoint<3>& rPoint,
     unsigned basisIndex)
 {
     assert(basisIndex <= 3);
@@ -207,7 +207,7 @@ c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
  */
 template <>
 c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
-    const ChastePoint<2>&,
+    const ChastePoint<2>& rPoint,
     unsigned basisIndex)
 {
     assert(basisIndex <= 2);
@@ -247,7 +247,7 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
  */
 template <>
 c_vector<double,1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
-    const ChastePoint<1>&,
+    const ChastePoint<1>& rPoint,
     unsigned basisIndex)
 {
     assert(basisIndex <= 1);
@@ -266,7 +266,6 @@ c_vector<double,1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
     }
     return gradN;
 }
-
 
 
 /**
@@ -306,6 +305,7 @@ void LinearBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint,
  *
  * @param rPoint The point at which to compute the basis functions. The
  *     results are undefined if this is not within the canonical element.
+ * @param rReturnValue A reference to a vector, to be filled in
  * @return The derivatives of the basis functions as the column vectors of
  *     a matrix in local index order.
  */
@@ -315,13 +315,12 @@ void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Chaste
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
 
-    for (unsigned j=0;j<ELEM_DIM+1;j++)
+    for (unsigned j=0; j<ELEM_DIM+1; j++)
     {
         matrix_column<c_matrix<double, ELEM_DIM, ELEM_DIM+1> > column(rReturnValue, j);
         column = ComputeBasisFunctionDerivative(rPoint, j);
     }
 }
-
 
 /**
  * Compute the derivatives of all basis functions at a point within an element.
@@ -330,8 +329,9 @@ void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Chaste
  *
  * @param rPoint The point at which to compute the basis functions. The
  *     results are undefined if this is not within the canonical element.
- * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
+ * @param rInverseJacobian The inverse of the Jacobian matrix mapping the real
  *     element into the canonical element.
+ * @param rReturnValue A reference to a vector, to be filled in
  * @return The derivatives of the basis functions, in local index order. Each
  *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the
  *     derivative along each axis.

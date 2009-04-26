@@ -50,10 +50,17 @@ class BidomainWithBathAssembler
 public:
 
     /**
-     *  ComputeMatrixTerm()
+     * ComputeMatrixTerm()
      *
-     *  This method is called by AssembleOnElement() and tells the assembler
-     *  the contribution to add to the element stiffness matrix.
+     * This method is called by AssembleOnElement() and tells the assembler
+     * the contribution to add to the element stiffness matrix.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param u The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
      */
     virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -63,7 +70,16 @@ public:
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-
+    /**
+     * The term to be added to the element stiffness vector.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param u The unknown as a vector, u(i) = u_i
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
+     */
     virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
@@ -80,9 +96,13 @@ public:
      */
     void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix);
 
-public:
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
+     * 
+     * @param pMesh pointer to the mesh
+     * @param pPde pointer to the PDE
+     * @param pBcc pointer to the boundary conditions
+     * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     BidomainWithBathAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                               BidomainPde<SPACE_DIM>* pPde,

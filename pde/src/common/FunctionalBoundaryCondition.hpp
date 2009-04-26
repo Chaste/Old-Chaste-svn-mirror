@@ -43,27 +43,27 @@ private :
     /**
      * The function pointer used to determine the value of the boundary condition at a given point.
      *
-     * @param x  a point in space
+     * @param rX a point in space
      */
-    double (*mFunction)(const ChastePoint<SPACE_DIM>& x);
+    double (*mFunction)(const ChastePoint<SPACE_DIM>& rX);
 
 public :
+
     /**
      * Typical use:
      *  pBoundaryCondition = new FunctionalBoundaryCondition(&function_name);
      *
      * @param func Pointer to a function to be used for evaluating this boundary
-     *     condition.
+     *     condition
      */
-    FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& x));
+    FunctionalBoundaryCondition(double (*func)(const ChastePoint<SPACE_DIM>& rX));
 
     /**
      * Get the value of the boundary condition at a given point.
      *
-     * @param x  a point in space
+     * @param x a point in space
      */
-    double GetValue(const ChastePoint<SPACE_DIM>& x) const;
-
+    double GetValue(const ChastePoint<SPACE_DIM>& rX) const;
 };
 
 #endif //_FUNCTIONALBOUNDARYCONDITION_HPP_

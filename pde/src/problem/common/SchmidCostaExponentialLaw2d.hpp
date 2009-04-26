@@ -45,15 +45,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class SchmidCostaExponentialLaw2d : public AbstractIncompressibleMaterialLaw<2>
 {
-
 private :
+
+    /** Parameter a. */
     double mA;         // should be kPa as the assembler gets the active tension in kPa
+
+    /** Matrix of parameters b. */
     std::vector<std::vector<double> > mB;
+
+    /** 2D identity matrix. */
     c_matrix<double,2,2> mIdentity;
 
 public :
+
+    /** Constructor. */
     SchmidCostaExponentialLaw2d();
 
+    /**
+     *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE for
+     *  a given strain.
+     *
+     *  NOTE: the strain E is not expected to be passed in, instead the Lagrangian
+     *  deformation tensor C is required (recall, E = 0.5(C-I))
+     *
+     *  dT/dE is a fourth-order tensor, where dT/dE[M][N][P][Q] = dT^{MN}/dE_{PQ}
+     *
+     *  @param C The Lagrangian deformation tensor (F^T F)
+     *  @param invC The inverse of C. Should be computed by the user. (Change this?)
+     *  @param pressure the current pressure
+     *  @param T the stress will be returned in this parameter
+     *  @param dTdE the stress derivative will be returned in this parameter, assuming
+     *    the final parameter is true
+     *  @param computeDTdE a boolean flag saying whether the stress derivative is
+     *    required or not.
+     */
     void ComputeStressAndStressDerivative(c_matrix<double,2,2>&  C,
                                           c_matrix<double,2,2>&  invC,
                                           double                 pressure,
@@ -61,10 +86,19 @@ public :
                                           FourthOrderTensor2<2>& dTdE,
                                           bool                   computeDTdE);
 
+    /**
+     * Get method for mA.
+     */
     double GetA();
 
+    /**
+     * Get method for mB.
+     */
     std::vector<std::vector<double> > GetB();
 
+    /**
+     * Get the pressure corresponding to E=0, ie C=identity.
+     */
     double GetZeroStrainPressure();
 };
 

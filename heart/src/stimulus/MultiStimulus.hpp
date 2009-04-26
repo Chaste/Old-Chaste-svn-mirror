@@ -44,6 +44,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MultiStimulus : public AbstractStimulusFunction
 {
 private:
+
+    /** Vector of stimuli. */
     std::vector<AbstractStimulusFunction*> mStimuli;
 
 public:
@@ -57,6 +59,7 @@ public:
     /**
      * Get the magnitude of the multiple stimuli at time 'time'
      *
+     * @param time  time at which to return the stimulus
      * @return  Magnitude of stimulus at time 'time'.
      */
      double GetStimulus(double time);
