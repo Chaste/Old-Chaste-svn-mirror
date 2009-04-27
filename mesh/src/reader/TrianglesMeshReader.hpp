@@ -328,7 +328,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     ElementData face_data;
     std::vector<unsigned> ret_indices;
 
-    // In the first two cases there's no file, all the nodes are set as faces
+    // In the first three cases there's no file, all the nodes are set as faces
     if (SPACE_DIM == 1)
     {
         ret_indices.push_back(mBoundaryFacesRead);
@@ -337,6 +337,10 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     {
         ret_indices.push_back(mBoundaryFacesRead);
     }
+    else if (SPACE_DIM == 3 && ELEMENT_DIM == 1)
+    {
+        ret_indices.push_back(mBoundaryFacesRead);
+    }    
     else
     {
         unsigned offset = mIndexFromZero ? 0 : 1;
@@ -546,6 +550,10 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     else if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
     {
         mNumFaces = mNumNodes;
+    }
+    else if (SPACE_DIM == 3 && ELEMENT_DIM == 1)
+    {
+        mNumFaces = mNumNodes;   
     }
     else
     {
