@@ -73,12 +73,30 @@ private:
 
 //    std::vector<unsigned> mNodesPerProcessor;
 
+    /**
+     * Solve node mapping method.
+     *
+     * @param index
+     */
     unsigned SolveNodeMapping(unsigned index) const;
+
+    /**
+     * Solve element mapping method.
+     *
+     * @param index
+     */
     unsigned SolveElementMapping(unsigned index) const;
+
+    /**
+     * Solve boundary element mapping method.
+     *
+     * @param index
+     */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
 protected:
 
+    /** Vector storing the weighted direction for each element in the mesh. */
     std::vector< c_vector<double, SPACE_DIM> > mElementWeightedDirections;
 
     /** Vector storing the Jacobian matrix for each element in the mesh. */
@@ -86,8 +104,11 @@ protected:
 
     /** Vector storing the inverse Jacobian matrix for each element in the mesh. */
     std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
+
+    /** Vector storing the Jacobian determinant for each element in the mesh. */
     std::vector<double> mElementJacobianDeterminants;
 
+    /** Vector storing the weighted direction for each boundary element in the mesh. */
     std::vector< c_vector<double, SPACE_DIM> > mBoundaryElementWeightedDirections;
 
     /** Vector storing the determinant of the Jacobian matrix for each boundary element in the mesh. */
@@ -379,13 +400,45 @@ public:
      */
     void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
 
+    /** Update mElementJacobians, mElementWeightedDirections and mBoundaryElementWeightedDirections. */
     void RefreshJacobianCachedData();
 
+    /**
+     * Get the Jacobian matrix and its determinant for a given element.
+     * 
+     * @param elementIndex index of the element in the mesh
+     * @param rJacobian the Jacobian matrix
+     * @param rJacobianDeterminant the determinant of the Jacobian matrix
+     */
     virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant) const;
-    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
-    virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
-    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
 
+    /**
+     * Get the Jacobian matrix, its inverse and its determinant for a given element.
+     * 
+     * @param elementIndex index of the element in the mesh
+     * @param rJacobian the Jacobian matrix
+     * @param rJacobianDeterminant the determinant of the Jacobian matrix
+     * @param rInverseJacobian the inverse Jacobian matrix
+     */
+    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
+
+    /**
+     * Get the weighted direction and the determinant of the Jacobian for a given element.
+     * 
+     * @param elementIndex index of the element in the mesh
+     * @param rWeightedDirection the weighted direction
+     * @param rJacobianDeterminant the determinant of the Jacobian matrix
+     */
+    virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+
+    /**
+     * Get the weighted direction and the determinant of the Jacobian for a given boundary element.
+     * 
+     * @param elementIndex index of the element in the mesh
+     * @param rWeightedDirection the weighted direction
+     * @param rJacobianDeterminant the determinant of the Jacobian matrix
+     */
+    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
 
 //    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;
 //    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;

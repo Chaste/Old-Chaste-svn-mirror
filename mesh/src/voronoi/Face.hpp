@@ -74,7 +74,7 @@ public:
         /**
          * Less-than angle comparison operator.
          * 
-         * @param other the VertexAndAngle object to compare to
+         * @param rOther the VertexAndAngle object to compare to
          */
         bool operator<(const VertexAndAngle& rOther) const
         {

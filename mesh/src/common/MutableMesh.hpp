@@ -121,7 +121,8 @@ public:
      * Get the number of boundary elements that are actually in use.
      */
     unsigned GetNumBoundaryElements() const;
-    ///should unsigned GetNumBoundaryNodes() be overloaded too??
+
+    /// \todo should unsigned GetNumBoundaryNodes() be overloaded too??
 
     void RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex);
 

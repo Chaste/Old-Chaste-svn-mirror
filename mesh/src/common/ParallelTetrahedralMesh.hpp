@@ -59,7 +59,6 @@ extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
-
     friend class TestParallelTetrahedralMesh;
 
 public:
@@ -73,8 +72,13 @@ public:
 
 private:
 
+    /** The total number of elements in the mesh. */
     unsigned mTotalNumElements;
+
+    /** The total number of boundary elements in the mesh. */
     unsigned mTotalNumBoundaryElements;
+
+    /** The total number of nodes in the mesh. */
     unsigned mTotalNumNodes;
 
     std::vector<Node<SPACE_DIM>* > mHaloNodes;
@@ -88,20 +92,55 @@ private:
 
 public:
 
+    /**
+     * Constructor.
+     * 
+     * @param metisPartitioning defaults to METIS_LIBRARY
+     */
     ParallelTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
 
+    /**
+     * Destructor.
+     */
     virtual ~ParallelTetrahedralMesh();
 
+    /**
+     * Construct the mesh using a MeshReader.
+     * This method must be overridden in concrete classes.
+     *
+     * @param rMeshReader the mesh reader
+     * @param cullInternalFaces whether to cull internal faces (defaults to false)
+     */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
     unsigned GetNumLocalNodes() const;
     unsigned GetNumLocalElements() const;
 
+    /**
+     * Get the number of nodes that are actually in use.
+     */
     unsigned GetNumNodes() const;
+
+    /**
+     * Get the number of elements that are actually in use.
+     */
     unsigned GetNumElements() const;
+    
+    /**
+     * Get the number of boundary elements that are actually in use.
+     */
     unsigned GetNumBoundaryElements() const;
 
+    /**
+     * Sets the ownership of each element according to which nodes are owned by the
+     * process.
+     *
+     * @param lo is the lowest node number owned by the process
+     * @param hi is one higher than the highest node number owned by the process
+     * ie. this process owns nodes [lo..hi)
+     * and element is "owned" if one or more of its nodes are owned
+     */
     void SetElementOwnerships(unsigned lo, unsigned hi);
 
 private:
@@ -111,9 +150,27 @@ private:
     void RegisterElement(unsigned index);
     void RegisterBoundaryElement(unsigned index);
 
+    /**
+     * Solve node mapping method.
+     *
+     * @param index
+     */
     unsigned SolveNodeMapping(unsigned index) const;
+
     unsigned SolveHaloNodeMapping(unsigned index);
+
+    /**
+     * Solve element mapping method.
+     *
+     * @param index
+     */
     unsigned SolveElementMapping(unsigned index) const;
+
+    /**
+     * Solve boundary element mapping method.
+     *
+     * @param index
+     */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
     void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,

@@ -50,7 +50,7 @@ public:
      * @param clearOutputDir  whether to clean the directory (defaults to true)
      */
     TrianglesMeshWriter(const std::string &rDirectory,
-                        const std::string &rBbaseName,
+                        const std::string &rBaseName,
                         const bool clearOutputDir=true);
 
     /**
