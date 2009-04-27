@@ -623,7 +623,7 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
 
         c_vector<double, 2> pos_1 = p_element->GetNodeLocation(node_1);
         c_vector<double, 2> pos_2 = p_element->GetNodeLocation(node_2);
-
+		//PRINT_VARIABLES(pos_1,pos_2);
         // Ixx
         moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
                                            + pos_1(1)*pos_1(1)*pos_2(1)
