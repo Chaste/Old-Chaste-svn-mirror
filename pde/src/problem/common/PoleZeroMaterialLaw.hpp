@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  NOTE: CHANGED THE CODE AT THE MOMENT TO NOT USE THE POSITIVE PART BIT BELOW
  *  AS THEN IT IS NOT TWICE DIFFERENTIABLE
  *
- *  W = \Sum_{M,N=1..3} k_{MN} ([ E_{MN} ]_+)^2 / (a_{MN} - E_{MN})^b_{MN}
+ *  W = Sum_{M,N=1..3} k_{MN} ([ E_{MN} ]_+)^2 / (a_{MN} - E_{MN})^b_{MN}
  *
  *  Note the positive part operator in the numerator, so that
  *  the term in W corresponding to M,N is zero if E_MN < 0. (This differs

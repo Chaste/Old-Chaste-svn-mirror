@@ -44,6 +44,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 struct LessThanNode
 {
+    /**
+     * Less-then node index comparison operator.
+     * 
+     * @param n1 pointer to a node
+     * @param n2 pointer to a node
+     */
     bool operator()(const Node<SPACE_DIM> * const &n1, const Node<SPACE_DIM> * const &n2)
     {
         return (n1->GetIndex() < n2->GetIndex() );
@@ -93,11 +99,14 @@ public:
     void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>());
 
     /**
-     * Obtain value of Dirichlet boundary condition at specified node
+     * Obtain value of Dirichlet boundary condition at specified node.
      *
      * This is unlikely to be needed by the user, the methods ApplyDirichletToLinearProblem or
      * ApplyDirichletToNonlinearProblem can be called instead to apply all Dirichlet boundary conditions
-     * at the same time
+     * at the same time.
+     * 
+     * @param pBoundaryNode pointer to a boundary node
+     * @param indexOfUnknown index of the unknown for which to obtain the value of the boundary condition (defaults to 0)
      */
     double GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode, unsigned indexOfUnknown = 0);
 
@@ -105,6 +114,9 @@ public:
      * Test if there is a Dirichlet boundary condition defined on the given node.
      *
      * \todo Perhaps have flag in node object for efficiency?
+     * 
+     * @param pNode pointer to a node
+     * @param indexOfUnknown index of the unknown for which to obtain the value of the boundary condition (defaults to 0)
      */
     bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode, unsigned indexOfUnknown = 0);
 };

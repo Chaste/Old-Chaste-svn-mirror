@@ -39,7 +39,30 @@ template <unsigned ELEM_DIM>
 class LinearBasisFunction
 {
 public:
+
+    /**
+     * Compute a basis function at a point within an element.
+     *
+     * @param rPoint The point at which to compute the basis function. The results
+     *     are undefined if this is not within the canonical element.
+     * @param basisIndex Which basis function to compute. This is a local index
+     *     within a canonical element.
+     * @return The value of the basis function.
+     */
     static double ComputeBasisFunction(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
+
+    /**
+     * Compute the derivative of a basis function at a point within a
+     * canonical element.
+     *
+     * @param rPoint (unused) The point at which to compute the basis function.
+     *     The results are undefined if this is not within the canonical element.
+     * @param basisIndex Which basis function to compute. This is a local index
+     *     within a canonical element.
+     * @return The derivative of the basis function. This is a vector
+     *     (c_vector<double, ELEM_DIM> instance) giving the derivative
+     *     along each axis.
+     */
     static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
 
     static void ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint, c_vector<double, ELEM_DIM+1>& rReturnValue);

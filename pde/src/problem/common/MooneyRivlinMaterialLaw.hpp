@@ -123,12 +123,19 @@ public :
     double GetC2();
 
     /**
-     *  Constructor, Taking in mooney-rivlin parameters c1 and c2.
-     *  Note: c2 is not used if the dimension is 2. Just pass in c1 if 2d.
+     * Constructor, Taking in mooney-rivlin parameters c1 and c2.
+     * Note: c2 is not used if the dimension is 2. Just pass in c1 if 2d.
+     * 
+     * @param c1 parameter c1
+     * @param c2 parameter c2 (defaults to MINUS_LARGE)
      */
     MooneyRivlinMaterialLaw(double c1, double c2 = MINUS_LARGE);
 
-    /** Scale the dimensional material parameters */
+    /**
+     * Scale the dimensional material parameters.
+     * 
+     * @param scaleFactor
+     */
     void ScaleMaterialParameters(double scaleFactor);
 };
 

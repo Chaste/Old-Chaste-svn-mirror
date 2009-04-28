@@ -90,7 +90,7 @@ protected:
     /** The nonlinear solver. */
     AbstractNonlinearSolver* mpSolver;
 
-    /* Whether memory has been allocated for the solver. */
+    /** Whether memory has been allocated for the solver. */
     bool mWeAllocatedSolverMemory;
 
     /** Whether to use an analytical expression for the Jacobian. */
@@ -161,7 +161,7 @@ protected:
      *     (i.e. the residual vector for nonlinear problems).
      *  @param assembleMatrix  Whether to assemble the LHS matrix of the linear system
      *     (i.e. the jacobian matrix for nonlinear problems).
-     *  @param currentSolutionOrGuess The current solution in a linear dynamic problem,
+     *  @param currentGuess The current solution in a linear dynamic problem,
      *     or the current guess in a nonlinear problem. Should be NULL for linear static
      *     problems. Defaults to NULL.
      *  @param currentTime The current time for dynamic problems. Not used in static
@@ -189,6 +189,8 @@ protected:
      * @param currentSolutionOrGuess  either the current solution (dynamic problem) or
      *     initial guess (static problem).  MUST be provided.
      * @param currentTime  for a dynamic problem, the current time
+     * @param assembleMatrix  Whether to assemble the LHS matrix of the linear system
+     *     (i.e. the jacobian matrix for nonlinear problems).
      * @return the solution vector
      */
     Vec StaticSolve(Vec currentSolutionOrGuess=NULL,
@@ -216,6 +218,9 @@ public:
      * any user call to this method.
      *
      * If this method is not called the default is false i.e. numerical jacobian.
+     * 
+     * @param useAnalyticalJacobian Set to true to use an analytically calculated
+      *     jacobian matrix rather than a numerically approximated one.
      */
     void SetUseAnalyticalJacobian(bool useAnalyticalJacobian);
 
@@ -230,14 +235,18 @@ public:
     virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian=false);
 
     /**
-     *  SetNonlinearSolver - by default a SimplePetscNonlinearSolver is created
-     *  and used in this class, this method can be called to use a different
-     *  AbstractNonlinearSolver
+     * SetNonlinearSolver - by default a SimplePetscNonlinearSolver is created
+     * and used in this class, this method can be called to use a different
+     * AbstractNonlinearSolver.
+     * 
+     * @param pNonlinearSolver a nonlinear solver
      */
     void SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver);
 
     /**
-     *  A helpful method for creating an initial guess vector
+     * A helpful method for creating an initial guess vector.
+     * 
+     * @param value constant value of the initial guess
      */
     Vec CreateConstantInitialGuess(double value);
 

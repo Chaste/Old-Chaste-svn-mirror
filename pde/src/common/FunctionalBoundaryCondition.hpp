@@ -61,7 +61,7 @@ public :
     /**
      * Get the value of the boundary condition at a given point.
      *
-     * @param x a point in space
+     * @param rX a point in space
      */
     double GetValue(const ChastePoint<SPACE_DIM>& rX) const;
 };

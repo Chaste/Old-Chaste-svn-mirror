@@ -50,6 +50,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //#include "Timer.hpp" // in the dealii folder
 
+/**
+ * Abstract nonlinear elasticity assembler.
+ */
 template<unsigned DIM>
 class AbstractNonlinearElasticityAssembler
 {

@@ -124,6 +124,12 @@ public:
 
     /// \todo should unsigned GetNumBoundaryNodes() be overloaded too??
 
+    /**
+     * Rescale the mesh from a boundary node.
+     * 
+     * @param updatedPoint point determining the scale factor
+     * @param boundaryNodeIndex index of the boundary node
+     */
     void RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex);
 
     /**

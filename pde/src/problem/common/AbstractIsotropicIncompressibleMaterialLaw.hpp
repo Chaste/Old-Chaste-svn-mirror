@@ -48,11 +48,56 @@ template<unsigned DIM>
 class AbstractIsotropicIncompressibleMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
 {
 protected :
+
+    /**
+     * Get the first derivative dW/dI1.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     virtual double Get_dW_dI1(double I1, double I2)=0;
+
+    /**
+     * Get the first derivative dW/dI2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     virtual double Get_dW_dI2(double I1, double I2)=0;
+
+    /**
+     * Get the second derivative d^2W/dI1^2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     virtual double Get_d2W_dI1(double I1, double I2)=0;
+
+    /**
+     * Get the second derivative d^2W/dI2^2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
     virtual double Get_d2W_dI2(double I1, double I2)=0;
-    virtual double Get_d2W_dI1I2(double I1, double I2)=0;
+
+    /**
+     * Get the second derivative d^2W/dI1dI2.
+     * 
+     * \todo The name of this method should not include underscores. 
+     * 
+     * @param I1 first principal invariant of C
+     * @param I2 second principal invariant of C
+     */
+    virtual double Get_d2W_dI1I2(double I1, double I2)=0;    
 
 public :
 

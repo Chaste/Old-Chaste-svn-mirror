@@ -49,13 +49,20 @@ private:
 
 protected:
 
-    /** Hack for dynamic mixin */
+    /**
+     * Hack for dynamic mixin.
+     * 
+     * @param matrixIsConstant defaults to true
+     */
     void SetMatrixIsConst(bool matrixIsConstant=true);
 
     /**
      * Apply Dirichlet boundary conditions to the linear system.
+     * 
+     * @param unusedVector
+     * @param applyToMatrix
      */
-    void ApplyDirichletConditions(Vec /* unused */, bool applyToMatrix);
+    void ApplyDirichletConditions(Vec unusedVector, bool applyToMatrix);
 
     /**
      * Create the linear system object if it hasn't been already.
@@ -144,7 +151,7 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
-void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::ApplyDirichletConditions(Vec /* unused */, bool applyToMatrix)
+void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::ApplyDirichletConditions(Vec unusedVector, bool applyToMatrix)
 {
     this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), applyToMatrix);
 }

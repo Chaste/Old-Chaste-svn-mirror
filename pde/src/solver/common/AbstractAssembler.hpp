@@ -82,7 +82,11 @@ protected:
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
 
     #define COVERAGE_IGNORE
-    /** Hack for dynamic mixin */
+    /**
+     * Hack for dynamic mixin.
+     * 
+     * @param matrixIsConstant defaults to true
+     */
     virtual void SetMatrixIsConst(bool matrixIsConstant=true)
     {
     }
