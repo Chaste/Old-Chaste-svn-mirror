@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexElement.hpp"
 #include "VertexElementMap.hpp"
 
-#include "Debug.hpp"
+//#include "Debug.hpp"
 /**
  * A vertex-based mesh class, for use in vertex-based tissue simulations.
  */

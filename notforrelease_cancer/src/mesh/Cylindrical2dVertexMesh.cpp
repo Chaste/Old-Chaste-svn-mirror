@@ -336,6 +336,6 @@ c_vector<double, 3> Cylindrical2dVertexMesh::CalculateMomentsOfElement(unsigned 
     moments(0) /= -12;
     moments(1) /= 12;
     moments(2) /= 24;
-	PRINT_VARIABLE(moments);
+	//PRINT_VARIABLE(moments);
     return moments;
 }

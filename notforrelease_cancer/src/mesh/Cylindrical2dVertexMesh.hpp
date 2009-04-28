@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/export.hpp>// at end of includes
 
-#include "Debug.hpp"
+//#include "Debug.hpp"
 
 /**
  * A subclass of VertexMesh<2,2> for a rectangular mesh with
