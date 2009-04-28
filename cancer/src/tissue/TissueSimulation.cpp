@@ -42,14 +42,14 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
                                         std::vector<AbstractForce<DIM>*> forceCollection,
                                         bool deleteTissueAndForceCollection,
                                         bool initialiseCells)
-    : mDt(1.0/120.0), // Timestep of 30 seconds (as per Meineke) 
+    : mDt(1.0/120.0), // Timestep of 30 seconds (as per Meineke)
       mEndTime(0.0),  // hours - this is set later on
       mrTissue(rTissue),
       mDeleteTissue(deleteTissueAndForceCollection),
       mAllocatedMemoryForForceCollection(deleteTissueAndForceCollection),
       mInitialiseCells(initialiseCells),
       mNoBirth(false),
-      mUpdateTissue(false),
+      mUpdateTissue(true),
       mOutputCellMutationStates(false),
       mOutputCellAncestors(false),
       mOutputCellTypes(false),
@@ -70,11 +70,6 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
 
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
-
-    if (mrTissue.HasMesh())
-    {
-        mUpdateTissue = true;
-    }
 
     if (mInitialiseCells)
     {
@@ -507,14 +502,7 @@ void TissueSimulation<DIM>::Solve()
          * method at each time step. Otherwise, we only need to call Update()
          * after there has been any cell birth or cell death.
          */
-        bool has_had_births_or_deaths = ( (births_this_step>0) || (deaths_this_step>0) );
-
-        // Update the topology of the tissue (and tessellate if needed)
-        CancerEventHandler::BeginEvent(CancerEventHandler::UPDATE);
-        LOG(1, "\tUpdating tissue...");
-        mrTissue.Update(has_had_births_or_deaths);
-        LOG(1, "\tdone.\n");
-        CancerEventHandler::EndEvent(CancerEventHandler::UPDATE);
+        UpdateTissue((births_this_step>0) || (deaths_this_step>0));
 
         /////////////////////////
         // Calculate Forces
@@ -613,31 +601,8 @@ void TissueSimulation<DIM>::AfterSolve()
     LOG(1, "\tNum births = " << mNumBirths << "\n");
     CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
 
-    
     // Carry out a final tissue update if necessary
-    bool has_had_births_or_deaths = ((mNumBirths>0) || (mNumDeaths>0));
-    if (mrTissue.HasMesh())
-    {
-        //This assertion is not necessarily true
-        //assert(mUpdateTissue);
-        //See TestCryptSimulation2dNightly::Test2DSpringSystem where the
-        //default value is over-written
-    }
-    else
-    {
-        mUpdateTissue = false;
-        if ( has_had_births_or_deaths )
-        {
-            mUpdateTissue = true;
-        }
-    }
-
-    if (mUpdateTissue)
-    {
-        LOG(1, "\tUpdating tissue...");
-        mrTissue.Update(has_had_births_or_deaths);
-        LOG(1, "\tdone.\n");
-    }
+    UpdateTissue((mNumBirths>0) || (mNumDeaths>0));
 }
 
 
@@ -680,6 +645,25 @@ c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
     return mrTissue.GetCellCyclePhaseCount();
 }
 
+template<unsigned DIM>
+void TissueSimulation<DIM>::UpdateTissue(bool BirthOrDeathOccuredThisTimeStep)
+{
+    // Update the topology of the tissue (and tessellate if needed)
+    CancerEventHandler::BeginEvent(CancerEventHandler::UPDATETISSUE);
+
+    if (mUpdateTissue)
+    {
+        LOG(1, "\tUpdating tissue...");
+        mrTissue.Update(BirthOrDeathOccuredThisTimeStep);
+        LOG(1, "\tdone.\n");
+    }
+    else if (BirthOrDeathOccuredThisTimeStep)
+    {
+        EXCEPTION("Tissue has had births or deaths but mUpdateTissue is set to false, please set it to true.");
+    }
+
+    CancerEventHandler::EndEvent(CancerEventHandler::UPDATETISSUE);
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

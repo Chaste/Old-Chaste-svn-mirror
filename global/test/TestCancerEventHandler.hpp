@@ -45,7 +45,7 @@ public:
 
         CancerEventHandler::BeginEvent(CancerEventHandler::SETUP);
         MPISLEEP(0.01);
-        
+
         CancerEventHandler::EndEvent(CancerEventHandler::SETUP);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
@@ -55,9 +55,9 @@ public:
         CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
         MPISLEEP(0.03);
         CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
-        CancerEventHandler::BeginEvent(CancerEventHandler::UPDATE);
+        CancerEventHandler::BeginEvent(CancerEventHandler::UPDATETISSUE);
         MPISLEEP(0.04);
-        CancerEventHandler::EndEvent(CancerEventHandler::UPDATE);
+        CancerEventHandler::EndEvent(CancerEventHandler::UPDATETISSUE);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
         MPISLEEP(0.05);

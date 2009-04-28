@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
+#include "CancerEventHandler.hpp"
 
 
 // Simple subclass of TissueSimulation which just overloads StoppingEventHasOccurred
@@ -187,7 +188,12 @@ public:
         RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
         simulator.AddCellKiller(&random_cell_killer);
 
-        // Run tissue simulation
+        // For coverage of an exception.
+        simulator.SetUpdateTissueRule(false);
+        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
+        CancerEventHandler::Reset(); // Otherwise logging has been started but not stopped due to exception above.
+
+        simulator.SetUpdateTissueRule(true);
         simulator.Solve();
 
         // Check that the number of nodes is equal to the number of cells

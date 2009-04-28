@@ -40,7 +40,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
     Clear();
     mAddedNodes = true;
     Validate();
-    
+
 }
 
 
@@ -109,6 +109,10 @@ template<unsigned DIM>
 void NodeBasedTissue<DIM>::Validate()
 {
     std::vector<bool> validated_node(GetNumNodes());
+    for (unsigned i=0; i<validated_node.size(); i++)
+    {
+        validated_node[i]=false;
+    }
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
@@ -151,7 +155,7 @@ void NodeBasedTissue<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double
     {
         unsigned box_index = mpNodeBoxCollection->CalculateContainingBox(mNodes[i]);
         mpNodeBoxCollection->rGetBox(box_index).AddNode(mNodes[i]);
-    }       
+    }
 }
 
 
@@ -165,7 +169,7 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
         min_posn(i) = DBL_MAX;
         max_posn(i) = -DBL_MAX;
     }
-    
+
     for (unsigned i=0; i<mNodes.size(); i++)
     {
         for (unsigned j=0; j<DIM; j++)
@@ -180,12 +184,12 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
             }
         }
     }
-    
+
     for (unsigned i=0; i<DIM; i++)
     {
         assert(min_posn(i) != DBL_MAX);
         mMinSpatialPositions(i) = min_posn(i);
-        
+
         assert(max_posn(i) != -DBL_MAX);
         mMaxSpatialPositions(i) = max_posn(i);
     }
@@ -214,7 +218,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         // Create and reserve space for a temporary vector
         std::vector<Node<DIM>* > old_nodes;
         old_nodes.reserve(mNodes.size());
-    
+
         // Store all non-deleted nodes in the temporary vector
         for (unsigned i=0; i<mNodes.size(); i++)
         {
@@ -345,7 +349,7 @@ unsigned NodeBasedTissue<DIM>::GetNumNodes()
 template<unsigned DIM>
 NodeBoxCollection<DIM>* NodeBasedTissue<DIM>::GetNodeBoxCollection()
 {
-    return mpNodeBoxCollection;   
+    return mpNodeBoxCollection;
 }
 
 
@@ -355,7 +359,7 @@ std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedTissue<DIM>::rGetNodePa
     if (mNodePairs.size()==0)
     {
         EXCEPTION("No node pairs set up, rGetNodePairs probably called before Update");
-    }    
+    }
     return mNodePairs;
 }
 

@@ -291,6 +291,13 @@ protected:
      */
     virtual bool StoppingEventHasOccurred();
 
+    /**
+     * Calls the Update Tissue method if mUpdateTissue is true
+     *
+     * @param BirthOrDeathOccuredThisTimeStep
+     */
+    void UpdateTissue(bool BirthOrDeathOccuredThisTimeStep);
+
 public:
 
     /**
@@ -489,7 +496,6 @@ public:
      * @return const reference to mForceCollection (used in archiving).
      */
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
-
 };
 
 

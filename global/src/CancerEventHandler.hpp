@@ -47,7 +47,7 @@ public:
         SETUP=0,
         DEATH,
         BIRTH,
-        UPDATE,
+        UPDATETISSUE,
         TESSELLATION,
         FORCE,
         POSITION,

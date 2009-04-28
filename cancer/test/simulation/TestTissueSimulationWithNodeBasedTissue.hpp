@@ -107,7 +107,7 @@ public:
         simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissue");
         simulator.SetEndTime(10.0);
 
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.Solve();
 
         // Check that nothing's gone badly wrong by testing that nodes aren't too close together
         double min_distance_between_cells = 1.0;

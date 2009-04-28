@@ -152,6 +152,88 @@ private:
 
 public:
 
+    /**
+     * Test the spring system.
+     *
+     * The cells in this test are given an intial age of 2.0 so that their
+     * springs are at their natural length (i.e. we set birth time=-2.0).
+     *
+     * The mesh is initially a set of 10 by 10 squares, each square made up
+     * of two triangles. The horizontal and vertical edges (springs) are at
+     * rest length, the diagonals are longer, so this means the mesh skews
+     * to a (sloughed) parallelogram, with each triangle trying to become
+     * equilateral.
+     *
+     * If you want to view the results visually, set the end time to 24.0,
+     * and the spring system will resemble a parallelogram. However we keep
+     * the simulation time at 1.0 in order to keep the test short.
+     */
+    void Test2DSpringSystem() throw (Exception)
+    {
+        // Create mesh
+        double crypt_length = 10;
+        double crypt_width = 10;
+        CancerParameters::Instance()->SetCryptLength(crypt_length);
+        CancerParameters::Instance()->SetCryptWidth(crypt_width);
+
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateForCrypt(cells, mesh, std::vector<unsigned>(), false, 0.0, 3.0, 6.5, 8.0);
+
+        // Create tissue
+        MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
+
+        // Create force law
+        GeneralisedLinearSpringForce<2> linear_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Create crypt simulation from tissue and force law
+        CryptSimulation2d simulator(crypt, force_collection);
+
+        // Destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        simulator.SetEndTime(1.0);
+
+        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
+
+        // Destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+
+        simulator.SetOutputDirectory("Crypt2DSprings");
+        simulator.SetEndTime(1.0);
+        simulator.SetUpdateTissueRule(false);
+        simulator.SetNoBirth(true);
+
+        // Destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+
+        simulator.Solve();
+        std::vector<double> node_0_location = simulator.GetNodeLocation(0);
+        TS_ASSERT_DELTA(node_0_location[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(node_0_location[1], 0.0, 1e-12);
+
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt2DSprings",false);
+
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DSpringsResults/results.viznodes").c_str()), 0);
+
+        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " cancer/test/data/Crypt2DSpringsResults/results.vizcelltypes").c_str()), 0);
+
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cancer/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);
+    }
+
     void TestWithMultipleCellKillers() throw (Exception)
     {
        unsigned cells_across = 7;
@@ -834,8 +916,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover the write Voronoi data method
-        crypt.SetWriteVoronoiData(true); 
-        
+        crypt.SetWriteVoronoiData(true);
+
         AbstractTissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
@@ -911,10 +993,10 @@ public:
 
 
 void TestCellIdOutput() throw (Exception)
-    {             
+    {
         // Resetting the Maximum cell Id to zero (to account for previous tests)
         TissueCell::ResetMaxCellId();
-        
+
         // Create mesh
         unsigned cells_across = 6;
         unsigned cells_up = 8;
@@ -953,12 +1035,12 @@ void TestCellIdOutput() throw (Exception)
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
-       
+
         //Cover writing logged cell
         crypt.SetWriteCellIdData(true);
 
         simulator.Solve();
-        
+
         // Check writing of cell data
         OutputFileHandler handler("Crypt2DCylindricalCellIdLogged",false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/loggedcell.dat";
