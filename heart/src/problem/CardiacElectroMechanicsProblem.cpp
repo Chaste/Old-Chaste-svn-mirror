@@ -39,11 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TimeStepper.hpp"
 #include "QuadraturePointsGroup.hpp"
 #include "TrianglesMeshWriter.hpp"
-
-// Meshalyzer output not working yet
-//#include "Hdf5ToMeshalyzerConverter.hpp"
-//#include "MeshalyzerMeshWriter.hpp"
-//#include "PetscTools.hpp"
+#include "Hdf5ToMeshalyzerConverter.hpp"
+#include "MeshalyzerMeshWriter.hpp"
+#include "PetscTools.hpp"
 
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
@@ -499,25 +497,25 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
     if ((mWriteOutput) && (!mNoElectricsOutput))
     {
-// Not sure why this doesn't work.
-//        //Convert simulation data to Meshalyzer format
-//        std::string output_directory =  mOutputDirectory + "/electrics/output";
-//        Hdf5ToMeshalyzerConverter converter(mOutputDirectory+"/electrics", output_directory, "voltage");
-//
-//        //Write mesh in a suitable form for meshalyzer
-//        if (PetscTools::AmMaster())
-//        {
-//            //Write the mesh
-//            MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
-//            mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
-//
-//            //Write the parameters out
-//            HeartConfig::Instance()->Write(output_directory, "parameters.xml");
-//        }
-
         HeartConfig::Instance()->Reset();
         mpMonodomainProblem->mpWriter->Close();
         delete mpMonodomainProblem->mpWriter;
+
+
+        // Convert simulation data to Meshalyzer format
+        std::string output_directory =  mOutputDirectory + "/electrics/output";
+        Hdf5ToMeshalyzerConverter converter(mOutputDirectory+"/electrics", output_directory, "voltage");
+
+        // Write mesh in a suitable form for meshalyzer
+        if (PetscTools::AmMaster())
+        {
+            // Write the mesh
+            MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
+            mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
+
+            // Write the parameters out
+            HeartConfig::Instance()->Write(output_directory, "parameters.xml");
+        }
     }
 
     VecDestroy(voltage);
