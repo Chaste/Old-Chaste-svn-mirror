@@ -277,12 +277,10 @@ protected:
     }
 
     /**
-     *  Implements out cell birth, cell death and a tissue update if necessary for a
-     *  final time. This method may be overridden in subclasses to do something
-     *  at the end of each time loop. Note that each subclass should also call
-     *  the base class method.
+     *  This method may be overridden in subclasses to do something
+     *  at the end of each time loop.
      */
-    virtual void AfterSolve();
+    virtual void AfterSolve(){};
 
     /**
      *  A child class can overload this if they want the simulation to stop
@@ -292,11 +290,9 @@ protected:
     virtual bool StoppingEventHasOccurred();
 
     /**
-     * Calls the Update Tissue method if mUpdateTissue is true
-     *
-     * @param birthOrDeathOccuredThisTimeStep
+     * Calls the deaths, births and (if mUpdateTissue is true) Tissue::Update() methods.
      */
-    void UpdateTissue(bool birthOrDeathOccuredThisTimeStep);
+    void UpdateTissue();
 
 public:
 

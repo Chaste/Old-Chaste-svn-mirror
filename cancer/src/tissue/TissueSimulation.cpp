@@ -475,34 +475,13 @@ void TissueSimulation<DIM>::Solve()
     {
         LOG(1, "--TIME = " << p_simulation_time->GetTime() << "\n");
 
-        /////////////////////////
-        // Remove dead cells
-        /////////////////////////
-        CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
-        unsigned deaths_this_step = DoCellRemoval();
-        mNumDeaths += deaths_this_step;
-        LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
-        CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
-
-        /////////////////////////
-        // Divide cells
-        /////////////////////////
-        CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
-        unsigned births_this_step = DoCellBirth();
-        mNumBirths += births_this_step;
-        LOG(1, "\tNum births = " << mNumBirths << "\n");
-        CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
-
-        ////////////////////////////
-        // Update topology of tissue
-        ////////////////////////////
-
         /**
-         * If the tissue has a mesh, then we currently must call the Update()
-         * method at each time step. Otherwise, we only need to call Update()
-         * after there has been any cell birth or cell death.
+         * This function calls:
+         * DoCellRemoval()
+         * DoCellBirth()
+         * Tissue::Update()
          */
-        UpdateTissue((births_this_step>0) || (deaths_this_step>0));
+        UpdateTissue();
 
         /////////////////////////
         // Calculate Forces
@@ -567,6 +546,11 @@ void TissueSimulation<DIM>::Solve()
 
     }
 
+    LOG(1, "--END TIME = " << SimulationTime::Instance()->GetTime() << "\n");
+    /* Carry out a final update so that tissue is coherent with new cell positions.
+     * NB cell birth/death still need to be checked because they may be spatially-dependent.*/
+    UpdateTissue();
+
     AfterSolve();
 
     CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
@@ -583,28 +567,6 @@ void TissueSimulation<DIM>::Solve()
 
     CancerEventHandler::EndEvent(CancerEventHandler::EVERYTHING);
 }
-
-
-template<unsigned DIM>
-void TissueSimulation<DIM>::AfterSolve()
-{
-    LOG(1, "--TIME = " << SimulationTime::Instance()->GetTime() << "\n");
-
-    // Remove dead cells then implement cell birth
-    CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
-    mNumDeaths += DoCellRemoval();
-    LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
-    CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
-
-    CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
-    mNumBirths += DoCellBirth();
-    LOG(1, "\tNum births = " << mNumBirths << "\n");
-    CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
-
-    // Carry out a final tissue update if necessary
-    UpdateTissue((mNumBirths>0) || (mNumDeaths>0));
-}
-
 
 template<unsigned DIM>
 bool TissueSimulation<DIM>::StoppingEventHasOccurred()
@@ -646,22 +608,43 @@ c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
 }
 
 template<unsigned DIM>
-void TissueSimulation<DIM>::UpdateTissue(bool birthOrDeathOccuredThisTimeStep)
+void TissueSimulation<DIM>::UpdateTissue()
 {
-    // Update the topology of the tissue (and tessellate if needed)
-    CancerEventHandler::BeginEvent(CancerEventHandler::UPDATETISSUE);
+    /////////////////////////
+    // Remove dead cells
+    /////////////////////////
+    CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
+    unsigned deaths_this_step = DoCellRemoval();
+    mNumDeaths += deaths_this_step;
+    LOG(1, "\tNum deaths = " << mNumDeaths << "\n");
+    CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
 
+    /////////////////////////
+    // Divide cells
+    /////////////////////////
+    CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
+    unsigned births_this_step = DoCellBirth();
+    mNumBirths += births_this_step;
+    LOG(1, "\tNum births = " << mNumBirths << "\n");
+    CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
+
+    // This allows NodeBasedTissue::Update() to do the minimum amount of work
+    bool births_or_death_occurred = ((births_this_step>0) || (deaths_this_step>0));
+
+    ////////////////////////////
+    // Update topology of tissue
+    ////////////////////////////
+    CancerEventHandler::BeginEvent(CancerEventHandler::UPDATETISSUE);
     if (mUpdateTissue)
     {
         LOG(1, "\tUpdating tissue...");
-        mrTissue.Update(birthOrDeathOccuredThisTimeStep);
+        mrTissue.Update(births_or_death_occurred);
         LOG(1, "\tdone.\n");
     }
-    else if (birthOrDeathOccuredThisTimeStep)
+    else if (births_or_death_occurred)
     {
         EXCEPTION("Tissue has had births or deaths but mUpdateTissue is set to false, please set it to true.");
     }
-
     CancerEventHandler::EndEvent(CancerEventHandler::UPDATETISSUE);
 }
 

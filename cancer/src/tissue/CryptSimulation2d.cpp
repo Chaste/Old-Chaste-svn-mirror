@@ -170,8 +170,6 @@ void CryptSimulation2d::AfterSolve()
     {
         mBetaCatResultsFile->close();
     }
-
-    TissueSimulation<2>::AfterSolve();
 }
 
 
