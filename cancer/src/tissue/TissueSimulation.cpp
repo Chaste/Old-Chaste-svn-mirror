@@ -646,7 +646,7 @@ c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
 }
 
 template<unsigned DIM>
-void TissueSimulation<DIM>::UpdateTissue(bool BirthOrDeathOccuredThisTimeStep)
+void TissueSimulation<DIM>::UpdateTissue(bool birthOrDeathOccuredThisTimeStep)
 {
     // Update the topology of the tissue (and tessellate if needed)
     CancerEventHandler::BeginEvent(CancerEventHandler::UPDATETISSUE);
@@ -654,10 +654,10 @@ void TissueSimulation<DIM>::UpdateTissue(bool BirthOrDeathOccuredThisTimeStep)
     if (mUpdateTissue)
     {
         LOG(1, "\tUpdating tissue...");
-        mrTissue.Update(BirthOrDeathOccuredThisTimeStep);
+        mrTissue.Update(birthOrDeathOccuredThisTimeStep);
         LOG(1, "\tdone.\n");
     }
-    else if (BirthOrDeathOccuredThisTimeStep)
+    else if (birthOrDeathOccuredThisTimeStep)
     {
         EXCEPTION("Tissue has had births or deaths but mUpdateTissue is set to false, please set it to true.");
     }

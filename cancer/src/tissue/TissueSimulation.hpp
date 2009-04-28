@@ -294,9 +294,9 @@ protected:
     /**
      * Calls the Update Tissue method if mUpdateTissue is true
      *
-     * @param BirthOrDeathOccuredThisTimeStep
+     * @param birthOrDeathOccuredThisTimeStep
      */
-    void UpdateTissue(bool BirthOrDeathOccuredThisTimeStep);
+    void UpdateTissue(bool birthOrDeathOccuredThisTimeStep);
 
 public:
 
