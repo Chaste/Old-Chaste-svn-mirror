@@ -262,7 +262,6 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
 
     while ( !stepper.IsTimeAtEnd() )
     {
-        /// \todo create a stepper class which can guarantee that dt is constant, so we can pull this outside the loop?
         mDt = stepper.GetNextTimeStep();
         mDtInverse = 1.0/mDt;
 

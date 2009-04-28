@@ -83,6 +83,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
     #define QUIT_AFTER_N_VISITS(n)
     #define HOW_MANY_TIMES_HERE(message)
     #define TRACE_FROM_NTH_VISIT(stuff,n)
+    #define PRINT_VECTOR(v)
 #endif
 
 
