@@ -129,6 +129,9 @@ protected:
     /** Whether to write the cell cycle phases to a file */
     bool mOutputCellCyclePhases;
 
+    /** Whether to write the cell ages to a file */
+    bool mOutputCellAges;
+
     /** Output directory (a subfolder of tmp/[USERNAME]/testoutput) */
     std::string mOutputDirectory;
 
@@ -201,6 +204,7 @@ protected:
         archive & mOutputCellTypes;
         archive & mOutputCellVariables;
         archive & mOutputCellCyclePhases;
+        archive & mOutputCellAges;
         archive & mSamplingTimestepMultiple;
         archive & mForceCollection;
     }
@@ -451,6 +455,13 @@ public:
      * @param outputCellCyclePhases whether to output cell-cycle phases
      */
     void SetOutputCellCyclePhases(bool outputCellCyclePhases);
+
+    /**
+     * Set the simulation to output the cell ages.
+     * 
+     * @param outputCellAges whether to output cell ages
+     */
+    void SetOutputCellAges(bool outputCellAges);
 
     /**
      * Set whether to update the topology of the tissue at each time step.

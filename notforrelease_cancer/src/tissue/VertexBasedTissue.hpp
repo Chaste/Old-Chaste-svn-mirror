@@ -304,6 +304,7 @@ public:
      * @param outputCellVariables  whether to create a cell-cycle variable results file
      * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
      * @param outputCellAncestors  whether to create a cell ancestor results file
+     * @param outputCellAges  whether to output cell age results
      */
     void CreateOutputFiles(const std::string &rDirectory,
                            bool rCleanOutputDirectory,
@@ -311,7 +312,8 @@ public:
                            bool outputCellTypes,
                            bool outputCellVariables,
                            bool outputCellCyclePhases,
-                           bool outputCellAncestors);
+                           bool outputCellAncestors,
+                           bool outputCellAges);
     /**
      * Overridden CloseOutputFiles() method.
      *
@@ -320,12 +322,14 @@ public:
      * @param outputCellVariables  whether a cell-cycle variable results file is open
      * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
      * @param outputCellAncestors  whether a cell ancestor results file is open
+     * @param outputCellAges  whether to output cell age results
      */
     void CloseOutputFiles(bool outputCellMutationStates,
                           bool outputCellTypes,
                           bool outputCellVariables,
                           bool outputCellCyclePhases,
-                          bool outputCellAncestors);
+                          bool outputCellAncestors,
+                          bool outputCellAges);
 
     /**
      * Overridden WriteResultsToFiles() method.
@@ -335,14 +339,14 @@ public:
      * @param outputCellVariables  whether to output cell-cycle variable results
      * @param outputCellCyclePhases  whether to output cell-cycle phase results
      * @param outputCellAncestors  whether to output cell ancestor results
+     * @param outputCellAges  whether to output cell age results
      */
     void WriteResultsToFiles(bool outputCellMutationStates,
                              bool outputCellTypes,
                              bool outputCellVariables,
                              bool outputCellCyclePhases,
-                             bool outputCellAncestors);
-                             
-                             
+                             bool outputCellAncestors,
+                             bool outputCellAges);
 
 };
 

@@ -676,11 +676,11 @@ public:
         std::string output_directory = "TestVertexBasedTissueOutputWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, true, true, false, true, true));
+        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, true, true, false, true, true, true));
 
-        tissue.WriteResultsToFiles(true, true, false, true, true);
+        tissue.WriteResultsToFiles(true, true, false, true, true, true);
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles(true, true, false, true, true));
+        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles(true, true, false, true, true, true));
 
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -690,9 +690,10 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizcelltypes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/cellmutationstates.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/cellages.dat").c_str()), 0);
 
         // For coverage
-        TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles(true, false, false, true, false));
+        TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles(true, false, false, true, false, false));
     }
 
 
@@ -910,11 +911,8 @@ public:
 
         // Cell 1 has centre of mass (0, 4/3)
         TS_ASSERT_DELTA(wnt_at_cell1, 2.0/3.0, 1e-4);
-
-
     }
     
 };
-
 
 #endif /*TESTVERTEXBASEDTISSUE_HPP_*/

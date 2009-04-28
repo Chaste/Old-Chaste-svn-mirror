@@ -82,6 +82,9 @@ protected:
     /** Whether to print out tissue areas. */
     bool mWriteTissueAreas;
 
+    /** Whether to print out cell areas. */
+    bool mWriteCellAreas;
+
     /** Results file for elements. */
     out_stream mpElementFile;
 
@@ -90,6 +93,9 @@ protected:
 
     /** Results file for tissue area data. */
     out_stream mpTissueAreasFile;
+
+    /** Results file for cell area data. */
+    out_stream mpCellAreasFile;
 
     /** Helper method used by the spring marking routines */
     std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
@@ -124,6 +130,7 @@ protected:
         archive & mMarkedSprings;
         archive & mWriteVoronoiData;
         archive & mWriteTissueAreas;
+        archive & mWriteCellAreas;
         archive & mUseAreaBasedDampingConstant;
 
         // In its present form, a call to MeshBasedTissue::Validate() here
@@ -194,6 +201,9 @@ public:
     /** @return mWriteTissueAreas. */
     bool GetWriteTissueAreas();
 
+    /** @return mWriteCellAreas. */
+    bool GetWriteCellAreas();
+
     /** @return mUseAreaBasedDampingConstant. */
     bool UseAreaBasedDampingConstant();
 
@@ -252,6 +262,14 @@ public:
     void SetWriteTissueAreas(bool writeTissueAreas);
 
     /**
+     * Set method for mWriteCellAreas.
+     * \todo Extend this to 3D (possibly rename to SetWriteCellVolumes?) - see also #738
+     *
+     * @param writeTissueAreas  whether to output cell area data
+     */
+    void SetWriteCellAreas(bool writeCellAreas);
+
+    /**
      * Set method for mUseAreaBasedDampingConstant.
      *
      * @param useAreaBasedDampingConstant  whether to use a viscosity that is linear in the cell area, rather than constant
@@ -304,6 +322,7 @@ public:
      * @param outputCellVariables  whether to create a cell-cycle variable results file
      * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
      * @param outputCellAncestors  whether to create a cell ancestor results file
+     * @param outputCellAges whether to output cell age results
      */
     void CreateOutputFiles(const std::string &rDirectory,
                            bool rCleanOutputDirectory,
@@ -311,7 +330,8 @@ public:
                            bool outputCellTypes,
                            bool outputCellVariables,
                            bool outputCellCyclePhases,
-                           bool outputCellAncestors);
+                           bool outputCellAncestors,
+                           bool outputCellAges);
     /**
      * Overridden CloseOutputFiles() method.
      *
@@ -320,12 +340,14 @@ public:
      * @param outputCellVariables  whether a cell-cycle variable results file is open
      * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
      * @param outputCellAncestors  whether a cell ancestor results file is open
+     * @param outputCellAges whether to output cell age results
      */
     void CloseOutputFiles(bool outputCellMutationStates,
                           bool outputCellTypes,
                           bool outputCellVariables,
                           bool outputCellCyclePhases,
-                          bool outputCellAncestors);
+                          bool outputCellAncestors,
+                          bool outputCellAges);
 
     /**
      * Overridden WriteResultsToFiles() method.
@@ -335,12 +357,14 @@ public:
      * @param outputCellVariables  whether to output cell-cycle variable results
      * @param outputCellCyclePhases  whether to output cell-cycle phase results
      * @param outputCellAncestors  whether to output cell ancestor results
+     * @param outputCellAges whether to output cell age results
      */
     void WriteResultsToFiles(bool outputCellMutationStates,
                              bool outputCellTypes,
                              bool outputCellVariables,
                              bool outputCellCyclePhases,
-                             bool outputCellAncestors);
+                             bool outputCellAncestors,
+                             bool outputCellAges);
 
     /**
      * Overridden Update(bool hasHadBirthsOrDeaths) method.
@@ -382,6 +406,11 @@ public:
      * Write current results to mpTissueAreasFile.
      */
     void WriteTissueAreaResultsToFile();
+
+    /**
+     * Write current results to mpCellAreasFile.
+     */
+    void WriteCellAreaResultsToFile();
 
     /**
      * Get a reference to a Voronoi tessellation of the mesh.

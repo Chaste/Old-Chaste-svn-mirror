@@ -537,11 +537,11 @@ public:
         std::string output_directory = "TestNodeBasedTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CreateOutputFiles(output_directory, false, true, true, false, true, true));
+        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CreateOutputFiles(output_directory, false, true, true, false, true, true, true));
 
-        node_based_tissue.WriteResultsToFiles(true, true, false, true, true);
+        node_based_tissue.WriteResultsToFiles(true, true, false, true, true, true);
 
-        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CloseOutputFiles(true, true, false, true, true));
+        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CloseOutputFiles(true, true, false, true, true, true));
 
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -550,6 +550,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cancer/test/data/TestNodeBasedTissueWriters/results.vizcelltypes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cancer/test/data/TestNodeBasedTissueWriters/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cancer/test/data/TestNodeBasedTissueWriters/cellmutationstates.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cancer/test/data/TestNodeBasedTissueWriters/cellages.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
         c_vector<unsigned,5> cell_mutation_states = node_based_tissue.GetCellMutationStateCount();
@@ -566,7 +567,7 @@ public:
         TS_ASSERT_EQUALS(cell_types[3], 1u);
 
         // For coverage
-        TS_ASSERT_THROWS_NOTHING(node_based_tissue.WriteResultsToFiles(true, false, false, true, false));
+        TS_ASSERT_THROWS_NOTHING(node_based_tissue.WriteResultsToFiles(true, false, false, true, false, false));
     }
 
     void TestWritingCellCyclePhases()
@@ -618,9 +619,9 @@ public:
         std::string output_directory = "TestWritingCellCyclePhases";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        node_based_tissue.CreateOutputFiles(output_directory, false, false, false, false, true, false);
-        node_based_tissue.WriteResultsToFiles(false, false, false, true, false);
-        node_based_tissue.CloseOutputFiles(false, false, false, true, false);
+        node_based_tissue.CreateOutputFiles(output_directory, false, false, false, false, true, false, false);
+        node_based_tissue.WriteResultsToFiles(false, false, false, true, false, false);
+        node_based_tissue.CloseOutputFiles(false, false, false, true, false, false);
 
         // Test the GetCellCyclePhaseCount function
         c_vector<unsigned,5> cell_cycle_phases = node_based_tissue.GetCellCyclePhaseCount();

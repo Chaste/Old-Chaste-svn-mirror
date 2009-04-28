@@ -201,10 +201,6 @@ public:
         TS_ASSERT_DELTA(area_based_damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);
     }
 
-
-
-
-
     void TestSetNodeAndAddCell()
     {
         // Create a simple mesh
@@ -266,7 +262,6 @@ public:
         TissueCell& new_cell = tissue.rGetCells().back();
         TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&new_cell), old_num_nodes);
     }
-
 
     void TestRemoveDeadCellsAndUpdate()
     {
@@ -340,9 +335,6 @@ public:
         TS_ASSERT_EQUALS(node_indices, expected_node_indices);
     }
 
-
-
-
     void TestUpdateNodeLocations()
     {
         // Test MeshBasedTissue::UpdateNodeLocations()
@@ -396,19 +388,21 @@ public:
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         cells[0].SetCellType(APOPTOTIC); // coverage
-        MeshBasedTissue<2> tissue(mesh,cells);
 
         // Create tissue
+        MeshBasedTissue<2> tissue(mesh, cells);
+
         tissue.SetWriteTissueAreas(true); // coverage
+        tissue.SetWriteCellAreas(true); // coverage
 
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, true, true, false, false, false));
+        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, true, true, false, false, false, false));
 
-        tissue.WriteResultsToFiles(true, true, false, false, false);
+        tissue.WriteResultsToFiles(true, true, false, false, false, false);
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles(true, true, false, false, false));
+        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles(true, true, false, false, false, false));
 
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -417,6 +411,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cancer/test/data/TestTissueWriters/results.vizcelltypes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cancer/test/data/TestTissueWriters/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat       cancer/test/data/TestTissueWriters/cellareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
         c_vector<unsigned,5> cell_mutation_states = tissue.GetCellMutationStateCount();

@@ -132,13 +132,15 @@ void AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMuta
                                                              bool outputCellTypes,
                                                              bool outputCellVariables,
                                                              bool outputCellCyclePhases,
-                                                             bool outputCellAncestors)
+                                                             bool outputCellAncestors,
+                                                             bool outputCellAges)
 {
     AbstractTissue<DIM>::WriteResultsToFiles(outputCellMutationStates,
                                              outputCellTypes,
                                              outputCellVariables,
                                              outputCellCyclePhases,
-                                             outputCellAncestors);
+                                             outputCellAncestors,
+                                             outputCellAges);
 
     std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
 
@@ -147,6 +149,7 @@ void AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMuta
                                          outputCellVariables,
                                          outputCellCyclePhases,
                                          outputCellAncestors,
+                                         outputCellAges,
                                          cell_type_counter,
                                          cell_mutation_state_counter,
                                          cell_cycle_phase_counter);
@@ -161,6 +164,7 @@ void AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMuta
                                       outputCellVariables,
                                       outputCellCyclePhases,
                                       outputCellAncestors,
+                                      outputCellAges,
                                       cell_type_counter,
                                       cell_mutation_state_counter,
                                       cell_cycle_phase_counter);
@@ -172,6 +176,7 @@ void AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMuta
                                   outputCellVariables,
                                   outputCellCyclePhases,
                                   outputCellAncestors,
+                                  outputCellAges,
                                   cell_type_counter,
                                   cell_mutation_state_counter,
                                   cell_cycle_phase_counter);

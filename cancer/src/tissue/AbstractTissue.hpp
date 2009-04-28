@@ -90,6 +90,9 @@ protected:
     /** Results file for cell variables */
     out_stream mpCellVariablesFile;
 
+    /** Results file for cell ages */
+    out_stream mpCellAgesFile;
+
     /** Results file for logged cell data. */
     out_stream mpCellIdFile;
 
@@ -402,6 +405,7 @@ public:
      * @param outputCellVariables  whether to create a cell-cycle variable results file
      * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
      * @param outputCellAncestors  whether to create a cell ancestor results file
+     * @param outputCellAges whether to output cell age results
      */
     virtual void CreateOutputFiles(const std::string &rDirectory,
                                    bool rCleanOutputDirectory,
@@ -409,7 +413,8 @@ public:
                                    bool outputCellTypes,
                                    bool outputCellVariables,
                                    bool outputCellCyclePhases,
-                                   bool outputCellAncestors);
+                                   bool outputCellAncestors,
+                                   bool outputCellAges);
 
     /**
      * Write results from the current tissue state to output files.
@@ -419,12 +424,14 @@ public:
      * @param outputCellVariables  whether to output cell-cycle variable results
      * @param outputCellCyclePhases  whether to output cell-cycle phase results
      * @param outputCellAncestors  whether to output cell ancestor results
+     * @param outputCellAges whether to output cell age results
      */
     virtual void WriteResultsToFiles(bool outputCellMutationStates,
                                      bool outputCellTypes,
                                      bool outputCellVariables,
                                      bool outputCellCyclePhases,
-                                     bool outputCellAncestors);
+                                     bool outputCellAncestors,
+                                     bool outputCellAges);
 
     /**
      * Write the current time and node results to output files.
@@ -434,6 +441,7 @@ public:
      * @param outputCellVariables  whether to output cell-cycle variable results
      * @param outputCellCyclePhases  whether to output cell-cycle phase results
      * @param outputCellAncestors  whether to output cell ancestor results
+     * @param outputCellAges whether to output cell age results
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
@@ -443,6 +451,7 @@ public:
                                         bool outputCellVariables,
                                         bool outputCellCyclePhases,
                                         bool outputCellAncestors,
+                                        bool outputCellAges,
                                         std::vector<unsigned>& rCellTypeCounter,
                                         std::vector<unsigned>& rCellMutationStateCounter,
                                         std::vector<unsigned>& rCellCyclePhaseCounter);
@@ -456,6 +465,7 @@ public:
      * @param outputCellVariables  whether to output cell-cycle variable results
      * @param outputCellCyclePhases  whether to output cell-cycle phase results
      * @param outputCellAncestors  whether to output cell ancestor results
+     * @param outputCellAges whether to output cell age results
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
@@ -466,6 +476,7 @@ public:
                              bool outputCellVariables,
                              bool outputCellCyclePhases,
                              bool outputCellAncestors,
+                             bool outputCellAges,
                              std::vector<unsigned>& rCellTypeCounter,
                              std::vector<unsigned>& rCellMutationStateCounter,
                              std::vector<unsigned>& rCellCyclePhaseCounter);
@@ -478,6 +489,7 @@ public:
      * @param outputCellVariables  whether to output cell-cycle variable results
      * @param outputCellCyclePhases  whether to output cell-cycle phase results
      * @param outputCellAncestors  whether to output cell ancestor results
+     * @param outputCellAges whether to output cell age results
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
@@ -487,6 +499,7 @@ public:
                                  bool outputCellVariables,
                                  bool outputCellCyclePhases,
                                  bool outputCellAncestors,
+                                 bool outputCellAges,
                                  std::vector<unsigned>& rCellTypeCounter,
                                  std::vector<unsigned>& rCellMutationStateCounter,
                                  std::vector<unsigned>& rCellCyclePhaseCounter);
@@ -499,12 +512,14 @@ public:
      * @param outputCellVariables  whether a cell-cycle variable results file is open
      * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
      * @param outputCellAncestors  whether a cell ancestor results file is open
+     * @param outputCellAges whether to output cell age results
      */
     virtual void CloseOutputFiles(bool outputCellMutationStates,
                                   bool outputCellTypes,
                                   bool outputCellVariables,
                                   bool outputCellCyclePhases,
-                                  bool outputCellAncestors);
+                                  bool outputCellAncestors,
+                                  bool outputCellAges);
 
     /**
      * Iterator class allows one to iterate over cells in the tissue.

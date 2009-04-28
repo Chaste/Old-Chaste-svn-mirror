@@ -41,6 +41,7 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
       mDeleteMesh(deleteMesh),
       mWriteVoronoiData(false),
       mWriteTissueAreas(false),
+      mWriteCellAreas(false),
       mUseAreaBasedDampingConstant(false)
 {
     // This must always be true
@@ -372,6 +373,12 @@ void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
 }
 
 template<unsigned DIM>
+void MeshBasedTissue<DIM>::SetWriteCellAreas(bool writeCellAreas)
+{
+    mWriteCellAreas = writeCellAreas;
+}
+
+template<unsigned DIM>
 void MeshBasedTissue<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rMap)
 {
 }
@@ -410,7 +417,8 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                              bool outputCellTypes,
                                              bool outputCellVariables,
                                              bool outputCellCyclePhases,
-                                             bool outputCellAncestors)
+                                             bool outputCellAncestors,
+                                             bool outputCellAges)
 {
     AbstractTissue<DIM>::CreateOutputFiles(rDirectory,
                                            rCleanOutputDirectory,
@@ -418,7 +426,8 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                            outputCellTypes,
                                            outputCellVariables,
                                            outputCellCyclePhases,
-                                           outputCellAncestors);
+                                           outputCellAncestors,
+                                           outputCellAges);
 
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
@@ -431,6 +440,10 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
     {
         mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
     }
+    if (mWriteCellAreas)
+    {
+        mpCellAreasFile = output_file_handler.OpenOutputFile("cellareas.dat");
+    }
 }
 
 template<unsigned DIM>
@@ -438,13 +451,15 @@ void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                             bool outputCellTypes,
                                             bool outputCellVariables,
                                             bool outputCellCyclePhases,
-                                            bool outputCellAncestors)
+                                            bool outputCellAncestors,
+                                            bool outputCellAges)
 {
     AbstractTissue<DIM>::CloseOutputFiles(outputCellMutationStates,
                                           outputCellTypes,
                                           outputCellVariables,
                                           outputCellCyclePhases,
-                                          outputCellAncestors);
+                                          outputCellAncestors,
+                                          outputCellAges);
     mpElementFile->close();
 
     if (mWriteVoronoiData)
@@ -454,6 +469,10 @@ void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
     if (mWriteTissueAreas)
     {
         mpTissueAreasFile->close();
+    }
+    if (mWriteCellAreas)
+    {
+        mpCellAreasFile->close();
     }
 }
 
@@ -470,17 +489,25 @@ bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
 }
 
 template<unsigned DIM>
+bool MeshBasedTissue<DIM>::GetWriteCellAreas()
+{
+    return mWriteCellAreas;
+}
+
+template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                                bool outputCellTypes,
                                                bool outputCellVariables,
                                                bool outputCellCyclePhases,
-                                               bool outputCellAncestors)
+                                               bool outputCellAncestors,
+                                               bool outputCellAges)
 {
     AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(outputCellMutationStates,
                                                             outputCellTypes,
                                                             outputCellVariables,
                                                             outputCellCyclePhases,
-                                                            outputCellAncestors);
+                                                            outputCellAncestors,
+                                                            outputCellAges);
 
     // Write element data to file
 
@@ -513,6 +540,12 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
             if (mWriteTissueAreas)
             {
                 WriteTissueAreaResultsToFile();
+            }
+
+            // Write cell area data to file if required
+            if (mWriteCellAreas)
+            {
+                WriteCellAreaResultsToFile();
             }
         }
     }
@@ -576,8 +609,39 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
             }
         }
     }
-
     *mpTissueAreasFile << total_area << " " << apoptotic_area << "\n";
+}
+
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
+{
+    // Write time to file
+    *mpCellAreasFile << SimulationTime::Instance()->GetTime() << " ";
+
+    if (DIM==2)
+    {
+        for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+             cell_iter != this->End();
+             ++cell_iter)
+        {
+            // Write cell index
+            unsigned cell_index = cell_iter->GetCellId();
+            *mpCellAreasFile << cell_index << " ";
+
+            // Write cell location
+            c_vector<double, DIM> cell_location = this->GetLocationOfCellCentre(&(*cell_iter));
+            for (unsigned i=0; i<DIM; i++)
+            {
+                *mpCellAreasFile << cell_location[i] << " ";
+            }
+
+            // Write cell area
+            unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+            double cell_area = rGetVoronoiTessellation().GetFace(node_index)->GetArea();
+            *mpCellAreasFile << cell_area << " ";
+        }
+    }
+    *mpCellAreasFile << "\n";
 }
 
 //////////////////////////////////////////////////////////////////////////////

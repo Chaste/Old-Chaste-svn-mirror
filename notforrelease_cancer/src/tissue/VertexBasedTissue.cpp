@@ -387,7 +387,8 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                                  bool outputCellTypes,
                                                  bool outputCellVariables,
                                                  bool outputCellCyclePhases,
-                                                 bool outputCellAncestors)
+                                                 bool outputCellAncestors,
+                                                 bool outputCellAges)
 {
     std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
 
@@ -396,6 +397,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                          outputCellVariables,
                                          outputCellCyclePhases,
                                          outputCellAncestors,
+                                         outputCellAges,
                                          cell_type_counter,
                                          cell_mutation_state_counter,
                                          cell_cycle_phase_counter);
@@ -429,6 +431,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                       outputCellVariables,
                                       outputCellCyclePhases,
                                       outputCellAncestors,
+                                      outputCellAges,
                                       cell_type_counter,
                                       cell_mutation_state_counter,
                                       cell_cycle_phase_counter);
@@ -440,6 +443,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                   outputCellVariables,
                                   outputCellCyclePhases,
                                   outputCellAncestors,
+                                  outputCellAges,
                                   cell_type_counter,
                                   cell_mutation_state_counter,
                                   cell_cycle_phase_counter);
@@ -463,7 +467,8 @@ void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                                bool outputCellTypes,
                                                bool outputCellVariables,
                                                bool outputCellCyclePhases,
-                                               bool outputCellAncestors)
+                                               bool outputCellAncestors,
+                                               bool outputCellAges)
 {
     AbstractTissue<DIM>::CreateOutputFiles(rDirectory,
                                            rCleanOutputDirectory,
@@ -471,7 +476,8 @@ void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
                                            outputCellTypes,
                                            outputCellVariables,
                                            outputCellCyclePhases,
-                                           outputCellAncestors);
+                                           outputCellAncestors,
+                                           outputCellAges);
 
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
@@ -483,13 +489,15 @@ void VertexBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
                                               bool outputCellTypes,
                                               bool outputCellVariables,
                                               bool outputCellCyclePhases,
-                                              bool outputCellAncestors)
+                                              bool outputCellAncestors,
+                                              bool outputCellAges)
 {
     AbstractTissue<DIM>::CloseOutputFiles(outputCellMutationStates,
                                           outputCellTypes,
                                           outputCellVariables,
                                           outputCellCyclePhases,
-                                          outputCellAncestors);
+                                          outputCellAncestors,
+                                          outputCellAges);
     mpElementFile->close();
 }
 
