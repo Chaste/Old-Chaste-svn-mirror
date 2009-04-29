@@ -610,9 +610,10 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
     unsigned num_nodes_in_element = p_element->GetNumNodes();
+    c_vector<double, 2> centroid = GetCentroidOfElement(index);
 
     c_vector<double, 3> moments = zero_vector<double>(3);
-
+   
     unsigned node_1;
     unsigned node_2;
 
@@ -621,9 +622,18 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
         node_1 = local_index;
         node_2 = (local_index+1)%num_nodes_in_element;
 
-        c_vector<double, 2> pos_1 = p_element->GetNodeLocation(node_1);
-        c_vector<double, 2> pos_2 = p_element->GetNodeLocation(node_2);
-		//PRINT_VARIABLES(pos_1,pos_2);
+        // Original position of nodes
+        c_vector<double, 2> original_pos_1 = p_element->GetNodeLocation(node_1);
+        c_vector<double, 2> original_pos_2 = p_element->GetNodeLocation(node_2);
+        
+        // Node position so centerd on origin
+        c_vector<double, 2> pos_1 = GetVectorFromAtoB(centroid, original_pos_1);
+        c_vector<double, 2> pos_2 = GetVectorFromAtoB(centroid, original_pos_2);
+        
+		/*
+         * Note these formulae require the polygon to be centered on the origin
+         */
+        
         // Ixx
         moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
                                            + pos_1(1)*pos_1(1)*pos_2(1)

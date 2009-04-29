@@ -518,11 +518,11 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), old_num_elements+1);
 
         // Check the location of the new nodes
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[0], 1.8509, 1e-4);
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[1], 1.7058, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[0], 1.8639, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[1], 2.2714, 1e-4);
 
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[0], 1.0358, 1e-4);
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[1], 2.2941, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[0], 1.0227, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[1], 1.7285, 1e-4);
 
         // Now test the nodes in each element
         for (unsigned i=0; i<tissue.GetNumElements(); i++)
@@ -532,9 +532,9 @@ public:
                 // Elements 4 and 9 should each have one less node
                 TS_ASSERT_EQUALS(tissue.GetElement(i)->GetNumNodes(), 5u);
             }
-            else if (i==5 || i==6)
+            else if (i==3 || i==8)
             {
-                // Elements 5 and 6 should each have one extra node
+                // Elements 3 and 8 should each have one extra node
                 TS_ASSERT_EQUALS(tissue.GetElement(i)->GetNumNodes(), 7u);
             }
             else
@@ -553,18 +553,18 @@ public:
         TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(5), 4u);
 
         TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(0), 30u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(1), 18u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(2), 22u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(3), 21u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(1), 22u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(2), 21u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(3), 17u);
         TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(4), 31u);
 
-        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(0), 10u);
-        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(1), 11u);
-        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(2), 15u);
-        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(3), 19u);
-        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(4), 18u);
-        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(5), 30u);
-        TS_ASSERT_EQUALS(tissue.GetElement(5)->GetNodeGlobalIndex(6), 14u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(0), 18u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(1), 19u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(2), 23u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(3), 27u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(4), 26u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(5), 22u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(6), 30u);
 
         // Test element ownership for a few nodes
 
@@ -582,7 +582,7 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNode(13)->rGetContainingElementIndices(), expected_elements_containing_node_13);
 
         std::set<unsigned> expected_elements_containing_node_30;
-        expected_elements_containing_node_30.insert(5);
+        expected_elements_containing_node_30.insert(8);
         expected_elements_containing_node_30.insert(4);
         expected_elements_containing_node_30.insert(9);
 

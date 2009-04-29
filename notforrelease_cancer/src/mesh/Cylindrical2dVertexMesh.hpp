@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/export.hpp>// at end of includes
 
-//#include "Debug.hpp"
 
 /**
  * A subclass of VertexMesh<2,2> for a rectangular mesh with
@@ -157,15 +156,6 @@ public:
      * @return (centroid_x,centroid_y).
      */
      c_vector<double, 2> GetCentroidOfElement(unsigned index);
-
-	/**
-     * Overridden CalculateMomentsOfElement() method. *
-     * 
-     * @param index  the global index of a specified vertex element
-     *
-     * @return (Ixx,Iyy,Ixy).
-     */
-    c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
 };
 
 BOOST_CLASS_EXPORT(Cylindrical2dVertexMesh)

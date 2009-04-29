@@ -230,22 +230,17 @@ public:
         TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
         TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
         
-        
-        // Test CalculateMomentOfElement() for nonperiodic element
+        // Test CalculateMomentOfElement() for all elements
         // all elements are regular hexagons with edge 1/sqrt(3) 
-        c_vector<double, 3> non_periodic_moments = mesh.CalculateMomentsOfElement(0);
+        c_vector<double, 3> moments;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            moments = mesh.CalculateMomentsOfElement(i);
 
-//        TS_ASSERT_DELTA(non_periodic_moments(0), 5*sqrt(3)/16/9, 1e-6);    // Ixx
-//        TS_ASSERT_DELTA(non_periodic_moments(1), 5*sqrt(3)/16/9, 1e-6);    // Iyy
-//        TS_ASSERT_DELTA(non_periodic_moments(2), 0.0, 1e-6);    // Ixy
-        
-        // Test CalculateMomentOfElement() for periodic element
-        c_vector<double, 3> periodic_moments = mesh.CalculateMomentsOfElement(7);
-
-//        TS_ASSERT_DELTA(periodic_moments(0), 5*sqrt(3)/16/9, 1e-6);    // Ixx
-//        TS_ASSERT_DELTA(periodic_moments(1), 5*sqrt(3)/16/9, 1e-6);    // Iyy
-//        TS_ASSERT_DELTA(periodic_moments(2), 0.0, 1e-6);    // Ixy
-        
+            TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16/9, 1e-6);    // Ixx
+            TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16/9, 1e-6);    // Iyy
+            TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
+        }
     }
 
 

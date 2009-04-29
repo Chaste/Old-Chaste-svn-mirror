@@ -1631,38 +1631,71 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(4)->GetIndex(), 4u);
 
         // Test locations of new nodes
-        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[0], 2.4166, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[1], 1.4166, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 1.5992, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 2.2996, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[0], 2.3735, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[1], 1.3735, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 1.6520, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 2.3260, 1e-4);
     }
 
-
-    /// \todo this should be for a non regular polygon so Ixy != 0 (see #825)
     void TestCalculateMomentOfElement() throw(Exception)
     {
+        // Single irregular triangular element 
         // Create nodes
         std::vector<Node<2>*> nodes;
-        unsigned num_nodes = 6;
-        for (unsigned i=0; i<num_nodes; i++)
-        {
-            double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes);
-            nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
-        }
-
+        
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 2.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
+        
         // Create element
         std::vector<VertexElement<2,2>*> elements;
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        VertexMesh<2,2> small_mesh(nodes, elements);
 
         // Test CalculateMomentOfElement() method
-        c_vector<double, 3> moments = mesh.CalculateMomentsOfElement(0);
+        c_vector<double, 3> moments = small_mesh.CalculateMomentsOfElement(0);
 
-        TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16, 1e-6);    // Ixx
-        TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16, 1e-6);    // Iyy
-        TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
+        TS_ASSERT_DELTA(moments(0), 5.0/90.0, 1e-6);    // Ixx
+        TS_ASSERT_DELTA(moments(1), 2.0/9.0, 1e-6);    // Iyy
+        TS_ASSERT_DELTA(moments(2), -5.0/90.0, 1e-6);    // Ixy
+        
+                        
+        // Hexagonal mesh from mesh generator.
+        VertexMesh<2,2> mesh(4, 4, 0.01, 2.0);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 48u);
+
+        // Test area and perimeter calculations for  all  elements
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_DELTA(mesh.GetAreaOfElement(i), 0.8660, 1e-4);
+            TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(i), 3.4641, 1e-4);
+        }
+
+        // Test centroid calculations for random elements
+        c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
+        TS_ASSERT_DELTA(centroid(0), 1.4433, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
+
+        centroid = mesh.GetCentroidOfElement(7);
+        TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
+        
+        
+        // Test CalculateMomentOfElement() for all elements
+        // all elements are regular hexagons with edge 1/sqrt(3) 
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            moments = mesh.CalculateMomentsOfElement(i);
+
+            TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16/9, 1e-6);    // Ixx
+            TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16/9, 1e-6);    // Iyy
+            TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
+        }
+        
+        
     }
 
 
