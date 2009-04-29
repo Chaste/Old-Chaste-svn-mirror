@@ -191,7 +191,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,1,0> &m)
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,0> &m, const unsigned missrow, const unsigned misscol)
 {
-    NEVER_REACHED
+    NEVER_REACHED;
 }
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,0> &m, const unsigned missrow, const unsigned misscol)
