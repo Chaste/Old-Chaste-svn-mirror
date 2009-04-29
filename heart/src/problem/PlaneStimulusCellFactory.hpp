@@ -50,7 +50,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
+        if (this->GetMesh()->GetNode(node)->GetPoint()[0] == 0.0)
         {
             return new CELL(this->mpSolver, mpStimulus);
         }

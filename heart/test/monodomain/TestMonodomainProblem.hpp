@@ -64,7 +64,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        ChastePoint<2> location = mpMesh->GetNode(node)->GetPoint();
+        ChastePoint<2> location = GetMesh()->GetNode(node)->GetPoint();
 
         if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.05)<1e-6)
         {

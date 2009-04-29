@@ -103,7 +103,7 @@ public:
              ionic_model_region_index < ionic_model_regions.size();
              ++ionic_model_region_index)
         {
-            if ( ionic_model_regions[ionic_model_region_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
+            if ( ionic_model_regions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
             {
                 ionic_model = ionic_models_defined[ionic_model_region_index];
                 break;
@@ -140,7 +140,7 @@ public:
                          ht_index < cell_heterogeneity_areas.size();
                          ++ht_index)
                     {
-                        if ( cell_heterogeneity_areas[ht_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
+                        if ( cell_heterogeneity_areas[ht_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
                         {
                             tt06_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
                             tt06_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);
@@ -165,7 +165,7 @@ public:
                          ht_index < cell_heterogeneity_areas.size();
                          ++ht_index)
                     {
-                        if ( cell_heterogeneity_areas[ht_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
+                        if ( cell_heterogeneity_areas[ht_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
                         {
                             faber_rudy_instance->SetScaleFactorGks(scale_factor_gks[ht_index]);
                             faber_rudy_instance->SetScaleFactorIto(scale_factor_ito[ht_index]);
@@ -199,7 +199,7 @@ public:
              stimulus_index < stimuli_applied.size();
              ++stimulus_index)
         {
-            if ( stimuled_areas[stimulus_index].DoesContain(this->mpMesh->GetNode(node)->GetPoint()) )
+            if ( stimuled_areas[stimulus_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
             {
                 node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);
             }

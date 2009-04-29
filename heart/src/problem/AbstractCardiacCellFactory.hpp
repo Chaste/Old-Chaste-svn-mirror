@@ -53,13 +53,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class AbstractCardiacCellFactory
 {
+private:
+    /** The mesh is automatically set in MonodomainProblem and BidomainProblem. 
+     *  This member variable should be accessed through GetMesh(), which will check if it has been set before.*/
+    AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+
 protected:
     /** For use at unstimulated cells. */
     ZeroStimulus* mpZeroStimulus;
     AbstractIvpOdeSolver* mpSolver;
 
-    /** The mesh is automatically set in MonodomainProblem and BidomainProblem. */
-    AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
     /** A fake cell object to use at bath nodes. */
     AbstractCardiacCell* mpFakeCell;
 

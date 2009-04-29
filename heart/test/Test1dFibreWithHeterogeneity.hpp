@@ -64,7 +64,7 @@ public:
     {
         FaberRudy2000Version3 *cell;
 
-        if (this->mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
+        if (this->GetMesh()->GetNode(node)->GetPoint()[0] == 0.0)
         {
             cell = new FaberRudy2000Version3(this->mpSolver,
                                              mpStimulus);
@@ -76,12 +76,12 @@ public:
                                              this->mpZeroStimulus);
         }
 
-        if (this->mpMesh->GetNode(node)->GetPoint()[0] < 0.3333)
+        if (this->GetMesh()->GetNode(node)->GetPoint()[0] < 0.3333)
         {
             cell->SetScaleFactorGks(0.462);
             cell->SetScaleFactorIto(0.0);
         }
-        else if (this->mpMesh->GetNode(node)->GetPoint()[0] < 0.6666)
+        else if (this->GetMesh()->GetNode(node)->GetPoint()[0] < 0.6666)
         {
             cell->SetScaleFactorGks(1.154);
             cell->SetScaleFactorIto(0.85);

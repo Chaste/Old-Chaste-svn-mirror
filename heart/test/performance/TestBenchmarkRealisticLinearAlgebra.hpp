@@ -49,7 +49,7 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // Stimulate the apex
-        if (mpMesh->GetNode(node)->rGetLocation()[0] > 0.94)
+        if (GetMesh()->GetNode(node)->rGetLocation()[0] > 0.94)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver,mpStimulus);
         }

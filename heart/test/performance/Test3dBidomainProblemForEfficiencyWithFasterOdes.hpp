@@ -61,7 +61,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
+        if (GetMesh()->GetNode(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
             return new BackwardEulerLuoRudyIModel1991(mpRegStimulus);

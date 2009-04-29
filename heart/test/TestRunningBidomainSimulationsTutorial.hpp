@@ -116,8 +116,8 @@ public:
      * class just so that the user doesn't have to create them here. */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-        double x = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[0];
-        double y = this->mpMesh->GetNode(nodeIndex)->rGetLocation()[1];
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        double y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
         if (fabs(x)+fabs(y)<1e-6) // ie if (x,y)==(0,0). An alternative would be if(norm_2(this->mpMesh->GetNode(nodeIndex)->rGetLocation())<1e-6)
         {
             /* Even if running a bidomain simulation, only the intra-cellular stimulus
