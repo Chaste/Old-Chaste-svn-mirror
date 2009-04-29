@@ -104,7 +104,7 @@ public:
      * @param rJacobian  the Jacobian matrix
      * @param rInverseJacobian  the inverse Jacobian matrix
      */
-    c_vector<double,SPACE_DIM+1> CalculateCircumsphere(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian);
+    c_vector<double,SPACE_DIM+1> CalculateCircumsphere(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian);
 
     /**
      * Get the volume of the circumsphere, or area of the circumcircle, of this element.

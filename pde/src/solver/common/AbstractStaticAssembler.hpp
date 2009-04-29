@@ -278,8 +278,8 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
      * This is true for linear basis functions, but not for any other type of
      * basis function.
      */
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
+    c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
 
     mpMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);

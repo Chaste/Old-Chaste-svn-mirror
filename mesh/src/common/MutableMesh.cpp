@@ -877,7 +877,7 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPAC
     }
 
     //Get the circumsphere information
-    c_vector <double, ELEMENT_DIM+1> this_circum_centre;
+    c_vector <double, SPACE_DIM+1> this_circum_centre;
 
     this_circum_centre = pElement->CalculateCircumsphere(this->mElementJacobians[pElement->GetIndex()], this->mElementInverseJacobians[pElement->GetIndex()]);
 

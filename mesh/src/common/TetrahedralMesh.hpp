@@ -100,10 +100,10 @@ protected:
     std::vector< c_vector<double, SPACE_DIM> > mElementWeightedDirections;
 
     /** Vector storing the Jacobian matrix for each element in the mesh. */
-    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementJacobians;
+    std::vector< c_matrix<double, SPACE_DIM, ELEMENT_DIM> > mElementJacobians;
 
     /** Vector storing the inverse Jacobian matrix for each element in the mesh. */
-    std::vector< c_matrix<double, SPACE_DIM, SPACE_DIM> > mElementInverseJacobians;
+    std::vector< c_matrix<double, ELEMENT_DIM, SPACE_DIM> > mElementInverseJacobians;
 
     /** Vector storing the Jacobian determinant for each element in the mesh. */
     std::vector<double> mElementJacobianDeterminants;
@@ -420,7 +420,7 @@ public:
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      * @param rInverseJacobian the inverse Jacobian matrix
      */
-    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
+    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const;
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given element.

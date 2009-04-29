@@ -66,7 +66,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,1,1> &m)
     using namespace boost::numeric::ublas;
 
     return m(0,0);
-};
+}
 /**
  * Return the determinant of a submatrix after removing a particular row and column
  */
@@ -78,7 +78,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T,1,1> &m, const unsigned
     assert(missrow==0);
     assert(misscol==0);
     return 1.0;
-};
+}
 
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,2,2> &m)
@@ -87,7 +87,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,2,2> &m)
 
     return m(0,0)*m(1,1)
            - m(1,0)*m(0,1);
-};
+}
 
 /**
  * Return the determinant of a submatrix after removing a particular row and column
@@ -103,7 +103,20 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,2> &m, const unsigned
     unsigned row=(missrow==1)?0:1;
     unsigned col=(misscol==1)?0:1;
     return m(row,col);
-};
+}
+
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,1> &m, const unsigned missrow, const unsigned misscol)
+{
+    using namespace boost::numeric::ublas;
+
+    assert(missrow<2);
+    assert(misscol<1);
+
+    unsigned row=(missrow==1)?0:1;
+    unsigned col=(misscol==1)?0:1;
+    return m(row,col);
+}
 
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,3,3> &m)
@@ -116,7 +129,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,3> &m)
              (m(1,0)*m(2,2) - m(1,2)*m(2,0))
              + m(0,2) *
              (m(1,0)*m(2,1) - m(1,1)*m(2,0));
-};
+}
 
 /**
  * Calculate the generalized determinant of a 2x1 matrix.
@@ -130,7 +143,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,2,1> &m)
 
     return   std::sqrt(m(0,0) * m(0,0) + m(1,0) * m(1,0));
              
-};
+}
 
 /**
  * Calculate the generalized determinant of a 3x1 matrix.
@@ -144,8 +157,88 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,1> &m)
 
     return   std::sqrt(m(0,0)*m(0,0) + m(1,0)*m(1,0) + m(2,0)*m(2,0));
              
-};
+}
 
+/**
+ * Calculate the generalized determinant of a 3x2 matrix.
+ * 
+ * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ */
+template<class T>
+T Determinant(const boost::numeric::ublas::c_matrix<T,3,2> &m)
+{
+    NEVER_REACHED;
+ }
+
+template<class T>
+T Determinant(const boost::numeric::ublas::c_matrix<T,3,0> &m)
+{
+    NEVER_REACHED;
+ }
+
+template<class T>
+T Determinant(const boost::numeric::ublas::c_matrix<T,2,0> &m)
+{
+    NEVER_REACHED;
+ }
+
+template<class T>
+T Determinant(const boost::numeric::ublas::c_matrix<T,1,0> &m)
+{
+    NEVER_REACHED;
+ }
+
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,0> &m, const unsigned missrow, const unsigned misscol)
+{
+    NEVER_REACHED
+}
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,0> &m, const unsigned missrow, const unsigned misscol)
+{
+    NEVER_REACHED;
+}
+
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,1,0> &m, const unsigned missrow, const unsigned misscol)
+{
+    NEVER_REACHED;
+}
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,2> &m, const unsigned missrow, const unsigned misscol)
+{
+    using namespace boost::numeric::ublas;
+
+    assert(missrow<3);
+    //assert(misscol<2);
+
+    unsigned lorow=(missrow==0)?1:0;
+    unsigned hirow=(missrow==2)?1:2;
+    unsigned locol=(misscol==0)?1:0;
+    unsigned hicol=(misscol==2)?1:2;
+    return (m(lorow,locol)*m(hirow,hicol) - m(lorow,hicol)*m(hirow,locol));
+}
+
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,1> &m, const unsigned missrow, const unsigned misscol)
+{
+    using namespace boost::numeric::ublas;
+
+    assert(missrow<3);
+    assert(misscol<1);
+
+    unsigned lorow=(missrow==0)?1:0;
+    unsigned hirow=(missrow==2)?1:2;
+    unsigned locol=(misscol==0)?1:0;
+    unsigned hicol=(misscol==2)?1:2;
+    return (m(lorow,locol)*m(hirow,hicol) - m(lorow,hicol)*m(hirow,locol));
+}
 
 /**
  * Return the determinant of a submatrix after removing a particular row and column
@@ -163,7 +256,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,3> &m, const unsigned
     unsigned locol=(misscol==0)?1:0;
     unsigned hicol=(misscol==2)?1:2;
     return (m(lorow,locol)*m(hirow,hicol) - m(lorow,hicol)*m(hirow,locol));
-};
+}
 
 /**
  * Get the inverse of a ublas matrix
@@ -181,7 +274,14 @@ boost::numeric::ublas::c_matrix<T, 1, 1> Inverse(const boost::numeric::ublas::c_
     assert( fabs(det) > TINY ); //Else it is a singular matrix
     inverse(0,0) =  1.0/det;
     return inverse;
-};
+}
+
+
+template<class T>
+boost::numeric::ublas::c_matrix<T, 2, 3> Inverse(const boost::numeric::ublas::c_matrix<T, 3, 2> &m)
+{
+    NEVER_REACHED;
+}
 
 template<class T>
 boost::numeric::ublas::c_matrix<T, 2, 2> Inverse(const boost::numeric::ublas::c_matrix<T, 2, 2> &m)
@@ -197,7 +297,7 @@ boost::numeric::ublas::c_matrix<T, 2, 2> Inverse(const boost::numeric::ublas::c_
     inverse(1,0)  = -m(1,0)/det;
     inverse(1,1)  =  m(0,0)/det;
     return inverse;
-};
+}
 
 template<class T>
 boost::numeric::ublas::c_matrix<T, 3, 3> Inverse(const boost::numeric::ublas::c_matrix<T, 3, 3> &m)
@@ -217,7 +317,7 @@ boost::numeric::ublas::c_matrix<T, 3, 3> Inverse(const boost::numeric::ublas::c_
     inverse(1,2)  = - (m(0,0)*m(1,2)-m(0,2)*m(1,0))/det;
     inverse(2,2)  =  (m(0,0)*m(1,1)-m(0,1)*m(1,0))/det;
     return inverse;
-};
+}
 
 /**
  * Calculates the pseudo-inverse of a 2x1 matrix.
@@ -236,7 +336,7 @@ boost::numeric::ublas::c_matrix<T, 1, 2> Inverse(const boost::numeric::ublas::c_
     inverse(0,1)  =  m(1,0)/det/det;
     
     return inverse;
-};
+}
 
 /**
  * Calculates the pseudo-inverse of a 3x1 matrix.
@@ -256,7 +356,7 @@ boost::numeric::ublas::c_matrix<T, 1, 3> Inverse(const boost::numeric::ublas::c_
     inverse(0,2)  =  m(2,0)/det/det;
     
     return inverse;
-};
+}
 
 template<class T>
 c_vector<T, 3> VectorProduct(const c_vector<T, 3> &a, const c_vector<T, 3> &b)

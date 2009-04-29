@@ -45,7 +45,7 @@ protected:
      *
      * @param rJacobian  the Jacobian matrix
      */
-    void RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian);
+    void RefreshJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian);
 
 public:
 
@@ -93,7 +93,7 @@ public:
      * @param rJacobianDeterminant  the determinant of the Jacobian
      * @param concreteMove \todo this argument is not used in the method - should it be removed? (defaults to true)
      */
-    void CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove=true);
+    void CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove=true);
 
     /**
      * Compute the weighted direction for this element.
@@ -111,7 +111,7 @@ public:
      * @param rJacobianDeterminant  the determinant of the Jacobian
      * @param rInverseJacobian  the inverse Jacobian matrix
      */
-    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian); //const
+    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian); //const
 
 ///\todo Re-implement
     /** Get the volume of an element (or area in 2d, or length in 1d) */
@@ -136,7 +136,7 @@ public:
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian)
 {
     if (this->mIsDeleted)
     {
@@ -162,7 +162,7 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     // This is so we know it's the first time of asking
     // Create Jacobian
     ///\todo We don't want to create new data, calculation and throw the answer away
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
     c_vector<double, SPACE_DIM> weighted_direction;
     double det;
 
@@ -199,7 +199,7 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
 {}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)
 {
 
     assert(ELEMENT_DIM == SPACE_DIM);
@@ -227,7 +227,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
         EXCEPTION("WeightedDirection undefined for fully dimensional element");
     }
 
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
     RefreshJacobian(jacobian);
 
     //At this point we're only dealing with subspace (ELEMENT_DIM < SPACE_DIM) elem
@@ -257,7 +257,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
         case 1:
             // Linear edge in a 2D plane or in 3D
 
-            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(jacobian,0);
+            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,ELEMENT_DIM> >(jacobian,0);
             break;
         case 2:
             // Surface triangle in a 3d mesh
@@ -300,7 +300,7 @@ c_vector<double, SPACE_DIM> AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateInverseJacobian(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian)
 {
     assert(ELEMENT_DIM == SPACE_DIM);
     CalculateJacobian(rJacobian, rJacobianDeterminant);
@@ -322,7 +322,7 @@ double AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::GetVolume()
 
     // Create Jacobian
     ///\todo We don't want to create new data, calculation and throw the answer away
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
     double determinant;
 
     CalculateJacobian(jacobian, determinant);

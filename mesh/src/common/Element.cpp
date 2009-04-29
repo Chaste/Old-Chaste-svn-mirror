@@ -125,8 +125,8 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
     assert(ELEMENT_DIM == SPACE_DIM);
     c_vector <double, ELEMENT_DIM> rhs;
 
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
+    c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
 
     CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
@@ -158,7 +158,7 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphere(c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian)
+c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphere(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian)
 {
     /*Assuming that x0,y0.. is at the origin then we need to solve
      *
@@ -227,7 +227,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
         return 1.0;
     }
 
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
     double jacobian_determinant;
 
     CalculateJacobian(jacobian, jacobian_determinant);
@@ -338,8 +338,8 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(Chaste
     c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
 
     //Multiply by inverse Jacobian
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> inverse_jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
+    c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
 
     CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
