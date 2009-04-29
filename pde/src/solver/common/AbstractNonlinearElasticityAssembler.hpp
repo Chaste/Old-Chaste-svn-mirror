@@ -107,7 +107,7 @@ protected:
      *  J  = [A B]
      *       [C 0]
      *
-     *  and M is the MASS MATRIX (ie \intgl phi_i phi_j dV, where phi_i are the
+     *  and M is the MASS MATRIX (ie integral phi_i phi_j dV, where phi_i are the
      *  pressure basis functions).
      */
     LinearSystem* mpPreconditionMatrixLinearSystem;
@@ -296,7 +296,9 @@ public:
 
     /**
      * Set a function which gives body force as a function of X (undeformed position)
-     * Whatever body force was provided in the constructor will now be ignored
+     * Whatever body force was provided in the constructor will now be ignored.
+     * 
+     * @param pFunction
      */
     void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
 

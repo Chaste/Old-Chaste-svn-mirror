@@ -167,11 +167,30 @@ protected:
      */
     void MoveOverlappingNodeOntoEdgeOfElement(Node<SPACE_DIM>* pNode, unsigned elementIndex);
 
-#define COVERAGE_IGNORE /// \todo Implement methods and remove coverage ignore
+    /**
+     * Solve node mapping method. This overridden method is required 
+     * as it is pure virtual in the base class.
+     *
+     * @param index
+     */
     unsigned SolveNodeMapping(unsigned index) const;
+
+    /**
+     * Solve element mapping method. This overridden method is required 
+     * as it is pure virtual in the base class.
+     *
+     * @param index
+     */
     unsigned SolveElementMapping(unsigned index) const;
+
+    /**
+     * Solve boundary element mapping method. This overridden method is required 
+     * as it is pure virtual in the base class.
+     *
+     * @param index
+     */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
-#undef COVERAGE_IGNORE
+
 
     /** Needed for serialization. */
     friend class boost::serialization::access;

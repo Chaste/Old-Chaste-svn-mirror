@@ -64,10 +64,16 @@ class NonlinearElasticityAssembler : public AbstractNonlinearElasticityAssembler
     friend class TestNonlinearElasticityAssembler;
 
 protected:
+
+    /** Number of vertices per element */
     static const size_t NUM_VERTICES_PER_ELEMENT = DIM+1;
+    /** Number of nodes per element */
     static const size_t NUM_NODES_PER_ELEMENT = (DIM+1)*(DIM+2)/2; // assuming quadratic
+    /** Stencil size */
     static const size_t STENCIL_SIZE = DIM*NUM_NODES_PER_ELEMENT + NUM_VERTICES_PER_ELEMENT;
+    /** Number of nodes per boundary element */
     static const size_t NUM_NODES_PER_BOUNDARY_ELEMENT = DIM*(DIM+1)/2;
+    /** Boundary stencil size */
     static const size_t BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
 
     /**
@@ -76,17 +82,26 @@ protected:
      */
     QuadraticMesh<DIM>* mpQuadMesh;
 
-
     /** Boundary elements with (non-zero) surface tractions defined on them */
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
 
+    /** Gaussian quadrature rule */
     GaussianQuadratureRule<DIM>* mpQuadratureRule;
+
+    /** Boundary Gaussian quadrature rule */
     GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
 
     /**
-     *  Assemble residual or jacobian on an element, using the current solution
-     *  stored in mCurrrentSolution. The ordering assumed is (in 2d)
-     *  rBelem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
+     * Assemble residual or jacobian on an element, using the current solution
+     * stored in mCurrrentSolution. The ordering assumed is (in 2d)
+     * rBelem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
+     * 
+     * @param rElement
+     * @param rAElem
+     * @param rAElemPrecond
+     * @param rBElem
+     * @param assembleResidual
+     * @param assembleJacobian
      */
     virtual void AssembleOnElement(Element<DIM, DIM>& rElement,
                                    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
@@ -96,9 +111,16 @@ protected:
                                    bool assembleJacobian);
 
     /**
-     *  Compute the term from the surface integral of s*phi, where s is
-     *  a specified non-zero surface traction (ie Neumann boundary condition)
-     *  to be added to the Rhs vector.
+     * Compute the term from the surface integral of s*phi, where s is
+     * a specified non-zero surface traction (ie Neumann boundary condition)
+     * to be added to the Rhs vector.
+     * 
+     * @param rBoundaryElement
+     * @param rAelem
+     * @param rBelem
+     * @param rTraction
+     * @param assembleResidual
+     * @param assembleJacobian
      */
     virtual void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
                                            c_matrix<double,BOUNDARY_STENCIL_SIZE,BOUNDARY_STENCIL_SIZE>& rAelem,
@@ -136,7 +158,11 @@ protected:
      */
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
 
-
+    /**
+     * Initialise the assembler.
+     * 
+     * @param pFixedNodeLocations
+     */
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations);
 
 public:
@@ -196,11 +222,12 @@ public:
                                               std::vector<c_vector<double,DIM> >& rSurfaceTractions);
 
     /**
-      * Set a function which gives the surface traction as a function of X (undeformed position),
-      * together with the surface elements which make up the Neumann part of the boundary.
-      * 
-      * @param rBoundaryElements
-      */
+     * Set a function which gives the surface traction as a function of X (undeformed position),
+     * together with the surface elements which make up the Neumann part of the boundary.
+     * 
+     * @param rBoundaryElements
+     * @param pFunction
+     */
     void SetFunctionalTractionBoundaryCondition(std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
                                                 c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
 

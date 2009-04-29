@@ -265,7 +265,7 @@ public:
      * Set method for mWriteCellAreas.
      * \todo Extend this to 3D (possibly rename to SetWriteCellVolumes?) - see also #738
      *
-     * @param writeTissueAreas  whether to output cell area data
+     * @param writeCellAreas  whether to output cell area data
      */
     void SetWriteCellAreas(bool writeCellAreas);
 

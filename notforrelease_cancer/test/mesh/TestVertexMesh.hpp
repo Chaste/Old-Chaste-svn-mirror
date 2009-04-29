@@ -106,6 +106,11 @@ public:
 
         TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.03, 1e-4);
         TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), 3.0, 1e-4);
+
+        // Coverage
+        TS_ASSERT_EQUALS(SolveNodeMapping(0), 0u);
+        TS_ASSERT_EQUALS(SolveElementMapping(0), 0u);
+        TS_ASSERT_EQUALS(SolveBoundaryElementMapping(0), 0u);
     }
 
 
