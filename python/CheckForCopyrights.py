@@ -124,7 +124,8 @@ cpp_depricated_notice='/*\n\n'+depricated_notice+'\n*/'
 
 
 pycml_notice=" * Processed by pycml - CellML Tools in Python"
-xsd_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
+xsd2_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
+xsd3_notice="// Copyright (C) 2005-2008 Code Synthesis Tools CC"
 triangle_notice="""/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
 /*  Jonathan Richard Shewchuk                                                */"""
 
@@ -169,10 +170,14 @@ def InspectFile(fileName):
     	#Can't really check this one, since it knows all the licences
     	return True
     valid_notice=False
-    if (CheckForCopyrightNotice(cpp_current_notice, file_in) or CheckForCopyrightNotice(py_current_notice, file_in)):
+    if (CheckForCopyrightNotice(cpp_current_notice, file_in) or
+        CheckForCopyrightNotice(py_current_notice, file_in)):
         #print 'Found current notice in '+file_name
         valid_notice=True
-    if (CheckForCopyrightNotice(pycml_notice, file_in) or CheckForCopyrightNotice(xsd_notice, file_in) or CheckForCopyrightNotice(triangle_notice, file_in)):
+    if (CheckForCopyrightNotice(pycml_notice, file_in) or
+        CheckForCopyrightNotice(xsd2_notice, file_in) or
+        CheckForCopyrightNotice(xsd3_notice, file_in) or
+        CheckForCopyrightNotice(triangle_notice, file_in)):
         #print 'Found 3rd party notice in '+file_name
         if (valid_notice):
             print "Multiple notices on"+file_name

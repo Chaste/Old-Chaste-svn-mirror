@@ -544,7 +544,7 @@ public:
 
         PetscTools::Barrier();
         //Need to find pts, tri, transmebrane, xml
-        for (unsigned i=0; i<4; i++)
+        for (unsigned i=0; i<3; i++)
         {
             std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
             compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
@@ -553,6 +553,14 @@ public:
             compare_command += test_file_names[i];
             TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
         }
+        // Compare parameters file (within numerical tolerance)
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/Monodomain2d/monodomain2d_parameters.xml");
+        HeartConfig::Instance()->Write("Monodomain2d/ref", "monodomain2d_parameters.xml");
+        std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
+        compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/monodomain2d_parameters.xml";
+        compare_command += " ";
+        compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/ref")+"/monodomain2d_parameters.xml";
+        TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
 
     }
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<ChasteParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/miqueloscar/eclipse/workspace/Chaste/heart/src/io/ChasteParameters.xsd">
+<ChasteParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../heart/src/io/ChasteParameters.xsd">
 
   <Simulation>
     <SpaceDimension>3</SpaceDimension>
-    <SimulationDuration unit="ms">0.100000000000000006</SimulationDuration>
+    <SimulationDuration unit="ms">0.1</SimulationDuration>
     <Domain>Mono</Domain>
     <IonicModels>
       <Default>LuoRudyI</Default>
@@ -13,11 +13,11 @@
   </Simulation>
 
   <Physiological>
-    <IntracellularConductivities longi="0.0005" normal="1.79769313486232e+308" trans="0.0005" unit="mS/cm"/>
+    <IntracellularConductivities longi="0.0005" normal="0.0" trans="0.0005" unit="mS/cm"/>
     <ExtracellularConductivities longi="7" normal="7" trans="7" unit="mS/cm"/>
-    <BathConductivity unit="mS/cm">7.000000000000000000</BathConductivity>
-    <SurfaceAreaToVolumeRatio unit="1/cm">1.000000000000000000</SurfaceAreaToVolumeRatio>
-    <Capacitance unit="uF/cm^2">1.000000000000000000</Capacitance>
+    <BathConductivity unit="mS/cm">7</BathConductivity>
+    <SurfaceAreaToVolumeRatio unit="1/cm">1</SurfaceAreaToVolumeRatio>
+    <Capacitance unit="uF/cm^2">1</Capacitance>
   </Physiological>
 
   <Numerical>
