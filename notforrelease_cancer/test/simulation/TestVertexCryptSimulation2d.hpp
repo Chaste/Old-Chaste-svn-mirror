@@ -188,7 +188,7 @@ public:
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
         simulator.SetEndTime(1.0);
-        simulator.SetOutputDirectory("TestCryptWithNoBirth");
+        simulator.SetOutputDirectory("TestVertexCryptWithNoBirth");
 
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
@@ -197,7 +197,57 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
 
+    void TestCryptWithBirth() throw (Exception)
+    {
+        // Create mesh
+        Cylindrical2dVertexMesh mesh(4, 6, 0.01, 2.0);
 
+        // Create cells
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            double birth_time = - RandomNumberGenerator::Instance()->ranf()*
+                                 ( CancerParameters::Instance()->GetTransitCellG1Duration()
+                                    + CancerParameters::Instance()->GetSG2MDuration() );
+            
+            CellType cell_type;
+            
+            if ((elem_index==5))
+            {
+                birth_time = -20.0;
+                cell_type = STEM;
+            }
+            else 
+            {
+                cell_type = DIFFERENTIATED;
+            }
+            
+            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> crypt(mesh, cells);
+
+        // Create force law
+        NagaiHondaForce<2> force_law;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&force_law);
+
+        // Create crypt simulation from tissue and force law
+        VertexCryptSimulation2d simulator(crypt, force_collection);
+        simulator.SetEndTime(1.0);
+        simulator.SetOutputDirectory("TestVertexCryptWithBirth");
+
+        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Run simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+    }
+    
+    
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
