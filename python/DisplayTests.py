@@ -67,8 +67,12 @@ def index(req):
   main_types = filter(lambda s: '-' not in s, tests_types)
   branch_types = filter(lambda s: '-' in s, tests_types)
   for tests_type in main_types:
-      output.append('\n    <li><a href="%s/recent?type=%s">Recent %s builds.</a></li>' %
-                    (_our_url, tests_type, tests_type))
+      if tests_type.endswith('_old'):
+          text = 'Old %s builds.' % tests_type[:-4]
+      else:
+          text = 'Recent %s builds.' % tests_type
+      output.append('\n    <li><a href="%s/recent?type=%s">%s</a></li>'
+                    % (_our_url, tests_type, text))
   output.append("""</ul>
   <p>Branch builds: (<a style='text-decoration: underline; color: blue;' onclick="toggle_visibility('branch-list');">toggle visibility</a>)</p>
   <ul id='branch-list' style='display:none;'>""")
