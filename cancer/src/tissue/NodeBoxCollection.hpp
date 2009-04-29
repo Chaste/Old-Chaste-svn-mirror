@@ -78,7 +78,9 @@ public:
 
 
 /**
- *  A collection of 'boxes' partitioning the domain with information on which nodes are located in which box
+ * A collection of 'boxes' partitioning the domain with information on which nodes are located in which box
+ * 
+ * not archived - constructed in NodeBasedTissue constructor.
  */
 template<unsigned DIM>
 class NodeBoxCollection 

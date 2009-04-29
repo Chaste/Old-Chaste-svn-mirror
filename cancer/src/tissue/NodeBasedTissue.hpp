@@ -69,6 +69,11 @@ private:
     /** Node pairs for force calculations */
     std::set< std::pair<Node<DIM>*, Node<DIM>* > > mNodePairs;
 
+    /**
+     *  Whether to delete the nodes (taken in one of the constructors, defaults to true)
+     */
+    bool mDeleteNodes;
+    
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -111,11 +116,6 @@ private:
      */
     void Validate();
 
-    /**
-     *  Whether to delete the nodes (taken in one of the constructors, defaults to true)
-     */
-    bool mDeleteNodes;
-    
     /**
      * Method for Initially Splitting up tissue into neighbouring boxes, to decrease runtime.
      *
@@ -204,7 +204,8 @@ public:
     unsigned RemoveDeadCells();
 
     /**
-     *  Reset the member variables mDeletedNodeIndices and mAddedNodes.
+     * Reset the member variables #mDeletedNodeIndices, #mAddedNodes, #mNodePairs, and
+     * #mpNodeBoxCollection.
      */
     void Clear();
 

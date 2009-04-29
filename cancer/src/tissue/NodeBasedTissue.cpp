@@ -35,23 +35,22 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
                                       bool deleteNodes)
     : AbstractCellCentreBasedTissue<DIM>(rCells, locationIndices),
       mNodes(nodes.begin(), nodes.end()),
+      mAddedNodes(true),
+      mpNodeBoxCollection(NULL),
       mDeleteNodes(deleteNodes)
 {
-    Clear();
-    mAddedNodes = true;
     Validate();
-
 }
 
-
+// archiving constructor
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool deleteNodes)
     : AbstractCellCentreBasedTissue<DIM>(),
       mNodes(nodes.begin(), nodes.end()),
+      mAddedNodes(true),
+      mpNodeBoxCollection(NULL),
       mDeleteNodes(deleteNodes)
-{
-    Clear();
-    mAddedNodes = true;
+{   // No Validate() because the cells are not associated with the tissue yet in archiving
 }
 
 
@@ -59,9 +58,10 @@ template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
                                       const std::vector<TissueCell>& rCells)
     : AbstractCellCentreBasedTissue<DIM>(rCells),
+      mAddedNodes(false),
+      mpNodeBoxCollection(NULL),
       mDeleteNodes(true)
 {
-    Clear();
     mNodes.reserve(rMesh.GetNumNodes());
     // Copy the actual node objects
     for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
@@ -73,15 +73,9 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
     Validate();
 }
 
-
 template<unsigned DIM>
 NodeBasedTissue<DIM>::~NodeBasedTissue()
 {
-    if (mpNodeBoxCollection!=NULL)
-    {
-        delete mpNodeBoxCollection;
-    }
-
     Clear();
 
     // Free node memory
@@ -98,6 +92,7 @@ NodeBasedTissue<DIM>::~NodeBasedTissue()
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::Clear()
 {
+    delete mpNodeBoxCollection;
     mpNodeBoxCollection = NULL;
     mNodePairs.clear();
     mDeletedNodeIndices.clear();
