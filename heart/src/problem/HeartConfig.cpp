@@ -26,11 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#if XSD_INT_VERSION == 2030100L
+#include "HeartConfig.hpp"
+
+#if (XSD_INT_VERSION == 2030100L)
 #include "HeartConfigXsd231.hpp"
 #else
 
-#include "HeartConfig.hpp"
 using namespace xsd::cxx::tree;
 
 std::auto_ptr<HeartConfig> HeartConfig::mpInstance;
