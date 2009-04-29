@@ -132,10 +132,10 @@ for your system according to http://xerces.apache.org/xerces-c/build-3.html
 Installing XSD:
 
 cd $CHASTE_LIBS
-wget http://codesynthesis.com/download/xsd/2.3/linux-gnu/i686/xsd-2.3.1-i686-linux-gnu.tar.bz2
-tar -xjf xsd-2.3.1-i686-linux-gnu.tar.bz2
-ln -s $CHASTE_LIBS/xsd-2.3.1-i686-linux-gnu/bin/xsd $CHASTE_LIBS/bin/xsd
-rm -f xsd-2.3.1-i686-linux-gnu.tar.bz2
+wget http://codesynthesis.com/download/xsd/3.2/linux-gnu/i686/xsd-3.2.0-i686-linux-gnu.tar.bz2
+tar -xjf xsd-3.2.0-i686-linux-gnu.tar.bz2
+ln -s $CHASTE_LIBS/xsd-3.2.0-i686-linux-gnu/bin/xsd $CHASTE_LIBS/bin/xsd
+rm -f xsd-3.2.0-i686-linux-gnu.tar.bz2
 
 
 =============== TETGEN =====================

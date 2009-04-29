@@ -889,7 +889,7 @@ void HeartConfig::SetIntracellularConductivities(const c_vector<double, 2>& intr
 {
     conductivities_type intra(intraConductivities[0],
                               intraConductivities[1],
-                              DBL_MAX,
+                              0.0,
                               "mS/cm");
 
     mpUserParameters->Physiological().IntracellularConductivities().set(intra);
@@ -898,8 +898,8 @@ void HeartConfig::SetIntracellularConductivities(const c_vector<double, 2>& intr
 void HeartConfig::SetIntracellularConductivities(const c_vector<double, 1>& intraConductivities)
 {
     conductivities_type intra(intraConductivities[0],
-                              DBL_MAX,
-                              DBL_MAX,
+                              0.0,
+                              0.0,
                               "mS/cm");
 
     mpUserParameters->Physiological().IntracellularConductivities().set(intra);
@@ -919,7 +919,7 @@ void HeartConfig::SetExtracellularConductivities(const c_vector<double, 2>& extr
 {
     conductivities_type extra(extraConductivities[0],
                               extraConductivities[1],
-                              DBL_MAX,
+                              0.0,
                               "mS/cm");
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
@@ -928,8 +928,8 @@ void HeartConfig::SetExtracellularConductivities(const c_vector<double, 2>& extr
 void HeartConfig::SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities)
 {
     conductivities_type extra(extraConductivities[0],
-                              DBL_MAX,
-                              DBL_MAX,
+                              0.0,
+                              0.0,
                               "mS/cm");
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);

@@ -554,8 +554,12 @@ public:
             TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
         }
         // Compare parameters file (within numerical tolerance)
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/Monodomain2d/monodomain2d_parameters.xml");
-        HeartConfig::Instance()->Write("Monodomain2d/ref", "monodomain2d_parameters.xml");
+        if (PetscTools::AmMaster())
+        {
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/Monodomain2d/monodomain2d_parameters.xml");
+            HeartConfig::Instance()->Write("Monodomain2d/ref", "monodomain2d_parameters.xml");
+        }
+        PetscTools::Barrier();
         std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
         compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/monodomain2d_parameters.xml";
         compare_command += " ";
