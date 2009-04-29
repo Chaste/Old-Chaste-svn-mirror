@@ -378,6 +378,9 @@ public:
 
     void TestOutputWriters()
     {
+        // Resetting the Maximum cell Id to zero (to account for previous tests)
+        TissueCell::ResetMaxCellId();
+
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         MutableMesh<2,2> mesh;
@@ -392,8 +395,21 @@ public:
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
-        tissue.SetWriteTissueAreas(true); // coverage
-        tissue.SetWriteCellAreas(true); // coverage
+        // Test set methods
+        TS_ASSERT_EQUALS(tissue.GetWriteVoronoiData(), false);
+        TS_ASSERT_EQUALS(tissue.GetWriteTissueAreas(), false);
+        TS_ASSERT_EQUALS(tissue.GetWriteCellAreas(), false);
+
+        tissue.SetWriteVoronoiData(true);
+        tissue.SetWriteTissueAreas(true);
+        tissue.SetWriteCellAreas(true);
+
+        TS_ASSERT_EQUALS(tissue.GetWriteVoronoiData(), true);
+        TS_ASSERT_EQUALS(tissue.GetWriteTissueAreas(), true);
+        TS_ASSERT_EQUALS(tissue.GetWriteCellAreas(), true);
+
+        // This method is usually called by Update()
+        tissue.CreateVoronoiTessellation();
 
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);

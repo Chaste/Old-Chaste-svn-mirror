@@ -536,7 +536,6 @@ void TissueSimulation<DIM>::Solve()
         // Increment simulation time here, so results files look sensible
         p_simulation_time->IncrementTimeOneStep();
 
-
         ////////////////////////////
         // Output current results
         ////////////////////////////
@@ -554,7 +553,6 @@ void TissueSimulation<DIM>::Solve()
         }
 
         CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
-
     }
 
     LOG(1, "--END TIME = " << SimulationTime::Instance()->GetTime() << "\n");

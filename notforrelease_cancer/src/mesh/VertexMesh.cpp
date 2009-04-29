@@ -252,7 +252,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
 {
-    assert(index < this->mBoundaryElements.size() );
+    /// \todo sort out boundary elements in a vertex mesg 
+//    assert(index < this->mBoundaryElements.size() );
     return index;
 }
 

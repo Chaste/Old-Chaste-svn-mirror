@@ -108,9 +108,9 @@ public:
         TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), 3.0, 1e-4);
 
         // Coverage
-        TS_ASSERT_EQUALS(SolveNodeMapping(0), 0u);
-        TS_ASSERT_EQUALS(SolveElementMapping(0), 0u);
-        TS_ASSERT_EQUALS(SolveBoundaryElementMapping(0), 0u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.SolveNodeMapping(0), 0u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.SolveElementMapping(0), 0u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.SolveBoundaryElementMapping(0), 0u);
     }
 
 
@@ -552,7 +552,6 @@ public:
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
-
 
         // Replace element 0 in the mesh
         mesh.AddElement(new VertexElement<2,2>(0, nodes_elem_3));

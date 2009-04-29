@@ -992,7 +992,7 @@ public:
     }
 
 
-void TestCellIdOutput() throw (Exception)
+    void TestCellIdOutput() throw (Exception)
     {
         // Resetting the Maximum cell Id to zero (to account for previous tests)
         TissueCell::ResetMaxCellId();

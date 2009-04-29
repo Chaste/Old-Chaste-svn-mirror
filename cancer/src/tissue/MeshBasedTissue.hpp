@@ -62,7 +62,7 @@ protected:
      * Used to calculate cell area and perimeter information if required.
      */
     VoronoiTessellation<DIM>* mpVoronoiTessellation;
-
+    
     /**
      * Whether to delete the mesh when we are destroyed.
      * Needed if this tissue has been de-serialized.
@@ -403,12 +403,22 @@ public:
     void WriteVoronoiResultsToFile();
 
     /**
-     * Write current results to mpTissueAreasFile.
+     * Write current results to mpTissueAreasFile if in 2D.
+     * 
+     * The data is written in the form:
+     * 
+     * time total_area apoptotic_area
      */
     void WriteTissueAreaResultsToFile();
 
     /**
      * Write current results to mpCellAreasFile.
+     * 
+     * In 2D, the data is written in the form:
+     * 
+     * time cell0_id cell0_x cell0_y cell0_area cell1_id cell1_x cell1_y cell1_area ...
+     * 
+     * and similarly in 3D.
      */
     void WriteCellAreaResultsToFile();
 

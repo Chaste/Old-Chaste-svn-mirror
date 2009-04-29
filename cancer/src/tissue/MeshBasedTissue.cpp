@@ -326,7 +326,7 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     if (DIM==2)
     {
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() )
+        if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() || GetWriteCellAreas() )
         {
             CreateVoronoiTessellation();
         }
@@ -643,6 +643,7 @@ void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
     }
     *mpCellAreasFile << "\n";
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 //                          Spring iterator class                           //
