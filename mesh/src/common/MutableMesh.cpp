@@ -823,8 +823,23 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 
         if (handler.IsMaster())
         {
-            std::string remove_command = "rm " + full_name + "*";
-            //system(remove_command.c_str());
+            // delete the temporary files (one by one rather than using * to make it impossible
+            // to ever accidentally end up with "rm -f *").
+            std::string remove_command = "rm -f " + full_name + "node";
+            system(remove_command.c_str());
+            std::cout << remove_command << "\n";
+
+            remove_command = "rm -f " + full_name + "1.node";
+            system(remove_command.c_str());
+            std::cout << remove_command << "\n";
+
+            remove_command = "rm -f " + full_name + "1.ele";
+            system(remove_command.c_str());
+            std::cout << remove_command << "\n";
+
+            remove_command = "rm -f " + full_name + "1.face";
+            system(remove_command.c_str());
+            std::cout << remove_command << "\n";
         }
     }
 }
