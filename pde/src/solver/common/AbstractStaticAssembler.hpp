@@ -132,6 +132,28 @@ protected:
     LinearSystem *mpLinearSystem;
 
     /**
+     * Compute the derivatives of all basis functions at a point within an element.
+     * This method will transform the results, for use within gaussian quadrature
+     * for example.
+     * 
+     * This is almost identical to LinearBasisFunction::ComputeTransformedBasisFunctionDerivatives,
+     * except that it is also templated over SPACE_DIM and can handle cases such as 1d in 3d space.
+     * 
+     * \todo Template LinearBasisFunction over SPACE_DIM?
+     *
+     * @param rPoint The point at which to compute the basis functions. The
+     *     results are undefined if this is not within the canonical element.
+     * @param rInverseJacobian The inverse of the Jacobian matrix mapping the real
+     *     element into the canonical element.
+     * @param rReturnValue A reference to a vector, to be filled in
+     * @return The derivatives of the basis functions, in local index order. Each
+     *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the
+     *     derivative along each axis.
+     */
+    void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM> &rPoint,
+                                                    const c_matrix<double, ELEMENT_DIM, SPACE_DIM> &rInverseJacobian,
+                                                    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rReturnValue);
+    /**
      *  Calculate the contribution of a single element to the linear system.
      *
      *  @param rElement The element to assemble on.
@@ -264,6 +286,20 @@ public:
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
+void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::ComputeTransformedBasisFunctionDerivatives(
+        const ChastePoint<ELEMENT_DIM> &rPoint,
+        const c_matrix<double, ELEMENT_DIM, SPACE_DIM> &rInverseJacobian,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rReturnValue)
+{
+    assert(ELEMENT_DIM < 4 && ELEMENT_DIM > 0);
+    static c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
+
+    LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunctionDerivatives(rPoint, grad_phi);
+    rReturnValue = prod(trans(rInverseJacobian), grad_phi);
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
 void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement,
                                 c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) >& rAElem,
                                 c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)>& rBElem,
@@ -305,7 +341,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 
     // allocate memory for the basis functions values and derivative values
     c_vector<double, ELEMENT_DIM+1> phi;
-    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> grad_phi;
 
     // loop over Gauss points
     for (unsigned quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
@@ -316,7 +352,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 
         if ( assembleMatrix || this->ProblemIsNonlinear() )
         {
-            BasisFunction::ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
+            ComputeTransformedBasisFunctionDerivatives(quad_point, inverse_jacobian, grad_phi);
         }
 
         // Location of the gauss point in the original element will be stored in x

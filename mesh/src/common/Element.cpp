@@ -382,6 +382,7 @@ bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(ChastePoint<SPACE_DIM> testP
 
 template class Element<1,1>;
 template class Element<1,2>;
+template class Element<1,3>;
 template class Element<2,2>;
 template class Element<2,3>;
 template class Element<3,3>;

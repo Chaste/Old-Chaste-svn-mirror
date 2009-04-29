@@ -231,6 +231,7 @@ std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation
 
 template class AbstractMesh<1,1>;
 template class AbstractMesh<1,2>;
+template class AbstractMesh<1,3>;
 template class AbstractMesh<2,2>;
 template class AbstractMesh<2,3>;
 template class AbstractMesh<3,3>;

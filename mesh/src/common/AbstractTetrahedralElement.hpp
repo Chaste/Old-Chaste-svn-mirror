@@ -202,7 +202,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)
 {
 
-    assert(ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM <= SPACE_DIM);
     RefreshJacobian(rJacobian);
 
     {
@@ -302,7 +302,7 @@ c_vector<double, SPACE_DIM> AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian)
 {
-    assert(ELEMENT_DIM == SPACE_DIM);
+    assert(ELEMENT_DIM <= SPACE_DIM);
     CalculateJacobian(rJacobian, rJacobianDeterminant);
 
     // CalculateJacobian should make sure that the determinant is not close to zero (or, in fact, negative)

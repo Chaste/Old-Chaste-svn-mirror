@@ -155,8 +155,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,1> &m)
 {
     using namespace boost::numeric::ublas;
 
-    return   std::sqrt(m(0,0)*m(0,0) + m(1,0)*m(1,0) + m(2,0)*m(2,0));
-             
+    return std::sqrt(m(0,0)*m(0,0) + m(1,0)*m(1,0) + m(2,0)*m(2,0));
 }
 
 /**
@@ -167,43 +166,79 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,1> &m)
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,3,2> &m)
 {
-    NEVER_REACHED;
- }
+    using namespace boost::numeric::ublas;
+    
+    c_matrix<T, 2, 2> product = prod(trans(m), m);
+    
+    return std::sqrt(Determinant(product));
+}
 
+/**
+ * Calculate the generalized determinant of a 3x0 matrix.
+ * 
+ * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ * 
+ * \todo not implemented yet
+ */
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,3,0> &m)
 {
     NEVER_REACHED;
- }
+}
 
+/**
+ * Calculate the generalized determinant of a 2x0 matrix.
+ * 
+ * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ * 
+ * \todo not implemented yet
+ */
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,2,0> &m)
 {
     NEVER_REACHED;
- }
+}
 
+/**
+ * Calculate the generalized determinant of a 1x0 matrix.
+ * 
+ * The generalized determinant is given by det(T) = sqrt(det(T'T));
+ * 
+ * \todo not implemented yet
+ */
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,1,0> &m)
 {
     NEVER_REACHED;
- }
+}
 
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,0> &m, const unsigned missrow, const unsigned misscol)
 {
     NEVER_REACHED;
 }
+
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,0> &m, const unsigned missrow, const unsigned misscol)
 {
     NEVER_REACHED;
 }
 
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
 template<class T>
 T SubDeterminant(const boost::numeric::ublas::c_matrix<T,1,0> &m, const unsigned missrow, const unsigned misscol)
 {
     NEVER_REACHED;
 }
+
 /**
  * Return the determinant of a submatrix after removing a particular row and column
  */
@@ -280,7 +315,34 @@ boost::numeric::ublas::c_matrix<T, 1, 1> Inverse(const boost::numeric::ublas::c_
 template<class T>
 boost::numeric::ublas::c_matrix<T, 2, 3> Inverse(const boost::numeric::ublas::c_matrix<T, 3, 2> &m)
 {
-    NEVER_REACHED;
+    using namespace boost::numeric::ublas;
+    
+    c_matrix<T, 2, 3> inverse;
+    
+    //
+    // calculate (T'T)^-1, where T'T = (a b) 
+    //                                 (c d)
+
+    T a = m(0,0)*m(0,0) + m(1,0)*m(1,0) + m(2,0)*m(2,0);
+    T b = m(0,0)*m(0,1) + m(1,0)*m(1,1) + m(2,0)*m(2,1);
+    T c = b;
+    T d = m(0,1)*m(0,1) + m(1,1)*m(1,1) + m(2,1)*m(2,1);
+    
+    T det = a*d - b*c;
+    
+    T a_inv = d/det;
+    T b_inv = -b/det;
+    T c_inv = -c/det;
+    T d_inv = a/det;
+    
+    inverse(0,0) = a_inv*m(0,0) + b_inv*m(0,1);
+    inverse(1,0) = c_inv*m(0,0) + d_inv*m(0,1);
+    inverse(0,1) = a_inv*m(1,0) + b_inv*m(1,1);
+    inverse(1,1) = c_inv*m(1,0) + d_inv*m(1,1);
+    inverse(0,2) = a_inv*m(2,0) + b_inv*m(2,1);
+    inverse(1,2) = c_inv*m(2,0) + d_inv*m(2,1);
+    
+    return inverse;    
 }
 
 template<class T>

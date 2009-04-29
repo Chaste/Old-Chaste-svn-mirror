@@ -113,7 +113,7 @@ protected:
      */
     virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1>& rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,PROBLEM_DIM>& rU,
         c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
@@ -140,7 +140,7 @@ protected:
      */
     virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1>& rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,PROBLEM_DIM>& rU,
         c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
