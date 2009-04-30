@@ -202,6 +202,22 @@ public:
         nodes = next_element_info.NodeIndices;
         TS_ASSERT_EQUALS(nodes.size(), 3u);
         TS_ASSERT_EQUALS(next_element_info.AttributeValue, 152u)
+
+        /*
+         * Coverage
+         * 
+         * \todo The methods GetNextFaceData() and GetNumFaces() are not 
+         * fully implemented for VertexMeshReader, but must be overridden 
+         * as they are pure virtual in the base class. When they are 
+         * implemented, these lines need to be replaced by proper tests.
+         * 
+         * See also #1001
+         */ 
+        ElementData face_data = mesh_reader.GetNextFaceData();
+        TS_ASSERT_EQUALS(face_data.NodeIndices.empty(), true);
+        TS_ASSERT_EQUALS(face_data.AttributeValue, 0u);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 0u);
     }
 
     void TestOtherExceptions() throw(Exception)
