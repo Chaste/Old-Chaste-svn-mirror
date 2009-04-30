@@ -13,6 +13,7 @@ TestElectrodes.hpp
 ionicmodels/TestFaberRudyAgainstLimpet.hpp
 TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
+TestHeartGeometryInformation.hpp
 TestHeterogeneousConductivities.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 mechanics/TestImplicitCardiacMechanicsAssembler.hpp
