@@ -173,6 +173,46 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
 
     }
+    
+    // Same as TestMonodomainProblem1D, except the 1D mesh is embedded in 3D space.
+    /*void xTestMonodomainProblem1Din3D() throw(Exception)
+    {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetOutputDirectory("MonoProblem1din3d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1din3d");
+
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory;
+        MonodomainProblem<1,3> monodomain_problem( &cell_factory );
+
+        monodomain_problem.Initialise();
+
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
+        monodomain_problem.Solve();
+
+        // test whether voltages and gating variables are in correct ranges
+        CheckMonoLr91Vars(monodomain_problem);
+
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+
+        // cover get pde
+        monodomain_problem.GetPde();
+
+        // check a progress report exists
+        TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1d/").c_str()), 0);
+    }*/
 
     void TestMonodomainProblem1DWithAbsoluteTolerance() throw (Exception)
     {

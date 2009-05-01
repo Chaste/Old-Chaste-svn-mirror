@@ -33,22 +33,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainDg0Assembler.hpp"
 #include "MonodomainMatrixBasedAssembler.hpp"
 
-template<unsigned DIM>
-AbstractCardiacPde<DIM>* MonodomainProblem<DIM>::CreateCardiacPde()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+AbstractCardiacPde<SPACE_DIM>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateCardiacPde()
 {
-    mpMonodomainPde = new MonodomainPde<DIM>(this->mpCellFactory);
+    mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
     return mpMonodomainPde;
 }
 
-template<unsigned DIM>
-AbstractDynamicAssemblerMixin<DIM, DIM, 1>* MonodomainProblem<DIM>::CreateAssembler()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateAssembler()
 {
     assert(mpMonodomainPde);
 
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        MonodomainDg0Assembler<DIM,DIM>* p_assembler
-          = new MonodomainDg0Assembler<DIM,DIM>(this->mpMesh,
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
                                                 mpMonodomainPde,
                                                 this->mpBoundaryConditionsContainer,
                                                 2);
@@ -56,8 +56,8 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 1>* MonodomainProblem<DIM>::CreateAssemb
     }
     else
     {
-        MonodomainMatrixBasedAssembler<DIM,DIM>* p_assembler
-          = new MonodomainMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
+        MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
                                                         mpMonodomainPde,
                                                         this->mpBoundaryConditionsContainer,
                                                         2);
@@ -65,27 +65,27 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 1>* MonodomainProblem<DIM>::CreateAssemb
     }
 }
 
-template<unsigned DIM>
-MonodomainProblem<DIM>::MonodomainProblem(AbstractCardiacCellFactory<DIM>* pCellFactory)
-        : AbstractCardiacProblem<DIM, 1>(pCellFactory),
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+MonodomainProblem<ELEM_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+        : AbstractCardiacProblem<ELEM_DIM, SPACE_DIM, 1>(pCellFactory),
           mpMonodomainPde(NULL)
 {
 }
 
-template<unsigned DIM>
-MonodomainProblem<DIM>::~MonodomainProblem()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+MonodomainProblem<ELEM_DIM, SPACE_DIM>::~MonodomainProblem()
 {
 }
 
-template<unsigned DIM>
-MonodomainPde<DIM> * MonodomainProblem<DIM>::GetMonodomainPde()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+MonodomainPde<SPACE_DIM> * MonodomainProblem<ELEM_DIM, SPACE_DIM>::GetMonodomainPde()
 {
     assert(mpMonodomainPde != NULL);
     return mpMonodomainPde;
 }
 
-template<unsigned DIM>
-void MonodomainProblem<DIM>::WriteInfo(double time)
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+void MonodomainProblem<ELEM_DIM, SPACE_DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
     ReplicatableVector voltage_replicated;
@@ -117,6 +117,9 @@ void MonodomainProblem<DIM>::WriteInfo(double time)
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class MonodomainProblem<1>;
-template class MonodomainProblem<2>;
-template class MonodomainProblem<3>;
+template class MonodomainProblem<1,1>;
+template class MonodomainProblem<1,2>;
+template class MonodomainProblem<1,3>;
+template class MonodomainProblem<2,2>;
+template class MonodomainProblem<3,3>;
+

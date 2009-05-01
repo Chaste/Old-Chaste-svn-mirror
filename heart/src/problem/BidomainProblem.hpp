@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * extracellular potential at node j.
  */
 template<unsigned DIM>
-class BidomainProblem : public AbstractCardiacProblem<DIM, 2>
+class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
 {
 
 friend class TestBidomainWithBathAssembler;

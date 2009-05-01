@@ -32,8 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MonodomainProblem.hpp"
 
-template<unsigned SPACE_DIM>
-void CheckMonoLr91Vars(MonodomainProblem<SPACE_DIM>& problem)
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+void CheckMonoLr91Vars(MonodomainProblem<ELEM_DIM, SPACE_DIM>& problem)
 {
 
     DistributedVector voltage(problem.GetSolution());

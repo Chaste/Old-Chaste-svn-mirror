@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * See tutorials for usage.
  */
-template<unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
 friend class TestBidomainWithBathAssembler;

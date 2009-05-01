@@ -90,7 +90,7 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
 template<unsigned DIM>
 Vec BidomainProblem<DIM>::CreateInitialCondition()
 {
-    Vec init_cond = AbstractCardiacProblem<DIM,2>::CreateInitialCondition();
+    Vec init_cond = AbstractCardiacProblem<DIM,DIM,2>::CreateInitialCondition();
     if (mHasBath)
     {
         // get the voltage stripe
@@ -180,7 +180,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
 template<unsigned DIM>
 BidomainProblem<DIM>::BidomainProblem(
             AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath)
-    : AbstractCardiacProblem<DIM, 2>(pCellFactory),
+    : AbstractCardiacProblem<DIM,DIM, 2>(pCellFactory),
       mpBidomainPde(NULL),
       mRowForAverageOfPhiZeroed(INT_MAX),
       mHasBath(hasBath),
@@ -258,7 +258,7 @@ void BidomainProblem<DIM>::WriteInfo(double time)
 template<unsigned DIM>
 void BidomainProblem<DIM>::DefineWriterColumns()
 {
-    AbstractCardiacProblem<DIM,2>::DefineWriterColumns();
+    AbstractCardiacProblem<DIM,DIM,2>::DefineWriterColumns();
     mExtracelluarColumnId = this->mpWriter->DefineVariable("Phi_e","mV");
 }
 
@@ -272,7 +272,7 @@ void BidomainProblem<DIM>::WriteOneStep(double time, Vec voltageVec)
 template<unsigned DIM>
 void BidomainProblem<DIM>::PreSolveChecks()
 {
-    AbstractCardiacProblem<DIM, 2>::PreSolveChecks();
+    AbstractCardiacProblem<DIM,DIM, 2>::PreSolveChecks();
     if (mFixedExtracellularPotentialNodes.empty())
     {
         // We're not pinning any nodes.
