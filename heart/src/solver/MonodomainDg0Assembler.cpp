@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,1*(ELEMENT_DIM+1)> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
     c_vector<double, ELEMENT_DIM+1> &rPhi,
-    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
     ChastePoint<SPACE_DIM> &rX,
     c_vector<double,1> &u,
     c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
@@ -92,7 +92,7 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::MonodomainDg0Assembler(
             AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            MonodomainPde<SPACE_DIM>* pPde,
+            MonodomainPde<ELEMENT_DIM, SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
             unsigned numQuadPoints)
     : AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
@@ -118,11 +118,15 @@ MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::~MonodomainDg0Assembler()
 /////////////////////////////////////////////////////////////////////
 
 template class MonodomainDg0Assembler<1,1>;
+template class MonodomainDg0Assembler<1,2>;
+template class MonodomainDg0Assembler<1,3>;
 template class MonodomainDg0Assembler<2,2>;
 template class MonodomainDg0Assembler<3,3>;
 
 #include "SimpleDg0ParabolicAssemblerImplementation.hpp"
 
 template class SimpleDg0ParabolicAssembler<1, 1, false, MonodomainDg0Assembler<1, 1> >;
+template class SimpleDg0ParabolicAssembler<1, 2, false, MonodomainDg0Assembler<1, 2> >;
+template class SimpleDg0ParabolicAssembler<1, 3, false, MonodomainDg0Assembler<1, 3> >;
 template class SimpleDg0ParabolicAssembler<2, 2, false, MonodomainDg0Assembler<2, 2> >;
 template class SimpleDg0ParabolicAssembler<3, 3, false, MonodomainDg0Assembler<3, 3> >;

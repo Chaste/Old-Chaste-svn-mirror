@@ -34,21 +34,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainMatrixBasedAssembler.hpp"
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractCardiacPde<SPACE_DIM>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateCardiacPde()
+AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateCardiacPde()
 {
-    mpMonodomainPde = new MonodomainPde<SPACE_DIM>(this->mpCellFactory);
+    mpMonodomainPde = new MonodomainPde<ELEM_DIM,SPACE_DIM>(this->mpCellFactory);
     return mpMonodomainPde;
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateAssembler()
+AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateAssembler()
 {
     assert(mpMonodomainPde);
 
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+        MonodomainDg0Assembler<ELEM_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainDg0Assembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,
                                                 mpMonodomainPde,
                                                 this->mpBoundaryConditionsContainer,
                                                 2);
@@ -56,8 +56,8 @@ AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_D
     }
     else
     {
-        MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainMatrixBasedAssembler<SPACE_DIM,SPACE_DIM>(this->mpMesh,
+        MonodomainMatrixBasedAssembler<ELEM_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainMatrixBasedAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,
                                                         mpMonodomainPde,
                                                         this->mpBoundaryConditionsContainer,
                                                         2);
@@ -66,7 +66,7 @@ AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_D
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainProblem<ELEM_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+MonodomainProblem<ELEM_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory)
         : AbstractCardiacProblem<ELEM_DIM, SPACE_DIM, 1>(pCellFactory),
           mpMonodomainPde(NULL)
 {
@@ -78,7 +78,7 @@ MonodomainProblem<ELEM_DIM, SPACE_DIM>::~MonodomainProblem()
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainPde<SPACE_DIM> * MonodomainProblem<ELEM_DIM, SPACE_DIM>::GetMonodomainPde()
+MonodomainPde<ELEM_DIM,SPACE_DIM> * MonodomainProblem<ELEM_DIM, SPACE_DIM>::GetMonodomainPde()
 {
     assert(mpMonodomainPde != NULL);
     return mpMonodomainPde;

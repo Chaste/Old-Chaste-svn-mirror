@@ -34,56 +34,54 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /////////////////////////////////////////////////////////////////////
 // MonodomainRhsMatrixAssembler
 /////////////////////////////////////////////////////////////////////
-
-template<unsigned DIM>
-c_matrix<double,1*(DIM+1),1*(DIM+1)> MonodomainRhsMatrixAssembler<DIM>::ComputeMatrixTerm(
-    c_vector<double, DIM+1> &rPhi,
-    c_matrix<double, DIM, DIM+1> &rGradPhi,
-    ChastePoint<DIM> &rX,
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::ComputeMatrixTerm(
+    c_vector<double, ELEM_DIM+1> &rPhi,
+    c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
+    ChastePoint<SPACE_DIM> &rX,
     c_vector<double,1> &u,
-    c_matrix<double,1,DIM> &rGradU /* not used */,
-    Element<DIM,DIM>* pElement)
+    c_matrix<double,1,SPACE_DIM> &rGradU /* not used */,
+    Element<ELEM_DIM,SPACE_DIM>* pElement)
 {
     return outer_prod(rPhi, rPhi);
 }
 
-template<unsigned DIM>
-c_vector<double,1*(DIM+1)> MonodomainRhsMatrixAssembler<DIM>::ComputeVectorTerm(
-    c_vector<double, DIM+1> &rPhi,
-    c_matrix<double, DIM, DIM+1> &rGradPhi,
-    ChastePoint<DIM> &rX,
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+c_vector<double,1*(ELEM_DIM+1)> MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::ComputeVectorTerm(
+    c_vector<double, ELEM_DIM+1> &rPhi,
+    c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
+    ChastePoint<SPACE_DIM> &rX,
     c_vector<double,1> &u,
-    c_matrix<double, 1, DIM> &rGradU /* not used */,
-    Element<DIM,DIM>* pElement)
-
+    c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
+    Element<ELEM_DIM,SPACE_DIM>* pElement)
 {
     #define COVERAGE_IGNORE
     NEVER_REACHED;
-    return zero_vector<double>(DIM+1);
+    return zero_vector<double>(SPACE_DIM+1);
     #undef COVERAGE_IGNORE
 }
 
-template<unsigned DIM>
-c_vector<double, DIM> MonodomainRhsMatrixAssembler<DIM>::ComputeVectorSurfaceTerm(
-    const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
-    c_vector<double, DIM> &rPhi,
-    ChastePoint<DIM> &rX )
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+c_vector<double, ELEM_DIM> MonodomainRhsMatrixAssembler<ELEM_DIM, SPACE_DIM>::ComputeVectorSurfaceTerm(
+    const BoundaryElement<ELEM_DIM-1,SPACE_DIM> &rSurfaceElement,
+    c_vector<double, ELEM_DIM> &rPhi,
+    ChastePoint<SPACE_DIM> &rX )
 {
     #define COVERAGE_IGNORE
     NEVER_REACHED;
-    return zero_vector<double>(DIM);
+    return zero_vector<double>(SPACE_DIM);
     #undef COVERAGE_IGNORE
 }
 
 
-template<unsigned DIM>
-MonodomainRhsMatrixAssembler<DIM>::MonodomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh)
-    : AbstractLinearAssembler<DIM,DIM,1,false,MonodomainRhsMatrixAssembler<DIM> >()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::MonodomainRhsMatrixAssembler(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh)
+    : AbstractLinearAssembler<ELEM_DIM,SPACE_DIM,1,false,MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM> >()
 {
     this->mpMesh = pMesh;
 
     // this needs to be set up, though no boundary condition values are used in the matrix
-    this->mpBoundaryConditions = new BoundaryConditionsContainer<DIM,DIM,1>;
+    this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>;
     this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
 
     //This linear system needs a distribution from the DistributedVector class
@@ -93,14 +91,14 @@ MonodomainRhsMatrixAssembler<DIM>::MonodomainRhsMatrixAssembler(AbstractMesh<DIM
     this->AssembleSystem(false,true);
 }
 
-template<unsigned DIM>
-MonodomainRhsMatrixAssembler<DIM>::~MonodomainRhsMatrixAssembler()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+MonodomainRhsMatrixAssembler<ELEM_DIM, SPACE_DIM>::~MonodomainRhsMatrixAssembler()
 {
     delete this->mpBoundaryConditions;
 }
 
-template<unsigned DIM>
-Mat* MonodomainRhsMatrixAssembler<DIM>::GetMatrix()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+Mat* MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::GetMatrix()
 {
     return &(this->mpLinearSystem->rGetLhsMatrix());
 }
@@ -116,13 +114,13 @@ Mat* MonodomainRhsMatrixAssembler<DIM>::GetMatrix()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainMatrixBasedAssembler(
             AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            MonodomainPde<SPACE_DIM>* pPde,
+            MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
             unsigned numQuadPoints)
     : MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, pBcc, numQuadPoints)
 {
     // construct matrix using the helper class
-    mpMonodomainRhsMatrixAssembler = new MonodomainRhsMatrixAssembler<SPACE_DIM>(pMesh);
+    mpMonodomainRhsMatrixAssembler = new MonodomainRhsMatrixAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh);
     this->mpMatrixForMatrixBasedRhsAssembly = mpMonodomainRhsMatrixAssembler->GetMatrix();
 
     // set variables on parent class so that we do matrix-based assembly, and allocate
@@ -188,9 +186,13 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
 /////////////////////////////////////////////////////////////////////
 
 template class MonodomainMatrixBasedAssembler<1,1>;
+template class MonodomainMatrixBasedAssembler<1,2>;
+template class MonodomainMatrixBasedAssembler<1,3>;
 template class MonodomainMatrixBasedAssembler<2,2>;
 template class MonodomainMatrixBasedAssembler<3,3>;
 
-template class MonodomainRhsMatrixAssembler<1>;
-template class MonodomainRhsMatrixAssembler<2>;
-template class MonodomainRhsMatrixAssembler<3>;
+template class MonodomainRhsMatrixAssembler<1,1>;
+template class MonodomainRhsMatrixAssembler<1,2>;
+template class MonodomainRhsMatrixAssembler<1,3>;
+template class MonodomainRhsMatrixAssembler<2,2>;
+template class MonodomainRhsMatrixAssembler<3,3>;

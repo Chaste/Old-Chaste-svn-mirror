@@ -33,19 +33,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "LogFile.hpp"
 
-template<class CELL, unsigned DIM>
-class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
+template<class CELL, unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
+class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>
 {
 private:
     // define a new stimulus
     SimpleStimulus* mpStimulus;
 
 public:
-    PlaneStimulusCellFactory(double stimulusMagnitude=-600) : AbstractCardiacCellFactory<DIM>()
+    PlaneStimulusCellFactory(double stimulusMagnitude=-600) : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>()
     {
         // set the new stimulus
         mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
-        LOG(1, "Defined a PlaneStimulusCellFactory<"<<DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
+        LOG(1, "Defined a PlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)

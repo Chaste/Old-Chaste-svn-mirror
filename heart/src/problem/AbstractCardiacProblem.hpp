@@ -88,18 +88,18 @@ protected:
     unsigned mNodeColumnId;
 
     /** The monodomain or bidomain pde */
-    AbstractCardiacPde<SPACE_DIM>* mpCardiacPde;
+    AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* mpCardiacPde;
 
     /** Boundary conditions container used in the simulation */
-    BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
+    BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
     /** It is convenient to also have a separate variable for default (zero-Neumann) boundary conditions */
-    BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpDefaultBoundaryConditionsContainer;
+    BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* mpDefaultBoundaryConditionsContainer;
     /** The PDE solver */
-    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
+    AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
     /** The cell factory creates the cells for each node */
-    AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
+    AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* mpCellFactory;
     /** The mesh. Can either by passed in, or the mesh filename can be set */
-    AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    AbstractMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
 
     /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and
      *  [V_0 phi_0 .. V_N phi_N] for bidomain */
@@ -110,14 +110,14 @@ protected:
      *
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde() =0;
+    virtual AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* CreateCardiacPde() =0;
 
     /**
      * Subclasses must override this method to create a suitable assembler object.
      *
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
+    virtual AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
 public:
     // This (and things in MonodomainProblem) being public are hacks for
@@ -132,7 +132,7 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    AbstractCardiacProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
+    AbstractCardiacProblem(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
 
     virtual ~AbstractCardiacProblem();
 
@@ -150,7 +150,7 @@ public:
      *  Set the boundary conditions container.
      *  @param *pbcc is a pointer to a boundary conditions container
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<SPACE_DIM, SPACE_DIM, PROBLEM_DIM> *bcc);
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM> *bcc);
 
     /**
      *  Performs a series of checks before solving.
@@ -177,7 +177,7 @@ public:
     void ConvertOutputToMeshalyzerFormat(bool call = true);
 
     /** This only needs to be called if a mesh filename has not been set */
-    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
+    void SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
      *  Set whether the simulation will generate results files.
@@ -201,9 +201,9 @@ public:
      */
     Vec GetSolution();
 
-    AbstractMesh<SPACE_DIM,SPACE_DIM> & rGetMesh();
+    AbstractMesh<ELEM_DIM,SPACE_DIM> & rGetMesh();
 
-    AbstractCardiacPde<SPACE_DIM>* GetPde();
+    AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* GetPde();
 
     /**
      *  First performs some checks by calling  the PreSolveChecks method.

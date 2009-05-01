@@ -51,15 +51,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Note that default values of A, C and sigma_i are stored in the parent class
  */
-template <unsigned SPACE_DIM>
-class MonodomainPde : public virtual AbstractCardiacPde<SPACE_DIM>, public AbstractLinearParabolicPde<SPACE_DIM>
+template <unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
+class MonodomainPde : public virtual AbstractCardiacPde<ELEM_DIM,SPACE_DIM>, public AbstractLinearParabolicPde<ELEM_DIM, SPACE_DIM>
 {
 private:
     friend class TestMonodomainPde;
 
 public:
     /// Constructor
-    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
+    MonodomainPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
 
     //The following are hidden from the coverage test while it is waiting
     //for a re-factor. (Ticket #157)
@@ -80,7 +80,7 @@ public:
     /** Virtual, since overridden by Fisher */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(
                 const ChastePoint<SPACE_DIM>& ,
-                Element<SPACE_DIM,SPACE_DIM>* pElement);
+                Element<ELEM_DIM,SPACE_DIM>* pElement);
 
 
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double );

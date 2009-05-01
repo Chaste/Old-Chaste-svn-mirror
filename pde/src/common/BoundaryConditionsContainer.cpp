@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////
 
 template class BoundaryConditionsContainer<1,1,1>;
+template class BoundaryConditionsContainer<1,2,1>;
+template class BoundaryConditionsContainer<1,3,1>;
 template class BoundaryConditionsContainer<2,2,1>;
 template class BoundaryConditionsContainer<3,3,1>;
 

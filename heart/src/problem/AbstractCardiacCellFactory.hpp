@@ -50,13 +50,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * by the pde instead.
  */
 
-template<unsigned SPACE_DIM>
+template<unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class AbstractCardiacCellFactory
 {
 private:
     /** The mesh is automatically set in MonodomainProblem and BidomainProblem. 
      *  This member variable should be accessed through GetMesh(), which will check if it has been set before.*/
-    AbstractMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    AbstractMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
 
 protected:
     /** For use at unstimulated cells. */
@@ -100,9 +100,9 @@ public:
      */
     virtual ~AbstractCardiacCellFactory();
 
-    void SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh);
+    void SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
-    AbstractMesh<SPACE_DIM,SPACE_DIM>* GetMesh();
+    AbstractMesh<ELEM_DIM,SPACE_DIM>* GetMesh();
 
 };
 

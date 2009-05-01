@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////////////
 
 template class AbstractBoundaryConditionsContainer<1,1,1>;
+template class AbstractBoundaryConditionsContainer<1,2,1>;
+template class AbstractBoundaryConditionsContainer<1,3,1>;
 template class AbstractBoundaryConditionsContainer<2,2,1>;
 template class AbstractBoundaryConditionsContainer<3,3,1>;
 

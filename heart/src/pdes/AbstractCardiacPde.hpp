@@ -59,7 +59,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * \todo more details...
  */
-template <unsigned SPACE_DIM>
+template <unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class AbstractCardiacPde
 {
 protected:
@@ -119,7 +119,7 @@ public:
      * @param pCellFactory  factory to use to create cells.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory,
+    AbstractCardiacPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory,
                        const unsigned stride=1);
 
     /** Virtual destructor */

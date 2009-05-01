@@ -61,7 +61,7 @@ protected:
     double mSourceTerm;
 
     /** The PDE to be solved. */
-    MonodomainPde<SPACE_DIM>* mpMonodomainPde;
+    MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
 
     // Save typing
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType; /**< This type (to save typing). */
@@ -90,7 +90,7 @@ protected:
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
         c_vector<double,1> &u,
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
@@ -131,7 +131,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MonodomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                           MonodomainPde<SPACE_DIM>* pPde,
+                           MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                            BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
                            unsigned numQuadPoints = 2);
 

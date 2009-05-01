@@ -60,7 +60,7 @@ public:
 private:
 
     /** The PDE to be solved. */
-    AbstractLinearParabolicPde<SPACE_DIM>* mpParabolicPde;
+    AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>* mpParabolicPde;
 
     typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> SelfType; /**< This type (to save typing). */
     typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType> BaseClassType; /**< Base class type (to save typing). */
@@ -84,7 +84,7 @@ protected:
      */
     virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1>& rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU /* not used */,
@@ -102,7 +102,7 @@ protected:
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1>& rPhi,
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double, 1, SPACE_DIM>& rGradU /* not used */,
@@ -133,7 +133,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     SimpleDg0ParabolicAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+                                AbstractLinearParabolicPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                 unsigned numQuadPoints = 2);
 

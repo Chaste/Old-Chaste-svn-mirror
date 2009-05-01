@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartRegionCodes.hpp"
 #include "FakeBathCell.hpp"
 
-template<unsigned SPACE_DIM>
-AbstractCardiacCell*  AbstractCardiacCellFactory<SPACE_DIM>::CreateCardiacCellForNode(
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+AbstractCardiacCell*  AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::CreateCardiacCellForNode(
     unsigned nodeIndex)
 {
     if (mpMesh->GetNode(nodeIndex)->GetRegion() == HeartRegionCode::BATH)
@@ -44,23 +44,23 @@ AbstractCardiacCell*  AbstractCardiacCellFactory<SPACE_DIM>::CreateCardiacCellFo
     }
 }
 
-template<unsigned SPACE_DIM>
-void AbstractCardiacCellFactory<SPACE_DIM>::FinaliseCellCreation(
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+void AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::FinaliseCellCreation(
     std::vector< AbstractCardiacCell* >* pCellsDistributed,
     unsigned lo,
     unsigned hi)
 {
 }
 
-template<unsigned SPACE_DIM>
-unsigned AbstractCardiacCellFactory<SPACE_DIM>::GetNumberOfCells()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+unsigned AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::GetNumberOfCells()
 {
     assert(mpMesh != NULL);
     return mpMesh->GetNumNodes();
 }
 
-template<unsigned SPACE_DIM>
-AbstractCardiacCellFactory<SPACE_DIM>::AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver)
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver)
 {
     mpMesh = NULL;
     mpSolver = pSolver;
@@ -68,22 +68,22 @@ AbstractCardiacCellFactory<SPACE_DIM>::AbstractCardiacCellFactory(AbstractIvpOde
     mpFakeCell = new FakeBathCell(mpSolver, mpZeroStimulus);
 }
 
-template<unsigned SPACE_DIM>
-AbstractCardiacCellFactory<SPACE_DIM>::~AbstractCardiacCellFactory()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::~AbstractCardiacCellFactory()
 {
     delete mpSolver;
     delete mpZeroStimulus;
     delete mpFakeCell;
 }
 
-template<unsigned SPACE_DIM>
-void AbstractCardiacCellFactory<SPACE_DIM>::SetMesh(AbstractMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+void AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 {
     mpMesh = pMesh;
 }
 
-template<unsigned SPACE_DIM>
-AbstractMesh<SPACE_DIM,SPACE_DIM>* AbstractCardiacCellFactory<SPACE_DIM>::GetMesh()
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+AbstractMesh<ELEM_DIM,SPACE_DIM>* AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::GetMesh()
 {
     assert(mpMesh != NULL);
     return mpMesh;
@@ -93,6 +93,8 @@ AbstractMesh<SPACE_DIM,SPACE_DIM>* AbstractCardiacCellFactory<SPACE_DIM>::GetMes
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class AbstractCardiacCellFactory<1>;
-template class AbstractCardiacCellFactory<2>;
-template class AbstractCardiacCellFactory<3>;
+template class AbstractCardiacCellFactory<1,1>;
+template class AbstractCardiacCellFactory<1,2>;
+template class AbstractCardiacCellFactory<1,3>;
+template class AbstractCardiacCellFactory<2,2>;
+template class AbstractCardiacCellFactory<3,3>;

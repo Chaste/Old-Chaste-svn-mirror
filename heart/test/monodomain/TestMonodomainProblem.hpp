@@ -175,15 +175,17 @@ public:
     }
     
     // Same as TestMonodomainProblem1D, except the 1D mesh is embedded in 3D space.
+    // This currently doesn't work - all templates definitions are now correct, but
+    // some of the assembly code isn't creating matrices of the correct size.
     /*void xTestMonodomainProblem1Din3D() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_in_3D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1din3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1din3d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory;
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1, 3> cell_factory;
         MonodomainProblem<1,3> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -211,7 +213,7 @@ public:
         monodomain_problem.GetPde();
 
         // check a progress report exists
-        TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1d/").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1din3d/").c_str()), 0);
     }*/
 
     void TestMonodomainProblem1DWithAbsoluteTolerance() throw (Exception)

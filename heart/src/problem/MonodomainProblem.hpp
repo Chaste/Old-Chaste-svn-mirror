@@ -44,12 +44,12 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class MonodomainProblem : public AbstractCardiacProblem<ELEM_DIM, SPACE_DIM, 1>
 {
 protected:
-    MonodomainPde<SPACE_DIM>* mpMonodomainPde;
+    MonodomainPde<ELEM_DIM,SPACE_DIM>* mpMonodomainPde;
 
 public:
-    AbstractCardiacPde<SPACE_DIM>* CreateCardiacPde();
+    AbstractCardiacPde<ELEM_DIM, SPACE_DIM>* CreateCardiacPde();
 
-    AbstractDynamicAssemblerMixin<SPACE_DIM, SPACE_DIM, 1>* CreateAssembler();
+    AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, 1>* CreateAssembler();
 
 public:
 
@@ -58,14 +58,14 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
+    MonodomainProblem(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
 
     /**
      * Destructor
      */
     ~MonodomainProblem();
 
-    MonodomainPde<SPACE_DIM> * GetMonodomainPde();
+    MonodomainPde<ELEM_DIM,SPACE_DIM> * GetMonodomainPde();
 
     /**
      *  Print out time and max/min voltage values at current time.

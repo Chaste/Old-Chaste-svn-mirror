@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE>
 SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::SimpleDg0ParabolicAssembler(
             AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+            AbstractLinearParabolicPde<ELEMENT_DIM,SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
             unsigned numQuadPoints)
     : AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
@@ -73,13 +73,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRET
 c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
     SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::ComputeMatrixTerm(
             c_vector<double, ELEMENT_DIM+1>& rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
             ChastePoint<SPACE_DIM>& rX,
             c_vector<double,1>& rU,
             c_matrix<double,1,SPACE_DIM>& rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX, pElement);
+    c_matrix<double, SPACE_DIM, SPACE_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX, pElement);
 
     return    prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
               + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
@@ -89,7 +89,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRET
 c_vector<double,1*(ELEMENT_DIM+1)>
     SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::ComputeVectorTerm(
             c_vector<double, ELEMENT_DIM+1>& rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
             ChastePoint<SPACE_DIM>& rX,
             c_vector<double,1>& rU,
             c_matrix<double, 1, SPACE_DIM>& rGradU /* not used */,
