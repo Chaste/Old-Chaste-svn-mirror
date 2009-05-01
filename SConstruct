@@ -278,7 +278,8 @@ if (xsd_version == 'XML Schema Definition Compiler 2.3.1\n' or
     xsd_version == 'CodeSynthesis XSD XML Schema to C++ compiler 3.2.0\n'):
     if (xsd_version[0] == 'X' or
         not os.path.exists('heart/src/io/ChasteParameters.cpp') or
-        os.stat('heart/src/io/ChasteParameters.xsd').st_mtime > os.stat('heart/src/io/ChasteParameters.cpp').st_mtime)):
+        os.stat('heart/src/io/ChasteParameters.xsd').st_mtime
+          > os.stat('heart/src/io/ChasteParameters.cpp').st_mtime):
         run_xsd('heart/src/io/ChasteParameters.xsd')
 else:
     print "Unexpected XSD program found:"
