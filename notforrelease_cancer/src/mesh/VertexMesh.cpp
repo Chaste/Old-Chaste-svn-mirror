@@ -1441,7 +1441,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
      c_vector<double, SPACE_DIM>& new_node_location = pElement->GetNode(0)->rGetModifiableLocation();    
      new_node_location = GetCentroidOfElement(pElement->GetIndex());
      
-     c_vector<double, 3> neighbouring_elem_nums;
+     c_vector<unsigned, 3> neighbouring_elem_nums;
      
      for (unsigned i=0; i<3; i++)
      {
