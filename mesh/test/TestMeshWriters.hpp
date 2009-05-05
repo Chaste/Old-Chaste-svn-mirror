@@ -100,6 +100,14 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
+    
+    void TestTrianglesToMeshalyzer1din3d()
+    {
+        TrianglesMeshReader<1,3> import_mesh_reader("mesh/test/data/trivial_1d_in_3d_mesh");
+        MeshalyzerMeshWriter<1,3> mesh_writer("", "Mesh");
+
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
+    }    
 
     void TestTrianglesToCoolGraphics()
     {

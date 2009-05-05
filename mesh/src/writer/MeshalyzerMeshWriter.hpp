@@ -77,10 +77,10 @@ MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::st
         const bool &rSetCoolGraphics)
         : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
 {
-    if (ELEMENT_DIM != SPACE_DIM)
+   /* if (ELEMENT_DIM != SPACE_DIM)
     {
         EXCEPTION("ELEMENT_DIM must be equal to SPACE_DIM");
-    }
+    }*/
 
     if (rSetCoolGraphics)
     {
@@ -131,13 +131,17 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write element file
     std::string element_file_name;
 
-    if (SPACE_DIM == 3)
+    if (ELEMENT_DIM == 3)
     {
         element_file_name = this->mBaseName + ".tetra";
     }
-    else // SPACE_DIM == 1 or 2
+    else if (ELEMENT_DIM == 2)
     {
         element_file_name = this->mBaseName + ".tri";
+    }
+    else //ELEMENT_DIM == 1 
+    {
+        element_file_name = this->mBaseName + ".cnnx";
     }
 
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
@@ -168,7 +172,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     }
     p_element_file->close();
 
-    if (SPACE_DIM==3)
+    if (ELEMENT_DIM==3)
     {
         // Write boundary face file
         std::string face_file_name = this->mBaseName + ".tri";

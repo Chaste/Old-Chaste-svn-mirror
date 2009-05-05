@@ -505,7 +505,7 @@ public:
         //Test for post-processed output
         OutputFileHandler handler("");
 
-        std::string files[6] = {"res_mesh.pts","res_mesh.tri","res_parameters.xml",
+        std::string files[6] = {"res_mesh.pts","res_mesh.cnnx","res_parameters.xml",
                                 "res_Phi_e.dat","res_V.dat","res_times.info"};
 
         for(unsigned i=0; i<6; i++)
