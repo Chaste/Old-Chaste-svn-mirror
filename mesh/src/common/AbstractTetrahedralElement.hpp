@@ -248,11 +248,8 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
     {
         case 0:
             // End point of a line
+            weighted_direction=zero_vector<double>(SPACE_DIM);
             weighted_direction(0)=1.0;
-            if (SPACE_DIM == 2)
-            {
-                weighted_direction(1)=0.0;
-            }
             break;
         case 1:
             // Linear edge in a 2D plane or in 3D

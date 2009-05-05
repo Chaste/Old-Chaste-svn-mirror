@@ -44,6 +44,12 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SP
     mNumElements = mrMesh.GetNumElements();
     mpDistanceCalculator = new DistanceMapCalculator<SPACE_DIM>(mrMesh);
 }
+
+template<unsigned SPACE_DIM>
+HeartGeometryInformation<SPACE_DIM>::~HeartGeometryInformation()
+{
+    delete mpDistanceCalculator;
+}
 // Area of the septum considered to belong to the each ventricle (relative to 1)
 template<unsigned SPACE_DIM>
 const double HeartGeometryInformation<SPACE_DIM>::LEFT_SEPTUM_SIZE = 2.0/3.0;

@@ -55,7 +55,11 @@ class HeartGeometryInformation
         
         HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);
         
-        ~HeartGeometryInformation(){}
+        /**
+         * Destructor - explicitly deletes the mpDistanceCalculator
+         *
+         */
+        ~HeartGeometryInformation();
     
         
         bool mFilesSet;

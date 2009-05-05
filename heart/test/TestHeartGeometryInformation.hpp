@@ -41,6 +41,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         HeartGeometryInformation<3> info(mesh);
+        ///\todo This test should actually test something
     }
 };
 
