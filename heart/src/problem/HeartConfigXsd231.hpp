@@ -32,6 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * version 3.2.0.
  */
 
+#if (XSD_INT_VERSION != 2030100L)
+#define COVERAGE_IGNORE
+#endif
 
 #include "HeartConfig.hpp"
 using namespace xsd::cxx::tree;
@@ -1077,3 +1080,7 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 
     EXCEPTION("Unknown preconditioner type provided");
 }
+
+#if (XSD_INT_VERSION != 2030100L)
+#undef COVERAGE_IGNORE
+#endif
