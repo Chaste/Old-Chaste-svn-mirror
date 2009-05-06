@@ -277,3 +277,5 @@ a directory defined by the environmental variable CHASTE_TEST_OUTPUT, as describ
 variable is not set, results will be found relative to the 'testoutput' folder in the main 
 Chaste directory (unlike when scons is used to run tests). Add CHASTE_TEST_OUTPUT to the .bashrc 
 file as described above.
+
+ 
