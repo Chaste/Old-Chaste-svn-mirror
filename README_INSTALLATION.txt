@@ -168,7 +168,7 @@ Edit the ~/.bashrc file in the home directory and append the following:
 
 export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
 export PATH=$CHASTE_LIBS/bin:$PATH
-export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3/lib/libg_c++/linux-gnu/
+export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu
 
 Note that test output will be put in the folder given by the environment variable CHASTE_TEST_OUTPUT. 
 If this has not been assigned to anything, it will be (temporarily) set to be the directory 
