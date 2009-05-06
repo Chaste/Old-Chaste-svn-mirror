@@ -84,9 +84,8 @@ counts = {}
 for line in open(error_log_file_name):
     m = error_re.match(line)
     if m:
-        file_name = m.group(1)
-        if file_name[0] == '<':
-            file_name = 'unknown-' + file_name[1:-1]
+        if m.group(1)[0] != '<':
+            file_name = m.group(1)
         if not file_name in problem_files:
             problem_files[file_name] = []
             counts[file_name] = 1
