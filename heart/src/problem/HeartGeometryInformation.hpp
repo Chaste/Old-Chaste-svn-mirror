@@ -36,13 +36,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * \todo this class needs documenting!!!!!
+ * This class provides a method to calculate the relative position of a node with respect to two (or three)
+ * given surfaces
  */
 template<unsigned SPACE_DIM>
 class HeartGeometryInformation
 {
 private:
 
+    /** Names for region types in the heart*/
     enum RegionType_
     {
         LEFT_VENTRICLE_WALL,
@@ -55,40 +57,68 @@ private:
     };    
 
 
-    // Area of the septum considered to belong to the each ventricle (relative to 1)
+    /** Area of the septum considered to belong to the left septum (relative to 1)*/
     static const double LEFT_SEPTUM_SIZE;
+    /** Area of the septum considered to belong to the right septum (relative to 1)*/
     static const double RIGHT_SEPTUM_SIZE;
-
+    
+    /**
+     * Helper method to calculate the distance between the node and the Endocardial surface
+     * as defined to be the closest surface to the node out of left ventricle and right ventricle.
+     * 
+     * @param node index is the index of the node in the mesh
+     * @returns the distance 
+     */
     double GetDistanceToEndo(unsigned node_index);
+    
+     /**
+     * Helper method to calculate the distance between the node and the Epicardial surface
+     * 
+     * @param node index is the index of the node in the mesh
+     * @returns the distance 
+     */
     double GetDistanceToEpi(unsigned node_index);
+    
+    /**
+     * @param node index is the index of the node in the mesh
+     * @returns the region type based on the relative distances to epi and endocardial surfaces 
+     */
     inline RegionType_ GetHeartRegion (unsigned nodeIndex) const;
 
-//    Needed if constructors get filenames instead of vectors
-//    inline void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const;
-//    void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& surfaceVector) const; 
-
+    /**The mesh of the problem*/
     TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
-
-//    Needed if constructors get filenames instead of vectors        
-//    std::string mEpiFile, mRVFile, mLVFile;
-//    std::vector<unsigned> mEpiSurface, mRVSurface, mLVSurface;
-    
+    /**Vectors to store the distance maps*/
     std::vector<double> mDistMapEpicardium, mDistMapEndocardium, mDistMapRightVentricle, mDistMapLeftVentricle;
-    
+    /**Flag used to tell the methods whether two or three surfaces have been supplied*/
     unsigned mNumberOfSurfacesProvided;
     
         
 public:
-    
+    /**
+     * Constructor
+     * @param rMesh: reference to the mesh
+     * @param rNodesAtEpi: indices of the nodes in the epicardial surface
+     * @param rNodesAtEndo: indices of the nodes in the endocardial surface
+     * */
     HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                               std::vector<unsigned>& rNodesAtEpi,
                               std::vector<unsigned>& rNodesAtEndo);
-                              
+     /**
+     * Constructor
+     * @param rMesh: reference to the mesh
+     * @param rNodesAtEpi: indices of the nodes in the epicardial surface
+     * @param rNodesAtLv: indices of the nodes in the lv surface
+     * @param rNodesAtRv: indices of the nodes in the rv surface
+     * */                     
     HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                               std::vector<unsigned>& rNodesAtEpi,
                               std::vector<unsigned>& rNodesAtLv,
                               std::vector<unsigned>& rNodesAtRv);
-
+    /**
+     * Calculates the relative position within the wall thickness (normalised to [0,1])
+     * @param node index is the index of the node in the mesh
+     * @returns the relative position
+     */
     double CalculateRelativeWallPosition(unsigned node_index);
     
 };

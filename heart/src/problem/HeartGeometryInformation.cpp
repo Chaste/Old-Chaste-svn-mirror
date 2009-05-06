@@ -118,73 +118,6 @@ typename HeartGeometryInformation<SPACE_DIM>::RegionType_
     return UNKNOWN;
 }
 
-/*
-template<unsigned SPACE_DIM>
-void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
-        const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const
-{
-    unsigned num_nodes = 0;
-    std::stringstream line_stream(line);
-
-    while (!line_stream.eof())
-    {
-        unsigned item;
-        line_stream >> item;
-        // Shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
-        surfaceNodeIndexSet.insert(item-1);
-
-        num_nodes++;
-    }
-
-    if (num_nodes != SPACE_DIM)
-    {
-        EXCEPTION("Wrong file format");
-    }
-
-}
-
-
-template<unsigned SPACE_DIM>
-void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
-        const std::string& surfaceFile, std::vector<unsigned>& surfaceVector) const
-{
-    // Open the file defining the surface
-    std::ifstream file_stream;
-    file_stream.open(surfaceFile.c_str());
-    if (!file_stream.is_open())
-    {
-        EXCEPTION("Wrong surface definition file name.");
-    }
-
-    // Temporal storage for the nodes, helps discarting repeated values
-    std::set<unsigned> surface_node_index_set;
-
-    // Loop over all the triangles and add node indexes to the set
-    std::string line;
-    getline(file_stream, line);
-    do
-    {
-        ProcessLine(line, surface_node_index_set);
-
-        getline(file_stream, line);
-    }
-    while(!file_stream.eof());
-
-    // Make vector big enough
-    surfaceVector.reserve(surface_node_index_set.size());
-
-    // Copy the node indexes from the set to the vector
-    for(std::set<unsigned>::iterator node_index_it=surface_node_index_set.begin();
-        node_index_it != surface_node_index_set.end();
-        node_index_it++)
-    {
-        surfaceVector.push_back(*node_index_it);
-    }
-
-    file_stream.close();
-}*/
-
-
 template<unsigned SPACE_DIM>
 double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned node_index)
 {
@@ -194,19 +127,23 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned node_inde
         RegionType_ node_region = GetHeartRegion(node_index);
         switch(node_region)
         {
+            case LEFT_VENTRICLE_WALL:
             case LEFT_VENTRICLE_SURFACE:
-                case LEFT_VENTRICLE_WALL:
-                    return mDistMapLeftVentricle[node_index];
-                    break;
+                return mDistMapLeftVentricle[node_index];
+                break;
+
+            case RIGHT_VENTRICLE_WALL:
             case RIGHT_VENTRICLE_SURFACE:
-                case RIGHT_VENTRICLE_WALL:
-                    return mDistMapRightVentricle[node_index];
-                    break;
-    
-            case LEFT_SEPTUM: 
+                return mDistMapRightVentricle[node_index];
+                break;
+
+            case LEFT_SEPTUM:
+                return mDistMapLeftVentricle[node_index];
+                break;
+
             case RIGHT_SEPTUM:
-                    EXCEPTION("We shouldn't be computing wall thickness for a node in the septum.");
-            break;
+                return mDistMapRightVentricle[node_index] ;
+                break;
     
             case UNKNOWN:
                 #define COVERAGE_IGNORE
@@ -220,7 +157,8 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned node_inde
                 return 0.0;
                 break;
                 #undef COVERAGE_IGNORE
-        }
+          }
+          
     }
     // Simplified case where you only provide epi and endo surface definitions
     else
@@ -236,6 +174,7 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned node_inde
 template<unsigned SPACE_DIM>
 double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEpi(unsigned node_index)
 {
+    ///\ to do: there needs to be the logic for the septum as in Streeter
     return mDistMapEpicardium[node_index];
 }
 
@@ -250,8 +189,20 @@ double HeartGeometryInformation<SPACE_DIM>::CalculateRelativeWallPosition(unsign
         
     double dist_endo = GetDistanceToEndo(node_index);
     double dist_epi = GetDistanceToEpi(node_index);
-
-    return dist_endo / (dist_endo + dist_epi);
+    
+    double relative_position = dist_endo / (dist_endo + dist_epi);
+    
+    if (std::isnan(relative_position))
+    {
+        #define COVERAGE_IGNORE
+        /*
+         *  A node contained on both epicardium and lv (or rv) surfaces has wall thickness 0/0.
+         *  By setting its value to 0 we consider it contained only on the lv (or rv) surface.
+         */
+        relative_position = 0;
+        #undef COVERAGE_IGNORE
+    }
+    return relative_position;
 }
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

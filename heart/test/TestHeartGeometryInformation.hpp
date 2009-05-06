@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTHEARTGEOMETRYINFORMATION_HPP_
 #define TESTHEARTGEOMETRYINFORMATION_HPP_
 
+#include "PetscSetupAndFinalize.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "HeartGeometryInformation.hpp"
 
@@ -47,12 +48,12 @@ public:
 
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {  
-            // Get the nodes at the left face of the cube
+            // Get the nodes at the left face of the square
             if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
             {
                 left_face.push_back(index);
             }
-            // Get the nodes at the right face of the cube
+            // Get the nodes at the right face of the square
             if (fabs(mesh.GetNode(index)->rGetLocation()[0]-5.0) < 1e-6)
             {
                 right_face.push_back(index);
@@ -64,7 +65,7 @@ public:
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
-            TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5-x)/5);
+            TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
         } 
     }
 
@@ -144,10 +145,10 @@ public:
                 TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(3-x)/3);
                 continue;
             }
-            //..in the sesptum it throws an exception...
+            //..in the septum...
             if ((x>=3)&&(x<=5))
             {
-                TS_ASSERT_THROWS_ANYTHING(info.CalculateRelativeWallPosition(index));
+                //TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index));
                 continue;
             }
             //...and in the rv.
