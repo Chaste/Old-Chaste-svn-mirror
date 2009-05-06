@@ -159,5 +159,5 @@ void DistanceMapCalculator<SPACE_DIM>::ComputeDistanceMap(
 /////////////////////////////////////////////////////////////////////
 
 //template class DistanceMapCalculator<1>;
-//template class DistanceMapCalculator<2>;
+template class DistanceMapCalculator<2>;
 template class DistanceMapCalculator<3>;

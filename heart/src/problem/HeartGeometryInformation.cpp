@@ -35,21 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 
-template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh)
-    : mrMesh(rMesh),
-      mFilesSet(false)
-{
-    mNumNodes = mrMesh.GetNumNodes();
-    mNumElements = mrMesh.GetNumElements();
-    mpDistanceCalculator = new DistanceMapCalculator<SPACE_DIM>(mrMesh);
-}
-
-template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::~HeartGeometryInformation()
-{
-    delete mpDistanceCalculator;
-}
 // Area of the septum considered to belong to the each ventricle (relative to 1)
 template<unsigned SPACE_DIM>
 const double HeartGeometryInformation<SPACE_DIM>::LEFT_SEPTUM_SIZE = 2.0/3.0;
@@ -58,6 +43,47 @@ template<unsigned SPACE_DIM>
 const double HeartGeometryInformation<SPACE_DIM>::RIGHT_SEPTUM_SIZE = 1.0/3.0;
 
 
+template<unsigned SPACE_DIM>
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                                                            std::vector<unsigned>& rNodesAtEpi,
+                                                            std::vector<unsigned>& rNodesAtEndo)
+: mrMesh(rMesh)
+{
+    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+    
+    /* Get nodes defining each surface
+    GetNodesAtSurface(mEpiFile, mEpiSurface);
+    GetNodesAtSurface(mRVFile, mRVSurface);
+    GetNodesAtSurface(mLVFile, mLVSurface);*/
+
+    // Compute the distance map of each surface
+    distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
+    distance_calculator.ComputeDistanceMap(rNodesAtEndo, mDistMapEndocardium);
+    //distance_calculator.ComputeDistanceMap(mLVSurface, mDistMapLeftVentricle);
+    
+    mNumberOfSurfacesProvided = 2; 
+}
+template<unsigned SPACE_DIM>
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                                                               std::vector<unsigned>& rNodesAtEpi,
+                                                               std::vector<unsigned>& rNodesAtLv,
+                                                               std::vector<unsigned>& rNodesAtRv)
+: mrMesh(rMesh)
+{
+    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+    
+    /* Get nodes defining each surface
+    GetNodesAtSurface(mEpiFile, mEpiSurface);
+    GetNodesAtSurface(mRVFile, mRVSurface);
+    GetNodesAtSurface(mLVFile, mLVSurface);*/
+
+    // Compute the distance map of each surface
+    distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
+    distance_calculator.ComputeDistanceMap(rNodesAtLv, mDistMapLeftVentricle);
+    distance_calculator.ComputeDistanceMap(rNodesAtRv, mDistMapRightVentricle);
+    mNumberOfSurfacesProvided = 3; 
+}                                                              
+                                                               
 template<unsigned SPACE_DIM>
 typename HeartGeometryInformation<SPACE_DIM>::RegionType_
     HeartGeometryInformation<SPACE_DIM>::GetHeartRegion(unsigned nodeIndex) const
@@ -92,53 +118,7 @@ typename HeartGeometryInformation<SPACE_DIM>::RegionType_
     return UNKNOWN;
 }
 
-
-template<unsigned SPACE_DIM>
-double HeartGeometryInformation<SPACE_DIM>::GetAveragedThickness(
-        const unsigned nodeIndex, const std::vector<double>& wallThickness) const
-{
-    // Initialise the average with the value corresponding to the current node
-    double average = wallThickness[nodeIndex];
-    unsigned nodes_visited = 1;
-
-    // Use a set to store visited nodes
-    std::set<unsigned> visited_nodes;
-    visited_nodes.insert(nodeIndex);
-
-    Node<SPACE_DIM>* p_current_node = mrMesh.GetNode(nodeIndex);
-
-    /// \todo The following nested loops appear in DistanceMapCalculator as well, refactor it. Idea: create an iterator over the neighbour nodes in class Node
-
-    // Loop over the elements containing the given node
-    for(typename Node<SPACE_DIM>::ContainingElementIterator element_iterator = p_current_node->ContainingElementsBegin();
-        element_iterator != p_current_node->ContainingElementsEnd();
-        ++element_iterator)
-    {
-        // Get a pointer to the container element
-        Element<SPACE_DIM,SPACE_DIM>* p_containing_element = mrMesh.GetElement(*element_iterator);
-
-       // Loop over the nodes of the element
-       for(unsigned node_local_index=0;
-           node_local_index<p_containing_element->GetNumNodes();
-           node_local_index++)
-       {
-            Node<SPACE_DIM>* p_neighbour_node = p_containing_element->GetNode(node_local_index);
-            unsigned neighbour_node_index = p_neighbour_node->GetIndex();
-
-            // Check if the neighbour node has already been visited
-            if (visited_nodes.find(neighbour_node_index) == visited_nodes.end())
-            {
-                average += wallThickness[neighbour_node_index];
-                visited_nodes.insert(neighbour_node_index);
-                nodes_visited++;
-            }
-       }
-    }
-
-    return average/nodes_visited;
-}
-
-
+/*
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
         const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const
@@ -202,72 +182,81 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     }
 
     file_stream.close();
+}*/
+
+
+template<unsigned SPACE_DIM>
+double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned node_index)
+{
+    // General case where you provide 3 surfaces: LV, RV, epicardium 
+    if ( mNumberOfSurfacesProvided == 3)
+    {
+        RegionType_ node_region = GetHeartRegion(node_index);
+        switch(node_region)
+        {
+            case LEFT_VENTRICLE_SURFACE:
+                case LEFT_VENTRICLE_WALL:
+                    return mDistMapLeftVentricle[node_index];
+                    break;
+            case RIGHT_VENTRICLE_SURFACE:
+                case RIGHT_VENTRICLE_WALL:
+                    return mDistMapRightVentricle[node_index];
+                    break;
+    
+            case LEFT_SEPTUM: 
+            case RIGHT_SEPTUM:
+                    EXCEPTION("We shouldn't be computing wall thickness for a node in the septum.");
+            break;
+    
+            case UNKNOWN:
+                #define COVERAGE_IGNORE
+                std::cerr << "Wrong distances node: " << node_index << "\t"
+                          << "Epi " << mDistMapEpicardium[node_index] << "\t"
+                          << "RV " << mDistMapRightVentricle[node_index] << "\t"
+                          << "LV " << mDistMapLeftVentricle[node_index]
+                          << std::endl;
+    
+                // Make wall_thickness=0 as in Martin's code
+                return 0.0;
+                break;
+                #undef COVERAGE_IGNORE
+        }
+    }
+    // Simplified case where you only provide epi and endo surface definitions
+    else
+    {
+        return mDistMapEndocardium[node_index];
+    }
+    
+    // gcc wants to see a return statement at the end of the method.
+    NEVER_REACHED;
+    return 0.0;
 }
 
 template<unsigned SPACE_DIM>
-double HeartGeometryInformation<SPACE_DIM>::CalculateWallThickness(unsigned node_index)
+double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEpi(unsigned node_index)
+{
+    return mDistMapEpicardium[node_index];
+}
+
+template<unsigned SPACE_DIM>
+double HeartGeometryInformation<SPACE_DIM>::CalculateRelativeWallPosition(unsigned node_index)
 {
     if (PetscTools::NumProcs() > 1)
     {
         assert(node_index < this->mrMesh.rGetNodePermutation().size());
         node_index = this->mrMesh.rGetNodePermutation() [node_index];
     }
+        
+    double dist_endo = GetDistanceToEndo(node_index);
+    double dist_epi = GetDistanceToEpi(node_index);
 
-     DistanceMapCalculator<3> distance_calculator(mrMesh);   
-    
-    // Get nodes defining each surface
-    GetNodesAtSurface(mEpiFile, mEpiSurface);
-    GetNodesAtSurface(mRVFile, mRVSurface);
-    GetNodesAtSurface(mLVFile, mLVSurface);
-
-    // Compute the distance map of each surface
-    mpDistanceCalculator->ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
-    mpDistanceCalculator->ComputeDistanceMap(mRVSurface, mDistMapRightVentricle);
-    mpDistanceCalculator->ComputeDistanceMap(mLVSurface, mDistMapLeftVentricle);
-
-    double dist_epi, dist_endo;
-
-        RegionType_ node_region = GetHeartRegion(node_index);
-
-        switch(node_region)
-        {
-        case LEFT_VENTRICLE_SURFACE:
-            case LEFT_VENTRICLE_WALL:
-                dist_epi = mDistMapEpicardium[node_index];
-                dist_endo = mDistMapLeftVentricle[node_index];
-                break;
-        case RIGHT_VENTRICLE_SURFACE:
-            case RIGHT_VENTRICLE_WALL:
-                dist_epi = mDistMapEpicardium[node_index];
-                dist_endo = mDistMapRightVentricle[node_index];
-                break;
-
-        case LEFT_SEPTUM: 
-            case RIGHT_SEPTUM:
-            EXCEPTION("We shouldn't be computing wall thickness for a node in the septum.");
-            break;
-
-        case UNKNOWN:
-            #define COVERAGE_IGNORE
-            std::cerr << "Wrong distances node: " << node_index << "\t"
-                      << "Epi " << mDistMapEpicardium[node_index] << "\t"
-                      << "RV " << mDistMapRightVentricle[node_index] << "\t"
-                      << "LV " << mDistMapLeftVentricle[node_index]
-                      << std::endl;
-
-            // Make wall_thickness=0 as in Martin's code
-            dist_epi = 1;
-            dist_endo = 0;
-            break;
-            #undef COVERAGE_IGNORE
-        }
-
-        return dist_endo / (dist_endo + dist_epi);
+    return dist_endo / (dist_endo + dist_epi);
 }
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
 //template class HeartGeometryInformation<1>;
-//template class HeartGeometryInformation<2>;
+template class HeartGeometryInformation<2>;
 template class HeartGeometryInformation<3>;

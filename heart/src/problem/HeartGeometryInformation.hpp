@@ -41,54 +41,55 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class HeartGeometryInformation
 {
-    private:
+private:
+
+    enum RegionType_
+    {
+        LEFT_VENTRICLE_WALL,
+        RIGHT_VENTRICLE_WALL,
+        LEFT_SEPTUM,
+        RIGHT_SEPTUM,
+        LEFT_VENTRICLE_SURFACE,
+        RIGHT_VENTRICLE_SURFACE,
+        UNKNOWN
+    };    
+
+
+    // Area of the septum considered to belong to the each ventricle (relative to 1)
+    static const double LEFT_SEPTUM_SIZE;
+    static const double RIGHT_SEPTUM_SIZE;
+
+    double GetDistanceToEndo(unsigned node_index);
+    double GetDistanceToEpi(unsigned node_index);
+    inline RegionType_ GetHeartRegion (unsigned nodeIndex) const;
+
+//    Needed if constructors get filenames instead of vectors
+//    inline void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const;
+//    void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& surfaceVector) const; 
+
+    TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
+
+//    Needed if constructors get filenames instead of vectors        
+//    std::string mEpiFile, mRVFile, mLVFile;
+//    std::vector<unsigned> mEpiSurface, mRVSurface, mLVSurface;
     
-            TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
-            unsigned mNumNodes, mNumElements;
-            DistanceMapCalculator<SPACE_DIM>* mpDistanceCalculator;
-            
-            std::string mEpiFile, mRVFile, mLVFile;
-            std::vector<unsigned> mEpiSurface, mRVSurface, mLVSurface;
-            std::vector<double> mDistMapEpicardium, mDistMapRightVentricle, mDistMapLeftVentricle;
-            
-    public:
+    std::vector<double> mDistMapEpicardium, mDistMapEndocardium, mDistMapRightVentricle, mDistMapLeftVentricle;
+    
+    unsigned mNumberOfSurfacesProvided;
+    
         
-        HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);
-        
-        /**
-         * Destructor - explicitly deletes the mpDistanceCalculator
-         *
-         */
-        ~HeartGeometryInformation();
+public:
     
-        
-        bool mFilesSet;
-    
-        enum RegionType_
-        {
-            LEFT_VENTRICLE_WALL,
-            RIGHT_VENTRICLE_WALL,
-            LEFT_SEPTUM,
-            RIGHT_SEPTUM,
-            LEFT_VENTRICLE_SURFACE,
-            RIGHT_VENTRICLE_SURFACE,
-            UNKNOWN
-        };
-        
-         // Area of the septum considered to belong to the each ventricle (relative to 1)
-        static const double LEFT_SEPTUM_SIZE;
-        static const double RIGHT_SEPTUM_SIZE;
-    
-    
-        inline RegionType_ GetHeartRegion (unsigned nodeIndex) const;
-    
-        inline double GetAveragedThickness(const unsigned nodeIndex, const std::vector<double>& wallThickness) const;
-    
-        inline void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const;
-    
-        void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& surfaceVector) const; 
-        
-        double CalculateWallThickness(unsigned node_index);
+    HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                              std::vector<unsigned>& rNodesAtEpi,
+                              std::vector<unsigned>& rNodesAtEndo);
+                              
+    HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                              std::vector<unsigned>& rNodesAtEpi,
+                              std::vector<unsigned>& rNodesAtLv,
+                              std::vector<unsigned>& rNodesAtRv);
+
+    double CalculateRelativeWallPosition(unsigned node_index);
     
 };
 #endif //HEARTGEOMETRYINFORMATION_HPP_
