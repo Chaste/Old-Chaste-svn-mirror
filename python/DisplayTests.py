@@ -302,8 +302,8 @@ def _summary(req, type, revision, machine=None, buildType=None):
   build_log = "</p>"
   if not _standalone:
     logpath = os.path.realpath(test_set_dir + "/build.log")
-    # Remove the '/var/www/html' part
-    logurl = logpath[13:]
+    # Remove the '/var/www' part
+    logurl = logpath[8:]
     if logurl:
       build_log = "Build log: <a href=\"%s\">%s</a></p>" % (logurl, logurl)
       timings = _parseBuildTimings(logpath).items()
@@ -1021,7 +1021,7 @@ def _footer():
   footer = """\
   <hr />
   <a href="%s">Tests index page</a><br />
-  <a href="https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi">Chaste project website</a>
+  <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi">Chaste project website</a>
   </body>
 </html>""" % _our_url
   return footer
@@ -1053,9 +1053,9 @@ if __name__ == '__main__':
 
   # Alter the configuration slightly
   _tests_dir = '.'
-  _source_browser_url = 'https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/browser/'
-  _trac_url = 'https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/'
-  _our_url = 'https://chaste.ediamond.ox.ac.uk/tests.py'
+  _source_browser_url = 'https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/browser/'
+  _trac_url = 'https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/'
+  _our_url = 'https://chaste.comlab.ox.ac.uk/tests.py'
 
   _fp = file(os.path.join(_dir, 'index.html'), 'w')
 
