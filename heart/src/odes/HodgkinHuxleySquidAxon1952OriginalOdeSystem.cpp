@@ -52,7 +52,7 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
 {
     mpSystemInfo = OdeSystemInformation<HodgkinHuxleySquidAxon1952OriginalOdeSystem>::Instance();
     
-    AbstractCardiacCell::Init();
+    Init();
 }
 
 /**

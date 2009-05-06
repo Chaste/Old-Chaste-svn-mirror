@@ -100,7 +100,7 @@ TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(
     mScaleFactorIto=1.0;
     mScaleFactorGkr=1.0;
 
-    AbstractCardiacCell::Init();
+    Init();
 }
 
 //Destructor

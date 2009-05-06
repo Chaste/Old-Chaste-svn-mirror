@@ -95,7 +95,7 @@ DiFrancescoNoble1985OdeSystem::DiFrancescoNoble1985OdeSystem(AbstractIvpOdeSolve
     RToNF=R*T/F;
 
     //initialise
-    AbstractCardiacCell::Init();
+    Init();
 }
 
 /**

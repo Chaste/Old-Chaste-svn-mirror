@@ -47,7 +47,7 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(
 {
     mpSystemInfo = OdeSystemInformation<FitzHughNagumo1961OdeSystem>::Instance();
     
-    AbstractCardiacCell::Init();
+    Init();
 }
 
 

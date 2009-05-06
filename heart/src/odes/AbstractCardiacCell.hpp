@@ -90,7 +90,7 @@ public:
      *  - set our state variables to the initial conditions,
      *  - set model parameters to their default values.
      */
-    virtual void Init();
+    void Init();
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],

@@ -64,7 +64,7 @@ LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSo
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
 
-    AbstractCardiacCell::Init();
+    Init();
 }
 
 /**
