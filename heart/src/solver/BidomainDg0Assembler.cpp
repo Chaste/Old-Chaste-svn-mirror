@@ -47,7 +47,10 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initial
     {
         return;
     }
+
+    // linear system created here
     BaseClassType::InitialiseForSolve(initialSolution);
+
     if (HeartConfig::Instance()->GetUseAbsoluteTolerance())
     {
         this->mpLinearSystem->SetAbsoluteTolerance(mpConfig->GetAbsoluteTolerance());
@@ -56,8 +59,20 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initial
     {
         this->mpLinearSystem->SetRelativeTolerance(mpConfig->GetRelativeTolerance());
     }
+
     this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
     this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
+
+    if (mRowForAverageOfPhiZeroed==INT_MAX)
+    {   
+        // not applying average(phi)=0 constraint, so matrix is symmetric     
+        this->mpLinearSystem->SetMatrixIsSymmetric(true);
+    }
+    else
+    {    
+        // applying average(phi)=0 constraint, so matrix is not symmetric      
+        this->mpLinearSystem->SetMatrixIsSymmetric(false);
+    }
 }
 
 

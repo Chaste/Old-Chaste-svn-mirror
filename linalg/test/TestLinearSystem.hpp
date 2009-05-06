@@ -497,6 +497,8 @@ public:
 
         VecDestroy(solution_vector);
 
+        // coverage
+        ls.SetMatrixIsSymmetric(false);
     }
 
     void TestNonSymmetricMatrix()

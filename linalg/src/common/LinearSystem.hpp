@@ -166,8 +166,9 @@ public:
 
     /**
      * Force PETSc to treat the matrix in this linear system as symmetric from now on.
+     * @param isSymmetric Whether the matrix is symmetric or not
      */
-    void SetMatrixIsSymmetric();
+    void SetMatrixIsSymmetric(bool isSymmetric=true);
 
     /**
      * Set mMatrixIsConstant.

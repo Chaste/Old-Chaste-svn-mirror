@@ -510,12 +510,6 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     assert(!assembleVector || mpLinearSystem->rGetRhsVector() != NULL);
     assert(!assembleMatrix || mpLinearSystem->rGetLhsMatrix() != NULL);
 
-//        // Is the matrix symmetric?
-//        if (assembleMatrix && !this->mpBoundaryConditions->HasDirichletBoundaryConditions())
-//        {
-//            mpLinearSystem->SetMatrixIsSymmetric();
-//        }
-
     // Replicate the current solution and store so can be used in
     // AssembleOnElement
     if (currentSolutionOrGuess != NULL)

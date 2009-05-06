@@ -48,8 +48,8 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
     double local_min = DBL_MAX;
     double local_max = -DBL_MAX;
     for (DistributedVector::Iterator node_it = DistributedVector::Begin();
-     node_it != DistributedVector::End();
-     ++node_it)
+         node_it != DistributedVector::End();
+         ++node_it)
     {
          double value = rMesh.GetNode(node_it.Global)->rGetLocation()[index];
          if(value < local_min)
@@ -113,16 +113,16 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
 
         for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
         {
-      try
-        {
-          if (fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
-        {
-                mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(rMesh.GetNode(i), p_zero_bc, 1);
-        }
-        }
-      catch(Exception& e)
-        {
-        }
+            try
+            {
+                if (fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
+                {
+                    mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(rMesh.GetNode(i), p_zero_bc, 1);
+                }
+            }
+            catch(Exception& e)
+            {
+            }
         }
 
         //Unused boundary conditions will not be deleted by the b.c. container

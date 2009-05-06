@@ -374,10 +374,19 @@ Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
     return mDirichletBoundaryConditionsVector;
 }
 
-void LinearSystem::SetMatrixIsSymmetric()
+void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 {
-    MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
-    MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
+    if(isSymmetric)
+    {
+        MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
+        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
+    }
+    else
+    {
+        MatSetOption(mLhsMatrix, MAT_NOT_SYMMETRIC);
+        MatSetOption(mLhsMatrix, MAT_NOT_STRUCTURALLY_SYMMETRIC);
+        MatSetOption(mLhsMatrix, MAT_NOT_SYMMETRY_ETERNAL);
+    }        
 }
 
 void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)

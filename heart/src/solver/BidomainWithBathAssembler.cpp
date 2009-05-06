@@ -50,8 +50,6 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
     }
     else // bath element
     {
-
-        ///\todo: the conductivity here is hardcoded to be 7!   also see hardcoded value in TS_ASSERT in Test1dProblemOnlyBathGroundedOneSide
         double bath_cond=HeartConfig::Instance()->GetBathConductivity();
         const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = bath_cond*identity_matrix<double>(SPACE_DIM);
 
@@ -124,33 +122,31 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
 {
     for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
     {
-      /*
-       *  ZeroMatrixColumn and ZeroMatrixRow are collective operations so we need all the processors
-       * calling them. When using ParallelTetrahedralMesh the knowledge about which nodes are bath
-       * is distributed. Processors need to agree before zeroing.
-       */
-      unsigned is_node_bath;
+        // ZeroMatrixColumn and ZeroMatrixRow are collective operations so we need all the processors
+        // calling them. When using ParallelTetrahedralMesh the knowledge about which nodes are bath
+        // is distributed. Processors need to agree before zeroing.
+        unsigned is_node_bath;
 
-      try
-    {
-      if (this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+        try
         {
-          is_node_bath = 1;
+            if (this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+            {
+                is_node_bath = 1;
+            }
+            else
+            {
+                is_node_bath = 0;
+            }
         }
-      else
+        catch(Exception& e)
         {
-          is_node_bath = 0;
+            is_node_bath = 0;
         }
-    }
-      catch(Exception& e)
-    {
-      is_node_bath = 0;
-    }
 
-      unsigned is_node_bath_reduced;
-      MPI_Allreduce(&is_node_bath, &is_node_bath_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        unsigned is_node_bath_reduced;
+        MPI_Allreduce(&is_node_bath, &is_node_bath_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
 
-      if(is_node_bath_reduced > 0) // ie is a bath node
+        if(is_node_bath_reduced > 0) // ie is a bath node
         {
             PetscInt index[1];
             index[0] = 2*i;
