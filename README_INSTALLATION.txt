@@ -262,6 +262,7 @@ The executable Chaste can be found in the apps/src folder.
 To use the correct dynamic libraries you will need to add this to your
 environment (where [*PATH_TO_CHASTE*] is the location of your Chaste
 directory):
+
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:[*PATH_TO_CHASTE*]/linklib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/boost/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/xerces/lib
