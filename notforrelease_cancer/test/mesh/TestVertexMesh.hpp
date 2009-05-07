@@ -1734,12 +1734,17 @@ public:
         // Create nodes
         std::vector<Node<2>*> nodes2;
 
-        // This is a rectangle, centre (0,0), width 1, length sqrt(3), rotated by 30 degrees anticlockwise
+        /* 
+         * This is a trapezoid, width 1, top length 3*sqrt(3), bottom length sqrt(3), 
+         * rotated by 30 degrees anticlockwise
+         */
         nodes2.push_back(new Node<2>(0, false,  1.0, 0.0));
-        nodes2.push_back(new Node<2>(1, false,  0.5, sqrt(3.0)/2.0));
-        nodes2.push_back(new Node<2>(2, false, -1.0, 0.0));
+        nodes2.push_back(new Node<2>(1, false,  2.0, sqrt(3.0)));
+        //nodes2.push_back(new Node<2>(1, false,  0.5, sqrt(3.0)/2.0));
+        //nodes2.push_back(new Node<2>(2, false, -1.0, 0.0));
+        nodes2.push_back(new Node<2>(2, false, -2.5, -sqrt(3.0)/2.0));
         nodes2.push_back(new Node<2>(3, false, -0.5, -sqrt(3.0)/2.0));
-
+        
         // Create element
         std::vector<VertexElement<2,2>*> elements2;
         elements2.push_back(new VertexElement<2,2>(0, nodes2));
@@ -1774,6 +1779,12 @@ public:
         // Test GetShortAxisOfElement() method
         short_axis = mesh3.GetShortAxisOfElement(0);
         TS_ASSERT_DELTA(short_axis(0)*short_axis(0)+short_axis(1)*short_axis(1), 1.0, 1e-6);
+        
+        // This is the same as seeding the random axis
+        TS_ASSERT_DELTA(short_axis(0), 0.8401, 1e-4);
+        TS_ASSERT_DELTA(short_axis(1), 0.5422, 1e-4);
+        
+        
     }
 
 

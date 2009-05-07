@@ -634,26 +634,44 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
 		/*
          * Note these formulae require the polygon to be centered on the origin
          */
+        double a = pos_1(0)*pos_2(1)-pos_2(0)*pos_1(1);
         
-        // Ixx
-        moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
-                                           + pos_1(1)*pos_1(1)*pos_2(1)
-                                           + pos_1(1)*pos_2(1)*pos_2(1)
-                                           + pos_2(1)*pos_2(1)*pos_2(1));
-
+		// Ixx
+        moments(0) += (  pos_1(1)*pos_1(1)
+                       + pos_1(1)*pos_2(1)
+                       + pos_2(1)*pos_2(1) ) * a;
+                       
         // Iyy
-        moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
-                                           + pos_1(0)*pos_1(0)*pos_2(0)
-                                           + pos_1(0)*pos_2(0)*pos_2(0)
-                                           + pos_2(0)*pos_2(0)*pos_2(0));
-
+        moments(1) += (  pos_1(0)*pos_1(0)
+                       + pos_1(0)*pos_2(0)
+                       + pos_2(0)*pos_2(0) ) * a;
+                      
         // Ixy
-        moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
-                      - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
-                      + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
+        moments(2) += (  pos_1(0)*pos_2(1)  
+                       + 2*pos_1(0)*pos_1(1) 
+                       + 2*pos_2(0)*pos_2(1)
+                       + pos_2(0)*pos_1(1) ) * a;
+        // Old Formulae \todo remove and update vertex pdf         
+//        // Ixx
+//        moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
+//                                           + pos_1(1)*pos_1(1)*pos_2(1)
+//                                           + pos_1(1)*pos_2(1)*pos_2(1)
+//                                           + pos_2(1)*pos_2(1)*pos_2(1));
+//
+//        // Iyy
+//        moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
+//                                           + pos_1(0)*pos_1(0)*pos_2(0)
+//                                           + pos_1(0)*pos_2(0)*pos_2(0)
+//                                           + pos_2(0)*pos_2(0)*pos_2(0));
+//
+//        // Ixy
+//        moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
+//                      - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
+//                      + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
     }
 
-    moments(0) /= -12;
+//    moments(0) /= -12;
+    moments(0) /= 12;
     moments(1) /= 12;
     moments(2) /= 24;
 
