@@ -28,11 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTHEARTGEOMETRYINFORMATION_HPP_
 #define TESTHEARTGEOMETRYINFORMATION_HPP_
 
-#include "PetscSetupAndFinalize.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "HeartGeometryInformation.hpp"
 
 #include "MeshalyzerMeshWriter.hpp" //temporal
+#include "PetscSetupAndFinalize.hpp"
 
 class TestHeartGeometryInformation : public CxxTest::TestSuite
 {
