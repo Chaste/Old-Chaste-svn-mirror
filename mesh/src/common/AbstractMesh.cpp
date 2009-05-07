@@ -196,13 +196,20 @@ typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractMesh
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(
+        unsigned elementIndex,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
+        double &rJacobianDeterminant,
+        c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const
 {
     mElements[SolveElementMapping(elementIndex)]->CalculateInverseJacobian(rJacobian, rJacobianDeterminant, rInverseJacobian);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElement(
+        unsigned elementIndex,
+        c_vector<double, SPACE_DIM>& rWeightedDirection,
+        double &rJacobianDeterminant) const
 {
     mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection, rJacobianDeterminant );
 }
