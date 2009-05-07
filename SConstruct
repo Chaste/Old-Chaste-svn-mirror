@@ -274,7 +274,8 @@ def run_xsd(schema_file):
 command = build.tools['xsd'] + ' version 2>&1'
 xsd_version_string = os.popen(command).readline().strip()
 xsd_versions = {'XML Schema Definition Compiler 2.3.1': 2,
-                'CodeSynthesis XSD XML Schema to C++ compiler 3.2.0': 3}
+                'CodeSynthesis XSD XML Schema to C++ compiler 3.2.0': 3,
+                'CodeSynthesis XSD XML Schema to C++ compiler 3.1.1.a3': 3}
 # If it's the old version, always run XSD; otherwise only run if generated code is out of date
 xsd_version = xsd_versions.get(xsd_version_string, None)
 if xsd_version:
@@ -285,7 +286,7 @@ if xsd_version:
         run_xsd('heart/src/io/ChasteParameters.xsd')
 else:
     print "Unexpected XSD program found:"
-    print xsd_version
+    print xsd_version_string
     sys.exit(1)
 
 # Find full path to valgrind, as parallel memory testing needs it to be
