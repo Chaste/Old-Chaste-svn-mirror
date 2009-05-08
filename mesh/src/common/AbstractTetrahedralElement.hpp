@@ -102,9 +102,8 @@ public:
      */
     void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian); //const
 
-///\todo Re-implement
     /** Get the volume of an element (or area in 2d, or length in 1d) */
-    double GetVolume(); //const?
+    double GetVolume(double determinant) const;
 
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)
@@ -284,7 +283,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateInverseJacobia
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::GetVolume()
+double AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::GetVolume(double determinant) const
 {
     assert(SPACE_DIM == ELEMENT_DIM);
 
@@ -293,12 +292,6 @@ double AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::GetVolume()
         return 0.0;
     }
 
-    // Create Jacobian
-    ///\todo We don't want to create new data, calculation and throw the answer away
-    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
-    double determinant;
-
-    CalculateJacobian(jacobian, determinant);
     double scale_factor = 1.0;
 
     if (ELEMENT_DIM == 2)
@@ -374,7 +367,7 @@ public:
      * @param rWeightedDirection  the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian
      */
-    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove=true);
+    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant);
 
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)
@@ -419,8 +412,7 @@ AbstractTetrahedralElement<0, SPACE_DIM>::AbstractTetrahedralElement(unsigned in
 template<unsigned SPACE_DIM>
 void AbstractTetrahedralElement<0, SPACE_DIM>::CalculateWeightedDirection(
         c_vector<double, SPACE_DIM>& rWeightedDirection,
-        double &rJacobianDeterminant,
-        bool concreteMove)
+        double &rJacobianDeterminant)
 {
     assert(SPACE_DIM > 0);
 
@@ -428,11 +420,7 @@ void AbstractTetrahedralElement<0, SPACE_DIM>::CalculateWeightedDirection(
     rWeightedDirection = zero_vector<double>(SPACE_DIM);
     rWeightedDirection(0) = 1.0;
 
-    rJacobianDeterminant = norm_2(rWeightedDirection);
-    if (rJacobianDeterminant < DBL_EPSILON)
-    {
-        EXCEPTION("Jacobian determinant is zero");
-    }
+    rJacobianDeterminant = 1.0;
 }
 
 template<unsigned SPACE_DIM>

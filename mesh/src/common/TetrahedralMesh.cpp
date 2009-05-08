@@ -250,7 +250,7 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateVolume()
 
     while (it != this->GetElementIteratorEnd())
     {
-        mesh_volume += (*it)->GetVolume();
+        mesh_volume += (*it)->GetVolume(mElementJacobianDeterminants[(*it)->GetIndex()]);
         it++;
     }
 
@@ -1418,32 +1418,6 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<E
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 {
-    for (unsigned i=0; i<this->mElements.size();i++)
-    {
-        if (!this->mElements[i]->IsDeleted())
-        {
-// 767 remove
-//            this->mElements[i]->RefreshJacobianDeterminant();
-        }
-    }
-
-    //Refresh each boundary element
-    for (unsigned i=0; i<this->mBoundaryElements.size();i++)
-    {
-        if (!this->mBoundaryElements[i]->IsDeleted())
-        {
-            try
-            {
-// 767 remove
-//                this->mBoundaryElements[i]->RefreshJacobianDeterminant();
-            }
-            catch (Exception e)
-            {
-                //Since we may have rotated the mesh, it's okay for normals to swing round
-            }
-        }
-    }
-
     RefreshJacobianCachedData();
 }
 

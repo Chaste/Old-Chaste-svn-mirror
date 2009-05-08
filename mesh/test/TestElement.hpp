@@ -72,8 +72,15 @@ public:
         {
             TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
         }
-
-        TS_ASSERT_DELTA(element.GetVolume(), 1.0/6.0,1e-5);
+        
+        
+        c_matrix<double, 3, 3> jacob;
+        double det;
+       
+        element.CalculateJacobian(jacob, det);
+        
+        TS_ASSERT_DELTA(det, 1.0, 1e-5);
+        TS_ASSERT_DELTA(element.GetVolume(det), 1.0/6.0, 1e-5);
 
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {
@@ -147,7 +154,7 @@ public:
         element1d.CalculateInverseJacobian(J1d, det_1d, J1dinv);
 
         TS_ASSERT_DELTA(J1d(0,0), 0.5, 1e-12);
-        TS_ASSERT_DELTA(element1d.GetVolume(), 0.5,1e-5);
+        TS_ASSERT_DELTA(element1d.GetVolume(det_1d), 0.5, 1e-5);
         TS_ASSERT_DELTA(det_1d, 0.5, 1e-12);
         TS_ASSERT_DELTA(J1dinv(0,0), 2.0, 1e-12);
 
@@ -168,7 +175,8 @@ public:
         TS_ASSERT_DELTA(J2d(0,1), 0.0, 1e-12);
         TS_ASSERT_DELTA(J2d(1,0), 0.0, 1e-12);
         TS_ASSERT_DELTA(J2d(1,1), 1.0, 1e-12);
-        TS_ASSERT_DELTA(element2d.GetVolume(), 0.5, 1e-5);
+        TS_ASSERT_DELTA(det, 1.0, 1e-5);
+        TS_ASSERT_DELTA(element2d.GetVolume(det), 0.5, 1e-5);
 
         delete nodes2d[0];
         delete nodes2d[1];
@@ -805,6 +813,7 @@ public:
         TS_ASSERT_DELTA(det, 3e-05, 1e-6);
 
         // Testing invariants
+        mesh.RefreshMesh();
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.01, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 0.4, 1e-6);
     }
@@ -851,6 +860,7 @@ public:
         TS_ASSERT_DELTA(det, 0.0125, 1e-6);
 
         // Testing invariants
+        mesh.RefreshMesh();
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
 
@@ -869,6 +879,7 @@ public:
         TS_ASSERT_DELTA(det, 0.01125, 1e-6);
 
         // Testing invariants
+        mesh.RefreshMesh();
         TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
         TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
     }
