@@ -46,14 +46,14 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ParallelTetrahedralMesh<2,2> mesh;
-    mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-    /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
-    std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
-    if (r_nodes_per_processor.size() > 0)
-    {
-      DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
-    }
+        /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
+        std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
+        if (r_nodes_per_processor.size() > 0)
+        {
+            DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
+        }
 
         double magnitude = 543.324;
         double duration = 2.0; //ms
@@ -62,7 +62,7 @@ public:
         BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
 
         for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter
-                = mesh.GetBoundaryElementIteratorBegin();
+           = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
         {
@@ -74,9 +74,9 @@ public:
         }
 
         unsigned num_grounded_nodes = 0u;
-    for(DistributedVector::Iterator node_it = DistributedVector::Begin();
-        node_it != DistributedVector::End();
-        ++node_it)
+        for(DistributedVector::Iterator node_it = DistributedVector::Begin();
+            node_it != DistributedVector::End();
+            ++node_it)
         {
             Node<2>* p_node = mesh.GetNode(node_it.Global);
             if (p_bcc->HasDirichletBoundaryCondition(p_node, 1))
@@ -88,9 +88,10 @@ public:
             }
         }
 
-    unsigned num_grounded_nodes_reduced;
-    int mpi_ret = MPI_Allreduce(&num_grounded_nodes, &num_grounded_nodes_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-    assert(mpi_ret == MPI_SUCCESS);
+        unsigned num_grounded_nodes_reduced;
+        int mpi_ret = MPI_Allreduce(&num_grounded_nodes, &num_grounded_nodes_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        TS_ASSERT_EQUALS(mpi_ret, MPI_SUCCESS);
+        
         TS_ASSERT_EQUALS(num_grounded_nodes_reduced, 11u);
 
         TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration));
@@ -110,14 +111,14 @@ public:
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ParallelTetrahedralMesh<2,2> mesh;
-    mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-    /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
-    std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
-    if (r_nodes_per_processor.size() > 0)
-    {
-      DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
-    }
+        /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
+        std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
+        if (r_nodes_per_processor.size() > 0)
+        {
+            DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
+        }
 
         double magnitude = 543.324;
         double duration = 2.0;
