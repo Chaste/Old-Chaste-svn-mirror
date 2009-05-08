@@ -1512,21 +1512,21 @@ public:
         nodes.push_back(new Node<2>(4, false, 0.0, 2.0));
 
         // Make a rectangular element out of nodes 0,1,2,3
-        std::vector<Node<2>*> nodes_elem_1;
-        nodes_elem_1.push_back(nodes[0]);
-        nodes_elem_1.push_back(nodes[1]);
-        nodes_elem_1.push_back(nodes[2]);
-        nodes_elem_1.push_back(nodes[3]);
+        std::vector<Node<2>*> nodes_elem_0;
+        nodes_elem_0.push_back(nodes[0]);
+        nodes_elem_0.push_back(nodes[1]);
+        nodes_elem_0.push_back(nodes[2]);
+        nodes_elem_0.push_back(nodes[3]);
 
         // Make a triangular element out of nodes 1,4,2
-        std::vector<Node<2>*> nodes_elem_2;
-        nodes_elem_2.push_back(nodes[1]);
-        nodes_elem_2.push_back(nodes[4]);
-        nodes_elem_2.push_back(nodes[2]);
+        std::vector<Node<2>*> nodes_elem_1;
+        nodes_elem_1.push_back(nodes[1]);
+        nodes_elem_1.push_back(nodes[4]);
+        nodes_elem_1.push_back(nodes[2]);
 
         std::vector<VertexElement<2,2>*> vertex_elements;
-        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_1));
-        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_2));
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
         VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
@@ -1597,7 +1597,7 @@ public:
 
         std::vector<Node<2>*> nodes_elem;
 
-        // Make one rectangular element out of these nodes
+        // Make one element out of these nodes
         nodes_elem.push_back(nodes[0]);
         nodes_elem.push_back(nodes[1]);
         nodes_elem.push_back(nodes[2]);
@@ -1640,6 +1640,64 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 1.6520, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 2.3260, 1e-4);
     }
+    
+    
+    void TestDivideVertexElementWhereNewNodesAreMerged() throw(Exception)
+    {
+        // Make 6 nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, -1.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(3, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(4, false, 0.5, 1.0));
+        nodes.push_back(new Node<2>(5, false, -1.0, 1.0));
+        std::vector<Node<2>*> nodes_elem;
+
+        // Make one rectangular element out of these nodes
+        nodes_elem.push_back(nodes[0]);
+        nodes_elem.push_back(nodes[1]);
+        nodes_elem.push_back(nodes[2]);
+        nodes_elem.push_back(nodes[3]);
+        nodes_elem.push_back(nodes[4]);
+        nodes_elem.push_back(nodes[5]);
+        
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes_elem));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> mesh(nodes, elements);
+
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
+
+        // Divide element 
+        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(0));
+
+        TS_ASSERT_EQUALS(new_element_index, 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(4)->GetIndex(), 6u);
+        
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(3)->GetIndex(), 5u);
+        
+
+        // Test locations of new node
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 1.0, 1e-4);
+    }
+    
 
     void TestCalculateMomentOfElement() throw(Exception)
     {

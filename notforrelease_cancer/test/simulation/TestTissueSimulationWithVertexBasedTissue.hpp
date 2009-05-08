@@ -187,7 +187,7 @@ public:
     void TestVertexMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 5, 0.01, 2.0);
+        VertexMesh<2,2> mesh(5, 5, 0.1, 1.0);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index
@@ -203,6 +203,17 @@ public:
                 cell_type = STEM;
                 birth_time = -23.5;
             }
+//            else if (elem_index==15)
+//            {
+//                cell_type = STEM;
+//                birth_time = -23.75;
+//            }
+//            
+//            else if (elem_index==18)
+//            {
+//                cell_type = STEM;
+//                birth_time = -23.25;
+//            }
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
@@ -229,12 +240,12 @@ public:
         // Run simulation
         simulator.Solve();
 
-        // Check that cell 4 divided successfully
+        // Check that cell 12 divided successfully
         unsigned new_num_nodes = simulator.rGetTissue().GetNumNodes();
         unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
         unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
 
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+2);
+        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+3); // as division of element is longer than threshold so is divided
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
     }
