@@ -474,11 +474,13 @@ public:
 
         Element<1,1> element(0, nodes);
 
-        c_vector <double, 2> circum=element.CalculateCircumsphere();
+        c_matrix<double, 1, 1> jacobian, inverse_jacobian;
+        double det;
+        element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
+        c_vector <double, 2> circum=element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum[0], 12.5, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum[1]), 2.5, 1e-7);
 
-        TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 5.0, 1e-7);
         TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
 
         for (unsigned i=0; i<nodes.size(); i++)
@@ -496,12 +498,15 @@ public:
 
         Element<2,2> equilateral_element(0, equilateral_nodes);
 
-        c_vector <double, 3> circum=equilateral_element.CalculateCircumsphere();
+        c_matrix<double, 2, 2> jacobian, inverse_jacobian;
+        double det;
+        
+        equilateral_element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
+        c_vector <double, 3> circum=equilateral_element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
         TS_ASSERT_DELTA(circum[1], 0.0, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum[2]), 2.0, 1e-7);
 
-        TS_ASSERT_DELTA(equilateral_element.CalculateCircumsphereVolume(), 4.0*M_PI, 1e-7);
         TS_ASSERT_DELTA(equilateral_element.CalculateQuality(), 1.0, 1e-7);
 
         std::vector<Node<2>*> right_angle_nodes;
@@ -510,12 +515,12 @@ public:
         right_angle_nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
         Element<2,2> right_angle_element(0, right_angle_nodes);
 
-        c_vector <double, 3> circum2=right_angle_element.CalculateCircumsphere();
+        right_angle_element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
+        c_vector <double, 3> circum2=right_angle_element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
         TS_ASSERT_DELTA(circum2[1], 0.5, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum2[2]), 1.0/sqrt(2.0), 1e-7);
 
-        TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), M_PI_2, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 4.0*sqrt(3.0)/9.0, 1e-7);
 
         for (unsigned i=0; i<equilateral_nodes.size(); i++)
@@ -538,14 +543,15 @@ public:
 
         Element<3,3> element(0, nodes);
 
-        c_vector <double, 4> circum=element.CalculateCircumsphere();
+        c_matrix<double, 3, 3> jacobian, inverse_jacobian;
+        double det;
+        element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
+        c_vector <double, 4> circum=element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
         TS_ASSERT_DELTA(circum[1], 0.0, 1e-7);
         TS_ASSERT_DELTA(circum[2], 0.0, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum[3]), sqrt(3.0), 1e-7);
 
-        TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 4.0*M_PI*sqrt(3), 1e-7);
-        TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 4.0*M_PI*sqrt(3), 1e-7);
         TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
 
         std::vector<Node<3>*> right_angle_nodes;
@@ -556,13 +562,13 @@ public:
 
         Element<3,3> right_angle_element(0, right_angle_nodes);
 
-        c_vector <double, 4> circum2=right_angle_element.CalculateCircumsphere();
+        right_angle_element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
+        c_vector <double, 4> circum2=right_angle_element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
         TS_ASSERT_DELTA(circum2[1], 0.5, 1e-7);
         TS_ASSERT_DELTA(circum2[2], 0.5, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum2[3]), sqrt(3.0)/2.0, 1e-7);
 
-        TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), sqrt(3)*M_PI_2, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 0.5, 1e-7);
 
         for (unsigned i=0; i<right_angle_nodes.size(); i++)
@@ -619,7 +625,7 @@ public:
 
         nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
         Element<3,3> element_3d(0, nodes);
-
+        //Weighted direction only makes sense in a subspace element
         TS_ASSERT_THROWS_ANYTHING(element_3d.CalculateWeightedDirection(direction,det));
 
         // 3D element in 3D space has no orientation (other than JacobianDeterminant)

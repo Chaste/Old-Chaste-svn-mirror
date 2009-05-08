@@ -65,7 +65,6 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Element<ELEMENT_DIM, SPACE_DIM>::MarkAsDeleted()
 {
     this->mIsDeleted = true;
-//    this->mJacobianDeterminant = 0.0;
     // Update nodes in this element so they know they are not contained by us
     for (unsigned i=0; i<this->GetNumNodes(); i++)
     {
@@ -104,57 +103,6 @@ void Element<ELEMENT_DIM, SPACE_DIM>::ResetIndex(unsigned index)
     //std::cout << "\nResetIndex - done.\n" << std::flush;
     this->mIndex=index;
     RegisterWithNodes();
-}
-
-/**
- * Calculate the circumsphere/circumcircle of this element.
- *
- * @returns a vector containing x_centre, y_centre,...,radius^2
- */
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphere()
-{
-    /*Assuming that x0,y0.. is at the origin then we need to solve
-     *
-     * ( 2x1 2y1 2z1  ) (x)    (x1^2+y1^2+z1^2)
-     * ( 2x2 2y2 2z2  ) (y)    (x2^2+y2^2+z2^2)
-     * ( 2x3 2y3 2z3  ) (z)    (x3^2+y3^2+z3^2)
-     * where (x,y,z) is the circumcentre
-     *
-     */
-    assert(ELEMENT_DIM == SPACE_DIM);
-    c_vector <double, ELEMENT_DIM> rhs;
-
-    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
-    c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
-    double jacobian_determinant;
-
-    CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
-
-    for (unsigned j=0; j<ELEMENT_DIM; j++)
-    {
-        double squared_location=0.0;
-        for (unsigned i=0; i<SPACE_DIM; i++)
-        {
-            //mJacobian(i,j) is the i-th component of j-th vertex (relative to vertex 0)
-            squared_location += jacobian(i,j)*jacobian(i,j);
-        }
-        rhs[j]=squared_location/2.0;
-    }
-
-    c_vector <double, SPACE_DIM> centre;
-    centre = prod(rhs, inverse_jacobian);
-    c_vector <double, SPACE_DIM+1> circum;
-    double squared_radius=0.0;
-    for (unsigned i=0; i<SPACE_DIM; i++)
-    {
-        circum[i] = centre[i] + this->GetNodeLocation(0,i);
-        squared_radius += centre[i]*centre[i];
-    }
-    circum[SPACE_DIM] = squared_radius;
-
-    return circum;
-
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -197,22 +145,6 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
     return circum;
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsphereVolume()
-{
-    c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
-    if (SPACE_DIM == 1)
-    {
-        return 2.0*sqrt(circum[SPACE_DIM]); //2*r
-    }
-    else if (SPACE_DIM == 2)
-    {
-        return M_PI*circum[SPACE_DIM]; //Pi*r^2
-    }
-    assert(SPACE_DIM == 3);
-    return 4.0*M_PI*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM])/3.0; //4*Pi*r^3/3
-}
-
 /**
  * The quality of a triangle/tetrahedron is the ratio between the
  * volume of the shape and the volume of its circumsphere.
@@ -228,11 +160,12 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
     }
 
     c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
+    c_matrix<double, ELEMENT_DIM, SPACE_DIM> jacobian_inverse;
     double jacobian_determinant;
 
-    CalculateJacobian(jacobian, jacobian_determinant);
+    CalculateInverseJacobian(jacobian, jacobian_determinant, jacobian_inverse);
 
-    c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
+    c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere(jacobian, jacobian_inverse);
     if (SPACE_DIM == 2)
     {
         /* Want Q=(Area_Tri / Area_Cir) / (Area_Equilateral_Tri / Area_Equilateral_Cir)
@@ -240,13 +173,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
          * Area_Cir = Pi * r^2
          * Area_Eq_Tri = (3*sqrt(3)/4)*R^2
          * Area_Eq_Tri = Pi * R^2
-         * Q= (2*|Jacobian|)/ (    bool CalculateVoronoiElement(c_vector <double, 3> first_node, c_vector <double, 3> second_node)
-        {
-        double x_diff_sqr = ((first_node[0] - second_node[0])*(first_node[0] - second_node[0]));
-        double y_diff_sqr = ((first_node[1] - second_node[1])*(first_node[1] - second_node[1]));
-
-        return ((x_diff_sqr + y_diff_sqr) > first_node[2]);
-        }3*sqrt(3)*r^2)
+         * Q= (2*|Jacobian|)/3*sqrt(3)*r^2)
          */
         return 2.0*jacobian_determinant/(3.0*sqrt(3)*circum[SPACE_DIM]);
     }
@@ -342,6 +269,7 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(Chaste
     c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
 
+    ///\todo This method shouldn't need a new Jacobian inverse for every Psi
     CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
 
     return prod(inverse_jacobian, test_location);

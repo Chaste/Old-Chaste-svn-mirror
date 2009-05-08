@@ -49,7 +49,7 @@ class Test1D3DLinearEllipticAssembler : public CxxTest::TestSuite
 {
 public:
 
-    void TestWithPoissonsEquation1dMeshIn2dSpace()
+    void TestWithPoissonsEquation1dMeshIn2dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 2;
         const unsigned ELEM_DIM = 1;
@@ -84,7 +84,7 @@ public:
         VecDestroy(result);
     }
     
-    void TestWithPoissonsEquation1dMeshIn3dSpace()
+    void TestWithPoissonsEquation1dMeshIn3dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 3;
         const unsigned ELEM_DIM = 1;
@@ -120,7 +120,7 @@ public:
         VecDestroy(result);
     }
     
-    void TestBranchedPoissonsEquation1dMeshIn3dSpace()
+    void TestBranchedPoissonsEquation1dMeshIn3dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 3;
         const unsigned ELEM_DIM = 1;

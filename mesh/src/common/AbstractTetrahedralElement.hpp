@@ -72,16 +72,6 @@ public:
     {}
 
     /**
-     * \todo This method does not appear to be used anywhere - remove it?
-     */
-    void ZeroJacobianDeterminant();
-
-    /**
-     * \todo This method does not appear to be used anywhere - remove it?
-     */
-    void ZeroWeightedDirection();
-
-    /**
      * Get the location of the centroid of the element.
      */
     c_vector<double, SPACE_DIM> CalculateCentroid() const;
@@ -100,9 +90,8 @@ public:
      *
      * @param rWeightedDirection  the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian
-     * @param concreteMove \todo this argument is not used in the method - should it be removed? (defaults to true)
      */
-    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove=true);
+    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant);
 
     /**
      * Compute the inverse Jacobian for this element.
@@ -163,11 +152,10 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     // Create Jacobian
     ///\todo We don't want to create new data, calculation and throw the answer away
     c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
-    c_vector<double, SPACE_DIM> weighted_direction;
-    double det;
 
     if (SPACE_DIM == ELEMENT_DIM)
     {
+        double det;
         try
         {
             CalculateJacobian(jacobian, det);
@@ -181,16 +169,12 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
             this->mNodes[total_nodes-2] = rNodes[total_nodes-1];
 
             CalculateJacobian(jacobian, det);
+            // If determinant < 0 then element nodes are listed clockwise.
+            // We want them anticlockwise.
+            assert(det > 0.0);
         }
     }
-    else
-    {
-        CalculateWeightedDirection(weighted_direction, det);
-    }
-
-    // If determinant < 0 then element nodes are listed clockwise.
-    // We want them anticlockwise.
-    assert(det > 0.0);
+    // else - don't bother working out the chirality
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -219,8 +203,9 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_mat
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant)
 {
+ 
     if(ELEMENT_DIM >= SPACE_DIM)
     {
         assert(ELEMENT_DIM == SPACE_DIM);
@@ -233,56 +218,47 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
     //At this point we're only dealing with subspace (ELEMENT_DIM < SPACE_DIM) elem
     //We assume that the rWeightedDirection vector and rJacobianDeterminant (length of vector)
     //are the values from a previous call.
-    //rJacobianDeterminant=0.0 signifies that this is the first calculation on this element.
-    c_vector<double, SPACE_DIM> weighted_direction;
-//    bool refresh=false;
-//
-//    if (rJacobianDeterminant > 0) // 767 Checking against the reference we are getting?
-//    {
-//        refresh=true;
-//    }
-
 
     //This code is only used when ELEMENT_DIM<SPACE_DIM
     switch (ELEMENT_DIM)
     {
         case 0:
-            // End point of a line
-            weighted_direction=zero_vector<double>(SPACE_DIM);
-            weighted_direction(0)=1.0;
+            NEVER_REACHED; //See specialised template for ELEMENT_DIM==0
             break;
         case 1:
             // Linear edge in a 2D plane or in 3D
 
-            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,ELEMENT_DIM> >(jacobian,0);
+            rWeightedDirection=matrix_column<c_matrix<double,SPACE_DIM,ELEMENT_DIM> >(jacobian,0);
             break;
         case 2:
             // Surface triangle in a 3d mesh
             assert(SPACE_DIM == 3);
-            weighted_direction(0)=-SubDeterminant(jacobian,0,2);
-            weighted_direction(1)= SubDeterminant(jacobian,1,2);
-            weighted_direction(2)=-SubDeterminant(jacobian,2,2);
+            rWeightedDirection(0)=-SubDeterminant(jacobian,0,2);
+            rWeightedDirection(1)= SubDeterminant(jacobian,1,2);
+            rWeightedDirection(2)=-SubDeterminant(jacobian,2,2);
             break;
         default:
            ; // Not going to happen
     }
-    double jacobian_determinant = norm_2(weighted_direction);
-    if (jacobian_determinant < DBL_EPSILON)
+    rJacobianDeterminant = norm_2(rWeightedDirection);
+    
+    if (rJacobianDeterminant < DBL_EPSILON)
     {
         EXCEPTION("Jacobian determinant is zero");
     }
-//    if (refresh == true)
+
+//    if (ELEMENT_DIM == 2)
 //    {
-//        if ( inner_prod(rWeightedDirection, weighted_direction) < 0)
+//        //Check that weighted-direction and the generalised determinant are giving the same thing
+//        double absolute_difference=fabs(rJacobianDeterminant - Determinant(jacobian));
+//        double relative_difference=absolute_difference/rJacobianDeterminant;
+//        if (relative_difference >= 10 * DBL_EPSILON)
 //        {
-//            EXCEPTION("Subspace element has changed direction");
+//#include "Debug.hpp"
+//            PRINT_4_VARIABLES(absolute_difference, relative_difference/DBL_EPSILON, rJacobianDeterminant, SPACE_DIM);
 //        }
 //    }
-//    if (concreteMove)
-//    {
-        rJacobianDeterminant = jacobian_determinant;
-        rWeightedDirection = weighted_direction;
-//    }
+
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -397,7 +373,6 @@ public:
      *
      * @param rWeightedDirection  the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian
-     * @param concreteMove \todo this argument is not used in the method - should it be removed? (defaults to true)
      */
     void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant, bool concreteMove=true);
 
