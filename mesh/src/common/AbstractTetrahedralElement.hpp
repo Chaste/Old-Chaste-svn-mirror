@@ -386,8 +386,8 @@ AbstractTetrahedralElement<0, SPACE_DIM>::AbstractTetrahedralElement(unsigned in
     : AbstractElement<0, SPACE_DIM>(index, rNodes)
 {
     // Sanity checking
-    unsigned total_nodes = 1;
-    assert(this->mNodes.size() == total_nodes);
+    //unsigned total_nodes = 1;
+    assert(this->mNodes.size() == 1);
     assert(SPACE_DIM > 0);
 
     // This is so we know it's the first time of asking
