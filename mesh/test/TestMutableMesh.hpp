@@ -266,7 +266,7 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double reference_volume = mesh.CalculateVolume();
+        double reference_volume = mesh.GetVolume();
 
         const int interior_node_index = 34;
         Node<3>* p_node = mesh.GetNode(interior_node_index);
@@ -291,7 +291,7 @@ public:
         TS_ASSERT_DELTA(jacobian_det, 0.125, 1e-6);
 
         // Check the mesh volume hasn't changed
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), reference_volume, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), reference_volume, 1e-6);
 
         // Nudge
         point.SetCoordinate(2, 0.9);
@@ -346,7 +346,7 @@ public:
         mesh.SetNode(exterior_node_index, point);
 
         // Check mesh volume has changed
-        TS_ASSERT(fabs(mesh.CalculateVolume() - reference_volume) > 1e-1);
+        TS_ASSERT(fabs(mesh.GetVolume() - reference_volume) > 1e-1);
     }
 
     void Test1DMeshIn2DSetPoint()
@@ -594,7 +594,7 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(mesh.CalculateVolume(), 1.0);
+        TS_ASSERT_EQUALS(mesh.GetVolume(), 1.0);
         TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(0, 1));
     }
 
@@ -604,7 +604,7 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double length = mesh.CalculateVolume();
+        double length = mesh.GetVolume();
         const int node_index = 3;
         const int target_index = 4;
         const int not_neighbour_index = 5;
@@ -626,7 +626,7 @@ public:
         mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
         TS_ASSERT_DELTA(jacobian_det, 0.0, 1e-6);
 
-        TS_ASSERT_DELTA(length, mesh.CalculateVolume(), 1e-6);
+        TS_ASSERT_DELTA(length, mesh.GetVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 1);
     }
 
@@ -636,7 +636,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double area = mesh.CalculateVolume();
+        double area = mesh.GetVolume();
 
         // Node 432 is supported by a non-convex region
         // Node 206 is the sole reflex vertex in the region
@@ -669,7 +669,7 @@ public:
         // Added "crossReference=false" to stop elements deregistering
         mesh.MoveMergeNode(node_index, target_index);
 
-        TS_ASSERT_DELTA(area, mesh.CalculateVolume(), 1e-6);
+        TS_ASSERT_DELTA(area, mesh.GetVolume(), 1e-6);
         mesh.GetJacobianForElement(309, jacobian, jacobian_det);
         TS_ASSERT_DELTA(jacobian_det, 0.0, 1e-6);
 
@@ -684,7 +684,7 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double volume = mesh.CalculateVolume();
+        double volume = mesh.GetVolume();
         const int node_index = 22; // in the middle
         const int target_index = 310;
         const int not_neighbour_index = 204;
@@ -695,7 +695,7 @@ public:
         //Added "crossReference=false" to stop elements deregistering
 
         TS_ASSERT_THROWS_NOTHING( mesh.MoveMergeNode(node_index, target_index));
-        TS_ASSERT_DELTA(volume, mesh.CalculateVolume(), 1e-6);
+        TS_ASSERT_DELTA(volume, mesh.GetVolume(), 1e-6);
 
         //Ten elements share 22 and 310.  See:
         /*   Element      N1    N2    N3    N4
@@ -720,8 +720,8 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double area = mesh.CalculateVolume();
-        double perim = mesh.CalculateSurfaceArea();
+        double area = mesh.GetVolume();
+        double perim = mesh.GetSurfaceArea();
         unsigned num_nodes = mesh.GetNumNodes();
         unsigned num_elements = mesh.GetNumElements();
         unsigned num_boundary_elements = mesh.GetNumBoundaryElements();
@@ -732,8 +732,8 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_boundary_index));
         mesh.MoveMergeNode(node_index, target_index);
 
-        TS_ASSERT_DELTA(area - mesh.CalculateVolume(), 1.24e-4, 1e-6);
-        TS_ASSERT_DELTA(perim - mesh.CalculateSurfaceArea(), 6.20e-5, 1e-7);
+        TS_ASSERT_DELTA(area - mesh.GetVolume(), 1.24e-4, 1e-6);
+        TS_ASSERT_DELTA(perim - mesh.GetSurfaceArea(), 6.20e-5, 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1u);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1u);
@@ -745,8 +745,8 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double area = mesh.CalculateVolume();
-        double perim = mesh.CalculateSurfaceArea();
+        double area = mesh.GetVolume();
+        double perim = mesh.GetSurfaceArea();
         int num_nodes = mesh.GetNumNodes();
         unsigned num_elements = mesh.GetNumElements();
         unsigned num_boundary_elements = mesh.GetNumBoundaryElements();
@@ -757,8 +757,8 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_boundary_index));
         mesh.MoveMergeNode(node_index, target_index);
 
-        TS_ASSERT_DELTA(area - mesh.CalculateVolume(), 0.00, 1e-6);
-        TS_ASSERT_DELTA(perim - mesh.CalculateSurfaceArea(), 0.00, 1e-7);
+        TS_ASSERT_DELTA(area - mesh.GetVolume(), 0.00, 1e-6);
+        TS_ASSERT_DELTA(perim - mesh.GetSurfaceArea(), 0.00, 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1u);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1u);
@@ -767,8 +767,8 @@ public:
         const int corner_target_index = 19;
         mesh.MoveMergeNode(corner_index, corner_target_index);
 
-        TS_ASSERT_DELTA(area - mesh.CalculateVolume(), 1.25e-5, 1e-7);
-        TS_ASSERT_DELTA(perim - mesh.CalculateSurfaceArea(), 2.92893e-3, 1e-7);
+        TS_ASSERT_DELTA(area - mesh.GetVolume(), 1.25e-5, 1e-7);
+        TS_ASSERT_DELTA(perim - mesh.GetSurfaceArea(), 2.92893e-3, 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 2u);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2u);
@@ -780,8 +780,8 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double volume = mesh.CalculateVolume();
-        double surface = mesh.CalculateSurfaceArea();
+        double volume = mesh.GetVolume();
+        double surface = mesh.GetSurfaceArea();
         unsigned num_nodes = mesh.GetNumNodes();
         unsigned num_elements = mesh.GetNumElements();
         unsigned num_boundary_elements = mesh.GetNumBoundaryElements();
@@ -791,8 +791,8 @@ public:
 
         mesh.MoveMergeNode(node_index, target_index);
 
-        TS_ASSERT_DELTA(volume, mesh.CalculateVolume(), 1e-7);
-        TS_ASSERT_DELTA(surface, mesh.CalculateSurfaceArea(), 1e-7);
+        TS_ASSERT_DELTA(volume, mesh.GetVolume(), 1e-7);
+        TS_ASSERT_DELTA(surface, mesh.GetSurfaceArea(), 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1u);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 3u);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2u);
@@ -857,22 +857,22 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(2,3);
 
-        TS_ASSERT_EQUALS(mesh.CalculateVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetVolume(), 6.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
 
         // Delete from interior
         mesh.DeleteNode(7);
-        TS_ASSERT_EQUALS(mesh.CalculateVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetVolume(), 6.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 11u);
 
         // Delete from edge
         mesh.DeleteNode(5);
-        TS_ASSERT_EQUALS(mesh.CalculateVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetVolume(), 6.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10u);
 
         // Delete from corner
         mesh.DeleteNode(2);
-        TS_ASSERT_EQUALS(mesh.CalculateVolume(), 5.0);
+        TS_ASSERT_EQUALS(mesh.GetVolume(), 5.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
 
         // Deleting a deleted node should throw an exception
@@ -1019,7 +1019,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 0.3333, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 0.3333, 1e-4);
     }
 
     void TestEdgeIterator() throw(Exception)

@@ -119,8 +119,8 @@ public:
         //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96u);
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-15);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-16);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-15);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-16);
 
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
@@ -140,8 +140,8 @@ public:
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.25e-4, 1e-16);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 0.015, 1e-15);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 1.25e-4, 1e-16);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 0.015, 1e-15);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 425u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1889u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 436u);
@@ -387,8 +387,8 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        double volume = mesh.CalculateVolume();
-        double surface = mesh.CalculateSurfaceArea();
+        double volume = mesh.GetVolume();
+        double surface = mesh.GetSurfaceArea();
 
         Node<3>* p_node0 = mesh.GetNode(0);
         Node<3>* p_node121 = mesh.GetNode(121);
@@ -412,8 +412,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNode(p_node125->GetIndex()), p_node125);
         TS_ASSERT_EQUALS(mesh.GetNode(p_node273->GetIndex()), p_node273);
 
-        TS_ASSERT_DELTA(volume, mesh.CalculateVolume(), 1e-7);
-        TS_ASSERT_DELTA(surface, mesh.CalculateSurfaceArea(), 1e-7);
+        TS_ASSERT_DELTA(volume, mesh.GetVolume(), 1e-7);
+        TS_ASSERT_DELTA(surface, mesh.GetSurfaceArea(), 1e-7);
 
         RandomNumberGenerator::Destroy();
     }
@@ -426,8 +426,8 @@ public:
 
         mesh.ConstructRectangularMesh(width, height);
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), width*height, 1e-7);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 2.0*(width+height), 1e-7);
+        TS_ASSERT_DELTA(mesh.GetVolume(), width*height, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 2.0*(width+height), 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2*(width + height));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2*(width+height) );
@@ -443,8 +443,8 @@ public:
         unsigned width = 39;
         unsigned height = 16;
         mesh.ConstructRectangularMesh(width, height, false);
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), width*height, 1e-7);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 2.0*(width+height), 1e-7);
+        TS_ASSERT_DELTA(mesh.GetVolume(), width*height, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 2.0*(width+height), 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2*(width+height) );
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*width*height );
@@ -466,8 +466,8 @@ public:
 
         mesh.ConstructLinearMesh(width);
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), width, 1e-7);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 0u, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetVolume(), width, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 0u, 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), width+1);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2u);
@@ -546,8 +546,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)*(depth+1)));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), num_boundary_nodes);
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), width*height*depth, 1e-7);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 2.0*(width*height+height*depth+depth*width), 1e-7);
+        TS_ASSERT_DELTA(mesh.GetVolume(), width*height*depth, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 2.0*(width*height+height*depth+depth*width), 1e-7);
         //Each unit square on the surface is split into 2
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width) );
         //Assuming that each cube is split into 6 tetrahedra
@@ -610,8 +610,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)*(depth+1)));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), num_boundary_nodes);
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), width*height*depth, 1e-7);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 2.0*(width*height+height*depth+depth*width), 1e-7);
+        TS_ASSERT_DELTA(mesh.GetVolume(), width*height*depth, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 2.0*(width*height+height*depth+depth*width), 1e-7);
         //Each unit square on the surface is split into 2
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width) );
         //Assuming that each cube is split into 6 tetrahedra
@@ -726,7 +726,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(2,3);
 
-        TS_ASSERT_EQUALS(mesh.CalculateVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetVolume(), 6.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
 
         mesh.Clear();

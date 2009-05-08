@@ -151,12 +151,12 @@ public:
      * Return the volume of the mesh, calculated by adding the determinant of each element
      * and dividing by n!, where n is the element dimension.
      */
-    double CalculateVolume();
+    double GetVolume();
 
     /**
      * Return the surface area of the mesh.
      */
-    double CalculateSurfaceArea();
+    double GetSurfaceArea();
 
     /**
      * Translate the mesh given the displacement vector.

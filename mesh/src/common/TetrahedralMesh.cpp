@@ -242,10 +242,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateVolume()
+double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVolume()
 {
     double mesh_volume = 0.0;
-    //\todo Use caches
     typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator it = this->GetElementIteratorBegin();
 
     while (it != this->GetElementIteratorEnd())
@@ -258,11 +257,10 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateVolume()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
+double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceArea()
 {
-    //\todo Use caches
     //ELEMENT_DIM-1 is the dimension of the boundary element
-    assert (ELEMENT_DIM>=1);
+    assert (ELEMENT_DIM >= 1);
     const unsigned bound_element_dim=ELEMENT_DIM-1;
     assert(bound_element_dim < 3);
     if ( bound_element_dim == 0)
@@ -273,14 +271,10 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
     double mesh_surface = 0.0;
     typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator it = this->GetBoundaryElementIteratorBegin();
 
-    c_vector<double,SPACE_DIM> element_w_dir;
-    double element_determinant;
 
     while (it != this->GetBoundaryElementIteratorEnd())
     {
-        GetWeightedDirectionForBoundaryElement( (*it)->GetIndex(), element_w_dir, element_determinant );
-       // assert( element_determinant == mBoundaryElementJacobianDeterminants[(*it)->GetIndex()];
-        mesh_surface += element_determinant;
+        mesh_surface += mBoundaryElementJacobianDeterminants[(*it)->GetIndex()];
         it++;
     }
 

@@ -48,8 +48,8 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
 
         // Change coordinates
 
@@ -65,8 +65,8 @@ public:
 
         mesh.RefreshMesh();
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 8.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 24.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 8.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 24.0, 1e-6);
     }
 
     void TestTranslation3DWithUblas()
@@ -75,8 +75,8 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double volume = mesh.CalculateVolume();
-        double surface_area = mesh.CalculateSurfaceArea();
+        double volume = mesh.GetVolume();
+        double surface_area = mesh.GetSurfaceArea();
         Node<3>* p_node1 = mesh.GetNode(36);
         ChastePoint<3> point1 = p_node1->GetPoint();
         Node<3>* p_node2 = mesh.GetNode(23);
@@ -97,8 +97,8 @@ public:
         c_vector<double, 3> new_location2 = point2.rGetLocation();
 
         // Check Volume and Surface Area are invariant
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), volume, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), surface_area, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), volume, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), surface_area, 1e-6);
 
         // Spot check a couple of nodes
         TS_ASSERT_DELTA(inner_prod(new_location1-old_location1, trans_vec), 0, 1e-6);
@@ -111,8 +111,8 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double volume = mesh.CalculateVolume();
-        double surface_area = mesh.CalculateSurfaceArea();
+        double volume = mesh.GetVolume();
+        double surface_area = mesh.GetSurfaceArea();
         Node<2>* p_node1 = mesh.GetNode(36);
         ChastePoint<2> point1 = p_node1->GetPoint();
         Node<2>* p_node2 = mesh.GetNode(23);
@@ -132,8 +132,8 @@ public:
         c_vector<double, 2> new_location2 = point2.rGetLocation();
 
         // Check Volume and Surface Area are invariant
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), volume, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), surface_area, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), volume, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), surface_area, 1e-6);
 
         // Spot check a couple of nodes
         TS_ASSERT_DELTA(inner_prod(new_location1-old_location1, trans_vec), 0, 1e-6);
@@ -150,13 +150,13 @@ public:
         Node<3>* p_node = mesh.GetNode(10);
         ChastePoint<3> original_coordinate = p_node->GetPoint();
 
-        double mesh_volume = mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
 
         const double x_movement = 1.0, y_movement = 2.5, z_movement = -3.75;
         mesh.Translate(x_movement, y_movement, z_movement);
 
         ChastePoint<3>  new_coordinate = p_node->GetPoint();
-        double new_mesh_volume = mesh.CalculateVolume();
+        double new_mesh_volume = mesh.GetVolume();
 
         TS_ASSERT_DELTA(mesh_volume, new_mesh_volume, 1e-6);
         TS_ASSERT_DELTA(original_coordinate[0], new_coordinate[0]-x_movement, 1e-6);
@@ -201,8 +201,8 @@ public:
         }
 
         // Check volume conservation
-        double mesh_volume = mesh.CalculateVolume();
-        double original_mesh_volume = original_mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
+        double original_mesh_volume = original_mesh.GetVolume();
 
         TS_ASSERT_DELTA(mesh_volume, original_mesh_volume, 1e-5);
     }
@@ -213,8 +213,8 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
 
         // Change coordinates
 
@@ -261,8 +261,8 @@ public:
 
         mesh.RefreshMesh();
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
     }
 
     void TestXaxisRotation3DWithMethod()
@@ -276,11 +276,11 @@ public:
         TS_ASSERT_EQUALS(corner_before[1], 1.0);
         TS_ASSERT_EQUALS(corner_before[2], 1.0);
 
-        double mesh_volume = mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
 
         mesh.RotateX(M_PI/2.0);
 
-        double new_mesh_volume = mesh.CalculateVolume();
+        double new_mesh_volume = mesh.GetVolume();
         TS_ASSERT_DELTA(mesh_volume,new_mesh_volume,1e-6);
 
         ChastePoint<3> corner_after = mesh.GetNode(6)->GetPoint();
@@ -295,11 +295,11 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double mesh_volume = mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
 
         mesh.RotateY(M_PI/2.0);
 
-        double new_mesh_volume = mesh.CalculateVolume();
+        double new_mesh_volume = mesh.GetVolume();
         TS_ASSERT_DELTA(mesh_volume, new_mesh_volume, 1e-6);
 
         ChastePoint<3> corner_after = mesh.GetNode(6)->GetPoint();
@@ -314,11 +314,11 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double mesh_volume = mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
 
         mesh.RotateZ(M_PI/2.0);
 
-        double new_mesh_volume = mesh.CalculateVolume();
+        double new_mesh_volume = mesh.GetVolume();
         TS_ASSERT_DELTA(mesh_volume, new_mesh_volume, 1e-6);
 
         ChastePoint<3> corner_after = mesh.GetNode(6)->GetPoint();
@@ -333,8 +333,8 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
 
         // Change coordinates
 
@@ -399,8 +399,8 @@ public:
         }
         mesh.RefreshMesh();
 
-        TS_ASSERT_DELTA(mesh.CalculateVolume(), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.CalculateSurfaceArea(), 6.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
 
         ChastePoint<3> corner_after = mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0], 3.59782,  5e-5);
@@ -423,14 +423,14 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double mesh_volume = mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
 
         mesh.Translate(2.3, 3.1, 1.7);
         mesh.RotateZ(1.4);
         mesh.RotateY(0.3);
         mesh.RotateX(0.7);
 
-        double new_mesh_volume = mesh.CalculateVolume();
+        double new_mesh_volume = mesh.GetVolume();
         TS_ASSERT_DELTA(mesh_volume, new_mesh_volume, 1e-6);
 
         ChastePoint<3> corner_after = mesh.GetNode(6)->GetPoint();
@@ -474,8 +474,8 @@ public:
         }
 
         // Check volume conservation
-        double mesh_volume = mesh.CalculateVolume();
-        double original_mesh_volume = original_mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
+        double original_mesh_volume = original_mesh.GetVolume();
 
         TS_ASSERT_DELTA(mesh_volume, original_mesh_volume, 1e-5);
     }
@@ -509,8 +509,8 @@ public:
         }
 
         // Check volume conservation
-        double mesh_volume = mesh.CalculateVolume();
-        double original_mesh_volume = original_mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
+        double original_mesh_volume = original_mesh.GetVolume();
 
         TS_ASSERT_DELTA(mesh_volume, original_mesh_volume, 1e-5);
     }
@@ -521,13 +521,13 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        double mesh_volume = mesh.CalculateVolume();
+        double mesh_volume = mesh.GetVolume();
 
         mesh.Scale(1.0);
-        TS_ASSERT_DELTA(mesh_volume, mesh.CalculateVolume(), 1e-6);
+        TS_ASSERT_DELTA(mesh_volume, mesh.GetVolume(), 1e-6);
 
         mesh.Scale(2.0, 3.0, 4.0);
-        TS_ASSERT_DELTA(24.0*mesh_volume, mesh.CalculateVolume(), 1e-6);
+        TS_ASSERT_DELTA(24.0*mesh_volume, mesh.GetVolume(), 1e-6);
 
         ChastePoint<3> corner_after = mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0], 2.0, 1e-7);
@@ -536,7 +536,7 @@ public:
 
         mesh.Scale(0.5, 1.0/3.0, 0.25);
 
-        TS_ASSERT_DELTA(mesh_volume,mesh.CalculateVolume(),1e-6);
+        TS_ASSERT_DELTA(mesh_volume,mesh.GetVolume(),1e-6);
 
         corner_after = mesh.GetNode(6)->GetPoint();
         TS_ASSERT_DELTA(corner_after[0], 1.0, 1e-7);

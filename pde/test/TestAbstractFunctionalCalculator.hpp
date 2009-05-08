@@ -86,7 +86,7 @@ public:
         Vec vec = PetscTools::CreateVec(mesh.GetNumNodes(), 0.0);
 
         double result = volume_calculator.Calculate(mesh,vec);
-        TS_ASSERT_DELTA(result, mesh.CalculateVolume(), 1e-6);
+        TS_ASSERT_DELTA(result, mesh.GetVolume(), 1e-6);
 
         Vec bad_vec = PetscTools::CreateVec(mesh.GetNumNodes()+1, 0.0);
         TS_ASSERT_THROWS_ANYTHING(volume_calculator.Calculate(mesh,bad_vec));

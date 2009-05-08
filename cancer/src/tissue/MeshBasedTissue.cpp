@@ -590,7 +590,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 
     // Don't use the Voronoi tessellation to calculate the total area
     // because it gives huge areas for boundary cells
-    double total_area = mrMesh.CalculateVolume();
+    double total_area = mrMesh.GetVolume();
 
     double apoptotic_area = 0.0;
 
