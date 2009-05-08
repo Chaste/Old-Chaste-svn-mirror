@@ -279,6 +279,7 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateSurfaceArea()
     while (it != this->GetBoundaryElementIteratorEnd())
     {
         GetWeightedDirectionForBoundaryElement( (*it)->GetIndex(), element_w_dir, element_determinant );
+       // assert( element_determinant == mBoundaryElementJacobianDeterminants[(*it)->GetIndex()];
         mesh_surface += element_determinant;
         it++;
     }

@@ -122,7 +122,10 @@ public:
         double value_at_elem_1 = pde.ComputeLinearInUCoeffInSourceTerm(unused_point,coarse_mesh.GetElement(1));
 
         TS_ASSERT_DELTA(value_at_elem_0, 0.0, 1e-6);
-        TS_ASSERT_DELTA(value_at_elem_1, -(tissue.GetNumRealCells()/coarse_mesh.GetElement(1)->GetVolume()), 1e-6);
+        c_matrix <double, 2, 2> jacobian;
+        double det;
+        coarse_mesh.GetElement(1)->CalculateJacobian(jacobian, det);
+        TS_ASSERT_DELTA(value_at_elem_1, -(tissue.GetNumRealCells()/coarse_mesh.GetElement(1)->GetVolume(det)), 1e-6);
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();

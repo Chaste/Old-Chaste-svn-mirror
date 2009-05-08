@@ -59,9 +59,12 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMe
     }
 
     // Then divide each entry of mSourceTermOnCoarseElements by the element's area
+    c_matrix<double, DIM, DIM> jacobian;
+    double det;
     for (unsigned elem_index=0; elem_index<mCellDensityOnCoarseElements.size(); elem_index++)
     {
-        mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume();
+        rCoarseMesh.GetElement(elem_index)->CalculateJacobian(jacobian, det);
+        mCellDensityOnCoarseElements[elem_index] /= rCoarseMesh.GetElement(elem_index)->GetVolume(det);
     }
 }
 
