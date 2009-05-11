@@ -93,7 +93,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
 
     if (SPACE_DIM==2)
     {
-        assert(numAcross > 1);
+        assert(numAcross >= 1);
         unsigned node_index = 0;
 
         // Create the nodes
@@ -1134,29 +1134,33 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
-
+    
     // Form the set union
     std::set<unsigned> all_indices, temp_set;
     std::set_union(nodeA_elem_indices.begin(), nodeA_elem_indices.end(),
                    nodeB_elem_indices.begin(), nodeB_elem_indices.end(),
                    std::inserter(temp_set, temp_set.begin()));
     all_indices.swap(temp_set); // temp_set will be deleted
-
-    if (all_indices.size()==1) // nodes are only in one elment hence on boundary so merge nodes
+    
+    if ((nodeA_elem_indices.size()>3)||(nodeB_elem_indices.size()>3))
     {
         /*
          * Looks like
          *
-         *    A   B
+         *  \
+         *   \ A   B
          * ---o---o---
-         *
-         * on the boundray of the tissue
+         *   /
+         *  /
+         * 
          */
-        PerformNodeMerge(pNodeA, pNodeB, all_indices);
-    }
-    else if (all_indices.size()==2) // nodes are in two elments hence on and interior boundary so merge nodes
+        Perform4wayMerge(pNodeA, pNodeB);
+    } 
+    else //less than 4 elements per node
     {
-        if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
+        
+    
+        if (all_indices.size()==1) // nodes are only in one element hence on boundary so merge nodes
         {
             /*
              * Looks like
@@ -1164,70 +1168,85 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
              *    A   B
              * ---o---o---
              *
-             * on an internal edge
+             * on the boundray of the tissue
              */
-             PerformNodeMerge(pNodeA, pNodeB, all_indices);
+            PerformNodeMergeOnEdge(pNodeA, pNodeB, all_indices);
+        }
+        else if (all_indices.size()==2) // nodes are in two elments hence on and interior boundary so merge nodes
+        {
+            if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
+            {
+                /*
+                 * Looks like
+                 *
+                 *    A   B
+                 * ---o---o---
+                 *
+                 * on an internal edge
+                 */
+                 PerformNodeMergeOnEdge(pNodeA, pNodeB, all_indices);
+            }
+            else
+            {
+                /*
+                 * Looks like
+                 *
+                 * Outside
+                 *         /
+                 *   --o--o (2)
+                 *     (1) \
+                 *
+                 * Here we employ a PartialT1Swap
+                 */
+                 PerformT1Swap(pNodeA, pNodeB, all_indices);
+            }
+        }
+        else if (all_indices.size()==3) // nodes are contained in three elments
+        {
+           /*
+            * Looks like
+            *
+            *     A  B             A  B
+            *   \                       /
+            *    \  (1)           (1)  /
+            * (3) o--o---   or  ---o--o (3)    Element number in brackets
+            *    /  (2)           (2)  \
+            *   /                       \
+            *
+            * Perform a PartialT1Swap
+            */
+            PerformT1Swap(pNodeA, pNodeB, all_indices);
+        }
+        else if (all_indices.size()==4) // Correct set up for T1Swap
+        {
+            /*
+             * Looks like this
+             *
+             *   \(1)/
+             *    \ / Node A
+             * (2) |   (4)     elements in Brackets
+             *    / \ Node B
+             *   /(3)\
+             *
+             * Perform a T1Swap
+             *
+             */
+            PerformT1Swap(pNodeA, pNodeB, all_indices);
         }
         else
         {
-            /*
-             * Looks like
-             *
-             * Outside
-             *         /
-             *   --o--o (2)
-             *     (1) \
-             *
-             * Here we employ a PartialT1Swap
-             */
-             PerformT1Swap(pNodeA, pNodeB, all_indices);
+            #define COVERAGE_IGNORE
+            EXCEPTION("Nodes are in more than 4 elements, so a remesh cannot be performed");
+            #undef COVERAGE_IGNORE
         }
-    }
-    else if (all_indices.size()==3) // nodes are contained in three elments
-    {
-       /*
-        * Looks like
-        *
-        *     A  B             A  B
-        *   \                       /
-        *    \  (1)           (1)  /
-        * (3) o--o---   or  ---o--o (3)    Element number in brackets
-        *    /  (2)           (2)  \
-        *   /                       \
-        *
-        * Perform a PartialT1Swap
-        */
-        PerformT1Swap(pNodeA, pNodeB, all_indices);
-    }
-    else if (all_indices.size()==4) // Correct set up for T1Swap
-    {
-        /*
-         * Looks like this
-         *
-         *   \(1)/
-         *    \ / Node A
-         * (2) |   (4)     elements in Brackets
-         *    / \ Node B
-         *   /(3)\
-         *
-         * Perform a T1Swap
-         *
-         */
-        PerformT1Swap(pNodeA, pNodeB, all_indices);
-    }
-    else
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("Nodes are in more than 4 elements, so a remesh cannot be performed");
-        #undef COVERAGE_IGNORE
     }
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA,
-                                                          Node<SPACE_DIM>* pNodeB,
-                                                          std::set<unsigned> elementsContainingNodes)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMergeOnEdge(Node<SPACE_DIM>* pNodeA,
+                                                                Node<SPACE_DIM>* pNodeB,
+                                                                std::set<unsigned> elementsContainingNodes)
 {
     c_vector<double, SPACE_DIM> node_midpoint = pNodeA->rGetLocation() + 0.5*GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
 
@@ -1246,6 +1265,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
 
             mElements[*it]->DeleteNode(nodeB_local_index);
         }
+        // \todo Delete node B
+        // mDeletedNodeIndices.push_back(pNodeB->GetIndex());
     }
     else
     {
@@ -1262,8 +1283,74 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
 
             mElements[*it]->DeleteNode(nodeA_local_index);
         }
+        // \todo Delete node A
+        // mDeletedNodeIndices.push_back(pNodeA->GetIndex());
     }
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Perform4wayMerge(Node<SPACE_DIM>* pNodeA,
+                                                          Node<SPACE_DIM>* pNodeB)
+{
+    // Find the sets of elements containing nodes A and B
+    std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
+    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
+    
+    if (nodeB_elem_indices.size() < nodeA_elem_indices.size())
+    {
+        for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
+             it != nodeB_elem_indices.end();
+             ++it)
+        {
+            unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
+            assert(nodeB_local_index < UINT_MAX); // this element should contain node B
+            
+            if (nodeA_elem_indices.count(*it)>0)
+            {
+                // Remove node B
+                mElements[*it]->DeleteNode(nodeB_local_index);      
+            }    
+            else
+            {
+                // Replace node B with node A
+                mElements[*it]->UpdateNode(nodeB_local_index, pNodeA);    
+            }
+        }
+        // \todo Delete node B
+        // mDeletedNodeIndices.push_back(pNodeB->GetIndex());
+    }
+    else if (nodeA_elem_indices.size() < nodeB_elem_indices.size())
+    {
+        for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
+             it != nodeA_elem_indices.end();
+             ++it)
+        {
+            unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
+            assert(nodeA_local_index < UINT_MAX); // this element should contain node A
+            
+            if (nodeB_elem_indices.count(*it)>0)
+            {
+                // Remove node A
+                mElements[*it]->DeleteNode(nodeA_local_index);      
+            }    
+            else
+            {
+                // Replace node A with node B
+                mElements[*it]->UpdateNode(nodeA_local_index, pNodeB);    
+            }
+        }
+        // \todo Delete node A
+        // mDeletedNodeIndices.push_back(pNodeA->GetIndex());
+    }
+    else // \todo Both nodes the same order so merge nodes?
+    {
+        #define COVERAGE_IGNORE
+        EXCEPTION("Tried to merge two nodes with the same order (>3) nodes, this functionality doesnt exist");
+        #undef COVERAGE_IGNORE
+    }
+}
+
+
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
