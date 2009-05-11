@@ -139,7 +139,10 @@ if use_chaste_libs and static_libs:
 
 # Use a single file to store signatures.
 # Forwards-compatible with SCons 0.97, and nicer for svn ignore.
-SConsignFile('.sconsign')
+if sys.platform == 'cygwin':
+    SConsignFile('.sconsign-cygwin')
+else:
+    SConsignFile('.sconsign')
 
 
 # Chaste components (top level dirs).

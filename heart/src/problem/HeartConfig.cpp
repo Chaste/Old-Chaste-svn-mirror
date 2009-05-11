@@ -28,9 +28,47 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HeartConfig.hpp"
 
-#if (XSD_INT_VERSION == 2030100L)
-#include "HeartConfigXsd231.hpp"
+// Coping with changes to XSD interface
+#if (XSD_INT_VERSION >= 3000000L)
+#define XSD_SEQUENCE_TYPE(base) base##_sequence
+#define XSD_ITERATOR_TYPE(base) base##_iterator
+#define XSD_NESTED_TYPE(t) t##_type
+#define XSD_ANON_TYPE(t1, t2) \
+    t1::t2##_type
 #else
+#define XSD_SEQUENCE_TYPE(base) base::container
+#define XSD_ITERATOR_TYPE(base) base::iterator
+#define XSD_NESTED_TYPE(t) t::type
+#define XSD_ANON_TYPE(t1, t2) \
+    t1::t2::_xsd_##t2##_::t2
+#endif
+
+// These are for convenience
+#define XSD_ANON_SEQUENCE_TYPE(t1, t2, t3) \
+    XSD_SEQUENCE_TYPE(XSD_ANON_TYPE(t1, t2)::t3)
+#define XSD_ANON_ITERATOR_TYPE(t1, t2, t3) \
+    XSD_ITERATOR_TYPE(XSD_ANON_TYPE(t1, t2)::t3)
+
+// Newer versions don't allow you to set fixed attributes
+#if (XSD_INT_VERSION >= 3020000L)
+#define XSD_CREATE_WITH_FIXED_ATTR(type, name, attr) \
+    type name
+#define XSD_CREATE_WITH_FIXED_ATTR1(type, name, arg1, attr) \
+    type name(arg1)
+#define XSD_CREATE_WITH_FIXED_ATTR2(type, name, arg1, arg2, attr) \
+    type name(arg1, arg2)
+#define XSD_CREATE_WITH_FIXED_ATTR3(type, name, arg1, arg2, arg3, attr) \
+    type name(arg1, arg2, arg3)
+#else
+#define XSD_CREATE_WITH_FIXED_ATTR(type, name, attr) \
+    type name(attr)
+#define XSD_CREATE_WITH_FIXED_ATTR1(type, name, arg1, attr) \
+    type name(arg1, attr)
+#define XSD_CREATE_WITH_FIXED_ATTR2(type, name, arg1, arg2, attr) \
+    type name(arg1, arg2, attr)
+#define XSD_CREATE_WITH_FIXED_ATTR3(type, name, arg1, arg2, arg3, attr) \
+    type name(arg1, arg2, arg3, attr)
+#endif
 
 using namespace xsd::cxx::tree;
 
@@ -189,12 +227,12 @@ ionic_models_available_type HeartConfig::GetDefaultIonicModel() const
 void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
                                        std::vector<ionic_models_available_type>& ionicModels) const
 {
-    ionic_models_type::Region_sequence&
+    XSD_SEQUENCE_TYPE(ionic_models_type::Region)&
          regions = DecideLocation( & mpUserParameters->Simulation().IonicModels(),
                                    & mpDefaultParameters->Simulation().IonicModels(),
                                    "IonicModel")->get().Region();
 
-    for (ionic_models_type::Region_iterator i = regions.begin();
+    for (XSD_ITERATOR_TYPE(ionic_models_type::Region) i = regions.begin();
          i != regions.end();
          ++i)
     {
@@ -369,12 +407,11 @@ media_type HeartConfig::GetConductivityMedia() const
 
 void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const
 {
-
-    simulation_type::Stimuli_type::Stimulus_sequence&
+    XSD_ANON_SEQUENCE_TYPE(simulation_type, Stimuli, Stimulus)&
          stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(),
                            & mpDefaultParameters->Simulation().Stimuli(),
                            "Stimuli")->get().Stimulus();
-    for (simulation_type::Stimuli_type::Stimulus_iterator i = stimuli.begin();
+    for (XSD_ANON_ITERATOR_TYPE(simulation_type, Stimuli, Stimulus) i = stimuli.begin();
          i != stimuli.end();
          ++i)
     {
@@ -400,12 +437,12 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
                                          std::vector<double>& scaleFactorIto,
                                          std::vector<double>& scaleFactorGkr) const
 {
-    simulation_type::CellHeterogeneities_type::CellHeterogeneity_sequence&
+    XSD_ANON_SEQUENCE_TYPE(simulation_type, CellHeterogeneities, CellHeterogeneity)&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(),
                                                  & mpDefaultParameters->Simulation().CellHeterogeneities(),
                                                  "CellHeterogeneities")->get().CellHeterogeneity();
 
-    for (simulation_type::CellHeterogeneities_type::CellHeterogeneity_iterator i = cell_heterogeneity.begin();
+    for (XSD_ANON_ITERATOR_TYPE(simulation_type, CellHeterogeneities, CellHeterogeneity) i = cell_heterogeneity.begin();
          i != cell_heterogeneity.end();
          ++i)
     {
@@ -443,16 +480,17 @@ bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
     }
 }
 
-void HeartConfig::GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
-                                                 std::vector< c_vector<double,3> >& intraConductivities,
-                                                 std::vector< c_vector<double,3> >& extraConductivities) const
+void HeartConfig::GetConductivityHeterogeneities(
+        std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
+        std::vector< c_vector<double,3> >& intraConductivities,
+        std::vector< c_vector<double,3> >& extraConductivities) const
 {
-    simulation_type::ConductivityHeterogeneities_type::ConductivityHeterogeneity_sequence&
+    XSD_ANON_SEQUENCE_TYPE(simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity)&
          conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
-                                                         & mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
-                                                           "CellHeterogeneities")->get().ConductivityHeterogeneity();
+                                                      & mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
+                                                      "CellHeterogeneities")->get().ConductivityHeterogeneity();
 
-    for (simulation_type::ConductivityHeterogeneities_type::ConductivityHeterogeneity_iterator i = conductivity_heterogeneity.begin();
+    for (XSD_ANON_ITERATOR_TYPE(simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity) i = conductivity_heterogeneity.begin();
          i != conductivity_heterogeneity.end();
          ++i)
     {
@@ -752,7 +790,7 @@ void HeartConfig::SetSpaceDimension(unsigned spaceDimension)
 
 void HeartConfig::SetSimulationDuration(double simulationDuration)
 {
-    time_type time(simulationDuration);
+    XSD_CREATE_WITH_FIXED_ATTR1(time_type, time, simulationDuration, "ms");
     mpUserParameters->Simulation().SimulationDuration().set(time);
 }
 
@@ -770,7 +808,7 @@ void HeartConfig::SetSlabDimensions(double x, double y, double z, double inter_n
 {
     if ( ! mpUserParameters->Simulation().Mesh().present())
     {
-        mesh_type mesh_to_load;
+        XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
         mpUserParameters->Simulation().Mesh().set(mesh_to_load);
     }
 
@@ -782,7 +820,7 @@ void HeartConfig::SetSheetDimensions(double x, double y, double inter_node_space
 {
     if ( ! mpUserParameters->Simulation().Mesh().present())
     {
-        mesh_type mesh_to_load;
+        XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
         mpUserParameters->Simulation().Mesh().set(mesh_to_load);
     }
 
@@ -794,7 +832,7 @@ void HeartConfig::SetFibreLength(double x, double inter_node_space)
 {
     if ( ! mpUserParameters->Simulation().Mesh().present())
     {
-        mesh_type mesh_to_load;
+        XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
         mpUserParameters->Simulation().Mesh().set(mesh_to_load);
     }
 
@@ -806,24 +844,25 @@ void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefini
 {
     if ( ! mpUserParameters->Simulation().Mesh().present())
     {
-        mesh_type mesh_to_load;
+        XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
         mpUserParameters->Simulation().Mesh().set(mesh_to_load);
     }
 
-    mesh_type::LoadMesh_type mesh_prefix(meshPrefix, fibreDefinition);
+    XSD_NESTED_TYPE(mesh_type::LoadMesh) mesh_prefix(meshPrefix, fibreDefinition);
     mpUserParameters->Simulation().Mesh().get().LoadMesh().set(mesh_prefix);
 }
 
-void  HeartConfig::SetConductivityHeterogeneities(std::vector< c_vector<double,3> >& cornerA,
-                                                   std::vector< c_vector<double,3> >& cornerB,
-                                                     std::vector< c_vector<double,3> >& intraConductivities,
-                                                  std::vector< c_vector<double,3> >& extraConductivities)
+void HeartConfig::SetConductivityHeterogeneities(
+        std::vector< c_vector<double,3> >& cornerA,
+        std::vector< c_vector<double,3> >& cornerB,
+        std::vector< c_vector<double,3> >& intraConductivities,
+        std::vector< c_vector<double,3> >& extraConductivities)
 {
     assert ( cornerA.size() == cornerB.size() );
     assert ( cornerB.size() == intraConductivities.size() );
     assert ( intraConductivities.size() == extraConductivities.size());
 
-    simulation_type::ConductivityHeterogeneities_type::ConductivityHeterogeneity_sequence heterogeneities_container;
+    XSD_ANON_SEQUENCE_TYPE(simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity) heterogeneities_container;
 
     for (unsigned region_index=0; region_index<cornerA.size(); region_index++)
     {
@@ -835,24 +874,29 @@ void  HeartConfig::SetConductivityHeterogeneities(std::vector< c_vector<double,3
                            cornerB[region_index][1],
                            cornerB[region_index][2]);
 
-        conductivity_heterogeneity_type ht(location_type(box_type(point_a, point_b)));
+        XSD_CREATE_WITH_FIXED_ATTR1(location_type, locn, box_type(point_a, point_b), "cm");
+        conductivity_heterogeneity_type ht(locn);
 
-        conductivities_type intra(intraConductivities[region_index][0],
-                                  intraConductivities[region_index][1],
-                                  intraConductivities[region_index][2]);
+        XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, intra,
+                                    intraConductivities[region_index][0],
+                                    intraConductivities[region_index][1],
+                                    intraConductivities[region_index][2],
+                                    "mS/cm");
 
         ht.IntracellularConductivities(intra);
 
-        conductivities_type extra(extraConductivities[region_index][0],
-                                  extraConductivities[region_index][1],
-                                  extraConductivities[region_index][2]);
+        XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, extra,
+                                    extraConductivities[region_index][0],
+                                    extraConductivities[region_index][1],
+                                    extraConductivities[region_index][2],
+                                    "mS/cm");
 
         ht.ExtracellularConductivities(extra);
 
         heterogeneities_container.push_back(ht);
     }
 
-    simulation_type::ConductivityHeterogeneities_type heterogeneities_object;
+    XSD_ANON_TYPE(simulation_type, ConductivityHeterogeneities) heterogeneities_object;
     heterogeneities_object.ConductivityHeterogeneity(heterogeneities_container);
 
     mpUserParameters->Simulation().ConductivityHeterogeneities().set(heterogeneities_object);
@@ -873,73 +917,79 @@ void HeartConfig::SetOutputFilenamePrefix(std::string outputFilenamePrefix)
 // Physiological
 void HeartConfig::SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities)
 {
-    conductivities_type intra(intraConductivities[0],
-                              intraConductivities[1],
-                              intraConductivities[2]);
+    XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, intra,
+                                intraConductivities[0],
+                                intraConductivities[1],
+                                intraConductivities[2],
+                                "mS/cm");
 
     mpUserParameters->Physiological().IntracellularConductivities().set(intra);
 }
 
 void HeartConfig::SetIntracellularConductivities(const c_vector<double, 2>& intraConductivities)
 {
-    conductivities_type intra(intraConductivities[0],
-                              intraConductivities[1],
-                              0.0);
+    XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, intra,
+                                intraConductivities[0],
+                                intraConductivities[1],
+                                0.0, "mS/cm");
 
     mpUserParameters->Physiological().IntracellularConductivities().set(intra);
 }
 
 void HeartConfig::SetIntracellularConductivities(const c_vector<double, 1>& intraConductivities)
 {
-    conductivities_type intra(intraConductivities[0],
-                              0.0,
-                              0.0);
+    XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, intra,
+                                intraConductivities[0],
+                                0.0, 0.0, "mS/cm");
 
     mpUserParameters->Physiological().IntracellularConductivities().set(intra);
 }
 
 void HeartConfig::SetExtracellularConductivities(const c_vector<double, 3>& extraConductivities)
 {
-    conductivities_type extra(extraConductivities[0],
-                              extraConductivities[1],
-                              extraConductivities[2]);
+    XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, extra,
+                                extraConductivities[0],
+                                extraConductivities[1],
+                                extraConductivities[2],
+                                "mS/cm");
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
 }
 
 void HeartConfig::SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities)
 {
-    conductivities_type extra(extraConductivities[0],
-                              extraConductivities[1],
-                              0.0);
+    XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, extra,
+                                extraConductivities[0],
+                                extraConductivities[1],
+                                0.0, "mS/cm");
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
 }
 
 void HeartConfig::SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities)
 {
-    conductivities_type extra(extraConductivities[0],
-                              0.0,
-                              0.0);
+    XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, extra,
+                                extraConductivities[0],
+                                0.0, 0.0, "mS/cm");
 
     mpUserParameters->Physiological().ExtracellularConductivities().set(extra);
 }
 
 void HeartConfig::SetBathConductivity(double bathConductivity)
 {
-    conductivity_type cond(bathConductivity);
+    XSD_CREATE_WITH_FIXED_ATTR1(conductivity_type, cond, bathConductivity, "mS/cm");
     mpUserParameters->Physiological().BathConductivity().set(cond);
 }
 
 void HeartConfig::SetSurfaceAreaToVolumeRatio(double ratio)
 {
-    inverse_length_type ratio_object(ratio);
+    XSD_CREATE_WITH_FIXED_ATTR1(inverse_length_type, ratio_object, ratio, "1/cm");
     mpUserParameters->Physiological().SurfaceAreaToVolumeRatio().set(ratio_object);
 }
 
 void HeartConfig::SetCapacitance(double capacitance)
 {
-    capacitance_type capacitance_object(capacitance);
+    XSD_CREATE_WITH_FIXED_ATTR1(capacitance_type, capacitance_object, capacitance, "uF/cm^2");
     mpUserParameters->Physiological().Capacitance().set(capacitance_object);
 }
 
@@ -947,8 +997,9 @@ void HeartConfig::SetCapacitance(double capacitance)
 // Numerical
 void HeartConfig::SetOdePdeAndPrintingTimeSteps(double odeTimeStep, double pdeTimeStep, double printingTimeStep)
 {
-    time_steps_type TimeSteps(odeTimeStep, pdeTimeStep, printingTimeStep);
-    mpUserParameters->Numerical().TimeSteps().set(TimeSteps);
+    XSD_CREATE_WITH_FIXED_ATTR3(time_steps_type, time_steps,
+                                odeTimeStep, pdeTimeStep, printingTimeStep, "ms");
+    mpUserParameters->Numerical().TimeSteps().set(time_steps);
     CheckTimeSteps();
 }
 
@@ -1067,4 +1118,4 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 
     EXCEPTION("Unknown preconditioner type provided");
 }
-#endif //XSD_INT_VERSION == 2030100L
+

@@ -219,6 +219,9 @@ def configure(build):
         build.tools['cxx'] = os.path.join(intel_path, 'bin', 'icpc')
         build.tools['ar'] = os.path.join(intel_path, 'bin', 'xiar')
 
+    if hasattr(conf, 'ModifyBuild') and callable(conf.ModifyBuild):
+        conf.ModifyBuild(build)
+
 def ccflags():
     opt_lib_flags = optional_library_defines()
     conf_flags = getattr(conf, 'ccflags', '')
