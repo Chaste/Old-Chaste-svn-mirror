@@ -33,6 +33,10 @@ rm -rf scons-1.2.0.tar.gz scons-1.2.0
 
 ========MPI and PETSC:=======
 
+Note: while these instructions use the MPICH library to provide MPI
+functionality, other MPI implementations may work for you.  The Chaste
+developers have also used OpenMPI successfully.
+
 cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz
 tar -zxvf mpich.tar.gz
@@ -137,6 +141,9 @@ tar -xjf xsd-3.2.0-i686-linux-gnu.tar.bz2
 ln -s $CHASTE_LIBS/xsd-3.2.0-i686-linux-gnu/bin/xsd $CHASTE_LIBS/bin/xsd
 rm -f xsd-3.2.0-i686-linux-gnu.tar.bz2
 
+Note that older versions of XSD (including 2.3.1 and 3.1.1a3) should
+still work, but are not tested on a regular basis.
+
 
 =============== TETGEN =====================
 
@@ -163,6 +170,10 @@ cd ..
 rm -rf triangle.zip triangle
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
+
+If you always use Chaste from within the Eclipse IDE, this step is
+probably not needed.  If you ever wish to use Chaste from the command
+line, however, you will need these configuration settings.
 
 Edit the ~/.bashrc file in the home directory and append the following:
 
@@ -277,5 +288,3 @@ a directory defined by the environmental variable CHASTE_TEST_OUTPUT, as describ
 variable is not set, results will be found relative to the 'testoutput' folder in the main 
 Chaste directory (unlike when scons is used to run tests). Add CHASTE_TEST_OUTPUT to the .bashrc 
 file as described above.
-
- 
