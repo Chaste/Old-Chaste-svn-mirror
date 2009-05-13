@@ -181,11 +181,6 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEpi(unsigned node_index
 template<unsigned SPACE_DIM>
 double HeartGeometryInformation<SPACE_DIM>::CalculateRelativeWallPosition(unsigned node_index)
 {
-    if (PetscTools::NumProcs() > 1)
-    {
-        assert(node_index < this->mrMesh.rGetNodePermutation().size());
-        node_index = this->mrMesh.rGetNodePermutation() [node_index];
-    }
         
     double dist_endo = GetDistanceToEndo(node_index);
     double dist_epi = GetDistanceToEpi(node_index);
