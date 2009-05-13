@@ -45,19 +45,12 @@ private:
     TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
     unsigned mNumNodes, mNumElements;
 
-    //DistanceMapCalculator<SPACE_DIM>* mpDistanceCalculator;
     HeartGeometryInformation<SPACE_DIM>* mpGeometryInfo;
     
     std::string mEpiFile, mRVFile, mLVFile;
     bool mFilesSet;
 
-    std::vector<unsigned> mEpiSurface, mRVSurface, mLVSurface;
-
-    inline double GetAveragedThickness(const unsigned nodeIndex, const std::vector<double>& wallThickness) const;
-
-    inline void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const;
-
-    void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& surfaceVector) const;
+    double GetAveragedThickness(const unsigned nodeIndex, const std::vector<double>& wallThickness) const;
 
     double GetFibreMaxAngle(const c_vector<HeartRegionType, SPACE_DIM+1>& nodesRegion) const;
 

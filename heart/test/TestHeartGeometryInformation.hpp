@@ -157,7 +157,75 @@ public:
                 TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(x-5)/3);
             }
         } 
-                
+    }
+    
+    void TestDetermineLayerForEachNode() throw (Exception)
+    {
+        TetrahedralMesh<3,3> mesh;
+        //This mesh will have 31 nodes per side, spaced by 1, it is a cube
+        mesh.ConstructCuboid(30, 30, 30);
+
+        std::vector<unsigned> epi_face;
+        std::vector<unsigned> lv_face;
+        std::vector<unsigned> rv_face;
+        //Define three surfaces, epi, lv and rv.
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        {  
+            // Get the nodes at cube face considered to be epi (at both external faces)
+            if (  (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
+                ||(fabs(mesh.GetNode(index)->rGetLocation()[0]-30.0) < 1e-6))
+            {
+                epi_face.push_back(index);
+            }
+            // Get the nodes at cube face considered to be lv (at the plane defined by x=3)
+            if (fabs(mesh.GetNode(index)->rGetLocation()[0]-10.0) < 1e-6)
+            {
+                lv_face.push_back(index);
+            }
+            // Get the nodes at cube face considered to be rv (at the plane defined by x=5)
+            if (fabs(mesh.GetNode(index)->rGetLocation()[0]-20.0) < 1e-6)
+            {
+                rv_face.push_back(index);
+            }
+            
+        }  
+        
+        HeartGeometryInformation<3> info(mesh, epi_face, lv_face, rv_face);   
+        
+        info.DetermineLayerForEachNode(0.3,0.5);
+        
+        info.WriteLayerForEachNode("TestHeartGeom","layers.het");
+        
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        {
+            double x = mesh.GetNode(index)->rGetLocation()[0];
+            
+            if (x<=3||x>=27)
+            {
+                TS_ASSERT_EQUALS(info.rGetLayerForEachNode()[index],EPI);
+            }
+            else if(x<=5 || x>=25)
+            {
+                TS_ASSERT_EQUALS(info.rGetLayerForEachNode()[index],MID);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(info.rGetLayerForEachNode()[index],ENDO);
+            }            
+        }        
+    }
+    
+    void TestHeartGeometryTakingFiles() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
+        std::string epi_face_file = "heart/test/data/box_shaped_heart/epi.tri";
+        std::string rv_face_file = "heart/test/data/box_shaped_heart/rv.tri";
+        std::string lv_face_file = "heart/test/data/box_shaped_heart/lv.tri";
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        HeartGeometryInformation<3> info(mesh, epi_face_file, lv_face_file, rv_face_file); 
+///\todo add a test here
     }
 };
 

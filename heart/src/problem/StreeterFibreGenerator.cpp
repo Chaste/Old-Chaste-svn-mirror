@@ -80,70 +80,6 @@ double StreeterFibreGenerator<SPACE_DIM>::GetAveragedThickness(
 }
 
 
-template<unsigned SPACE_DIM>
-void StreeterFibreGenerator<SPACE_DIM>::ProcessLine(
-        const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const
-{
-    unsigned num_nodes = 0;
-    std::stringstream line_stream(line);
-
-    while (!line_stream.eof())
-    {
-        unsigned item;
-        line_stream >> item;
-        // Shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
-        surfaceNodeIndexSet.insert(item-1);
-
-        num_nodes++;
-    }
-
-    if (num_nodes != SPACE_DIM)
-    {
-        EXCEPTION("Wrong file format");
-    }
-
-}
-
-
-template<unsigned SPACE_DIM>
-void StreeterFibreGenerator<SPACE_DIM>::GetNodesAtSurface(
-        const std::string& surfaceFile, std::vector<unsigned>& surfaceVector) const
-{
-    // Open the file defining the surface
-    std::ifstream file_stream;
-    file_stream.open(surfaceFile.c_str());
-    if (!file_stream.is_open())
-    {
-        EXCEPTION("Wrong surface definition file name.");
-    }
-
-    // Temporal storage for the nodes, helps discarting repeated values
-    std::set<unsigned> surface_node_index_set;
-
-    // Loop over all the triangles and add node indexes to the set
-    std::string line;
-    getline(file_stream, line);
-    do
-    {
-        ProcessLine(line, surface_node_index_set);
-
-        getline(file_stream, line);
-    }
-    while(!file_stream.eof());
-
-    // Make vector big enough
-    surfaceVector.reserve(surface_node_index_set.size());
-
-    // Copy the node indexes from the set to the vector
-    for(std::set<unsigned>::iterator node_index_it=surface_node_index_set.begin();
-        node_index_it != surface_node_index_set.end();
-        node_index_it++)
-    {
-        surfaceVector.push_back(*node_index_it);
-    }
-
-    file_stream.close();
-}
 
 
 template<unsigned SPACE_DIM>
@@ -242,19 +178,12 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     // First line of the fibre file: number of elements of the mesh
     *p_fibre_file << mNumElements << std::endl;
 
-    // Get nodes defining each surface
-    GetNodesAtSurface(mEpiFile, mEpiSurface);
-    GetNodesAtSurface(mRVFile, mRVSurface);
-    GetNodesAtSurface(mLVFile, mLVSurface);
+    // Compute the distance map of each surface
+    mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, mEpiFile, mLVFile, mRVFile);
 
     CheckVentricleAlignment();
 
-    // Compute the distance map of each surface
-    mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, mEpiSurface, mLVSurface, mRVSurface);
-
-    /*
-     * Compute wall thickness parameter, e
-     */
+    // Compute wall thickness parameter
     std::vector<double> wall_thickness(mNumNodes);
     for (unsigned node_index=0; node_index<mNumNodes; node_index++)
     {
@@ -493,9 +422,9 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
     double min_y_rv=DBL_MAX;
     double max_y_rv=-DBL_MAX;
     double average_y_rv=0.0;
-    for (unsigned i=0; i<mRVSurface.size(); i++)
+    for (unsigned i=0; i<mpGeometryInfo->rGetNodesOnRVSurface().size(); i++)
     {
-        double y=mrMesh.GetNode(mRVSurface[i])->rGetLocation()[1];
+        double y=mrMesh.GetNode(mpGeometryInfo->rGetNodesOnRVSurface()[i])->rGetLocation()[1];
         average_y_rv += y;
         if (y<min_y_rv)
         {
@@ -507,14 +436,14 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
             max_y_rv=y;
         }
     }
-    average_y_rv /= mRVSurface.size();
+    average_y_rv /= mpGeometryInfo->rGetNodesOnRVSurface().size();
 
     double min_y_lv=DBL_MAX;
     double max_y_lv=-DBL_MAX;
     double average_y_lv=0.0;
-    for (unsigned i=0; i<mLVSurface.size(); i++)
+    for (unsigned i=0; i<mpGeometryInfo->rGetNodesOnLVSurface().size(); i++)
     {
-        double y=mrMesh.GetNode(mLVSurface[i])->rGetLocation()[1];
+        double y=mrMesh.GetNode(mpGeometryInfo->rGetNodesOnLVSurface()[i])->rGetLocation()[1];
         average_y_lv += y;
         if (y<min_y_lv)
         {
@@ -526,7 +455,7 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
             max_y_lv=y;
         }
     }
-    average_y_lv /= mLVSurface.size();
+    average_y_lv /= mpGeometryInfo->rGetNodesOnLVSurface().size();
 
     //If these assertions trip then it means that the heart is not aligned correctly.
     //See the comment above the method signature.
