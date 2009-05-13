@@ -89,6 +89,7 @@ void DistributedVectorFactory::CheckForPetsc()
 
 Vec DistributedVectorFactory::CreateVec()
 {
-    Vec vec;
+    Vec vec;//"Let's just write this so it compiles and then we can go home" MOB+RB
+    vec=NULL;
     return vec;    
 }
