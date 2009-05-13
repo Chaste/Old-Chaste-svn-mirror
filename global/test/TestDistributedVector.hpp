@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
 
+#include "DistributedVectorFactory.hpp"
+
 class TestDistributedVector : public CxxTest::TestSuite
 {
 public:
@@ -244,6 +246,25 @@ public:
         TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
 
         VecDestroy(petsc_vec);
+    }
+    
+    
+    void TestDistributedVectorFactory()
+    {
+        DistributedVectorFactory factory(100);
+        
+        Vec petsc_vec;
+        petsc_vec = factory.CreateVec();
+        
+/*
+ *  Functionality to be implemented next
+ */                
+//        DistributedVector dist_vec = factory.CreateDistributedVector(petsc_vec);
+//        
+//        
+//        DistributedVector dist_vec_no_factory(petsc_vec, factory.GetLow(), 
+//                                                         factory.GetHigh(), 
+//                                                         factory.GetGlobalHigh());                                                                 
     }
 };
 
