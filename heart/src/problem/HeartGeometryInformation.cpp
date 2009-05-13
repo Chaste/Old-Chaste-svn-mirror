@@ -85,8 +85,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
 }                                                              
                                                                
 template<unsigned SPACE_DIM>
-typename HeartGeometryInformation<SPACE_DIM>::RegionType_
-    HeartGeometryInformation<SPACE_DIM>::GetHeartRegion(unsigned nodeIndex) const
+HeartRegionType HeartGeometryInformation<SPACE_DIM>::GetHeartRegion(unsigned nodeIndex) const
 {
 
     if (mDistMapRightVentricle[nodeIndex] >= mDistMapEpicardium[nodeIndex] &&
@@ -124,7 +123,7 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned node_inde
     // General case where you provide 3 surfaces: LV, RV, epicardium 
     if ( mNumberOfSurfacesProvided == 3)
     {
-        RegionType_ node_region = GetHeartRegion(node_index);
+        HeartRegionType node_region = GetHeartRegion(node_index);
         switch(node_region)
         {
             case LEFT_VENTRICLE_WALL:
@@ -157,8 +156,10 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned node_inde
                 return 0.0;
                 break;
                 #undef COVERAGE_IGNORE
-          }
-          
+
+            default:        
+                NEVER_REACHED;
+        }
     }
     // Simplified case where you only provide epi and endo surface definitions
     else

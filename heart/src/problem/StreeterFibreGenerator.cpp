@@ -34,50 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 
-
-// Area of the septum considered to belong to the each ventricle (relative to 1)
-template<unsigned SPACE_DIM>
-const double StreeterFibreGenerator<SPACE_DIM>::LEFT_SEPTUM_SIZE = 2.0/3.0;
-
-template<unsigned SPACE_DIM>
-const double StreeterFibreGenerator<SPACE_DIM>::RIGHT_SEPTUM_SIZE = 1.0/3.0;
-
-
-template<unsigned SPACE_DIM>
-typename StreeterFibreGenerator<SPACE_DIM>::RegionType_
-    StreeterFibreGenerator<SPACE_DIM>::GetHeartRegion(unsigned nodeIndex) const
-{
-
-    if (mDistMapRightVentricle[nodeIndex] >= mDistMapEpicardium[nodeIndex] &&
-        mDistMapRightVentricle[nodeIndex] >= mDistMapLeftVentricle[nodeIndex])
-    {
-        return LEFT_VENTRICLE_WALL;
-    }
-
-    if (mDistMapLeftVentricle[nodeIndex] >= mDistMapEpicardium[nodeIndex] &&
-        mDistMapLeftVentricle[nodeIndex] >= mDistMapRightVentricle[nodeIndex])
-    {
-        return RIGHT_VENTRICLE_WALL;
-    }
-
-    if (mDistMapEpicardium[nodeIndex] >= mDistMapLeftVentricle[nodeIndex] &&
-        mDistMapEpicardium[nodeIndex] >= mDistMapRightVentricle[nodeIndex])
-    {
-        if (mDistMapLeftVentricle[nodeIndex]
-            < LEFT_SEPTUM_SIZE*(mDistMapLeftVentricle[nodeIndex] + mDistMapRightVentricle[nodeIndex]))
-        {
-            return LEFT_SEPTUM;
-        }
-        else
-        {
-            return RIGHT_SEPTUM;
-        }
-    }
-
-    return UNKNOWN;
-}
-
-
 template<unsigned SPACE_DIM>
 double StreeterFibreGenerator<SPACE_DIM>::GetAveragedThickness(
         const unsigned nodeIndex, const std::vector<double>& wallThickness) const
@@ -192,7 +148,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GetNodesAtSurface(
 
 template<unsigned SPACE_DIM>
 double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
-        const c_vector<RegionType_, SPACE_DIM+1>& nodesRegion) const
+        const c_vector<HeartRegionType, SPACE_DIM+1>& nodesRegion) const
 {
     unsigned lv=0, rv=0;
 
@@ -200,11 +156,13 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
     {
         switch (nodesRegion[index])
         {
+            case LEFT_VENTRICLE_SURFACE:
             case LEFT_VENTRICLE_WALL:
             case LEFT_SEPTUM:
                 lv++;
                 break;
-
+            
+            case RIGHT_VENTRICLE_SURFACE:
             case RIGHT_VENTRICLE_WALL:
             case RIGHT_SEPTUM:
                 rv++;
@@ -212,6 +170,9 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
 
             case UNKNOWN:
                 break;
+            
+            default:
+                NEVER_REACHED;
         }
     }
 
@@ -232,13 +193,13 @@ StreeterFibreGenerator<SPACE_DIM>::StreeterFibreGenerator(TetrahedralMesh<SPACE_
 {
     mNumNodes = mrMesh.GetNumNodes();
     mNumElements = mrMesh.GetNumElements();
-    mpDistanceCalculator = new DistanceMapCalculator<SPACE_DIM>(mrMesh);
+    mpGeometryInfo = NULL;
 }
 
 template<unsigned SPACE_DIM>
 StreeterFibreGenerator<SPACE_DIM>::~StreeterFibreGenerator()
 {
-    delete mpDistanceCalculator;
+    delete mpGeometryInfo;
 }
 
 template<unsigned SPACE_DIM>
@@ -289,9 +250,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     CheckVentricleAlignment();
 
     // Compute the distance map of each surface
-    mpDistanceCalculator->ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
-    mpDistanceCalculator->ComputeDistanceMap(mRVSurface, mDistMapRightVentricle);
-    mpDistanceCalculator->ComputeDistanceMap(mLVSurface, mDistMapLeftVentricle);
+    mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, mEpiSurface, mLVSurface, mRVSurface);
 
     /*
      * Compute wall thickness parameter, e
@@ -301,36 +260,38 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     {
         double dist_epi, dist_endo;
 
-        RegionType_ node_region = GetHeartRegion(node_index);
+        HeartRegionType node_region = mpGeometryInfo->GetHeartRegion(node_index);
 
         switch(node_region)
         {
+            case LEFT_VENTRICLE_SURFACE:
             case LEFT_VENTRICLE_WALL:
-                dist_epi = mDistMapEpicardium[node_index];
-                dist_endo = mDistMapLeftVentricle[node_index];
+                dist_epi = mpGeometryInfo->rGetDistanceMapEpicardium()[node_index];
+                dist_endo = mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index];
                 break;
-
+                
+            case RIGHT_VENTRICLE_SURFACE:
             case RIGHT_VENTRICLE_WALL:
-                dist_epi = mDistMapEpicardium[node_index];
-                dist_endo = mDistMapRightVentricle[node_index];
+                dist_epi = mpGeometryInfo->rGetDistanceMapEpicardium()[node_index];
+                dist_endo = mpGeometryInfo->rGetDistanceMapRightVentricle()[node_index];
                 break;
 
             case LEFT_SEPTUM:
-                dist_epi = mDistMapRightVentricle[node_index];
-                dist_endo = mDistMapLeftVentricle[node_index];
+                dist_epi = mpGeometryInfo->rGetDistanceMapRightVentricle()[node_index];
+                dist_endo = mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index];
                 break;
 
             case RIGHT_SEPTUM:
-                dist_epi = mDistMapLeftVentricle[node_index];
-                dist_endo = mDistMapRightVentricle[node_index];
+                dist_epi = mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index];
+                dist_endo = mpGeometryInfo->rGetDistanceMapRightVentricle()[node_index];
                 break;
 
             case UNKNOWN:
                 #define COVERAGE_IGNORE
                 std::cerr << "Wrong distances node: " << node_index << "\t"
-                          << "Epi " << mDistMapEpicardium[node_index] << "\t"
-                          << "RV " << mDistMapRightVentricle[node_index] << "\t"
-                          << "LV " << mDistMapLeftVentricle[node_index]
+                          << "Epi " << mpGeometryInfo->rGetDistanceMapEpicardium()[node_index] << "\t"
+                          << "RV " << mpGeometryInfo->rGetDistanceMapRightVentricle()[node_index] << "\t"
+                          << "LV " << mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index]
                           << std::endl;
 
                 // Make wall_thickness=0 as in Martin's code
@@ -338,6 +299,9 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
                 dist_endo = 0;
                 break;
                 #undef COVERAGE_IGNORE
+                
+            default:        
+                NEVER_REACHED;
         }
 
         wall_thickness[node_index] = dist_endo / (dist_endo + dist_epi);
@@ -401,7 +365,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
         c_vector<double, SPACE_DIM+1> elem_nodes_ave_thickness;
         double element_averaged_thickness = 0.0;
-        c_vector<RegionType_, SPACE_DIM+1> elem_nodes_region;
+        c_vector<HeartRegionType, SPACE_DIM+1> elem_nodes_region;
 
         for (unsigned local_node_index=0; local_node_index<SPACE_DIM+1; local_node_index++)
         {
@@ -409,7 +373,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
             unsigned global_node_index = p_element->GetNode(local_node_index)->GetIndex();
 
             elem_nodes_ave_thickness[local_node_index] = averaged_wall_thickness[global_node_index];
-            elem_nodes_region[local_node_index] = GetHeartRegion(global_node_index);
+            elem_nodes_region[local_node_index] = mpGeometryInfo->GetHeartRegion(global_node_index);
 
             // Calculate wall thickness averaged value for the element
             element_averaged_thickness +=  wall_thickness[global_node_index];

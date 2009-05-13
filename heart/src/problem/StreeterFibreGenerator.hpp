@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include "DistanceMapCalculator.hpp"
 #include "TetrahedralMesh.hpp"
-
+#include "HeartGeometryInformation.hpp"
 
 /**
  * \todo this class needs documenting!!!!!
@@ -45,30 +45,13 @@ private:
     TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
     unsigned mNumNodes, mNumElements;
 
-    DistanceMapCalculator<SPACE_DIM>* mpDistanceCalculator;
-
+    //DistanceMapCalculator<SPACE_DIM>* mpDistanceCalculator;
+    HeartGeometryInformation<SPACE_DIM>* mpGeometryInfo;
+    
     std::string mEpiFile, mRVFile, mLVFile;
     bool mFilesSet;
 
     std::vector<unsigned> mEpiSurface, mRVSurface, mLVSurface;
-
-    std::vector<double> mDistMapEpicardium, mDistMapRightVentricle, mDistMapLeftVentricle;
-
-    enum RegionType_
-    {
-        LEFT_VENTRICLE_WALL,
-        RIGHT_VENTRICLE_WALL,
-        LEFT_SEPTUM,
-        RIGHT_SEPTUM,
-        UNKNOWN
-    };
-
-    // Area of the septum considered to belong to the each ventricle (relative to 1)
-    static const double LEFT_SEPTUM_SIZE;
-    static const double RIGHT_SEPTUM_SIZE;
-
-
-    inline RegionType_ GetHeartRegion (unsigned nodeIndex) const;
 
     inline double GetAveragedThickness(const unsigned nodeIndex, const std::vector<double>& wallThickness) const;
 
@@ -76,7 +59,7 @@ private:
 
     void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& surfaceVector) const;
 
-    double GetFibreMaxAngle(const c_vector<RegionType_, SPACE_DIM+1>& nodesRegion) const;
+    double GetFibreMaxAngle(const c_vector<HeartRegionType, SPACE_DIM+1>& nodesRegion) const;
 
 public:
     StreeterFibreGenerator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);

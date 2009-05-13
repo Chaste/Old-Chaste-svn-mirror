@@ -34,28 +34,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistanceMapCalculator.hpp"
 #include "TetrahedralMesh.hpp"
 
+/** Names for region types in the heart*/
+typedef enum HeartRegionType_
+{
+    LEFT_VENTRICLE_WALL,
+    RIGHT_VENTRICLE_WALL,
+    LEFT_SEPTUM,
+    RIGHT_SEPTUM,
+    LEFT_VENTRICLE_SURFACE,
+    RIGHT_VENTRICLE_SURFACE,
+    UNKNOWN
+} HeartRegionType;  
+
 
 /**
  * This class provides a method to calculate the relative position of a node with respect to two (or three)
  * given surfaces
  */
+ 
 template<unsigned SPACE_DIM>
 class HeartGeometryInformation
 {
-private:
-
-    /** Names for region types in the heart*/
-    enum RegionType_
-    {
-        LEFT_VENTRICLE_WALL,
-        RIGHT_VENTRICLE_WALL,
-        LEFT_SEPTUM,
-        RIGHT_SEPTUM,
-        LEFT_VENTRICLE_SURFACE,
-        RIGHT_VENTRICLE_SURFACE,
-        UNKNOWN
-    };    
-
+private:  
 
     /** Area of the septum considered to belong to the left septum (relative to 1)*/
     static const double LEFT_SEPTUM_SIZE;
@@ -78,12 +78,6 @@ private:
      * @returns the distance 
      */
     double GetDistanceToEpi(unsigned node_index);
-    
-    /**
-     * @param node index is the index of the node in the mesh
-     * @returns the region type based on the relative distances to epi and endocardial surfaces 
-     */
-    inline RegionType_ GetHeartRegion (unsigned nodeIndex) const;
 
     /**The mesh of the problem*/
     TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
@@ -103,8 +97,7 @@ public:
     HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                               std::vector<unsigned>& rNodesAtEpi,
                               std::vector<unsigned>& rNodesAtEndo);
-     /**
-     * Constructor
+    /** Constructor
      * @param rMesh: reference to the mesh
      * @param rNodesAtEpi: indices of the nodes in the epicardial surface
      * @param rNodesAtLv: indices of the nodes in the lv surface
@@ -114,6 +107,37 @@ public:
                               std::vector<unsigned>& rNodesAtEpi,
                               std::vector<unsigned>& rNodesAtLv,
                               std::vector<unsigned>& rNodesAtRv);
+                              
+    /**
+     * @param node index is the index of the node in the mesh
+     * @returns the region type based on the relative distances to epi and endocardial surfaces 
+     */
+    HeartRegionType GetHeartRegion (unsigned nodeIndex) const;
+    
+    std::vector<double>& rGetDistanceMapEpicardium()
+    {
+        return mDistMapEpicardium;
+    }
+    
+    std::vector<double>& rGetDistanceMapEndocardium()
+    {
+        assert(mNumberOfSurfacesProvided==2);
+        return mDistMapEndocardium;
+    }
+    
+    std::vector<double>& rGetDistanceMapRightVentricle()
+    {
+        assert(mNumberOfSurfacesProvided==3);
+        return mDistMapRightVentricle;
+    }
+
+    std::vector<double>& rGetDistanceMapLeftVentricle()
+    {
+        assert(mNumberOfSurfacesProvided==3);
+        return mDistMapLeftVentricle;
+    }    
+    
+    
     /**
      * Calculates the relative position within the wall thickness (normalised to [0,1])
      * @param node index is the index of the node in the mesh
