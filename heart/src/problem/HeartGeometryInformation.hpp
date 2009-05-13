@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 typedef enum HeartLayerType_
 {
-    ENDO,
+    ENDO = 0,
     MID,
     EPI
 } HeartLayerType;
@@ -45,7 +45,7 @@ typedef enum HeartLayerType_
 /** Names for region types in the heart */
 typedef enum HeartRegionType_
 {
-    LEFT_VENTRICLE_WALL,
+    LEFT_VENTRICLE_WALL = 0,
     RIGHT_VENTRICLE_WALL,
     LEFT_SEPTUM,
     RIGHT_SEPTUM,
