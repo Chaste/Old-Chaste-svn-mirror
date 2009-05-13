@@ -37,6 +37,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "AbstractOdeSystemInformation.hpp"
 
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+// Needs to be included last
+#include <boost/serialization/export.hpp>
+
+
 /**
  * Abstract OdeSystem class.
  * 
@@ -73,6 +81,42 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractOdeSystem
 {
     friend class TestAbstractOdeSystem;
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+private:
+    /**
+     * Archive the member variables.
+     *
+     * Serialization of singleton objects must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mNumberOfStateVariables;
+        archive & mUseAnalyticJacobian;
+        
+//        mStateVariables.reserve( mNumberOfStateVariables );  // Don't need this(?) as constructor has already allocated memory.
+        assert( mStateVariables.capacity() >= mNumberOfStateVariables );
+        for (unsigned i = 0; i < mNumberOfStateVariables; i++)
+        {
+            archive & mStateVariables[i];
+        }
+        
+        for (unsigned i = 0; i < mParameters.size(); i++)
+        {
+            archive & mParameters[i];
+        }
+        
+//        archive &mpSystemInfo;
+        // todo: archive mpSystemInfo
+    }
 
 protected:
 

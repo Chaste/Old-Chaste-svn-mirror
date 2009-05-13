@@ -34,14 +34,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <iostream>
-
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include "Ode1.hpp"
 #include "Ode2.hpp"
 #include "Ode3.hpp"
 #include "TwoDimOdeSystem.hpp"
 #include "VanDerPolOde.hpp"
 #include "ParameterisedOde.hpp"
-
+#include "OutputFileHandler.hpp"
 // Tolerance for tests
 const double tol = 0.01;
 
@@ -138,6 +139,39 @@ public:
         initial_conditions = ode.GetInitialConditions();
         TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 9.0, 1e-12);
+
+        //Archive the ODE system
+        OutputFileHandler handler("ArchiveOde", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "ode.arch";
+        std::ofstream ofs(archive_filename.c_str());
+        boost::archive::text_oarchive output_arch(ofs);
+
+        output_arch <<  static_cast<const TwoDimOdeSystem&>(ode);
+    }
+    void TestLoadAbstractOdeSystem()
+    {
+        TwoDimOdeSystem ode;
+        
+        TS_ASSERT_EQUALS( ode.GetNumberOfStateVariables(), 2U );
+        
+        // Read archive from previous test
+        OutputFileHandler handler("ArchiveOde", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "ode.arch";
+        
+        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+        boost::archive::text_iarchive input_arch(ifs);
+        
+        input_arch >> ode;
+        
+        TS_ASSERT_EQUALS( ode.GetNumberOfStateVariables(), 2U );
+    
+        std::vector<double> state_variables = ode.rGetStateVariables();
+
+
+        TS_ASSERT_DELTA(state_variables[0], 7.0, 1e-12);
+        TS_ASSERT_DELTA(state_variables[1], 8.0, 1e-12);
     }
 
     void TestReadSpecificStateVariable()
@@ -173,6 +207,7 @@ public:
         state = ode_system.DumpState("Test 2.", rY);
         TS_ASSERT_EQUALS(state, "Test 2.\nState:\n\tx:0\n\tv:1\n");
     }
+    
 };
 
 #endif //_TESTABSTRACTODESYSTEM_HPP_

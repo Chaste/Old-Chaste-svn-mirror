@@ -37,12 +37,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <ctime>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include "RunAndCheckIonicModels.hpp"
 #include "Exception.hpp"
 
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 #include "MultiStimulus.hpp"
+#include "ZeroStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
@@ -893,6 +897,78 @@ public:
 //
 //
 //    }
+
+
+    void TestNoble98ArchiveSave(void)
+    {
+        // Set stimulus
+        double magnitude_stimulus = -3;  // uA/cm2
+        double duration_stimulus = 3;  // ms
+        double start_stimulus = 10.0;   // ms
+        SimpleStimulus stimulus(magnitude_stimulus,
+                                 duration_stimulus,
+                                 start_stimulus);
+        EulerIvpOdeSolver solver;
+        double time_step = 0.01;
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+
+        //Check Standard
+        CML_noble_varghese_kohl_noble_1998_basic n98_ode_system(&solver, &stimulus);
+
+        RunOdeSolverWithIonicModel(&n98_ode_system,
+                                   100.0,
+                                   "N98BeforeArchive");  
+        //Archive                           
+        OutputFileHandler handler("ArchiveCardiac", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "n98.arch";
+        std::ofstream ofs(archive_filename.c_str());
+        boost::archive::text_oarchive output_arch(ofs);
+        
+        output_arch <<  static_cast<const CML_noble_varghese_kohl_noble_1998_basic&>(n98_ode_system);
+                                           
+     }
+    void TestNoble98ArchiveLoad(void)
+    {
+        // Set stimulus
+//        double magnitude_stimulus = -3;  // uA/cm2
+//        double duration_stimulus = 3;  // ms
+//        double start_stimulus = 10.0;   // ms
+
+        // todo: we don't really want a solver or a stimulus here as they should be archived
+        ZeroStimulus stimulus;
+        EulerIvpOdeSolver solver;
+        double time_step = 0.01;
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+        
+        CML_noble_varghese_kohl_noble_1998_basic n98_ode_system(&solver, &stimulus);
+        
+        TS_ASSERT_EQUALS( n98_ode_system.GetNumberOfStateVariables(), 22U );
+        
+        // Read archive from previous test
+        OutputFileHandler handler("ArchiveCardiac", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "n98.arch";
+        
+        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+        boost::archive::text_iarchive input_arch(ifs);
+        
+        input_arch >> n98_ode_system;
+        
+        TS_ASSERT_EQUALS( n98_ode_system.GetNumberOfStateVariables(), 22U );
+
+        RunOdeSolverWithIonicModel(&n98_ode_system,
+                                   50.0,
+                                   "N98AfterArchive"); 
+        ///\todo We have checked by eye that the last 50 ms of the N98RegResult file are the same as these results (modulo time stamps) but we need a better test
+                                    
+        CheckCellModelResults("N98AfterArchive");
+ 
+     }
+
+
 
 private:
     void TryTestLr91WithVoltageDrop(unsigned ratio) //throw (Exception)
