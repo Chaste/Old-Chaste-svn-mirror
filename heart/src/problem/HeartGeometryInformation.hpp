@@ -113,24 +113,40 @@ public:
      * @returns the region type based on the relative distances to epi and endocardial surfaces 
      */
     HeartRegionType GetHeartRegion (unsigned nodeIndex) const;
-    
+      
+    /**
+     * 
+     * @returns the distance map to the epicardium 
+     */  
     std::vector<double>& rGetDistanceMapEpicardium()
     {
         return mDistMapEpicardium;
     }
-    
+
+    /**
+     * 
+     * @returns the distance map to the endocardium 
+     */     
     std::vector<double>& rGetDistanceMapEndocardium()
     {
         assert(mNumberOfSurfacesProvided==2);
         return mDistMapEndocardium;
     }
-    
+
+    /**
+     * 
+     * @returns the distance map to the right ventricle 
+     */    
     std::vector<double>& rGetDistanceMapRightVentricle()
     {
         assert(mNumberOfSurfacesProvided==3);
         return mDistMapRightVentricle;
     }
 
+    /**
+     * 
+     * @returns the distance map to the left ventricle 
+     */ 
     std::vector<double>& rGetDistanceMapLeftVentricle()
     {
         assert(mNumberOfSurfacesProvided==3);
