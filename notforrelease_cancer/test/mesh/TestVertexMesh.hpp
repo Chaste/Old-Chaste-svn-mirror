@@ -1332,38 +1332,48 @@ public:
 
     void TestDivideEdgeIfTooBig() throw(Exception)
     {
-        // Create nodes
-        Node<2>* p_node0 = new Node<2>(0, false, 1.0, 1.0);
-        Node<2>* p_node1 = new Node<2>(1, false, 2.0, 1.0);
-        Node<2>* p_node2 = new Node<2>(2, false, 2.0, 3.0);
-        Node<2>* p_node3 = new Node<2>(3, false, 1.0, 2.0);
+        // Create some nodes
+        Node<2>* p_node0 = new Node<2>(0, false, 0.0, 0.0);
+        Node<2>* p_node1 = new Node<2>(1, false, 0.5, -1.0);
+        Node<2>* p_node2 = new Node<2>(2, false, 1.0, 0.0);
+        Node<2>* p_node3 = new Node<2>(3, false, 0.5, 1.0);
 
+        std::vector<Node<2>*> nodes_in_element0, nodes_in_element1;
+        nodes_in_element0.push_back(p_node0);
+        nodes_in_element0.push_back(p_node1);
+        nodes_in_element0.push_back(p_node3);
+        nodes_in_element1.push_back(p_node1);
+        nodes_in_element1.push_back(p_node2);
+        nodes_in_element1.push_back(p_node3);
+        
         std::vector<Node<2>*> nodes;
         nodes.push_back(p_node0);
         nodes.push_back(p_node1);
         nodes.push_back(p_node2);
         nodes.push_back(p_node3);
-
-        // Create element
-        VertexElement<2,2>* p_element = new VertexElement<2,2>(0, nodes);
+        
+        // Create 2 joined triangular elements
+        VertexElement<2,2>* p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
+        VertexElement<2,2>* p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
         std::vector<VertexElement<2,2>* > elements;
-        elements.push_back(p_element);
+        elements.push_back(p_element0);
+        elements.push_back(p_element1);
 
         // Create mesh
         VertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
 
         // Call remesh
         mesh.ReMesh();
 
         // Check that the edge between nodes 1 and 2 has divided
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
 
-        TS_ASSERT_DELTA(mesh.GetNode(4)->rGetLocation()[0], 2.0, 1e-8);
-        TS_ASSERT_DELTA(mesh.GetNode(4)->rGetLocation()[1], 2.0, 1e-8);
+        TS_ASSERT_DELTA(mesh.GetNode(4)->rGetLocation()[0], 0.5, 1e-8);
+        TS_ASSERT_DELTA(mesh.GetNode(4)->rGetLocation()[1], 0.0, 1e-8);
     }
 
 
@@ -1395,82 +1405,106 @@ public:
 
     void TestDivideEdge()
     {
+        /*
+         *     Element
+         *   0    2     1
+         * 
+         *    3________2
+         *    /|      |\  
+         * 4 / |      | \ 5
+         *   \ |      | /
+         *    \|______|/
+         *    0        1
+         */
+                
         // Create nodes
         Node<2>* p_node0 = new Node<2>(0, false, 1.0, 1.0);
         Node<2>* p_node1 = new Node<2>(1, false, 2.0, 1.0);
         Node<2>* p_node2 = new Node<2>(2, false, 2.0, 2.0);
         Node<2>* p_node3 = new Node<2>(3, false, 1.0, 2.0);
         Node<2>* p_node4 = new Node<2>(4, false, 0.5, 1.5);
+        Node<2>* p_node5 = new Node<2>(5, false, 2.5, 1.5);
 
         std::vector<Node<2>*> nodes_in_element0;
         nodes_in_element0.push_back(p_node0);
-        nodes_in_element0.push_back(p_node1);
-        nodes_in_element0.push_back(p_node2);
         nodes_in_element0.push_back(p_node3);
-
+        nodes_in_element0.push_back(p_node4);
+        
         std::vector<Node<2>*> nodes_in_element1;
-        nodes_in_element1.push_back(p_node3);
-        nodes_in_element1.push_back(p_node4);
-        nodes_in_element1.push_back(p_node0);
+        nodes_in_element1.push_back(p_node1);
+        nodes_in_element1.push_back(p_node5);
+        nodes_in_element1.push_back(p_node2);
+        
+        std::vector<Node<2>*> nodes_in_element2;
+        nodes_in_element2.push_back(p_node0);
+        nodes_in_element2.push_back(p_node1);
+        nodes_in_element2.push_back(p_node2);
+        nodes_in_element2.push_back(p_node3);
 
+        
         std::vector<Node<2>*> nodes;
         nodes.push_back(p_node0);
         nodes.push_back(p_node1);
         nodes.push_back(p_node2);
         nodes.push_back(p_node3);
         nodes.push_back(p_node4);
+        nodes.push_back(p_node5);
+        
 
-        // Create two elements, which share nodes 2 and 3
+        /*
+         *  Create three elements, elements0 and 2 share nodes 0 and 3, 
+         *  and elements 1 and 2 share nodes 1 and 2
+         */  
 
         VertexElement<2,2>* p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
         VertexElement<2,2>* p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
-
-        TS_ASSERT_EQUALS(p_element0->GetNumNodes(), 4u);
+        VertexElement<2,2>* p_element2 = new VertexElement<2,2>(2, nodes_in_element2);
+        TS_ASSERT_EQUALS(p_element0->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(p_element1->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_element2->GetNumNodes(), 4u);
 
         // Create mesh
 
         std::vector<VertexElement<2,2>* > elements;
         elements.push_back(p_element0);
         elements.push_back(p_element1);
-
+        elements.push_back(p_element2);
+        
         VertexMesh<2,2> mesh(nodes, elements);
 
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 4u);
 
         // Divide the edge joining nodes 0 and 1
         mesh.DivideEdge(mesh.GetNode(0), mesh.GetNode(1));
 
         // Test edge is divided
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        
+        TS_ASSERT_DELTA(mesh.GetAreaOfElement(2), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(2), 4.0, 1e-6);
 
         // Test other nodes are updated
 
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(0)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(0)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(1)->GetPoint()[0], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(1)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(2)->GetPoint()[0], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(2)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(3)->GetPoint()[0], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(3)->GetPoint()[1], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(4)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(4)->GetPoint()[1], 2.0, 1e-9);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
+        
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
 
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(0)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(0)->GetPoint()[1], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(1)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(1)->GetPoint()[1], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(2)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(2)->GetPoint()[1], 1.0, 1e-9);
-
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(2)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(3)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(4)->GetIndex(), 3u);        
+        
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 1.0, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 1.0, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 2.0, 1e-9);
@@ -1481,44 +1515,43 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(3)->GetPoint()[1], 2.0, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[1], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[0], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[1], 1.0, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[0], 2.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[1], 1.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[0], 1.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[1], 1.0, 1e-9);
 
         // Divide the edge joining nodes 3 and 0
-
         mesh.DivideEdge(mesh.GetNode(3), mesh.GetNode(0));
 
-        // Test edge is divided
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 6u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
+        // Divide the edge joining nodes 2 and 1
+        mesh.DivideEdge(mesh.GetNode(2), mesh.GetNode(1));
+   
+        // Test edges are divided
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
+        TS_ASSERT_DELTA(mesh.GetAreaOfElement(2), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(2), 4.0, 1e-6);
 
         // Test other nodes are updated
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 4u);
 
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(0)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(0)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(1)->GetPoint()[0], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(1)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(2)->GetPoint()[0], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(2)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(3)->GetPoint()[0], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(3)->GetPoint()[1], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(4)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(4)->GetPoint()[1], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(5)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNode(5)->GetPoint()[1], 1.5, 1e-9);
-
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(0)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(0)->GetPoint()[1], 2.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(1)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(1)->GetPoint()[1], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(2)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(2)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(3)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNode(3)->GetPoint()[1], 1.5, 1e-9);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(3)->GetIndex(), 8u);
+        
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(2)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(3)->GetIndex(), 8u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(4)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(5)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(6)->GetIndex(), 7u);
 
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 1.0, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 1.0, 1e-9);
@@ -1530,10 +1563,14 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(3)->GetPoint()[1], 2.0, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[1], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[0], 1.5, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[1], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[1], 1.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[0], 2.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[1], 1.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[0], 1.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[1], 1.0, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->GetPoint()[0], 1.0, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->GetPoint()[1], 1.5, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[0], 2.0, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[1], 1.5, 1e-9);
     }
 
 

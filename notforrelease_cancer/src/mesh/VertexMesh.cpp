@@ -852,7 +852,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
         unsigned local_indexB = GetElement(*iter)->GetNodeLocalIndex(pNodeB->GetIndex());
 
         unsigned index = local_indexB;
-        if ( (local_indexA == 0) || (local_indexB == 0) || (local_indexB > local_indexA) )
+        if ( local_indexB > local_indexA )
         {
             index = local_indexA;
         }
@@ -860,7 +860,10 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
         {
             index = local_indexB;
         }
-
+        if ( (local_indexB == 0) && (local_indexA == GetElement(*iter)->GetNumNodes()-1))
+        {
+            index = local_indexA;
+        }
         // Add new node to this element
         GetElement(*iter)->AddNode(index, p_new_node);
     }
