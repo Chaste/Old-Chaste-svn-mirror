@@ -717,7 +717,8 @@ public:
         TS_ASSERT_EQUALS(det, 0.1);
         p_last_element->CalculateJacobian(jacobian, det);
         TS_ASSERT_DELTA(det, 0.09, 1e-6);
-
+        
+        mesh.RefreshMesh();
         // Test mesh length
         TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
     }
@@ -794,6 +795,7 @@ public:
         TS_ASSERT_DELTA(det, 3e-05, 1e-6);
 
         // Testing invariants
+        mesh.RefreshMesh();
         TS_ASSERT_DELTA(mesh.GetVolume(), 0.01, 1e-6);
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 0.4, 1e-6);
 
