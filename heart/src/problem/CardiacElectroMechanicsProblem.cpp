@@ -78,7 +78,7 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
 
         //// the following causes a seg fault for some reason (!!???!!!)
         //EXCEPTION("Could not find an electrics node very close to requested watched location");
-        assert(0);
+        NEVER_REACHED;
         #undef COVERAGE_IGNORE
     }
     else

@@ -27,10 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DistributedVectorFactory.hpp"
-
-void DistributedVectorFactory::construct(Vec vec)
+#include "Exception.hpp"
+void DistributedVectorFactory::Construct(Vec vec)
 {
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if (!mPetscStatusKnown)
     {
         CheckForPetsc();
@@ -49,7 +49,7 @@ void DistributedVectorFactory::construct(Vec vec)
 
 DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
 {
-    construct(vec);
+    Construct(vec);
 }
 
 DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local) : mPetscStatusKnown(false)
@@ -64,7 +64,7 @@ DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local
     VecCreate(PETSC_COMM_WORLD, &vec);
     VecSetSizes(vec, local, size);
     VecSetFromOptions(vec);
-    construct(vec);
+    Construct(vec);
     VecDestroy(vec);    
 }
 

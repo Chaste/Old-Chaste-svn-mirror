@@ -62,6 +62,15 @@ private:
 
     /** Which processors we are. */
     static unsigned mRank;
+    
+    /** Private method makes sure that (if this is the first use within a test) then PETSc has been probed */
+    static inline void CheckCache(void)
+    {
+        if (mNumProcessors == 0)
+        {
+            ResetCache();
+        }
+    }
 
 public:
 

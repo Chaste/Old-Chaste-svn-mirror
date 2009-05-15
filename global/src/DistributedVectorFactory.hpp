@@ -53,7 +53,7 @@ private:
     /**
      * Helper method for the constructors
      */
-    void construct(Vec vec);
+    void Construct(Vec vec);
     
 public:
     /**

@@ -313,7 +313,7 @@ public:
                 }
 
                 default:
-                    assert(0);
+                    NEVER_REACHED;
             }
 
             double mesh_width=constructor.GetWidth();

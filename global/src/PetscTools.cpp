@@ -69,37 +69,25 @@ void PetscTools::ResetCache()
 
 bool PetscTools::IsSequential()
 {
-    if (mNumProcessors == 0)
-    {
-        ResetCache();
-    }
+    CheckCache();
     return (mNumProcessors == 1);
 }
 
 unsigned PetscTools::NumProcs()
 {
-    if (mNumProcessors == 0)
-    {
-        ResetCache();
-    }
+    CheckCache();
     return mNumProcessors;
 }
 
 unsigned PetscTools::GetMyRank()
 {
-    if (mNumProcessors == 0)
-    {
-        ResetCache();
-    }
+    CheckCache();
     return mRank;
 }
 
 bool PetscTools::AmMaster()
 {
-    if (mNumProcessors == 0)
-    {
-        ResetCache();
-    }
+    CheckCache();
     return (mRank == MASTER_RANK);
 }
 
@@ -109,10 +97,7 @@ bool PetscTools::AmMaster()
 
 void PetscTools::Barrier()
 {
-    if (mNumProcessors == 0)
-    {
-        ResetCache();
-    }
+    CheckCache();
     if (mPetscIsInitialised)
     {
         PetscBarrier(PETSC_NULL);

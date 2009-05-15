@@ -139,6 +139,15 @@ public:
         TS_ASSERT_LESS_THAN_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 25.0);
                    
     }
+    void TestSilentlyCloseEvent()
+    {
+        AnEventHandler::Reset();
+        AnEventHandler::Enable();
+        AnEventHandler::BeginEvent(AnEventHandler::TEST1);
+        MPISLEEP(0.01);
+        
+        AnEventHandler::Report();
+    }
 };
 
 

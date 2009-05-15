@@ -66,7 +66,7 @@ public:
                 break;
             }
             default:
-                assert(0);
+                NEVER_REACHED;
                 return true;//To keep Inntel compiler happy
         }
         return true;//To keep Intel compiler happy
