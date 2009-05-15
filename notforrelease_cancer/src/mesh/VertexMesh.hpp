@@ -110,7 +110,7 @@ protected:
      * @param pNodeA one of the nodes to perform the merge with
      * @param pNodeB the other node to perform the merge with 
      */
-    void Perform4wayMerge(Node<SPACE_DIM>* pNodeA,
+    void PerformNodeMerge(Node<SPACE_DIM>* pNodeA,
                           Node<SPACE_DIM>* pNodeB);
 
 

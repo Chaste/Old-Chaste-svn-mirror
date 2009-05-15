@@ -184,7 +184,7 @@ public:
     }
 
 
-    void TestVertexMonolayerWithCellBirth() throw (Exception)
+    void noTestVertexMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 5, 0.1, 1.0);
@@ -198,10 +198,10 @@ public:
             double birth_time = 0.0 - elem_index;
 
             // Cell 12 should divide at time t=0.5
-            if (elem_index==12)
+            if ((elem_index==6)||(elem_index==7)||(elem_index==8)||(elem_index==11)||(elem_index==12)||(elem_index==13)||(elem_index==17))
             {
-                cell_type = STEM;
-                birth_time = -23.5;
+                cell_type = TRANSIT;
+                birth_time = -(double)elem_index ;//-23.5;
             }
 //            else if (elem_index==15)
 //            {
@@ -235,7 +235,8 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
-        simulator.SetEndTime(2.0);
+        simulator.SetSamplingTimestepMultiple(100);
+        simulator.SetEndTime(200.0);
 
         // Run simulation
         simulator.Solve();
@@ -454,8 +455,8 @@ public:
             // Cell 5 should divide at time t=0.5
             if (elem_index==5)
             {
-                cell_type = TRANSIT;
-                birth_time = -17.5;
+                cell_type = STEM;
+                birth_time = -23.5;
             }
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -477,6 +478,10 @@ public:
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
+
+        /*
+         * to visualise need to add "MeshWidth   3.46410162" to results.vizsetup. 
+         */
         simulator.SetOutputDirectory("TestVertexCryptWithCellBirth");
         simulator.SetEndTime(1.0);
 

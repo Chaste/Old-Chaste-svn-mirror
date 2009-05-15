@@ -1157,7 +1157,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
          *  /
          * 
          */
-        Perform4wayMerge(pNodeA, pNodeB);
+        PerformNodeMerge(pNodeA, pNodeB);
     } 
     else //less than 4 elements per node
     {
@@ -1201,7 +1201,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                  *
                  * Here we employ a PartialT1Swap
                  */
-                 PerformT1Swap(pNodeA, pNodeB, all_indices);
+                 //PerformT1Swap(pNodeA, pNodeB, all_indices);
+                 PerformNodeMerge(pNodeA, pNodeB);
+                 
             }
         }
         else if (all_indices.size()==3) // nodes are contained in three elments
@@ -1218,7 +1220,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
             *
             * Perform a PartialT1Swap
             */
-            PerformT1Swap(pNodeA, pNodeB, all_indices);
+            //PerformT1Swap(pNodeA, pNodeB, all_indices);
+            PerformNodeMerge(pNodeA, pNodeB);
         }
         else if (all_indices.size()==4) // Correct set up for T1Swap
         {
@@ -1245,7 +1248,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     }
 }
 
-
+// \todo remove this method
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMergeOnEdge(Node<SPACE_DIM>* pNodeA,
                                                                 Node<SPACE_DIM>* pNodeB,
@@ -1292,23 +1295,31 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMergeOnEdge(Node<SPACE_DIM>*
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Perform4wayMerge(Node<SPACE_DIM>* pNodeA,
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA,
                                                           Node<SPACE_DIM>* pNodeB)
 {
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
     
-    if (nodeB_elem_indices.size() < nodeA_elem_indices.size())
+    
+    // Move node with lowest index to midpoint 
+    c_vector<double, SPACE_DIM> node_midpoint = pNodeA->rGetLocation() + 0.5*GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
+     
+    if (pNodeA->GetIndex() < pNodeB->GetIndex()) // Remove node B
     {
+        c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
+        r_nodeA_location = node_midpoint; 
+    
+        //Replace node B with node A
         for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
              it != nodeB_elem_indices.end();
-             ++it)
+            ++it)
         {
             unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
             assert(nodeB_local_index < UINT_MAX); // this element should contain node B
             
-            if (nodeA_elem_indices.count(*it)>0)
+            if (nodeA_elem_indices.count(*it)>0) //Element contains nodeA
             {
                 // Remove node B
                 mElements[*it]->DeleteNode(nodeB_local_index);      
@@ -1322,16 +1333,20 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Perform4wayMerge(Node<SPACE_DIM>* pNode
         // \todo Delete node B
         // mDeletedNodeIndices.push_back(pNodeB->GetIndex());
     }
-    else if (nodeA_elem_indices.size() < nodeB_elem_indices.size())
+    else // Remove node A
     {
+        c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
+        r_nodeB_location = node_midpoint;
+
+        //Replace node A with node B
         for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
              it != nodeA_elem_indices.end();
-             ++it)
+            ++it)
         {
             unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
             assert(nodeA_local_index < UINT_MAX); // this element should contain node A
             
-            if (nodeB_elem_indices.count(*it)>0)
+            if (nodeB_elem_indices.count(*it)>0) //Element contains nodeB
             {
                 // Remove node A
                 mElements[*it]->DeleteNode(nodeA_local_index);      
@@ -1344,12 +1359,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Perform4wayMerge(Node<SPACE_DIM>* pNode
         }
         // \todo Delete node A
         // mDeletedNodeIndices.push_back(pNodeA->GetIndex());
-    }
-    else // \todo Both nodes the same order so merge nodes?
-    {
-        #define COVERAGE_IGNORE
-        EXCEPTION("Tried to merge two nodes with the same order (>3) nodes, this functionality doesnt exist");
-        #undef COVERAGE_IGNORE
     }
 }
 
@@ -1473,7 +1482,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
 
             /*
              * Locate local index of nodeA and nodeB and use the oredering to
-             * identify the element if nodeB_index > nodeA_index then element 4
+             * identify the element, if nodeB_index > nodeA_index then element 4
              * and if nodeA_index > nodeB_index then element 2
              */
             unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());

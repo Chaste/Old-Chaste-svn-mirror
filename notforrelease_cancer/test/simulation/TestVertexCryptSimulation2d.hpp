@@ -212,11 +212,18 @@ public:
             
             CellType cell_type;
             
+            // Cell 5 should divide at time t=0.5
             if ((elem_index==5))
             {
                 birth_time = -20.0;
                 cell_type = STEM;
             }
+            // Cell 7 should divide at time t=0.5
+//            else if (elem_index==7)
+//            {
+//                cell_type = STEM;
+//                birth_time = -23.5;
+//            }
             else 
             {
                 cell_type = DIFFERENTIATED;
@@ -237,6 +244,7 @@ public:
 
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
+        simulator.SetSamplingTimestepMultiple(1);
         simulator.SetEndTime(1.0);
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
 
