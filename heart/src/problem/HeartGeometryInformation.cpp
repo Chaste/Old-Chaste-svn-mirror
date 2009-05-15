@@ -42,25 +42,26 @@ const double HeartGeometryInformation<SPACE_DIM>::LEFT_SEPTUM_SIZE = 2.0/3.0;
 template<unsigned SPACE_DIM>
 const double HeartGeometryInformation<SPACE_DIM>::RIGHT_SEPTUM_SIZE = 1.0/3.0;
 
-
-template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                                                              std::string mEpiFile,
-                                                              std::string mEndoFile)
-   : mrMesh(rMesh)
-{
-    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
-    
-    // Get nodes defining each surface
-    GetNodesAtSurface(mEpiFile, mEpiSurface);
-    GetNodesAtSurface(mEndoFile, mEndoSurface);
-
-    // Compute the distance map of each surface
-    distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
-    distance_calculator.ComputeDistanceMap(mEndoSurface, mDistMapEndocardium);
-    
-    mNumberOfSurfacesProvided = 2; 
-}
+//\todo
+//template<unsigned SPACE_DIM>
+//HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+//                                                              std::string mEpiFile,
+//                                                              std::string mEndoFile)
+//   : mrMesh(rMesh)
+//{
+//    
+//    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+//    
+//    // Get nodes defining each surface
+//    GetNodesAtSurface(mEpiFile, mEpiSurface);
+//    GetNodesAtSurface(mEndoFile, mEndoSurface);
+//
+//    // Compute the distance map of each surface
+//    distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
+//    distance_calculator.ComputeDistanceMap(mEndoSurface, mDistMapEndocardium);
+//    
+//    mNumberOfSurfacesProvided = 2; 
+//}
 
 template<unsigned SPACE_DIM>
 HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,

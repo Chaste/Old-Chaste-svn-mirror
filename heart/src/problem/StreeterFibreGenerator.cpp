@@ -105,8 +105,6 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
                 break;
 
             case UNKNOWN:
-                break;
-            
             default:
                 NEVER_REACHED;
         }
