@@ -255,7 +255,7 @@ public:
         
         Vec petsc_vec;
         petsc_vec = factory.CreateVec();
-        DistributedVectorFactory factory2(petsc_vec);
+        //DistributedVectorFactory factory2(petsc_vec);
         
 /*
  *  Functionality to be implemented next

@@ -61,7 +61,7 @@ public:
      *
      * @param vec
      */
-    DistributedVectorFactory(Vec vec);
+    //DistributedVectorFactory(Vec vec);
 
     /**
      * Set the problem size specifying distribution over local processor.

@@ -33,7 +33,7 @@ void DistributedVectorFactory::Construct(Vec vec)
 #ifndef NDEBUG
     if (!mPetscStatusKnown)
     {
-        CheckForPetsc();
+        //\todo CheckForPetsc();
     }
 #endif
     // calculate my range
@@ -47,10 +47,10 @@ void DistributedVectorFactory::Construct(Vec vec)
     mGlobalHi = (unsigned) size;        
 }
 
-DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
-{
-    Construct(vec);
-}
+//DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
+//{
+//    Construct(vec);
+//}
 
 DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local) : mPetscStatusKnown(false)
 {
