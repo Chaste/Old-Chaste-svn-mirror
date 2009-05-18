@@ -63,16 +63,18 @@ private:
     
     /**
      * Helper method for the constructors
+     * 
+     * @param vec the new PETSc vector to construct
      */
     void Construct(Vec vec);
     
 public:
-    /**
-     * Set the problem with an existing PETSc vector -- must have stride=1.
-     *
-     * @param vec
-     */
-    //DistributedVectorFactory(Vec vec);
+//    /**
+//     * Set the problem with an existing PETSc vector -- must have stride=1.
+//     *
+//     
+//     */
+//    DistributedVectorFactory(Vec vec);
 
     /**
      * Set the problem size specifying distribution over local processor.
