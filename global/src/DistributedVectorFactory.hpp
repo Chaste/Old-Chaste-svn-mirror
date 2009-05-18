@@ -32,7 +32,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include <cassert>
 
-class DistributedVectorFactory
+/**
+ * Gives access to the local portion of a PETSc vector via an iterator.
+ *
+ * It also provides two nested classes for accessing vectors with particular
+ * memory layouts: striped and chunked.
+ *
+ * Replacement for DistributedVector (a static anonymous class), the
+ * factory class allows several patterns of PETSc vector length (and 
+ * distributions among processes) to co-exist.
+ */
+ class DistributedVectorFactory
 {
 private:
     // Data global to all vectors.

@@ -102,10 +102,9 @@ public:
      */
     void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian); //const
 
-    /**
-     * Get the volume of this element (or area in 2d, or length in 1d).
-     * 
-     * @param determinant the determinant of the Jacobian for the element
+    /** Get the volume of an element (or area in 2d, or length in 1d) 
+     * @param determinant a pre-calculated Jacobian determinant for this element.
+     * @return volume (which is simply the determinant weighted by the SPACE_DIM)
      */
     double GetVolume(double determinant) const;
 

@@ -63,7 +63,12 @@ class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 
 public:
 
-    typedef enum
+     /** Definition of partition types. 
+      * "DUMB" is using naturally mesh ordering with PETSC_DECIDE.
+      * "METIS_BINARY" via METIS file dump and a call to the Metis binary partdmesh.
+      * "METIS_LIBRARY" is a call to the sequential METIS library 
+      * */
+     typedef enum
     {
         DUMB=0,
         METIS_BINARY,
@@ -114,21 +119,30 @@ public:
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
                                  bool cullInternalFaces=false);
 
+    /**
+     * Get the number of nodes that are entirely owned by the local process.
+     * (Does not include halo nodes).
+     */
     unsigned GetNumLocalNodes() const;
+    
+    /**
+     * Get the number of Elements which are owned by this process (have at least one entirely
+     * locally-owned node).
+     */
     unsigned GetNumLocalElements() const;
 
     /**
-     * Get the number of nodes that are actually in use.
+     * Get the total number of nodes that are actually in use (globally).
      */
     unsigned GetNumNodes() const;
 
     /**
-     * Get the number of elements that are actually in use.
+     * Get the total number of elements that are actually in use (globally).
      */
     unsigned GetNumElements() const;
     
     /**
-     * Get the number of boundary elements that are actually in use.
+     * Get the total number of boundary elements that are actually in use (globally).
      */
     unsigned GetNumBoundaryElements() const;
 
@@ -145,9 +159,32 @@ public:
 
 private:
 
+    /**
+     * Add the most recently constructed node to the global->local node mapping
+     * 
+     * @param index is the global index of node to be registered
+     */
     void RegisterNode(unsigned index);
+
+    /**
+     * Add the most recently constructed halo node to the global->local halo node mapping
+     * 
+     * @param index is the global index of halo node to be registered
+     */
     void RegisterHaloNode(unsigned index);
+    
+    /**
+     * Add the most recently constructed element to the global->local element mapping
+     * 
+     * @param index is the global index of element to be registered
+     */
     void RegisterElement(unsigned index);
+
+     /**
+     * Add the most recently constructed boundary element to the global->local boundary element mapping
+     * 
+     * @param index is the global index of boundary element to be registered
+     */
     void RegisterBoundaryElement(unsigned index);
 
     /**
