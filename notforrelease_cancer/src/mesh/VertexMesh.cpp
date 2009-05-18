@@ -252,7 +252,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
 {
-    /// \todo sort out boundary elements in a vertex mesg 
+    /// \todo sort out boundary elements in a vertex mesh
 //    assert(index < this->mBoundaryElements.size() );
     return index;
 }
@@ -271,11 +271,13 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeDivisionThreshold() const
     return mEdgeDivisionThreshold;
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetT2Threshold() const
 {
     return mT2Threshold;
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementThreshold(double cellRearrangementThreshold)
@@ -284,18 +286,19 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementThreshold(double ce
 }
 
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetEdgeDivisionThreshold(double edgeDivisionThreshold)
 {
     mEdgeDivisionThreshold = edgeDivisionThreshold;
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetT2Threshold(double t2Threshold)
 {
     mT2Threshold = t2Threshold;
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
@@ -381,11 +384,13 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
     return this->mNodes.size() - mDeletedNodeIndices.size();
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
 {
     return this->mNodes.size();
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
@@ -399,6 +404,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 {
     return mElements.size();
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
@@ -651,26 +657,8 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
                        + 2*pos_1(0)*pos_1(1) 
                        + 2*pos_2(0)*pos_2(1)
                        + pos_2(0)*pos_1(1) ) * a;
-        // Old Formulae \todo remove and update vertex pdf         
-//        // Ixx
-//        moments(0) += (pos_2(0)-pos_1(0))*(  pos_1(1)*pos_1(1)*pos_1(1)
-//                                           + pos_1(1)*pos_1(1)*pos_2(1)
-//                                           + pos_1(1)*pos_2(1)*pos_2(1)
-//                                           + pos_2(1)*pos_2(1)*pos_2(1));
-//
-//        // Iyy
-//        moments(1) += (pos_2(1)-pos_1(1))*(  pos_1(0)*pos_1(0)*pos_1(0)
-//                                           + pos_1(0)*pos_1(0)*pos_2(0)
-//                                           + pos_1(0)*pos_2(0)*pos_2(0)
-//                                           + pos_2(0)*pos_2(0)*pos_2(0));
-//
-//        // Ixy
-//        moments(2) +=   pos_1(0)*pos_1(0)*pos_2(1)*(pos_1(1)*2 + pos_2(1))
-//                      - pos_2(0)*pos_2(0)*pos_1(1)*(pos_1(1) + pos_2(1)*2)
-//                      + 2*pos_1(0)*pos_2(0)*(pos_2(1)*pos_2(1) - pos_1(1)*pos_1(1));
     }
 
-//    moments(0) /= -12;
     moments(0) /= 12;
     moments(1) /= 12;
     moments(2) /= 24;
@@ -1305,8 +1293,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
-    
-    
+
     // Move node with lowest index to midpoint 
     c_vector<double, SPACE_DIM> node_midpoint = pNodeA->rGetLocation() + 0.5*GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
      
@@ -1367,9 +1354,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
         // mDeletedNodeIndices.push_back(pNodeA->GetIndex());
     }
 }
-
-
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,

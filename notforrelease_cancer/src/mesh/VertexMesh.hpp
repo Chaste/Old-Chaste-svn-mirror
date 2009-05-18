@@ -567,7 +567,6 @@ public:
      */
     void PerformT2SwapIfNecessary(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
 
-
     /**
      * Mark an element as deleted. Note that it DOES NOT deal with the associated
      * nodes and therefore should only be called immediately prior to a ReMesh()

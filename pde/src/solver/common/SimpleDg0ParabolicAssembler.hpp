@@ -72,7 +72,7 @@ protected:
     /**
      * The term to be added to the element stiffness matrix:
      *
-     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) +
+     *   grad_phi[row] . ( pde_diffusion_term * grad_phi[col]) +
      *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
      * 
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
