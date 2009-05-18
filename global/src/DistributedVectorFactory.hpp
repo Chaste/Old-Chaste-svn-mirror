@@ -33,19 +33,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 
 /**
- * Gives access to the local portion of a PETSc vector via an iterator.
+ * Factory for creating PETSc vectors distributed across processes.
  *
- * It also provides two nested classes for accessing vectors with particular
- * memory layouts: striped and chunked.
+ * Replacement for the vector creation portions of DistributedVector (which
+ * was implemented using static methods and data), the factory class allows
+ * several patterns of PETSc vector length (and distributions among
+ * processes) to co-exist.
  *
- * Replacement for DistributedVector (a static anonymous class), the
- * factory class allows several patterns of PETSc vector length (and 
- * distributions among processes) to co-exist.
+ * All vectors created by a factory instance will have the same base size
+ * and parallelisation pattern.
  */
  class DistributedVectorFactory
 {
 private:
-    // Data global to all vectors.
+    // Data global to all vectors created by this factory.
     /** The first entry owned by the current processor. */
     unsigned mLo;
     /** One above the last entry owned by the current processor. */
