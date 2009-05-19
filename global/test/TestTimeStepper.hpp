@@ -40,6 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestTimeStepper : public CxxTest::TestSuite
 {
 public:
+    void TestOverflow()
+    {
+        TimeStepper stepper(0.0, DBL_MAX, DBL_EPSILON);
+        stepper.mTimeStep = (unsigned)(-1);
+        TS_ASSERT(!stepper.IsTimeAtEnd());
+        TS_ASSERT_THROWS_ANYTHING(stepper.AdvanceOneTimeStep());
+    }
+
     void TestAdvance()
     {
         const double smidge=1e-10;

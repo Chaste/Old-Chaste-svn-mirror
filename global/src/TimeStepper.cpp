@@ -76,6 +76,10 @@ double TimeStepper::CalculateNextTime() const
 void TimeStepper::AdvanceOneTimeStep()
 {
     mTimeStep++;
+    if (mTimeStep == 0)
+    {
+        EXCEPTION("Time step counter has overflowed.");
+    }
     mTime = mNextTime;
     mNextTime = CalculateNextTime();
 }

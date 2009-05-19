@@ -87,6 +87,7 @@ public:
     unsigned GetTimeStepsElapsed() const;
 
 private:
+    friend class TestTimeStepper;
 
     /** The start time. */
     double mStart;
