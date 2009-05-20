@@ -46,13 +46,13 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
         // Initialize all nodes to be bath nodes
         for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
         {
-      try
-        {
-          this->mpMesh->GetNode(i)->SetRegion(HeartRegionCode::BATH);
-        }
-      catch(Exception& e)
-        {
-        }
+            try
+            {
+                this->mpMesh->GetNode(i)->SetRegion(HeartRegionCode::BATH);
+            }
+            catch(Exception& e)
+            {
+            }
         }
 
         bool any_bath_element_found = false;
@@ -63,7 +63,7 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
             it != this->mpMesh->GetElementIteratorEnd();
             ++it)
         {
-      Element<DIM, DIM>& r_element = *(*it);
+            Element<DIM, DIM>& r_element = *(*it);
 
             if (r_element.GetRegion() == HeartRegionCode::TISSUE)
             {

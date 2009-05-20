@@ -108,9 +108,9 @@ void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector
     for (DistributedVector::Iterator index = DistributedVector::Begin();
          index!= DistributedVector::End();
          ++index)
-        {
-            unstriped[index] = stripe[index];
-        }
+    {
+        unstriped[index] = stripe[index];
+    }
 
     // Put the unstriped vector
     ParallelColumnDataWriter::PutVector(variableId, unstriped_petsc);

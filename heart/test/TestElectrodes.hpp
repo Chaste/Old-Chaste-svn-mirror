@@ -74,11 +74,12 @@ public:
         }
 
         unsigned num_grounded_nodes = 0u;
-        for(DistributedVector::Iterator node_it = DistributedVector::Begin();
-            node_it != DistributedVector::End();
-            ++node_it)
-        {
-            Node<2>* p_node = mesh.GetNode(node_it.Global);
+        
+        for (AbstractMesh<2,2>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
+             iter != rMesh.GetNodeIteratorEnd();
+             ++iter)
+        {       
+            Node<2>* p_node = &(*iter);
             if (p_bcc->HasDirichletBoundaryCondition(p_node, 1))
             {
                 double x_val = p_node->rGetLocation()[0];

@@ -47,7 +47,22 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
     // check min x_i = a and max x_i = b, where i = index
     double local_min = DBL_MAX;
     double local_max = -DBL_MAX;
-    for (DistributedVector::Iterator node_it = DistributedVector::Begin();
+    
+    for (typename AbstractMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
+         iter != rMesh.GetNodeIteratorEnd();
+         ++iter)
+    {
+        double value = (*iter).rGetLocation()[index];
+        if(value < local_min)
+        {
+            local_min = value;
+        }
+        if(value > local_max)
+        {
+           local_max = value;
+        }        
+    }    
+    /*for (DistributedVector::Iterator node_it = DistributedVector::Begin();
          node_it != DistributedVector::End();
          ++node_it)
     {
@@ -60,7 +75,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
          {
             local_max = value;
          }
-    }
+    }*/
 
     double global_min;
     double global_max;
