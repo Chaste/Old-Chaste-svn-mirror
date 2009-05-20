@@ -266,24 +266,21 @@ public:
          * All the nodes have been assigned
          */
         {
+            unsigned total_nodes_this_process = 0;
             unsigned num_global_nodes = mesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
 
-            // Create a local map of the nodes this processor owns
-            for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
+            for (AbstractMesh<3,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+                 iter != mesh.GetNodeIteratorEnd();
+                 ++iter)
             {
-                try
-                {
-                    unsigned node_index = mesh.GetNode(node_id)->GetIndex();
-                    TS_ASSERT_EQUALS(node_id, node_index);
+                unsigned node_index = (*iter).GetIndex();
+                nodes_owned[node_index] = 1;
 
-                    nodes_owned[node_index] = 1;
-                }
-                catch(Exception& e)
-                {
-                    nodes_owned[node_id] = 0;
-                }
+                total_nodes_this_process++;
             }
+
+            TS_ASSERT_EQUALS(mesh.GetNumLocalNodes(), total_nodes_this_process);
 
             // Combine all the local maps by adding them up in the master process
             unsigned nodes_reduction[num_global_nodes];
@@ -656,6 +653,5 @@ public:
             }
         }
     }
-
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

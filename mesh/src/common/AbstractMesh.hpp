@@ -112,12 +112,35 @@ protected:  // Give access of these variables to subclasses
 
 public:
 
+    //////////////////////////////////////////////////////////////////////
+    //                            Iterators                             //
+    //////////////////////////////////////////////////////////////////////
+
     /** Definition of element Iterator type. */
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     /** Definition of boundary element Iterator type. */
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
     /** Definition of boundary node Iterator type. */
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
+
+    /** Forward declaration */
+    class NodeIterator;
+    
+    /**
+     * Get an iterator to the first node in the mesh.
+     * 
+     * @param skipDeletedNodes whether to include deleted nodes
+     */
+    inline NodeIterator GetNodeIteratorBegin(bool skipDeletedNodes=true);
+    
+    /**
+     * Get an iterator to one past the last node in the mesh.
+     */
+    inline NodeIterator GetNodeIteratorEnd();
+
+    //////////////////////////////////////////////////////////////////////
+    //                             Methods                              //
+    //////////////////////////////////////////////////////////////////////
 
     /**
      * Constructor.
@@ -288,6 +311,74 @@ public:
      * Get method for mNodesPermutation.
      */
     std::vector<unsigned>& rGetNodePermutation();
+    
+    //////////////////////////////////////////////////////////////////////
+    //                         Nested classes                           //
+    //////////////////////////////////////////////////////////////////////
+    
+    /**
+     * A smart iterator over the nodes in the mesh.
+     */
+    class NodeIterator
+    {
+    public:
+        /**
+         * Dereference the iterator giving you a *reference* to the current node.
+         * 
+         * Make sure to use a reference for the result to avoid copying nodes unnecessarily.
+         */
+        inline Node<SPACE_DIM>& operator*();
+        
+        /**
+         * Member access from a pointer.
+         */
+        inline Node<SPACE_DIM>* operator->();
+        
+        /**
+         * Comparison not-equal-to.
+         *
+         * @param other iterator with which comparison is made
+         */
+        inline bool operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other);
+        
+        /**
+         * Prefix increment operator.
+         */
+        inline NodeIterator& operator++();
+        
+        /**
+         * Constructor for a new iterator.
+         * 
+         * This should not be called directly by user code; use the mesh methods
+         * AbstractMesh::GetNodeIteratorBegin and AbstractMesh::GetNodeIteratorEnd instead.
+         * 
+         * @param rMesh the mesh to iterator over
+         * @param nodeIter where to start iterating
+         * @param skipDeletedNodes whether to include deleted nodes
+         */
+        NodeIterator(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+                     typename std::vector<Node<SPACE_DIM> *>::iterator nodeIter,
+                     bool skipDeletedNodes=true);
+    private:
+        /** The mesh we're iterating over. */
+        AbstractMesh& mrMesh;
+
+        /** The actual node iterator. */
+        typename std::vector<Node<SPACE_DIM> *>::iterator mNodeIter;
+        
+        /** Whether to skip deleted nodes. */
+        bool mSkipDeletedNodes;
+        
+        /**
+         * Helper method to say when we're at the end.
+         */
+        inline bool IsAtEnd();
+        
+        /**
+         * Helper method to say if we're allowed to point at this node.
+         */
+        inline bool IsAllowedNode();
+    };
 };
 
 namespace boost
@@ -309,5 +400,92 @@ struct is_abstract<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >
 };
 }
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//         Iterator class implementation - most methods are inlined         //
+//////////////////////////////////////////////////////////////////////////////
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIteratorBegin(
+        bool skipDeletedNodes)
+{
+    return NodeIterator(*this, mNodes.begin(), skipDeletedNodes);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIteratorEnd()
+{
+    return NodeIterator(*this, mNodes.end());
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator*()
+{
+    assert(!IsAtEnd());
+    return **mNodeIter;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator->()
+{
+    assert(!IsAtEnd());
+    return *mNodeIter;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other)
+{
+    return mNodeIter != other.mNodeIter;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator++()
+{
+    do
+    {
+        ++mNodeIter;
+    }
+    while (!IsAtEnd() && !IsAllowedNode());
+    
+    return (*this);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::NodeIterator(
+        AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+        typename std::vector<Node<SPACE_DIM> *>::iterator nodeIter,
+        bool skipDeletedNodes)
+    : mrMesh(rMesh),
+      mNodeIter(nodeIter),
+      mSkipDeletedNodes(skipDeletedNodes)
+{
+    if (mrMesh.mNodes.size() == 0)
+    {
+        // Cope with empty meshes
+        mNodeIter = mrMesh.mNodes.end();
+    }
+    else
+    {
+        // Make sure we start at an allowed node
+        if (mNodeIter == mrMesh.mNodes.begin() && !IsAllowedNode())
+        {
+            ++(*this);
+        }
+    }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::IsAtEnd()
+{
+    return mNodeIter == mrMesh.mNodes.end();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::IsAllowedNode()
+{
+    return !(mSkipDeletedNodes && (*this)->IsDeleted());
+}
+
+
 
 #endif /*ABSTRACTMESH_HPP_*/

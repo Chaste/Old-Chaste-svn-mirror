@@ -45,8 +45,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestTetrahedralMesh : public CxxTest::TestSuite
 {
-
 public:
+    void TestNodeIterator() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+    
+        unsigned counter = 0; 
+
+        for (AbstractMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+             iter != mesh.GetNodeIteratorEnd();
+             ++iter)
+        {
+            unsigned node_index = (*iter).GetIndex();
+            TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give node 0,1..,N in that order
+            counter++;
+        }        
+    }
 
     void TestMeshConstructionFromMeshReader()
     {
@@ -834,7 +850,9 @@ public:
 
         // Determine correct boundary
         std::set<unsigned> correct_boundary;
-        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        for (AbstractMesh<3,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+             iter != mesh.GetNodeIteratorEnd();
+             ++iter)
         {
             // Node is on boundary if
             // a) 1 coordinate is zero and rest +ve or 0
@@ -843,14 +861,14 @@ public:
             std::vector<double> coordinates;
             for (unsigned i=0; i<3; i++)
             {
-                coordinates.push_back(mesh.GetNode(node_index)->rGetLocation()[i]);
+                coordinates.push_back(iter->rGetLocation()[i]);
             }
             std::sort(coordinates.begin(), coordinates.end());
 
             if (  (coordinates[0]==0.0)
                 ||(coordinates[0]>=0.0 && coordinates[2]==2.0))
             {
-                correct_boundary.insert(node_index);
+                correct_boundary.insert(iter->GetIndex());
             }
         }
         TS_ASSERT_EQUALS(boundary, correct_boundary);
