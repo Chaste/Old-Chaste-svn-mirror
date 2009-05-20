@@ -293,48 +293,43 @@ public:
         need_initialisation = true;
 
         // Test the RHS of the mesh
-
-        ///\todo - now this is a parallel mesh we should use an iterator on the local nodes and not replicate the voltage
-        for (unsigned i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
-        {
-            try
+        AbstractMesh<2,2>& r_mesh=monodomain_problem.rGetMesh();
+        for (AbstractMesh<2,2>::NodeIterator iter=r_mesh.GetNodeIteratorBegin();
+             iter != r_mesh.GetNodeIteratorEnd();
+             ++iter)
+        {       
+            unsigned i=(*iter).GetIndex();
+            if ((*iter).GetPoint()[0] == 0.1)
             {
-                if (monodomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
+                // x = 0 is where the stimulus has been applied
+                // x = 0.1cm is the other end of the mesh and where we want to
+                //       to test the value of the nodes
+
+                if (need_initialisation)
                 {
-                    // x = 0 is where the stimulus has been applied
-                    // x = 0.1cm is the other end of the mesh and where we want to
-                    //       to test the value of the nodes
-
-                    if (need_initialisation)
-                    {
-                        probe_voltage = voltage_replicated[i];
-                        need_initialisation = false;
-                    }
-                    else
-                    {
-                        // Tests the final voltages for all the RHS edge nodes
-                        // are close to each other.
-                        // This works as we are using the 'criss-cross' mesh,
-                        // the voltages would vary more with a mesh with all the
-                        // triangles aligned in the same direction.
-                        TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
-                    }
-
-
-                    // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
-                    // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
-                    // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
-
-                    // test the RHS edge voltages
-                    // hardcoded result that looks accurate - this is a test to see
-                    // that nothing has changeed
-                    // assumes endtime = 2ms
-                    TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 5e-4);
+                    probe_voltage = voltage_replicated[i];
+                    need_initialisation = false;
                 }
-            }
-            catch (Exception e)
-            {
-                //Skipping node which we don't own
+                else
+                {
+                    // Tests the final voltages for all the RHS edge nodes
+                    // are close to each other.
+                    // This works as we are using the 'criss-cross' mesh,
+                    // the voltages would vary more with a mesh with all the
+                    // triangles aligned in the same direction.
+                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
+                }
+
+
+                // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
+                // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
+                // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
+
+                // test the RHS edge voltages
+                // hardcoded result that looks accurate - this is a test to see
+                // that nothing has changeed
+                // assumes endtime = 2ms
+                TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 5e-4);
             }
         }
 

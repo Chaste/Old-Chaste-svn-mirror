@@ -31,26 +31,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <cassert>
+#include "PetscTools.hpp"
 
 /**
  *  A bunch of useful macros for debugging. Note, use of these should be removed from source
  *  code when committing.
  */
+#define HEAD "DEBUG "<<PetscTools::GetMyRank()<<" :"
 
 #ifndef NDEBUG
     /** Print the given message */
-    #define TRACE(stuff) std::cout << "DEBUG: " << stuff << std::endl << std::flush;
+    #define TRACE(stuff) std::cout << HEAD << stuff << std::endl << std::flush;
 
     /** Print the name and value of the given variables */
-    #define PRINT_VARIABLE(var) std::cout << "DEBUG: " #var " = " << var << std::endl << std::flush;
-    #define PRINT_VARIABLES(var1,var2) std::cout << "DEBUG: " #var1 " = " << var1 << ", " \
+    #define PRINT_VARIABLE(var) std::cout << HEAD #var " = " << var << std::endl << std::flush;
+    #define PRINT_VARIABLES(var1,var2) std::cout << HEAD #var1 " = " << var1 << ", " \
         #var2 " = " << var2 << std::endl << std::flush;
-    #define PRINT_3_VARIABLES(var1,var2,var3) std::cout << "DEBUG: " #var1 " = " << var1 << ", " \
+    #define PRINT_3_VARIABLES(var1,var2,var3) std::cout << HEAD #var1 " = " << var1 << ", " \
         #var2 " = " << var2 << ", " #var3 " = " << var3 << std::endl << std::flush;
-    #define PRINT_4_VARIABLES(var1,var2,var3,var4) std::cout << "DEBUG: " #var1 " = " << var1 << ", " \
+    #define PRINT_4_VARIABLES(var1,var2,var3,var4) std::cout << HEAD #var1 " = " << var1 << ", " \
         #var2 " = " << var2 << ", " #var3 " = " << var3 << ", " \
         #var4 " = " << var4 << std::endl << std::flush;
-    #define PRINT_5_VARIABLES(var1,var2,var3,var4,var5) std::cout << "DEBUG: " #var1 " = " << var1 << ", " \
+    #define PRINT_5_VARIABLES(var1,var2,var3,var4,var5) std::cout << HEAD #var1 " = " << var1 << ", " \
         #var2 " = " << var2 << ", " #var3 " = " << var3 << ", " \
         #var4 " = " << var4 << ", " #var5 " = " << var5 <<std::endl << std::flush;
 
@@ -60,7 +62,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
     /** Print how many times this line has been reached, everytime it is reached */
     #define HOW_MANY_TIMES_HERE(message) { \
         static unsigned counter=1; \
-        std::cout << "DEBUG: Num times here ("<< message << "): " << counter++ << std::endl << std::flush; }
+        std::cout << HEAD<<"Num times here ("<< message << "): " << counter++ << std::endl << std::flush; }
 
     /** Prints the given message, but only from the n-th time that line is reached, for the given n */
     #define TRACE_FROM_NTH_VISIT(stuff,n) { \
@@ -69,7 +71,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
     /** Display a vector */
     #define PRINT_VECTOR(v) \
-        { std::cout << "DEBUG: " #v " = {"; \
+        { std::cout << HEAD #v " = {"; \
             for (unsigned _i=0; _i<v.size(); _i++) { \
                 std::cout << (_i==0?"":",") << v[_i]; } \
             std::cout << "}" << std::endl << std::flush; }

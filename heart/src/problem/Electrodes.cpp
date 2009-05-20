@@ -126,17 +126,13 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
     {
         ConstBoundaryCondition<DIM>* p_zero_bc = new ConstBoundaryCondition<DIM>(0.0);
 
-        for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
+        for (typename AbstractMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
+             iter != rMesh.GetNodeIteratorEnd();
+             ++iter)
         {
-            try
+            if (fabs((*iter).rGetLocation()[index]-upperValue)<1e-6)
             {
-                if (fabs(rMesh.GetNode(i)->rGetLocation()[index]-upperValue)<1e-6)
-                {
-                    mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(rMesh.GetNode(i), p_zero_bc, 1);
-                }
-            }
-            catch(Exception& e)
-            {
+                mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(&(*iter), p_zero_bc, 1);
             }
         }
 

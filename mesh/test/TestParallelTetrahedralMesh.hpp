@@ -387,22 +387,15 @@ public:
         {
             unsigned num_global_nodes = mesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
-
+            
             // Create a local map of the nodes this processor owns
-            for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
-            {
-                try
-                {
-                    unsigned node_index = mesh.GetNode(node_id)->GetIndex();
-                    TS_ASSERT_EQUALS(node_id, node_index);
-
-                    nodes_owned[node_index] = 1;
-                }
-                catch(Exception& e)
-                {
-                    nodes_owned[node_id] = 0;
-                }
-            }
+            for (AbstractMesh<3,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+                 iter != mesh.GetNodeIteratorEnd();
+                 ++iter)
+            {  
+                unsigned node_index = (*iter).GetIndex();
+                nodes_owned[node_index] = 1;
+            }     
 
             // Combine all the local maps by adding them up in the master process
             unsigned nodes_reduction[num_global_nodes];
@@ -602,6 +595,12 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();        
         TrianglesMeshReader<3,3> permuted_mesh_reader(output_dir+filename);
 
+        /* 
+         * We are not using NodeIterator because we have to call GetNextNode on the 
+         * permuted_mesh_reader for each node regardless of whether it is owned by 
+         * this process. The alternative would be to spool the file to the lowest
+         * index owned locally but this would neglect the presence of Halo nodes.
+         */
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             try

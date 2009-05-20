@@ -231,7 +231,7 @@ private:
      * @param rHaloNodesOwned is a set to be filled with the indices of halo nodes owned by this process
      * @param rElementsOwned is a set to be filled with the indices of elements owned by this process
      * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-     * @param rNodePermutation a vector to be filled with the permutation applied to the node numberig by the partitioning method
+     * @param rNodePermutation a vector to be filled with the permutation applied to the node numbering by the partitioning method
      * \todo Make it clear which way the permutation applies
      *  
      */
@@ -678,7 +678,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
                                                                            std::set<unsigned>& rNodesOwned)
 {
     DistributedVector::SetProblemSize(mTotalNumNodes);
-    for(DistributedVector::Iterator node_number = DistributedVector::Begin(); node_number != DistributedVector::End(); ++node_number)
+    for(DistributedVector::Iterator node_number = DistributedVector::Begin(); 
+        node_number != DistributedVector::End();
+        ++node_number)
     {
          rNodesOwned.insert(node_number.Global);
     }

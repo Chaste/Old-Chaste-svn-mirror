@@ -54,7 +54,6 @@ public:
         {
             DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
         }
-
         double magnitude = 543.324;
         double duration = 2.0; //ms
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
