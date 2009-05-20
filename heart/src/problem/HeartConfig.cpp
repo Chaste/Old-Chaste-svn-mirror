@@ -684,18 +684,9 @@ double HeartConfig::GetPrintingTimeStep() const
 
 bool HeartConfig::GetUseAbsoluteTolerance() const
 {
-     /*
-      * Note that it may be the case that absolute tolerance exists in the default
-      * parameters file, but has been overridden in the user parameters
-      */
-     if (mpUserParameters->Numerical().KSPTolerances().get().KSPRelative().present() )
-     {
-        return false;
-     }
-
      return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
-                                             & mpDefaultParameters->Numerical().KSPTolerances(),
-                                             "KSPTolerances")->get().KSPAbsolute().present();
+                            & mpDefaultParameters->Numerical().KSPTolerances(),
+                            "KSPTolerances")->get().KSPAbsolute().present();
 }
 
 double HeartConfig::GetAbsoluteTolerance() const
@@ -711,19 +702,9 @@ double HeartConfig::GetAbsoluteTolerance() const
 
 bool HeartConfig::GetUseRelativeTolerance() const
 {
-    /*
-      * Note that it may be the case that relative tolerance exists in the default
-      * parameters file, but has been overridden in the user parameters
-      */
-
-
-     if (mpUserParameters->Numerical().KSPTolerances().get().KSPAbsolute().present() )
-     {
-        return false;
-     }
      return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
-                                             & mpDefaultParameters->Numerical().KSPTolerances(),
-                                             "KSPTolerances")->get().KSPRelative().present();
+                            & mpDefaultParameters->Numerical().KSPTolerances(),
+                            "KSPTolerances")->get().KSPRelative().present();
 }
 
 double HeartConfig::GetRelativeTolerance() const
