@@ -569,8 +569,7 @@ public:
      */
     void TestArchiveVertexMesh()
     {
-        std::string dirname = "archive";
-        OutputFileHandler handler(dirname, false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "vertex_mesh_base.arch";
 
         std::string mesh_filename = "vertex_mesh";

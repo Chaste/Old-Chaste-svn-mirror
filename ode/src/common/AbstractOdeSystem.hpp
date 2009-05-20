@@ -26,9 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _ABSTRACTODESYSTEM_HPP_
 #define _ABSTRACTODESYSTEM_HPP_
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/is_abstract.hpp>
 
 #include <cassert>
 
@@ -36,14 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "AbstractOdeSystemInformation.hpp"
-
-
-#include <boost/serialization/access.hpp>
-//#include <boost/serialization/is_abstract.hpp>
-//#include <boost/serialization/base_object.hpp>
-//// Needs to be included last
-//#include <boost/serialization/export.hpp>
-
 
 /**
  * Abstract OdeSystem class.
@@ -88,11 +83,6 @@ private:
     /**
      * Archive the member variables.
      *
-     * Serialization of singleton objects must be done with care.
-     * Before the object is serialized via a pointer, it *MUST* be
-     * serialized directly, or an assertion will trip when a second
-     * instance of the class is created on de-serialization.
-     *
      * @param archive
      * @param version
      */
@@ -101,21 +91,11 @@ private:
     {
         archive & mNumberOfStateVariables;
         archive & mUseAnalyticJacobian;
-        
-//        mStateVariables.reserve( mNumberOfStateVariables );  // Don't need this(?) as constructor has already allocated memory.
-        assert( mStateVariables.capacity() >= mNumberOfStateVariables );
-        for (unsigned i = 0; i < mNumberOfStateVariables; i++)
-        {
-            archive & mStateVariables[i];
-        }
-        
-        for (unsigned i = 0; i < mParameters.size(); i++)
-        {
-            archive & mParameters[i];
-        }
+        archive & mStateVariables;
+        archive & mParameters;
         
 //        archive &mpSystemInfo;
-        // todo: archive mpSystemInfo
+        /// \todo archive mpSystemInfo
     }
 
 protected:
@@ -327,6 +307,8 @@ protected:
     std::string DumpState(const std::string& message,
                           std::vector<double> Y = std::vector<double>());
 };
+
+BOOST_IS_ABSTRACT(AbstractOdeSystem)
 
 
 #endif //_ABSTRACTODESYSTEM_HPP_

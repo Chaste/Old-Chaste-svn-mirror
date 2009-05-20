@@ -141,7 +141,7 @@ public:
         TS_ASSERT_DELTA(initial_conditions[1], 9.0, 1e-12);
 
         //Archive the ODE system
-        OutputFileHandler handler("ArchiveOde", false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "ode.arch";
         std::ofstream ofs(archive_filename.c_str());
@@ -156,7 +156,7 @@ public:
         TS_ASSERT_EQUALS( ode.GetNumberOfStateVariables(), 2U );
         
         // Read archive from previous test
-        OutputFileHandler handler("ArchiveOde", false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "ode.arch";
         

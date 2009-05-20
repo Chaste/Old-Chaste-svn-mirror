@@ -144,6 +144,7 @@ LinearSystem::~LinearSystem()
 
     if(mDirichletBoundaryConditionsVector)
     {
+        ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
     }
 }
@@ -494,6 +495,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
         if (mMatNullSpace)
         {
+            ///\todo never tested in linalg component
             PETSCEXCEPT( KSPSetNullSpace(mKspSolver, mMatNullSpace) );
         }
 

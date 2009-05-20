@@ -107,7 +107,6 @@ public:
 };
 
 #include "TemplatedExport.hpp"
-
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(RandomCellKiller)
 
 namespace boost

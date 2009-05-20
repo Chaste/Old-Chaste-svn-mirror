@@ -32,11 +32,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <cmath>
 #include "LinearSystem.hpp"
 #include "DistributedVector.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
-#include <cmath>
+#include "OutputFileHandler.hpp"
 
 
 class TestLinearSystem : public CxxTest::TestSuite
@@ -645,6 +648,42 @@ public:
         TS_ASSERT_EQUALS(maxits, 10000);
 
     }
+
+
+    void TestSaveAndLoad()
+    {
+        {
+            LinearSystem ls = LinearSystem(3);
+    
+            ls.SetMatrixIsSymmetric();
+    
+            // Enter symmetric data
+            for (int row=0; row<3; row++)
+            {
+                for (int col=0; col<3; col++)
+                {
+                    ls.SetMatrixElement(row, col, fabs(row-col));
+                }
+            }
+            ls.AssembleFinalLinearSystem();
+    
+            // arbitrary
+            ls.SetRhsVectorElement(0, 14.0);
+            ls.SetRhsVectorElement(1, 32.0);
+            ls.SetRhsVectorElement(2, 50.0);
+            
+            //Archive                           
+            OutputFileHandler handler("Archive", false);
+            std::string archive_filename;
+            archive_filename = handler.GetOutputDirectoryFullPath() + "ls.arch";
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            output_arch <<  static_cast<const LinearSystem&>(ls);
+                
+        }
+    }
+            
 
     // this test should be the last in the suite
     void TestSetFromOptions()

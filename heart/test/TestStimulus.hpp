@@ -26,9 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTSTIMULUS_HPP_
 #define TESTSTIMULUS_HPP_
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <cfloat>
 #include <cmath>
@@ -39,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TimeStepper.hpp"
 #include "ZeroStimulus.hpp"
 #include "MultiStimulus.hpp"
+#include "OutputFileHandler.hpp"
+#include "Debug.hpp"
 
 class TestStimulus : public CxxTest::TestSuite
 {
@@ -302,6 +306,57 @@ public:
             }
         }
     }
+    
+    void TestArchivingStimuli() throw(Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "stimuli.arch";
+
+        // Create and archive simulation time
+        {
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            // Set up a zero stimulus
+            AbstractStimulusFunction* const p_zero_stimulus = new ZeroStimulus;
+            
+            double magnitude = 1.0;
+            double duration  = 0.5;  // ms
+            double applied_time = 100.0;
+            AbstractStimulusFunction* const p_simple_stimulus = new SimpleStimulus(magnitude, duration, applied_time);
+            
+            // Should always archive a pointer
+            output_arch << p_zero_stimulus;
+            output_arch << p_simple_stimulus;
+            
+            // Change stimulus a bit           
+            delete p_zero_stimulus;
+            delete p_simple_stimulus;
+        }
+
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);            
+            
+            // Create a pointer
+            AbstractStimulusFunction* p_zero;
+            AbstractStimulusFunction* p_simple;
+            input_arch >> p_zero;
+            input_arch >> p_simple;
+            
+            // Check the stimulus now has the properties of the one archived above.
+            TS_ASSERT_DELTA(p_zero->GetStimulus(0.0), 0.0, 1e-9);
+            
+            TS_ASSERT_DELTA(p_simple->GetStimulus(0.0), 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_simple->GetStimulus(100.1), 1.0, 1e-9);
+            TS_ASSERT_DELTA(p_simple->GetStimulus(100.6), 0.0, 1e-9);
+
+            delete p_zero;
+            delete p_simple;
+        }
+    }   
 
 };
 

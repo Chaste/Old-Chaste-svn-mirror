@@ -26,11 +26,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _ABSTRACTSTIMULUSFUNCTION_HPP_
 #define _ABSTRACTSTIMULUSFUNCTION_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
+
 #include <cfloat>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * Represents an abstract stimulus function. Sub-classes will implement the
@@ -39,6 +44,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class AbstractStimulusFunction
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // No member variables, but this is here so boost is happy serializing these classes.
+    }
 public:
 
     /**
@@ -54,6 +72,8 @@ public:
     virtual ~AbstractStimulusFunction()
     {}
 };
+
+BOOST_IS_ABSTRACT(AbstractStimulusFunction)
 
 #endif //_ABSTRACTSTIMULUSFUNCTION_HPP_
 

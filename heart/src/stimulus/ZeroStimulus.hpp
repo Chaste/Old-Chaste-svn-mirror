@@ -26,11 +26,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef ZEROSTIMULUS_HPP_
 #define ZEROSTIMULUS_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractStimulusFunction.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  *  Stimulus which is always zero. More efficient than using an SimpleStimulus
@@ -38,6 +43,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class ZeroStimulus : public AbstractStimulusFunction
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the zero stimulus, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractStimulusFunction>(*this);
+    }
 public:
     ZeroStimulus();
 
@@ -46,5 +65,7 @@ public:
     double GetStimulus(double time);
 };
 
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(ZeroStimulus)
 
 #endif /*ZEROSTIMULUS_HPP_*/

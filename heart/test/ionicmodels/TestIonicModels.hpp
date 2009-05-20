@@ -920,7 +920,7 @@ public:
                                    100.0,
                                    "N98BeforeArchive");  
         //Archive                           
-        OutputFileHandler handler("ArchiveCardiac", false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "n98.arch";
         std::ofstream ofs(archive_filename.c_str());
@@ -948,7 +948,7 @@ public:
         TS_ASSERT_EQUALS( n98_ode_system.GetNumberOfStateVariables(), 22U );
         
         // Read archive from previous test
-        OutputFileHandler handler("ArchiveCardiac", false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "n98.arch";
         

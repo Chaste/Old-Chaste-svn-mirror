@@ -30,7 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _SIMPLESTIMULUS_HPP_
 #define _SIMPLESTIMULUS_HPP_
 
+#include <new> // Apparently 'new' (for boost's two phase construction) isn't included - words fail me.
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractStimulusFunction.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * Provides an simple stimulus of magnitude 'magnitudeOfStimulus'
@@ -38,6 +45,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class SimpleStimulus : public AbstractStimulusFunction
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the simple stimulus, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractStimulusFunction>(*this);
+        archive & mMagnitudeOfStimulus;
+        archive & mDuration;
+        archive & mTimeOfStimulus;
+    }
+    
 private:
     /** The stimulus magnitude, typically in microA/cm^2 */
     double mMagnitudeOfStimulus;
@@ -69,6 +94,33 @@ public:
      */
     double GetStimulus(double time);
 };
+
+
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(SimpleStimulus);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a SimpleStimulus instance (using existing constructor)
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, SimpleStimulus * t, const unsigned int file_version)
+{
+    /**
+     * Invoke inplace constructor to initialise an instance of SimpleStimulus.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
+     * from the archive will overwrite their effect in this case.
+     */     
+     ::new(t)SimpleStimulus(0.0, 0.0, 0.0);
+}
+}
+} // namespace ...
 
 #endif //_SIMPLESTIMULUS_HPP_
 

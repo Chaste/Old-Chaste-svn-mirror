@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _LINEARSYSTEM_HPP_
 #define _LINEARSYSTEM_HPP_
 
+#include <boost/serialization/access.hpp>
 #include "UblasCustomFunctions.hpp"
 #include <petscvec.h>
 #include <petscmat.h>
@@ -451,6 +452,36 @@ public:
                          ADD_VALUES);
         }
     }
+    
+  
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        //archive & mLhsMatrix;  ///\todo - use PETSc native format or distributed writer?
+        //mRhsVector;  /**< The right-hand side vector. */
+        archive & mSize;
+        //mOwnershipRangeLo; ///\todo - this may change 
+        //mOwnershipRangeHi; ///\todo - this may change
+        //MatNullSpace mMatNullSpace; ///\todo 
+        //? mDestroyMatAndVec; ///? How is memory management going to work here?
+
+        //KSP mKspSolver;  ///\todo recreate?
+        archive & mKspIsSetup; //set this to false rather than archiving?
+        archive & mNonZerosUsed;  
+        archive & mMatrixIsConstant;
+        archive & mTolerance; 
+        archive & mUseAbsoluteTolerance;
+        archive & mKspType;
+        archive & mPcType;
+
+        //Vec mDirichletBoundaryConditionsVector; ///\todo
+    }     
 };
 
 #endif //_LINEARSYSTEM_HPP_

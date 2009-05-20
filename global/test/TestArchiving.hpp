@@ -269,7 +269,7 @@ public:
             p_child->mTag = 11;
             p_parent->mTag = 10;
 
-            ParentClass* const  p_parent_for_archiving = p_parent;
+            ParentClass* const p_parent_for_archiving = p_parent;
             //ChildClass* const p_child_for_archiving = p_child;
 
             //output_arch << p_child_for_archiving;
