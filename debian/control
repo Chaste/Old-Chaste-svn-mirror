@@ -1,0 +1,24 @@
+Source: chaste-source
+Section: science
+Priority: extra
+Maintainer: Chaste Team <chaste-admin@maillist.ox.ac.uk>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: chaste-source
+Architecture: all
+Depends: scons, g++, libopenmpi-dev, petsc-dev (>= 2.3.3-14), libhdf5-openmpi-dev, xsdcxx, libboost-serialization-dev, libparmetis-dev, libpetsc2.3.3-dbg
+Recommends: valgrind, tetgen
+Suggests: libgoogle-perftools-dev, libsundials-serial-dev, doxygen, graphviz, eclipse-cdt, sun-java6-jre, subversion
+Description: general purpose computational biology simulation package
+ Chaste (Cancer, Heart and Soft Tissue Environment) is a general purpose
+ simulation package aimed at multi-scale, computationally demanding problems
+ arising in biology and physiology. Current functionality includes tissue and
+ cell level electrophysiology, discrete tissue modelling, and soft tissue
+ modelling. The package is being developed by a team mainly based in the
+ Computational Biology Group at Oxford University Computing Laboratory, and
+ development draws on expertise from software engineering, high performance
+ computing, mathematical modelling and scientific computing.
+ .
+ The main website for Chaste can be found at
+ http://web.comlab.ox.ac.uk/chaste

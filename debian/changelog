@@ -1,0 +1,6 @@
+chaste-source (1.1a1-1) intrepid; urgency=low
+
+  * Initial packaging of Chaste for Ubuntu Intrepid
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Wed, 20 May 2009 15:05:48 +0100
+

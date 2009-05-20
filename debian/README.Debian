@@ -1,0 +1,8 @@
+chaste-source for Debian
+------------------------
+
+This package is identical to the source release of Chaste, except that the file
+python/hostconfig/default.py has been modified to reflect standard locations of
+libraries and tools on Ubuntu systems.
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Wed, 20 May 2009 15:05:48 +0100
