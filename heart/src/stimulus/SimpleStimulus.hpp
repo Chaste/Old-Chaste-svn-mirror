@@ -116,7 +116,7 @@ inline void load_construct_data(
      * It doesn't actually matter what values we pass to our standard constructor,
      * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
-     */     
+     */   
      ::new(t)SimpleStimulus(0.0, 0.0, 0.0);
 }
 }

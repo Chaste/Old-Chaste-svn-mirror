@@ -30,8 +30,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MULTISTIMULUS_HPP_
 #define MULTISTIMULUS_HPP_
 
+#include <new> // Apparently 'new' (for boost's two phase construction) isn't included - words fail me.
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * This class provides a stimulus function which is the
@@ -44,6 +52,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MultiStimulus : public AbstractStimulusFunction
 {
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the simple stimulus, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractStimulusFunction>(*this);
+        archive & mStimuli;
+    }
 
     /** Vector of stimuli. */
     std::vector<AbstractStimulusFunction*> mStimuli;
@@ -64,5 +87,8 @@ public:
      */
      double GetStimulus(double time);
 };
+
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(MultiStimulus);
 
 #endif /*MULTISTIMULUS_HPP_*/

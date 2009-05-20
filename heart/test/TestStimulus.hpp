@@ -42,7 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ZeroStimulus.hpp"
 #include "MultiStimulus.hpp"
 #include "OutputFileHandler.hpp"
-#include "Debug.hpp"
 
 class TestStimulus : public CxxTest::TestSuite
 {
@@ -326,13 +325,34 @@ public:
             double applied_time = 100.0;
             AbstractStimulusFunction* const p_simple_stimulus = new SimpleStimulus(magnitude, duration, applied_time);
             
+            double magnitude_of_stimulus = 1.0;
+            double duration_of_stimulus  = 0.5;  // ms
+            double period = 1000.0; // 1s
+            double when = 100.0;
+            AbstractStimulusFunction* const p_regular_stimulus = new RegularStimulus(magnitude_of_stimulus,
+                                         duration_of_stimulus,
+                                         period,
+                                         when);
+                                         
+            MultiStimulus* p_multiple_stimulus = new MultiStimulus;
+            SimpleStimulus r1(2,1,0);
+            SimpleStimulus r2(3,1,3);
+            p_multiple_stimulus->AddStimulus(&r1);
+            p_multiple_stimulus->AddStimulus(&r2);  
+            
+            AbstractStimulusFunction* const p_multiple_stimulus2 = p_multiple_stimulus;   // make const now we've added stimuli 
+            
             // Should always archive a pointer
             output_arch << p_zero_stimulus;
             output_arch << p_simple_stimulus;
+            output_arch << p_regular_stimulus;
+            output_arch << p_multiple_stimulus2;
             
             // Change stimulus a bit           
             delete p_zero_stimulus;
             delete p_simple_stimulus;
+            delete p_regular_stimulus;
+            delete p_multiple_stimulus;
         }
 
         // Restore
@@ -343,8 +363,12 @@ public:
             // Create a pointer
             AbstractStimulusFunction* p_zero;
             AbstractStimulusFunction* p_simple;
+            AbstractStimulusFunction* p_regular;
+            AbstractStimulusFunction* p_multiple;
             input_arch >> p_zero;
             input_arch >> p_simple;
+            input_arch >> p_regular;
+            input_arch >> p_multiple;
             
             // Check the stimulus now has the properties of the one archived above.
             TS_ASSERT_DELTA(p_zero->GetStimulus(0.0), 0.0, 1e-9);
@@ -352,9 +376,28 @@ public:
             TS_ASSERT_DELTA(p_simple->GetStimulus(0.0), 0.0, 1e-9);
             TS_ASSERT_DELTA(p_simple->GetStimulus(100.1), 1.0, 1e-9);
             TS_ASSERT_DELTA(p_simple->GetStimulus(100.6), 0.0, 1e-9);
+            
+            TS_ASSERT_DELTA(p_regular->GetStimulus(0.0), 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular->GetStimulus(100.1), 1.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular->GetStimulus(100.6), 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular->GetStimulus(1100.1), 1.0, 1e-9);
+            TS_ASSERT_DELTA(p_regular->GetStimulus(1100.6), 0.0, 1e-9);
+
+            TimeStepper t(0,10,1);
+            SimpleStimulus r1(2,1,0);
+            SimpleStimulus r2(3,1,3);
+            while (!t.IsTimeAtEnd())
+            {
+                TS_ASSERT_EQUALS( p_multiple->GetStimulus(t.GetTime()),
+                                  r1.GetStimulus(t.GetTime())+
+                                  r2.GetStimulus(t.GetTime()) );
+                t.AdvanceOneTimeStep();
+            }
 
             delete p_zero;
             delete p_simple;
+            delete p_regular;
+            delete p_multiple;
         }
     }   
 

@@ -30,7 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _REGULARSTIMULUS_HPP_
 #define _REGULARSTIMULUS_HPP_
 
+#include <new> // Apparently 'new' (for boost's two phase construction) isn't included - words fail me.
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractStimulusFunction.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * Provides a periodic square-wave stimulus.
@@ -38,6 +45,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class RegularStimulus : public AbstractStimulusFunction
 {
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the simple stimulus, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractStimulusFunction>(*this);
+        archive & mMagnitudeOfStimulus;
+        archive & mDuration;
+        archive & mPeriod;
+        archive & mStartTime;
+        archive & mStopTime;
+    }
+    
     /** The 'height' of the square wave applied */
     double mMagnitudeOfStimulus;
     /** The length of the square wave */
@@ -55,4 +82,31 @@ public:
     double GetStimulus(double time);
 
 };
+
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(RegularStimulus);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a SimpleStimulus instance (using existing constructor)
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, RegularStimulus * t, const unsigned int file_version)
+{
+    /**
+     * Invoke inplace constructor to initialise an instance of SimpleStimulus.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
+     * from the archive will overwrite their effect in this case.
+     */   
+     ::new(t)RegularStimulus(0.0, 0.0, 0.1, 0.0, 1.0);
+}
+}
+} // namespace ...
+
 #endif //_REGULARSTIMULUS_HPP_
