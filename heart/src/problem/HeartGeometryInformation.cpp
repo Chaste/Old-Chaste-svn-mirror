@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
+#include "PetscTools.hpp"
 
 
 // Area of the septum considered to belong to the each ventricle (relative to 1)
@@ -42,26 +43,24 @@ const double HeartGeometryInformation<SPACE_DIM>::LEFT_SEPTUM_SIZE = 2.0/3.0;
 template<unsigned SPACE_DIM>
 const double HeartGeometryInformation<SPACE_DIM>::RIGHT_SEPTUM_SIZE = 1.0/3.0;
 
-//\todo
-//template<unsigned SPACE_DIM>
-//HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-//                                                              std::string mEpiFile,
-//                                                              std::string mEndoFile)
-//   : mrMesh(rMesh)
-//{
-//    
-//    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
-//    
-//    // Get nodes defining each surface
-//    GetNodesAtSurface(mEpiFile, mEpiSurface);
-//    GetNodesAtSurface(mEndoFile, mEndoSurface);
-//
-//    // Compute the distance map of each surface
-//    distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
-//    distance_calculator.ComputeDistanceMap(mEndoSurface, mDistMapEndocardium);
-//    
-//    mNumberOfSurfacesProvided = 2; 
-//}
+template<unsigned SPACE_DIM>
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                                                              std::string mEpiFile,
+                                                              std::string mEndoFile)
+   : mrMesh(rMesh)
+{  
+    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+
+    // Get nodes defining each surface
+    GetNodesAtSurface(mEpiFile, mEpiSurface);
+    GetNodesAtSurface(mEndoFile, mEndoSurface);
+
+    // Compute the distance map of each surface
+    distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
+    distance_calculator.ComputeDistanceMap(mEndoSurface, mDistMapEndocardium);
+
+    mNumberOfSurfacesProvided = 2; 
+}
 
 template<unsigned SPACE_DIM>
 HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
@@ -90,13 +89,14 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::vector<unsigned>& rNodesAtEpi,
                                                                std::vector<unsigned>& rNodesAtEndo)
     : mrMesh(rMesh)
+      
 {
     DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
     distance_calculator.ComputeDistanceMap(rNodesAtEndo, mDistMapEndocardium);
-    
+
     mNumberOfSurfacesProvided = 2; 
 }   
 
@@ -154,7 +154,7 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
         EXCEPTION("Wrong surface definition file name.");
     }
 
-    // Temporal storage for the nodes, helps discarting repeated values
+    // Temporary storage for the nodes, helps discarding repeated values
     std::set<unsigned> surface_node_index_set;
 
     // Loop over all the triangles and add node indexes to the set
@@ -331,27 +331,31 @@ void HeartGeometryInformation<SPACE_DIM>::DetermineLayerForEachNode(double epiFr
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outputDir, std::string file)
 {
-    OutputFileHandler handler(outputDir,false);
-    out_stream p_file = handler.OpenOutputFile(file);
-    
-    assert(mLayerForEachNode.size()>0);
-    for(unsigned i=0; i<mrMesh.GetNumNodes(); i++)
+    if (PetscTools::AmMaster())
     {
-        if(mLayerForEachNode[i]==EPI)
+        OutputFileHandler handler(outputDir,false);
+        out_stream p_file = handler.OpenOutputFile(file);
+        
+        assert(mLayerForEachNode.size()>0);
+        for(unsigned i=0; i<mrMesh.GetNumNodes(); i++)
         {
-            *p_file << "0\n";
+            if(mLayerForEachNode[i]==EPI)
+            {
+                *p_file << "0\n";
+            }
+            else if(mLayerForEachNode[i]==MID)
+            {
+                *p_file << "1\n";
+            }
+            else // endo
+            {
+                *p_file << "2\n";
+            }
         }
-        else if(mLayerForEachNode[i]==MID)
-        {
-            *p_file << "1\n";
-        }
-        else // endo
-        {
-            *p_file << "2\n";
-        }
+        
+        p_file->close();
     }
-    
-    p_file->close();
+    PetscTools::Barrier(); // Make other processes wait until we're done
 }
 
 

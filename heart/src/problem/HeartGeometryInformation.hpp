@@ -190,16 +190,15 @@ public:
         return mDistMapEpicardium;
     }
 
-//\todo Cover
-//    /**
-//     * 
-//     * @returns the distance map to the endocardium 
-//     */     
-//    std::vector<double>& rGetDistanceMapEndocardium()
-//    {
-//        assert(mNumberOfSurfacesProvided==2);
-//        return mDistMapEndocardium;
-//    }
+    /**
+     * 
+     * @returns the distance map to the endocardium 
+     */     
+    std::vector<double>& rGetDistanceMapEndocardium()
+    {
+        assert(mNumberOfSurfacesProvided==2);
+        return mDistMapEndocardium;
+    }
 
     /**
      * 
@@ -222,40 +221,41 @@ public:
     }
 
     /** Get the nodes on the epicardial surface */
-    std::vector<unsigned>& rGetNodesOnEpiSurface()
+    const std::vector<unsigned>& rGetNodesOnEpiSurface()
     {
         return mEpiSurface;
     }
 
-//\todo Cover
-//    /** Get the nodes on the endocardial surface */
-//    std::vector<unsigned>& rGetNodesOnEndoSurface()
-//    {
-//        assert(mNumberOfSurfacesProvided==2);
-//        return mEndoSurface;
-//    }
+
+    /** Get the nodes on the endocardial surface */
+    const std::vector<unsigned>& rGetNodesOnEndoSurface()
+    {
+        assert(mNumberOfSurfacesProvided==2);
+        return mEndoSurface;
+    }
 
     /** Get the nodes on the endocardial left ventricular surface */
-    std::vector<unsigned>& rGetNodesOnLVSurface()
+    const std::vector<unsigned>& rGetNodesOnLVSurface()
     {
         assert(mNumberOfSurfacesProvided==3);
         return mLVSurface;
     }
 
     /** Get the nodes on the endocardial right ventricular surface */
-    std::vector<unsigned>& rGetNodesOnRVSurface()
+    const std::vector<unsigned>& rGetNodesOnRVSurface()
     {
         assert(mNumberOfSurfacesProvided==3);
         return mRVSurface;
     }
 
-
-//\todo Cover   
-//    std::vector<HeartLayerType>& rGetLayerForEachNode()
-//    {
-//        assert(mLayerForEachNode.size()>0);
-//        return mLayerForEachNode;
-//    }    
+    /**
+     * Get the layer for every node in the mesh.
+     */
+    const std::vector<HeartLayerType>& rGetLayerForEachNode()
+    {
+        assert(mLayerForEachNode.size()>0);
+        return mLayerForEachNode;
+    }    
     
     /**
      * Calculates the relative position within the wall thickness (normalised to [0,1])
