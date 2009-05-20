@@ -33,26 +33,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include "DistanceMapCalculator.hpp"
 #include "TetrahedralMesh.hpp"
+#include "HeartRegionCodes.hpp"
 
+/** Names for layers in the heart wall */
 typedef enum HeartLayerType_
 {
     ENDO = 0,
     MID,
     EPI
 } HeartLayerType;
-
-
-/** Names for region types in the heart */
-typedef enum HeartRegionType_
-{
-    LEFT_VENTRICLE_WALL = 0,
-    RIGHT_VENTRICLE_WALL,
-    LEFT_SEPTUM,
-    RIGHT_SEPTUM,
-    LEFT_VENTRICLE_SURFACE,
-    RIGHT_VENTRICLE_SURFACE,
-    UNKNOWN
-} HeartRegionType;  
 
 
 /**

@@ -49,7 +49,7 @@ c_matrix<double,2*(DIM+1),2*(DIM+1)> BidomainWithBathRhsMatrixAssembler<DIM>::Co
 {
     c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1), 2*(DIM+1));
 
-    if (pElement->GetRegion() == HeartRegionCode::TISSUE)
+    if (pElement->GetRegion() != HeartRegionCode::BATH)
     {
         c_matrix<double, DIM+1, DIM+1> basis_outer_prod = outer_prod(rPhi, rPhi);
 
@@ -178,7 +178,7 @@ void BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVecto
          index!= DistributedVector::End();
          ++index)
     {
-        if(this->mpMesh->GetNode(index.Global)->GetRegion() == HeartRegionCode::TISSUE)
+        if (this->mpMesh->GetNode(index.Global)->GetRegion() != HeartRegionCode::BATH)
         {
             double V = distributed_current_solution_vm[index];
             double F = - Am*this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global]

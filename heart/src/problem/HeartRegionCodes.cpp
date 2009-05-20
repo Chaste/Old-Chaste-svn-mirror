@@ -27,6 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "HeartRegionCodes.hpp"
 
-const unsigned HeartRegionCode::TISSUE = 0u;
-const unsigned HeartRegionCode::BATH = 1u;
-
+const HeartRegionType HeartRegionCode::TISSUE = 0u;
+const HeartRegionType HeartRegionCode::BATH = 1u;
+const HeartRegionType HeartRegionCode::LEFT_VENTRICLE_WALL;
+const HeartRegionType HeartRegionCode::RIGHT_VENTRICLE_WALL;
+const HeartRegionType HeartRegionCode::LEFT_SEPTUM;
+const HeartRegionType HeartRegionCode::RIGHT_SEPTUM;
+const HeartRegionType HeartRegionCode::LEFT_VENTRICLE_SURFACE;
+const HeartRegionType HeartRegionCode::RIGHT_VENTRICLE_SURFACE;
+const HeartRegionType HeartRegionCode::UNKNOWN;

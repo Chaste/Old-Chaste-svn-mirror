@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
+#include "HeartRegionCodes.hpp"
 
 template<unsigned SPACE_DIM>
 double StreeterFibreGenerator<SPACE_DIM>::GetAveragedThickness(
@@ -92,19 +93,19 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
     {
         switch (nodesRegion[index])
         {
-            case LEFT_VENTRICLE_SURFACE:
-            case LEFT_VENTRICLE_WALL:
-            case LEFT_SEPTUM:
+            case HeartRegionCode::LEFT_VENTRICLE_SURFACE:
+            case HeartRegionCode::LEFT_VENTRICLE_WALL:
+            case HeartRegionCode::LEFT_SEPTUM:
                 lv++;
                 break;
             
-            case RIGHT_VENTRICLE_SURFACE:
-            case RIGHT_VENTRICLE_WALL:
-            case RIGHT_SEPTUM:
+            case HeartRegionCode::RIGHT_VENTRICLE_SURFACE:
+            case HeartRegionCode::RIGHT_VENTRICLE_WALL:
+            case HeartRegionCode::RIGHT_SEPTUM:
                 rv++;
                 break;
 
-            case UNKNOWN:
+            case HeartRegionCode::UNKNOWN:
             default:
                 NEVER_REACHED;
         }
@@ -191,29 +192,29 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
         switch(node_region)
         {
-            case LEFT_VENTRICLE_SURFACE:
-            case LEFT_VENTRICLE_WALL:
+            case HeartRegionCode::LEFT_VENTRICLE_SURFACE:
+            case HeartRegionCode::LEFT_VENTRICLE_WALL:
                 dist_epi = mpGeometryInfo->rGetDistanceMapEpicardium()[node_index];
                 dist_endo = mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index];
                 break;
                 
-            case RIGHT_VENTRICLE_SURFACE:
-            case RIGHT_VENTRICLE_WALL:
+            case HeartRegionCode::RIGHT_VENTRICLE_SURFACE:
+            case HeartRegionCode::RIGHT_VENTRICLE_WALL:
                 dist_epi = mpGeometryInfo->rGetDistanceMapEpicardium()[node_index];
                 dist_endo = mpGeometryInfo->rGetDistanceMapRightVentricle()[node_index];
                 break;
 
-            case LEFT_SEPTUM:
+            case HeartRegionCode::LEFT_SEPTUM:
                 dist_epi = mpGeometryInfo->rGetDistanceMapRightVentricle()[node_index];
                 dist_endo = mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index];
                 break;
 
-            case RIGHT_SEPTUM:
+            case HeartRegionCode::RIGHT_SEPTUM:
                 dist_epi = mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index];
                 dist_endo = mpGeometryInfo->rGetDistanceMapRightVentricle()[node_index];
                 break;
 
-            case UNKNOWN:
+            case HeartRegionCode::UNKNOWN:
                 #define COVERAGE_IGNORE
                 std::cerr << "Wrong distances node: " << node_index << "\t"
                           << "Epi " << mpGeometryInfo->rGetDistanceMapEpicardium()[node_index] << "\t"

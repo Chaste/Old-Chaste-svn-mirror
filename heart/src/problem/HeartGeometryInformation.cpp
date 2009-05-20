@@ -191,13 +191,13 @@ HeartRegionType HeartGeometryInformation<SPACE_DIM>::GetHeartRegion(unsigned nod
     if (mDistMapRightVentricle[nodeIndex] >= mDistMapEpicardium[nodeIndex] &&
         mDistMapRightVentricle[nodeIndex] >= mDistMapLeftVentricle[nodeIndex])
     {
-        return LEFT_VENTRICLE_WALL;
+        return HeartRegionCode::LEFT_VENTRICLE_WALL;
     }
 
     if (mDistMapLeftVentricle[nodeIndex] >= mDistMapEpicardium[nodeIndex] &&
         mDistMapLeftVentricle[nodeIndex] >= mDistMapRightVentricle[nodeIndex])
     {
-        return RIGHT_VENTRICLE_WALL;
+        return HeartRegionCode::RIGHT_VENTRICLE_WALL;
     }
 
     if (mDistMapEpicardium[nodeIndex] >= mDistMapLeftVentricle[nodeIndex] &&
@@ -206,15 +206,15 @@ HeartRegionType HeartGeometryInformation<SPACE_DIM>::GetHeartRegion(unsigned nod
         if (mDistMapLeftVentricle[nodeIndex]
             < LEFT_SEPTUM_SIZE*(mDistMapLeftVentricle[nodeIndex] + mDistMapRightVentricle[nodeIndex]))
         {
-            return LEFT_SEPTUM;
+            return HeartRegionCode::LEFT_SEPTUM;
         }
         else
         {
-            return RIGHT_SEPTUM;
+            return HeartRegionCode::RIGHT_SEPTUM;
         }
     }
 
-    return UNKNOWN;
+    return HeartRegionCode::UNKNOWN;
 }
 
 template<unsigned SPACE_DIM>
@@ -226,25 +226,25 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned nodeIndex
         HeartRegionType node_region = GetHeartRegion(nodeIndex);
         switch(node_region)
         {
-            case LEFT_VENTRICLE_WALL:
-            case LEFT_VENTRICLE_SURFACE:
+            case HeartRegionCode::LEFT_VENTRICLE_WALL:
+            case HeartRegionCode::LEFT_VENTRICLE_SURFACE:
                 return mDistMapLeftVentricle[nodeIndex];
                 break;
 
-            case RIGHT_VENTRICLE_WALL:
-            case RIGHT_VENTRICLE_SURFACE:
+            case HeartRegionCode::RIGHT_VENTRICLE_WALL:
+            case HeartRegionCode::RIGHT_VENTRICLE_SURFACE:
                 return mDistMapRightVentricle[nodeIndex];
                 break;
 
-            case LEFT_SEPTUM:
+            case HeartRegionCode::LEFT_SEPTUM:
                 return mDistMapLeftVentricle[nodeIndex];
                 break;
 
-            case RIGHT_SEPTUM:
+            case HeartRegionCode::RIGHT_SEPTUM:
                 return mDistMapRightVentricle[nodeIndex] ;
                 break;
     
-            case UNKNOWN:
+            case HeartRegionCode::UNKNOWN:
                 #define COVERAGE_IGNORE
                 std::cerr << "Wrong distances node: " << nodeIndex << "\t"
                           << "Epi " << mDistMapEpicardium[nodeIndex] << "\t"

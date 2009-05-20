@@ -59,9 +59,9 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
 
         // Set nodes that are part of a heart element to be heart nodes
         //for (unsigned i=0; i<this->mpMesh->GetNumElements(); i++)
-        for(typename AbstractMesh<DIM,DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
-            it != this->mpMesh->GetElementIteratorEnd();
-            ++it)
+        for (typename AbstractMesh<DIM,DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
+             it != this->mpMesh->GetElementIteratorEnd();
+             ++it)
         {
             Element<DIM, DIM>& r_element = *(*it);
 
