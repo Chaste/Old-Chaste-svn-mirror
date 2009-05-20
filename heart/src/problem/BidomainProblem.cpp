@@ -44,15 +44,11 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
     if (mHasBath)
     {
         // Initialize all nodes to be bath nodes
-        for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
+        for (typename AbstractMesh<DIM,DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
+             iter != this->mpMesh->GetNodeIteratorEnd();
+            ++iter)
         {
-            try
-            {
-                this->mpMesh->GetNode(i)->SetRegion(HeartRegionCode::BATH);
-            }
-            catch(Exception& e)
-            {
-            }
+            (*iter).SetRegion(HeartRegionCode::BATH);
         }
 
         bool any_bath_element_found = false;

@@ -120,33 +120,33 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             double currentTime,
             bool assembleVector, bool assembleMatrix)
 {
-    for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
+
+    unsigned* is_node_bath = new unsigned[this->mpMesh->GetNumNodes()];
+    for(unsigned i = 0; i < this->mpMesh->GetNumNodes(); ++i)
     {
+        is_node_bath[i] = 0;
+    }
+    
+    for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
+         iter != this->mpMesh->GetNodeIteratorEnd();
+         ++iter)
+    {        
         // ZeroMatrixColumn and ZeroMatrixRow are collective operations so we need all the processors
         // calling them. When using ParallelTetrahedralMesh the knowledge about which nodes are bath
         // is distributed. Processors need to agree before zeroing.
-        unsigned is_node_bath;
 
-        try
+        if ((*iter).GetRegion() == HeartRegionCode::BATH)
         {
-            if (this->mpMesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH)
-            {
-                is_node_bath = 1;
-            }
-            else
-            {
-                is_node_bath = 0;
-            }
+            is_node_bath[(*iter).GetIndex()] = 1;
         }
-        catch(Exception& e)
-        {
-            is_node_bath = 0;
-        }
-
-        unsigned is_node_bath_reduced;
-        MPI_Allreduce(&is_node_bath, &is_node_bath_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-
-        if(is_node_bath_reduced > 0) // ie is a bath node
+    }
+    
+    unsigned* is_node_bath_reduced = new unsigned[this->mpMesh->GetNumNodes()];
+    MPI_Allreduce(is_node_bath, is_node_bath_reduced, this->mpMesh->GetNumNodes(), MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);    
+    
+    for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
+    {
+        if(is_node_bath_reduced[i] > 0) // ie is a bath node
         {
             PetscInt index[1];
             index[0] = 2*i;
@@ -170,6 +170,9 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             }
         }
     }
+    
+    delete is_node_bath;
+    delete is_node_bath_reduced;
 }
 
 

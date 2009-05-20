@@ -329,7 +329,7 @@ public:
         for(ParallelTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
         it != mesh.GetElementIteratorEnd();
         ++it)
-    {
+        {
             double x = (*it)->CalculateCentroid()[0];
             double y = (*it)->CalculateCentroid()[1];
             if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
@@ -340,45 +340,47 @@ public:
 
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
-
+#include "Debug.hpp"
+TRACE("A");PetscTools::Barrier();        
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+TRACE("B");PetscTools::Barrier();        
 
         bidomain_problem.Solve();
+TRACE("C");PetscTools::Barrier();        
 
         Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
 
         // test V = 0 for all bath nodes
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (AbstractMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+             iter != mesh.GetNodeIteratorEnd(); ++iter)
         {
-      try
-        {
-          if(mesh.GetNode(i)->GetRegion()==HeartRegionCode::BATH) // bath
-        {
-          TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+            if ((*iter).GetRegion()==HeartRegionCode::BATH) // bath
+            {
+                unsigned index=(*iter).GetIndex();
+            
+                TS_ASSERT_DELTA(sol_repl[2*index], 0.0, 1e-12);
+            }
         }
-        }
-      catch(Exception& e)
-        {
-        }
-        }
+TRACE("D");PetscTools::Barrier();        
 
-    std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
+        std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
+TRACE("E");PetscTools::Barrier();        
 
-    unsigned node_50;
-    unsigned node_70;
+        unsigned node_50;
+        unsigned node_70;
 
-    // In sequential the permutation vector is empty
-    if (permutation.size() > 0)
-      {
-        node_50 = permutation[50];
-        node_70 = permutation[70];
-      }
-    else
-      {
-        node_50 = 50;
-        node_70 = 70;
-      }
+        // In sequential the permutation vector is empty
+        if (permutation.size() > 0)
+        {
+            node_50 = permutation[50];
+            node_70 = permutation[70];
+        }
+        else
+        {
+            node_50 = 50;
+            node_70 = 70;
+        }
 
         // a couple of hardcoded value
         TS_ASSERT_DELTA(sol_repl[2*node_50], 28.3912, 1e-3);
