@@ -44,9 +44,7 @@ NagaiHondaForce<DIM>::~NagaiHondaForce()
 template<unsigned DIM>
 void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                        AbstractTissue<DIM>& rTissue)
-{
-    //PRINT_VARIABLE(SimulationTime::Instance()->GetTime());
-    
+{   
     // Helper instance of CancerParameters
     CancerParameters* p_params = CancerParameters::Instance();
 
@@ -56,7 +54,6 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
     // Iterate over vertices in the tissue
     for (unsigned node_index=0; node_index<p_tissue->GetNumNodes(); node_index++)
     {
-        //PRINT_VARIABLES(node_index,SimulationTime::Instance()->GetTime());
         // Compute the force on this node
 
         /*
@@ -105,7 +102,7 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
             // Add the force contribution from this cell's deformation energy (note the minus sign)
             deformation_contribution -= 2*p_params->GetDeformationEnergyParameter()*(element_area - cell_target_area)*element_area_gradient;
 
-            /******** End of membrane force calculation *************/
+            /******** End of deformation force calculation *************/
 
             /******** Start of membrane force calculation ***********/
 
@@ -113,15 +110,13 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
             double element_perimeter = p_tissue->rGetMesh().GetPerimeterOfElement(*iter);
             c_vector<double, DIM> element_perimeter_gradient = p_tissue->rGetMesh().GetPerimeterGradientOfElementAtNode(p_element, local_index);
 
-            
             // Get the target perimeter of the cell
             double cell_target_perimeter = 2*sqrt(M_PI*cell_target_area);
-            //PRINT_VARIABLE(cell_target_perimeter);
             
             // Add the force contribution from this cell's membrane surface tension (note the minus sign)
             membrane_surface_tension_contribution -= 2*p_params->GetMembraneSurfaceEnergyParameter()*(element_perimeter - cell_target_perimeter)*element_perimeter_gradient;
 
-            /******** End of deformation force calculation **********/
+            /******** End of membrane force calculation **********/
 
             /******** Start of adhesion force calculation ***********/
 
@@ -153,8 +148,6 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
         c_vector<double, DIM> force_on_node = deformation_contribution +
                                               membrane_surface_tension_contribution +
                                               adhesion_contribution;
-        
-        //PRINT_3_VARIABLES(deformation_contribution, membrane_surface_tension_contribution, adhesion_contribution);
 
         rForces[node_index] += force_on_node;
     }
