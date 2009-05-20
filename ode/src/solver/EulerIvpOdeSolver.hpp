@@ -30,7 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _EULERIVPODESOLVER_HPP_
 #define _EULERIVPODESOLVER_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractOneStepIvpOdeSolver.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * A concrete one step ODE solver class that employs the forward Euler
@@ -38,6 +44,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class EulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
+private:
+    
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the abstract IVP Solver, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractOneStepIvpOdeSolver>(*this);
+    }
+    
 protected:
 
     /**
@@ -73,6 +96,8 @@ public:
     virtual ~EulerIvpOdeSolver()
     {}
 };
+
+BOOST_CLASS_EXPORT(EulerIvpOdeSolver);
 
 #endif //_EULERIVPODESOLVER_HPP_
 

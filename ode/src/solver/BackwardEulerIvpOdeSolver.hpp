@@ -32,6 +32,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
+#include "AbstractOneStepIvpOdeSolver.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
+
 /**
  * A concrete one step ODE solver class that employs the backward Euler
  * method. This numerical method is implicit and hence unconditionally stable.
@@ -39,6 +47,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BackwardEulerIvpOdeSolver  : public AbstractOneStepIvpOdeSolver
 {
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the abstract IVP Solver, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractOneStepIvpOdeSolver>(*this);
+        //archive & mSizeOfOdeSystem; - this done in save and load construct now.
+        archive & mNumericalJacobianEpsilon;
+        archive & mForceUseOfNumericalJacobian;
+    }
 
     /** The number of state variables in the ODE system. */
     unsigned mSizeOfOdeSystem;
@@ -177,7 +202,43 @@ public:
      * the ODE system object provides an analytical Jacobian.
      */
     void ForceUseOfNumericalJacobian();
+    
+    unsigned GetSystemSize() const {return mSizeOfOdeSystem;};
 };
 
+BOOST_CLASS_EXPORT(BackwardEulerIvpOdeSolver);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a BackwardEulerIvpOdeSolver instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const BackwardEulerIvpOdeSolver * t, const unsigned int file_version)
+{
+    const unsigned system_size = t->GetSystemSize();
+    ar & system_size;
+}  
+    
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a BackwardEulerIvpOdeSolver instance (using existing constructor)
+ * 
+ * NB this constructor allocates memory for the other member variables too.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, BackwardEulerIvpOdeSolver * t, const unsigned int file_version)
+{
+     unsigned ode_system_size;
+     ar >> ode_system_size;
+     ::new(t)BackwardEulerIvpOdeSolver(ode_system_size);
+}
+}
+} // namespace ...
 
 #endif /*BACKWARDEULERIVPODESOLVER_HPP_*/

@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
@@ -49,6 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
+#include "OutputFileHandler.hpp"
 
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
@@ -496,6 +500,65 @@ public:
         global_error_rk4 = (1.0/24.0)*pow(h_value,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_rk4, exact_solution, global_error_rk4);
     }
+    
+    void TestArchivingSolvers() throw(Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "ode_solver.arch";
+
+        // Create and archive simulation time
+        {
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            // Set up a solver
+            AbstractIvpOdeSolver* const p_euler_ivp_ode_solver = new EulerIvpOdeSolver;
+            AbstractIvpOdeSolver* const p_runge_kutta_2_ode_solver = new RungeKutta2IvpOdeSolver;
+            AbstractIvpOdeSolver* const p_runge_kutta_4_ode_solver = new RungeKutta4IvpOdeSolver;
+            
+            // Should always archive a pointer
+            output_arch << p_euler_ivp_ode_solver;
+            output_arch << p_runge_kutta_2_ode_solver;
+            output_arch << p_runge_kutta_4_ode_solver;
+            
+            // Change stimulus a bit           
+            delete p_euler_ivp_ode_solver;
+            delete p_runge_kutta_2_ode_solver;
+            delete p_runge_kutta_4_ode_solver;
+        }
+
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);            
+            
+            // Create a pointer
+            AbstractIvpOdeSolver* p_euler;
+            AbstractIvpOdeSolver* p_rk2;
+            AbstractIvpOdeSolver* p_rk4;
+            input_arch >> p_euler;
+            input_arch >> p_rk2;
+            input_arch >> p_rk4;
+            
+            // Check the solver now has the properties of the one archived above.
+            Ode1 ode_system;
+            p_euler->SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
+            TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
+            
+            Ode1 ode_system_2;
+            p_rk2->SolveAndUpdateStateVariable(&ode_system_2, 0, 1, 0.01);
+            TS_ASSERT_DELTA(ode_system_2.rGetStateVariables()[0], 1.0, 1e-2);
+            
+            Ode1 ode_system_3;
+            p_rk4->SolveAndUpdateStateVariable(&ode_system_3, 0, 1, 0.01);
+            TS_ASSERT_DELTA(ode_system_3.rGetStateVariables()[0], 1.0, 1e-2);
+            
+            delete p_euler;
+            delete p_rk2;
+            delete p_rk4;
+        }
+    } 
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

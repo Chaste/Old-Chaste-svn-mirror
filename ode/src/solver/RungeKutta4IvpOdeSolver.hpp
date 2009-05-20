@@ -29,7 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _RUNGEKUTTA4IVPODESOLVER_HPP_
 #define _RUNGEKUTTA4IVPODESOLVER_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractOneStepIvpOdeSolver.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * A concrete one step ODE solver class that employs the Runge Kutta
@@ -37,6 +43,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class RungeKutta4IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
+private:
+    
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the abstract IVP Solver, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractOneStepIvpOdeSolver>(*this);
+    }
+    
 protected:
 
     /**
@@ -63,5 +86,7 @@ private:
     std::vector<double> yki; /**< Working memory: expression yki in the RK4 method. */
 
 };
+
+BOOST_CLASS_EXPORT(RungeKutta4IvpOdeSolver);
 
 #endif //_RUNGEKUTTA4IVPODESOLVER_HPP_

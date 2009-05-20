@@ -29,8 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTIVPODESOLVER_HPP_
 #define _ABSTRACTIVPODESOLVER_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
+
 #include "OdeSolution.hpp"
 
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * Abstract initial value problem ODE solver class. Sets up variables and functions
@@ -38,6 +43,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class AbstractIvpOdeSolver
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mStoppingEventOccurred;
+        archive & mStoppingTime;
+    }
+    
 protected :
 
     /**
@@ -137,5 +157,7 @@ public :
     virtual ~AbstractIvpOdeSolver();
 
 };
+
+BOOST_IS_ABSTRACT(AbstractIvpOdeSolver)
 
 #endif //_ABSTRACTIVPODESOLVER_HPP_

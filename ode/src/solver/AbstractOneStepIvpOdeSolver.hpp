@@ -29,7 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTONESTEPIVPODESOLVER_HPP_
 #define _ABSTRACTONESTEPIVPODESOLVER_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractIvpOdeSolver.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * Abstract one-step initial value problem ODE solver class. Sets up variables and functions
@@ -37,8 +44,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
+    
 private:
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the abstract IVP Solver, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractIvpOdeSolver>(*this);
+    }
+    
     /**
      * Working memory
      */
@@ -149,5 +172,7 @@ public:
     virtual ~AbstractOneStepIvpOdeSolver()
     {}
 };
+
+BOOST_IS_ABSTRACT(AbstractOneStepIvpOdeSolver)
 
 #endif //_ABSTRACTONESTEPIVPODESOLVER_HPP_
