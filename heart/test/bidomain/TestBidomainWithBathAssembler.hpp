@@ -340,13 +340,13 @@ public:
 
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
-#include "Debug.hpp"
-TRACE("A");PetscTools::Barrier();        
+
+        PetscTools::Barrier();
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-TRACE("B");PetscTools::Barrier();        
+        PetscTools::Barrier();
 
         bidomain_problem.Solve();
-TRACE("C");PetscTools::Barrier();        
+        PetscTools::Barrier();
 
         Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
@@ -358,14 +358,14 @@ TRACE("C");PetscTools::Barrier();
             if ((*iter).GetRegion()==HeartRegionCode::BATH) // bath
             {
                 unsigned index=(*iter).GetIndex();
-            
+
                 TS_ASSERT_DELTA(sol_repl[2*index], 0.0, 1e-12);
             }
         }
-TRACE("D");PetscTools::Barrier();        
+        PetscTools::Barrier();
 
         std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
-TRACE("E");PetscTools::Barrier();        
+        PetscTools::Barrier();
 
         unsigned node_50;
         unsigned node_70;

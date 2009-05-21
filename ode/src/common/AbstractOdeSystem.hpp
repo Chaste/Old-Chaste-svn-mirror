@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _ABSTRACTODESYSTEM_HPP_
 
 #include <boost/serialization/access.hpp>
+#define BOOST_NO_INTRINSIC_INT64_T   /// \todo remove this when boost bug fixed - see ticket:1024.
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/is_abstract.hpp>
 
@@ -42,31 +43,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Abstract OdeSystem class.
- * 
+ *
  * Sets up variables and functions for a general ODE system.
- * 
+ *
  * ODE systems are specified primarily by the EvaluateYDerivatives method,
  * which calculates the right-hand side of the system.
- * 
+ *
  * Instances can store their state internally in the #mStateVariables vector
  * (see GetNumberOfStateVariables, SetStateVariables and rGetStateVariables),
  * although this is not essential - the vector may be empty, although in this
  * case AbstractIvpOdeSolver::SolveAndUpdateStateVariable may not be used to
  * solve the system.
- * 
+ *
  * ODE systems may also have a vector of parameters, which can be accessed
  * through the GetParameter and SetParameter methods.
- * 
+ *
  * Information about what the parameters and state variables represent is
  * provided by a subclass of AbstractOdeSystemInformation.  Various wrapper
  * methods (e.g. rGetVariableNames) are provided in this class to access
  * this information.
- * 
+ *
  * There are two more advanced facilities available for subclass authors.
  * An analytic form for the Jacobian matrix of the system may be provided,
  * in which case you must subclass AbstractOdeSystemWithAnalyticJacobian.
  * The GetUseAnalyticJacobian method will test whether this is the case.
- * 
+ *
  * Also, subclasses may define a condition at which ODE solvers should stop
  * prematurely.  For the Chaste solvers this is done by overriding
  * CalculateStoppingEvent; if the more advanced CVODE solvers are being used
@@ -93,7 +94,7 @@ private:
         archive & mUseAnalyticJacobian;
         archive & mStateVariables;
         archive & mParameters;
-        
+
 //        archive &mpSystemInfo;
         /// \todo archive mpSystemInfo
     }
@@ -151,22 +152,22 @@ public:
      */
     unsigned GetNumberOfStateVariables() const;
 
-    
+
     /**
      * Get the number of parameters.
      */
     unsigned GetNumberOfParameters() const;
-    
+
     /**
      * Get the value of a given parameter.
-     * 
+     *
      * @param index the index of the parameter
      */
     double GetParameter(unsigned index) const;
 
     /**
      * Set the value of a given parameter.
-     * 
+     *
      * @param index the index of the parameter
      * @param value the value
      */
@@ -182,7 +183,7 @@ public:
      */
     const std::vector<std::string>& rGetParameterUnits() const;
 
-    
+
     /**
      * Set the initial conditions for the ODE system.
      *
@@ -293,7 +294,7 @@ public:
      * Get the object which provides information about this ODE system.
      */
     boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
-    
+
 protected:
 
     /**

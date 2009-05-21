@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractIvpOdeSolver::AbstractIvpOdeSolver()
     : mStoppingEventOccurred(false),
-      mStoppingTime(-1.0)
+      mStoppingTime(DBL_MAX)
 {
 }
 

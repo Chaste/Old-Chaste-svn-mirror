@@ -29,7 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_
 #define _RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractOneStepIvpOdeSolver.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * A concrete one step ODE solver class that employs the Runge Kutta
@@ -48,6 +54,20 @@ class RungeKuttaFehlbergIvpOdeSolver : public AbstractIvpOdeSolver
 friend class TestRungeKuttaFehlbergIvpOdeSolver;
 
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class - all member variables instantiated on construction or temporary.
+        archive & boost::serialization::base_object<AbstractIvpOdeSolver>(*this);
+    }
 
     /*
      * All these are here for more efficient memory allocation, rather than
@@ -201,5 +221,7 @@ public:
                        double timeStep);
 
 };
+
+BOOST_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver);
 
 #endif //_RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_

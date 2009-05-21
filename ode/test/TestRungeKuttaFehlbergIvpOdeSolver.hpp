@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTRUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_
 #define TESTRUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <cxxtest/TestSuite.h>
 #include <iostream>
 
@@ -357,6 +359,58 @@ public:
         TS_ASSERT_DELTA(numerical_solution[1], 0, 2);
     }
 
+    void TestArchivingRkfSolver() throw(Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "rkf_solver.arch";
+
+        Ode5Jacobian ode_system;
+        OdeSolution solutions;
+        double h_value = 0.1;
+        double end_time = 1.0;
+
+        // Create and archive simulation time
+        {
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Set up a solver
+            AbstractIvpOdeSolver* const p_rkf_ode_solver = new RungeKuttaFehlbergIvpOdeSolver;
+
+
+            // Should always archive a pointer
+            output_arch << p_rkf_ode_solver;
+
+            // Change stimulus a bit
+            delete p_rkf_ode_solver;
+        }
+
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Create a pointer
+            AbstractIvpOdeSolver* p_rkf;
+            input_arch >> p_rkf;
+
+            std::vector<double> state_variables = ode_system.GetInitialConditions();
+
+            solutions = p_rkf->Solve(&ode_system, state_variables, 0.0, end_time, h_value, 1e-5);
+            unsigned last = solutions.GetNumberOfTimeSteps();
+
+            double numerical_solution;
+            numerical_solution = solutions.rGetSolutions()[last][0];
+
+            // The tests
+            double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
+
+            TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
+
+            delete p_rkf;
+        }
+    }
 };
 
 #endif /*TESTRUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_*/

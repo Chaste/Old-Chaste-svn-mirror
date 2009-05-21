@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _CVODEADAPTOR_HPP_
 #define _CVODEADAPTOR_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 
@@ -38,6 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_nvector.h>
 #include <cvode/cvode_dense.h>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * CVODE right-hand-side function adaptor.
@@ -124,6 +130,23 @@ typedef struct CvodeData_ {
 class CvodeAdaptor : public AbstractIvpOdeSolver
 {
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class - all member variables instantiated on construction or temporary.
+        archive & boost::serialization::base_object<AbstractIvpOdeSolver>(*this);
+        archive & mRelTol;
+        archive & mAbsTol;
+        // All other member variables given values on each call.
+    }
 
     /** Pointer to the CVODE memory block. */
     void* mpCvodeMem;
@@ -264,6 +287,8 @@ public:
     long int GetMaxSteps();
 
 };
+
+BOOST_CLASS_EXPORT(CvodeAdaptor);
 
 #endif // _CVODEADAPTOR_HPP_
 #endif // CHASTE_CVODE

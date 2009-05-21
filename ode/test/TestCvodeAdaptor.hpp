@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTCVODEADAPTOR_HPP_
 #define _TESTCVODEADAPTOR_HPP_
 
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <cxxtest/TestSuite.h>
 
 #include <iostream>
@@ -321,6 +324,47 @@ public:
         solver.CheckForStoppingEvents();
         state_variables = ode_system.GetInitialConditions();
         TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+#endif // CHASTE_CVODE
+    }
+
+    void TestArchivingCvodeAdaptorSolver() throw(Exception)
+    {
+#ifdef CHASTE_CVODE
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "cvode_adaptor_solver.arch";
+
+        // Create and archive simulation time
+        {
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Set up a solver
+            AbstractIvpOdeSolver* const p_cvode_adaptor_solver = new CvodeAdaptor;
+
+
+            Ode1 ode_system;
+            p_cvode_adaptor_solver->SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
+            TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
+
+            // Should always archive a pointer
+            output_arch << p_cvode_adaptor_solver;
+
+            // Change stimulus a bit
+            delete p_cvode_adaptor_solver;
+        }
+
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Create a pointer
+            AbstractIvpOdeSolver* p_cvode_solver;
+            input_arch >> p_cvode_solver;
+
+            delete p_cvode_solver;
+        }
 #endif // CHASTE_CVODE
     }
 
