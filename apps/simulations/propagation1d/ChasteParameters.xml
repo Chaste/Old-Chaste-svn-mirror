@@ -57,9 +57,6 @@
 
 	<Numerical>
 		<TimeSteps ode="0.005" pde="0.01" printing="0.1" unit="ms"/>
-		<KSPTolerances>
-			<KSPRelative>1e-6</KSPRelative>
-		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>

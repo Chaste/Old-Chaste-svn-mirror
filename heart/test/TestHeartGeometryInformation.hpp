@@ -294,15 +294,66 @@ public:
     
     void TestHeartGeometryTakingFiles() throw (Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
-        std::string epi_face_file = "heart/test/data/box_shaped_heart/epi.tri";
-        std::string rv_face_file = "heart/test/data/box_shaped_heart/rv.tri";
-        std::string lv_face_file = "heart/test/data/box_shaped_heart/lv.tri";
+        //files containing list of nodes on each surface
+        std::string epi_surface = "apps/simulations/propagation3dparallel/epi.n_tris";
+        std::string lv_surface = "apps/simulations/propagation3dparallel/lv.n_tris";
+        std::string rv_surface = "apps/simulations/propagation3dparallel/rv.n_tris";
+
+        std::vector<unsigned> epi_nodes;        
+        std::vector<unsigned> lv_nodes;
+        std::vector<unsigned> rv_nodes;
+        
+        //since, at the moment, our reader is expecting a proper triangulation file
+        //we need to create the vectors to be passed to the HeartGeometryInformation 
+        std::ifstream file_epi;
+        file_epi.open(epi_surface.c_str());
+        do
+        {
+            unsigned value;
+            file_epi >> value;
+            epi_nodes.push_back(value);            
+        }
+        while(!file_epi.eof());
+
+        std::ifstream file_lv;
+        file_lv.open(lv_surface.c_str());
+        do
+        {
+            unsigned value;
+            file_lv >> value;
+            lv_nodes.push_back(value);            
+        }
+        while(!file_lv.eof());
+
+        std::ifstream file_rv;
+        file_rv.open(rv_surface.c_str());
+        do
+        {
+            unsigned value;
+            file_rv >> value;
+            rv_nodes.push_back(value);            
+        }
+        while(!file_rv.eof());
+        
+        //read in the mesh
+        TrianglesMeshReader<3,3> mesh_reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        HeartGeometryInformation<3> info(mesh, epi_face_file, lv_face_file, rv_face_file); 
-///\todo add a test here
+        //calculate the geometry informations
+        HeartGeometryInformation<3> info(mesh, epi_nodes, lv_nodes, rv_nodes);
+        info.DetermineLayerForEachNode(0.25,0.375);
+        //and write them out to file
+        OutputFileHandler results_handler("CellularHeterogeneity", false);        
+        out_stream p_file = results_handler.OpenOutputFile("distances.dat");        
+        
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        {
+            (*p_file)<<info.rGetLayerForEachNode()[index]<<std::endl;
+        }
+        //since we visually checked that the output file is correct,
+        //we check that the data in the file match the calculated one.
+        EXPECT0(system, "diff " + results_handler.GetOutputDirectoryFullPath() + "/distances.dat " + "heart/test/data/heart_geometry_layers.dat");
     }
 };
 

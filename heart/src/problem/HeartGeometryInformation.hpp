@@ -255,6 +255,8 @@ public:
         
     /**
      *  Compute which layer (endocardial, midmyocardial or epicardial) each node is in
+     *  @param epiFraction is the fraction of wall designed to be epicardial layer
+     *  @param endoFraction is the fraction of wall designed to be endocardial layer
      */
     void DetermineLayerForEachNode(double epiFraction, double endoFraction);
     
