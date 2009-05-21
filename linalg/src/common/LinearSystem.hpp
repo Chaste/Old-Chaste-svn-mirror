@@ -80,6 +80,12 @@ private:
 
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see AbstractBoundaryConditionsContainer */
 
+#ifdef TRACE_KSP
+    unsigned mNumSolves;
+    unsigned mTotalNumIterations;
+    unsigned mMaxNumIterations;
+#endif    
+
 public:
 
     /**

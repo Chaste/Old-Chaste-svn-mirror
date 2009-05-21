@@ -62,6 +62,12 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
+    
+#ifdef TRACE_KSP
+    mNumSolves = 0;
+    mTotalNumIterations = 0;
+    mMaxNumIterations = 0;
+#endif        
 }
 
 LinearSystem::LinearSystem(Vec templateVector)
@@ -85,6 +91,11 @@ LinearSystem::LinearSystem(Vec templateVector)
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
 
+#ifdef TRACE_KSP
+    mNumSolves = 0;
+    mTotalNumIterations = 0;
+    mMaxNumIterations = 0;
+#endif        
 }
 
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
@@ -122,6 +133,11 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     strcpy(mKspType, "gmres");
     strcpy(mPcType, "jacobi");
 
+#ifdef TRACE_KSP
+    mNumSolves = 0;
+    mTotalNumIterations = 0;
+    mMaxNumIterations = 0;
+#endif
 }
 
 LinearSystem::~LinearSystem()
@@ -147,6 +163,18 @@ LinearSystem::~LinearSystem()
         ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
     }
+    
+#ifdef TRACE_KSP
+    if (mNumSolves > 0)
+    {
+        double ave_num_iterations = mTotalNumIterations/(double)mNumSolves;
+    
+        std::cout << std::endl << "KSP iterations report:" << std::endl;
+        std::cout << "mNumSolves" << "\t" << "mTotalNumIterations" << "\t" << "mMaxNumIterations" << "\t" << "mAveNumIterations" << std::endl;
+        std::cout << mNumSolves << "\t" << mTotalNumIterations << "\t" << mMaxNumIterations << "\t" << ave_num_iterations << std::endl;
+    }
+#endif    
+    
 }
 
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
@@ -510,6 +538,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         KSPSetUp(mKspSolver);
 
         mKspIsSetup = true;
+                
     }
     else
     {
@@ -586,6 +615,20 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         KSPConvergedReason reason;
         KSPGetConvergedReason(mKspSolver, &reason);
         KSPEXCEPT(reason);
+        
+#ifdef TRACE_KSP        
+        PetscInt num_it;
+        KSPGetIterationNumber(mKspSolver, &num_it);
+        std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << std::endl << std::flush;
+
+        mNumSolves++;
+        mTotalNumIterations += num_it;
+        if ((unsigned) num_it > mMaxNumIterations)
+        {
+            mMaxNumIterations = num_it;
+        } 
+#endif    
+        
     }
     catch (const Exception& e)
     {

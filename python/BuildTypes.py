@@ -900,6 +900,8 @@ def GetBuildType(buildType):
                 obj.SetReporting(vec=3)
         elif extra == 'onlytests':
             obj.ClearTestPacks()
+        elif extra == 'traceksp':
+            obj._cc_flags.append('-DTRACE_KSP')
         elif extra == 'ndebug':
             obj._cc_flags.append('-DNDEBUG')
             obj.build_dir += '_ndebug'

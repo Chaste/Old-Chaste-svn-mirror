@@ -53,10 +53,16 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initial
 
     if (HeartConfig::Instance()->GetUseAbsoluteTolerance())
     {
+#ifdef TRACE_KSP        
+        std::cout << "Using absolute tolerance: " << mpConfig->GetAbsoluteTolerance() <<"\n";
+#endif
         this->mpLinearSystem->SetAbsoluteTolerance(mpConfig->GetAbsoluteTolerance());
     }
     else
     {
+#ifdef TRACE_KSP        
+        std::cout << "Using relative tolerance: " << mpConfig->GetRelativeTolerance() <<"\n";
+#endif
         this->mpLinearSystem->SetRelativeTolerance(mpConfig->GetRelativeTolerance());
     }
 
