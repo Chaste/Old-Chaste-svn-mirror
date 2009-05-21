@@ -39,21 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  code when committing.
  */
 
-std::string FormDebugHead()
-{
-    std::string ret;
-    if(PetscTools::NumProcs()==1)
-    {
-        std::string ret("DEBUG: ");
-        return ret;
-    }
-    else
-    {   
-        std::stringstream stringstream;
-        stringstream << "DEBUG: proc " << PetscTools::GetMyRank() << ": ";
-        return stringstream.str();
-    }
-} 
+std::string FormDebugHead();
 
 #ifndef NDEBUG
     /** Print the given message */
