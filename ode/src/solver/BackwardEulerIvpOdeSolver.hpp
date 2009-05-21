@@ -203,7 +203,12 @@ public:
      */
     void ForceUseOfNumericalJacobian();
     
-    unsigned GetSystemSize() const {return mSizeOfOdeSystem;};
+    /**
+     * Public method used in archiving.
+     * 
+     * @return the size of the system
+     */
+     unsigned GetSystemSize() const {return mSizeOfOdeSystem;};
 };
 
 BOOST_CLASS_EXPORT(BackwardEulerIvpOdeSolver);

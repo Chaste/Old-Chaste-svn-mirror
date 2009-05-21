@@ -222,6 +222,8 @@ public:
 
     /**
      * Set all entries in a given row of a matrix to a certain value.
+     * This must be called by the process who owns the row, (but other
+     * processors will treat it as a null-op
      *
      * @param row
      * @param value
@@ -230,7 +232,10 @@ public:
 
     /**
      * Zero a row of the left-hand side matrix.
-     *
+     * This method is a collective call (all processes should call it together).
+     * If processes call it with different arguments then its results may 
+     * not be predictable.
+     * 
      * @param row
      */
     void ZeroMatrixRow(PetscInt row);

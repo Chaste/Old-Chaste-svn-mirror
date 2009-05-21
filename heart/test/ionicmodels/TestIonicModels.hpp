@@ -72,6 +72,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 
+#include "PetscTools.hpp" //No PETSc here -- this is just to double-check
+
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
 
@@ -900,6 +902,7 @@ public:
 
     void TestNoble98ArchiveSave(void)
     {
+        TS_ASSERT(PetscTools::IsSequential());
         // Set stimulus
         double magnitude_stimulus = -3;  // uA/cm2
         double duration_stimulus = 3;  // ms

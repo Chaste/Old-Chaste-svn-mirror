@@ -134,31 +134,57 @@ public:
             ls.SetRhsVectorElement(i, (double)i);
         }
         ls.AssembleFinalLinearSystem();
-        ls.ZeroLinearSystem();
-        ls.AssembleFinalLinearSystem();
+
         int lo, hi;
         ls.GetOwnershipRange(lo, hi);
         for (int row=lo; row<hi; row++)
         {
-            TS_ASSERT_EQUALS(ls.GetRhsVectorElement(row), 0);
+            TS_ASSERT_EQUALS(ls.GetRhsVectorElement(row), row);
             for (int col=0; col<5; col++)
             {
-                TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), 0);
+                TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), row);
             }
         }
 
-        if (lo < 5)
+        ls.ZeroLinearSystem();
+
+        for (int row=lo; row<hi; row++)
         {
-            ls.SetMatrixRow(lo, 1.0);
-            ls.AssembleFinalLinearSystem();
-            TS_ASSERT_EQUALS(ls.GetMatrixElement(lo, 1), 1.0);
-            ls.ZeroMatrixRow(lo);
-            ls.AssembleFinalLinearSystem();
-            TS_ASSERT_EQUALS(ls.GetMatrixElement(lo, 1), 0.0);
+            TS_ASSERT_EQUALS(ls.GetRhsVectorElement(row), 0.0);
+            for (int col=0; col<5; col++)
+            {
+                TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), 0.0);
+            }
+        }
+
+
+        ls.SetMatrixRow(2, 125.0);
+        
+        //Note: this method is collective.  All processes MUST do it together.
+        ls.AssembleFinalLinearSystem();
+
+ 
+        //Note: these methods are collective.  All processes MUST do them together.
+        for (unsigned i=0; i<2; i++)
+        {
+            ls.ZeroMatrixRow(i);
+        }
+        
+        if (lo <=0 && 0<hi)
+        {
+            TS_ASSERT_EQUALS(ls.GetMatrixElement(0, 1), 0.0);
+        }
+        if (lo <=1 && 1<hi)
+        {
+            TS_ASSERT_EQUALS(ls.GetMatrixElement(1, 1), 0.0);
+        }
+
+        if (lo <=2 && 2<hi)
+        {
+            TS_ASSERT_EQUALS(ls.GetMatrixElement(2, 1), 125.0);
         }
 
     }
-
     void TestZeroingLinearSystemByColumn()
     {
         LinearSystem ls(5);
@@ -652,6 +678,7 @@ public:
 
     void TestSaveAndLoad()
     {
+        if (PetscTools::AmMaster())
         {
             LinearSystem ls = LinearSystem(3);
     
