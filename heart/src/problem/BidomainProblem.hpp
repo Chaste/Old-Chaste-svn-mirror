@@ -58,7 +58,6 @@ friend class TestBidomainWithBathAssembler;
 protected:
     BidomainPde<DIM>* mpBidomainPde;
 
-private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     unsigned mExtracelluarColumnId;
     unsigned mRowForAverageOfPhiZeroed;
@@ -87,10 +86,9 @@ private:
      */
     BidomainDg0Assembler<DIM,DIM>* mpAssembler;
 
-protected:
-    AbstractCardiacPde<DIM> *CreateCardiacPde();
+    virtual AbstractCardiacPde<DIM> *CreateCardiacPde();
 
-    AbstractDynamicAssemblerMixin<DIM, DIM, 2>* CreateAssembler();
+    virtual AbstractDynamicAssemblerMixin<DIM, DIM, 2>* CreateAssembler();
 
 public:
     /**
