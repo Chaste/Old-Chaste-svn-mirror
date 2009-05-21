@@ -29,7 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _MOCKEULERIVPODESOLVER_HPP_
 #define _MOCKEULERIVPODESOLVER_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "EulerIvpOdeSolver.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * This 'mock' class is only used in testing. It is the same
@@ -40,6 +46,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MockEulerIvpOdeSolver : public EulerIvpOdeSolver
 {
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the abstract IVP Solver, never used directly - boost uses this.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<EulerIvpOdeSolver>(*this);
+        archive & mCallCount;
+    }
 
     /** How many times the ODE solver has been called. */
     unsigned mCallCount;
@@ -85,5 +106,7 @@ public:
     {}
 
 };
+
+BOOST_CLASS_EXPORT(MockEulerIvpOdeSolver);
 
 #endif //_MOCKEULERIVPODESOLVER_HPP_

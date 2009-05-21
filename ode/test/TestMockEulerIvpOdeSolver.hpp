@@ -30,10 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTMOCKEULERIVPODESOLVER_HPP_
 #define _TESTMOCKEULERIVPODESOLVER_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <cxxtest/TestSuite.h>
 
 #include "MockEulerIvpOdeSolver.hpp"
 #include "Ode1.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
 {
@@ -75,6 +78,51 @@ public:
         TS_ASSERT_DELTA(testvalue, 2.0, 0.01);
 
         TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 2u);
+    }
+
+    void TestArchivingMockEulerSolver() throw(Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "mock_euler_solver.arch";
+
+        // Create and archive simulation time
+        {
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Set up a solver
+            AbstractIvpOdeSolver* const p_mock_euler_ivp_ode_solver = new MockEulerIvpOdeSolver;
+
+
+            Ode1 ode_system;
+            p_mock_euler_ivp_ode_solver->SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
+            TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
+
+            // Should always archive a pointer
+            output_arch << p_mock_euler_ivp_ode_solver;
+
+            // Change stimulus a bit
+            delete p_mock_euler_ivp_ode_solver;
+        }
+
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Create a pointer
+            AbstractIvpOdeSolver* p_mock_euler;
+            input_arch >> p_mock_euler;
+
+            Ode1 ode_system;
+            p_mock_euler->SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
+            TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
+
+            TS_ASSERT_EQUALS(static_cast<MockEulerIvpOdeSolver&> (*p_mock_euler).GetCallCount(), 2u);
+
+            delete p_mock_euler;
+        }
     }
 
 };
