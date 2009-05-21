@@ -66,7 +66,7 @@ protected :
      */
     bool mStoppingEventOccurred;
 
-    /** If a stopping event occurred the time is stored here. */
+    /** If a stopping event occurred the time is stored here.  (Only valid when mStoppingEventOccurred==true) */
     double mStoppingTime;
 
 public :

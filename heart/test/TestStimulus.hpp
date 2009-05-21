@@ -397,6 +397,7 @@ public:
             delete p_zero;
             delete p_simple;
             delete p_regular;
+            p_multiple->Clear();
             delete p_multiple;
         }
     }   

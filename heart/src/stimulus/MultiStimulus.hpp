@@ -87,6 +87,13 @@ public:
      * @return  Magnitude of stimulus at time 'time'.
      */
      double GetStimulus(double time);
+     
+     /**
+      * Clear is responsible for managing the memory of
+      * delegated stimuli
+      * 
+      */
+     void Clear();
 };
 
 // Declare identifier for the serializer

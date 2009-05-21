@@ -38,10 +38,19 @@ double MultiStimulus::GetStimulus(double time)
 {
     double total_stimulus = 0.0;
 
-    for (unsigned current_stimulus = 0; current_stimulus < mStimuli.size(); ++current_stimulus)
+    for (unsigned stimulus_index = 0; stimulus_index < mStimuli.size(); ++stimulus_index)
     {
-        total_stimulus += mStimuli[current_stimulus]->GetStimulus(time);
+        total_stimulus += mStimuli[stimulus_index]->GetStimulus(time);
     }
 
     return total_stimulus;
+}
+
+void MultiStimulus::Clear()
+{
+     for (unsigned stimulus_index = 0; stimulus_index < mStimuli.size(); ++stimulus_index)
+     {
+        delete mStimuli[stimulus_index];
+     }
+     mStimuli.clear();
 }

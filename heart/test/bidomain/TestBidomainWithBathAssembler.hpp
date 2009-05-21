@@ -341,12 +341,9 @@ public:
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 
-        PetscTools::Barrier();
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-        PetscTools::Barrier();
 
         bidomain_problem.Solve();
-        PetscTools::Barrier();
 
         Vec sol = bidomain_problem.GetSolution();
         ReplicatableVector sol_repl(sol);
@@ -362,10 +359,8 @@ public:
                 TS_ASSERT_DELTA(sol_repl[2*index], 0.0, 1e-12);
             }
         }
-        PetscTools::Barrier();
 
         std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
-        PetscTools::Barrier();
 
         unsigned node_50;
         unsigned node_70;

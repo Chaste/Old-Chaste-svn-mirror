@@ -71,6 +71,12 @@ public:
      */
     virtual ~AbstractStimulusFunction()
     {}
+    
+    /**
+     * Clear is used to managed memory in subclasses where the destructor may or may not need to clean up.
+     */
+    void virtual Clear()
+    {}
 };
 
 BOOST_IS_ABSTRACT(AbstractStimulusFunction)
