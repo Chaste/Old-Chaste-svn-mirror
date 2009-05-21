@@ -32,6 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "Debug.hpp"
 
+// interestingly, this test won't fork if you attempt to run in parallel unless this is included
+#include "PetscSetupAndFinalize.hpp"                                       
+
 class TestDebug : public CxxTest::TestSuite
 {
 public:
@@ -58,7 +61,7 @@ public:
         PRINT_4_VARIABLES(my_var, another_var, cancer_curing_constant, heart_disease_ending_constant);
         use_vars += heart_disease_ending_constant;
 
-        TRACE("\n\n\n");
+        std::cout << "\n\n";
 
         for(unsigned i=0; i<10; i++)
         {
@@ -81,6 +84,13 @@ public:
         {
             TRACE_FROM_NTH_VISIT("hello",2);
         }
+        
+        std::vector<double> vec(4);
+        vec[0] = 0.0;
+        vec[1] = 1.0;
+        vec[2] = 2.7;
+        vec[3] = 3.1;
+        PRINT_VECTOR(vec); 
     }
 };
 
