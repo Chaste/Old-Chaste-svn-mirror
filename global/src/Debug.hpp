@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  A bunch of useful macros for debugging. Note, use of these should be removed from source
  *  code when committing.
  */
-#define HEAD "DEBUG "<<PetscTools::GetMyRank()<<" :"
+#define HEAD "DEBUG "<<PetscTools::GetMyRank()<<": "
 
 #ifndef NDEBUG
     /** Print the given message */

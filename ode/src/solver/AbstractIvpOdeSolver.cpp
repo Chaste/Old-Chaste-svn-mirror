@@ -30,7 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIvpOdeSolver.hpp"
 
 AbstractIvpOdeSolver::AbstractIvpOdeSolver()
-    : mStoppingEventOccurred(false)
+    : mStoppingEventOccurred(false),
+      mStoppingTime(-1.0)
 {
 }
 

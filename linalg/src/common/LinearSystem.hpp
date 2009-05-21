@@ -483,8 +483,8 @@ public:
         archive & mMatrixIsConstant;
         archive & mTolerance; 
         archive & mUseAbsoluteTolerance;
-        archive & mKspType;
-        archive & mPcType;
+        //archive & mKspType;
+        //archive & mPcType;
 
         //Vec mDirichletBoundaryConditionsVector; ///\todo
     }     

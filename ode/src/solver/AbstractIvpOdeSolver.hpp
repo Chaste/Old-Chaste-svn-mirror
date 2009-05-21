@@ -66,7 +66,7 @@ protected :
      */
     bool mStoppingEventOccurred;
 
-    /** If a stopping event occurred the time is stored here */
+    /** If a stopping event occurred the time is stored here.  Value -1.0 indicates that it's unset (!mStoppingEventOccurred) */
     double mStoppingTime;
 
 public :

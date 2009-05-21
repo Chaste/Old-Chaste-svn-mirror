@@ -43,6 +43,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
    :mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
     mKspIsSetup(false),
+    mNonZerosUsed(0.0),
     mMatrixIsConstant(false),
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
