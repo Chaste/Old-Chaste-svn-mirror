@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
+#include "UblasIncludes.hpp"
 #include "PropagationPropertiesCalculator.hpp"
 #include "CellProperties.hpp"
 #include <sstream>
