@@ -151,3 +151,16 @@ void AbstractCardiacCell::AdjustOutOfRangeSlowValues(std::vector<double>& rSlowV
     EXCEPTION("Non fast-slow cell model being used in a fast-slow problem.");
 }
 
+// Methods needed by boost serialization.
+
+const AbstractStimulusFunction* AbstractCardiacCell::GetStimulus() const
+{
+    return mpIntracellularStimulus;
+}
+
+const AbstractIvpOdeSolver* AbstractCardiacCell::GetSolver() const
+{
+    return mpOdeSolver;
+}
+
+

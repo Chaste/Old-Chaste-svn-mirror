@@ -28,9 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _LUORUDYIMODEL1991ODESYSTEM_HPP_
 #define _LUORUDYIMODEL1991ODESYSTEM_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * This class sets up the LuoRudyIModel1991OdeSystem system of equations.
@@ -38,6 +44,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
 {
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
+    }
 
     /** Constants for the LuoRudyIModel1991OdeSystem model */
     static const double membrane_C;
@@ -79,5 +98,45 @@ public:
 
     double GetIntracellularCalciumConcentration();
 };
+
+BOOST_CLASS_EXPORT(LuoRudyIModel1991OdeSystem);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a LuoRudyIModel1991OdeSystem instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const LuoRudyIModel1991OdeSystem * t, const unsigned int file_version)
+{
+    const AbstractIvpOdeSolver* const p_solver = t->GetSolver();
+    const AbstractStimulusFunction* const p_stimulus = t->GetStimulus();
+    ar << p_solver;
+    ar << p_stimulus;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a LuoRudyIModel1991OdeSystem instance (using existing constructor)
+ *
+ * NB this constructor allocates memory for the other member variables too.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, LuoRudyIModel1991OdeSystem * t, const unsigned int file_version)
+{
+
+    AbstractIvpOdeSolver* p_solver;
+    AbstractStimulusFunction* p_stimulus;
+    ar >> p_solver;
+    ar >> p_stimulus;
+     ::new(t)LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
+}
+}
+} // namespace ...
 
 #endif // _LUORUDYIMODEL1991ODESYSTEM_HPP_
