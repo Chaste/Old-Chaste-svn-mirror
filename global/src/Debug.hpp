@@ -45,6 +45,9 @@ std::string FormDebugHead();
     /** Print the given message */
     #define TRACE(stuff) std::cout << FormDebugHead() << stuff << std::endl << std::flush;
 
+    /** Print some trace containing the line number */
+    #define MARK std::cout << FormDebugHead() <<  __FILE__ <<" at line "<<__LINE__<< std::endl << std::flush;
+    
     /** Print the name and value of the given variables */
     #define PRINT_VARIABLE(var) std::cout << FormDebugHead() << #var " = " << var << std::endl << std::flush;
     #define PRINT_VARIABLES(var1,var2) std::cout << FormDebugHead() << #var1 " = " << var1 << ", " \

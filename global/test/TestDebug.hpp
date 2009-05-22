@@ -91,6 +91,8 @@ public:
         vec[2] = 2.7;
         vec[3] = 3.1;
         PRINT_VECTOR(vec); 
+        
+        MARK; //Something like: "DEBUG: ./global/test/TestDebug.hpp at line 95"
     }
 };
 

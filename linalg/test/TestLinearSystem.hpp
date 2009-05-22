@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 
-
 class TestLinearSystem : public CxxTest::TestSuite
 {
 public:
@@ -678,27 +677,27 @@ public:
 
     void TestSaveAndLoad()
     {
+        LinearSystem ls = LinearSystem(3);
+
+        ls.SetMatrixIsSymmetric();
+
+        // Enter symmetric data
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls.SetMatrixElement(row, col, fabs(row-col));
+            }
+        }
+        ls.AssembleFinalLinearSystem();
+
+        // arbitrary
+        ls.SetRhsVectorElement(0, 14.0);
+        ls.SetRhsVectorElement(1, 32.0);
+        ls.SetRhsVectorElement(2, 50.0);
+            
         if (PetscTools::AmMaster())
         {
-            LinearSystem ls = LinearSystem(3);
-    
-            ls.SetMatrixIsSymmetric();
-    
-            // Enter symmetric data
-            for (int row=0; row<3; row++)
-            {
-                for (int col=0; col<3; col++)
-                {
-                    ls.SetMatrixElement(row, col, fabs(row-col));
-                }
-            }
-            ls.AssembleFinalLinearSystem();
-    
-            // arbitrary
-            ls.SetRhsVectorElement(0, 14.0);
-            ls.SetRhsVectorElement(1, 32.0);
-            ls.SetRhsVectorElement(2, 50.0);
-            
             //Archive                           
             OutputFileHandler handler("Archive", false);
             std::string archive_filename;
