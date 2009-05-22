@@ -95,6 +95,12 @@ protected:
      */
     bool mSetVoltageDerivativeToZero;
 
+    /**
+     * Whether we will have to free up the memory of solver and stimulus
+     * created by archiving.
+     */
+    bool mSerializeConstructed;
+
 public:
     /** Create a new cardiac cell.
      *
@@ -102,11 +108,13 @@ public:
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
      * @param voltageIndex  the index of the transmembrane potential within the vector of state variables
      * @param intracellularStimulus  the intracellular stimulus current
+     * @param serializeConstructed was this constructed by serializer (if so need to clear up memory on destruction), defaults to false
      */
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                         unsigned numberOfStateVariables,
                         unsigned voltageIndex,
-                        AbstractStimulusFunction* intracellularStimulus);
+                        AbstractStimulusFunction* intracellularStimulus,
+                        bool serializeConstructed = false);
 
     /** Virtual destructor */
     virtual ~AbstractCardiacCell();

@@ -86,7 +86,8 @@ private:
 public:
     // Constructor
     LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                               AbstractStimulusFunction *pIntracellularStimulus);
+                               AbstractStimulusFunction *pIntracellularStimulus,
+                               bool serializeConstructed = false);
 
     // Destructor
     ~LuoRudyIModel1991OdeSystem();
@@ -134,7 +135,7 @@ inline void load_construct_data(
     AbstractStimulusFunction* p_stimulus;
     ar >> p_solver;
     ar >> p_stimulus;
-     ::new(t)LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
+     ::new(t)LuoRudyIModel1991OdeSystem(p_solver, p_stimulus, true);
 }
 }
 } // namespace ...

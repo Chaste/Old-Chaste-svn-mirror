@@ -55,8 +55,9 @@ const double LuoRudyIModel1991OdeSystem::time_dependent_potassium_current_PR_NaK
  * Constructor
  */
 LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                                       AbstractStimulusFunction *pIntracellularStimulus)
-        : AbstractCardiacCell(pSolver, 8, 4, pIntracellularStimulus)
+                                                       AbstractStimulusFunction *pIntracellularStimulus,
+                                                       bool serializeConstructed)
+        : AbstractCardiacCell(pSolver, 8, 4, pIntracellularStimulus, serializeConstructed)
 {
     mpSystemInfo = OdeSystemInformation<LuoRudyIModel1991OdeSystem>::Instance();
 

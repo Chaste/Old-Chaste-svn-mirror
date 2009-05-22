@@ -33,9 +33,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                                          unsigned numberOfStateVariables,
                                          unsigned voltageIndex,
-                                         AbstractStimulusFunction* intracellularStimulus)
+                                         AbstractStimulusFunction* intracellularStimulus,
+                                         bool serializeConstructed)
     : AbstractOdeSystem(numberOfStateVariables),
-      mVoltageIndex(voltageIndex)
+      mVoltageIndex(voltageIndex),
+      mSerializeConstructed(serializeConstructed)
 {
     mpOdeSolver = pOdeSolver;
 
@@ -49,7 +51,13 @@ AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
 }
 
 AbstractCardiacCell::~AbstractCardiacCell()
-{}
+{
+    if (mSerializeConstructed)
+    {
+        delete mpIntracellularStimulus;
+        delete mpOdeSolver;
+    }
+}
 
 void AbstractCardiacCell::Init()
 {
