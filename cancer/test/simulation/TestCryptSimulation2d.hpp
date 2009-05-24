@@ -1036,7 +1036,7 @@ public:
         SloughingCellKiller sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        //Cover writing logged cell
+        // Cover writing logged cell
         crypt.SetWriteCellIdData(true);
 
         simulator.Solve();

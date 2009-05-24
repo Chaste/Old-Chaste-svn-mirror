@@ -63,10 +63,6 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
       mSamplingTimestepMultiple(1),
       mForceCollection(forceCollection)
 {
-    #define COVERAGE_IGNORE
-    assert(DIM==2 || DIM==3); // there are no instances of TissueSimulation<1>
-    #undef COVERAGE_IGNORE
-
     mpParams = CancerParameters::Instance();
 
     // This line sets a random seed of 0 if it wasn't specified earlier.

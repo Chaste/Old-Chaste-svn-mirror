@@ -36,15 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "TysonNovakCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "RandomCellKiller.hpp"
 #include "RadialSloughingCellKiller.hpp"
-#include "AbstractCancerTestSuite.hpp"
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "CryptProjectionForce.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 
 /**
@@ -168,6 +166,56 @@ public:
 
         // Tidy up
         WntConcentration::Destroy();
+    }
+
+    /**
+     * The purpose of this test is to check that it is possible to construct and run 
+     * a short 1D tissue simulation without throwing any exceptions.
+     */
+    void Test1dTissueSimulation() throw (Exception)
+    {
+        // Create mesh
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        MutableMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Set up cells so that cell 10 divides at time t=0.5, cell 9 at time t=1.5, etc
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            double birth_time = -13.5 - i;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create a tissue
+        MeshBasedTissue<1> tissue(mesh, cells);
+
+        // Coverage
+        tissue.SetWriteCellIdData(true);
+
+        // Create a force law (no need for a cutoff as we're in 1D)
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>* > force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up tissue simulation
+        TissueSimulation<1> simulator(tissue, force_collection);
+        simulator.SetOutputDirectory("Test1DTissueSimulation");
+        simulator.SetEndTime(0.6);
+
+        unsigned initial_num_cells = simulator.rGetTissue().GetNumRealCells();
+        unsigned initial_num_nodes = simulator.rGetTissue().GetNumNodes();
+        unsigned initial_num_elements = (static_cast<MeshBasedTissue<1>* >(&(simulator.rGetTissue())))->rGetMesh().GetNumElements();
+
+        // Run simulation for a short time
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), initial_num_cells + 1);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), initial_num_nodes + 1);
+        TS_ASSERT_EQUALS((static_cast<MeshBasedTissue<1>* >(&(simulator.rGetTissue())))->rGetMesh().GetNumElements(), initial_num_elements + 1);
+
     }
 
 };

@@ -126,7 +126,6 @@ void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
 template<unsigned DIM>
 void AbstractTissue<DIM>::SetWriteCellIdData(bool writeCellIdData)
 {
-    assert(DIM == 2);
     mWriteCellIdData = writeCellIdData;
 }
 
@@ -638,7 +637,7 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
          cell_iter != End();
          ++cell_iter)
     {
-        unsigned cell_id = cell_iter ->GetCellId();
+        unsigned cell_id = cell_iter->GetCellId();
         unsigned node_index = mCellLocationMap[&(*cell_iter)];
         *mpCellIdFile << " " << cell_id << " " << node_index;
 
