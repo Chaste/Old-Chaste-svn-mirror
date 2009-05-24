@@ -181,6 +181,54 @@ public:
         }
     }
 
+    void TestRemeshWithMethod1D() throw (Exception)
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        MutableMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        double area = mesh.GetVolume();
+        const int node_index = 7;
+        const int target_index = 6;
+
+        unsigned num_nodes_before = mesh.GetNumNodes();
+        unsigned num_elements_before = mesh.GetNumElements();
+        unsigned num_boundary_elements_before = mesh.GetNumBoundaryElements();
+
+        mesh.MoveMergeNode(node_index, target_index);
+
+        TS_ASSERT_DELTA(area, mesh.GetVolume(), 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+
+        NodeMap map(1);
+        mesh.ReMesh(map);
+
+        TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes()+1); // one node removed during remesh
+        for (unsigned i=0; i<7; i++)
+        {
+            // These are unchanged
+            TS_ASSERT_EQUALS(map.GetNewIndex(i), i);
+        }
+        // This one has gone
+        TS_ASSERT(map.IsDeleted(7));
+        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(7));
+        for (unsigned i=8; i<map.Size(); i++)
+        {
+            // These have shuffled down
+            TS_ASSERT_EQUALS(map.GetNewIndex(i), i-1);
+        }
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
+        TS_ASSERT_DELTA(mesh.GetVolume(), area, 1e-6);
+    }
 
     void TestRemeshWithMethod2D() throw (Exception)
     {
@@ -207,21 +255,20 @@ public:
         mesh.ReMesh(map);
 
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes()+1);//one node removed during remesh
-        for (unsigned i=0; i<431;i++)
+        for (unsigned i=0; i<431; i++)
         {
-            //These are unchanged
+            // These are unchanged
             TS_ASSERT_EQUALS(map.GetNewIndex(i), i);
         }
-        //This one has gone
+        // This one has gone
         TS_ASSERT(map.IsDeleted(432));
         TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(432));
-        for (unsigned i=433; i<map.Size();i++)
+        for (unsigned i=433; i<map.Size(); i++)
         {
-            //These have shuffled down
+            // These have shuffled down
             TS_ASSERT_EQUALS(map.GetNewIndex(i), i-1);
         }
-        
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
@@ -295,7 +342,41 @@ public:
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
     }
 
-    void TestReMeshFailsAfterEnoughDeletions() throw (Exception)
+    void Test1DReMeshFailsAfterEnoughDeletions() throw (Exception)
+    {
+        // Construct mesh
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(2);
+        NodeMap map(3);
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+        mesh.ReMesh(map);
+
+        mesh.DeleteNodePriorToReMesh(2);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+
+        mesh.ReMesh(map);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+
+        mesh.DeleteNodePriorToReMesh(1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+
+        TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
+    }
+
+    void Test2DReMeshFailsAfterEnoughDeletions() throw (Exception)
     {
         MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1,1);

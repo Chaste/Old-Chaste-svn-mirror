@@ -41,8 +41,8 @@ MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh(std::vector<Node<SPACE_DIM> *> 
     Clear();
     for (unsigned index=0; index<nodes.size(); index++)
     {
-        Node<SPACE_DIM>* temp_node = nodes[index];
-        this->mNodes.push_back(temp_node);
+        Node<SPACE_DIM>* p_temp_node = nodes[index];
+        this->mNodes.push_back(p_temp_node);
     }
     mAddedNodes = true;
     NodeMap node_map(nodes.size());
@@ -56,9 +56,8 @@ MutableMesh<ELEMENT_DIM, SPACE_DIM>::~MutableMesh()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
+unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
 {
-
     if (mDeletedNodeIndices.empty())
     {
         pNewNode->SetIndex(this->mNodes.size());
@@ -216,10 +215,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNodePriorToReMesh(unsigned index)
 {
-#define COVERAGE_IGNORE
-    // A ReMesh can only happen in 2D or 3D so
-    assert(SPACE_DIM==2 || SPACE_DIM==3);
-#undef COVERAGE_IGNORE
     this->mNodes[index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(index);
 }
@@ -393,7 +388,6 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     Element<ELEMENT_DIM,SPACE_DIM>* pElement,
     ChastePoint<SPACE_DIM> point)
 {
-
     //Check that the point is in the element
     if (pElement->IncludesPoint(point, true) == false)
     {
@@ -405,7 +399,7 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     // Note: the first argument is the index of the node, which is going to be
     //       overriden by AddNode, so it can safely be ignored
 
-    //This loop constructs the extra elements which are going to fill the space
+    // This loop constructs the extra elements which are going to fill the space
     for (unsigned i = 0; i < ELEMENT_DIM; i++)
     {
 
@@ -440,7 +434,6 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
             delete this->mElements[new_elt_index];
             this->mElements[new_elt_index] = p_new_element;
         }
-
     }
 
     // Lastly, update the last node in the element to be refined
@@ -461,6 +454,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
 
     this->mNodes[index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(index);
+
     // Update the boundary node vector
     typename std::vector<Node<SPACE_DIM>*>::iterator b_node_iter
     = std::find(this->mBoundaryNodes.begin(), this->mBoundaryNodes.end(), this->mNodes[index]);
@@ -483,7 +477,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
     while (element_indices_iterator != element_indices.end())
     {
         Element<ELEMENT_DIM, SPACE_DIM>* p_element = this->GetElement(*element_indices_iterator);
-        for (unsigned i=0; i< p_element->GetNumNodes();i++)
+        for (unsigned i=0; i<p_element->GetNumNodes(); i++)
         {
             Node<SPACE_DIM>* p_node = p_element->GetNode(i);
             if (!p_node->IsDeleted())
@@ -593,7 +587,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     this->mBoundaryElementWeightedDirections.resize(num_boundary_elements);
     this->mBoundaryElementJacobianDeterminants.resize(num_boundary_elements);
 
-
     for (unsigned i=0; i<this->mNodes.size();i++)
     {
         this->mNodes[i]->SetIndex(i);
@@ -614,7 +607,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
-    assert( SPACE_DIM==2 || SPACE_DIM==3 );
     assert( ELEMENT_DIM == SPACE_DIM );
     #undef COVERAGE_IGNORE
 
@@ -625,11 +617,70 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         EXCEPTION("The number of nodes must exceed the spatial dimension.");
     }
 
-
     // Make sure the map is big enough
     map.Resize(this->GetNumAllNodes());
 
-    if (SPACE_DIM==2)  // In 2D, remesh using triangle via library calls
+    if (SPACE_DIM==1)
+    {
+        // Store the node locations
+        std::vector<c_vector<double, SPACE_DIM> > old_node_locations;
+        unsigned new_index = 0;
+        for (unsigned i=0; i<this->GetNumAllNodes(); i++)
+        {
+            if (this->mNodes[i]->IsDeleted())
+            {
+                map.SetDeleted(i);
+            }
+            else
+            {
+                map.SetNewIndex(i, new_index);
+                old_node_locations.push_back(this->mNodes[i]->rGetLocation());
+                new_index++;
+            }
+        }
+
+        // Remove current data
+        Clear();
+
+        // Construct the nodes and boundary nodes
+        for (unsigned node_index=0; node_index<old_node_locations.size(); node_index++)
+        {
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, old_node_locations[node_index], false);
+            this->mNodes.push_back(p_node);
+
+            // As we're in 1D, the boundary nodes are simply at either end of the mesh
+            if ( node_index==0 || node_index==old_node_locations.size()-1 )
+            {
+                this->mBoundaryNodes.push_back(p_node);
+            }
+        }
+
+        // Construct the elements
+        this->mElements.reserve(old_node_locations.size()-1);
+        for (unsigned element_index=0; element_index<old_node_locations.size()-1; element_index++)
+        {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            for (unsigned j=0; j<2; j++)
+            {
+                unsigned global_node_index = element_index + j;
+                assert(global_node_index < this->mNodes.size());
+                nodes.push_back(this->mNodes[global_node_index]);
+            }
+            this->mElements.push_back(new Element<ELEMENT_DIM, SPACE_DIM>(element_index, nodes));
+        }
+
+        // Construct the two boundary elements - as we're in 1D, these are simply at either end of the mesh
+        std::vector<Node<SPACE_DIM>*> nodes;
+        nodes.push_back(this->mNodes[0]);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(0, nodes));
+
+        nodes.clear();
+        nodes.push_back(this->mNodes[old_node_locations.size()-1]);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(1, nodes));
+
+        this->RefreshJacobianCachedData();
+    }
+    else if (SPACE_DIM==2)  // In 2D, remesh using triangle via library calls
     {
         struct triangulateio triangle_input;
         triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
@@ -680,7 +731,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             if (triangle_output.pointmarkerlist[node_index] == 1)
             {
                 // Boundary node
-                Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true,
+                Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true,
                   triangle_output.pointlist[node_index * 2],
                   triangle_output.pointlist[node_index * 2+1]);
                 this->mNodes.push_back(p_node);
@@ -718,7 +769,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                 std::vector<Node<SPACE_DIM>*> nodes;
                 for (unsigned j=0; j<2; j++)
                 {
-                    unsigned global_node_index=triangle_output.edgelist[boundary_element_index*2 + j];
+                    unsigned global_node_index = triangle_output.edgelist[boundary_element_index*2 + j];
                     assert(global_node_index < this->mNodes.size());
                     nodes.push_back(this->mNodes[global_node_index]);
                 }
@@ -860,62 +911,66 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPAC
     std::set< Element<ELEMENT_DIM,SPACE_DIM> *> neighbouring_elements;
     std::set<unsigned> neighbouring_nodes_indices;
 
-    //Form a set of neighbouring elements via the nodes
-    for (unsigned i = 0; i < num_nodes; i++)
+    // Form a set of neighbouring elements via the nodes
+    for (unsigned i=0; i<num_nodes; i++)
     {
-        Node<SPACE_DIM>* node = pElement->GetNode(i);
-        neighbouring_elements_indices = node->rGetContainingElementIndices();
+        Node<SPACE_DIM>* p_node = pElement->GetNode(i);
+        neighbouring_elements_indices = p_node->rGetContainingElementIndices();
         ///\todo Should use a set union operation here
         for (std::set<unsigned>::const_iterator it = neighbouring_elements_indices.begin();
-                 it != neighbouring_elements_indices.end(); ++it)
-            {
-                neighbouring_elements.insert(this->GetElement(*it));
-            }
+             it != neighbouring_elements_indices.end();
+             ++it)
+        {
+            neighbouring_elements.insert(this->GetElement(*it));
+        }
     }
     neighbouring_elements.erase(pElement);
 
-    //For each neighbouring element find the supporting nodes
+    // For each neighbouring element find the supporting nodes
     typedef typename std::set<Element<ELEMENT_DIM,SPACE_DIM> *>::const_iterator ElementIterator;
 
     for (ElementIterator it = neighbouring_elements.begin();
-         it != neighbouring_elements.end(); ++it)
+         it != neighbouring_elements.end();
+         ++it)
     {
-        for (unsigned i = 0; i < num_nodes; i++)
+        for (unsigned i=0; i<num_nodes; i++)
         {
             neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));
         }
     }
-    //Remove the nodes that support this element
+
+    // Remove the nodes that support this element
     for (unsigned i = 0; i < num_nodes; i++)
     {
         neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));
     }
 
-    //Get the circumsphere information
+    // Get the circumsphere information
     c_vector <double, SPACE_DIM+1> this_circum_centre;
 
     this_circum_centre = pElement->CalculateCircumsphere(this->mElementJacobians[pElement->GetIndex()], this->mElementInverseJacobians[pElement->GetIndex()]);
 
-    //Copy the actualy circumcentre into a smaller vector
+    // Copy the actualy circumcentre into a smaller vector
     c_vector <double, ELEMENT_DIM> circum_centre;
-    for (unsigned i=0;i<ELEMENT_DIM;i++)
+    for (unsigned i=0; i<ELEMENT_DIM; i++)
     {
-        circum_centre[i]=this_circum_centre[i];
+        circum_centre[i] = this_circum_centre[i];
     }
 
     for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
-             it != neighbouring_nodes_indices.end(); ++it)
+         it != neighbouring_nodes_indices.end();
+         ++it)
     {
         c_vector <double, ELEMENT_DIM> node_location = this->GetNode(*it)->rGetLocation();
 
         // Calculate vector from circumcenter to node
         node_location -= circum_centre;
+
         // This is to calculate the squared distance betweeen them
         double squared_distance = inner_prod(node_location, node_location);
 
         // If the squared idstance is less than the elements circum-radius(squared),
         // then the voronoi property is violated.
-
         if (squared_distance < this_circum_centre[ELEMENT_DIM])
         {
             // We know the node is inside the circumsphere, but we don't know how far
@@ -936,7 +991,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 {
     // Looping through all the elements in the mesh
-    for (unsigned i=0; i < this->mElements.size();i++)
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
         // Check if the element is not deleted
         if (!this->mElements[i]->IsDeleted())
