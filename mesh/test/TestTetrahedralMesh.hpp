@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestTetrahedralMesh : public CxxTest::TestSuite
 {
 public:
+
     void TestNodeIterator() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -61,7 +62,16 @@ public:
             unsigned node_index = (*iter).GetIndex();
             TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give node 0,1..,N in that order
             counter++;
-        }        
+        }
+
+        // For coverage, test with an empty mesh
+        TetrahedralMesh<2,2> empty_mesh;
+
+        // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
+        AbstractMesh<2,2>::NodeIterator iter = empty_mesh.GetNodeIteratorBegin();
+
+        // We only have a NOT-equals operator defined on the iterator
+        TS_ASSERT( !(iter != empty_mesh.GetNodeIteratorEnd()) );
     }
 
     void TestMeshConstructionFromMeshReader()
