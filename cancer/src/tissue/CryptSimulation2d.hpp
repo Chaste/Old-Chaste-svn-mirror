@@ -184,7 +184,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Crypt.
+ * De-serialize constructor parameters and initialise a CryptSimulation2d.
  */
 template<class Archive>
 inline void load_construct_data(

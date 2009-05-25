@@ -416,7 +416,7 @@ public:
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindrical");
 
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -482,7 +482,7 @@ public:
         simulator.SetEndTime(0.6);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -560,7 +560,7 @@ public:
         simulator.SetEndTime(0.3);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -735,7 +735,7 @@ public:
         simulator.SetEndTime(0.25);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
         simulator.SetOutputCellCyclePhases(true); // for coverage
 
@@ -809,7 +809,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -1033,7 +1033,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Cover writing logged cell
@@ -1084,7 +1084,7 @@ public:
         simulator.SetDt(0.001);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Test that labelling a few cells doesn't make any difference to the simulation
@@ -1170,7 +1170,7 @@ public:
         CryptSimulation2d simulator(crypt, force_collection);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         unsigned num_deaths = simulator.DoCellRemoval();
@@ -1393,7 +1393,7 @@ public:
         simulator.SetNoBirth(true);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -1608,7 +1608,7 @@ public:
         simulator.SetEndTime(time_of_each_run);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller killer(&(simulator.rGetTissue()), 0.01);
+        SloughingCellKiller<2> killer(&(simulator.rGetTissue()), 0.01);
         simulator.AddCellKiller(&killer);
 
         simulator.UseJiggledBottomCells();

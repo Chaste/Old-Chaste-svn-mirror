@@ -28,34 +28,76 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 #include "AbstractCellCentreBasedTissue.hpp"
 
-SloughingCellKiller::SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides)
-    : AbstractCellKiller<2>(pCrypt),
+template <unsigned DIM>
+SloughingCellKiller<DIM>::SloughingCellKiller(AbstractTissue<DIM>* pCrypt, bool sloughSides)
+    : AbstractCellKiller<DIM>(pCrypt),
       mSloughSides(sloughSides)
 {
 }
 
-
-bool SloughingCellKiller::GetSloughSides() const
+template <unsigned DIM>
+bool SloughingCellKiller<DIM>::GetSloughSides() const
 {
     return mSloughSides;
 }
 
-
-void SloughingCellKiller::TestAndLabelCellsForApoptosisOrDeath()
+template <unsigned DIM>
+void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
-    double crypt_length = CancerParameters::Instance()->GetCryptLength();
-    double crypt_width = CancerParameters::Instance()->GetCryptWidth();
-
-    for (AbstractTissue<2>::Iterator cell_iter = this->mpTissue->Begin();
-         cell_iter != this->mpTissue->End();
-         ++cell_iter)
+    switch (DIM)
     {
-        double x = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
-        double y = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
-
-        if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
+        case 1:
         {
-            cell_iter->Kill();
+            double crypt_length = CancerParameters::Instance()->GetCryptLength();
+        
+            for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
+                 cell_iter != this->mpTissue->End();
+                 ++cell_iter)
+            {
+                double x = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
+        
+                if (x > crypt_length)
+                {
+                    cell_iter->Kill();
+                }
+            }
+            break;
         }
+        case 2:
+        {
+            double crypt_length = CancerParameters::Instance()->GetCryptLength();
+            double crypt_width = CancerParameters::Instance()->GetCryptWidth();
+        
+            for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
+                 cell_iter != this->mpTissue->End();
+                 ++cell_iter)
+            {
+                double x = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
+                double y = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
+        
+                if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
+                {
+                    cell_iter->Kill();
+                }
+            }
+            break;
+        }
+        case 3:
+        {
+            EXCEPTION("SloughingCellKiller is not yet implemented in 3D");
+            break;
+        }
+        default:
+            // This can't happen
+            NEVER_REACHED;
     }
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+template class SloughingCellKiller<1>;
+template class SloughingCellKiller<2>;
+template class SloughingCellKiller<3>;

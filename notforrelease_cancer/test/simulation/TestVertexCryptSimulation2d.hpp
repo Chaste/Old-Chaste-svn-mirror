@@ -190,7 +190,7 @@ public:
         simulator.SetEndTime(1.0);
         simulator.SetOutputDirectory("TestVertexCryptWithNoBirth");
 
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -248,7 +248,7 @@ public:
         simulator.SetEndTime(1.0);
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
 
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation

@@ -125,7 +125,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a CryptSimulation2d.
+ * Serialize information required to construct a VertexCryptSimulation2d.
  */
 template<class Archive>
 inline void save_construct_data(
@@ -139,7 +139,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Crypt.
+ * De-serialize constructor parameters and initialise a VertexCryptSimulation2d.
  */
 template<class Archive>
 inline void load_construct_data(

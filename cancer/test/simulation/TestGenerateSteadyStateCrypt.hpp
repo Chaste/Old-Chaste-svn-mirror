@@ -101,7 +101,7 @@ public:
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
 
-        SloughingCellKiller cell_killer(&simulator.rGetTissue(),0.01);
+        SloughingCellKiller<2> cell_killer(&simulator.rGetTissue(),0.01);
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////

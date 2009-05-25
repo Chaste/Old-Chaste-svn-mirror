@@ -166,13 +166,13 @@ public:
         p_params->SetCryptLength(0.5);
 
         // Create cell killer and kill cells
-        SloughingCellKiller sloughing_cell_killer(&tissue, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&tissue, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
-            iter!=tissue.End();
-            ++iter)
+        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
+             iter != tissue.End();
+             ++iter)
         {
             double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
             double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
@@ -189,9 +189,9 @@ public:
 
         tissue.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
-            iter!=tissue.End();
-            ++iter)
+        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
+             iter != tissue.End();
+             ++iter)
         {
             double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
             double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
@@ -230,13 +230,13 @@ public:
         p_params->SetCryptLength(0.5);
 
         // Create cell killer and kill cells
-        SloughingCellKiller sloughing_cell_killer(&tissue);
+        SloughingCellKiller<2> sloughing_cell_killer(&tissue);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
         for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-            iter!=tissue.End();
-            ++iter)
+             iter != tissue.End();
+             ++iter)
         {
             double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
             if (y>0.5)
@@ -251,14 +251,102 @@ public:
 
         tissue.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator iter=tissue.Begin();
-            iter!=tissue.End();
-            ++iter)
+        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
+             iter != tissue.End();
+             ++iter)
         {
             double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
     }
+
+
+    void TestSloughingCellKillerIn1d() throw(Exception)
+    {
+        // Set up singleton classes
+        CancerParameters* p_params = CancerParameters::Instance();
+
+        // Create 1D mesh
+        unsigned num_cells = 14;
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(num_cells-1);
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            double birth_time = 0.0;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> tissue(mesh, cells);
+
+        // Set the crypt length so that 2 cells should be sloughed off
+        double crypt_length = 12.5;
+        p_params->SetCryptLength(crypt_length);
+
+        // Create cell killer and kill cells
+        SloughingCellKiller<1> sloughing_cell_killer(&tissue);
+        sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
+
+        // Check that cells were labelled for death correctly
+        for (AbstractTissue<1>::Iterator iter = tissue.Begin();
+            iter != tissue.End();
+            ++iter)
+        {
+            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
+            if (x > crypt_length)
+            {
+                TS_ASSERT_EQUALS(iter->IsDead(), true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(iter->IsDead(), false);
+            }
+        }
+
+        // Check that dead cells were correctly removed
+        tissue.RemoveDeadCells();
+
+        for (AbstractTissue<1>::Iterator iter = tissue.Begin();
+             iter != tissue.End();
+             ++iter)
+        {
+            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
+            TS_ASSERT_LESS_THAN_EQUALS(x, crypt_length);
+        }
+    }
+
+
+    void TestSloughingCellKillerIn3d() throw(Exception)
+    {
+        // Create 3D mesh
+        MutableMesh<3,3> mesh;
+        mesh.ConstructCuboid(4, 5, 6, true);
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            double birth_time = 0.0;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<3> tissue(mesh, cells);
+
+        // Create cell killer
+        SloughingCellKiller<3> sloughing_cell_killer(&tissue);
+
+        // Check that an exception is thrown, as this method is not yet implemented in 3D
+        TS_ASSERT_THROWS_ANYTHING(sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath());
+    }
+
 
     void TestArchivingOfRandomCellKiller() throw (Exception)
     {
@@ -313,13 +401,13 @@ public:
 
         {
             // Create an ouput archive
-            SloughingCellKiller cell_killer(NULL, true);
+            SloughingCellKiller<2> cell_killer(NULL, true);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             // Serialize via pointer
-            SloughingCellKiller* const p_cell_killer = &cell_killer;
+            SloughingCellKiller<2>* const p_cell_killer = &cell_killer;
             output_arch << p_cell_killer;
 
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
@@ -334,7 +422,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            SloughingCellKiller* p_cell_killer;
+            SloughingCellKiller<2>* p_cell_killer;
 
             // Restore from the archive
             input_arch >> p_cell_killer;

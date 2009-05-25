@@ -95,7 +95,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a TissueSimulation.
+ * Serialize information required to construct a RadialSloughingCellKiller.
  */
 template<class Archive>
 inline void save_construct_data(
@@ -112,7 +112,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Tissue.
+ * De-serialize constructor parameters and initialise a RadialSloughingCellKiller.
  */
 template<class Archive>
 inline void load_construct_data(

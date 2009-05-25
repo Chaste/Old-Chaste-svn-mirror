@@ -358,7 +358,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a Tissue facade.
+ * Serialize information required to construct a VertexBasedTissue.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -370,7 +370,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Tissue.
+ * De-serialize constructor parameters and initialise a VertexBasedTissue.
  * Loads the mesh from separate files.
  */
 template<class Archive, unsigned DIM>

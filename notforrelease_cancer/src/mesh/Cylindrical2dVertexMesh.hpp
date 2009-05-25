@@ -165,7 +165,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a Cylindrical2dMesh
+ * Serialize information required to construct a Cylindrical2dVertexMesh.
  */
 template<class Archive>
 inline void save_construct_data(
@@ -183,7 +183,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Cylindrical2dMesh.
+ * De-serialize constructor parameters and initialise a Cylindrical2dVertexMesh.
  */
 template<class Archive>
 inline void load_construct_data(

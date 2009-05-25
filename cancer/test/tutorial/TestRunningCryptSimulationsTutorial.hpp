@@ -159,7 +159,7 @@ public:
          * dictates conditions under which cells die. For this test, we use
          * a {{{SloughingCellKiller}}}, which kills cells above a certain height.
          */
-        SloughingCellKiller killer(&tissue);
+        SloughingCellKiller<2> killer(&tissue);
         simulator.AddCellKiller(&killer);
 
         /* To run the simulation, we call {{{Solve()}}}. */
@@ -233,7 +233,7 @@ public:
         simulator.SetEndTime(1);
 
         /* Create a killer, as before. */
-        SloughingCellKiller killer(&tissue);
+        SloughingCellKiller<2> killer(&tissue);
         simulator.AddCellKiller(&killer);
 
         /* Solve. */

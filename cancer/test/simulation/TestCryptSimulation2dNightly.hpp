@@ -115,7 +115,7 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -278,7 +278,7 @@ public:
         simulator.SetEndTime(40); // hours
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -355,7 +355,7 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -405,7 +405,7 @@ public:
         simulator.SetEndTime(24.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -490,7 +490,7 @@ public:
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -593,7 +593,7 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -630,7 +630,7 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller cell_killer(&crypt);
+        SloughingCellKiller<2> cell_killer(&crypt);
         simulator.AddCellKiller(&cell_killer);
 
         // Run simulation

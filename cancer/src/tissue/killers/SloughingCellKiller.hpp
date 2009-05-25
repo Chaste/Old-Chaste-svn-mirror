@@ -41,7 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  are sloughed if y>crypt_height. To slough the sides call the constructor
  *  with the appropriate parameter.
  */
-class SloughingCellKiller : public AbstractCellKiller<2>
+template<unsigned DIM>
+class SloughingCellKiller : public AbstractCellKiller<DIM>
 {
 private:
 
@@ -59,7 +60,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellKiller<2> >(*this);
+        archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
         //archive & mSloughSides; // done in load_construct_data
 
         // Make sure Cancer Parameters are archived
@@ -73,10 +74,10 @@ public:
     /**
      * Default constructor.
      *
-     * @param pCrypt pointer to a tissue
+     * @param pCrypt pointer to a crypt
      * @param sloughSides whether to slough cells at the side of the crypt
      */
-    SloughingCellKiller(AbstractTissue<2>* pCrypt, bool sloughSides=false);
+    SloughingCellKiller(AbstractTissue<DIM>* pCrypt, bool sloughSides=false);
 
     /**
      * @return mSloughSides.
@@ -90,43 +91,42 @@ public:
 
 };
 
-#include <boost/serialization/export.hpp>
-
-BOOST_CLASS_EXPORT(SloughingCellKiller)
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(SloughingCellKiller)
 
 namespace boost
 {
 namespace serialization
 {
 /**
- * Serialize information required to construct a TissueSimulation.
+ * Serialize information required to construct a SloughingCellKiller.
  */
-template<class Archive>
+template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const SloughingCellKiller * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const SloughingCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<2>* const p_crypt = t->GetTissue();
+    const AbstractTissue<DIM>* const p_crypt = t->GetTissue();
     ar << p_crypt;
     bool slough_sides = t->GetSloughSides();
     ar << slough_sides;
 }
 
 /**
- * De-serialize constructor parameters and initialise Crypt.
+ * De-serialize constructor parameters and initialise a SloughingCellKiller.
  */
-template<class Archive>
+template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, SloughingCellKiller * t, const unsigned int file_version)
+    Archive & ar, SloughingCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<2>* p_crypt;
+    AbstractTissue<DIM>* p_crypt;
     ar >> p_crypt;
     bool slough_sides;
     ar >> slough_sides;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)SloughingCellKiller(p_crypt, slough_sides);
+    ::new(t)SloughingCellKiller<DIM>(p_crypt, slough_sides);
 }
 }
 } // namespace ...

@@ -638,7 +638,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a VertexMesh
+ * Serialize information required to construct a VertexMesh.
  */
 template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void save_construct_data(
@@ -653,7 +653,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise VertexMesh.
+ * De-serialize constructor parameters and initialise a VertexMesh.
  */
 template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void load_construct_data(

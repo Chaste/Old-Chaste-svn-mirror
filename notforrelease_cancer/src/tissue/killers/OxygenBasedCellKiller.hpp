@@ -105,7 +105,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a OxygenBasedCellKiller.
+ * Serialize information required to construct an OxygenBasedCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -119,7 +119,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise OxygenBasedCellKiller.
+ * De-serialize constructor parameters and initialise an OxygenBasedCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(

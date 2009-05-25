@@ -305,7 +305,7 @@ namespace boost
 namespace serialization
 {
 /**
- * Serialize information required to construct a Meineke cell.
+ * Serialize information required to construct a TissueCell.
  */
 template<class Archive>
 inline void save_construct_data(
@@ -321,7 +321,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise Meineke cell.
+ * De-serialize constructor parameters and initialise a TissueCell.
  */
 template<class Archive>
 inline void load_construct_data(

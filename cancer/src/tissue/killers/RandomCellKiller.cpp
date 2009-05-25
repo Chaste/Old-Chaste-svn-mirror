@@ -28,9 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 
 
-template <unsigned SPACE_DIM>
-RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath)
-        : AbstractCellKiller<SPACE_DIM>(pTissue),
+template<unsigned DIM>
+RandomCellKiller<DIM>::RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeath)
+        : AbstractCellKiller<DIM>(pTissue),
           mProbabilityOfDeath(probabilityOfDeath)
 {
     if ((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
@@ -40,15 +40,15 @@ RandomCellKiller<SPACE_DIM>::RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue
 }
 
 
-template <unsigned SPACE_DIM>
-double RandomCellKiller<SPACE_DIM>::GetDeathProbability() const
+template<unsigned DIM>
+double RandomCellKiller<DIM>::GetDeathProbability() const
 {
     return mProbabilityOfDeath;
 }
 
 
-template <unsigned SPACE_DIM>
-void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
+template<unsigned DIM>
+void RandomCellKiller<DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
 {
     if (!rCell.HasApoptosisBegun() &&
         RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
@@ -57,10 +57,10 @@ void RandomCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell&
     }
 }
 
-template <unsigned SPACE_DIM>
-void RandomCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
+template<unsigned DIM>
+void RandomCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
-    for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
          cell_iter != this->mpTissue->End();
          ++cell_iter)
     {

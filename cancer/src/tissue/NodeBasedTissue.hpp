@@ -348,7 +348,7 @@ inline void load_construct_data(
 
 
 /**
- * Serialize information required to construct a NodeBasedTissue facade.
+ * Serialize information required to construct a NodeBasedTissue.
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
@@ -358,7 +358,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise NodeBasedTissue.
+ * De-serialize constructor parameters and initialise a NodeBasedTissue.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(

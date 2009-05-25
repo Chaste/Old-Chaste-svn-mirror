@@ -286,7 +286,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise tissue.
+ * De-serialize constructor parameters and initialise a TissueSimulationWithNutrients.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(

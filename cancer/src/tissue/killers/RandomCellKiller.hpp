@@ -45,8 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  more timesteps are used, and TestAndLabelCellsForApoptosis() is called
  *  at each timestep, more cells will die.
  */
-template <unsigned SPACE_DIM>
-class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
+template<unsigned DIM>
+class RandomCellKiller : public AbstractCellKiller<DIM>
 {
 private:
 
@@ -68,7 +68,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCellKiller<SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
 
         // Make sure the random number generator is archived
         RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
@@ -84,7 +84,7 @@ public:
      * @param pTissue pointer to the tissue
      * @param probabilityOfDeath probability that a cell is labelled for apoptosis
      */
-    RandomCellKiller(AbstractTissue<SPACE_DIM>* pTissue, double probabilityOfDeath);
+    RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeath);
 
     /**
      * @return mProbabilityOfDeath.
@@ -128,7 +128,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise RandomCellKiller.
+ * De-serialize constructor parameters and initialise a RandomCellKiller.
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
