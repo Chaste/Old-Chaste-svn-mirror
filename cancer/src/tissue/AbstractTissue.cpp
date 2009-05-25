@@ -617,13 +617,10 @@ void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
                                               bool outputCellAncestors,
                                               bool outputCellAges)
 {
-    if (DIM==2)
+    // Write logged cell data if required
+    if (mWriteCellIdData)
     {
-        // Write logged cell data if required
-        if (mWriteCellIdData)
-        {
-            WriteCellIdDataToFile();
-        }
+        WriteCellIdDataToFile();
     }
 }
 
@@ -638,8 +635,8 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
          ++cell_iter)
     {
         unsigned cell_id = cell_iter->GetCellId();
-        unsigned node_index = mCellLocationMap[&(*cell_iter)];
-        *mpCellIdFile << " " << cell_id << " " << node_index;
+        unsigned location_index = mCellLocationMap[&(*cell_iter)];
+        *mpCellIdFile << " " << cell_id << " " << location_index;
 
         c_vector<double, DIM> coords = GetLocationOfCellCentre(&(*cell_iter));
         for (unsigned i=0; i<DIM; i++)

@@ -215,7 +215,6 @@ public:
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), initial_num_cells + 1);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), initial_num_nodes + 1);
         TS_ASSERT_EQUALS((static_cast<MeshBasedTissue<1>* >(&(simulator.rGetTissue())))->rGetMesh().GetNumElements(), initial_num_elements + 1);
-
     }
 
 };

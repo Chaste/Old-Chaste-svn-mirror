@@ -172,41 +172,64 @@ const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollectio
 template<unsigned DIM>
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
-    double separation = CancerParameters::Instance()->GetDivisionSeparation();
+    // Location of parent and daughter cells
     c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(pParentCell);
     c_vector<double, DIM> daughter_coords;
 
-    // Pick a random direction and move the parent cell backwards by 0.5*sep in that
-    // direction and return the position of the daughter cell (0.5*sep forwards in the
-    // random vector direction
+    // Get separation parameter
+    double separation = CancerParameters::Instance()->GetDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, DIM> random_vector;
 
-    if (DIM==2)
+    /*
+     * Pick a random direction and move the parent cell backwards by 0.5*separation 
+     * in that direction and return the position of the daughter cell 0.5*separation 
+     * forwards in that direction.
+     */
+    switch (DIM)
     {
-        double random_angle = RandomNumberGenerator::Instance()->ranf();
-        random_angle *= 2.0*M_PI;
+        case 1:
+        {
+            double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
 
-        random_vector(0) = 0.5*separation*cos(random_angle);
-        random_vector(1) = 0.5*separation*sin(random_angle);
+            random_vector(0) = 0.5*separation*random_direction;
+            
+            parent_coords = parent_coords - random_vector;
+		    daughter_coords = parent_coords + random_vector;
 
-        parent_coords = parent_coords - random_vector;
-        daughter_coords = parent_coords + random_vector;
-    }
-    else if (DIM==3)
-    {
-        double random_zenith_angle = RandomNumberGenerator::Instance()->ranf(); // phi
-        random_zenith_angle *= M_PI;
-        double random_azimuth_angle = RandomNumberGenerator::Instance()->ranf(); // theta
-        random_azimuth_angle *= 2*M_PI;
+            break;
+        }
+        case 2:
+        {
+            double random_angle = 2.0*M_PI*RandomNumberGenerator::Instance()->ranf();
+    
+            random_vector(0) = 0.5*separation*cos(random_angle);
+            random_vector(1) = 0.5*separation*sin(random_angle);
+            
+            parent_coords = parent_coords - random_vector;
+		    daughter_coords = parent_coords + random_vector;
 
-        random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
-        random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
-        random_vector(2) = 0.5*separation*cos(random_zenith_angle);
+            break;
+        }
+        case 3:
+        {
+            double random_zenith_angle = M_PI*RandomNumberGenerator::Instance()->ranf(); // phi
+            double random_azimuth_angle = 2*M_PI*RandomNumberGenerator::Instance()->ranf(); // theta
+    
+            random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
+            random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
+            random_vector(2) = 0.5*separation*cos(random_zenith_angle);
 
-        daughter_coords = parent_coords + random_vector;
-        parent_coords = parent_coords - random_vector;
+            /// \todo Should really make this the same way round as the other cases, but this would break tests
+            parent_coords = parent_coords + random_vector;
+		    daughter_coords = parent_coords - random_vector;
+
+            break;
+        }
+        default:
+            // This can't happen
+            NEVER_REACHED;
     }
 
     // Set the parent to use this location

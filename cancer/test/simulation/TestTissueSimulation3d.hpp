@@ -143,10 +143,10 @@ public:
 
         simulator.Solve();
 
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),5u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(),3u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
 
-        TrianglesMeshWriter<3,3> mesh_writer2("Test3DCellBirth","EndMesh",false);
+        TrianglesMeshWriter<3,3> mesh_writer2("Test3DCellBirth", "EndMesh", false);
         mesh_writer2.WriteFilesUsingMesh(mesh);
     }
 
@@ -190,7 +190,7 @@ public:
         simulator.SetEndTime(0.1);
         simulator.Solve();
 
-        TrianglesMeshWriter<3,3> mesh_writer2("TestSolveMethodSpheroidSimulation3DMesh","EndMesh",false);
+        TrianglesMeshWriter<3,3> mesh_writer2("TestSolveMethodSpheroidSimulation3DMesh", "EndMesh", false);
         mesh_writer2.WriteFilesUsingMesh(mesh);
     }
 
@@ -315,7 +315,7 @@ public:
             TS_ASSERT_EQUALS(num_cells, 65u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
             TissueCell cell = p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u);
-            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], 0.930292, 1e-6);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], 0.930292, 1e-4);
 
             delete p_simulator;
         }

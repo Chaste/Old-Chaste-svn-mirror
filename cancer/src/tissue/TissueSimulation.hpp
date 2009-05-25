@@ -226,10 +226,11 @@ protected:
     unsigned DoCellBirth();
 
     /**
-     * Calculates the new locations of a dividing cell's cell centres.
-     * Moves the dividing node a bit and returns co-ordinates for the new node.
-     * It does this by picking a random direction (0->2PI) and placing the parent
-     * and daughter in opposing directions on this axis.
+     * Calculate the new locations of the cell centres of a dividing cell, move 
+     * the parent cell and return the location of the daughter cell.
+     * 
+     * The new locations are found by picking a random direction and placing the 
+     * parent and daughter in opposing directions along this axis.
      *
      * @param pParentCell pointer to the parent cell
      *

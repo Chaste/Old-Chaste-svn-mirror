@@ -30,18 +30,38 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 #include "IngeWntSwatCellCycleModel.hpp"
 
+
+CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue,
+                  std::vector<AbstractForce<2>*> forceCollection,
+                  bool deleteTissueAndForceCollection,
+                  bool initialiseCells)
+    : TissueSimulation<2>(rTissue,
+                          forceCollection,
+                          deleteTissueAndForceCollection,
+                          initialiseCells),
+      mUseJiggledBottomCells(false)
+{
+    mpStaticCastTissue = static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue);
+}
+
+
 c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
 {
-    double separation = CancerParameters::Instance()->GetDivisionSeparation();
+    // Location of parent and daughter cells
     c_vector<double, 2> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
     c_vector<double, 2> daughter_coords;
 
-    // Pick a random direction and move the parent cell backwards by 0.5*sep in that
-    // direction and return the position of the daughter cell (0.5*sep forwards in the
-    // random vector direction
+    // Get separation parameter
+    double separation = CancerParameters::Instance()->GetDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, 2> random_vector;
+
+    /*
+     * Pick a random direction and move the parent cell backwards by 0.5*separation 
+     * in that direction and return the position of the daughter cell 0.5*separation 
+     * forwards in that direction.
+     */
 
     double random_angle = RandomNumberGenerator::Instance()->ranf();
     random_angle *= 2.0*M_PI;
@@ -55,14 +75,13 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Tiss
     if (   (proposed_new_parent_coords(1) >= 0.0)
         && (proposed_new_daughter_coords(1) >= 0.0))
     {
-        // We are not too close to the bottom of the tissue
-        // move parent
+        // We are not too close to the bottom of the tissue, so move parent
         parent_coords = proposed_new_parent_coords;
         daughter_coords = proposed_new_daughter_coords;
     }
     else
     {
-        proposed_new_daughter_coords = parent_coords+2.0*random_vector;
+        proposed_new_daughter_coords = parent_coords + 2.0*random_vector;
         while (proposed_new_daughter_coords(1) < 0.0)
         {
             random_angle = RandomNumberGenerator::Instance()->ranf();
@@ -70,13 +89,13 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Tiss
 
             random_vector(0) = separation*cos(random_angle);
             random_vector(1) = separation*sin(random_angle);
-            proposed_new_daughter_coords = parent_coords+random_vector;
+            proposed_new_daughter_coords = parent_coords + random_vector;
         }
         daughter_coords = proposed_new_daughter_coords;
     }
 
-    assert(daughter_coords(1)>=0.0); // to make sure dividing cells stay in the tissue
-    assert(parent_coords(1)>=0.0);   // to make sure dividing cells stay in the tissue
+    assert(daughter_coords(1) >= 0.0); // to make sure dividing cells stay in the tissue
+    assert(parent_coords(1) >= 0.0);   // to make sure dividing cells stay in the tissue
 
     // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
@@ -149,7 +168,7 @@ void CryptSimulation2d::SetupSolve()
 
 void CryptSimulation2d::PostSolve()
 {
-    SimulationTime *p_time = SimulationTime::Instance();
+    SimulationTime* p_time = SimulationTime::Instance();
 
     if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
     {
@@ -170,20 +189,6 @@ void CryptSimulation2d::AfterSolve()
     {
         mBetaCatResultsFile->close();
     }
-}
-
-
-CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue,
-                  std::vector<AbstractForce<2>*> forceCollection,
-                  bool deleteTissueAndForceCollection,
-                  bool initialiseCells)
-    : TissueSimulation<2>(rTissue,
-                          forceCollection,
-                          deleteTissueAndForceCollection,
-                          initialiseCells),
-      mUseJiggledBottomCells(false)
-{
-    mpStaticCastTissue = static_cast<MeshBasedTissueWithGhostNodes<2>*>(&mrTissue);
 }
 
 
