@@ -109,7 +109,6 @@ public :
                                                      unsigned nodeBGlobalIndex,
                                                      AbstractTissue<DIM>& rTissue);
 
-
 };
 
 #include "TemplatedExport.hpp"
