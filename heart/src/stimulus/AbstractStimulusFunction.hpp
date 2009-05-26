@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
+#include "Exception.hpp"
+
 /**
  * Represents an abstract stimulus function. Sub-classes will implement the
  * GetStimulus() function to represent the various type of stimuli to the cardiac
@@ -76,7 +78,9 @@ public:
      * Clear is used to managed memory in subclasses where the destructor may or may not need to clean up.
      */
     void virtual Clear()
-    {}
+    {
+        NEVER_REACHED; //Needed in one or more derived classes
+    }
 };
 
 BOOST_IS_ABSTRACT(AbstractStimulusFunction)
