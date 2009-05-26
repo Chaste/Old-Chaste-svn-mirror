@@ -183,19 +183,38 @@ public:
 
     void TestRemeshWithMethod1D() throw (Exception)
     {
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        // Create 1D mesh
         MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructLinearMesh(10);
 
         double area = mesh.GetVolume();
-        const int node_index = 7;
-        const int target_index = 6;
 
         unsigned num_nodes_before = mesh.GetNumNodes();
         unsigned num_elements_before = mesh.GetNumElements();
         unsigned num_boundary_elements_before = mesh.GetNumBoundaryElements();
 
-        mesh.MoveMergeNode(node_index, target_index);
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index);
+            TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index+1);
+        }
+
+        // Merge two nodes
+        mesh.MoveMergeNode(7, 6);
+
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            if (elem_index==7)
+            {
+                TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index-1);
+                TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index+1);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index);
+                TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index+1);
+            }
+        }
 
         TS_ASSERT_DELTA(area, mesh.GetVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements()+1);
@@ -204,6 +223,12 @@ public:
 
         NodeMap map(1);
         mesh.ReMesh(map);
+
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index);
+            TS_ASSERT_EQUALS(mesh.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index+1);
+        }
 
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes()+1); // one node removed during remesh
         for (unsigned i=0; i<7; i++)
@@ -228,6 +253,91 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
         TS_ASSERT_DELTA(mesh.GetVolume(), area, 1e-6);
+
+        // Create another mesh
+        MutableMesh<1,1> mesh2;
+        mesh2.ConstructLinearMesh(10);
+        
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 11u);
+
+        for (unsigned node_index=0; node_index<mesh2.GetNumNodes(); node_index++)
+        {
+            TS_ASSERT_DELTA(mesh2.GetNode(node_index)->rGetLocation()[0], (double) node_index, 1e-6);
+        }
+
+        for (unsigned elem_index=0; elem_index<mesh2.GetNumElements(); elem_index++)
+        {
+            TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index);
+            TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index+1);
+        }
+
+        // Add a node
+        c_vector<double,1> point;
+        point[0] = 2.5;
+        Node<1>* p_node = new Node<1>(10u, point);
+        unsigned new_index = mesh2.AddNode(p_node);
+
+        TS_ASSERT_EQUALS(new_index, 11u);
+        TS_ASSERT_DELTA(mesh2.GetNode(11u)->rGetLocation()[0], 2.5, 1e-7);
+
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 12u);
+
+        for (unsigned node_index=0; node_index<mesh2.GetNumNodes(); node_index++)
+        {
+            if (node_index == 11)
+            {
+                TS_ASSERT_DELTA(mesh2.GetNode(node_index)->rGetLocation()[0], 2.5, 1e-6);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(mesh2.GetNode(node_index)->rGetLocation()[0], (double) node_index, 1e-6);
+            }
+        }
+
+        // Now remesh and check that elements are correctly updated
+        mesh2.ReMesh();
+
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 11u);
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 12u);
+
+        for (unsigned node_index=0; node_index<mesh2.GetNumNodes(); node_index++)
+        {
+            if (node_index == 11)
+            {
+                TS_ASSERT_DELTA(mesh2.GetNode(node_index)->rGetLocation()[0], 2.5, 1e-6);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(mesh2.GetNode(node_index)->rGetLocation()[0], (double) node_index, 1e-6);
+            }
+        }
+
+        for (unsigned elem_index=0; elem_index<mesh2.GetNumElements(); elem_index++)
+        {
+            if (elem_index < 2)
+            {
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index);
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index+1);
+            }
+            else if (elem_index == 2)
+            {
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index);
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(1), 11u);
+            }
+            else if (elem_index == 3)
+            {
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(0), 11u);
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(0), elem_index-1);
+                TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index);
+            }
+        }
+        
     }
 
     void TestRemeshWithMethod2D() throw (Exception)

@@ -655,6 +655,22 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             }
         }
 
+        // Create a map between node indices and node locations
+        std::map<double, unsigned> location_index_map;
+        for (unsigned i=0; i<this->mNodes.size(); i++)
+        {
+            location_index_map[this->mNodes[i]->rGetLocation()[0]] = this->mNodes[i]->GetIndex();
+        }
+
+        // Use this map to generate a vector of node indices that are ordered spatially
+        std::vector<unsigned> node_indices_ordered_spatially;
+        for (std::map<double, unsigned>::iterator iter = location_index_map.begin();
+             iter != location_index_map.end();
+             ++iter)
+        {
+            node_indices_ordered_spatially.push_back(iter->second);
+        }
+
         // Construct the elements
         this->mElements.reserve(old_node_locations.size()-1);
         for (unsigned element_index=0; element_index<old_node_locations.size()-1; element_index++)
@@ -662,7 +678,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             std::vector<Node<SPACE_DIM>*> nodes;
             for (unsigned j=0; j<2; j++)
             {
-                unsigned global_node_index = element_index + j;
+                unsigned global_node_index = node_indices_ordered_spatially[element_index + j];
                 assert(global_node_index < this->mNodes.size());
                 nodes.push_back(this->mNodes[global_node_index]);
             }
