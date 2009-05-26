@@ -457,6 +457,113 @@ public:
     }
 
 
+    void TestGeneralisedLinearSpringForceCalculationIn1d() throw (Exception)
+    {
+        // Create a 1D mesh with nodes equally spaced a unit distance apart
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(5);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            double birth_time = 0.0 - node_index;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> tissue(mesh, cells);
+
+        // Create force law object
+        GeneralisedLinearSpringForce<1> linear_force;
+
+        // Initialise a vector of node forces
+        std::vector<c_vector<double, 1> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
+
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            node_forces.push_back(zero_vector<double>(1));
+        }
+
+        // Compute forces on nodes
+        linear_force.AddForceContribution(node_forces, tissue);
+
+        // Test that all springs are in equilibrium
+        for (unsigned node_index=0; node_index<tissue.GetNumNodes(); node_index++)
+        {
+            TS_ASSERT_DELTA(node_forces[node_index](0), 0.0, 1e-6);
+        }
+
+        // Scale entire mesh and check that forces are correctly calculated
+        double scale_factor = 1.5;
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            c_vector<double,1> old_point = mesh.GetNode(node_index)->rGetLocation();
+            ChastePoint<1> new_point;
+            new_point.rGetLocation()[0] = scale_factor*old_point[0];
+            mesh.SetNode(node_index, new_point, false);
+        }
+
+        // Recalculate node forces (we can re-use node_forces
+        // as previously each node had zero net force on it)
+        linear_force.AddForceContribution(node_forces, tissue);
+
+        CancerParameters* p_params = CancerParameters::Instance();
+        for (unsigned node_index=0; node_index<tissue.GetNumNodes(); node_index++)
+        {
+            if (node_index == 0)
+            {
+                // The first node only experiences a force from its neighbour to the right
+                TS_ASSERT_DELTA(node_forces[node_index](0), p_params->GetSpringStiffness()*(scale_factor-1), 1e-6);
+            }
+            else if (node_index == tissue.GetNumNodes()-1)
+            {
+                // The last node only experiences a force from its neighbour to the left
+                TS_ASSERT_DELTA(node_forces[node_index](0), -p_params->GetSpringStiffness()*(scale_factor-1), 1e-6);
+            }
+            else
+            {
+                // The net force on each interior node should still be zero
+                TS_ASSERT_DELTA(node_forces[node_index](0), 0.0, 1e-6);
+            }
+        }
+
+        // Create another tissue and force law
+        MutableMesh<1,1> mesh2;
+        mesh2.ConstructLinearMesh(5);
+
+        MeshBasedTissue<1> tissue2(mesh2, cells);
+        GeneralisedLinearSpringForce<1> linear_force2;
+
+        // Move one node and check that forces are correctly calculated
+        ChastePoint<1> shifted_point;
+        shifted_point.rGetLocation()[0] = 2.5;
+        mesh2.SetNode(2, shifted_point);
+
+        c_vector<double,1> force_between_1_and_2 = linear_force2.CalculateForceBetweenNodes(1, 2, tissue2);
+        TS_ASSERT_DELTA(force_between_1_and_2[0], p_params->GetSpringStiffness()*0.5, 1e-6);
+
+        c_vector<double,1> force_between_2_and_3 = linear_force2.CalculateForceBetweenNodes(2, 3, tissue2);
+        TS_ASSERT_DELTA(force_between_2_and_3[0], -p_params->GetSpringStiffness()*0.5, 1e-6);
+
+        // Initialise a vector of node forces
+        std::vector<c_vector<double,1> > node_forces2;
+        node_forces2.reserve(tissue2.GetNumNodes());
+
+        for (unsigned i=0; i<tissue2.GetNumNodes(); i++)
+        {
+             node_forces2.push_back(zero_vector<double>(1));
+        }
+
+        linear_force2.AddForceContribution(node_forces2, tissue2);
+
+        TS_ASSERT_DELTA(node_forces2[2](0), -p_params->GetSpringStiffness(), 1e-6);
+    }
+
+
     void TestGeneralisedLinearSpringForceCalculationIn3d() throw (Exception)
     {
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
@@ -480,8 +587,8 @@ public:
         unsigned nodeA = 0, nodeB = 1;
         Element<3,3>* p_element = mesh.GetElement(0);
         c_vector<double, 3> force = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),
-                                                                             p_element->GetNodeGlobalIndex(nodeB),
-                                                                             tissue);
+                                                                            p_element->GetNodeGlobalIndex(nodeB),
+                                                                            tissue);
         for (unsigned i=0; i<3; i++)
         {
             TS_ASSERT_DELTA(force[i], 0.0, 1e-6);
@@ -549,8 +656,8 @@ public:
         unsigned nodeA2 = 0, nodeB2 = 1;
         Element<3,3>* p_element2 = mesh2.GetElement(0);
         c_vector<double,3> force2 = linear_force2.CalculateForceBetweenNodes(p_element2->GetNodeGlobalIndex(nodeA2),
-                                                                              p_element2->GetNodeGlobalIndex(nodeB2),
-                                                                              tissue2);
+                                                                             p_element2->GetNodeGlobalIndex(nodeB2),
+                                                                             tissue2);
 
         for (unsigned i=0; i<3; i++)
         {
