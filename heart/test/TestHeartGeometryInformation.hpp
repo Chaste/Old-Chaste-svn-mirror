@@ -217,10 +217,6 @@ public:
                 TS_ASSERT_EQUALS(info.rGetDistanceMapRightVentricle()[index],x-5.0);
                 TS_ASSERT_EQUALS(info.rGetDistanceMapLeftVentricle()[index],x-3.0);
             }
-            
-            
-            //TS_ASSERT_EQUALS(info.rGetDistanceMapRightVentricle()[index],(5.0-x));
-            
         } 
         
         // Write our fake face files
