@@ -88,6 +88,8 @@ public:
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
         } 
         
         // Write our fake face files
@@ -105,8 +107,20 @@ public:
         //call the constructor that takes in the surface files...
         HeartGeometryInformation<2> info2(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri");
 
-        //and test again
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        //first we test the get methods for the nodes on the surfaces
+        std::vector<unsigned> nodes_on_endo = info2.rGetNodesOnEndoSurface();
+        std::vector<unsigned> nodes_on_epi = info2.rGetNodesOnEpiSurface();
+        TS_ASSERT_EQUALS(nodes_on_endo.size(),left_face.size());
+        TS_ASSERT_EQUALS(nodes_on_epi.size(),right_face.size());
+        //check that the vectors filled in by the constructor are the same as the original ones
+        for (unsigned i = 0; i < left_face.size();i++)
+        {
+            TS_ASSERT_EQUALS(nodes_on_endo[i],right_face[i]);
+            TS_ASSERT_EQUALS(nodes_on_epi[i],left_face[i]);
+        }
+        
+        //and then we test the method to evaluate the position in the wall (again)
+         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             TS_ASSERT_EQUALS(info2.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
@@ -186,6 +200,9 @@ public:
             if (x<=3)
             {
                 TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(3.0-x)/3.0);
+                TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
+                TS_ASSERT_EQUALS(info.rGetDistanceMapRightVentricle()[index],5.0-x);
+                TS_ASSERT_EQUALS(info.rGetDistanceMapLeftVentricle()[index],3.0-x);
             }
             //..in the septum...
             else if ((x>3)&&(x<5))
@@ -196,7 +213,14 @@ public:
             else if (x>=5)
             {
                 TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(x-5.0)/3.0);
+                TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],8.0-x);
+                TS_ASSERT_EQUALS(info.rGetDistanceMapRightVentricle()[index],x-5.0);
+                TS_ASSERT_EQUALS(info.rGetDistanceMapLeftVentricle()[index],x-3.0);
             }
+            
+            
+            //TS_ASSERT_EQUALS(info.rGetDistanceMapRightVentricle()[index],(5.0-x));
+            
         } 
         
         // Write our fake face files
@@ -213,8 +237,23 @@ public:
         OutputFileHandler handler(output_dir, false);
         std::string dir_path = handler.GetOutputDirectoryFullPath();
         HeartGeometryInformation<3> info2(mesh, dir_path + "/epi.tri", dir_path + "/lv.tri", dir_path + "/rv.tri");
+        
+        //first we test the get methods for the nodes on the surfaces
+        std::vector<unsigned> nodes_on_lv = info2.rGetNodesOnLVSurface();
+        std::vector<unsigned> nodes_on_rv = info2.rGetNodesOnRVSurface();
+        std::vector<unsigned> nodes_on_epi = info2.rGetNodesOnEpiSurface();
+        TS_ASSERT_EQUALS(nodes_on_lv.size(),lv_face.size());
+        TS_ASSERT_EQUALS(nodes_on_rv.size(),rv_face.size());
+        TS_ASSERT_EQUALS(nodes_on_epi.size(),epi_face.size());
+        //check that the vectors filled in by the constructor are the same as the original ones
+        for (unsigned i = 0; i < lv_face.size();i++)
+        {
+            TS_ASSERT_EQUALS(nodes_on_lv[i],lv_face[i]);
+            TS_ASSERT_EQUALS(nodes_on_rv[i],rv_face[i]);
+            TS_ASSERT_EQUALS(nodes_on_epi[i],epi_face[i]);
+        }
 
-        //and test again
+        //and then we test the method to evaluate the position in the wall (again)
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
