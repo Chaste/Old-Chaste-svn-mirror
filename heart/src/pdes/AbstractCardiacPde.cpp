@@ -50,23 +50,9 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
     assert(pCellFactory!=NULL);
     assert(pCellFactory->GetMesh()!=NULL);
 
-    std::vector<unsigned>& r_nodes_per_processor = pCellFactory->GetMesh()->rGetNodesPerProcessor();
 
-    // check number of processor agrees with definition in mesh
-    if((r_nodes_per_processor.size() != 0) && (r_nodes_per_processor.size() != PetscTools::NumProcs()) )
-    {
-        EXCEPTION("Number of processors defined in mesh class not equal to number of processors used");
-    }
-
-    if(r_nodes_per_processor.size() != 0)
-    {
-        unsigned num_local_nodes = r_nodes_per_processor[ PetscTools::GetMyRank() ];
-        DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
-    }
-    else
-    {
-        DistributedVector::SetProblemSize(pCellFactory->GetMesh()->GetNumNodes());
-    }
+    unsigned num_local_nodes = pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetLocalOwnership();
+    DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
 
     mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
 

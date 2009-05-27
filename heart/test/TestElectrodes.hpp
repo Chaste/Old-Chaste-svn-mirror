@@ -48,12 +48,6 @@ public:
         ParallelTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
-        std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
-        if (r_nodes_per_processor.size() > 0)
-        {
-            DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
-        }
         double magnitude = 543.324;
         double duration = 2.0; //ms
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
@@ -112,13 +106,6 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ParallelTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-
-        /// \todo: this should be implicitely done in ParallelTetrahedralMesh.
-        std::vector<unsigned>& r_nodes_per_processor = mesh.rGetNodesPerProcessor();
-        if (r_nodes_per_processor.size() > 0)
-        {
-            DistributedVector::SetProblemSizePerProcessor(mesh.GetNumNodes(), r_nodes_per_processor[PetscTools::GetMyRank()]);
-        }
 
         double magnitude = 543.324;
         double duration = 2.0;

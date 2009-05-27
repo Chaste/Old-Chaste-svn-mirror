@@ -154,13 +154,6 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::
     NEVER_REACHED;
 }
 
-//Going...
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
-{
-    return mNodesPerProcessor;
-}
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistributedVectorFactory * AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
 {

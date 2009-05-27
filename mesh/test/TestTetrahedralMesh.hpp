@@ -1314,9 +1314,7 @@ public:
         {
             mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_2.txt");
 
-            // nodes_per_processor_2.txt = {1,3}
-            //TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor().size(), 2u);
-                if (PetscTools::GetMyRank()==0)
+            if (PetscTools::GetMyRank()==0)
             {
                 TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetLocalOwnership(), 1u);
             }

@@ -62,20 +62,6 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
            local_max = value;
         }        
     }    
-    /*for (DistributedVector::Iterator node_it = DistributedVector::Begin();
-         node_it != DistributedVector::End();
-         ++node_it)
-    {
-         double value = rMesh.GetNode(node_it.Global)->rGetLocation()[index];
-         if(value < local_min)
-         {
-            local_min = value;
-         }
-         if(value > local_max)
-         {
-            local_max = value;
-         }
-    }*/
 
     double global_min;
     double global_max;

@@ -632,32 +632,13 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool N
 void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::PrepareForSolve()
 {
     assert(mpMesh != NULL);
-
-    // NOTE: this line used to be commented out because FlaggedMeshAssembler
-    // has its own FlaggedMeshBcc. (design issue). FlaggedMeshAssembler (and
-    // related classes has now been deleted so can bring this back)
     assert(this->mpBoundaryConditions != NULL);
 
-    std::vector<unsigned>& r_nodes_per_processor = mpMesh->rGetNodesPerProcessor();
+    unsigned num_local_nodes = mpMesh->GetDistributedVectorFactory()->GetLocalOwnership();
+    DistributedVector::SetProblemSizePerProcessor(mpMesh->GetNumNodes(), num_local_nodes);
 
-    // check number of processor agrees with definition in mesh
-    if((r_nodes_per_processor.size() != 0) && (r_nodes_per_processor.size() != PetscTools::NumProcs()) )
-    {
-        EXCEPTION("Number of processors defined in mesh class not equal to number of processors used");
-    }
-
-    if(r_nodes_per_processor.size() != 0)
-    {
-        unsigned num_local_nodes = r_nodes_per_processor[ PetscTools::GetMyRank() ];
-        DistributedVector::SetProblemSizePerProcessor(this->mpMesh->GetNumNodes(), num_local_nodes);
-    }
-    else
-    {
-        DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
-    }
-
-    this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
-                                       DistributedVector::End().Global);
+    mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
+                                 DistributedVector::End().Global);
 }
 
 

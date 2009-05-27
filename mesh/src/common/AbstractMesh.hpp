@@ -243,12 +243,6 @@ public:
      */
     virtual void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
-//Going
-    /**
-     * Get method for mNodesPerProcessor.
-     */
-    std::vector<unsigned>& rGetNodesPerProcessor();
-
     /**
      * Get method for mNodesPerProcessor.
      */
