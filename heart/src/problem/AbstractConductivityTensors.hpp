@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include "Exception.hpp"
 
+/**
+ * AbstractConductivityTensor class
+ */
 template<unsigned SPACE_DIM>
 class AbstractConductivityTensors
 {
