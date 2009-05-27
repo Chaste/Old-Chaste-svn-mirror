@@ -55,7 +55,9 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, uns
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
-    : mMeshFileBaseName("")
+    : mpDistributedVectorFactory(NULL),
+      mMeshFileBaseName("")
+      
 {
 }
 
@@ -76,6 +78,10 @@ AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()
     for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
     {
         delete this->mBoundaryElements[i];
+    }
+    if (mpDistributedVectorFactory)
+    {
+        delete mpDistributedVectorFactory;
     }
 }
 
@@ -148,10 +154,21 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::
     NEVER_REACHED;
 }
 
+//Going...
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodesPerProcessor()
 {
     return mNodesPerProcessor;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+DistributedVectorFactory * AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
+{
+    if (mpDistributedVectorFactory == NULL)
+    {
+        mpDistributedVectorFactory=new DistributedVectorFactory(GetNumNodes());
+    }
+    return mpDistributedVectorFactory;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

@@ -670,18 +670,18 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");
-
-        // Instantiate PDE and BCC object, though not used
-        SimplePoissonEquation<2,2> pde;
-        BoundaryConditionsContainer<2,2,1> bcc;
-
-        // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-
-
+        
         if (PetscTools::NumProcs() == 2)
         {
+            mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");
+
+            // Instantiate PDE and BCC object, though not used
+            SimplePoissonEquation<2,2> pde;
+            BoundaryConditionsContainer<2,2,1> bcc;
+
+            // Assembler
+            SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+
             // Hi and Lo set up in PrepareForSolve
             assembler.PrepareForSolve();
 
@@ -702,17 +702,10 @@ public:
                 TS_ASSERT_EQUALS(5, petsc_hi);
             }
         }
-        else
-        {
-            // the number of processor as defined in the file above does
-            // not agree with the number being used, so an exception is thrown.
-            TS_ASSERT_THROWS_ANYTHING( assembler.PrepareForSolve() );
-        }
     }
 
 
-// The code can't solve 1d problems in 2d space yet. This test sets one up but doesn't call
-// Solve. See #965.
+    // Solve a 1d problem in 2d space yet
     void TestWithPoissonsEquation1dMeshIn2dSpace()
     {
         const unsigned SPACE_DIM = 2;
@@ -734,20 +727,18 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<ELEM_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
 
-//// we can't call Solve as assemblers can't solve nD probs in mD space (n!=m) - fails
-//// with an assert(ELEM_DIM==SPACE_DIM) error when calculating element jacobians..
-//        Vec result = assembler.Solve();
-//        ReplicatableVector result_repl(result);
-//
-//        // Solution should be u = 0.5*x*(3-x)
-//        for (unsigned i=0; i<result_repl.size(); i++)
-//        {
-//            double x = mesh.GetNode(i)->GetPoint()[0];
-//            double u = 0.5*x*(3-x);
-//            TS_ASSERT_DELTA(result_repl[i], u, 0.001);
-//        }
-//
-//        VecDestroy(result);
+        Vec result = assembler.Solve();
+        ReplicatableVector result_repl(result);
+
+        // Solution should be u = 0.5*x*(3-x)
+        for (unsigned i=0; i<result_repl.size(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double u = 0.5*x*(3-x);
+            TS_ASSERT_DELTA(result_repl[i], u, 0.001);
+        }
+
+        VecDestroy(result);
     }
 
 };

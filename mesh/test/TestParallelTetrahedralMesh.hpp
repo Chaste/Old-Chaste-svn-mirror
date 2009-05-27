@@ -534,8 +534,8 @@ public:
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Check that each processor owns the number of nodes corresponding to its METIS partition
-            std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
-            TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+            unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+            TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
         }
 
         {
@@ -544,8 +544,8 @@ public:
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Check that each processor owns the number of nodes corresponding to its METIS partition
-            std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
-            TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+            unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+            TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
         }
 
         {
@@ -554,8 +554,8 @@ public:
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Check that each processor owns the number of nodes corresponding to its METIS partition
-            std::vector<unsigned> nodes_per_processor = mesh.rGetNodesPerProcessor();
-            TS_ASSERT_EQUALS(nodes_per_processor[PetscTools::GetMyRank()], mesh.GetNumLocalNodes());
+            unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+            TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
         }
     }
 

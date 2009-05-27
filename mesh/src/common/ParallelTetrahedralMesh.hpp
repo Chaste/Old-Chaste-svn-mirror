@@ -549,6 +549,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
         // Entry for the last processor
         this->mNodesPerProcessor.push_back( mTotalNumNodes - proc_offsets[PetscTools::NumProcs()-1] );
+        
+        unsigned num_owned=this->mNodesPerProcessor[PetscTools::GetMyRank()];
+        this->mpDistributedVectorFactory=new DistributedVectorFactory(this->GetNumNodes(), num_owned);
     }
 }
 

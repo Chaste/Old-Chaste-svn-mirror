@@ -239,6 +239,15 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
                      << ", not equal to number of nodes in mesh, " << this->GetNumNodes();
         EXCEPTION(string_stream.str());
     }
+    
+    unsigned num_owned=this->mNodesPerProcessor[PetscTools::GetMyRank()];
+    
+    if (this->mNodesPerProcessor.size() != PetscTools::NumProcs())
+    {
+        EXCEPTION("Number of processes doesn't match the size of the nodes-per-processor file");
+    }
+    delete this->mpDistributedVectorFactory;
+    this->mpDistributedVectorFactory=new DistributedVectorFactory(this->GetNumNodes(), num_owned);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

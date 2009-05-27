@@ -1310,12 +1310,21 @@ public:
         // Throws because sum of nodes is not equal to the number of nodes in the mesh
         TS_ASSERT_THROWS_ANYTHING(mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt"));
 
-        mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_2.txt");
+        if (PetscTools::NumProcs() == 2)
+        {
+            mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_2.txt");
 
-        // nodes_per_processor_2.txt = {1,3}
-        TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor().size(), 2u);
-        TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[0], 1u);
-        TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor()[1], 3u);
+            // nodes_per_processor_2.txt = {1,3}
+            //TS_ASSERT_EQUALS(mesh.rGetNodesPerProcessor().size(), 2u);
+                if (PetscTools::GetMyRank()==0)
+            {
+                TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetLocalOwnership(), 1u);
+            }
+            else if (PetscTools::GetMyRank()==1)
+            {
+                TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetLocalOwnership(), 3u);
+            }
+        }
     }
 
     void TestReadingMeshesWithRegions() throw (Exception)

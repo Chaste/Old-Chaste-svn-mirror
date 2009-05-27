@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BoundaryElement.hpp"
 #include "Element.hpp"
 #include "AbstractMeshReader.hpp"
+#include "DistributedVectorFactory.hpp"
 
 
 /**
@@ -98,8 +99,11 @@ protected:  // Give access of these variables to subclasses
     /** Vector of pointers to boundary elements in the mesh. */
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
 
-    /** Vector containing the number of nodes owned by each processor. */
+    /** Vector containing the number of nodes owned by each processor.  Redundant #988*/
     std::vector<unsigned> mNodesPerProcessor;
+
+    /** DistributedVectorFactory capable of reproducing the given number of nodes owned by each processor. */
+    DistributedVectorFactory *mpDistributedVectorFactory;
 
     /** Vector containing node permutation information. */
     std::vector<unsigned> mNodesPermutation;
@@ -239,10 +243,16 @@ public:
      */
     virtual void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
+//Going
     /**
      * Get method for mNodesPerProcessor.
      */
     std::vector<unsigned>& rGetNodesPerProcessor();
+
+    /**
+     * Get method for mNodesPerProcessor.
+     */
+    DistributedVectorFactory * GetDistributedVectorFactory();
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes

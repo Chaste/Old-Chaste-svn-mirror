@@ -102,6 +102,15 @@ public:
      */
     
     DistributedVector CreateDistributedVector(Vec vec);
+    
+    /**
+     * @return The number of elements in the vector owned by the local process
+     */
+    unsigned GetLocalOwnership()
+    {
+        return mHi - mLo;
+    }
+    
 };
 
 #endif /*DISTRIBUTEDVECTORFACTORY_HPP_*/

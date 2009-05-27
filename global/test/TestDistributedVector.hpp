@@ -280,6 +280,8 @@ public:
         VecGetOwnershipRange(petsc_vec2, &petsc_lo, &petsc_hi);
         unsigned local_size2 = petsc_hi - petsc_lo;
         TS_ASSERT_EQUALS(local_size, local_size2);
+        TS_ASSERT_EQUALS(local_size, factory2.GetLocalOwnership());
+        
         
 
         //Uneven test (as above).

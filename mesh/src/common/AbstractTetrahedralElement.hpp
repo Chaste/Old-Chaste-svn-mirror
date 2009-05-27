@@ -248,19 +248,6 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
     {
         EXCEPTION("Jacobian determinant is zero");
     }
-
-//    if (ELEMENT_DIM == 2)
-//    {
-//        //Check that weighted-direction and the generalised determinant are giving the same thing
-//        double absolute_difference=fabs(rJacobianDeterminant - Determinant(jacobian));
-//        double relative_difference=absolute_difference/rJacobianDeterminant;
-//        if (relative_difference >= 10 * DBL_EPSILON)
-//        {
-//#include "Debug.hpp"
-//            PRINT_4_VARIABLES(absolute_difference, relative_difference/DBL_EPSILON, rJacobianDeterminant, SPACE_DIM);
-//        }
-//    }
-
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
