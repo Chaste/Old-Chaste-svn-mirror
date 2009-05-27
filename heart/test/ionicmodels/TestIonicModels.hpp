@@ -958,6 +958,94 @@ public:
         }
      }
      
+    void TestBackwardCellsArchiving(void) throw(Exception)
+    {
+        //Archive
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "backward_cells.arch";
+
+        // Save
+        {
+            TS_ASSERT(PetscTools::IsSequential());
+            // Set stimulus
+            double magnitude_stimulus = -3;  // uA/cm2
+            double duration_stimulus = 3;  // ms
+            double start_stimulus = 10.0;   // ms
+            boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
+                                                                            duration_stimulus,
+                                                                            start_stimulus));
+
+            double time_step = 0.01;
+
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+
+            AbstractCardiacCell* const p_backward_cell1 = new BackwardEulerLuoRudyIModel1991(p_stimulus);
+            AbstractCardiacCell* const p_backward_cell2 = new BackwardEulerFoxModel2002Modified(p_stimulus);
+            AbstractCardiacCell* const p_backward_cell3 = new BackwardEulerNobleVargheseKohlNoble1998(p_stimulus);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch <<  p_backward_cell1;
+            output_arch <<  p_backward_cell2;
+            output_arch <<  p_backward_cell3;
+            
+            // These results are in the repository and should be replicated after the load below
+//            RunOdeSolverWithIonicModel(p_backward_cell1,
+//                                       50.0,
+//                                       "Backward1AfterArchiveValidData");
+//
+//            RunOdeSolverWithIonicModel(p_backward_cell2,
+//                                       50.0,
+//                                       "Backward2AfterArchiveValidData");
+//
+//            RunOdeSolverWithIonicModel(p_backward_cell3,
+//                                       50.0,
+//                                       "Backward3AfterArchiveValidData");
+                                       
+            delete p_backward_cell1;
+            delete p_backward_cell2;
+            delete p_backward_cell3;
+        }
+        // Load
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            AbstractCardiacCell* p_backward_cell1;
+            AbstractCardiacCell* p_backward_cell2;
+            AbstractCardiacCell* p_backward_cell3;
+            input_arch >> p_backward_cell1;
+            input_arch >> p_backward_cell2;
+            input_arch >> p_backward_cell3;
+
+            TS_ASSERT_EQUALS( p_backward_cell1->GetNumberOfStateVariables(), 8U );
+            TS_ASSERT_EQUALS( p_backward_cell2->GetNumberOfStateVariables(), 13U );
+            TS_ASSERT_EQUALS( p_backward_cell3->GetNumberOfStateVariables(), 22U );
+
+            RunOdeSolverWithIonicModel(p_backward_cell1,
+                                       50.0,
+                                       "Backward1AfterArchive");
+                                       
+            RunOdeSolverWithIonicModel(p_backward_cell2,
+                                       50.0,
+                                       "Backward2AfterArchive");
+                                       
+            RunOdeSolverWithIonicModel(p_backward_cell3,
+                                       50.0,
+                                       "Backward3AfterArchive");                       
+
+            CheckCellModelResults("Backward1AfterArchive");
+            CheckCellModelResults("Backward2AfterArchive");
+            CheckCellModelResults("Backward3AfterArchive");
+            
+            delete p_backward_cell1;
+            delete p_backward_cell2;
+            delete p_backward_cell3;
+        }
+     }
+     
     void TestPyCMLArchiving(void) throw(Exception)
     {
         //Archive

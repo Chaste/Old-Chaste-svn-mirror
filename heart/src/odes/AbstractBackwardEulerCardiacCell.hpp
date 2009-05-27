@@ -30,6 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 #define ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
 #include "AbstractCardiacCell.hpp"
 
 #include <cassert>
@@ -52,6 +58,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SIZE>
 class AbstractBackwardEulerCardiacCell : public AbstractCardiacCell
 {
+    private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
+    }
 public:
 
     /**
@@ -238,6 +259,26 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
         // check gating variables are still in range
         VerifyStateVariables();
     }
+}
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Since this abstract class is templated, we cannot use
+ * the preprocessor macro BOOST_IS_ABSTRACT, and instead
+ * must drop down to the underlying source code.
+ */
+template<unsigned SIZE>
+struct is_abstract<AbstractBackwardEulerCardiacCell<SIZE> >
+{
+    /** The type that is an abstract class. */
+    typedef mpl::bool_<true> type;
+    /** The type is an abstract class, so value=true. */
+    BOOST_STATIC_CONSTANT(bool, value=true);
+};
+}
 }
 
 

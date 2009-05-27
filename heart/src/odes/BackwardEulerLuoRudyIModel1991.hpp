@@ -28,10 +28,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _BACKWARDEULERLUORUDYIMODEL1991_HPP_
 #define _BACKWARDEULERLUORUDYIMODEL1991_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractBackwardEulerCardiacCell.hpp"
 
 #include <vector>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * This class sets up the Luo-Rudy I 1991 system of equations, and solves them
@@ -40,6 +46,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BackwardEulerLuoRudyIModel1991 : public AbstractBackwardEulerCardiacCell<1>
 {
 private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This calls serialize on the base class.
+        archive & boost::serialization::base_object<AbstractBackwardEulerCardiacCell<1> >(*this);
+    }
     /*
      * Constants for the LuoRudyIModel1991OdeSystem model
      */
@@ -104,5 +124,44 @@ public:
 
     double GetIntracellularCalciumConcentration();
 };
+
+BOOST_CLASS_EXPORT(BackwardEulerLuoRudyIModel1991);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a LuoRudyIModel1991OdeSystem instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const BackwardEulerLuoRudyIModel1991 * t, const unsigned int file_version)
+{
+    const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
+    const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
+    ar << p_solver;
+    ar << p_stimulus;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a LuoRudyIModel1991OdeSystem instance (using existing constructor)
+ *
+ * NB this constructor allocates memory for the other member variables too.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, BackwardEulerLuoRudyIModel1991 * t, const unsigned int file_version)
+{
+    boost::shared_ptr<AbstractIvpOdeSolver> p_solver;
+    boost::shared_ptr<AbstractStimulusFunction> p_stimulus;
+    ar >> p_solver;
+    ar >> p_stimulus;
+    ::new(t)BackwardEulerLuoRudyIModel1991(p_solver, p_stimulus);
+}
+}
+} // namespace ...
 
 #endif // _BACKWARDEULERLUORUDYIMODEL1991_HPP_
