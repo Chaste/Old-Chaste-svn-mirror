@@ -49,11 +49,14 @@ public:
         double magnitude_stimulus = 0.0;  // uA/cm2
         double duration_stimulus = 0.;  // ms
         double start_stimulus = 0.0;   // ms
-        SimpleStimulus stimulus(magnitude_stimulus,
-                                 duration_stimulus,
-                                 start_stimulus);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(
+                magnitude_stimulus,
+                duration_stimulus,
+                start_stimulus));
 
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, &stimulus);
+        boost::shared_ptr<AbstractIvpOdeSolver> p_solver; // We don't actually need a solver
+
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(p_solver, p_stimulus);
 
         double v_singularity[2];
         v_singularity[0]=-65;

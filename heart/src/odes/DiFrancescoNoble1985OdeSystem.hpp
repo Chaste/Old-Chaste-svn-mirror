@@ -97,8 +97,8 @@ private:
 
 public:
     // Constructor
-    DiFrancescoNoble1985OdeSystem(AbstractIvpOdeSolver *pSolver,
-                         AbstractStimulusFunction *pIntracellularStimulus);
+    DiFrancescoNoble1985OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                                  boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     // Destructor
     ~DiFrancescoNoble1985OdeSystem();

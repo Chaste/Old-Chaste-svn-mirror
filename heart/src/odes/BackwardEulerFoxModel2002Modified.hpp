@@ -26,7 +26,7 @@
 class BackwardEulerFoxModel2002Modified : public AbstractBackwardEulerCardiacCell<3>
 {
 public:
-    BackwardEulerFoxModel2002Modified(AbstractStimulusFunction *pIntracellularStimulus)
+    BackwardEulerFoxModel2002Modified(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractBackwardEulerCardiacCell<3>(13, 0, pIntracellularStimulus)
     {
         // Time units: millisecond
@@ -37,8 +37,8 @@ public:
     /**
      * Alternative constructor with the same signature as forwards Euler models.
      */
-    BackwardEulerFoxModel2002Modified(AbstractIvpOdeSolver* /* unused */,
-                                      AbstractStimulusFunction *pIntracellularStimulus)
+    BackwardEulerFoxModel2002Modified(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
+                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractBackwardEulerCardiacCell<3>(13, 0, pIntracellularStimulus)
     {
         // Time units: millisecond

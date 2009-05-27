@@ -92,12 +92,13 @@ public:
         double duration_of_stimulus  = 0.5;  // ms
         double period = 1000.0; // 1s
         double when = 100.0;
-        RegularStimulus stimulus(magnitude_of_stimulus,
-                                 duration_of_stimulus,
-                                 period,
-                                 when);
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(
+                magnitude_of_stimulus,
+                duration_of_stimulus,
+                period,
+                when));
 
-        EulerIvpOdeSolver solver;
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         /*
          * Solve
@@ -105,7 +106,7 @@ public:
         double start_time = 0.0;   // ms
         double end_time = 3450;  // ms
 
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
 
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
 

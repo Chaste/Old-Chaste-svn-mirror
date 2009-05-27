@@ -17,8 +17,8 @@
 #include "AbstractStimulusFunction.hpp"
 #include "Mahajan2008OdeSystem.hpp"
 
-Mahajan2008OdeSystem::Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                        AbstractStimulusFunction* pIntracellularStimulus)
+Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                                           boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractCardiacCell(pSolver, 26, 0, pIntracellularStimulus)
     {
         // Time units: ms

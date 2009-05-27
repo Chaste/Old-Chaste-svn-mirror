@@ -22,8 +22,8 @@
 class CML_noble_varghese_kohl_noble_1998_basic : public AbstractCardiacCell
 {
 public:
-    CML_noble_varghese_kohl_noble_1998_basic(AbstractIvpOdeSolver *pSolver,
-                                             AbstractStimulusFunction *pIntracellularStimulus)
+    CML_noble_varghese_kohl_noble_1998_basic(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                                             boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractCardiacCell(pSolver, 22, 0, pIntracellularStimulus)
     {
         mpSystemInfo = OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic>::Instance();

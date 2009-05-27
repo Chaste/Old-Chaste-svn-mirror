@@ -38,21 +38,20 @@ class TestFaberRudyAgainstLimpet : public CxxTest::TestSuite
 public:
     void TestFaberRudyOptimised(void) throw(Exception)
     {
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(
+                -50.0,     // magnitude uA/cm^2
+                1.0,      // duration ms
+                1000.0,   // period ms
+                0.0));     // start time ms
 
-
-        RegularStimulus stimulus(-50.0,     // magnitude uA/cm^2
-                                 1.0,      // duration ms
-                                 1000.0,   // period ms
-                                 0.0);     // start time ms
-
-        EulerIvpOdeSolver solver;
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
-        FaberRudy2000Version3Optimised cell_model(&solver, &stimulus);
+        FaberRudy2000Version3Optimised cell_model(p_solver, p_stimulus);
 
 
         //OdeSolution solution =
         cell_model.ComputeExceptVoltage(0.0,     // start time
-                                         100.0); // endTime
+                                        100.0); // endTime
 
 //        solution.WriteToFile("TestFRvLimpet",
 //                             "FaberRudy",

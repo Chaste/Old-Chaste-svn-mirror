@@ -38,15 +38,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
-    SimpleStimulus *mpStimulus;
-    RegularStimulus *mpRegStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
+    boost::shared_ptr<RegularStimulus> mpRegStimulus;
 
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.001 (10:1)
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>()
+    BidomainFaceStimulusCellFactory() 
+        : AbstractCardiacCellFactory<3>(),
+          mpRegStimulus(new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0))
     {
-        mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -59,11 +60,6 @@ public:
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
-    }
-
-    ~BidomainFaceStimulusCellFactory(void)
-    {
-        delete mpRegStimulus;
     }
 };
 

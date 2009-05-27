@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACCELLFACTORY_HPP_
 #define ABSTRACTCARDIACCELLFACTORY_HPP_
 
+#include <boost/shared_ptr.hpp>
+
 #include "AbstractCardiacCell.hpp"
 #include "AbstractMesh.hpp"
 #include "AbstractIvpOdeSolver.hpp"
@@ -60,8 +62,8 @@ private:
 
 protected:
     /** For use at unstimulated cells. */
-    ZeroStimulus* mpZeroStimulus;
-    AbstractIvpOdeSolver* mpSolver;
+    boost::shared_ptr<ZeroStimulus> mpZeroStimulus;
+    boost::shared_ptr<AbstractIvpOdeSolver> mpSolver;
 
     /** A fake cell object to use at bath nodes. */
     AbstractCardiacCell* mpFakeCell;
@@ -90,11 +92,10 @@ public:
 
     /**
      * Default constructor.
-     *
-     * NB: The ODE solver passed to this class *must* have been allocated with new,
-     * since this class deletes the solver in its destructor.
+     * 
+     * @param pSolver  the ODE solver to use to simulate this cell.
      */
-    AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver);
+    AbstractCardiacCellFactory(boost::shared_ptr<AbstractIvpOdeSolver> pSolver = boost::shared_ptr<AbstractIvpOdeSolver>(new EulerIvpOdeSolver));
     /**
      * Destructor: free solver, zero stimulus and fake bath cell.
      */

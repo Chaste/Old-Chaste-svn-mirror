@@ -26,15 +26,15 @@ class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCard
 friend class TestFastSlowBackwardEulerNoble98; // Friend class for the purposes of testing
 
 public:
-    BackwardEulerNobleVargheseKohlNoble1998(AbstractIvpOdeSolver *pSolver,
-                                            AbstractStimulusFunction *pIntracellularStimulus)
+    BackwardEulerNobleVargheseKohlNoble1998(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
+                                            boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
           : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus)
     {
         MakeVars();
     }
 
 
-    BackwardEulerNobleVargheseKohlNoble1998(AbstractStimulusFunction *pIntracellularStimulus)
+    BackwardEulerNobleVargheseKohlNoble1998(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractBackwardEulerCardiacCell<12>(22, 0, pIntracellularStimulus)
     {
         MakeVars();

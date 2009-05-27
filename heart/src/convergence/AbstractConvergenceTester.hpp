@@ -70,13 +70,14 @@ class QuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
     // define a new stimulus
-    SimpleStimulus* mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
     double mMeshWidth;
 public:
-    QuarterStimulusCellFactory(double meshWidth) : AbstractCardiacCellFactory<DIM>()
+    QuarterStimulusCellFactory(double meshWidth)
+        : AbstractCardiacCellFactory<DIM>(),
+          mpStimulus(new SimpleStimulus(-1000000, 0.5)),
+          mMeshWidth(meshWidth)
     {
-        mpStimulus = new SimpleStimulus(-1000000, 0.5);
-        mMeshWidth=meshWidth;
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -90,11 +91,6 @@ public:
         {
             return new CELL(this->mpSolver, this->mpZeroStimulus);
         }
-    }
-
-    ~QuarterStimulusCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

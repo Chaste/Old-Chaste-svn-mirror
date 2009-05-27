@@ -53,14 +53,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
-    AbstractStimulusFunction* mpStimulus;
-    AbstractStimulusFunction* mpExtracellularStimulus1;
-    AbstractStimulusFunction* mpExtracellularStimulus2;
+    boost::shared_ptr<AbstractStimulusFunction> mpStimulus;
 public:
 
-    MyCardiacCellFactory() : AbstractCardiacCellFactory<1>()
+    MyCardiacCellFactory()
+        : AbstractCardiacCellFactory<1>(),
+          mpStimulus(new SimpleStimulus(-80.0, 0.5))
     {
-        mpStimulus = new SimpleStimulus(-80.0, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -81,7 +80,6 @@ public:
 
     ~MyCardiacCellFactory(void)
     {
-        delete mpStimulus;
     }
 };
 

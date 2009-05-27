@@ -50,14 +50,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
-    SimpleStimulus *mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
     unsigned mNodeNum;
 public:
     PointStimulus2dCellFactory(unsigned nodeNum)
-            : AbstractCardiacCellFactory<2>(),
-            mNodeNum(nodeNum)
+        : AbstractCardiacCellFactory<2>(),
+          mpStimulus(new SimpleStimulus(-6000.0, 0.5)),
+          mNodeNum(nodeNum)
     {
-        mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -70,11 +70,6 @@ public:
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
-    }
-
-    ~PointStimulus2dCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

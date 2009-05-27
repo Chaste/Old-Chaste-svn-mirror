@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractOdeSystem.hpp"
 #include "AbstractIvpOdeSolver.hpp"
@@ -82,11 +84,11 @@ protected:
     /** The index of the voltage within our state variable vector. */
     unsigned mVoltageIndex;
     /** Pointer to the solver used to simulate this cell. */
-    AbstractIvpOdeSolver *mpOdeSolver;
+    boost::shared_ptr<AbstractIvpOdeSolver> mpOdeSolver;
     /** The timestep to use when simulating this cell.  Set from the HeartConfig object. */
     double mDt;
     /** The intracellular stimulus current. */
-    AbstractStimulusFunction* mpIntracellularStimulus;
+    boost::shared_ptr<AbstractStimulusFunction> mpIntracellularStimulus;
 
     /**
      * Flag set to true if ComputeExceptVoltage is called, to indicate
@@ -95,26 +97,18 @@ protected:
      */
     bool mSetVoltageDerivativeToZero;
 
-    /**
-     * Whether we will have to free up the memory of solver and stimulus
-     * created by archiving.
-     */
-    bool mSerializeConstructed;
-
 public:
     /** Create a new cardiac cell.
      *
      * @param pOdeSolver  the ODE solver to use when simulating this cell
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
      * @param voltageIndex  the index of the transmembrane potential within the vector of state variables
-     * @param intracellularStimulus  the intracellular stimulus current
-     * @param serializeConstructed was this constructed by serializer (if so need to clear up memory on destruction), defaults to false
+     * @param pIntracellularStimulus  the intracellular stimulus current
      */
-    AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
+    AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
                         unsigned numberOfStateVariables,
                         unsigned voltageIndex,
-                        AbstractStimulusFunction* intracellularStimulus,
-                        bool serializeConstructed = false);
+                        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /** Virtual destructor */
     virtual ~AbstractCardiacCell();
@@ -167,9 +161,9 @@ public:
     /**
      * Set the intracellular stimulus.
      * Shorthand for SetIntracellularStimulusFunction.
-     * @param stimulus  new stimulus function
+     * @param pStimulus  new stimulus function
      */
-    void SetStimulusFunction(AbstractStimulusFunction *stimulus);
+    void SetStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus);
 
     /**
      * Get the value of the intracellular stimulus.
@@ -179,9 +173,9 @@ public:
     double GetStimulus(double time);
 
     /** Set the intracellular stimulus.
-     * @param stimulus  new stimulus function
+     * @param pStimulus  new stimulus function
      */
-    void SetIntracellularStimulusFunction(AbstractStimulusFunction *stimulus);
+    void SetIntracellularStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus);
 
     /**
      * Get the value of the intracellular stimulus.
@@ -310,7 +304,7 @@ public:
      *
      * @return The Intracellular stimulus pointer
      */
-    const AbstractStimulusFunction* GetStimulus() const;
+    const boost::shared_ptr<AbstractStimulusFunction> GetStimulusFunction() const;
 
     /**
      * For boost archiving use only
@@ -318,7 +312,7 @@ public:
      *
      * @return pointer to the ODE solver being used
      */
-    const AbstractIvpOdeSolver* GetSolver() const;
+    const boost::shared_ptr<AbstractIvpOdeSolver> GetSolver() const;
 
 };
 

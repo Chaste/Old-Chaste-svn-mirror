@@ -27,8 +27,8 @@ private:
     double mScaleFactorIto;
     double mScaleFactorGkr;
 public:
-    FaberRudy2000Version3(AbstractIvpOdeSolver *pSolver,
-                          AbstractStimulusFunction *pIntracellularStimulus)
+    FaberRudy2000Version3(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                          boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractCardiacCell(pSolver, 25, 0, pIntracellularStimulus)
     {
         mpSystemInfo = OdeSystemInformation<FaberRudy2000Version3>::Instance();

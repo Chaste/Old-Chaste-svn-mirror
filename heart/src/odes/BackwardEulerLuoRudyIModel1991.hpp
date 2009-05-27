@@ -63,11 +63,11 @@ private:
     
 public:
     // Constructor
-    BackwardEulerLuoRudyIModel1991(AbstractStimulusFunction *pIntracellularStimulus);
+    BackwardEulerLuoRudyIModel1991(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
                                    
     // Constructor with the same signature as the forward cell models
-    BackwardEulerLuoRudyIModel1991(AbstractIvpOdeSolver *pSolver,
-                                   AbstractStimulusFunction *pIntracellularStimulus);
+    BackwardEulerLuoRudyIModel1991(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
+                                   boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
                                    
     // Destructor
     ~BackwardEulerLuoRudyIModel1991();

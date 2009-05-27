@@ -80,9 +80,10 @@ const double DiFrancescoNoble1985OdeSystem::Vecs = 0.05;
 
 
 /*Constructor*/
-DiFrancescoNoble1985OdeSystem::DiFrancescoNoble1985OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                           AbstractStimulusFunction *pIntracellularStimulus)
-        : AbstractCardiacCell(pSolver, 16, 0, pIntracellularStimulus)
+DiFrancescoNoble1985OdeSystem::DiFrancescoNoble1985OdeSystem(
+        boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
+    : AbstractCardiacCell(pSolver, 16, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<DiFrancescoNoble1985OdeSystem>::Instance();
 

@@ -48,23 +48,19 @@ class DelayedTotalStimCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
     // define a new stimulus
-    SimpleStimulus* mpIntraStimulus;
+    boost::shared_ptr<SimpleStimulus> mpIntraStimulus;
 
 public:
-    DelayedTotalStimCellFactory(double mag) : AbstractCardiacCellFactory<1>()
+    DelayedTotalStimCellFactory(double mag)
+        : AbstractCardiacCellFactory<1>(),
+          mpIntraStimulus(new SimpleStimulus(  mag, 0.1, 0.1))
     {
-        mpIntraStimulus = new SimpleStimulus(  mag, 0.1, 0.1);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         return new LuoRudyIModel1991OdeSystem(mpSolver, mpIntraStimulus);
     }
-
-    ~DelayedTotalStimCellFactory(void)
-    {
-        delete mpIntraStimulus;
-     }
 };
 
 class TestBidomainProblem : public CxxTest::TestSuite

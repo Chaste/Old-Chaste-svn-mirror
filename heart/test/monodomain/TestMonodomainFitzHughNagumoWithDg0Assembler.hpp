@@ -47,11 +47,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class FhnEdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
-    SimpleStimulus *mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
 public:
-    FhnEdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>()
+    FhnEdgeStimulusCellFactory()
+        : AbstractCardiacCellFactory<2>(),
+          mpStimulus(new SimpleStimulus(-10.0, 0.5))
     {
-        mpStimulus = new SimpleStimulus(-10.0, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -64,11 +65,6 @@ public:
         {
             return new FitzHughNagumo1961OdeSystem(mpSolver, mpZeroStimulus);
         }
-    }
-
-    ~FhnEdgeStimulusCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

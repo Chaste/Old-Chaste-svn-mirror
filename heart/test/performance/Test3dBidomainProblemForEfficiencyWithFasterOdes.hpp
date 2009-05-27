@@ -47,16 +47,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
-    SimpleStimulus *mpStimulus;
-    RegularStimulus *mpRegStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
+    boost::shared_ptr<RegularStimulus> mpRegStimulus;
 
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.01 as backward Euler should be stable
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>()
+    BidomainFaceStimulusCellFactory() 
+        : AbstractCardiacCellFactory<3>(),
+          mpStimulus(new SimpleStimulus(-900.0*1000, 0.5)),
+          mpRegStimulus(new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0))
     {
-        mpStimulus = new SimpleStimulus(-900.0*1000, 0.5);
-        mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0);//Same as above, but every 100ms
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -70,12 +71,6 @@ public:
         {
             return new BackwardEulerLuoRudyIModel1991(mpZeroStimulus);
         }
-    }
-
-    ~BidomainFaceStimulusCellFactory(void)
-    {
-        delete mpStimulus;
-        delete mpRegStimulus;
     }
 };
 

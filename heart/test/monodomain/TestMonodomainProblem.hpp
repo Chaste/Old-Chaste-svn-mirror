@@ -52,14 +52,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
-    SimpleStimulus *mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
     unsigned mFoundMiddlePoint;
 
 
 public:
-    PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>(), mFoundMiddlePoint(0)
+    PointStimulus2dCellFactory()
+        : AbstractCardiacCellFactory<2>(),
+          mpStimulus(new SimpleStimulus(-6000.0, 0.5)),
+          mFoundMiddlePoint(0)
     {
-        mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -82,11 +84,6 @@ public:
         unsigned found_middle_point_reduced;
         MPI_Allreduce(&mFoundMiddlePoint, &found_middle_point_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         assert(found_middle_point_reduced == 1); // Only 1 cell should be stimulated
-    }
-
-    ~PointStimulus2dCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

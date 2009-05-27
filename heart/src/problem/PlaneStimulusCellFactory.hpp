@@ -38,13 +38,13 @@ class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<ELEM_DIM,SPAC
 {
 private:
     // define a new stimulus
-    SimpleStimulus* mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
-    PlaneStimulusCellFactory(double stimulusMagnitude=-600) : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>()
+    PlaneStimulusCellFactory(double stimulusMagnitude=-600)
+        : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>(),
+          mpStimulus(new SimpleStimulus(stimulusMagnitude, 0.5))
     {
-        // set the new stimulus
-        mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
     }
 
@@ -58,11 +58,6 @@ public:
         {
             return new CELL(this->mpSolver, this->mpZeroStimulus);
         }
-    }
-
-    ~PlaneStimulusCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

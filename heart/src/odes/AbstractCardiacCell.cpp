@@ -30,33 +30,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <iostream>
 
-AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
+AbstractCardiacCell::AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
                                          unsigned numberOfStateVariables,
                                          unsigned voltageIndex,
-                                         AbstractStimulusFunction* intracellularStimulus,
-                                         bool serializeConstructed)
+                                         boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
     : AbstractOdeSystem(numberOfStateVariables),
       mVoltageIndex(voltageIndex),
-      mSerializeConstructed(serializeConstructed)
+      mpOdeSolver(pOdeSolver),
+      mDt(HeartConfig::Instance()->GetOdeTimeStep()),
+      mpIntracellularStimulus(pIntracellularStimulus),
+      mSetVoltageDerivativeToZero(false)
 {
-    mpOdeSolver = pOdeSolver;
-
     // The second clause is to allow for FakeBathCell.
     assert(voltageIndex < mNumberOfStateVariables || mNumberOfStateVariables == 0);
-    mDt = HeartConfig::Instance()->GetOdeTimeStep();
-
-    mpIntracellularStimulus = intracellularStimulus;
-
-    mSetVoltageDerivativeToZero = false;
 }
 
 AbstractCardiacCell::~AbstractCardiacCell()
 {
-    if (mSerializeConstructed)
-    {
-        delete mpIntracellularStimulus;
-        delete mpOdeSolver;
-    }
 }
 
 void AbstractCardiacCell::Init()
@@ -99,9 +89,9 @@ unsigned AbstractCardiacCell::GetVoltageIndex()
     return mVoltageIndex;
 }
 
-void AbstractCardiacCell::SetStimulusFunction(AbstractStimulusFunction *stimulus)
+void AbstractCardiacCell::SetStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
 {
-    SetIntracellularStimulusFunction(stimulus);
+    SetIntracellularStimulusFunction(pStimulus);
 }
 
 double AbstractCardiacCell::GetStimulus(double time)
@@ -109,9 +99,9 @@ double AbstractCardiacCell::GetStimulus(double time)
     return GetIntracellularStimulus(time);
 }
 
-void AbstractCardiacCell::SetIntracellularStimulusFunction(AbstractStimulusFunction *stimulus)
+void AbstractCardiacCell::SetIntracellularStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
 {
-    mpIntracellularStimulus = stimulus;
+    mpIntracellularStimulus = pStimulus;
 }
 
 double AbstractCardiacCell::GetIntracellularStimulus(double time)
@@ -161,12 +151,12 @@ void AbstractCardiacCell::AdjustOutOfRangeSlowValues(std::vector<double>& rSlowV
 
 // Methods needed by boost serialization.
 
-const AbstractStimulusFunction* AbstractCardiacCell::GetStimulus() const
+const boost::shared_ptr<AbstractStimulusFunction> AbstractCardiacCell::GetStimulusFunction() const
 {
     return mpIntracellularStimulus;
 }
 
-const AbstractIvpOdeSolver* AbstractCardiacCell::GetSolver() const
+const boost::shared_ptr<AbstractIvpOdeSolver> AbstractCardiacCell::GetSolver() const
 {
     return mpOdeSolver;
 }

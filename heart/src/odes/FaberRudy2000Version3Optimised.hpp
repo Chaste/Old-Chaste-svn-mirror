@@ -561,8 +561,8 @@ FaberRudy2000Version3OptimisedLookupTables* FaberRudy2000Version3OptimisedLookup
 class FaberRudy2000Version3Optimised : public AbstractCardiacCell
 {
 public:
-    FaberRudy2000Version3Optimised(AbstractIvpOdeSolver *pSolver,
-                                     AbstractStimulusFunction *pIntracellularStimulus)
+    FaberRudy2000Version3Optimised(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                                   boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractCardiacCell(pSolver, 25, 0, pIntracellularStimulus)
     {
         // Time units: second

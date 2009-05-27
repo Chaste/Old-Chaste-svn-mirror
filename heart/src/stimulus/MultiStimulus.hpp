@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 #define BOOST_NO_INTRINSIC_INT64_T /// \todo remove this when boost bug fixed - see ticket:1024.
 #include <boost/serialization/vector.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
@@ -70,7 +72,7 @@ private:
     }
 
     /** Vector of stimuli. */
-    std::vector<AbstractStimulusFunction*> mStimuli;
+    std::vector<boost::shared_ptr<AbstractStimulusFunction> > mStimuli;
 
 public:
     /**
@@ -78,7 +80,7 @@ public:
      *
      * @param pStimulus pointer to the stimulus to be added.
      */
-     void AddStimulus(AbstractStimulusFunction* pStimulus);
+     void AddStimulus(boost::shared_ptr<AbstractStimulusFunction> pStimulus);
 
     /**
      * Get the magnitude of the multiple stimuli at time 'time'

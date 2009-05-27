@@ -90,22 +90,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
-/* Declare pointer to an {{{SimpleStimulus}}} for the cell which is stimulated.
+/* Declare (smart) pointer to a {{{SimpleStimulus}}} for the cell which is stimulated.
  * Note that {{{AbstractCardiacCellFactory}}} also has as protected members: {{{mpZeroStimulus}}}
- * of type {{{ZeroStimulus}}}; {{{mpMesh}}}, a pointer to the mesh used (the problem
+ * of type {{{boost::shared_ptr<ZeroStimulus>}}}; {{{mpMesh}}}, a pointer to the mesh used (the problem
  * class will set this before it calls {{{CreateCardiacCellForTissueNode}}}, so it can be used
- * in that method); {{{mTimestep}}}, a double (see below); and {{{mpSolver}}} a forward
- * euler ode solver (see below). */
+ * in that method); {{{mTimestep}}}, a double (see below); and {{{boost::shared_ptr<mpSolver>}}}
+ * a forward euler ode solver (see below). */
 private:
-    SimpleStimulus *mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
     /* Our contructor takes in nothing. It calls the constructor of {{{AbstractCardiacCellFactory}}}
      * and we also initialise the stimulus to have magnitude 6000 (uA/cm^3) and duration 0.5 (ms).
      */
-    PointStimulus2dCellFactory() : AbstractCardiacCellFactory<2>()
+    PointStimulus2dCellFactory()
+        : AbstractCardiacCellFactory<2>(),
+          mpStimulus(new SimpleStimulus(-6000.0, 0.5))
     {
-        mpStimulus = new SimpleStimulus(-6000.0, 0.5);
     }
 
     /* Now we implement the pure method which needs to be implemented. We return
@@ -133,12 +134,7 @@ public:
         }
     }
 
-    /* The destructor just deletes the memory for the stimulus. Note the the problem
-     * class deals with deleting the cells. */
-    ~PointStimulus2dCellFactory()
-    {
-        delete mpStimulus;
-    }
+    /* We have no need for a destructor, since the problem class deals with deleting the cells. */
 };
 
 /*

@@ -80,12 +80,12 @@ public:
         double magnitude =  -25.5;
         double duration  =   2.0;  // ms
         double when      =   0.0;  // ms
-        SimpleStimulus stimulus(magnitude, duration, when);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         double end_time = 1000.0;
 
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem electrophys_model(&solver, &stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_stimulus);
         NhsCellularMechanicsOdeSystem cellmech_model;
 
         // find out if electrophys model has CaTrop
@@ -125,7 +125,7 @@ public:
             cellmech_model.SetIntracellularCalciumConcentration(Ca_I);
 
             // solve the cellular mechanics model
-            solver.SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
+            p_solver->SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
 
             // IF electrophy model has CaTrop, get CaTrop from
             // cellular mechanics models and send to electrophy model
@@ -180,13 +180,13 @@ public:
      */
     void TestSingleCellWithSpecifiedLambda() throw(Exception)
     {
-        ZeroStimulus zero_stimulus;
+        boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
         double end_time = 100.0;
 
         double min_lam = 0.85;
 
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem electrophys_model(&solver, &zero_stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_zero_stimulus);
         NhsCellularMechanicsOdeSystem cellmech_model;
 
         // find out if electrophys model has CaTrop
@@ -230,7 +230,7 @@ public:
 
 
             // solve the cellular mechanics model
-            solver.SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
+            p_solver->SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
 
             // IF electrophy model has CaTrop, get CaTrop from
             // cellular mechanics models and send to electrophy model

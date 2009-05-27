@@ -46,11 +46,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BidomainPointStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
-    SimpleStimulus *mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
 public:
-    BidomainPointStimulusCellFactory() : AbstractCardiacCellFactory<3>()
+    BidomainPointStimulusCellFactory()
+        : AbstractCardiacCellFactory<3>(),
+          mpStimulus(new SimpleStimulus(-1000.0*1000, 1))
     {
-        mpStimulus = new SimpleStimulus(-1000.0*1000, 1);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -63,11 +64,6 @@ public:
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
-    }
-
-    ~BidomainPointStimulusCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

@@ -85,9 +85,8 @@ private:
 
 public:
     // Constructor
-    LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                               AbstractStimulusFunction *pIntracellularStimulus,
-                               bool serializeConstructed = false);
+    LuoRudyIModel1991OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                               boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     // Destructor
     ~LuoRudyIModel1991OdeSystem();
@@ -114,8 +113,8 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const LuoRudyIModel1991OdeSystem * t, const unsigned int file_version)
 {
-    const AbstractIvpOdeSolver* const p_solver = t->GetSolver();
-    const AbstractStimulusFunction* const p_stimulus = t->GetStimulus();
+    const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
+    const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
     ar << p_solver;
     ar << p_stimulus;
 }
@@ -131,11 +130,11 @@ inline void load_construct_data(
     Archive & ar, LuoRudyIModel1991OdeSystem * t, const unsigned int file_version)
 {
 
-    AbstractIvpOdeSolver* p_solver;
-    AbstractStimulusFunction* p_stimulus;
+    boost::shared_ptr<AbstractIvpOdeSolver> p_solver;
+    boost::shared_ptr<AbstractStimulusFunction> p_stimulus;
     ar >> p_solver;
     ar >> p_stimulus;
-     ::new(t)LuoRudyIModel1991OdeSystem(p_solver, p_stimulus, true);
+    ::new(t)LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
 }
 }
 } // namespace ...

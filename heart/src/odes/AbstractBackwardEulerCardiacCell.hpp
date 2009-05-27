@@ -60,7 +60,7 @@ public:
      * @param numberOfStateVariables  the size of the ODE system
      * @param voltageIndex  the index of the variable representing the transmembrane
      *     potential within the state variable vector
-     * @param intracellularStimulus  the intracellular stimulus function
+     * @param pIntracellularStimulus  the intracellular stimulus function
      *
      * Some notes for future reference:
      *  \li We may want to remove the timestep from this class, and instead pass it to
@@ -72,7 +72,7 @@ public:
     AbstractBackwardEulerCardiacCell(
         unsigned numberOfStateVariables,
         unsigned voltageIndex,
-        AbstractStimulusFunction* intracellularStimulus);
+        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /** Virtual destructor */
     virtual ~AbstractBackwardEulerCardiacCell();
@@ -164,11 +164,11 @@ template <unsigned SIZE>
 AbstractBackwardEulerCardiacCell<SIZE>::AbstractBackwardEulerCardiacCell(
     unsigned numberOfStateVariables,
     unsigned voltageIndex,
-    AbstractStimulusFunction* intracellularStimulus)
-        : AbstractCardiacCell(NULL,
+    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
+        : AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver>(),
                               numberOfStateVariables,
                               voltageIndex,
-                              intracellularStimulus)
+                              pIntracellularStimulus)
 {}
 
 template <unsigned SIZE>

@@ -60,19 +60,18 @@ unsigned AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::GetNumberOfCells()
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::AbstractCardiacCellFactory(AbstractIvpOdeSolver* pSolver)
+AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
+        boost::shared_ptr<AbstractIvpOdeSolver> pSolver)
+    : mpMesh(NULL),
+      mpZeroStimulus(new ZeroStimulus),
+      mpSolver(pSolver),
+      mpFakeCell(new FakeBathCell(mpSolver, mpZeroStimulus))
 {
-    mpMesh = NULL;
-    mpSolver = pSolver;
-    mpZeroStimulus = new ZeroStimulus;
-    mpFakeCell = new FakeBathCell(mpSolver, mpZeroStimulus);
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
 AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::~AbstractCardiacCellFactory()
 {
-    delete mpSolver;
-    delete mpZeroStimulus;
     delete mpFakeCell;
 }
 

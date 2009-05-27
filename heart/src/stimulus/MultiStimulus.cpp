@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MultiStimulus.hpp"
 
-void MultiStimulus::AddStimulus(AbstractStimulusFunction* pStimulus)
+void MultiStimulus::AddStimulus(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
 {
     mStimuli.push_back(pStimulus);
 }
@@ -48,9 +48,5 @@ double MultiStimulus::GetStimulus(double time)
 
 void MultiStimulus::Clear()
 {
-     for (unsigned stimulus_index = 0; stimulus_index < mStimuli.size(); ++stimulus_index)
-     {
-        delete mStimuli[stimulus_index];
-     }
      mStimuli.clear();
 }

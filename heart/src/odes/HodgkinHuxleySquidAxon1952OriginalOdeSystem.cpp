@@ -46,8 +46,8 @@ const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::sodium_channel_g_Na = 
  * Constructor
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(
-    AbstractIvpOdeSolver *pOdeSolver,
-    AbstractStimulusFunction *pIntracellularStimulus)
+    boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
+    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractCardiacCell(pOdeSolver, 4, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<HodgkinHuxleySquidAxon1952OriginalOdeSystem>::Instance();

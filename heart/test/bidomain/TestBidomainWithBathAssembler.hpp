@@ -56,15 +56,15 @@ class BathCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
     // define a new stimulus
-    SimpleStimulus* mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
     c_vector<double,DIM> mStimulatedPoint;
 
 public:
-    BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint) : AbstractCardiacCellFactory<DIM>()
+    BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint)
+        : AbstractCardiacCellFactory<DIM>(),
+          mpStimulus(new SimpleStimulus(stimulusMagnitude, 0.5)),
+          mStimulatedPoint(stimulatedPoint)
     {
-        // set the new stimulus
-        mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
-        mStimulatedPoint = stimulatedPoint;
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -101,10 +101,6 @@ public:
         }
     }
 
-    ~BathCellFactory(void)
-    {
-        delete mpStimulus;
-    }
 };
 
 

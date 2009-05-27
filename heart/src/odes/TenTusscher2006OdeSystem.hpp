@@ -180,8 +180,8 @@ public:
     /**
      * Constructor
      */
-    TenTusscher2006OdeSystem(AbstractIvpOdeSolver *pSolver,
-                               AbstractStimulusFunction *pIntracellularStimulus);
+    TenTusscher2006OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                             boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /**
      * Destructor

@@ -36,11 +36,12 @@ template <class CELL, unsigned DIM>
 class GeneralPlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
-    // define a new stimulus
-    SimpleStimulus* mpStimulus;
+    /** The stimulus that gets applied. */
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
-    GeneralPlaneStimulusCellFactory(unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false) : AbstractCardiacCellFactory<DIM>()
+    GeneralPlaneStimulusCellFactory(unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false)
+        : AbstractCardiacCellFactory<DIM>()
     {
         ///\todo The useMeshWidth is temporary, while we are sorting out
         ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
@@ -49,7 +50,7 @@ public:
         if (useMeshWidthAsMag)
         {
             #define COVERAGE_IGNORE
-            mpStimulus = new SimpleStimulus(meshWidth, 0.5);
+            mpStimulus.reset(new SimpleStimulus(meshWidth, 0.5));
             #undef COVERAGE_IGNORE
         }
         else
@@ -80,7 +81,7 @@ public:
                 }
             }
             //std::cout<<"Mag is "<<stimulus_magnitude<<"\n";
-            mpStimulus = new SimpleStimulus(stimulus_magnitude, 0.5);
+            mpStimulus.reset(new SimpleStimulus(stimulus_magnitude, 0.5));
         }
     }
 
@@ -95,11 +96,6 @@ public:
         {
             return new CELL(this->mpSolver, this->mpZeroStimulus);
         }
-    }
-
-    ~GeneralPlaneStimulusCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

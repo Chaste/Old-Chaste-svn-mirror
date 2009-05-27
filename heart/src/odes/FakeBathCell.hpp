@@ -49,8 +49,8 @@ public:
      * @param pSolver  unused
      * @param pIntracellularStimulus  unused
      */
-    FakeBathCell(AbstractIvpOdeSolver *pSolver,
-                 AbstractStimulusFunction *pIntracellularStimulus);
+    FakeBathCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                 boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /**
      * Destructor; does nothing.

@@ -56,7 +56,7 @@ const double BackwardEulerLuoRudyIModel1991::time_dependent_potassium_current_PR
  * Constructor
  */
 BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
-    AbstractStimulusFunction *pIntracellularStimulus)
+    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractBackwardEulerCardiacCell<1>(8, 4, pIntracellularStimulus)
 {
     Init();
@@ -67,8 +67,8 @@ BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
  * Constructor with the same signature as the forward cell models
  */
 BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
-   AbstractIvpOdeSolver *pSolver,
-   AbstractStimulusFunction *pIntracellularStimulus)
+    boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
+    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractBackwardEulerCardiacCell<1>(8, 4, pIntracellularStimulus)
 {
     Init();

@@ -45,19 +45,19 @@ class HeterogeneousCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
     // define a new stimulus
-    SimpleStimulus* mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
-    HeterogeneousCellFactory() : AbstractCardiacCellFactory<1>()//Ode timestep
+    HeterogeneousCellFactory()
+        : AbstractCardiacCellFactory<1>(),
+          mpStimulus(new SimpleStimulus(-600, 0.5))
     {
-        // set the new stimulus
-        mpStimulus = new SimpleStimulus(-600, 0.5);
     }
 
-    HeterogeneousCellFactory(double stimulusMagnitude) : AbstractCardiacCellFactory<1>()
+    HeterogeneousCellFactory(double stimulusMagnitude)
+        : AbstractCardiacCellFactory<1>(),
+          mpStimulus(new SimpleStimulus(stimulusMagnitude, 0.5))
     {
-        // set the new stimulus
-        mpStimulus = new SimpleStimulus(stimulusMagnitude, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -93,11 +93,6 @@ public:
         }
 
         return cell;
-    }
-
-    ~HeterogeneousCellFactory(void)
-    {
-        delete mpStimulus;
     }
 };
 

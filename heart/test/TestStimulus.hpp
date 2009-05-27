@@ -207,19 +207,17 @@ public:
     void TestSumStimulus()
     {
         MultiStimulus multi_stim;
-        SimpleStimulus r1(2,1,0);
-        SimpleStimulus r2(3,1,3);
-//        SumStimulus s(&r1,&r2);
+        boost::shared_ptr<SimpleStimulus> p1(new SimpleStimulus(2,1,0));
+        boost::shared_ptr<SimpleStimulus> p2(new SimpleStimulus(3,1,3));
 
-        multi_stim.AddStimulus(&r1);
-        multi_stim.AddStimulus(&r2);
+        multi_stim.AddStimulus(p1);
+        multi_stim.AddStimulus(p2);
 
         TimeStepper t(0,10,1);
         while (!t.IsTimeAtEnd())
         {
             TS_ASSERT_EQUALS( multi_stim.GetStimulus(t.GetTime()),
-                              r1.GetStimulus(t.GetTime())+
-                              r2.GetStimulus(t.GetTime()) );
+                              p1->GetStimulus(t.GetTime()) + p2->GetStimulus(t.GetTime()) );
             t.AdvanceOneTimeStep();
         }
     }
@@ -237,15 +235,15 @@ public:
         // No stimulus after creation.
         TS_ASSERT_EQUALS( multi_stim.GetStimulus(1.0), 0.0);
 
-        SimpleStimulus init_stim_a(2,1,0);
-        SimpleStimulus init_stim_b(3,1,30);
+        boost::shared_ptr<SimpleStimulus> p_init_stim_a(new SimpleStimulus(2,1,0));
+        boost::shared_ptr<SimpleStimulus> p_init_stim_b(new SimpleStimulus(3,1,30));
         // RegularStimulus result at a boundary point isn't the same for Default and IntelProduction build
         // (in fact it gives different answers to "fmod" within the IntelProduction test)
-        RegularStimulus regular_stim(2.0, 1.0, 1.0/0.15, 1);
+        boost::shared_ptr<RegularStimulus> p_regular_stim(new RegularStimulus(2.0, 1.0, 1.0/0.15, 1));
 
-        multi_stim.AddStimulus(&init_stim_a);
-        multi_stim.AddStimulus(&init_stim_b);
-        multi_stim.AddStimulus(&regular_stim);
+        multi_stim.AddStimulus(p_init_stim_a);
+        multi_stim.AddStimulus(p_init_stim_b);
+        multi_stim.AddStimulus(p_regular_stim);
 
         TimeStepper t(0,100,1);
         while (!t.IsTimeAtEnd())
@@ -253,9 +251,9 @@ public:
             double time=t.GetTime();
             // Stimulus equals to the sum of the individual stimuli
             TS_ASSERT_EQUALS( multi_stim.GetStimulus(time),
-                              init_stim_a.GetStimulus(time)+
-                              init_stim_b.GetStimulus(time)+
-                              regular_stim.GetStimulus(time)
+                              p_init_stim_a->GetStimulus(time)+
+                              p_init_stim_b->GetStimulus(time)+
+                              p_regular_stim->GetStimulus(time)
                             );
             t.AdvanceOneTimeStep();
         }
@@ -266,13 +264,13 @@ public:
     {
         MultiStimulus multi_stim;
 
-        RegularStimulus r1(1,10,20,100,200);
+        boost::shared_ptr<RegularStimulus> pr1(new RegularStimulus(1,10,20,100,200));
         // First stimulus applies pulses for 10ms every 20ms between t=100 and t=200.
-        RegularStimulus r2(2,20,40,300,400);
+        boost::shared_ptr<RegularStimulus> pr2(new RegularStimulus(2,20,40,300,400));
         // Second stimulus applies pulses for 20ms every 40ms between t=300 and t=400.
 
-        multi_stim.AddStimulus(&r1);
-        multi_stim.AddStimulus(&r2);
+        multi_stim.AddStimulus(pr1);
+        multi_stim.AddStimulus(pr2);
 
         // Test on 0.5s so we avoid worrying about <= or < and stuff!
         for (double time=0.5; time<500.0; time=time+1)
@@ -335,10 +333,10 @@ public:
                                          when);
                                          
             MultiStimulus* p_multiple_stimulus = new MultiStimulus;
-            SimpleStimulus r1(2,1,0);
-            SimpleStimulus r2(3,1,3);
-            p_multiple_stimulus->AddStimulus(&r1);
-            p_multiple_stimulus->AddStimulus(&r2);  
+            boost::shared_ptr<SimpleStimulus> p1(new SimpleStimulus(2,1,0));
+            boost::shared_ptr<SimpleStimulus> p2(new SimpleStimulus(3,1,3));
+            p_multiple_stimulus->AddStimulus(p1);
+            p_multiple_stimulus->AddStimulus(p2);  
             
             AbstractStimulusFunction* const p_multiple_stimulus2 = p_multiple_stimulus;   // make const now we've added stimuli 
             

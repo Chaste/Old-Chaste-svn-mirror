@@ -25,8 +25,8 @@
 class FoxModel2002Modified : public AbstractCardiacCell
 {
 public:
-    FoxModel2002Modified(AbstractIvpOdeSolver *pSolver,
-                       AbstractStimulusFunction *pIntracellularStimulus)
+    FoxModel2002Modified(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                         boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractCardiacCell(pSolver, 13, 0, pIntracellularStimulus)
     {
         mpSystemInfo = OdeSystemInformation<FoxModel2002Modified>::Instance();

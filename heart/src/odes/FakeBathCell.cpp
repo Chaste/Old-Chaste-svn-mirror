@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FakeBathCell.hpp"
 #include "OdeSystemInformation.hpp"
 
-FakeBathCell::FakeBathCell(AbstractIvpOdeSolver *pSolver,
-                           AbstractStimulusFunction *pIntracellularStimulus)
+FakeBathCell::FakeBathCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                           boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
     : AbstractCardiacCell(pSolver, 0, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<FakeBathCell>::Instance();

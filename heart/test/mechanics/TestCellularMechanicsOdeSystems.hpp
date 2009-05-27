@@ -52,16 +52,16 @@ public :
         TS_ASSERT_DELTA(nhs_system.CalculateT0(0), 0, 1e-12);
         TS_ASSERT_DELTA(nhs_system.CalculateT0(1), 58.0648, 1e-3);
 
-        EulerIvpOdeSolver euler_solver;
+        boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver);
 
         // the following is just to get a realistic Ca_I value
-        ZeroStimulus zero_stimulus;
-        LuoRudyIModel1991OdeSystem lr91(&euler_solver, &zero_stimulus);
+        boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
+        LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_zero_stimulus);
         unsigned Ca_i_index = lr91.GetStateVariableNumberByName("CaI");
         double Ca_I = lr91.rGetStateVariables()[Ca_i_index];
 
         // lambda1=1, dlamdt = 0, so there should be no active tension
-        euler_solver.SolveAndUpdateStateVariable(&nhs_system, 0, 1, 0.01);
+        p_euler_solver->SolveAndUpdateStateVariable(&nhs_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(nhs_system.GetActiveTension(), 0.0, 1e-12);
 
         // the following test doesn't make sense, as lambda=const, but dlam_dt > 0
@@ -74,7 +74,7 @@ public :
         nhs_system.SetLambdaAndDerivative(0.5, 0.1);
         TS_ASSERT_DELTA(nhs_system.GetLambda(), 0.5, 1e-12);
         nhs_system.SetIntracellularCalciumConcentration(Ca_I);
-        OdeSolution solution = euler_solver.Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
+        OdeSolution solution = p_euler_solver->Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
 
         unsigned num_timesteps = solution.GetNumberOfTimeSteps();
         TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][0],   0.0056, 1e-2 );

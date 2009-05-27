@@ -61,15 +61,15 @@ public:
         double duration  = 1.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
-        RegularStimulus stimulus(magnitude, duration, period, start);
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude, duration, period, start));
 
         double end_time = 1000.0; //One second in milliseconds
 
 
         HeartConfig::Instance()->SetOdeTimeStep(0.002); // 0.005 leads to NaNs.
 
-        EulerIvpOdeSolver solver;
-        FoxModel2002Modified fox_ode_system(&solver, &stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        FoxModel2002Modified fox_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -84,7 +84,7 @@ public:
 
         // Solve using Backward Euler
         HeartConfig::Instance()->SetOdeTimeStep(0.01);
-        BackwardEulerFoxModel2002Modified backward_system(&stimulus);
+        BackwardEulerFoxModel2002Modified backward_system(p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&backward_system,
                                    end_time,

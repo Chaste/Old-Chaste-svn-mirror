@@ -88,16 +88,17 @@ public:
         double magnitude_stimulus = -3;  // uA/cm2
         double duration_stimulus = 3;  // ms
         double start_stimulus = 10.0;   // ms
-        SimpleStimulus stimulus(magnitude_stimulus,
-                                 duration_stimulus,
-                                 start_stimulus);
-        EulerIvpOdeSolver solver;
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(
+                magnitude_stimulus,
+                duration_stimulus,
+                start_stimulus));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         double time_step = 0.01;
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
         //Check Standard
-        CML_noble_varghese_kohl_noble_1998_basic n98_ode_system(&solver, &stimulus);
+        CML_noble_varghese_kohl_noble_1998_basic n98_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -126,16 +127,16 @@ public:
         double magnitude_stimulus = -3;  // uA/cm2
         double duration_stimulus = 3;  // ms
         double start_stimulus = 10.0;   // ms
-        SimpleStimulus stimulus(magnitude_stimulus,
-                                 duration_stimulus,
-                                 start_stimulus);
-        EulerIvpOdeSolver solver;
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
+                                                                        duration_stimulus,
+                                                                        start_stimulus));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         double time_step = 0.01;
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
         //Check Optimised
-        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(&solver, &stimulus);
+        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -181,11 +182,11 @@ public:
         double magnitude_stimulus = 20.0;  // uA/cm2
         double duration_stimulus = 0.5;  // ms
         double start_stimulus = 10.0;   // ms
-        SimpleStimulus stimulus(magnitude_stimulus,
-                                 duration_stimulus,
-                                 start_stimulus);
-        EulerIvpOdeSolver solver;
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, &stimulus);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
+                                                                        duration_stimulus,
+                                                                        start_stimulus));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -217,12 +218,11 @@ public:
         double magnitude_stimulus = -80.0;   // dimensionless
         double duration_stimulus = 0.5;  // ms
         double start_stimulus = 0.0;   // ms
-        SimpleStimulus stimulus(magnitude_stimulus,
-                                 duration_stimulus,
-                                 start_stimulus);
-
-        EulerIvpOdeSolver solver;
-        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, &stimulus);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
+                                                                        duration_stimulus,
+                                                                        start_stimulus));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        FitzHughNagumo1961OdeSystem fhn61_ode_system(p_solver, p_stimulus);
 
         // fhn has no [Ca_i]
         TS_ASSERT_THROWS_ANYTHING(fhn61_ode_system.GetIntracellularCalciumConcentration());
@@ -245,16 +245,15 @@ public:
         TS_ASSERT_DELTA( fhn61_ode_system.GetIIonic(), -0.0058, 1e-3);
 
         // some coverage
-        SimpleStimulus another_stimulus(-200,1.0, 0.0);
-        SimpleStimulus intra_stimulus(-100,1.0, 0.0);
-        SimpleStimulus extra_stimulus(-50, 1.0, 0.0);
-        FitzHughNagumo1961OdeSystem another_fhn61_ode_system(&solver, &stimulus);
+        boost::shared_ptr<SimpleStimulus> p_another_stimulus(new SimpleStimulus(-200,1.0, 0.0));
+        boost::shared_ptr<SimpleStimulus> p_intra_stimulus(new SimpleStimulus(-100,1.0, 0.0));
+        FitzHughNagumo1961OdeSystem another_fhn61_ode_system(p_solver, p_stimulus);
 
-        another_fhn61_ode_system.SetStimulusFunction(&another_stimulus);
+        another_fhn61_ode_system.SetStimulusFunction(p_another_stimulus);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -200, 1e-12);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetIntracellularStimulus(0.5), -200, 1e-12);
 
-        another_fhn61_ode_system.SetIntracellularStimulusFunction(&intra_stimulus);
+        another_fhn61_ode_system.SetIntracellularStimulusFunction(p_intra_stimulus);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -100, 1e-12);
         TS_ASSERT_DELTA(another_fhn61_ode_system.GetIntracellularStimulus(0.5), -100, 1e-12);
     }
@@ -268,12 +267,13 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
-        SimpleStimulus stimulus(magnitude, duration, when);
 
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        
         double end_time = 1000.0; //One second in milliseconds
 
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 4u); // For coverage
 
         // Solve and write to file
@@ -304,12 +304,15 @@ public:
         double duration  = 2.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
-        RegularStimulus stimulus(magnitude, duration, period, start);
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude, 
+                                                                          duration, 
+                                                                          period, 
+                                                                          start));
 
         double end_time = 1000.0; //One second in milliseconds
 
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
 
         // cover get intracellular calcium
         TS_ASSERT_DELTA(lr91_ode_system.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
@@ -329,14 +332,14 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0 ;  // ms
         double when = 50.0; // ms
-        SimpleStimulus stimulus(magnitude, duration, when);
 
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
         double end_time = 1000.0; //One second in milliseconds
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Solve using backward euler
-        BackwardEulerLuoRudyIModel1991 lr91_backward_euler(&stimulus);
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler(p_stimulus);
 
         // cover get intracellular calcium
         TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
@@ -349,8 +352,8 @@ public:
         double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 
         // Solve using forward Euler
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
@@ -366,14 +369,14 @@ public:
         // variables go out of range.
 
         // (Use alternative contructor for coverage. This is a hack -see ticket:451 )
-        EulerIvpOdeSolver* p_solver = new EulerIvpOdeSolver();
+
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.5, 0.5, 0.5);
-        BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(p_solver, &stimulus);
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(p_solver, p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler2,
                                    end_time,
                                    "Lr91BackwardEuler2");
-        delete p_solver;
+
         ck_end = clock();
         double backward2 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler2", 0.25);
@@ -384,14 +387,13 @@ public:
 
         // cover and check GetIIonic() match for normal and backward euler lr91
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
-        LuoRudyIModel1991OdeSystem lr91(&solver, &stimulus);
-        BackwardEulerLuoRudyIModel1991 backward_lr91(&stimulus);
+        LuoRudyIModel1991OdeSystem lr91(p_solver, p_stimulus);
+        BackwardEulerLuoRudyIModel1991 backward_lr91(p_stimulus);
         // calc IIonic using initial conditions
         TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-12);
 
         // cover alternative constructor
-        EulerIvpOdeSolver solver2;
-        BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(&solver2, &stimulus);
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(p_solver, p_stimulus);
     }
 
     void TestOdeSolverForFR2000WithDelayedSimpleStimulus(void)
@@ -402,14 +404,14 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0;  // ms
         double when = 10.0; // ms
-        SimpleStimulus stimulus(magnitude, duration, when);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         double end_time = 1000.0; //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.007, 0.007, 0.007);
 
-        EulerIvpOdeSolver solver;
-        FaberRudy2000Version3Optimised fr2000_ode_system_opt(&solver, &stimulus);
-        FaberRudy2000Version3 fr2000_ode_system(&solver, &stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        FaberRudy2000Version3Optimised fr2000_ode_system_opt(p_solver, p_stimulus);
+        FaberRudy2000Version3 fr2000_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -458,13 +460,13 @@ public:
         double magnitude = -25.5;
         double duration  = 2.0;  // ms
         double when = 0.0; // ms
-        SimpleStimulus stimulus(magnitude, duration, when);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         double end_time = 1000.0; //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.007, 0.007, 0.007);
 
-        EulerIvpOdeSolver solver;
-        FaberRudy2000Version3 fr2000_ode_system_endo(&solver, &stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        FaberRudy2000Version3 fr2000_ode_system_endo(p_solver, p_stimulus);
         fr2000_ode_system_endo.SetScaleFactorGks(0.462);
         fr2000_ode_system_endo.SetScaleFactorIto(0.0);
         fr2000_ode_system_endo.SetScaleFactorGkr(1.0);
@@ -476,7 +478,7 @@ public:
 
         CheckCellModelResults("FR2000Endo");
 
-        FaberRudy2000Version3 fr2000_ode_system_mid(&solver, &stimulus);
+        FaberRudy2000Version3 fr2000_ode_system_mid(p_solver, p_stimulus);
         fr2000_ode_system_mid.SetScaleFactorGks(1.154);
         fr2000_ode_system_mid.SetScaleFactorIto(0.85);
         fr2000_ode_system_mid.SetScaleFactorGkr(1.0);
@@ -489,7 +491,7 @@ public:
 
         CheckCellModelResults("FR2000Mid");
 
-        FaberRudy2000Version3 fr2000_ode_system_epi(&solver, &stimulus);
+        FaberRudy2000Version3 fr2000_ode_system_epi(p_solver, p_stimulus);
         fr2000_ode_system_epi.SetScaleFactorGks(1.154);
         fr2000_ode_system_epi.SetScaleFactorIto(1.0);
         fr2000_ode_system_epi.SetScaleFactorGkr(1.0);
@@ -513,17 +515,20 @@ public:
         double duration  = 1.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
-        RegularStimulus stimulus(magnitude, duration, period, start);
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude, 
+                                                                          duration, 
+                                                                          period, 
+                                                                          start));
 
         double end_time = 200.0;  // milliseconds
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.002, 0.002, 0.002); // 0.005 leads to NaNs.
 
-        EulerIvpOdeSolver solver;
-        FoxModel2002Modified fox_ode_system(&solver, &stimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        FoxModel2002Modified fox_ode_system(p_solver, p_stimulus);
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
-        BackwardEulerFoxModel2002Modified backward_system(&stimulus);
+        BackwardEulerFoxModel2002Modified backward_system(p_stimulus);
 
         // Mainly for coverage, and to test consistency of GetIIonic
         TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
@@ -577,19 +582,19 @@ public:
         double magnitude_stimulus = -3;  // uA/cm2
         double duration_stimulus = 3;  // ms
         double start_stimulus = 10.0;   // ms
-        SimpleStimulus stimulus(magnitude_stimulus,
-                                 duration_stimulus,
-                                 start_stimulus);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
+                                                                        duration_stimulus,
+                                                                        start_stimulus));
 
         // Just adding to check that multi-stim works properly with a cell model.
-        MultiStimulus multi_stim;
-        multi_stim.AddStimulus(&stimulus);
+        boost::shared_ptr<MultiStimulus> p_multi_stim(new MultiStimulus);
+        p_multi_stim->AddStimulus(p_stimulus);
 
         double time_step = 0.2;
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
-        BackwardEulerNobleVargheseKohlNoble1998 n98_backward_system(&multi_stim);
+        BackwardEulerNobleVargheseKohlNoble1998 n98_backward_system(p_multi_stim);
 
         // Solve and write to file
         ck_start = clock();
@@ -617,13 +622,13 @@ public:
         double magnitude = -38.0;   // pA/pF
         double duration = 1.0;  // ms
         double start = 100;   // ms
-        SimpleStimulus stimulus(magnitude,
-                                duration,
-                                start);
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude,
+                                                                        duration,
+                                                                        start));
 
-        EulerIvpOdeSolver solver; //define the solver
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.
-        TenTusscher2006OdeSystem TT_model(&solver, &stimulus);
+        TenTusscher2006OdeSystem TT_model(p_solver, p_stimulus);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&TT_model,
@@ -641,7 +646,7 @@ public:
 
         //Test the GetIIonic method against one hardcoded value for initial values of voltage
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages)
-        TenTusscher2006OdeSystem TT_model_initial(&solver, &stimulus);
+        TenTusscher2006OdeSystem TT_model_initial(p_solver, p_stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0002 , 1e-3);
 
         //now test the scale factor methods
@@ -685,15 +690,11 @@ public:
     void TestDifrancescoNoble1985(void) throw (Exception)
     {
         // Set stimulus (no stimulus in this case because this cell is self excitatory)
-        double magnitude_stimulus = 0.0;
-        RegularStimulus stimulus(magnitude_stimulus,
-                                  0.05,
-                                  500,
-                                  0.01);
+        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus);
 
-        EulerIvpOdeSolver solver; //define the solver
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.01);
-        DiFrancescoNoble1985OdeSystem purkinje_ode_system(&solver, &stimulus);
+        DiFrancescoNoble1985OdeSystem purkinje_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&purkinje_ode_system,
@@ -712,14 +713,14 @@ public:
     {
         // Set stimulus
         double magnitude_stimulus = -1800;
-        RegularStimulus stimulus(magnitude_stimulus,
-                                  0.05,
-                                  1000,
-                                  10.0);
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude_stimulus,
+                                                                          0.05,
+                                                                          1000,
+                                                                          10.0));
 
-        EulerIvpOdeSolver solver; //define the solver
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
-        Mahajan2008OdeSystem rabbit_ode_system(&solver, &stimulus);
+        Mahajan2008OdeSystem rabbit_ode_system(p_solver, p_stimulus);
 
         //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(rabbit_ode_system.GetIIonic(), 0.0027, 1e-3);
@@ -732,12 +733,12 @@ public:
         // Check against validated data
         // (the code for the mahajan model was generated from a CellML code known to be valid)
         CheckCellModelResults("Mahajan2008");
-     }
+    }
 
-     void TestScaleFactorsForMahajanModel(void) throw(Exception)
-     {
-         double end_time=300;
-         double time_step=0.01;
+    void TestScaleFactorsForMahajanModel(void) throw(Exception)
+    {
+        double end_time=300;
+        double time_step=0.01;
         double sampling_time=time_step;
 
         // Set stimulus
@@ -745,18 +746,19 @@ public:
         double duration_stimulus = 1.0;  // ms
         double start_stimulus = 10.0;   // ms
         double period=1000;//here, this is ms
-        RegularStimulus stimulus(magnitude_stimulus,
-                                  duration_stimulus,
-                                  period,
-                                  start_stimulus);
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude_stimulus,
+                                                                          duration_stimulus,
+                                                                          period,
+                                                                          start_stimulus));
 
-        EulerIvpOdeSolver forward_solver; //define the solver
-        Mahajan2008OdeSystem forward_model(&forward_solver, &stimulus);
-        BackwardEulerIvpOdeSolver backward_solver(forward_model.GetNumberOfStateVariables());
+        boost::shared_ptr<EulerIvpOdeSolver> p_forward_solver(new EulerIvpOdeSolver); //define the solver
+        Mahajan2008OdeSystem forward_model(p_forward_solver, p_stimulus);
+        boost::shared_ptr<BackwardEulerIvpOdeSolver> p_backward_solver(new BackwardEulerIvpOdeSolver(
+                                    forward_model.GetNumberOfStateVariables()));
 
-        Mahajan2008OdeSystem epicardial_model(&backward_solver, &stimulus);
-        Mahajan2008OdeSystem endocardial_model(&backward_solver, &stimulus);
-        Mahajan2008OdeSystem midmyocardial_model(&backward_solver, &stimulus);
+        Mahajan2008OdeSystem epicardial_model(p_backward_solver, p_stimulus);
+        Mahajan2008OdeSystem endocardial_model(p_backward_solver, p_stimulus);
+        Mahajan2008OdeSystem midmyocardial_model(p_backward_solver, p_stimulus);
 
         epicardial_model.SetScaleFactorGks(1.0);
         epicardial_model.SetScaleFactorIto(1.0);
@@ -781,7 +783,7 @@ public:
         // Solve and write to file
 
         OdeSolution epi_solution;
-        epi_solution = backward_solver.Solve(&epicardial_model, state_variables_epi, 0, end_time, time_step, sampling_time);
+        epi_solution = p_backward_solver->Solve(&epicardial_model, state_variables_epi, 0, end_time, time_step, sampling_time);
 
         epi_solution.WriteToFile("TestIonicModels",
                               mahajan_epi_file,
@@ -791,7 +793,7 @@ public:
                               false);/*true cleans the directory*/
 
         OdeSolution mid_solution;
-        mid_solution = backward_solver.Solve(&midmyocardial_model, state_variables_mid, 0, end_time, time_step, sampling_time);
+        mid_solution = p_backward_solver->Solve(&midmyocardial_model, state_variables_mid, 0, end_time, time_step, sampling_time);
 
         mid_solution.WriteToFile("TestIonicModels",
                               mahajan_mid_file,
@@ -801,7 +803,7 @@ public:
                               false);/*true cleans the directory*/
 
         OdeSolution endo_solution;
-        endo_solution = backward_solver.Solve(&endocardial_model, state_variables_endo, 0, end_time, time_step, sampling_time);
+        endo_solution = p_backward_solver->Solve(&endocardial_model, state_variables_endo, 0, end_time, time_step, sampling_time);
 
         endo_solution.WriteToFile("TestIonicModels",
                               mahajan_endo_file,
@@ -855,8 +857,8 @@ public:
 //
 //        // Solve forward
 //        HeartConfig::Instance()->SetOdeTimeStep(0.0005);
-//        EulerIvpOdeSolver solver;
-//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(&solver, &stimulus);
+//        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(p_solver, p_stimulus);
 //
 //        std::vector<double> dY(22);
 //
@@ -878,7 +880,7 @@ public:
 //
 //        // Solve backward
 //        HeartConfig::Instance()->SetOdeTimeStep(0.1);
-//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut_be n98_be_ode_system(&stimulus);
+//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut_be n98_be_ode_system(p_stimulus);
 //
 //        ck_start = clock();
 //        RunOdeSolverWithIonicModel(&n98_be_ode_system,
@@ -912,16 +914,16 @@ public:
             double magnitude_stimulus = -3;  // uA/cm2
             double duration_stimulus = 3;  // ms
             double start_stimulus = 10.0;   // ms
-            SimpleStimulus stimulus(magnitude_stimulus,
-                                     duration_stimulus,
-                                     start_stimulus);
-            EulerIvpOdeSolver solver;
+            boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
+                                                                            duration_stimulus,
+                                                                            start_stimulus));
+            boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
             double time_step = 0.01;
 
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
             //Check Standard
-            AbstractCardiacCell* const p_luo_rudy_cell = new LuoRudyIModel1991OdeSystem(&solver, &stimulus);
+            AbstractCardiacCell* const p_luo_rudy_cell = new LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
 
             RunOdeSolverWithIonicModel(p_luo_rudy_cell,
                                        100.0,
@@ -964,9 +966,9 @@ private:
         double end_time = 10;        // ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01/ratio, 0.01, 0.01);
 
-        SimpleStimulus zero_stimulus(0,0,0);
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &zero_stimulus);
+        boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_zero_stimulus);
         double time=0.0;
         double start_voltage=-83.853;
         double end_voltage=-100;

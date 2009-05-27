@@ -46,8 +46,8 @@ private:
     /** Scale factor for Gkr*/
     double mScaleFactorGkr;
 public:
-    Mahajan2008OdeSystem(AbstractIvpOdeSolver *pSolver,
-                         AbstractStimulusFunction* pIntracellularStimulus);
+    Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+                         boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     ~Mahajan2008OdeSystem();
 

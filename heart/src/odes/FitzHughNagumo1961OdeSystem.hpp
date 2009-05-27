@@ -44,8 +44,8 @@ private:
 
 public:
     // Constructor
-    FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
-                                AbstractStimulusFunction *pIntracelullarStimulus);
+    FitzHughNagumo1961OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
+                                boost::shared_ptr<AbstractStimulusFunction> pIntracelullarStimulus);
                                 
     // Destructor
     ~FitzHughNagumo1961OdeSystem();

@@ -41,8 +41,8 @@ const double FitzHughNagumo1961OdeSystem::mEpsilon = 0.005;
  * Constructor
  */
 FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(
-        AbstractIvpOdeSolver *pOdeSolver,
-        AbstractStimulusFunction *pIntracellularStimulus)
+        boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
+        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
     : AbstractCardiacCell(pOdeSolver, 2, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<FitzHughNagumo1961OdeSystem>::Instance();

@@ -54,8 +54,8 @@ private:
 
 public:
     // Constructor
-    HodgkinHuxleySquidAxon1952OriginalOdeSystem(AbstractIvpOdeSolver *pOdeSolver,
-                                                AbstractStimulusFunction *pIntracellularStimulus);
+    HodgkinHuxleySquidAxon1952OriginalOdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
+                                                boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
     // Destructor
     ~HodgkinHuxleySquidAxon1952OriginalOdeSystem();
 

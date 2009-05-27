@@ -47,13 +47,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
-    SimpleStimulus* mpStimulus;
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
 
-    MyCardiacCellFactory() : AbstractCardiacCellFactory<1>()
+    MyCardiacCellFactory()
+        : AbstractCardiacCellFactory<1>(),
+          mpStimulus(new SimpleStimulus(-80.0, 0.5))
     {
-        mpStimulus = new SimpleStimulus(-80.0, 0.5);
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -73,13 +74,7 @@ public:
         }
     }
 
-    ~MyCardiacCellFactory(void)
-    {
-        delete mpStimulus;
-    }
-
-
-    SimpleStimulus* GetStimulus()
+    boost::shared_ptr<SimpleStimulus> GetStimulus()
     {
         return mpStimulus;
     }
@@ -99,13 +94,13 @@ public:
         double start_time = 0;
         double big_time_step = 0.5;
 
-        AbstractIvpOdeSolver* solver = new EulerIvpOdeSolver;
+        boost::shared_ptr<AbstractIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         MyCardiacCellFactory cell_factory;
         cell_factory.SetMesh(&mesh);
 
         // Stimulus function to use at node 0. Node 1 is not stimulated.
-        SimpleStimulus* stimulus = cell_factory.GetStimulus();
-        SimpleStimulus* zero_stim = new SimpleStimulus(0,0,0);
+        boost::shared_ptr<SimpleStimulus> p_stimulus = cell_factory.GetStimulus();
+        boost::shared_ptr<ZeroStimulus> p_zero_stim(new ZeroStimulus);
 
         MonodomainPde<1> monodomain_pde( &cell_factory );
 
@@ -121,7 +116,7 @@ public:
         // Check results by solving ODE systems directly
         // Check node 0
         double value_pde = monodomain_pde.rGetIionicCacheReplicated()[0];
-        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, stimulus);
+        LuoRudyIModel1991OdeSystem ode_system_stimulated(p_solver, p_stimulus);
         ode_system_stimulated.ComputeExceptVoltage(start_time, start_time + big_time_step);
         double value_ode = ode_system_stimulated.GetIIonic();
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
@@ -131,7 +126,7 @@ public:
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
 
         // Check node 1
-        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, zero_stim);
+        LuoRudyIModel1991OdeSystem ode_system_not_stim(p_solver, p_zero_stim);
         value_pde = monodomain_pde.rGetIionicCacheReplicated()[1];
         ode_system_not_stim.ComputeExceptVoltage(start_time, start_time + big_time_step);
         value_ode = ode_system_not_stim.GetIIonic();
@@ -170,8 +165,6 @@ public:
         TS_ASSERT_DELTA(value_pde, value_ode, 1e-10);
 
         VecDestroy(voltage);
-        delete zero_stim;
-        delete solver;
     }
 
 

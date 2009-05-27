@@ -89,8 +89,8 @@ const double TenTusscher2006OdeSystem::transient_outward_current_g_to = 0.294;  
 
 /*Constructor*/
 TenTusscher2006OdeSystem::TenTusscher2006OdeSystem(
-        AbstractIvpOdeSolver *pSolver,
-        AbstractStimulusFunction *pIntracellularStimulus)
+        boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
     : AbstractCardiacCell(pSolver, 19, 11, pIntracellularStimulus)
 {
 
