@@ -634,7 +634,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     assert(mpMesh != NULL);
 
     // NOTE: this line used to be commented out because FlaggedMeshAssembler
-    // has it's own FlaggedMeshBcc. (design issue). FlaggedMeshAssembler (and
+    // has its own FlaggedMeshBcc. (design issue). FlaggedMeshAssembler (and
     // related classes has now been deleted so can bring this back)
     assert(this->mpBoundaryConditions != NULL);
 

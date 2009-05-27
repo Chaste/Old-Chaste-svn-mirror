@@ -71,8 +71,6 @@ class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 
 private:
 
-//    std::vector<unsigned> mNodesPerProcessor;
-
     /**
      * Solve node mapping method.
      *

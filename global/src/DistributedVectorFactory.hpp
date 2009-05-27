@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <petscvec.h>
 #include <cassert>
+#include "DistributedVector.hpp"
 
 /**
  * Factory for creating PETSc vectors distributed across processes.
@@ -64,37 +65,43 @@ private:
     /**
      * Helper method for the constructors
      * 
-     * @param vec the new PETSc vector to construct
+     * @param vec the sample PETSc vector from which to calculate ownerships 
      */
-    void Construct(Vec vec);
+    void CalculateOwnership(Vec vec);
     
 public:
-//    /**
-//     * Set the problem with an existing PETSc vector -- must have stride=1.
-//     *
-//     
-//     */
-//    DistributedVectorFactory(Vec vec);
+    /**
+     * Set the problem with an existing PETSc vector -- must have stride=1.
+     *
+     * @param vec is a PETSc vector which we want to use as the pattern for future vectors produced by this factory
+     */
+    DistributedVectorFactory(Vec vec);
 
     /**
      * Set the problem size specifying distribution over local processor.
      *
      * @param size
-     * @param local
+     * @param local - default to PETSc's default
      */
-    DistributedVectorFactory(unsigned size, PetscInt local);
+    DistributedVectorFactory(unsigned size, PetscInt local=PETSC_DECIDE);
 
-    /**
-     * Set the problem size.
-     *
-     * @param size
-     */
-    DistributedVectorFactory(unsigned size);
 
     /**
      * Create a PETSc vector of the problem size
+     * 
+     * @return the created vector
      */    
     Vec CreateVec();
+    
+    
+    /**
+     * Create a distributed vector which wraps a given petsc vector
+     * 
+     * @param vec is the vector
+     * @return the distributed vector 
+     */
+    
+    DistributedVector CreateDistributedVector(Vec vec);
 };
 
 #endif /*DISTRIBUTEDVECTORFACTORY_HPP_*/

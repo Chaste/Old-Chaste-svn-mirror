@@ -28,12 +28,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "DistributedVectorFactory.hpp"
 #include "Exception.hpp"
-void DistributedVectorFactory::Construct(Vec vec)
+
+void DistributedVectorFactory::CalculateOwnership(Vec vec)
 {
 #ifndef NDEBUG
     if (!mPetscStatusKnown)
     {
-        //\todo CheckForPetsc();
+        CheckForPetsc();
     }
 #endif
     // calculate my range
@@ -47,10 +48,10 @@ void DistributedVectorFactory::Construct(Vec vec)
     mGlobalHi = (unsigned) size;        
 }
 
-//DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
-//{
-//    Construct(vec);
-//}
+DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
+{
+    CalculateOwnership(vec);
+}
 
 DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local) : mPetscStatusKnown(false)
 {
@@ -64,14 +65,10 @@ DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local
     VecCreate(PETSC_COMM_WORLD, &vec);
     VecSetSizes(vec, local, size);
     VecSetFromOptions(vec);
-    Construct(vec);
+    CalculateOwnership(vec);
     VecDestroy(vec);    
 }
 
-DistributedVectorFactory::DistributedVectorFactory(unsigned size) : mPetscStatusKnown(false)
-{
-    DistributedVectorFactory(size, PETSC_DECIDE);        
-}
 
 void DistributedVectorFactory::CheckForPetsc()
 {
@@ -89,7 +86,18 @@ void DistributedVectorFactory::CheckForPetsc()
 
 Vec DistributedVectorFactory::CreateVec()
 {
-    Vec vec;//"Let's just write this so it compiles and then we can go home" MOB+RB
-    vec=NULL;
-    return vec;    
+    Vec vec;
+    VecCreate(PETSC_COMM_WORLD, &vec);
+    VecSetSizes(vec, mHi-mLo, mGlobalHi);
+    VecSetFromOptions(vec);
+    return vec;
+}
+
+DistributedVector DistributedVectorFactory::CreateDistributedVector(Vec vec)
+{
+    //Currently the distributed vector class contains static variabled which we need to set here
+    ///\todo Make the variables and methods in the DistributedVector class non static
+    DistributedVector::SetProblemSize(vec);
+    DistributedVector dist_vector(vec); 
+    return dist_vector;
 }
