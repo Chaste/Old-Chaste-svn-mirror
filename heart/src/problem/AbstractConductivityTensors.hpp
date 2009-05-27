@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- * AbstractConductivityTensor class
+ * Base class for different representations of conductivity tensors.
  */
 template<unsigned SPACE_DIM>
 class AbstractConductivityTensors
