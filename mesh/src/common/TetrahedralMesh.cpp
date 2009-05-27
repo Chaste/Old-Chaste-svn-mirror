@@ -205,7 +205,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
 {
-    this->mNodesPerProcessor.clear();
+    std::vector<unsigned> nodes_per_processor_vec;
 
     std::ifstream file_stream(nodesPerProcessorFile.c_str());
     if(file_stream.is_open())
@@ -217,7 +217,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
 
             if(file_stream)
             {
-                this->mNodesPerProcessor.push_back(nodes_per_processor);
+                nodes_per_processor_vec.push_back(nodes_per_processor);
             }
         }
     }
@@ -227,9 +227,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     }
 
     unsigned sum = 0;
-    for(unsigned i=0; i<this->mNodesPerProcessor.size(); i++)
+    for(unsigned i=0; i<nodes_per_processor_vec.size(); i++)
     {
-        sum += this->mNodesPerProcessor[i];
+        sum += nodes_per_processor_vec[i];
     }
 
     if(sum != this->GetNumNodes())
@@ -240,9 +240,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
         EXCEPTION(string_stream.str());
     }
     
-    unsigned num_owned=this->mNodesPerProcessor[PetscTools::GetMyRank()];
+    unsigned num_owned=nodes_per_processor_vec[PetscTools::GetMyRank()];
     
-    if (this->mNodesPerProcessor.size() != PetscTools::NumProcs())
+    if (nodes_per_processor_vec.size() != PetscTools::NumProcs())
     {
         EXCEPTION("Number of processes doesn't match the size of the nodes-per-processor file");
     }

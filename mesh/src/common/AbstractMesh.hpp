@@ -99,9 +99,6 @@ protected:  // Give access of these variables to subclasses
     /** Vector of pointers to boundary elements in the mesh. */
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
 
-    /** Vector containing the number of nodes owned by each processor.  Redundant #988*/
-    std::vector<unsigned> mNodesPerProcessor;
-
     /** DistributedVectorFactory capable of reproducing the given number of nodes owned by each processor. */
     DistributedVectorFactory *mpDistributedVectorFactory;
 
@@ -244,7 +241,7 @@ public:
     virtual void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
 
     /**
-     * Get method for mNodesPerProcessor.
+     * Get method for DistributedVectorFactory.
      */
     DistributedVectorFactory * GetDistributedVectorFactory();
 

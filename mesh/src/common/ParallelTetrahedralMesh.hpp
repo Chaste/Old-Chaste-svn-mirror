@@ -541,16 +541,17 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         assert(this->mNodesPermutation.size() != 0);
         ReorderNodes(this->mNodesPermutation);
 
-        // Compute nodes per processor based on offset information
-        for (unsigned num_proc=0; num_proc<PetscTools::NumProcs()-1; num_proc++)
+        unsigned num_owned;
+        unsigned rank = PetscTools::GetMyRank();
+        if( rank<PetscTools::NumProcs()-1 )
         {
-            this->mNodesPerProcessor.push_back( proc_offsets[num_proc+1]-proc_offsets[num_proc] );
+            num_owned =  proc_offsets[rank+1]-proc_offsets[rank];
         }
-
-        // Entry for the last processor
-        this->mNodesPerProcessor.push_back( mTotalNumNodes - proc_offsets[PetscTools::NumProcs()-1] );
+        else
+        {
+            num_owned = mTotalNumNodes - proc_offsets[rank];
+        }
         
-        unsigned num_owned=this->mNodesPerProcessor[PetscTools::GetMyRank()];
         this->mpDistributedVectorFactory=new DistributedVectorFactory(this->GetNumNodes(), num_owned);
     }
 }
