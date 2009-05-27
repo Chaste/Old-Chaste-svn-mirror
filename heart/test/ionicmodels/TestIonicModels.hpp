@@ -922,17 +922,18 @@ public:
 
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
-            //Check Standard
+            // Check Standard
             AbstractCardiacCell* const p_luo_rudy_cell = new LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
-
-            RunOdeSolverWithIonicModel(p_luo_rudy_cell,
-                                       100.0,
-                                       "LRBeforeArchive");
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             output_arch <<  p_luo_rudy_cell;
+            
+            // These results are in the repository and should be replicated after the load below
+//            RunOdeSolverWithIonicModel(p_luo_rudy_cell,
+//                           50.0,
+//                           "LRAfterArchiveValidData");
 
             delete p_luo_rudy_cell;
         }
@@ -946,17 +947,71 @@ public:
 
             TS_ASSERT_EQUALS( p_luo_rudy_cell->GetNumberOfStateVariables(), 8U );
 
+            
             RunOdeSolverWithIonicModel(p_luo_rudy_cell,
                                        50.0,
                                        "LRAfterArchive");
-            /**
-             * \todo We have checked by eye that the last 50 ms of the LRRegResult file are the same as these
-             * results (modulo time stamps) but we need a better test.
-             */
 
             CheckCellModelResults("LRAfterArchive");
 
             delete p_luo_rudy_cell;
+        }
+     }
+     
+    void TestPyCMLArchiving(void) throw(Exception)
+    {
+        //Archive
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "noble98.arch";
+
+        // Save
+        {
+            TS_ASSERT(PetscTools::IsSequential());
+            // Set stimulus
+            double magnitude_stimulus = -3;  // uA/cm2
+            double duration_stimulus = 3;  // ms
+            double start_stimulus = 10.0;   // ms
+            boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
+                                                                            duration_stimulus,
+                                                                            start_stimulus));
+            boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+            double time_step = 0.01;
+
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+
+            // Check Standard
+            AbstractCardiacCell* const p_n98_cell = new CML_noble_varghese_kohl_noble_1998_basic(p_solver, p_stimulus);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch <<  p_n98_cell;
+            
+            // These results are in the repository and should be replicated after the load below
+//            RunOdeSolverWithIonicModel(p_n98_cell,
+//                                       50.0,
+//                                       "N98AfterArchiveValidData");
+                                       
+            delete p_n98_cell;
+        }
+        // Load
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            AbstractCardiacCell* p_n98_cell;
+            input_arch >> p_n98_cell;
+
+            TS_ASSERT_EQUALS( p_n98_cell->GetNumberOfStateVariables(), 22U );
+
+            RunOdeSolverWithIonicModel(p_n98_cell,
+                                       50.0,
+                                       "N98AfterArchive");
+
+            CheckCellModelResults("N98AfterArchive");
+
+            delete p_n98_cell;
         }
      }
 
