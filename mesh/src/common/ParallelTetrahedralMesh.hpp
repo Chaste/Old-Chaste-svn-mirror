@@ -553,6 +553,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
         
         this->mpDistributedVectorFactory=new DistributedVectorFactory(this->GetNumNodes(), num_owned);
+        DistributedVector::SetProblemSizePerProcessor(this->GetNumNodes(), num_owned);//\todo remove
+    }
+    else 
+    {
+        //Dumb or sequential partition
+        assert(this->mpDistributedVectorFactory);
     }
 }
 
@@ -681,6 +687,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
 {
+    this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
     DistributedVector::SetProblemSize(mTotalNumNodes);
     for(DistributedVector::Iterator node_number = DistributedVector::Begin(); 
         node_number != DistributedVector::End();
@@ -688,7 +695,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
     {
          rNodesOwned.insert(node_number.Global);
     }
-
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

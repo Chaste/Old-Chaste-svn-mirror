@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Electrodes.hpp"
-
+#include "Debug.hpp"
 template<unsigned DIM>
 Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
                        bool groundSecondElectrode,
@@ -37,7 +37,8 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
                        double magnitude,
                        double duration)
 {
-    assert(DistributedVector::GetProblemSize() != 0);
+    DistributedVector::SetProblemSizePerProcessor(rMesh.GetDistributedVectorFactory()->GetSize(), 
+                                                  rMesh.GetDistributedVectorFactory()->GetLocalOwnership());
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);
