@@ -36,22 +36,14 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
     : TissueSimulation<2>(rTissue,
                           forceCollection,
                           deleteTissueAndForceCollection,
-                          initialiseCells),
-      mUseJiggledBottomCells(false)
+                          initialiseCells)
 {
     mpStaticCastTissue = static_cast<VertexBasedTissue<2>*>(&mrTissue);
 }
 
-
 void VertexCryptSimulation2d::WriteVisualizerSetupFile()
 {
     *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u) << "\n";
-}
-
-
-void VertexCryptSimulation2d::UseJiggledBottomCells()
-{
-    mUseJiggledBottomCells = true;
 }
 
 
@@ -90,18 +82,6 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
         if (p_node->rGetLocation()[1] < 0.0)
         {
             p_node->rGetModifiableLocation()[1] = 0.0;
-            if (mUseJiggledBottomCells)
-            {
-               /*
-                * Here we give the cell a push upwards so that it doesn't
-                * get stuck on the bottom of the crypt (as per #422).
-                *
-                * Note that all stem cells may get moved to the same height, so
-                * we use a random perturbation to help ensure we are not simply
-                * faced with the same problem at a different height!
-                */
-                p_node->rGetModifiableLocation()[1] = 0.05*mpRandomGenerator->ranf();
-            }
         }
         assert(p_node->rGetLocation()[1] >= 0.0);
     }

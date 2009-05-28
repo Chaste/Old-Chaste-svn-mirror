@@ -131,7 +131,6 @@ public:
 
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(tissue, force_collection);
-        simulator.UseJiggledBottomCells();
 
         std::vector<c_vector<double, 2> > old_node_locations(mesh.GetNumNodes());
         std::vector<c_vector<double, 2> > forces(mesh.GetNumNodes());
@@ -209,9 +208,9 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                  ( CancerParameters::Instance()->GetTransitCellG1Duration()
                                     + CancerParameters::Instance()->GetSG2MDuration() );
-            
+
             CellType cell_type;
-            
+
             // Cell 5 should divide at time t=0.5
             if ((elem_index==5))
             {
@@ -224,11 +223,11 @@ public:
 //                cell_type = STEM;
 //                birth_time = -23.5;
 //            }
-            else 
+            else
             {
                 cell_type = DIFFERENTIATED;
             }
-            
+
             TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -254,8 +253,8 @@ public:
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
-    
-    
+
+
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
@@ -310,55 +309,7 @@ public:
         delete p_simulator;
     }
 
-    void TestUsingJiggledBottomSurface()
-    {
-         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
 
-        // Set parameters
-        CancerParameters::Instance()->SetMaxTransitGenerations(UINT_MAX);
-
-        // Create cells
-        std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-        {
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                ( CancerParameters::Instance()->GetTransitCellG1Duration()
-                                    + CancerParameters::Instance()->GetSG2MDuration() );
-
-            TissueCell cell(TRANSIT, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
-
-        // Create force law
-        NagaiHondaForce<2> force_law;
-        std::vector<AbstractForce<2>*> force_collection;
-        force_collection.push_back(&force_law);
-
-        // Create crypt simulation from tissue and force law
-        VertexCryptSimulation2d simulator(tissue, force_collection);
-        simulator.SetOutputDirectory("Crypt2DJiggledBottomCells");
-        simulator.SetEndTime(0.01);
-        simulator.UseJiggledBottomCells();
-
-        // Move the first node (which should be on y=0) down a bit
-        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(0)->rGetModifiableLocation()[1], 0.0, 1e-4);
-
-        // Move the node
-        simulator.rGetTissue().GetNode(0)->rGetModifiableLocation()[1] = -0.1;
-        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(0)->rGetModifiableLocation()[1], -0.1, 1e-4);
-
-        // Run simulation
-        simulator.Solve();
-
-        // The cell should have been pulled up, but not above y=0. However it should
-        // then been moved to above y=0 by the jiggling
-        TS_ASSERT_LESS_THAN(0.0, simulator.rGetTissue().GetNode(0)->rGetLocation()[1]);
-    }
 
     /// \todo Add more tests (see #923)
 

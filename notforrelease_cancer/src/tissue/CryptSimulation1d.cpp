@@ -37,17 +37,10 @@ CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
     : TissueSimulation<1>(rTissue,
                           forceCollection,
                           deleteTissueAndForceCollection,
-                          initialiseCells),
-      mUseJiggledBottomCells(false)
+                          initialiseCells)
 {
     CancerParameters::Instance()->SetSpringStiffness(30.0);
-    mpStaticCastTissue = static_cast<MeshBasedTissue<1>*>(&mrTissue);    
-}
-
-
-void CryptSimulation1d::UseJiggledBottomCells()
-{
-    mUseJiggledBottomCells = true;
+    mpStaticCastTissue = static_cast<MeshBasedTissue<1>*>(&mrTissue);
 }
 
 
@@ -64,8 +57,8 @@ c_vector<double, 1> CryptSimulation1d::CalculateDividingCellCentreLocations(Tiss
     c_vector<double, 1> random_vector;
 
     /*
-     * Pick a random direction and move the parent cell backwards by 0.5*separation 
-     * in that direction and return the position of the daughter cell 0.5*separation 
+     * Pick a random direction and move the parent cell backwards by 0.5*separation
+     * in that direction and return the position of the daughter cell 0.5*separation
      * forwards in that direction.
      */
 
@@ -146,18 +139,6 @@ void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
         if (p_node->rGetLocation()[0] < 0.0)
         {
             p_node->rGetModifiableLocation()[0] = 0.0;
-            if (mUseJiggledBottomCells)
-            {
-               /*
-                * Here we give the cell a push upwards so that it doesn't
-                * get stuck on the bottom of the crypt (as per #422).
-                *
-                * Note that all stem cells may get moved to the same height, so
-                * we use a random perturbation to help ensure we are not simply
-                * faced with the same problem at a different height!
-                */
-                p_node->rGetModifiableLocation()[0] = 0.05*mpRandomGenerator->ranf();
-            }
         }
         assert(p_node->rGetLocation()[0] >= 0.0);
     }

@@ -56,14 +56,10 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<TissueSimulation<2> >(*this);
-        archive & mUseJiggledBottomCells;
     }
 
     /** Helper member that is a static cast of the tissue. */
     VertexBasedTissue<2>* mpStaticCastTissue;
-
-    /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
-    bool mUseJiggledBottomCells;
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
@@ -97,11 +93,6 @@ public :
      * @param rOldLocations the node locations at the previous time step
      */
     void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
-
-    /**
-     * Set method for mUseJiggledBottomCells.
-     */
-    void UseJiggledBottomCells();
 
     /*
      * \todo Consider whether we need to code up the following members and methods which are present in CryptSimulation2d:

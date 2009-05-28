@@ -48,10 +48,10 @@ class TestCryptSimulation1d : public AbstractCancerTestSuite
 public:
 
     /**
-     * In this test, there is no birth as only differentiated cells are used. 
-     * There is also no death because the we have not passed a cell killer 
-     * into the simulation. We just perturb one of the nodes and check that 
-     * each spring relaxes to its rest length. 
+     * In this test, there is no birth as only differentiated cells are used.
+     * There is also no death because the we have not passed a cell killer
+     * into the simulation. We just perturb one of the nodes and check that
+     * each spring relaxes to its rest length.
      */
     void Test1dCryptWithNoBirthOrDeath() throw(Exception)
     {
@@ -80,7 +80,7 @@ public:
         GeneralisedLinearSpringForce<1> linear_force;
         std::vector<AbstractForce<1>*> force_collection;
         force_collection.push_back(&linear_force);
-    
+
         // Set up crypt simulation
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1dWithNoBirthAndNoDeath");
@@ -115,7 +115,7 @@ public:
 
 
     /**
-     * In this test, we pass a sloughing cell killer into the simulation, and 
+     * In this test, we pass a sloughing cell killer into the simulation, and
      * check that a cell starting at the end of the crypt is sloughed off.
      */
     void Test1dCryptWithDeathButNoBirth() throw(Exception)
@@ -141,7 +141,7 @@ public:
         GeneralisedLinearSpringForce<1> linear_force;
         std::vector<AbstractForce<1>*> force_collection;
         force_collection.push_back(&linear_force);
-    
+
         // Set up crypt simulation
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1dWithDeathButNoBirth");
@@ -254,7 +254,7 @@ public:
 
 
     /**
-     * In this test, we check that the daughters of a cell that has just divided 
+     * In this test, we check that the daughters of a cell that has just divided
      * are put in the correct positions.
      */
     void TestCalculateDividingCellCentreLocations() throw (Exception)
@@ -303,7 +303,7 @@ public:
         // The second cell should have just divided, so be a distance 0.15 away from its initial location
         TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(1)->rGetLocation()[0], 1.15, 1e-3);
 
-        // The new cell should also be a distance 0.15 away from the second cell's initial location     
+        // The new cell should also be a distance 0.15 away from the second cell's initial location
         TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(4)->rGetLocation()[0], 0.85, 1e-3);
 
         // The other cells should still be at their initial locations
@@ -467,12 +467,12 @@ public:
         simulator.Solve();
 
         /*
-         * Check that several cell divisions have occurred. The Tyson-Novak cell 
-         * cycle has period 1.25, so by the end of the simulation the number of 
-         * cells should have doubled. 
-         * 
-         * Note that this test will fail if it is run for much longer, because the 
-         * Tyson-Novak cell-cycle period is so short that the cells because too 
+         * Check that several cell divisions have occurred. The Tyson-Novak cell
+         * cycle has period 1.25, so by the end of the simulation the number of
+         * cells should have doubled.
+         *
+         * Note that this test will fail if it is run for much longer, because the
+         * Tyson-Novak cell-cycle period is so short that the cells because too
          * squashed together.
          */
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), num_cells_at_start + 23u);
@@ -484,8 +484,8 @@ public:
 
 
     /**
-     * Create a crypt containing a single stem cell and all other cells differentiated. 
-     * Check that there is the correct number of cells at the end of a simulation, and 
+     * Create a crypt containing a single stem cell and all other cells differentiated.
+     * Check that there is the correct number of cells at the end of a simulation, and
      * that they are in the correct order.
      */
     void Test1dChainCorrectCellNumbers()
@@ -538,7 +538,7 @@ public:
         GeneralisedLinearSpringForce<1> linear_force;
         std::vector<AbstractForce<1>*> force_collection;
         force_collection.push_back(&linear_force);
-    
+
         // Set up crypt simulation
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
@@ -587,67 +587,6 @@ public:
             }
         }
     }
-
-
-
-    void TestUsingJiggledBottomSurface()
-    {
-        // Get pointers to singleton object
-        CancerParameters* p_params = CancerParameters::Instance();
-
-        // The stem cell cycle time must still be 24 h, otherwise this test may not pass
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
-
-        p_params->SetCryptLength(5.0);
-
-        // Create a mesh with nodes equally spaced a unit distance apart
-        MutableMesh<1,1> mesh;
-        mesh.ConstructLinearMesh(5);
-
-        // Set up cells by iterating through the nodes
-        // (don't use any stem cells as we want to test the jiggling)
-        unsigned num_cells = mesh.GetNumNodes();
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
-        {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(4);
-            cell.SetBirthTime(0.0);
-            cells.push_back(cell);
-        }
-
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
-
-        // Create force law
-        GeneralisedLinearSpringForce<1> linear_force;
-        std::vector<AbstractForce<1>*> force_collection;
-        force_collection.push_back(&linear_force);
-    
-        // Set up crypt simulation
-        CryptSimulation1d simulator(crypt, force_collection);
-        simulator.SetOutputDirectory("Crypt1DJiggledBottomCells");
-        simulator.SetEndTime(0.01);
-        simulator.UseJiggledBottomCells();
-
-        // Move the first cell (which should be on y=0) down a bit
-        AbstractTissue<1>::Iterator cell_iter = crypt.Begin();
-        assert(crypt.GetLocationOfCellCentre(&(*cell_iter))[0] == 0.0);
-
-        // Move the cell (can't use the iterator for this as it is const)
-        crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[0] = -0.1;
-        assert(crypt.GetLocationOfCellCentre(&(*cell_iter))[0] < 0.0);
-
-        // Run simulation
-        simulator.Solve();
-
-        // The cell should have been pulled up, but not above y=0. However it should
-        // then been moved to above y=0 by the jiggling
-        TS_ASSERT_LESS_THAN(0.0, crypt.GetLocationOfCellCentre(&(*cell_iter))[0]);
-    }
-
 
     /**
      * Test with Wnt-dependent cells.

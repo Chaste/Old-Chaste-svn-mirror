@@ -89,9 +89,6 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
     CancerParameters* p_params = CancerParameters::Instance();
 
-    // The cell is of type STEM if the Wnt concentration > wnt_stem_cell_threshold
-    double wnt_stem_cell_threshold = DBL_MAX;
-
     // The cell can divide if the Wnt concentration >= wnt_division_threshold
     double wnt_division_threshold = DBL_MAX;
 
@@ -125,21 +122,15 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             const unsigned DIM = 1;
             WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
 
-            if (p_wnt->GetType()==RADIAL)
-            {
-                wnt_stem_cell_threshold = p_params->GetWntStemThreshold();
-            }
-        
+            // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
             if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
             {
                 CellType cell_type = TRANSIT;
-        
-                if (p_wnt->GetType()==RADIAL)
+
+                // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
+                if ( (p_wnt->GetType()==RADIAL) && (p_wnt->GetWntLevel(mpCell) > p_params->GetWntStemThreshold()) )
                 {
-                    if (p_wnt->GetWntLevel(mpCell) > wnt_stem_cell_threshold)
-                    {
-                        cell_type = STEM;
-                    }
+                    cell_type = STEM;
                 }
 
                 mpCell->SetCellType(cell_type);        
@@ -147,6 +138,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             }
             else
             {
+                // The cell is DIFFERENTIATED and so in G0 phase
                 mpCell->SetCellType(DIFFERENTIATED);
                 mCurrentCellCyclePhase = G_ZERO_PHASE;
             }
@@ -156,36 +148,21 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         {
             const unsigned DIM = 2;
             WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
-        
-            /*
-             * In the case of a RADIAL Wnt concentration, set up under what level
-             * of Wnt stimulus a cell will change type
-             */
-            if (p_wnt->GetType()==RADIAL)
-            {
-                wnt_stem_cell_threshold = p_params->GetWntStemThreshold();
-            }
-        
-            /*
-             * If the Wnt stimulus exceeds the threshold, the cell is
-             * of type TRANSIT, and hence its cell cycle phase depends
-             * on its age, just as in AbstractSimpleCellCycleModel.
-             */
+
+            // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
             if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
             {
                 CellType cell_type = TRANSIT;
-        
-                if (p_wnt->GetType()==RADIAL)
+
+                // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
+                if ( (p_wnt->GetType()==RADIAL) && (p_wnt->GetWntLevel(mpCell) > p_params->GetWntStemThreshold()) )
                 {
-                    if (p_wnt->GetWntLevel(mpCell) > wnt_stem_cell_threshold)
-                    {
-                        cell_type = STEM;
-                    }
+                    cell_type = STEM;
                 }
-        
+
                 // Update the cell type to reflect the Wnt concentration
                 mpCell->SetCellType(cell_type);
-        
+
                 AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
             }
             else
@@ -201,28 +178,23 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             const unsigned DIM = 3;
             WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
 
-            if (p_wnt->GetType()==RADIAL)
-            {
-                wnt_stem_cell_threshold = p_params->GetWntStemThreshold();
-            }
-
+            // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
             if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
             {
                 CellType cell_type = TRANSIT;
-        
-                if (p_wnt->GetType()==RADIAL)
+
+                // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
+                if ( (p_wnt->GetType()==RADIAL) && (p_wnt->GetWntLevel(mpCell) > p_params->GetWntStemThreshold()) )
                 {
-                    if (p_wnt->GetWntLevel(mpCell) > wnt_stem_cell_threshold)
-                    {
-                        cell_type = STEM;
-                    }
+                    cell_type = STEM;
                 }
-        
+
                 mpCell->SetCellType(cell_type);
                 AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
             }
             else
             {
+                // The cell is DIFFERENTIATED and so in G0 phase
                 mpCell->SetCellType(DIFFERENTIATED);
                 mCurrentCellCyclePhase = G_ZERO_PHASE;
             }

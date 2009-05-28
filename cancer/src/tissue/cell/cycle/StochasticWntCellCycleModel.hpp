@@ -118,7 +118,7 @@ public:
 
     /**
      * The standard constructor called in tests.
-     * 
+     *
      * @param dimension the spatial dimension (needed by WntConcentration)
      */
     StochasticWntCellCycleModel(unsigned dimension);
@@ -182,7 +182,7 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
-    unsigned dimension = 2;
+    unsigned dimension = UINT_MAX;
     ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state, dimension);
 }
 }

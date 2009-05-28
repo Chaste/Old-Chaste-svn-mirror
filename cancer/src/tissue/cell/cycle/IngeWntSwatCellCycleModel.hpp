@@ -101,9 +101,9 @@ public:
 
     /**
      * Copy constructor.
-     * 
+     *
      * Creates an appropriate copy of our ODE system too.
-     * 
+     *
      * @param other  the instance being copied.
      */
     IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& other);
@@ -207,7 +207,7 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
-    unsigned dimension = 2;
+    unsigned dimension = UINT_MAX;
 
     unsigned hypothesis;
     ar & hypothesis;

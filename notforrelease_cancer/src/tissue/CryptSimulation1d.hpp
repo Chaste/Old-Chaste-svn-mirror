@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * A 1D crypt simulation object. The model is a simplified version of a 2D crypt model 
+ * A 1D crypt simulation object. The model is a simplified version of a 2D crypt model
  * developed by Meineke et al (doi:10.1046/j.0960-7722.2001.00216.x).
  */
 class CryptSimulation1d : public TissueSimulation<1>
@@ -67,11 +67,7 @@ private:
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<TissueSimulation<1> >(*this);
-        archive & mUseJiggledBottomCells;
     }
-
-    /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
-    bool mUseJiggledBottomCells;
 
     /** Helper member that is a static cast of the tissue. */
     MeshBasedTissue<1>* mpStaticCastTissue;
@@ -102,9 +98,6 @@ public:
                       std::vector<AbstractForce<1>*> forceCollection,
                       bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
-
-    /** Set method for mUseJiggledBottomCells. */
-    void UseJiggledBottomCells();
 
     /**
      * Overridden ApplyTissueBoundaryConditions() method.

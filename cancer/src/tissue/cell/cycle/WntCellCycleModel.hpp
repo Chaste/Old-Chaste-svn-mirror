@@ -90,12 +90,12 @@ public:
     WntCellCycleModel(unsigned dimension)
         : AbstractWntOdeBasedCellCycleModel(dimension)
     {}
-    
+
     /**
      * Copy constructor.
-     * 
+     *
      * Also copies our ODE system.
-     * 
+     *
      * @param other  the instance being copied.
      */
     WntCellCycleModel(const WntCellCycleModel& other);
@@ -124,8 +124,8 @@ public:
 
     /**
      * A private constructor for archiving.
-     * 
-     * \todo why are these arguments declared to be const, but they are not 
+     *
+     * \todo why are these arguments declared to be const, but they are not
      *       in the corresponding Stochastic WntCellCycleModel constructor?
      *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
@@ -200,7 +200,7 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
-    unsigned dimension = 2;
+    unsigned dimension = UINT_MAX;
     ::new(t)WntCellCycleModel(state_vars, mutation_state, dimension);
 }
 }

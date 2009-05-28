@@ -155,7 +155,7 @@ inline void load_construct_data(
      * from the archive will overwrite their effect in this case.
      */
 
-    unsigned dimension = 1;
+    unsigned dimension = UINT_MAX;
     ::new(t)SimpleOxygenBasedCellCycleModel(dimension);
 }
 }
