@@ -132,7 +132,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     input_arch & archive_wnt;
     if (archive_wnt)
     {
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
         input_arch & *p_wnt;
     }
     // - CellwiseData (if used)
@@ -185,11 +185,11 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     output_arch << *p_sim_time;
 
     // Archive the Wnt concentration if it's used
-    bool archive_wnt = WntConcentration::Instance()->IsWntSetUp();
+    bool archive_wnt = WntConcentration<DIM>::Instance()->IsWntSetUp();
     output_arch & archive_wnt;
     if (archive_wnt)
     {
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
         output_arch & *p_wnt;
     }
 

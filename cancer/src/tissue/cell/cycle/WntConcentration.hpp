@@ -55,6 +55,7 @@ typedef enum WntConcentrationType_
 /**
  *  Singleton Wnt concentration object.
  */
+template<unsigned DIM>
 class WntConcentration
 {
 private:
@@ -76,7 +77,7 @@ private:
     /**
      *  The tissue in which the WntConcentration occurs.
      */
-    AbstractTissue<2>* mpTissue;
+    AbstractTissue<DIM>* mpTissue;
 
     /**
      *  Whether this WntConcentration object has had its type set.
@@ -168,7 +169,7 @@ public:
      *
      *  @param location  the location at which we want the Wnt gradient
      */
-    c_vector<double,2> GetWntGradient(c_vector<double,2> location);
+    c_vector<double, DIM> GetWntGradient(c_vector<double, DIM> location);
 
     /**
      *  Get the Wnt gradient at a given cell in the crypt. The crypt
@@ -177,14 +178,14 @@ public:
      *
      *  @param pCell pointer to the cell at which we want the Wnt gradient
      */
-    c_vector<double,2> GetWntGradient(TissueCell* pCell);
+    c_vector<double, DIM> GetWntGradient(TissueCell* pCell);
 
     /**
      *  Set the crypt. Must be called before GetWntLevel().
      *
      *  @param rTissue reference to the tissue
      */
-    void SetTissue(AbstractTissue<2>& rTissue);
+    void SetTissue(AbstractTissue<DIM>& rTissue);
 
     /**
      *  Get the type of Wnt concentration.
@@ -219,7 +220,5 @@ public:
     bool IsWntSetUp();
 
 };
-
-BOOST_CLASS_EXPORT(WntConcentration);
 
 #endif /*WNTCONCENTRATION_HPP_*/

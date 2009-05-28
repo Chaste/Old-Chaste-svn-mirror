@@ -376,8 +376,8 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // As there is no tissue simulation, we must explicitly initialise the cells
         crypt.InitialiseCells();
@@ -398,7 +398,7 @@ public:
         CancerParameters::Instance()->SetBetaCatSpringScaler(20/6.0);
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/20.0, 1e-5);
 
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     void TestGeneralisedLinearSpringForceWithSpringConstantsForApoptoticCells()

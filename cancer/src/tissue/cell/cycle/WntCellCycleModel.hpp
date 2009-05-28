@@ -87,7 +87,8 @@ public:
     /**
      * Default constructor.
      */
-    WntCellCycleModel()
+    WntCellCycleModel(unsigned dimension)
+        : AbstractWntOdeBasedCellCycleModel(dimension)
     {}
     
     /**
@@ -110,6 +111,7 @@ public:
      * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
      * @param readyToDivide whether the cell is ready to divide
      * @param divideTime if in the future this is the time at which the cell is going to divide
+     * @param dimension the spatial dimension
      */
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
                       const CellMutationState& rMutationState,
@@ -117,16 +119,22 @@ public:
                       double lastTime,
                       bool inSG2MPhase,
                       bool readyToDivide,
-                      double divideTime);
+                      double divideTime,
+                      unsigned dimension);
 
     /**
      * A private constructor for archiving.
+     * 
+     * \todo why are these arguments declared to be const, but they are not 
+     *       in the corresponding Stochastic WntCellCycleModel constructor?
      *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param dimension the spatial dimension
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                      const CellMutationState& rMutationState);
+                      const CellMutationState& rMutationState,
+                      const unsigned dimension);
 
     /**
      * Overridden builder method to create new copies of
@@ -192,7 +200,8 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
-    ::new(t)WntCellCycleModel(state_vars, mutation_state);
+    unsigned dimension = 2;
+    ::new(t)WntCellCycleModel(state_vars, mutation_state, dimension);
 }
 }
 } // namespace

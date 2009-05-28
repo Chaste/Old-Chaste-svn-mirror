@@ -170,9 +170,9 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel());
+        TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel(2));
         wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
@@ -220,7 +220,7 @@ public:
             }
         }
 
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     /*
@@ -240,9 +240,9 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 0.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel());
+        TissueCell wnt_cell(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel(2));
         wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
@@ -291,7 +291,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     /*
@@ -311,9 +311,9 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
         double wnt_stimulus = 0.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, APC_TWO_HIT, new WntCellCycleModel());
+        TissueCell wnt_cell(TRANSIT, APC_TWO_HIT, new WntCellCycleModel(2));
         wnt_cell.InitialiseCellCycleModel();
 
         CellMutationState this_state = wnt_cell.GetMutationState();
@@ -376,7 +376,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 };
 

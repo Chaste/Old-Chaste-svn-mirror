@@ -57,10 +57,10 @@ void VertexCryptSimulation2d::UseJiggledBottomCells()
 
 void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
 {
-    bool is_wnt_included = WntConcentration::Instance()->IsWntSetUp();
+    bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();
     if (!is_wnt_included)
     {
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     // update node positions according to any tissue boundary conditions

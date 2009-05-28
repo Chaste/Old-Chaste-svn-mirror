@@ -80,7 +80,7 @@ public:
 
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel());
+            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel(2));
             cell.InitialiseCellCycleModel();
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                   (p_params->GetTransitCellG1Duration()
@@ -93,8 +93,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Set up the Wnt gradient
-        WntConcentration::Instance()->SetType(RADIAL);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(RADIAL);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         CryptProjectionStatistics statistics(crypt);
 
@@ -156,7 +156,7 @@ public:
         crypt_projection_simulator.Solve();
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 };
 

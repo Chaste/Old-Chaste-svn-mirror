@@ -174,9 +174,9 @@ public:
 
         // Set up the Wnt concentration
         double wnt_level = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
+        SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel(2);
         TissueCell cell(STEM, HEALTHY, p_cycle_model);
         cell.InitialiseCellCycleModel();
 
@@ -200,7 +200,7 @@ public:
 
         // Now reduce the Wnt concentration
         wnt_level = 0.7;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         double division_time = SimulationTime::Instance()->GetTime();
 
@@ -225,7 +225,7 @@ public:
 
         // Now reduce the Wnt concentration so only beta-cat or APC2 hit cells divide.
         wnt_level = 0.15;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         cell.SetMutationState(APC_ONE_HIT);
         cell2.SetMutationState(BETA_CATENIN_ONE_HIT);
@@ -255,7 +255,7 @@ public:
         TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
 
         // For coverage...
-        SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel;
+        SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel(2);
         TissueCell cell1(DIFFERENTIATED, HEALTHY, p_cycle_model1);
         cell1.InitialiseCellCycleModel();
 
@@ -273,12 +273,12 @@ public:
 
         // Set up the Wnt concentration
         wnt_level = p_params->GetWntStemThreshold() + 0.01;
-        WntConcentration::Destroy();
-        WntConcentration::Instance()->SetType(RADIAL);
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Destroy();
+        WntConcentration<2>::Instance()->SetType(RADIAL);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Set up a cell cycle model and cell
-        SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel;
+        SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel(2);
         TissueCell cell4(STEM, HEALTHY,  p_cycle_model4);
         cell4.InitialiseCellCycleModel();
 
@@ -306,7 +306,7 @@ public:
 
         // Now reduce the Wnt concentration
         wnt_level = p_params->GetWntStemThreshold() - 0.01;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // The numbers for the G1 durations are taken from
         // the first two random numbers generated
@@ -317,11 +317,59 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model4, new_g1_duration);
         }
 
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(&cell4), wnt_level, 1e-12);
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(&cell4), wnt_level, 1e-12);
         TS_ASSERT_EQUALS(cell4.GetCellType(), TRANSIT);
         TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
 
-        WntConcentration::Destroy();
+
+        // Coverage of 1D
+
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
+
+        WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
+        SimpleWntCellCycleModel* p_cell_model_1d = new SimpleWntCellCycleModel(1);
+
+        TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
+
+        TissueCell stem_cell_1d(STEM, HEALTHY, p_cell_model_1d);
+        stem_cell_1d.InitialiseCellCycleModel();
+
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(stem_cell_1d.ReadyToDivide(), false);
+
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(stem_cell_1d.ReadyToDivide(), true);
+
+        TissueCell daughter_1d = stem_cell_1d.Divide();
+
+        // Coverage of 3D
+
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
+
+        WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
+        SimpleWntCellCycleModel* p_cell_model_3d = new SimpleWntCellCycleModel(3);
+
+        TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
+
+        TissueCell stem_cell_3d(STEM, HEALTHY, p_cell_model_3d);
+        stem_cell_3d.InitialiseCellCycleModel();
+
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(stem_cell_3d.ReadyToDivide(), false);
+
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(stem_cell_3d.ReadyToDivide(), true);
+
+        TissueCell daughter_3d = stem_cell_3d.Divide();
+
+        // Tidy up
+        WntConcentration<1>::Destroy();
+        WntConcentration<2>::Destroy();
+        WntConcentration<3>::Destroy();
     }
 
 
@@ -474,7 +522,7 @@ public:
 
         // Set up the Wnt concentration
         double wnt_level = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         double random_number_test = 0;
 
@@ -492,16 +540,18 @@ public:
             unsigned num_timesteps = 50;
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
-            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel();
+            // Set up the Wnt concentration for testing
+            WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
 
+            // Create cell cycle model and associated cell
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel(1);
             p_cell_model->SetBirthTime(-1.0);
 
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
-            while (p_cell_model->GetAge() <
-                g1_duration + p_params->GetSG2MDuration()
-                - p_simulation_time->GetTimeStep()) // minus one to match birth time.
+            while (p_cell_model->GetAge() < g1_duration + p_params->GetSG2MDuration()
+                    - p_simulation_time->GetTimeStep()) // minus one to match birth time.
             {
                 p_simulation_time->IncrementTimeOneStep();
                 CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, g1_duration);
@@ -563,6 +613,7 @@ public:
             TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
+            TS_ASSERT_EQUALS((static_cast<SimpleWntCellCycleModel*>(p_cell_model))->GetDimension(), 1u);
 
             // Tidy up
             SimulationTime::Destroy();
@@ -581,8 +632,8 @@ public:
 
         // Set up the Wnt concentration
         wnt_level = p_params->GetWntStemThreshold() - 0.01;
-        WntConcentration::Destroy();
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Destroy();
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         random_number_test = 0;
 
@@ -601,7 +652,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
-            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel();
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel(2);
 
             p_cell_model->SetBirthTime(-1.0);
 
@@ -683,7 +734,8 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<1>::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 };

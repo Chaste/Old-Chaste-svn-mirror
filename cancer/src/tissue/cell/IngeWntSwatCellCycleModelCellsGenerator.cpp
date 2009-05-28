@@ -38,7 +38,7 @@ IngeWntSwatCellCycleModelCellsGenerator<DIM>::IngeWntSwatCellCycleModelCellsGene
 template<unsigned DIM>
 AbstractCellCycleModel* IngeWntSwatCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-    return new IngeWntSwatCellCycleModel(mHypothesis);
+    return new IngeWntSwatCellCycleModel(mHypothesis, DIM);
 }
 
 

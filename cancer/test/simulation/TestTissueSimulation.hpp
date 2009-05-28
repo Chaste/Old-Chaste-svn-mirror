@@ -111,8 +111,8 @@ public:
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up Wnt Gradient
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(tissue);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(tissue);
 
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.UseCutoffPoint(1.5);
@@ -146,7 +146,7 @@ public:
         TS_ASSERT(comp_cell_ages.CompareFiles(1e-2));
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 

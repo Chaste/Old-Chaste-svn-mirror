@@ -627,9 +627,9 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        WntConcentration::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
         CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -651,7 +651,7 @@ public:
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 };

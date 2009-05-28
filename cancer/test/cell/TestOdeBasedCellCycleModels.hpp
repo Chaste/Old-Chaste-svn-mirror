@@ -204,10 +204,10 @@ public:
 
         // Set up Wnt concentration
         double wnt_level = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -234,7 +234,7 @@ public:
             {
                 wnt_level = 0.0;
             }
-            WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+            WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
             // Test that the cell cycle model does not stop for division
             TS_ASSERT_EQUALS(result, false);
@@ -273,7 +273,7 @@ public:
         TS_ASSERT_DELTA(test_results[5], 0.9999999999999998, 1e-5);
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -287,14 +287,14 @@ public:
 
         // Set up Wnt concentration
         double wnt_level = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Cover exception - when constructing an instance of IngeWntSwatCellCycleModel,
         // we must pass in an hypothesis number (1 or 2)
-        TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0));
+        TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0,2));
 
         // Create cell cycle model and associated cell
-        IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
+        IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1,2);
 
         // Test that member variables are set correctly
         TS_ASSERT_EQUALS(p_cell_model->GetHypothesis(), 1u);
@@ -313,7 +313,7 @@ public:
         // InitialiseCellCycleModel() is called.
         TS_ASSERT_EQUALS(stem_cell.GetCellType(), TRANSIT);
 
-        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
         double tol = 1e-4;
 #ifdef CHASTE_CVODE
@@ -420,7 +420,7 @@ public:
             {
                 wnt_level = 0.0;
             }
-            WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+            WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
             TS_ASSERT_EQUALS(result, false);
             TS_ASSERT_EQUALS(result2, false);
@@ -475,8 +475,42 @@ public:
         TS_ASSERT_DELTA(p_cell_model->GetCytoplasmicBetaCateninLevel(), cytoplasm_beta_cat, 1e-4);
         TS_ASSERT_DELTA(p_cell_model->GetNuclearBetaCateninLevel(), nuclear_beta_cat, 1e-4);
 
+        // Coverage of 1D
+
+        WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
+        IngeWntSwatCellCycleModel* p_cell_model_1d = new IngeWntSwatCellCycleModel(1,1);
+
+        TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
+
+        TissueCell stem_cell_1d(STEM, HEALTHY, p_cell_model_1d);
+        stem_cell_1d.InitialiseCellCycleModel();
+
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model_1d->ReadyToDivide(), false);
+
+        // Coverage of 3D
+
+        WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
+        IngeWntSwatCellCycleModel* p_cell_model_3d = new IngeWntSwatCellCycleModel(1,3);
+
+        TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
+
+        TissueCell stem_cell_3d(STEM, HEALTHY, p_cell_model_3d);
+        stem_cell_3d.InitialiseCellCycleModel();
+
+        SimulationTime::Destroy();
+        SimulationTime::Instance()->SetStartTime(0.0);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
+        SimulationTime::Instance()->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model_3d->ReadyToDivide(), false);
+
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<1>::Destroy();
+        WntConcentration<2>::Destroy();
+        WntConcentration<3>::Destroy();
     }
 
 
@@ -489,10 +523,10 @@ public:
 
         // Set up Wnt concentration
         double wnt_level = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -500,7 +534,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, APC_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
@@ -533,7 +567,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -546,17 +580,17 @@ public:
 
         // Set up Wnt concentration
         double wnt_level = 0.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
         TissueCell stem_cell(STEM, BETA_CATENIN_ONE_HIT, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, BETA_CATENIN_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
@@ -591,7 +625,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -604,15 +638,15 @@ public:
 
         // Set up Wnt concentration
         double wnt_level = 0.738; // the Wnt concentrationshouldn't matter for a cell with APC double hit
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, APC_TWO_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(2);
         TissueCell stem_cell_2(STEM, APC_TWO_HIT, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
@@ -648,7 +682,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -661,15 +695,15 @@ public:
 
         // Set up Wnt concentration
         double wnt_level = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, HEALTHY, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(2);
         TissueCell stem_cell_2(STEM, HEALTHY, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
@@ -704,7 +738,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -717,10 +751,10 @@ public:
 
         // Set up Wnt concentration
         double wnt_level = 1.0;
-        WntConcentration::Instance()->SetConstantWntValueForTesting(wnt_level);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
+        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -751,7 +785,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -822,7 +856,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_cell_cycle.arch";
-        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration<3>::Instance()->SetConstantWntValueForTesting(1.0);
 
         {
             // Set up simulation time
@@ -830,7 +864,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
 
             // Create cell cycle model and associated cell
-            WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+            WntCellCycleModel* p_cell_model = new WntCellCycleModel(3);
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
@@ -883,12 +917,14 @@ public:
             TS_ASSERT_DELTA(p_cell_model->GetAge(), 17.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
+            TS_ASSERT_EQUALS((static_cast<WntCellCycleModel*>(p_cell_model))->GetDimension(), 3u);
 
             delete p_cell;
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
+        WntConcentration<3>::Destroy();
     }
 
 
@@ -898,7 +934,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "inge_wnt_swat_cell_cycle.arch";
-        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
         {
             // Set up simulation time
@@ -906,7 +942,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
 
             // Create cell cycle model and associated cell
-            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1);
+            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1,2);
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
@@ -961,7 +997,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -975,7 +1011,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_wnt_cell_cycle.arch";
-        WntConcentration::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
         {
             // In this test the RandomNumberGenerator in existence
@@ -985,12 +1021,12 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
 
             // Create cell cycle model and associated cell
-            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();
+            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel(2);
             TissueCell stoc_cell(STEM, HEALTHY, p_stoc_model);
             stoc_cell.InitialiseCellCycleModel();
 
             // Create another cell cycle model and associated cell
-            WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
+            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(2);
             TissueCell wnt_cell(STEM, HEALTHY, p_wnt_model);
             wnt_cell.InitialiseCellCycleModel();
 
@@ -1081,7 +1117,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
     
     void TestCopyingCells() throw(Exception)
@@ -1100,7 +1136,7 @@ public:
         p_original_cell_cycle->mReadyToDivide = true;
         
         TissueCell cell2 = cell;
-        TysonNovakCellCycleModel *p_new_cell_cycle = static_cast<TysonNovakCellCycleModel* > (cell2.GetCellCycleModel());
+        TysonNovakCellCycleModel* p_new_cell_cycle = static_cast<TysonNovakCellCycleModel* > (cell2.GetCellCycleModel());
         TS_ASSERT_EQUALS(&cell2, p_new_cell_cycle->GetCell() );
         TS_ASSERT_DIFFERS(&cell, &cell2);
         TS_ASSERT_DIFFERS(p_original_cell_cycle, p_new_cell_cycle);
@@ -1112,7 +1148,6 @@ public:
         TS_ASSERT_EQUALS(p_original_cell_cycle->mCurrentCellCyclePhase, p_new_cell_cycle->mCurrentCellCyclePhase);
         TS_ASSERT_EQUALS(p_original_cell_cycle->mG1Duration, p_new_cell_cycle->mG1Duration);
         TS_ASSERT_EQUALS(p_original_cell_cycle->mReadyToDivide, p_new_cell_cycle->mReadyToDivide);
-        
     }
     
 };

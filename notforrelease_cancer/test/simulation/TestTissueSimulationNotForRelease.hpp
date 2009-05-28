@@ -110,7 +110,7 @@ public:
 
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel());
+            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel(2));
             cell.InitialiseCellCycleModel();
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                   ( p_params->GetTransitCellG1Duration()
@@ -123,8 +123,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Set up the Wnt gradient
-        WntConcentration::Instance()->SetType(RADIAL);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(RADIAL);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create the force law and pass in to a std::list
         CryptProjectionForce crypt_projection_force;
@@ -159,13 +159,13 @@ public:
 
         // Test the Wnt concentration result
         TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(329));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.8753, 1e-3);
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.8753, 1e-3);
 
         p_cell = &(crypt.rGetCellUsingLocationIndex(494));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9175, 1e-3);
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.9175, 1e-3);
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     /**

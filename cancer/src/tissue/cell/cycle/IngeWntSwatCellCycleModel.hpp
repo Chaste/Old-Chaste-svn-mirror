@@ -95,16 +95,10 @@ public:
      *
      * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the
      * interactions modelled by the cell cycle ODE system.
+     * @param dimension the spatial dimension
      */
-    IngeWntSwatCellCycleModel(unsigned hypothesis)
-       : mHypothesis(hypothesis)
-    {
-        if ( !(mHypothesis==1u || mHypothesis==2u) )
-        {
-            EXCEPTION("Model must be set up with argument(hypothesis) = 1u or 2u");
-        }
-    }
-    
+    IngeWntSwatCellCycleModel(unsigned hypothesis, unsigned dimension);
+
     /**
      * Copy constructor.
      * 
@@ -121,10 +115,12 @@ public:
      * @param rHypothesis which model hypothesis to use (1 or 2)
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
      * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param rDimension the spatial dimension
      */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                               const std::vector<double>& rParentProteinConcentrations,
-                              const CellMutationState& rMutationState);
+                              const CellMutationState& rMutationState,
+                              const unsigned& rDimension);
 
     /**
      * Overridden builder method to create new copies of
@@ -211,11 +207,12 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
+    unsigned dimension = 2;
 
     unsigned hypothesis;
     ar & hypothesis;
 
-    ::new(t)IngeWntSwatCellCycleModel(hypothesis, state_vars, mutation_state);
+    ::new(t)IngeWntSwatCellCycleModel(hypothesis, state_vars, mutation_state, dimension);
 }
 }
 } // namespace ...

@@ -67,6 +67,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
+        archive & mDimension;
     }
 
 protected:
@@ -79,6 +80,10 @@ protected:
     static RungeKutta4IvpOdeSolver msSolver;
 #endif //CHASTE_CVODE
 
+    /**
+     * The spatial dimension (needed by the templated class WntConcentration).
+     */
+    unsigned mDimension;
 
     /**
      * @return time when the ODEs reached their stopping condition.
@@ -88,9 +93,23 @@ protected:
 public:
 
     /**
-     * Just a default constructor (no member variables)
+     * Default constructor
+     * 
+     * @param dimension the spatial dimension (used by WntConcentration)
      */
-    AbstractWntOdeBasedCellCycleModel();
+    AbstractWntOdeBasedCellCycleModel(unsigned dimension);
+
+    /**
+     * Copy constructor.
+     * 
+     * This is needed because we store and manage a pointer to an ODE system.
+     * Note that this class doesn't actually copy the ODE system, because each
+     * subclass will use a different type.  Hence subclasses *must* copy their
+     * own ODE system in their copy constructor.
+     * 
+     * @param other  the cell cycle model being copied.
+     */
+    AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& other);
 
     /**
      * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
@@ -115,10 +134,15 @@ public:
      */
     virtual void ChangeCellTypeDueToCurrentBetaCateninLevel()=0;
 
+    /**
+     * Get the spatial dimension.
+     *
+     * @return mDimension
+     */
+    unsigned GetDimension();
+
 };
 
 BOOST_IS_ABSTRACT(AbstractWntOdeBasedCellCycleModel)
 
 #endif /*ABSTRACTWNTODEBASEDCELLCYCLEMODEL_HPP_*/
-
-

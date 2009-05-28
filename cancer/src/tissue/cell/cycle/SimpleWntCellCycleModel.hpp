@@ -57,6 +57,7 @@ private:
         archive & *p_gen;
 
         archive & mUseCellTypeDependentG1Duration;
+        archive & mDimension;
     }
 
     /**
@@ -64,6 +65,11 @@ private:
      * For use in SetG1Duration().
      */
     bool mUseCellTypeDependentG1Duration;
+
+    /**
+     * The spatial dimension (needed by the templated class WntConcentration).
+     */
+    unsigned mDimension;
 
 protected:
 
@@ -84,9 +90,10 @@ public:
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called.
      *
+     * @param dimension the spatial dimension (needed by the templated class WntConcentration)
      * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
-    SimpleWntCellCycleModel(bool useCellTypeDependentG1Duration=false);
+    SimpleWntCellCycleModel(unsigned dimension, bool useCellTypeDependentG1Duration=false);
 
     /**
      * Overridden UpdateCellCyclePhase() method.
@@ -108,11 +115,52 @@ public:
      * this cell cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
-    
+
+    /**
+     * Get the spatial dimension.
+     *
+     * @return mDimension
+     */
+    unsigned GetDimension();
 };
 
 // Declare identifier for the serializer
 BOOST_CLASS_EXPORT(SimpleWntCellCycleModel)
 
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a SimpleWntCellCycleModel instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const SimpleWntCellCycleModel * t, const unsigned int file_version)
+{
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a SimpleWntCellCycleModel instance.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, SimpleWntCellCycleModel * t, const unsigned int file_version)
+{
+    /**
+     * Invoke inplace constructor to initialise an instance of SimpleWntCellCycleModel.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
+     * from the archive will overwrite their effect in this case.
+     */
+
+    unsigned dimension = 1;
+    ::new(t)SimpleWntCellCycleModel(dimension);
+}
+}
+} // namespace ...
 
 #endif /*SIMPLEWNTCELLCYCLEMODEL_HPP_*/

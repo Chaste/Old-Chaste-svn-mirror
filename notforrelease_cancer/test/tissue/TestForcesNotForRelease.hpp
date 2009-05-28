@@ -385,8 +385,8 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
         tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(4), tissue.rGetCellUsingLocationIndex(5));
 
-        WntConcentration::Instance()->SetType(RADIAL);
-        WntConcentration::Instance()->SetTissue(tissue);
+        WntConcentration<2>::Instance()->SetType(RADIAL);
+        WntConcentration<2>::Instance()->SetTissue(tissue);
 
         // Create a spring system with crypt surface z = 2*r
         p_params->SetCryptProjectionParameterA(2.0);
@@ -429,7 +429,7 @@ public:
         c_vector<double,2> new_force = new_node_forces[11];
 
         double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
-        c_vector<double,2> wnt_component = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(cells[11]));
+        c_vector<double,2> wnt_component = wnt_chemotaxis_strength*WntConcentration<2>::Instance()->GetWntGradient(&(cells[11]));
 
         TS_ASSERT_DELTA(new_force[0], old_force[0]+wnt_component[0], 1e-4);
         TS_ASSERT_DELTA(new_force[1], old_force[1]+wnt_component[1], 1e-4);

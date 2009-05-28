@@ -391,8 +391,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -425,7 +425,7 @@ public:
 #endif //CHASTE_CVODE
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
 
         CancerEventHandler::Headings();
         CancerEventHandler::Report();
@@ -476,8 +476,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -517,7 +517,7 @@ public:
         }
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     void TestRandomDeathWithPeriodicMesh() throw (Exception)

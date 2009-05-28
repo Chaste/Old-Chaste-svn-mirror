@@ -37,34 +37,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissue.hpp"
 #include "WntCellCycleModel.hpp"
+#include "AbstractCancerTestSuite.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,
  * so if you copy them into a new test suite be sure to copy these methods
  * too.
  */
-class TestWntConcentration : public CxxTest::TestSuite
+class TestWntConcentration : public AbstractCancerTestSuite
 {
-private:
-
-    void setUp()
-    {
-        // Initialise singleton classes
-        SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
-    }
-    void tearDown()
-    {
-        // Clear up singleton classes
-        SimulationTime::Destroy();
-        WntConcentration::Destroy();
-    }
-
 public:
 
     void TestNoWnt() throw(Exception)
     {
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(NONE);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // NONE does not register as a set up Wnt Gradient (so stem cells are not moved)
@@ -83,12 +69,14 @@ public:
 
         TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[1], 0.0, 1e-12);
+
+        WntConcentration<2>::Destroy();
     }
 
 
     void TestLinearWntConcentration() throw(Exception)
     {
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
 
@@ -124,12 +112,14 @@ public:
         TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[0], 0.0, 1e-12);
         // This should be equal to -1/22 = -0.0454
         TS_ASSERT_DELTA(p_wnt->GetWntGradient(location)[1], -0.0454, 1e-4);
+
+        WntConcentration<2>::Destroy();
     }
 
 
     void TestOffsetLinearWntConcentration() throw(Exception)
     {
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
         CancerParameters* p_params = CancerParameters::Instance();
@@ -162,22 +152,26 @@ public:
         height = 10.0;
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+
+        WntConcentration<2>::Destroy();
     }
 
 
     void TestRadialWntConcentration() throw(Exception)
     {
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
+
         p_wnt->SetType(RADIAL);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a tissue is assigned.
+
         CancerParameters* p_params = CancerParameters::Instance();
 
         // Test GetWntLevel(double) method
         double height = 100;
         double wnt_level = 0.0;
-        wnt_level = p_wnt->GetWntLevel(height);
 
+        wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-4);
 
         height = -1e-12;
@@ -211,7 +205,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            WntCellCycleModel* p_model = new WntCellCycleModel();
+            WntCellCycleModel* p_model = new WntCellCycleModel(2);
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -224,15 +218,15 @@ public:
         p_wnt->SetTissue(crypt);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // fully set up now
 
-        WntConcentration::Destroy();
-        WntConcentration::Instance()->SetType(NONE);
-        WntConcentration::Instance()->SetTissue(crypt);
-        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(), false);    // not fully set up now it is a NONE type
+        WntConcentration<2>::Destroy();
+        WntConcentration<2>::Instance()->SetType(NONE);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
+        TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), false);    // not fully set up now it is a NONE type
 
-        WntConcentration::Destroy();
-        WntConcentration::Instance()->SetType(RADIAL);
-        WntConcentration::Instance()->SetTissue(crypt);
-        p_wnt = WntConcentration::Instance();
+        WntConcentration<2>::Destroy();
+        WntConcentration<2>::Instance()->SetType(RADIAL);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
+        p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // set up again
 
         AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
@@ -261,6 +255,8 @@ public:
         }
 
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
+
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -272,18 +268,18 @@ public:
 
         // Create an ouput archive
         {
-            WntConcentration::Instance()->SetType(LINEAR);
+            WntConcentration<2>::Instance()->SetType(LINEAR);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            output_arch << static_cast<const WntConcentration&> (*WntConcentration::Instance());
+            output_arch << static_cast<const WntConcentration<2>&> (*WntConcentration<2>::Instance());
 
-            WntConcentration::Destroy();
+            WntConcentration<2>::Destroy();
         }
 
         {
-            WntConcentration* p_wnt = WntConcentration::Instance();
+            WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -297,6 +293,8 @@ public:
 
             TS_ASSERT_DELTA(wnt_level, 1.0-height/CancerParameters::Instance()->GetCryptLength(), 1e-9);
         }
+
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -304,7 +302,7 @@ public:
     {
         CancerParameters* p_params = CancerParameters::Instance();
 
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         p_wnt->SetType(NONE);
 
         double height = 5;
@@ -315,9 +313,9 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(p_wnt->SetType(NONE));
 
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
 
-        p_wnt = WntConcentration::Instance();
+        p_wnt = WntConcentration<2>::Instance();
         p_wnt->SetType(LINEAR);
 
         height = 100;
@@ -341,6 +339,8 @@ public:
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
         TS_ASSERT_THROWS_ANYTHING(p_wnt->SetConstantWntValueForTesting(-10));
+
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -356,7 +356,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            WntCellCycleModel* p_model = new WntCellCycleModel();
+            WntCellCycleModel* p_model = new WntCellCycleModel(2);
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -370,8 +370,8 @@ public:
 
         CancerParameters::Instance()->SetCryptLength(1.0);
 
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // As there is no tissue simulation we must explicitly initialise the cells
         crypt.InitialiseCells();
@@ -399,6 +399,8 @@ public:
 
             ++iter;
         }
+
+        WntConcentration<2>::Destroy();
     }
 };
 

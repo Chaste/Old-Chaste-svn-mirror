@@ -865,7 +865,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<vertex_mesh.GetNumElements(); i++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new WntCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new WntCellCycleModel(2));
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -878,7 +878,7 @@ public:
         CancerParameters::Instance()->SetCryptLength(4.0);
 
         // Set up an instance of the WntConcentration singleton object
-        WntConcentration* p_wnt = WntConcentration::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
 
         // Check that the singleton can be set up
@@ -888,16 +888,16 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);
 
         // Check that the singleton can be destroyed then recreated
-        WntConcentration::Destroy();
-        WntConcentration::Instance()->SetType(NONE);
-        WntConcentration::Instance()->SetTissue(tissue);
-        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(), false); // not fully set up now it is a NONE type
+        WntConcentration<2>::Destroy();
+        WntConcentration<2>::Instance()->SetType(NONE);
+        WntConcentration<2>::Instance()->SetTissue(tissue);
+        TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), false); // not fully set up now it is a NONE type
 
-        WntConcentration::Destroy();
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(tissue);
+        WntConcentration<2>::Destroy();
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(tissue);
 
-        p_wnt = WntConcentration::Instance();
+        p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true); // set up again
 
         double wnt_at_cell0 = p_wnt->GetWntLevel(&(tissue.rGetCellUsingLocationIndex(0)));

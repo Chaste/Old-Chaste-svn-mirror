@@ -30,6 +30,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 
 
+IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(unsigned hypothesis, unsigned dimension)
+   : AbstractWntOdeBasedCellCycleModel(dimension),
+     mHypothesis(hypothesis)
+{
+    if ( !(mHypothesis==1u || mHypothesis==2u) )
+    {
+        EXCEPTION("Model must be set up with argument(hypothesis) = 1u or 2u");
+    }
+}
+
+
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& other)
     : AbstractWntOdeBasedCellCycleModel(other),
       mHypothesis(other.mHypothesis)
@@ -40,9 +51,12 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleM
     }
 }
 
+
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                                      const std::vector<double>& rParentProteinConcentrations,
-                                                     const CellMutationState& rMutationState)
+                                                     const CellMutationState& rMutationState,
+                                                     const unsigned& rDimension)
+    : AbstractWntOdeBasedCellCycleModel(rDimension)
 {
     mHypothesis = rHypothesis;
     mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], rMutationState);// Wnt pathway is reset in a couple of lines.
@@ -84,7 +98,30 @@ void IngeWntSwatCellCycleModel::Initialise()
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
 
-    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, WntConcentration::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
@@ -100,7 +137,29 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 #endif // CHASTE_CVODE
 
     // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
-    mpOdeSystem->rGetStateVariables()[21] = WntConcentration::Instance()->GetWntLevel(mpCell);
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            mpOdeSystem->rGetStateVariables()[21] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            mpOdeSystem->rGetStateVariables()[21] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            mpOdeSystem->rGetStateVariables()[21] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
 
     // Use the cell's current mutation status as another input
     static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());

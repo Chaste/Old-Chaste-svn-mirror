@@ -29,10 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /** Pointer to the single instance */
-WntConcentration* WntConcentration::mpInstance = NULL;
+template<unsigned DIM>
+WntConcentration<DIM>* WntConcentration<DIM>::mpInstance = NULL;
 
 
-WntConcentration* WntConcentration::Instance()
+template<unsigned DIM>
+WntConcentration<DIM>* WntConcentration<DIM>::Instance()
 {
     if (mpInstance == NULL)
     {
@@ -41,25 +43,27 @@ WntConcentration* WntConcentration::Instance()
     return mpInstance;
 }
 
-
-WntConcentration::WntConcentration()
- :  mpCancerParams(CancerParameters::Instance()),
-    mpTissue(NULL),
-    mTypeSet(false),
-    mConstantWntValueForTesting(0),
-    mUseConstantWntValueForTesting(false)
+template<unsigned DIM>
+WntConcentration<DIM>::WntConcentration()
+    : mpCancerParams(CancerParameters::Instance()),
+      mpTissue(NULL),
+      mTypeSet(false),
+      mConstantWntValueForTesting(0),
+      mUseConstantWntValueForTesting(false)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
 }
 
 
-WntConcentration::~WntConcentration()
+template<unsigned DIM>
+WntConcentration<DIM>::~WntConcentration()
 {
 }
 
 
-void WntConcentration::Destroy()
+template<unsigned DIM>
+void WntConcentration<DIM>::Destroy()
 {
     if (mpInstance)
     {
@@ -69,7 +73,8 @@ void WntConcentration::Destroy()
 }
 
 
-double WntConcentration::GetWntLevel(TissueCell* pCell)
+template<unsigned DIM>
+double WntConcentration<DIM>::GetWntLevel(TissueCell* pCell)
 {
     if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
@@ -90,41 +95,45 @@ double WntConcentration::GetWntLevel(TissueCell* pCell)
     }
     else
     {
-        height = mpTissue->GetLocationOfCellCentre(pCell)[1]; // y-coordinate
+        height = mpTissue->GetLocationOfCellCentre(pCell)[DIM-1];
     }
     return GetWntLevel(height);
 }
 
 
-c_vector<double,2> WntConcentration::GetWntGradient(TissueCell* pCell)
+template<unsigned DIM>
+c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCell* pCell)
 {
     if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
-        return zero_vector<double>(2);
+        return zero_vector<double>(DIM);
     }
     assert(mpTissue!=NULL);
     assert(mTypeSet);
     assert(pCell!=NULL);
 
-    c_vector<double,2> location_of_cell = mpTissue->GetLocationOfCellCentre(pCell);
+    c_vector<double, DIM> location_of_cell = mpTissue->GetLocationOfCellCentre(pCell);
 
     return GetWntGradient(location_of_cell);
 }
 
 
-void WntConcentration::SetTissue(AbstractTissue<2>& rTissue)
+template<unsigned DIM>
+void WntConcentration<DIM>::SetTissue(AbstractTissue<DIM>& rTissue)
 {
     mpTissue = &rTissue;
 }
 
 
-WntConcentrationType WntConcentration::GetType()
+template<unsigned DIM>
+WntConcentrationType WntConcentration<DIM>::GetType()
 {
     return mWntType;
 }
 
 
-void WntConcentration::SetType(WntConcentrationType type)
+template<unsigned DIM>
+void WntConcentration<DIM>::SetType(WntConcentrationType type)
 {
     if (mTypeSet==true)
     {
@@ -135,13 +144,14 @@ void WntConcentration::SetType(WntConcentrationType type)
 }
 
 
-double WntConcentration::GetWntLevel(double height)
+template<unsigned DIM>
+double WntConcentration<DIM>::GetWntLevel(double height)
 {
     double wnt_level = -1.0;
 
     if (mWntType==NONE)
     {
-        wnt_level=0.0;
+        wnt_level = 0.0;
     }
 
     // The first type of Wnt concentration to try
@@ -166,9 +176,10 @@ double WntConcentration::GetWntLevel(double height)
 }
 
 
-c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
+template<unsigned DIM>
+c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM> location)
 {
-    c_vector<double,2> wnt_gradient = zero_vector<double>(2);
+    c_vector<double, DIM> wnt_gradient = zero_vector<double>(DIM);
 
     if (mWntType!=NONE)
     {
@@ -177,9 +188,9 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
 
         if (mWntType==LINEAR)
         {
-            if ((location[1] >= -1e-9) && (location[1] < top_of_wnt*crypt_height))
+            if ((location[DIM-1] >= -1e-9) && (location[DIM-1] < top_of_wnt*crypt_height))
             {
-                wnt_gradient[1] = -1.0/(top_of_wnt*crypt_height);
+                wnt_gradient[DIM-1] = -1.0/(top_of_wnt*crypt_height);
             }
         }
         else // RADIAL Wnt concentration
@@ -187,24 +198,27 @@ c_vector<double,2> WntConcentration::GetWntGradient(c_vector<double,2> location)
             double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
             double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
             double r = norm_2(location);
-            double r_critical = pow(top_of_wnt*crypt_height/a,1.0/b);
+            double r_critical = pow(top_of_wnt*crypt_height/a, 1.0/b);
 
             double dwdr = 0.0;
 
             if ( r>=-1e-9 && r<r_critical )
             {
-                dwdr = -top_of_wnt*crypt_height*pow(r,b-1.0)/a;
+                dwdr = -top_of_wnt*crypt_height*pow(r, b-1.0)/a;
             }
 
-            wnt_gradient[0] = location[0]*dwdr/r;
-            wnt_gradient[1] = location[1]*dwdr/r;
+            for (unsigned i=0; i<DIM; i++)
+            {
+                wnt_gradient[i] = location[i]*dwdr/r;
+            }
         }
     }
     return wnt_gradient;
 }
 
 
-bool WntConcentration::IsWntSetUp()
+template<unsigned DIM>
+bool WntConcentration<DIM>::IsWntSetUp()
 {
     bool result = false;
     if (mTypeSet && mpTissue!=NULL && mWntType!=NONE)
@@ -215,11 +229,12 @@ bool WntConcentration::IsWntSetUp()
 }
 
 
-void WntConcentration::SetConstantWntValueForTesting(double value)
+template<unsigned DIM>
+void WntConcentration<DIM>::SetConstantWntValueForTesting(double value)
 {
     if (value < 0)
     {
-        EXCEPTION("WntConcentration::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");
+        EXCEPTION("WntConcentration<DIM>::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");
     }
     mConstantWntValueForTesting = value;
     mUseConstantWntValueForTesting = true;
@@ -228,3 +243,12 @@ void WntConcentration::SetConstantWntValueForTesting(double value)
         mWntType = NONE;
     }
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+template class WntConcentration<1>;
+template class WntConcentration<2>;
+template class WntConcentration<3>;

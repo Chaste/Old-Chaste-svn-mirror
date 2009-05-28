@@ -118,18 +118,21 @@ public:
 
     /**
      * The standard constructor called in tests.
+     * 
+     * @param dimension the spatial dimension (needed by WntConcentration)
      */
-    StochasticWntCellCycleModel();
-
+    StochasticWntCellCycleModel(unsigned dimension);
 
     /**
      * A private constructor for archiving.
      *
      * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param mutationState the mutation state of the cell (used by ODEs)
+     * @param dimension the spatial dimension
      */
     StochasticWntCellCycleModel(std::vector<double> parentProteinConcentrations,
-                                CellMutationState mutationState);
+                                CellMutationState mutationState,
+                                unsigned dimension);
 
     /**
      * Overridden builder method to create new copies of
@@ -179,8 +182,8 @@ inline void load_construct_data(
     }
 
     CellMutationState mutation_state = HEALTHY;
-
-    ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state);
+    unsigned dimension = 2;
+    ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state, dimension);
 }
 }
 } // namespace

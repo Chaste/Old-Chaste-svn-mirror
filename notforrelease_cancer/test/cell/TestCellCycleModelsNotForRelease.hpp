@@ -604,7 +604,7 @@ public:
 
             // Check that archiving worked correctly
             Alarcon2004OxygenBasedCellCycleModel* p_model = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell->GetCellCycleModel());
-;
+
             TS_ASSERT_EQUALS(p_cell, p_model->GetCell());
             TS_ASSERT_EQUALS(p_model->GetDimension(), 3u);
             TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);

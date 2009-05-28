@@ -546,8 +546,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -575,7 +575,7 @@ public:
         TS_ASSERT_DELTA(node_35_location[1], 4.33013, 1e-4);
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     // A better check that the loaded mesh is the same as that saved
@@ -601,8 +601,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -636,7 +636,7 @@ public:
 
         // Tidy up
         delete p_simulator;
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     // A check that save and load works when a Voronoi tessellation is involved
@@ -663,8 +663,8 @@ public:
         crypt.SetAreaBasedDampingConstant(true);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
@@ -694,7 +694,7 @@ public:
 
         // Tidy up
         delete p_simulator;
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -721,8 +721,8 @@ public:
 
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -755,11 +755,11 @@ public:
 
         // Test the Wnt concentration result
         TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(28));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
 
         p_cell = &(crypt.rGetCellUsingLocationIndex(120));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
-        WntConcentration::Destroy();
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
+        WntConcentration<2>::Destroy();
 
         // Check writing of voronoi data
         OutputFileHandler handler("Crypt2DPeriodicStandardResult",false);
@@ -793,8 +793,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -819,7 +819,7 @@ public:
         TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -830,8 +830,8 @@ public:
         // run it from 0.1 to 0.2
         CryptSimulation2d* p_simulator1;
 
-        WntConcentration::Instance();   // Make sure there is no existing Wnt Gradient before load.
-        WntConcentration::Destroy();
+        WntConcentration<2>::Instance();   // Make sure there is no existing Wnt Gradient before load.
+        WntConcentration<2>::Destroy();
 
         p_simulator1 = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
 
@@ -867,19 +867,19 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
         // Test Wnt concentration was set up correctly
-        TS_ASSERT_EQUALS(WntConcentration::Instance()->IsWntSetUp(),true);
+        TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(),true);
 
         // Test the Wnt concentration result
         TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
 
         p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(120));
-        TS_ASSERT_DELTA(WntConcentration::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
 
         // Tidy up
         delete p_simulator1;
         delete p_simulator2;
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
     /*
@@ -931,8 +931,8 @@ public:
         cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> force;
@@ -988,7 +988,7 @@ public:
         TS_ASSERT(comp.CompareFiles(2e-6));
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -1518,8 +1518,8 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -1546,7 +1546,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_setup_file + " cancer/test/data/CryptBetaCatenin/results.vizsetup").c_str()), 0);
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
     }
 
 
@@ -1634,7 +1634,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file3 + " cancer/test/data/AncestorCrypt/results.vizcelltypes").c_str()), 0);
 
         // Tidy up
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
         delete p_crypt;
         delete p_params;
     }

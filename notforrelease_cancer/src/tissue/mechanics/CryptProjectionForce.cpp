@@ -247,7 +247,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
 
     if (mIncludeWntChemotaxis)
     {
-        assert(WntConcentration::Instance()->IsWntSetUp());
+        assert(WntConcentration<2>::Instance()->IsWntSetUp());
 
         double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
 
@@ -257,7 +257,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
         {
             if (cell_iter->GetCellType()==STEM)
             {
-                c_vector<double, 2> wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration::Instance()->GetWntGradient(&(*cell_iter));
+                c_vector<double, 2> wnt_chemotactic_force = wnt_chemotaxis_strength*WntConcentration<2>::Instance()->GetWntGradient(&(*cell_iter));
                 unsigned index = rTissue.GetLocationIndexUsingCell(&(*cell_iter));
 
                 rForces[index] += wnt_chemotactic_force;

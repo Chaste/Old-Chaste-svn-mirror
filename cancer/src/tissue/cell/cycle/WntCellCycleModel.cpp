@@ -39,7 +39,9 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& other)
 
 
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                     const CellMutationState& rMutationState)
+                                     const CellMutationState& rMutationState,
+                                     unsigned dimension)
+    : AbstractWntOdeBasedCellCycleModel(dimension)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState); // Wnt pathway is reset in a couple of lines
 
@@ -76,7 +78,31 @@ void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
-    mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
     ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
@@ -92,7 +118,29 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 #endif // CHASTE_CVODE
 
     // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
-    mpOdeSystem->rGetStateVariables()[8] = WntConcentration::Instance()->GetWntLevel(mpCell);
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            mpOdeSystem->rGetStateVariables()[8] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            mpOdeSystem->rGetStateVariables()[8] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            mpOdeSystem->rGetStateVariables()[8] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
 
     // Use the cell's current mutation status as another input
     static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());

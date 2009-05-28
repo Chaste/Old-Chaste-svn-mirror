@@ -459,7 +459,7 @@ public:
             // Tidy up
             cells.clear();
             labelled.clear();
-            WntConcentration::Destroy();
+            WntConcentration<2>::Destroy();
 
             delete p_crypt_statistics;
             delete p_crypt;

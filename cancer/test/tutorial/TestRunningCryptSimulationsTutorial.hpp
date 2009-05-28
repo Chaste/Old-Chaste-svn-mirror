@@ -219,8 +219,8 @@ public:
          * Wnt concentation should be - here, we say it is linear (linear decreasing from 1 to 0
          * from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
          * of the tissue.*/
-        WntConcentration::Instance()->SetType(LINEAR);
-        WntConcentration::Instance()->SetTissue(tissue);
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(tissue);
 
         /* Create a force collection as above. */
         GeneralisedLinearSpringForce<2> linear_force;
@@ -241,7 +241,7 @@ public:
 
         /* Destroy the time, and the {{{WntConcentration}}} object. The solution can be visualised using the
          * Visualizer as before, just with the different output directory. */
-        WntConcentration::Destroy();
+        WntConcentration<2>::Destroy();
         SimulationTime::Destroy();
     }
 };

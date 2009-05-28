@@ -47,7 +47,6 @@ class TestCellwiseData : public AbstractCancerTestSuite
 {
 public:
 
-
     void TestCellwiseDataSimple() throw(Exception)
     {
         // Create a simple mesh
