@@ -78,8 +78,8 @@ ionic_models_available_type default_ionic_model = ionic_models_available_type::L
 std::vector<ChasteCuboid> ionic_model_regions;
 std::vector<ionic_models_available_type> ionic_models_defined;
 
-std::vector<SimpleStimulus> stimuli_applied;
-std::vector<ChasteCuboid> stimuled_areas;
+std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
+std::vector<ChasteCuboid> stimulated_areas;
 
 std::vector<double> scale_factor_gks;
 std::vector<double> scale_factor_ito;
@@ -95,7 +95,7 @@ public:
     }
 
 
-    AbstractCardiacCell* CreateCellWithIntracellularStimulus(AbstractStimulusFunction* intracellularStimulus, unsigned node)
+    AbstractCardiacCell* CreateCellWithIntracellularStimulus(boost::shared_ptr<AbstractStimulusFunction> intracellularStimulus, unsigned node)
     {
         ionic_models_available_type ionic_model = default_ionic_model;
 
@@ -191,17 +191,16 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        /// \todo: Memory leak, these pointers should freed
-        MultiStimulus* node_specific_stimulus = new MultiStimulus();
+        boost::shared_ptr<MultiStimulus> node_specific_stimulus(new MultiStimulus());
 
         // Check which of the defined stimuli contain the current node
         for (unsigned stimulus_index = 0;
              stimulus_index < stimuli_applied.size();
              ++stimulus_index)
         {
-            if ( stimuled_areas[stimulus_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
+            if ( stimulated_areas[stimulus_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
             {
-                node_specific_stimulus->AddStimulus(&stimuli_applied[stimulus_index]);
+                node_specific_stimulus->AddStimulus(stimuli_applied[stimulus_index]);
             }
         }
 
@@ -229,7 +228,7 @@ void ReadParametersFromFile()
     // Read and store Stimuli
     try
     {
-        HeartConfig::Instance()->GetStimuli(stimuli_applied, stimuled_areas);
+        HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
     }
     catch(Exception& e)
     {

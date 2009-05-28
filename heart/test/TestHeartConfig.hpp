@@ -112,15 +112,15 @@ public :
         double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
         TS_ASSERT_EQUALS(inter_node_space, 0.1);
 
-        std::vector<SimpleStimulus> stimuli_applied;
+        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
         std::vector<ChasteCuboid> stimulated_areas;
         HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
 
         TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
         TS_ASSERT_EQUALS(stimulated_areas.size(), 2u);
 
-        TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0), -25500.0);
-        TS_ASSERT_EQUALS(stimuli_applied[0].GetStimulus(0.6), 0.0);
+        TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0), -25500.0);
+        TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0.6), 0.0);
 
         TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
         TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));

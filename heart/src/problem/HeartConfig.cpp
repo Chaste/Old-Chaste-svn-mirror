@@ -405,7 +405,8 @@ media_type HeartConfig::GetConductivityMedia() const
                            "LoadMesh")->get().LoadMesh()->conductivity_media();
 }
 
-void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const
+void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied,
+                             std::vector<ChasteCuboid>& rStimulatedAreas) const
 {
     XSD_ANON_SEQUENCE_TYPE(simulation_type, Stimuli, Stimulus)&
          stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(),
@@ -427,8 +428,11 @@ void HeartConfig::GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::v
                                         point_b.y(),
                                         point_b.z());
 
-        stimuliApplied.push_back( SimpleStimulus(stimulus.Strength(), stimulus.Duration(), stimulus.Delay() ) );
-        stimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        boost::shared_ptr<SimpleStimulus> stim(new SimpleStimulus(stimulus.Strength(),
+                                                                  stimulus.Duration(),
+                                                                  stimulus.Delay()));
+        rStimuliApplied.push_back( stim );
+        rStimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
     }
 }
 

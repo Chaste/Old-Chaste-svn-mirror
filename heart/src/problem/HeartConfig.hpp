@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteCuboid.hpp"
 #include "OutputFileHandler.hpp"
 
+#include <boost/shared_ptr.hpp>
+
 class HeartConfig
 {
 private:
@@ -85,7 +87,7 @@ public:
     std::string GetMeshName() const;
     media_type GetConductivityMedia() const;
 
-    void GetStimuli(std::vector<SimpleStimulus>& stimuliApplied, std::vector<ChasteCuboid>& stimulatedAreas) const;
+    void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid>& rStimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
                                 std::vector<double>& scaleFactorGks,
                                 std::vector<double>& scaleFactorIto,
