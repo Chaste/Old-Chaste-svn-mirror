@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Electrodes.hpp"
-#include "Debug.hpp"
+
 template<unsigned DIM>
 Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
                        bool groundSecondElectrode,
