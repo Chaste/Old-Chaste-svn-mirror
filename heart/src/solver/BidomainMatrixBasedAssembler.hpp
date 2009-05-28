@@ -26,8 +26,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// NOTE: BidomainMatrixBasedAssembler is defined after BidomainRhsMatrixAssembler
-
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+//   NOTE: The main class in this file, BidomainMatrixBasedAssembler, is defined at the 
+//   bottom, after BidomainRhsMatrixAssembler
+//
+//
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _BIDOMAINMATRIXBASEDASSEMBLER_HPP_
 #define _BIDOMAINMATRIXBASEDASSEMBLER_HPP_

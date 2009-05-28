@@ -68,7 +68,8 @@ protected:
     /** Whether the matrix has been assembled for the current time step. */
     bool mMatrixIsAssembled;
 
-    /** Whether the matrix of the system needs to be assembled at each time step. */
+    /** Whether the matrix is constant in time (if so the system need not be assembled at each time step. 
+     *  Defaults to false */
     bool mMatrixIsConstant;
 
     /** Whether the RHS vector of a linear problem is created by a matrix-vector multiplication */
@@ -273,7 +274,11 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
         // easy way around this
         if(!mUseMatrixBasedRhsAssembly || !mMatrixIsAssembled)
         {
-            next_solution = this->StaticSolve(current_solution, stepper.GetTime(), !mMatrixIsAssembled);
+            // matrix is constant case: only assembler matrix the first time
+            // matrix is not constant case: always assemble
+            bool assemble_matrix = (!mMatrixIsConstant || !mMatrixIsAssembled);
+            
+            next_solution = this->StaticSolve(current_solution, stepper.GetTime(), assemble_matrix);
         }
         else
         {
@@ -281,7 +286,11 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
             next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
         }
 
-        mMatrixIsAssembled = true;
+        if(mMatrixIsConstant)
+        {
+            mMatrixIsAssembled = true;
+        }
+
         stepper.AdvanceOneTimeStep();
 
         // Avoid memory leaks

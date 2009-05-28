@@ -348,13 +348,6 @@ public:
         Vec solution = assembler.Solve();
         ReplicatableVector solution_repl(solution);
 
-        /* '''Important note''': for efficiency reasons, we assume the matrix that is set up when
-         * solving parabolic equations with the finite element method is constant and only thus
-         * needs to be assembled in the first timestep. If you end up solving a more complicated
-         * PDE with (for example) time-dependent diffusion tensors where the matrix is not constant
-         * in time, you must do: {{{assembler.SetMatrixIsConstant(false)}}} before calling `Solve`.
-         */
-
         /* Let's also solve the equivalent static PDE, ie set du/dt=0, so 0=div(gradu) + u. This
          * is easy, as the PDE class has already been defined */
         SimplePoissonEquation<3,3> static_pde;
