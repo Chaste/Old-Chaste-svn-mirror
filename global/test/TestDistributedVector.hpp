@@ -281,6 +281,7 @@ public:
         unsigned local_size2 = petsc_hi - petsc_lo;
         TS_ASSERT_EQUALS(local_size, local_size2);
         TS_ASSERT_EQUALS(local_size, factory2.GetLocalOwnership());
+        TS_ASSERT_EQUALS(total, factory2.GetSize());
         
         
 

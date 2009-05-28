@@ -309,10 +309,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
              boundary_element_iter++)
     {
 
-// remove 767
-//        this->GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove); // to be removed
-//        this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = this->GetBoundaryElement(*boundary_element_iter)->CalculateJacobianDeterminant();
-
         this->GetBoundaryElement(*boundary_element_iter)->CalculateWeightedDirection(this->mBoundaryElementWeightedDirections[(*boundary_element_iter)],
                                                                                      this->mBoundaryElementJacobianDeterminants[(*boundary_element_iter)]);
 
@@ -341,8 +337,6 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         }
         else
         {
-// remove 767
-//            this->GetElement(*element_iter)->ZeroJacobianDeterminant();  // to be removed
             this->mElementJacobianDeterminants[ (*element_iter) ] = 0.0;
         }
     }
@@ -367,11 +361,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         }
         else
         {
-// remove 767
-//            this->GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();  // to be removed
             this->mBoundaryElementJacobianDeterminants[ (*boundary_element_iter) ] = 0.0;
-// remove 767
-//            this->GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
             this->mBoundaryElementWeightedDirections[ (*boundary_element_iter) ] = zero_vector<double>(SPACE_DIM);
         }
     }
@@ -421,9 +411,6 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
         // Second, update the node in the element with the new one
         p_new_element->UpdateNode(ELEMENT_DIM-1-i, this->mNodes[new_node_index]);
 
-// remove 767
-//        p_new_element->RefreshJacobianDeterminant();
-
         // Third, add the new element to the set
         if ((unsigned) new_elt_index == this->mElements.size())
         {
@@ -438,8 +425,6 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
 
     // Lastly, update the last node in the element to be refined
     pElement->UpdateNode(ELEMENT_DIM, this->mNodes[new_node_index]);
-// remove 767
-//    pElement->RefreshJacobianDeterminant();
 
     return new_node_index;
 }
@@ -619,7 +604,12 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 
     // Make sure the map is big enough
     map.Resize(this->GetNumAllNodes());
-
+    if (mAddedNodes || !mDeletedNodeIndices.empty())
+    {
+        //Size of mesh is about to change
+        delete this->mpDistributedVectorFactory;
+        this->mpDistributedVectorFactory =  new DistributedVectorFactory(this->GetNumNodes());
+    }
     if (SPACE_DIM==1)
     {
         // Store the node locations
@@ -842,17 +832,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             }
 
             std::string binary_name;
-//            if(sizeof(long)==4)
-//            {
-//                // 32-bit machine
-//                binary_name = "./bin/tetgen";
-//            }
-//            else
-//            {
-//                //64-bit machine
-//                binary_name = "./bin/tetgen_64";
-//
-//            }
+
             binary_name="tetgen"; //Assume it's in the path
             std::string command = binary_name + " -Q " + full_name + "node";
 

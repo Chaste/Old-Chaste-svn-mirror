@@ -110,6 +110,14 @@ public:
     {
         return mHi - mLo;
     }
+
+    /**
+     * @return The number of elements in the vector
+     */
+    unsigned GetSize()
+    {
+        return mGlobalHi;
+    }
     
 };
 

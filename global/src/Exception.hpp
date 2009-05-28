@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 const unsigned UNSIGNED_UNSET=UINT_MAX;
 const int INT_UNSET=INT_MAX;
 const double DOUBLE_UNSET=DBL_MAX;
-
+#include "Debug.hpp"
 /**
  * Exception class.
  * All exceptions thrown by this code are currently instances of this class.
