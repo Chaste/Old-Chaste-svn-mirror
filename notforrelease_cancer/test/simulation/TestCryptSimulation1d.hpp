@@ -30,222 +30,165 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+// Must be included before any other cancer headers
+#include "TissueSimulationArchiver.hpp"
+
 #include "CryptSimulation1d.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
+#include "SloughingCellKiller.hpp"
+#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "ColumnDataReader.hpp"
-#include "OutputFileHandler.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include "MutableMesh.hpp"
 
 
 class TestCryptSimulation1d : public AbstractCancerTestSuite
 {
-private:
-
-    void Make1dCryptMesh(std::string meshFilename, unsigned numNodesInEachDimension, double length)
-    {
-        OutputFileHandler output_file_handler("CryptMesh");
-        out_stream p_node_file = output_file_handler.OpenOutputFile(meshFilename+".node");
-        (*p_node_file) << std::scientific;
-
-        out_stream p_elem_file = output_file_handler.OpenOutputFile(meshFilename+".ele");
-        (*p_elem_file) << std::scientific;
-
-        unsigned num_nodes    = numNodesInEachDimension;
-        unsigned num_elements = num_nodes - 1;
-
-        (*p_node_file) << num_nodes << "\t1\t0\t1" << std::endl;
-        for (unsigned i = 0; i < num_nodes; i++)
-        {
-            int b = 0;
-            if ((i == 0) || (i == num_nodes-1))
-            {
-                b = 1;
-            }
-            double x = length*i/(num_nodes-1);
-            (*p_node_file) << i << "\t" << x << "\t" << b << std::endl;
-        }
-        p_node_file->close();
-
-        (*p_elem_file) << num_elements << "\t2\t0" << std::endl;
-        for (unsigned i = 0; i < num_elements; i++)
-        {
-            (*p_elem_file) << i << "\t" << i << "\t" << i+1 << std::endl;
-        }
-        p_elem_file->close();
-    }
-
-    void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells)
-    {
-        std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
-
-        ColumnDataReader computed_results = ColumnDataReader(resultDirectory,
-                                                             "tabulated_results",
-                                                             true);
-
-        ColumnDataReader expected_results = ColumnDataReader("notforrelease_cancer/test/data/" + resultDirectory,
-                                                             "tabulated_results",
-                                                             false);
-
-        for (unsigned cell=0; cell<maxCells; cell++)
-        {
-            std::stringstream cell_type_var_name;
-            std::stringstream cell_position_var_name;
-            cell_type_var_name << "cell_type_" << cell;
-            cell_position_var_name << "cell_position_" << cell;
-
-            // Vector of Cell Types
-            std::vector<double> expected_cell_types = expected_results.GetValues(cell_type_var_name.str());
-            std::vector<double> computed_cell_types = computed_results.GetValues(cell_type_var_name.str());
-
-            // Vector of Cell Positions
-            std::vector<double> expected_cell_positions = expected_results.GetValues(cell_position_var_name.str());
-            std::vector<double> computed_cell_positions = computed_results.GetValues(cell_position_var_name.str());
-
-            // Comparing expected and computed vector length
-            TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
-            TS_ASSERT_EQUALS(expected_cell_positions.size(), computed_cell_positions.size());
-
-            // Walkthrough of the expected and computed vectors
-            for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
-            {
-//                TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
-//                TS_ASSERT_DELTA(expected_cell_positions[time_step], computed_cell_positions[time_step],1e-6);
-            }
-        }
-    }
-
 public:
 
-    void TestExceptions()
+    /**
+     * In this test, there is no birth as only differentiated cells are used. 
+     * There is also no death because the we have not passed a cell killer 
+     * into the simulation. We just perturb one of the nodes and check that 
+     * each spring relaxes to its rest length. 
+     */
+    void Test1dCryptWithNoBirthOrDeath() throw(Exception)
     {
-        Make1dCryptMesh("1D_crypt_mesh", 22, 21);
-
-        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // We have to destroy SimulationTime as it is automatically instantiated in SetUp()
-        SimulationTime::Destroy();
-
-        // Throws because start time not set on simulation time
-        TS_ASSERT_THROWS_ANYTHING(CryptSimulation1d bad_simulator(mesh));
-
-        // Now we must re-instantiate SimulationTime
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        CryptSimulation1d simulator(mesh);
-        simulator.SetDt(1.0/120.0); // i.e. 30s: this is the default - just for coverage
-        simulator.SetEndTime(0.25);
-        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
-    }
-
-    // No birth because SetIncludeRandomBirth() was not called.
-    // No death because the initial length is 21 and only cells
-    // with position greater than 22 (=default crypt length)
-    // are sloughed off.
-    void Test1dChainWithNoBirth() throw(Exception)
-    {
-        Make1dCryptMesh("1D_crypt_mesh", 22, 21);
-        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
-        MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructLinearMesh(21);
 
         ChastePoint<1> shifted_point;
-        shifted_point.rGetLocation()[0]=10.5;
+        shifted_point.rGetLocation()[0] = 10.5;
         mesh.SetNode(10, shifted_point);
 
-        CryptSimulation1d simulator(mesh);
-        simulator.SetOutputDirectory("CryptWithNoBirthAndNoDeath");
-        simulator.SetMaxCells(22);
-        simulator.SetEndTime(0.25);
+        // Set up cells
+        std::vector<TissueCell> cells;
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            double birth_time = 0.0 - node_index;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
+
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+    
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1dWithNoBirthAndNoDeath");
+        simulator.SetEndTime(1.0);
+
+        // Run simulation
         simulator.Solve();
 
         // Note: converges very slowly so large tolerance of 0.1
-        for (unsigned index = 0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
             Node<1>* p_node = mesh.GetNode(index);
+
             TS_ASSERT(!p_node->IsDeleted());
-            const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
-            TS_ASSERT_DELTA(r_node_loc[0], index, 1e-1);
+
+            double coord = p_node->rGetLocation()[0];
+            TS_ASSERT_DELTA(coord, index, 0.05);
         }
 
-        CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath", 22);
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt1dWithNoBirthAndNoDeath", false);
+
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " notforrelease_cancer/test/data/Crypt1dWithNoBirthAndNoDeath/results.viznodes").c_str()), 0);
+
+        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " notforrelease_cancer/test/data/Crypt1dWithNoBirthAndNoDeath/results.vizcelltypes").c_str()), 0);
+
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " notforrelease_cancer/test/data/Crypt1dWithNoBirthAndNoDeath/results.vizelements").c_str()), 0);
     }
 
-    // Death because this test has a cell starting at the end of
-    // the crypt.
-    void Test1dChainWithDeathAndNoBirth() throw(Exception)
+
+    /**
+     * In this test, we pass a sloughing cell killer into the simulation, and 
+     * check that a cell starting at the end of the crypt is sloughed off.
+     */
+    void Test1dCryptWithDeathButNoBirth() throw(Exception)
     {
-        Make1dCryptMesh("1D_crypt_mesh", 23, 22);
-        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructLinearMesh(24);
 
-        ChastePoint<1> shifted_point;
-        shifted_point.rGetLocation()[0]=10.5;
-        mesh.SetNode(10, shifted_point);
+        // Set up cells
+        std::vector<TissueCell> cells;
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            double birth_time = 0.0 - node_index;
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
 
-        CryptSimulation1d simulator(mesh);
-        simulator.SetOutputDirectory("CryptWithDeathButNoBirth");
-        simulator.SetMaxCells(23);
-        simulator.SetEndTime(0.25);
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
+
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+    
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1dWithDeathButNoBirth");
+        simulator.SetEndTime(1.0);
+
+        // Add sloughing cell killer to simulation
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 25u);
+
+        // Run simulation
         simulator.Solve();
 
-        unsigned dead_cells = 0;
-        // Note: converges very slowly so small tolerance of 0.1
-        for (unsigned index = 0; index<mesh.GetNumAllNodes(); index++)
-        {
-            Node<1>* p_node = mesh.GetNode(index);
-            if (!p_node->IsDeleted())
-            {
-                const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
-                TS_ASSERT_DELTA(r_node_loc[0], index, 1e-1);
-                // Note: since there is no birth, the position of each node should still settle
-                // down to its index
-            }
-            else
-            {
-                dead_cells++;
-            }
-        }
+        // Since the default crypt length is 22, two cells should have been sloughed
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 23u);
 
-        TS_ASSERT_LESS_THAN(0u, dead_cells);
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt1dWithDeathButNoBirth", false);
 
-        CheckAgainstPreviousRun("CryptWithDeathButNoBirth", 23);
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " notforrelease_cancer/test/data/Crypt1dWithDeathButNoBirth/results.viznodes").c_str()), 0);
+
+        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " notforrelease_cancer/test/data/Crypt1dWithDeathButNoBirth/results.vizcelltypes").c_str()), 0);
+
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " notforrelease_cancer/test/data/Crypt1dWithDeathButNoBirth/results.vizelements").c_str()), 0);
     }
 
 
-    // Create a chain of cells (1 stem, 14 transit cells and 8 differentiated)
-    // and pass into the simulation class
-    void Test1DChainWithMeinekeCells() throw (Exception)
+    /**
+     * In this test, we allow cells to proliferate.
+     */
+    void Test1dCryptWithBirthButNoDeath() throw (Exception)
     {
+        // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
         CancerParameters* p_params = CancerParameters::Instance();
 
-        double crypt_length = 22.0;
-        p_params->SetCryptLength(crypt_length);
-
-        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructLinearMesh(22);
 
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumNodes();
+        // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellType cell_type;
             unsigned generation;
@@ -277,38 +220,115 @@ public:
             cells.push_back(cell);
         }
 
-        CryptSimulation1d simulator(mesh, cells);
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
 
-        simulator.SetOutputDirectory("CryptWithCells");
-        simulator.SetMaxCells(50);
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1dWithCells");
         simulator.SetEndTime(10.0);
 
-        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        // Run simulation
+        simulator.Solve();
 
-        CheckAgainstPreviousRun("CryptWithCells",50);
+        // There should be 34 cells at the end of the simulation
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 34u);
+
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt1dWithCells", false);
+
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " notforrelease_cancer/test/data/Crypt1dWithCells/results.viznodes").c_str()), 0);
+
+        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " notforrelease_cancer/test/data/Crypt1dWithCells/results.vizcelltypes").c_str()), 0);
+
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " notforrelease_cancer/test/data/Crypt1dWithCells/results.vizelements").c_str()), 0);
     }
 
 
-    // Same as Test1DChainWithBirthVariableRestLength but with cells
-    // (see comment for Test1DChainWithBirthVariableRestLength).
-    void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
+    /**
+     * In this test, we check that the daughters of a cell that has just divided 
+     * are put in the correct positions.
+     */
+    void TestCalculateDividingCellCentreLocations() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
-        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-
-        double crypt_length = 22.0;
-        p_params->SetCryptLength(crypt_length);
-
-        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructLinearMesh(3);
 
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
+        // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double birth_time;
+            if (i == 1)
+            {
+                birth_time = -23.0;
+            }
+            else
+            {
+                birth_time = -1.0;
+            }
+            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
+
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("TestCalculateDividingCellCentreLocations");
+        simulator.SetEndTime(1.001);
+
+        // Run simulation
+        simulator.Solve();
+
+        // There should be 5 cells at the end of the simulation
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 5u);
+
+        // The second cell should have just divided, so be a distance 0.15 away from its initial location
+        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(1)->rGetLocation()[0], 1.15, 1e-3);
+
+        // The new cell should also be a distance 0.15 away from the second cell's initial location     
+        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(4)->rGetLocation()[0], 0.85, 1e-3);
+
+        // The other cells should still be at their initial locations
+        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(0)->rGetLocation()[0], 0.0, 1e-3);
+        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(2)->rGetLocation()[0], 2.0, 1e-3);
+        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(3)->rGetLocation()[0], 3.0, 1e-3);
+    }
+
+
+    /**
+     * In this test, we include cell birth and cell death.
+     */
+    void Test1dCryptWithBirthAndDeath() throw (Exception)
+    {
+        // Get pointers to singleton objects
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
+
+        // Create a mesh with nodes equally spaced a unit distance apart
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(22);
+
+        // Set up cells by iterating through the nodes
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellType cell_type;
             unsigned generation;
@@ -318,68 +338,88 @@ public:
                 cell_type = STEM;
                 generation = 0;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration());
+                                                  + p_params->GetSG2MDuration()); // hours - doesn't matter for stem cell
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                   + p_params->GetSG2MDuration());
+                                                    + p_params->GetSG2MDuration()); // hours
             }
             else
             {
                 cell_type = DIFFERENTIATED;
                 generation = 4;
-                birth_time = 0;
+                birth_time = 0; // hours
             }
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
             cell.InitialiseCellCycleModel();
-            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
+            static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
 
-        CryptSimulation1d simulator(mesh, cells);
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
 
-        simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
-        simulator.SetMaxCells(50);
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1dWithCellsAndGrowth");
         simulator.SetEndTime(10.0);
-        simulator.SetIncludeVariableRestLength();
 
-        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        // Add sloughing cell killer to simulation
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
 
-        CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);
+        // Run simulation
+        simulator.Solve();
+
+        // There should be 34 cells at the end of the simulation
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 30u);
+
+        // Work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt1dWithCellsAndGrowth", false);
+
+        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        TS_ASSERT_EQUALS(system(("diff " + node_results_file + " notforrelease_cancer/test/data/Crypt1dWithCellsAndGrowth/results.viznodes").c_str()), 0);
+
+        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " notforrelease_cancer/test/data/Crypt1dWithCellsAndGrowth/results.vizcelltypes").c_str()), 0);
+
+        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
+        TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " notforrelease_cancer/test/data/Crypt1dWithCellsAndGrowth/results.vizelements").c_str()), 0);
     }
 
 
-    void Test1DChainWithTysonNovakCells() throw (Exception)
+    void Test1DChainWithTysonNovakCellsAndNoDeath() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+        CancerParameters* p_params = CancerParameters::Instance();
 
-        double crypt_length = 22.0;
-        p_params->SetCryptLength(crypt_length);
-
-        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructLinearMesh(22);
 
         // For Tyson-Novak Cells
-        double temp_stem = p_params->GetStemCellG1Duration()+p_params->GetSG2MDuration();
-        double temp_transit = p_params->GetTransitCellG1Duration()+p_params->GetSG2MDuration();
+        double temp_stem = p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration();
+        double temp_transit = p_params->GetTransitCellG1Duration() + p_params->GetSG2MDuration();
         p_params->SetStemCellG1Duration(0.12);
         p_params->SetTransitCellG1Duration(0.12);
         p_params->SetSDuration(0.01);
         p_params->SetG2Duration(0.01);
         p_params->SetMDuration(0.01);
 
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
+        // Set up cells by iterating through the nodes
+        unsigned num_cells_at_start = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellType cell_type;
             unsigned generation;
@@ -410,63 +450,68 @@ public:
             cells.push_back(cell);
         }
 
-        CryptSimulation1d simulator(mesh, cells);
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
 
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("CryptWithTysonNovakCells");
-        simulator.SetMaxCells(500);
         simulator.SetEndTime(1.35);
-        simulator.SetIncludeVariableRestLength();
 
+        // Run simulation
         simulator.Solve();
 
-        cells = simulator.GetCells();
-        /* Check we have had loads of birth
-         * N.B. that if this test is run for longer it will fail
-         * because they get too squashed in (T&N is too quick).
-         *
-         * T&N divides in time = 1.25. So should roughly double the number of cells
-         * in this time frame...
+        /*
+         * Check that several cell divisions have occurred. The Tyson-Novak cell 
+         * cycle has period 1.25, so by the end of the simulation the number of 
+         * cells should have doubled. 
+         * 
+         * Note that this test will fail if it is run for much longer, because the 
+         * Tyson-Novak cell-cycle period is so short that the cells because too 
+         * squashed together.
          */
-        TS_ASSERT_EQUALS(cells.size(), num_cells + 23u);
-        TS_ASSERT_EQUALS(cells.size(), 2*num_cells);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), num_cells_at_start + 23u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 2*num_cells_at_start);
 
         p_params->SetStemCellG1Duration(temp_stem - 10.0);
         p_params->SetTransitCellG1Duration(temp_transit - 10.0);
     }
 
 
-    /////////////////////////////////////////////////////////////////////////////
-    // Create a chain of 1 stem cell and the test differentiated and check
-    // that there is correct number of cells and they are in the correct order
-    /////////////////////////////////////////////////////////////////////////////
+    /**
+     * Create a crypt containing a single stem cell and all other cells differentiated. 
+     * Check that there is the correct number of cells at the end of a simulation, and 
+     * that they are in the correct order.
+     */
     void Test1dChainCorrectCellNumbers()
     {
+        // Get pointers to singleton object
         CancerParameters* p_params = CancerParameters::Instance();
 
-        // Check the stem cell cycle time is still 24 hrs, otherwise
-        // this test might not pass
+        // The stem cell cycle time must still be 24 h, otherwise this test may not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
-        double crypt_length = 5.0;
-        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptLength(5.0);
 
-        Make1dCryptMesh("1D_crypt_mesh", 6, crypt_length);
-        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-
-        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructLinearMesh(5);
 
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
+        // Set up cells by iterating through the nodes
+        unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CellType cell_type;
-            unsigned generation;
-            double birth_time;
+            CellType cell_type = DIFFERENTIATED;
+            unsigned generation = 4;
+            double birth_time = 0;
             if (i == 0)
             {
                 cell_type = STEM;
@@ -486,46 +531,359 @@ public:
             cells.push_back(cell);
         }
 
-        CryptSimulation1d simulator(mesh, cells);
-        simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
-        simulator.SetMaxCells(50);
-        simulator.SetEndTime(40);
-        simulator.SetIncludeVariableRestLength();
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
 
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+    
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
+        simulator.SetOutputCellTypes(true);
+        simulator.SetEndTime(40);
+
+        // Add sloughing cell killer to simulation
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Run simulation
         simulator.Solve();
 
-        std::vector<TissueCell> cells_after_simulation = simulator.GetCells();
-        // Warning - there are 6 live cells and one dead one sloughed off still in existence.
-        // N.B. throughout the simulation 2 cells are sloughed off but one place is reused
-        TS_ASSERT_EQUALS((int) cells_after_simulation.size(),7);
-        for (unsigned index = 0; index<mesh.GetNumAllNodes(); index++)
+        unsigned num_cells_at_end = simulator.rGetTissue().GetNumRealCells();
+
+        /*
+         * At the end of the simulation, there should be 6 live cells and one sloughed cell.
+         * Note that throughout the simulation 2 cells are sloughed off, but one place is reused.
+         */
+        TS_ASSERT_EQUALS(num_cells_at_end, 6u);
+
+        // Check we have the correct number of each cell type
+        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = simulator.rGetTissue().GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count[0], 1u);
+        TS_ASSERT_EQUALS(cell_type_count[1], 2u);
+        TS_ASSERT_EQUALS(cell_type_count[2], 3u);
+
+        for (AbstractTissue<1>::Iterator cell_iter = simulator.rGetTissue().Begin();
+             cell_iter != simulator.rGetTissue().End();
+             ++cell_iter)
         {
-            if (!mesh.GetNode(index)->IsDeleted())
+            c_vector<double, 1> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(&(*cell_iter));
+            double x = cell_location[0];
+
+            if (fabs(x) < 1e-2)
             {
-                TissueCell cell = cells_after_simulation[index];
-                double x = mesh.GetNode(index)->GetPoint()[0];
-                if (fabs(x)<1e-2)
-                {
-                    CellType type  = cell.GetCellType();
-                    TS_ASSERT(type==STEM);
-                }
-                else if ((fabs(x-1)<1e-2)||(fabs(x-2)<1e-2))
-                {
-                    CellType type  = cell.GetCellType();
-                    TS_ASSERT(type==TRANSIT);
-                }
-                else if ((fabs(x-3)<1e-2)||(fabs(x-4)<1e-2)||(fabs(x-5)<1e-2))
-                {
-                    CellType type  = cell.GetCellType();
-                    TS_ASSERT(type==DIFFERENTIATED);
-                }
-                else
-                {
-                    //There shouldn't be any cells at non-integer positions provided resting length =1
-                    TS_ASSERT(false);
-                }
+                TS_ASSERT_EQUALS(cell_iter->GetCellType(), STEM);
+            }
+            else if ( (fabs(x-1) < 1e-2) || (fabs(x-2) < 1e-2) )
+            {
+                TS_ASSERT_EQUALS(cell_iter->GetCellType(), TRANSIT);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(cell_iter->GetCellType(), DIFFERENTIATED);
             }
         }
+    }
+
+
+
+    void TestUsingJiggledBottomSurface()
+    {
+        // Get pointers to singleton object
+        CancerParameters* p_params = CancerParameters::Instance();
+
+        // The stem cell cycle time must still be 24 h, otherwise this test may not pass
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
+
+        p_params->SetCryptLength(5.0);
+
+        // Create a mesh with nodes equally spaced a unit distance apart
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(5);
+
+        // Set up cells by iterating through the nodes
+        // (don't use any stem cells as we want to test the jiggling)
+        unsigned num_cells = mesh.GetNumNodes();
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(4);
+            cell.SetBirthTime(0.0);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
+
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+    
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1DJiggledBottomCells");
+        simulator.SetEndTime(0.01);
+        simulator.UseJiggledBottomCells();
+
+        // Move the first cell (which should be on y=0) down a bit
+        AbstractTissue<1>::Iterator cell_iter = crypt.Begin();
+        assert(crypt.GetLocationOfCellCentre(&(*cell_iter))[0] == 0.0);
+
+        // Move the cell (can't use the iterator for this as it is const)
+        crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[0] = -0.1;
+        assert(crypt.GetLocationOfCellCentre(&(*cell_iter))[0] < 0.0);
+
+        // Run simulation
+        simulator.Solve();
+
+        // The cell should have been pulled up, but not above y=0. However it should
+        // then been moved to above y=0 by the jiggling
+        TS_ASSERT_LESS_THAN(0.0, crypt.GetLocationOfCellCentre(&(*cell_iter))[0]);
+    }
+
+
+    /**
+     * Test with Wnt-dependent cells.
+     */
+    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
+    {
+        // Get pointers to singleton object
+        CancerParameters* p_params = CancerParameters::Instance();
+
+        // The stem cell cycle time must still be 24 h, otherwise this test may not pass
+        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
+
+        p_params->SetCryptLength(5.0);
+
+        // Create a mesh with nodes equally spaced a unit distance apart
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(3);
+
+        // Set up cells by iterating through the nodes
+        // (don't use any stem cells as we want to test the jiggling)
+        unsigned num_cells = mesh.GetNumNodes();
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            TissueCell cell(STEM, HEALTHY, new WntCellCycleModel(1));
+            cell.SetBirthTime(0.0);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
+
+        AbstractTissue<1>::Iterator cell_iterator = crypt.Begin();
+        cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
+        ++cell_iterator;
+        cell_iterator->SetBirthTime(-1.0);
+        cell_iterator->SetMutationState(LABELLED);
+        ++cell_iterator;
+        cell_iterator->SetBirthTime(-1.0);
+        cell_iterator->SetMutationState(APC_ONE_HIT);
+        ++cell_iterator;
+        cell_iterator->SetBirthTime(-1.0);
+        cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
+
+        // Create an instance of a Wnt concentration
+        WntConcentration<1>::Instance()->SetType(LINEAR);
+        WntConcentration<1>::Instance()->SetTissue(crypt);
+
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Create crypt simulation from tissue and force law
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1DWntMatureCells");
+        simulator.SetEndTime(0.01);
+        simulator.SetOutputCellMutationStates(true);
+        simulator.SetOutputCellTypes(true);
+
+        // Run simulation
+        simulator.Solve();
+
+        // Check that nothing has moved below y=0
+        for (AbstractTissue<1>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(&(*cell_iter))[0]);
+        }
+
+        c_vector<unsigned,5> cell_mutation_state_count = simulator.GetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[2], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u);  // No APC two hit, one of all the rest.
+        TS_ASSERT_EQUALS(cell_mutation_state_count[4], 1u);
+
+        c_vector<unsigned,5> cell_type_count = simulator.GetCellTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count[0], 0u);
+        TS_ASSERT_EQUALS(cell_type_count[1], 4u);
+        TS_ASSERT_EQUALS(cell_type_count[2], 0u);
+        TS_ASSERT_EQUALS(cell_type_count[3], 0u);
+
+        // Tidy up
+        WntConcentration<1>::Destroy();
+    }
+
+
+    /**
+     * Test saving a CryptSimulation1d object.
+     */
+    void TestSave() throw (Exception)
+    {
+        // Get pointers to singleton object
+        CancerParameters* p_params = CancerParameters::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+
+        // Create a mesh with nodes equally spaced a unit distance apart
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(22);
+
+        // Set up cells by iterating through the nodes
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            CellType cell_type;
+            unsigned generation;
+            double birth_time;
+            if (i == 0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
+                                                  + p_params->GetSG2MDuration());
+            }
+            else if (i < 15)
+            {
+                cell_type = TRANSIT;
+                generation = 1 + (i - 1) / 5;
+                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                                    + p_params->GetSG2MDuration());
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = 0;
+            }
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
+
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1DSaveAndLoad");
+
+        // Our full end time is 0.25, here we run until 0.1 then load and run more below.
+        simulator.SetEndTime(0.1);
+
+        // Create cell killer and pass in to crypt simulation
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Run simulation
+        simulator.Solve();
+
+        // Save the results
+        TissueSimulationArchiver<1, CryptSimulation1d>::Save(&simulator);
+    }
+
+
+    /**
+     * Test loading a CryptSimulation1d object.
+     */
+    void TestLoad() throw (Exception)
+    {
+        // Load the simulation from the TestSave method above and
+        // run it from 0.1 to 0.2
+        CryptSimulation1d* p_simulator1;
+
+        p_simulator1 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.1);
+
+        p_simulator1->SetEndTime(0.2);
+        p_simulator1->Solve();
+
+        // Save then reload and run from 0.2 to 0.25
+        NodeMap map(0);
+
+        MutableMesh<1,1>& r_mesh1 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
+        r_mesh1.ReMesh(map);
+        TissueSimulationArchiver<1, CryptSimulation1d>::Save(p_simulator1);
+
+        CryptSimulation1d* p_simulator2 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
+
+        MutableMesh<1,1>& r_mesh2 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
+
+        TS_ASSERT_EQUALS(r_mesh1.GetNumAllNodes(), r_mesh2.GetNumAllNodes());
+        TS_ASSERT_EQUALS(r_mesh1.GetNumNodes(), r_mesh2.GetNumNodes());
+        TS_ASSERT_EQUALS(r_mesh1.GetNumBoundaryNodes(), r_mesh2.GetNumBoundaryNodes());
+
+        for (unsigned i=0; i<r_mesh1.GetNumAllNodes(); i++)
+        {
+            Node<1>* p_node = r_mesh1.GetNode(i);
+            Node<1>* p_node2 = r_mesh2.GetNode(i);
+            TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
+            TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
+            TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
+            TS_ASSERT_DELTA(p_node->rGetLocation()[0], p_node2->rGetLocation()[0], 1e-16);
+        }
+
+        TS_ASSERT_EQUALS(r_mesh1.GetNumElements(), r_mesh2.GetNumElements());
+        TS_ASSERT_EQUALS(r_mesh1.GetNumAllElements(), r_mesh2.GetNumAllElements());
+        TS_ASSERT_EQUALS(r_mesh1.GetNumBoundaryElements(), r_mesh2.GetNumBoundaryElements());
+        TS_ASSERT_EQUALS(r_mesh1.GetNumAllBoundaryElements(), r_mesh2.GetNumAllBoundaryElements());
+
+        MutableMesh<1,1>::ElementIterator it = r_mesh1.GetElementIteratorBegin();
+        MutableMesh<1,1>::ElementIterator it2 = r_mesh2.GetElementIteratorBegin();
+        for (;
+             it != r_mesh1.GetElementIteratorEnd();
+             ++it, ++it2)
+        {
+            Element<1,1>* p_elt = *it;
+            Element<1,1>* p_elt2 = *it2;
+            TS_ASSERT_EQUALS(p_elt->GetNumNodes(), p_elt2->GetNumNodes());
+            for (unsigned i=0; i<p_elt->GetNumNodes(); i++)
+            {
+                TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
+            }
+        }
+
+        p_simulator2->SetEndTime(0.25);
+
+        // Run simulation
+        p_simulator2->Solve();
+
+        std::vector<double> node_4_location = p_simulator2->GetNodeLocation(4);
+        TS_ASSERT_DELTA(node_4_location[0], 4.000, 1e-4);
+
+        std::vector<double> node_11_location = p_simulator2->GetNodeLocation(11);
+        TS_ASSERT_DELTA(node_11_location[0], 11.000, 1e-4);
+
+        // Tidy up
+        delete p_simulator1;
+        delete p_simulator2;
     }
 
 };

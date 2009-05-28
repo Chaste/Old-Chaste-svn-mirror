@@ -97,7 +97,6 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
 
             // Get the target area of the cell
             double cell_target_area = p_tissue->GetTargetAreaOfCell(p_tissue->rGetCellUsingLocationIndex(element_index));
-            //PRINT_VARIABLES(element_area, cell_target_area);
             
             // Add the force contribution from this cell's deformation energy (note the minus sign)
             deformation_contribution -= 2*p_params->GetDeformationEnergyParameter()*(element_area - cell_target_area)*element_area_gradient;

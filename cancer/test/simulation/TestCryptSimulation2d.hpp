@@ -222,7 +222,7 @@ public:
         TS_ASSERT_DELTA(node_0_location[1], 0.0, 1e-12);
 
         // Work out where the previous test wrote its files
-        OutputFileHandler handler("Crypt2DSprings",false);
+        OutputFileHandler handler("Crypt2DSprings", false);
 
         std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cancer/test/data/Crypt2DSpringsResults/results.viznodes").c_str()), 0);

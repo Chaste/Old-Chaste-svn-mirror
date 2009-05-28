@@ -28,131 +28,135 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CRYPTSIMULATION1D_HPP_
 #define CRYPTSIMULATION1D_HPP_
 
-#include <vector>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include <cmath>
 #include <ctime>
 #include <iostream>
 
-#include "TissueCell.hpp"
-#include "MutableMesh.hpp"
-#include "Exception.hpp"
-#include "ColumnDataWriter.hpp"
-#include "CellTypes.hpp"
+#include "TissueSimulation.hpp"
+#include "MeshBasedTissue.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
+
 
 /**
- * Solve a crypt simulation based on the Meineke paper.
- *
- * The spring lengths are governed by the equations
- * dr/dt = stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-s0)
- *       = alpha sum_j r_hat_i,j*(|r_i,j|-s0)
- *
- * where alpha = stem_cycle_time*(mu/eta) = stem_cycle_time*meineke_lambda.
- *       s0    = natural length of the spring
-
- * Length is scaled by natural length
- * Time is scaled by a stem cell cycle time
-
- * meineke_lambda = mu (spring constant) / eta (damping) = 0.01 (from Meineke - note
- * that the value we use for Meineke lambda is completely different because we have
- * nondimensionalised)
+ * A 1D crypt simulation object. The model is a simplified version of a 2D crypt model 
+ * developed by Meineke et al (doi:10.1046/j.0960-7722.2001.00216.x).
  */
-class CryptSimulation1d
+class CryptSimulation1d : public TissueSimulation<1>
 {
+    // Allow tests to access private members to test private functions
+    friend class TestCryptSimulation1d;
+
 private:
 
-    /** Time step */
-    double mDt;
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the simulation and member variable.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // If Archive is an output archive, then & resolves to <<
+        // If Archive is an input archive, then & resolves to >>
+        archive & boost::serialization::base_object<TissueSimulation<1> >(*this);
+        archive & mUseJiggledBottomCells;
+    }
 
-    /** Time to run the Solve() method up to */
-    double mEndTime;
+    /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
+    bool mUseJiggledBottomCells;
 
-    /** Mesh member. */
-    MutableMesh<1,1> &mrMesh;
-
-    /** Whether or not cell growth is simulated after cell division. */
-    bool mIncludeVariableRestLength;
-
-    /** The maximum number of cells that will be in this simulation. */
-    unsigned mMaxCells;
-
-    /** The output directory, relative to where Chaste output is stored. */
-    std::string mOutputDirectory;
-
-    /** Vector of cells. */
-    std::vector<TissueCell> mCells;
+    /** Helper member that is a static cast of the tissue. */
+    MeshBasedTissue<1>* mpStaticCastTissue;
 
     /**
-     * This method handles the birth of a cell in 1D by splitting an existing
-     * element in two and placing a new node in the middle of it.
+     * Calculates the new locations of a dividing cell's cell centres.
+     * Moves the dividing node a bit and returns co-ordinates for the new node.
+     * It does this by picking a random direction (0->2PI) and placing the parent
+     * and daughter in opposing directions on this axis.
      *
-     * @param pElement the existing element to split in two
-     * @param time the current time
+     * @param pParentCell pointer to the parent cell
      *
-     * @return the index of the new node.
+     * @return daughter_coords the coordinates for the daughter cell.
      */
-    unsigned AddNodeToElement(Element<1,1>* pElement, double time);
+    c_vector<double, 1> CalculateDividingCellCentreLocations(TissueCell* pParentCell);
 
 public:
 
     /**
-     * Constructor.
+     *  Constructor.
      *
-     * @param rMesh refence to a 1D mesh
-     * @param cells vector of cells (defaulted to the empty vector, in which case SetIncludeRandomBirth()
-     *        should be called for any birth to happen)
+     *  @param rTissue A tissue facade class (contains a mesh and cells)
+     *  @param forceCollection The mechanics to use in the simulation
+     *  @param deleteTissueAndForceCollection Whether to delete the tissue and force collection on destruction to free up memory
+     *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    CryptSimulation1d(MutableMesh<1,1> &rMesh,
-                      std::vector<TissueCell> cells = std::vector<TissueCell>());
+    CryptSimulation1d(AbstractTissue<1>& rTissue,
+                      std::vector<AbstractForce<1>*> forceCollection,
+                      bool deleteTissueAndForceCollection=false,
+                      bool initialiseCells=true);
+
+    /** Set method for mUseJiggledBottomCells. */
+    void UseJiggledBottomCells();
 
     /**
-     * Destructor, frees any memory allocated by the constructor.
-     */
-    ~CryptSimulation1d();
-
-    /**
-     * Set method for mDt.
+     * Overridden ApplyTissueBoundaryConditions() method.
      *
-     * @param dt the time step to use
-     */
-    void SetDt(double dt);
-
-    /**
-     * Set method for mEndTime.
+     * If an instance of WntConcentration is not set up, then stem cells at the
+     * bottom of the crypt are pinned. Any cell that has moved below the bottom
+     * of the crypt is moved back up.
      *
-     * @param endTime the end time to use
+     * @param rOldLocations the node locations at the previous time step
      */
-    void SetEndTime(double endTime);
-
-    /**
-     * Set method for mOutputDirectory.
-     *
-     * @param outputDirectory the output directory to use, relative to where Chaste output is stored
-     */
-    void SetOutputDirectory(std::string outputDirectory);
-
-    /**
-     * Set method for mIncludeVariableRestLength.
-     *
-     * Call this before Solve() to simulate cell growth after cell division.
-     */
-    void SetIncludeVariableRestLength();
-
-    /**
-     * Set method for mMaxCells.
-     *
-     * @param maxCells
-     */
-    void SetMaxCells(unsigned maxCells);
-
-    /**
-     * @return mCells.
-     */
-    std::vector<TissueCell> GetCells();
-
-    /**
-     * Main Solve() method for simulating the 1D crypt.
-     */
-    void Solve();
+    void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,1> >& rOldLocations);
 };
+
+
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(CryptSimulation1d)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a CryptSimulation1d.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const CryptSimulation1d * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const AbstractTissue<1> * p_tissue = &(t->rGetTissue());
+    ar & p_tissue;
+    const std::vector<AbstractForce<1>*> force_collection = t->rGetForceCollection();
+    ar & force_collection;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a CryptSimulation1d.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, CryptSimulation1d * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    AbstractTissue<1>* p_tissue;
+    ar >> p_tissue;
+    std::vector<AbstractForce<1>*> force_collection;
+    ar >> force_collection;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)CryptSimulation1d(*p_tissue, force_collection, true, false);
+}
+}
+} // namespace
 
 #endif /*CRYPTSIMULATION1D_HPP_*/

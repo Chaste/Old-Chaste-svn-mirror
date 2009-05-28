@@ -62,7 +62,7 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
     assert(mpCell!=NULL);
     double beta_catenin_level = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
 
-    CellType cell_type=TRANSIT;
+    CellType cell_type = TRANSIT;
 
     // For mitogenic stimulus of 6x10^-4 in Wnt equations
     if (beta_catenin_level < 0.4127)
@@ -76,8 +76,8 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
 
 void WntCellCycleModel::Initialise()
 {
-    assert(mpOdeSystem==NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem == NULL);
+    assert(mpCell != NULL);
 
     switch (mDimension)
     {

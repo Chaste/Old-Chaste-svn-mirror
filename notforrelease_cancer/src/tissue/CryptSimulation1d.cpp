@@ -27,340 +27,138 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CryptSimulation1d.hpp"
+#include "WntConcentration.hpp"
 
 
-CryptSimulation1d::CryptSimulation1d(MutableMesh<1,1> &rMesh,
-                                     std::vector<TissueCell> cells)
-    : mDt(1.0/120.0), // time step of 30 seconds (as per the Meineke 2001 model)
-      mEndTime(120.0), // hours
-      mrMesh(rMesh),
-      mIncludeVariableRestLength(false),
-      mMaxCells(UNSIGNED_UNSET),
-      mOutputDirectory(""),
-      mCells(cells)
+CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
+                  std::vector<AbstractForce<1>*> forceCollection,
+                  bool deleteTissueAndForceCollection,
+                  bool initialiseCells)
+    : TissueSimulation<1>(rTissue,
+                          forceCollection,
+                          deleteTissueAndForceCollection,
+                          initialiseCells),
+      mUseJiggledBottomCells(false)
 {
     CancerParameters::Instance()->SetSpringStiffness(30.0);
+    mpStaticCastTissue = static_cast<MeshBasedTissue<1>*>(&mrTissue);    
+}
 
-    if (!SimulationTime::Instance()->IsStartTimeSetUp())
+
+void CryptSimulation1d::UseJiggledBottomCells()
+{
+    mUseJiggledBottomCells = true;
+}
+
+
+c_vector<double, 1> CryptSimulation1d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
+{
+    // Location of parent and daughter cells
+    c_vector<double, 1> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
+    c_vector<double, 1> daughter_coords;
+
+    // Get separation parameter
+    double separation = CancerParameters::Instance()->GetDivisionSeparation();
+
+    // Make a random direction vector of the required length
+    c_vector<double, 1> random_vector;
+
+    /*
+     * Pick a random direction and move the parent cell backwards by 0.5*separation 
+     * in that direction and return the position of the daughter cell 0.5*separation 
+     * forwards in that direction.
+     */
+
+    double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
+    random_vector(0) = 0.5*separation*random_direction;
+    c_vector<double, 1> proposed_new_parent_coords = parent_coords - random_vector;
+    c_vector<double, 1> proposed_new_daughter_coords = parent_coords + random_vector;
+
+    if (   (proposed_new_parent_coords(0) >= 0.0)
+        && (proposed_new_daughter_coords(0) >= 0.0))
     {
-        EXCEPTION("Start time not set in simulation time singleton object");
-    }
-}
-
-
-CryptSimulation1d::~CryptSimulation1d()
-{
-    SimulationTime::Destroy();
-}
-
-
-void CryptSimulation1d::SetDt(double dt)
-{
-    assert(dt>0);
-    mDt = dt;
-}
-
-
-void CryptSimulation1d::SetEndTime(double endTime)
-{
-    assert(endTime>0);
-    mEndTime = endTime;
-}
-
-
-void CryptSimulation1d::SetOutputDirectory(std::string outputDirectory)
-{
-    mOutputDirectory = outputDirectory;
-}
-
-
-void CryptSimulation1d::SetIncludeVariableRestLength()
-{
-    mIncludeVariableRestLength = true;
-}
-
-
-void CryptSimulation1d::SetMaxCells(unsigned maxCells)
-{
-    mMaxCells = maxCells;
-}
-
-
-std::vector<TissueCell> CryptSimulation1d::GetCells()
-{
-    assert(mCells.size() > 0);
-    return mCells;
-}
-
-
-void CryptSimulation1d::Solve()
-{
-    CancerParameters* p_params = CancerParameters::Instance();
-
-    if (mOutputDirectory == "")
-    {
-        EXCEPTION("OutputDirectory not set");
-    }
-
-    // Create column data writer handler
-    ColumnDataWriter tabulated_writer(mOutputDirectory, "tabulated_results");
-    unsigned time_var_id = tabulated_writer.DefineUnlimitedDimension("Time","hours");
-
-    std::vector<unsigned> type_var_ids;
-    std::vector<unsigned> position_var_ids;
-
-    type_var_ids.resize(mMaxCells);
-    position_var_ids.resize(mMaxCells);
-
-    // Set up columns
-    for (unsigned cell=0; cell<mMaxCells; cell++)
-    {
-        std::stringstream cell_type_var_name;
-        std::stringstream cell_position_var_name;
-        cell_type_var_name << "cell_type_" << cell;
-        cell_position_var_name << "cell_position_" << cell;
-        type_var_ids[cell]=tabulated_writer.DefineVariable(cell_type_var_name.str(),"dimensionless");
-        position_var_ids[cell]=tabulated_writer.DefineVariable(cell_position_var_name.str(),"cell_lengths");
-    }
-    tabulated_writer.EndDefineMode();
-
-    unsigned num_time_steps = (unsigned)(mEndTime/mDt+0.5);
-    SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
-
-    double time_since_last_birth = 15.0; // 15 hours - only used in non-random birth
-
-    unsigned num_births = 0;
-    unsigned num_deaths = 0;
-
-    std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
-
-    // Create Simple File Handler
-    OutputFileHandler output_file_handler(mOutputDirectory, false);
-    out_stream p_results_file = output_file_handler.OpenOutputFile("results");
-    while ( SimulationTime::Instance()->GetTimeStepsElapsed() < num_time_steps)
-    {
-        // Cell birth
-        if (!mCells.empty())
-        {
-            unsigned original_number_of_cells = mCells.size();
-            for (unsigned i=0; i<original_number_of_cells; i++)
-            {
-                if (mrMesh.GetNode(i)->IsDeleted()) continue; // Skip deleted cells
-                // Check for this cell dividing
-                if (mCells[i].GetAge()>0)
-                {
-                    if (mCells[i].ReadyToDivide())
-                    {
-                        //std::cout << "Cell[" << i << "] at age" << mCells[i].GetAge() << " is ready to divide\n" << std::flush;
-                        // Create new cell
-                        TissueCell new_cell = mCells[i].Divide();
-
-                        // Add new node to mesh
-                        Node<1>* p_our_node = mrMesh.GetNode(i);
-
-                        // Note: May need to check which side element is put esp. at the ends
-                        Element<1,1>* p_element = mrMesh.GetElement(*(p_our_node->ContainingElementsBegin()));
-
-                        unsigned new_node_index = AddNodeToElement(p_element,SimulationTime::Instance()->GetTime());
-
-                        // Update cells
-                        if (new_node_index == mCells.size())
-                        {
-                            mCells.push_back(new_cell);
-                        }
-                        else
-                        {
-                            mCells[new_node_index] = new_cell;
-                        }
-                        num_births++;
-                    }
-                }
-            }
-        }
-
-        // Calculate forces on nodes
-        std::vector<double> drdt(mrMesh.GetNumAllNodes());
-        if (mIncludeVariableRestLength && !mCells.empty())
-        {
-            for (unsigned elem_index=0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-            {
-                Element<1,1>* element = mrMesh.GetElement(elem_index);
-                if (!element->IsDeleted())
-                {
-                    c_vector<double, 2> drdt_contributions;
-                    double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
-                    double unit_vector_backward = -1;
-                    double unit_vector_forward = 1;
-                    double age0 = mCells[element->GetNode(0)->GetIndex()].GetAge();
-                    double age1 = mCells[element->GetNode(1)->GetIndex()].GetAge();
-                    double rest_length = 1.0;
-
-                    if (age0<1.0 && age1<1.0 && fabs(age0-age1)<1e-6)
-                    {
-                        /* Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-                         * This doesnt happen at present as when the full line is included the tests fail
-                         *
-                         * This is wrong but due to the model being set up in 1D, when a new cell with a weaker spring is
-                         * put in next to other stressed cells, the weaker spring will be compressed too much and lead to
-                         * cells being pushed through other ones.  Leading to an exception being thrown in line 319 ish.
-                         */
-                        rest_length=(0.9+0.1*age0);
-
-                        assert(rest_length<=1.0);
-                    }
-                    drdt_contributions(0) = ( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_forward  * (distance_between_nodes - rest_length) );
-                    drdt_contributions(1) = ( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_backward * (distance_between_nodes - rest_length) );
-                    drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
-                    drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
-                }
-            }
-        }
-        else
-        {
-            for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-            {
-                Element<1,1>* element = mrMesh.GetElement(elem_index);
-                if (!element->IsDeleted())
-                {
-                    c_vector<double, 2> drdt_contributions;
-                    double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
-                    double unit_vector_backward = -1;
-                    double unit_vector_forward = 1;
-                    drdt_contributions(0) =( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_forward  * (distance_between_nodes - 1.0) );
-                    drdt_contributions(1) =( p_params->GetSpringStiffness() / p_params->GetDampingConstantNormal() ) *( unit_vector_backward * (distance_between_nodes - 1.0) );
-
-                    drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
-                    drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
-                }
-            }
-        }
-
-        // Update node positions
-        for (unsigned index = 1; index<mrMesh.GetNumAllNodes(); index++)
-        {
-            // assume stem cells are fixed, or if there are no cells, fix node 0
-            if (!mrMesh.GetNode(index)->IsDeleted())
-            {
-                c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
-                ChastePoint<1> new_point;
-                new_point.rGetLocation()[0] = node_loc[0] + mDt*drdt[index]; // new_point_position[index];
-                mrMesh.SetNode(index, new_point, false);
-            }
-        }
-
-        // Remove nodes that are beyond the crypt
-        while (true)
-        {
-            bool sloughed_node = false;
-            MutableMesh<1,1>::BoundaryNodeIterator it = mrMesh.GetBoundaryNodeIteratorEnd();
-            while (it != mrMesh.GetBoundaryNodeIteratorBegin())
-            {
-                it--;
-                const Node<1> *p_node = *it;
-                if (p_node->rGetLocation()[0] > CancerParameters::Instance()->GetCryptLength())
-                {
-                    // It's fallen off
-                    mrMesh.DeleteBoundaryNodeAt(p_node->GetIndex());
-                    num_deaths++;
-                    sloughed_node = true;
-                    break;
-                }
-            }
-            if (!sloughed_node) break;
-        }
-        // Check nodes haven't crossed
-        // mrMesh.RefreshMesh();    // Causes trouble because this now refreshes jacobians but there are deleted elements...
-
-        // Increment simulation time here, so results files look sensible
-        SimulationTime::Instance()->IncrementTimeOneStep();
-
-        // Writing Results To Tabulated File First And Then To Space Separated File
-        tabulated_writer.PutVariable(time_var_id, SimulationTime::Instance()->GetTime());
-        (*p_results_file) << SimulationTime::Instance()->GetTime() << "\t";
-
-        unsigned cell = 0; // NB this is not the index in mCells, but the index in the mesh!
-        for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
-        {
-            if (!mrMesh.GetNode(index)->IsDeleted())
-            {
-                if (mCells.size() > 0)
-                {
-                    CellType type  = mCells[index].GetCellType();
-                    if (type == STEM)
-                    {
-                        tabulated_writer.PutVariable(type_var_ids[cell], 0);
-                    }
-                    else if (type == TRANSIT)
-                    {
-                        tabulated_writer.PutVariable(type_var_ids[cell], 1);
-                    }
-                    else if (type == DIFFERENTIATED)
-                    {
-                        tabulated_writer.PutVariable(type_var_ids[cell], 2);
-                    }
-                    else
-                    {
-                        // should be impossible to get here, until cancer cells
-                        // are implemented
-                        NEVER_REACHED;
-                    }
-                }
-                else
-                {
-                    tabulated_writer.PutVariable(type_var_ids[cell], -1);
-                }
-
-                const c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
-                tabulated_writer.PutVariable(position_var_ids[cell], node_loc[0]);
-                (*p_results_file) << node_loc[0] << " ";
-
-                cell++;
-            }
-        }
-        tabulated_writer.AdvanceAlongUnlimitedDimension();
-        (*p_results_file) << "\n";
-
-        time_since_last_birth += mDt;
-    }
-}
-
-
-unsigned CryptSimulation1d::AddNodeToElement(Element<1,1>* pElement, double time)
-{
-    double displacement;
-    double left_position = pElement->GetNodeLocation(0,0);
-    double element_length = pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0);
-
-    assert(element_length > 0);
-    if (mIncludeVariableRestLength)
-    {
-        double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge();
-        double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge();
-        if (fabs(age0) < 1e-6)
-        {
-            // Place the new node 10% to the right of the left-hand node
-            displacement = 0.1*element_length;
-        }
-        else if (fabs(age1) < 1e-6)
-        {
-            // Place the new node 10% to the left of the right-hand node
-            displacement = 0.9*element_length;
-        }
-        else
-        {
-            // This called by Tyson Novak cells which might not be age 0 when the simulation divides them.
-            // Pick a random position in the central 60% of the element
-            displacement = 0.2*element_length + (RandomNumberGenerator::Instance()->ranf())*0.6*element_length;
-        }
+        // We are not too close to the bottom of the tissue, so move parent
+        parent_coords = proposed_new_parent_coords;
+        daughter_coords = proposed_new_daughter_coords;
     }
     else
     {
-        // Pick a random position in the central 60% of the element
-        displacement = 0.2*element_length + (RandomNumberGenerator::Instance()->ranf())*0.6*element_length;
+        proposed_new_daughter_coords = parent_coords + 2.0*random_vector;
+        while (proposed_new_daughter_coords(0) < 0.0)
+        {
+            double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
+            random_vector(0) = 0.5*separation*random_direction;
+            proposed_new_daughter_coords = parent_coords + random_vector;
+        }
+        daughter_coords = proposed_new_daughter_coords;
     }
-    ChastePoint<1> new_point(left_position + displacement);
-    assert(displacement <= element_length);
 
-    return mrMesh.RefineElement(pElement, new_point);
+    assert(daughter_coords(0) >= 0.0); // to make sure dividing cells stay in the tissue
+    assert(parent_coords(0) >= 0.0);   // to make sure dividing cells stay in the tissue
+
+    // Set the parent to use this location
+    ChastePoint<1> parent_coords_point(parent_coords);
+
+    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(pParentCell);
+    mrTissue.SetNode(node_index, parent_coords_point);
+
+    return daughter_coords;
 }
 
+
+void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 1> >& rOldLocations)
+{
+    bool is_wnt_included = WntConcentration<1>::Instance()->IsWntSetUp();
+    if (!is_wnt_included)
+    {
+        WntConcentration<1>::Destroy();
+    }
+
+    // Iterate over all nodes associated with real cells to update their positions
+    // according to any tissue boundary conditions
+    for (AbstractTissue<1>::Iterator cell_iter = mrTissue.Begin();
+         cell_iter != mrTissue.End();
+         ++cell_iter)
+    {
+        // Get index of node associated with cell
+        unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
+
+        // Get pointer to this node
+        Node<1>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
+
+        if (!is_wnt_included)
+        {
+            /**
+             * If WntConcentration is not set up then stem cells must be pinned,
+             * so we reset the location of each stem cell.
+             */
+            if (cell_iter->GetCellType()==STEM)
+            {
+                // Get old node location
+                c_vector<double, 1> old_node_location = rOldLocations[node_index];
+
+                // Return node to old location
+                p_node->rGetModifiableLocation()[0] = old_node_location[0];
+            }
+        }
+
+        // Any cell that has moved below the bottom of the crypt must be moved back up
+        if (p_node->rGetLocation()[0] < 0.0)
+        {
+            p_node->rGetModifiableLocation()[0] = 0.0;
+            if (mUseJiggledBottomCells)
+            {
+               /*
+                * Here we give the cell a push upwards so that it doesn't
+                * get stuck on the bottom of the crypt (as per #422).
+                *
+                * Note that all stem cells may get moved to the same height, so
+                * we use a random perturbation to help ensure we are not simply
+                * faced with the same problem at a different height!
+                */
+                p_node->rGetModifiableLocation()[0] = 0.05*mpRandomGenerator->ranf();
+            }
+        }
+        assert(p_node->rGetLocation()[0] >= 0.0);
+    }
+}
