@@ -59,7 +59,7 @@ public:
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-7);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-7);
         tester.OdeTimeStep /= 2.0;
         tester.PdeTimeStep /= 2.0;
         tester.SetMeshWidth(0.10);//cm
@@ -67,6 +67,7 @@ public:
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 3u);
+        HeartConfig::Instance()->Reset();
     }
 
 };

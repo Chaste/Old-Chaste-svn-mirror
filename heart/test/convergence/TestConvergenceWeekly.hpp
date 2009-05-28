@@ -55,11 +55,13 @@ public:
     {
 
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspRelativeTolerance(1e-8);
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-8);
+        //tester.SetKspRelativeTolerance(1e-8);
         tester.SetMeshWidth(0.15);//cm
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u); ///Just to prove the thing works
+        HeartConfig::Instance()->Reset();
     }
 
     //Experiments with ksp_atol follow.
@@ -67,13 +69,15 @@ public:
     void TestSpaceConvergencein1DWithAtol() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-5);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
+       //tester.SetKspAbsoluteTolerance(1e-5);
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 1.68417e-05);
         //Has to be at least as good as the 1D with Rtol=1e-7
         //Note the final line fails with ksp_atol=1e-4
+        HeartConfig::Instance()->Reset();
     }
 
 
@@ -83,7 +87,8 @@ public:
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         PetscOptionsSetValue("-log_summary", "");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-7);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-7);
+        //tester.SetKspAbsoluteTolerance(1e-7);
         tester.OdeTimeStep /= 2.0;
         tester.PdeTimeStep /= 2.0;
         tester.SetMeshWidth(0.10);//cm
@@ -91,6 +96,7 @@ public:
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 3u);
+        HeartConfig::Instance()->Reset();
     }
 
 
@@ -98,13 +104,15 @@ public:
     void TestSpaceConvergencein2DWithAtol() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-5);
+        //tester.SetKspAbsoluteTolerance(1e-5);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 6.65582e-05);
         //Comes in at 1.17118e-5
         //Has to be at least as good as the 2D with Rtol=5e-8
+        HeartConfig::Instance()->Reset();
 
     }
 
@@ -112,23 +120,26 @@ public:
     void Test3DSpaceRelaxWidthWithAtol() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-3);
-
+        //tester.SetKspAbsoluteTolerance(1e-3);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
         tester.SetMeshWidth(0.15);//cm
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
+        HeartConfig::Instance()->Reset();
     }
 
     void TestSpaceConvergence3d()
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-3);
+        //tester.SetKspAbsoluteTolerance(1e-3);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);               
         tester.Stimulus=NEUMANN;
         tester.SetMeshWidth(0.14);//cm
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
+        HeartConfig::Instance()->Reset();
     }
 
 };

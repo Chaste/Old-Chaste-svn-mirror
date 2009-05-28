@@ -75,6 +75,8 @@ public:
      * The default implementation checks whether the node is in the bath (in which
      * case a pointer to a (unique) fake cell is returned) and if not, calls
      * CreateCardiacCellForTissueNode (which must be defined by subclasses).
+     * 
+     * @param Global node index
      */
     virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned);
     /**

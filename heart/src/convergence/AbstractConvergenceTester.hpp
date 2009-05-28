@@ -63,16 +63,23 @@ typedef enum StimulusType_
 } StimulusType;
 
 /**
- * \todo Documentation...
+ * QuarterStimulusCellFactory stimulates a quarter of a mesh of width mMeshWidth
+ * ie all the cells in 0 < x <= mMeshWidth
  */
 template <class CELL, unsigned DIM>
 class QuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
-    // define a new stimulus
+    /** define a new stimulus*/
     boost::shared_ptr<SimpleStimulus> mpStimulus;
+    /** Width (x-width) of mesh*/
     double mMeshWidth;
 public:
+
+    /** Constructor 
+     * @param meshWidth x-width of mesh
+     */
+
     QuarterStimulusCellFactory(double meshWidth)
         : AbstractCardiacCellFactory<DIM>(),
           mpStimulus(new SimpleStimulus(-1000000, 0.5)),
@@ -80,6 +87,9 @@ public:
     {
     }
 
+    /** Create cell model
+     * @param Global node index
+     */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         double x = this->GetMesh()->GetNode(node)->GetPoint()[0];
@@ -96,14 +106,14 @@ public:
 
 
 /**
- * \todo Documentation...
+ * AbstractUntemplatedConvergenceTester
+ * contains core functionality used in more convergence testers
  */
 class AbstractUntemplatedConvergenceTester
 {
 protected:
+    /** Mesh width (for cuboid mesh)*/
     double mMeshWidth;
-    double mKspTolerance;
-    bool mUseKspAbsoluteTolerance;
 public:
     double OdeTimeStep;
     double PdeTimeStep;
@@ -123,14 +133,6 @@ public:
     AbstractUntemplatedConvergenceTester();
 
     virtual void Converge(std::string nameOfTest)=0;
-
-    void SetKspRelativeTolerance(const double relativeTolerance);
-
-    void SetKspAbsoluteTolerance(const double absoluteTolerance);
-
-    double GetKspAbsoluteTolerance();
-
-    double GetKspRelativeTolerance();
 
     virtual ~AbstractUntemplatedConvergenceTester();
 };
@@ -267,18 +269,6 @@ public:
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
             ///\todo this is a sequential mesh
             cardiac_problem.SetMesh(&mesh);
-            if (mUseKspAbsoluteTolerance)
-            {
-                HeartConfig::Instance()->SetUseAbsoluteTolerance(this->mKspTolerance);
-
-//                cardiac_problem.SetLinearSolverAbsoluteTolerance(this->mKspTolerance);
-            }
-            else
-            {
-                HeartConfig::Instance()->SetUseRelativeTolerance(this->mKspTolerance);
-
-//                cardiac_problem.SetLinearSolverRelativeTolerance(this->mKspTolerance);
-            }
 
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
             unsigned third_quadrant_node;
@@ -365,7 +355,7 @@ public:
                 cardiac_problem.SetBoundaryConditionsContainer(&bcc);
             }
 
-              DisplayRun();
+            DisplayRun();
             double time_before=MPI_Wtime();
             //// use this to get some info printed out
             //cardiac_problem.SetWriteInfo();
@@ -543,13 +533,13 @@ public:
         std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
         std::cout<<"Solving with a time step of "<<this->PdeTimeStep<<" ms"<<std::endl;
         std::cout<<"Solving with an ode time step of "<<this->OdeTimeStep<<" ms"<<std::endl;
-        if (mUseKspAbsoluteTolerance)
+        if (HeartConfig::Instance()->GetUseAbsoluteTolerance())
         {
-            std::cout<<"Solving with a KSP absolute tolerance of "<<this->mKspTolerance<<std::endl;
+            std::cout<<"Solving with a KSP absolute tolerance of "<<HeartConfig::Instance()->GetAbsoluteTolerance()<<std::endl;
         }
         else
         {
-            std::cout<<"Solving with a KSP relative tolerance of "<<this->mKspTolerance<<std::endl;
+            std::cout<<"Solving with a KSP relative tolerance of "<<HeartConfig::Instance()->GetRelativeTolerance()<<std::endl;
         }
         switch (this->Stimulus)
         {
@@ -582,10 +572,15 @@ public:
 public:
     virtual ~AbstractConvergenceTester() {}
 
+    /** Initial values of parameters at the beginning of the convergence test (the parameter to be varied will be larger than the expected value at convergence)*/
     virtual void SetInitialConvergenceParameters()=0;
+    /** Update the parameter which is being varied*/
     virtual void UpdateConvergenceParameters()=0;
+    /** Assess whether to abort the convergence test (convergence is unlikely to happen).*/
     virtual bool GiveUpConvergence()=0;
+    /** The value of the parameter which is being varied*/
     virtual double Abscissa()=0;
+    
     virtual void PopulateStandardResult(double result[])
     {
         assert(this->PopulatedResult==false);

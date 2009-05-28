@@ -127,29 +127,27 @@ public:
     void TestSpaceConvergenceMonoIn1DWithRelativeTolerance() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
-        tester.SetKspRelativeTolerance(1e-4);
-        TS_ASSERT_DELTA(tester.GetKspRelativeTolerance(), 1e-4, 1e-10);
-        TS_ASSERT_THROWS_ANYTHING(tester.GetKspAbsoluteTolerance());
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         tester.RelativeConvergenceCriterion=2e-2;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.GetMeshNum(), 2);
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 5e-3);
+        HeartConfig::Instance()->Reset();
     }
 
     void TestSpaceConvergenceBidomainIn1DWithAbsoluteTolerance() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
-        tester.SetKspAbsoluteTolerance(1e-4);
-        TS_ASSERT_DELTA(tester.GetKspAbsoluteTolerance(), 1e-4, 1e-10);
-        TS_ASSERT_THROWS_ANYTHING(tester.GetKspRelativeTolerance());
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);
         tester.RelativeConvergenceCriterion=2e-2;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
         TS_ASSERT_EQUALS(tester.GetMeshNum(), 2);
         TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8);
         TS_ASSERT_LESS_THAN(tester.LastDifference, 2.9e-3);
+        HeartConfig::Instance()->Reset();
      }
 };
 

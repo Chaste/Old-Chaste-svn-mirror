@@ -32,8 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractUntemplatedConvergenceTester::AbstractUntemplatedConvergenceTester()
     : mMeshWidth(0.2),//cm
-      mKspTolerance(2e-4),//Justification from overlayed 1D time/space convergence plots with varied KSP tolerances
-      mUseKspAbsoluteTolerance(true),
       OdeTimeStep(0.0025),//Justification from 1D test with this->PdeTimeStep held at 0.01 (allowing two hits at convergence)
       PdeTimeStep(0.005),//Justification from 1D test with this->OdeTimeStep held at 0.0025
       MeshNum(5u),//Justification from 1D test
@@ -51,35 +49,9 @@ AbstractUntemplatedConvergenceTester::AbstractUntemplatedConvergenceTester()
 {
 }
 
-void AbstractUntemplatedConvergenceTester::SetKspRelativeTolerance(const double relativeTolerance)
-{
-   mKspTolerance = relativeTolerance;
-   mUseKspAbsoluteTolerance = false;
-}
 
-void AbstractUntemplatedConvergenceTester::SetKspAbsoluteTolerance(const double absoluteTolerance)
-{
-   mKspTolerance = absoluteTolerance;
-   mUseKspAbsoluteTolerance = true;
-}
 
-double AbstractUntemplatedConvergenceTester::GetKspAbsoluteTolerance()
-{
-    if (!mUseKspAbsoluteTolerance)
-    {
-        EXCEPTION("Currently using relative tolerance");
-    }
-    return mKspTolerance;
-}
 
-double AbstractUntemplatedConvergenceTester::GetKspRelativeTolerance()
-{
-    if (mUseKspAbsoluteTolerance)
-    {
-        EXCEPTION("Currently using absolute tolerance");
-    }
-    return mKspTolerance;
-}
 
 AbstractUntemplatedConvergenceTester::~AbstractUntemplatedConvergenceTester()
 {
