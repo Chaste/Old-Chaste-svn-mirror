@@ -805,12 +805,10 @@ public:
              it != r_mesh1.GetElementIteratorEnd();
              ++it, ++it2)
         {
-            Element<1,1>* p_elt = *it;
-            Element<1,1>* p_elt2 = *it2;
-            TS_ASSERT_EQUALS(p_elt->GetNumNodes(), p_elt2->GetNumNodes());
-            for (unsigned i=0; i<p_elt->GetNumNodes(); i++)
+            TS_ASSERT_EQUALS(it->GetNumNodes(), it2->GetNumNodes());
+            for (unsigned i=0; i<it->GetNumNodes(); i++)
             {
-                TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
+                TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(i), it2->GetNodeGlobalIndex(i));
             }
         }
 

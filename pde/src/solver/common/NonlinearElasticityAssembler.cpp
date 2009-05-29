@@ -63,10 +63,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
         this->mpPreconditionMatrixLinearSystem->ZeroLhsMatrix();
     }
 
-    // Get an iterator over the elements of the mesh
-    typename AbstractMesh<DIM, DIM>::ElementIterator
-        iter = mpQuadMesh->GetElementIteratorBegin();
-
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
     // the (element) preconditioner matrix: this is the same as the jacobian, but
     // with the mass matrix (ie \intgl phi_i phi_j) in the pressure-pressure block.
@@ -76,14 +72,16 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     ////////////////////////////////////////////////////////
     // loop over elements
     ////////////////////////////////////////////////////////
-    while (iter != mpQuadMesh->GetElementIteratorEnd())
+    for (typename AbstractMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
+         iter != mpQuadMesh->GetElementIteratorEnd();
+         ++iter)
     {
         //if(assembleJacobian)
         //{
         //    LOG_AND_COUT(1, "Element " << (*iter)->GetIndex() << " of " << this->mpQuadMesh->GetNumElements());
         //}
 
-        Element<DIM,DIM>& element = **iter;
+        Element<DIM, DIM>& element = *iter;
 
         if (element.GetOwnership() == true)
         {
@@ -98,7 +96,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
                 }
             }
 
-            for(unsigned i=0; i<NUM_VERTICES_PER_ELEMENT; i++)
+            for (unsigned i=0; i<NUM_VERTICES_PER_ELEMENT; i++)
             {
                 p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + element.GetNodeGlobalIndex(i);
             }
@@ -114,8 +112,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
                 this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
             }
         }
-
-        iter++;
     }
 
     ////////////////////////////////////////////////////////////

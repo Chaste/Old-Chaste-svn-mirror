@@ -171,17 +171,6 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorBegin() const
-{
-    return mElements.begin();
-}
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorEnd() const
-{
-    return mElements.end();
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorBegin() const
 {
     return mBoundaryElements.begin();

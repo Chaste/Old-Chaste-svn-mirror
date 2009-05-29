@@ -89,11 +89,11 @@ public:
         // For coverage purposes
         mesh.SetElementOwnerships(0,1); // see comment in ParallelTetrahedralMesh
 
-        for (ParallelTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
-            iter != mesh.GetElementIteratorEnd();
-            ++iter)
+        for (AbstractMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
         {
-            TS_ASSERT((*iter)->GetOwnership());
+            TS_ASSERT(iter->GetOwnership());
         }
 
         // Check the inverse Jacobian
@@ -149,22 +149,21 @@ public:
         TetrahedralMesh<2,2> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (ParallelTetrahedralMesh<2,2>::ElementIterator it=mesh.GetElementIteratorBegin();
-             it!=mesh.GetElementIteratorEnd();
-             ++it)
+        for (AbstractMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
         {
-            Element<2,2>* p_para_element = *it;
-            unsigned element_index = p_para_element->GetIndex();
+            unsigned element_index = iter->GetIndex();
 
             Element<2,2>* p_sequ_element = seq_mesh.GetElement(element_index);
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
 
-            for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
+            for (unsigned node_local_index=0; node_local_index < iter->GetNumNodes(); node_local_index++)
             {
-                TS_ASSERT_EQUALS(p_para_element->GetNodeGlobalIndex(node_local_index),
+                TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(node_local_index),
                                  p_sequ_element->GetNodeGlobalIndex(node_local_index));
 
-                TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[0],
+                TS_ASSERT_EQUALS(iter->GetNode(node_local_index)->GetPoint()[0],
                                  p_sequ_element->GetNode(node_local_index)->GetPoint()[0]);
             }
         }
@@ -210,22 +209,21 @@ public:
         TetrahedralMesh<3,3> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (ParallelTetrahedralMesh<3,3>::ElementIterator it=mesh.GetElementIteratorBegin();
-             it!=mesh.GetElementIteratorEnd();
-             ++it)
+        for (AbstractMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
         {
-            Element<3,3>* p_para_element = *it;
-            unsigned element_index = p_para_element->GetIndex();
+            unsigned element_index = iter->GetIndex();
 
             Element<3,3>* p_sequ_element = seq_mesh.GetElement(element_index);
 
             // The elements have the same index and the nodes are located in the same position.
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
-            for (unsigned node_local_index=0; node_local_index < p_para_element->GetNumNodes(); node_local_index++)
+            for (unsigned node_local_index=0; node_local_index < iter->GetNumNodes(); node_local_index++)
             {
                 for (unsigned dim=0; dim<3; dim++)
                 {
-                    TS_ASSERT_EQUALS(p_para_element->GetNode(node_local_index)->GetPoint()[dim],
+                    TS_ASSERT_EQUALS(iter->GetNode(node_local_index)->GetPoint()[dim],
                                      p_sequ_element->GetNode(node_local_index)->GetPoint()[dim]);
                 }
             }
@@ -271,7 +269,7 @@ public:
             unsigned num_global_nodes = mesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
 
-            for (AbstractMesh<3,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+            for (AbstractMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
                  iter != mesh.GetNodeIteratorEnd();
                  ++iter)
             {
@@ -390,7 +388,7 @@ public:
             unsigned nodes_owned[num_global_nodes];
             
             // Create a local map of the nodes this processor owns
-            for (AbstractMesh<3,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+            for (AbstractMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
                  iter != mesh.GetNodeIteratorEnd();
                  ++iter)
             {  

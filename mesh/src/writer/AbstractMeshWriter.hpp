@@ -272,23 +272,21 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     assert(new_index==(unsigned)rMesh.GetNumNodes());
 
     // Get an iterator over the elements of the mesh
-    typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
-        rMesh.GetElementIteratorBegin();
-
-    while (iter != rMesh.GetElementIteratorEnd())
+    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
+         iter != rMesh.GetElementIteratorEnd();
+         ++iter)
     {
-        if ((*iter)->IsDeleted() == false)
+        if (iter->IsDeleted() == false)
         {
-            std::vector<unsigned> indices((*iter)->GetNumNodes());
+            std::vector<unsigned> indices(iter->GetNumNodes());
+
             for (unsigned j=0; j<indices.size(); j++)
             {
-                unsigned old_index=(*iter)->GetNodeGlobalIndex(j);
+                unsigned old_index = iter->GetNodeGlobalIndex(j);
                 indices[j] = node_map.GetNewIndex(old_index);
             }
             this->SetNextElement(indices);
         }
-
-        iter++;
     }
 
     // Get a iterator over the boundary elements of the mesh

@@ -543,10 +543,6 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         mpLinearSystem->ZeroLhsMatrix();
     }
 
-    // Get an iterator over the elements of the mesh
-    typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-        iter = this->mpMesh->GetElementIteratorBegin();
-
     const size_t STENCIL_SIZE=PROBLEM_DIM*(ELEMENT_DIM+1);
     c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
     c_vector<double, STENCIL_SIZE> b_elem;
@@ -554,9 +550,11 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     ////////////////////////////////////////////////////////
     // loop over elements
     ////////////////////////////////////////////////////////
-    while (iter != this->mpMesh->GetElementIteratorEnd())
+    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->mpMesh->GetElementIteratorBegin();
+         iter != this->mpMesh->GetElementIteratorEnd();
+         ++iter)
     {
-        Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
+        Element<ELEMENT_DIM, SPACE_DIM>& element = *iter;
 
         if (element.GetOwnership() == true)
         {
@@ -575,8 +573,6 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
                 mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
             }
         }
-
-        iter++;
     }
 
     // add the integrals associated with Neumann boundary conditions to the linear system

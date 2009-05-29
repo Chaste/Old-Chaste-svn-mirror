@@ -172,19 +172,18 @@ private:
             mpLinearSystem->ZeroLhsMatrix();
         }
 
-        // Get an iterator over the elements of the mesh
-        typename TetrahedralMesh<DIM, DIM>::ElementIterator
-            iter = mpQuadMesh->GetElementIteratorBegin();
-
         c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
         c_vector<double, STENCIL_SIZE> b_elem;
 
         ////////////////////////////////////////////////////////
         // loop over elements
         ////////////////////////////////////////////////////////
-        while (iter != mpQuadMesh->GetElementIteratorEnd())
+
+        for (typename AbstractMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
+             iter != mpQuadMesh->GetElementIteratorEnd();
+             ++iter)
         {
-            Element<DIM,DIM>& element = **iter;
+            Element<DIM,DIM>& element = *iter;
 
             if (element.GetOwnership() == true)
             {
@@ -210,8 +209,6 @@ private:
                     mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
                 }
             }
-
-            iter++;
         }
 
         if (assembleVector)
@@ -222,7 +219,6 @@ private:
         {
             mpLinearSystem->AssembleIntermediateLhsMatrix();
         }
-
 
         // Apply dirichlet boundary conditions
         mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpLinearSystem, assembleMatrix);
@@ -236,8 +232,6 @@ private:
             mpLinearSystem->AssembleFinalLhsMatrix();
         }
     }
-
-
 
 
 public:

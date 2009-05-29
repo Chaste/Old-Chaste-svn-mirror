@@ -59,7 +59,7 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
              it != this->mpMesh->GetElementIteratorEnd();
              ++it)
         {
-            Element<DIM, DIM>& r_element = *(*it);
+            Element<DIM, DIM>& r_element = *it;
 
             if (r_element.GetRegion() == HeartRegionCode::TISSUE)
             {

@@ -55,7 +55,7 @@ public:
     
         unsigned counter = 0; 
 
-        for (AbstractMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+        for (AbstractMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
@@ -72,6 +72,24 @@ public:
 
         // We only have a NOT-equals operator defined on the iterator
         TS_ASSERT( !(iter != empty_mesh.GetNodeIteratorEnd()) );
+    }
+
+    void TestElementIterator() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+    
+        unsigned counter = 0; 
+
+        for (AbstractMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
+        {
+            unsigned element_index = (*iter).GetIndex();
+            TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give element 0,1..,N in that order
+            counter++;
+        }        
     }
 
     void TestMeshConstructionFromMeshReader()
@@ -91,11 +109,11 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
 
         // Check first element has the right nodes
-        TetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309u);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144u);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310u);
-        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
+        TetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(0), 309u);
+        TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(1), 144u);
+        TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(2), 310u);
+        TS_ASSERT_EQUALS(iter->GetNode(1), mesh.GetNode(144));
     }
 
     void TestMeshConstructionFromMeshReaderIndexedFromOne()
@@ -115,11 +133,11 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0627905195, 1e-6);
 
         // Check first element has the right nodes
-        TetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309u);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144u);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310u);
-        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
+        TetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(0), 309u);
+        TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(1), 144u);
+        TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(2), 310u);
+        TS_ASSERT_EQUALS(iter->GetNode(1), mesh.GetNode(144));
     }
 
     void Test3dMeshConstructionFromMeshReader()
@@ -844,19 +862,20 @@ public:
         mesh.Translate(-2,-2,-2);
 
         // Flag elements in the positive octant
-        TetrahedralMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
-        while (iter != mesh.GetElementIteratorEnd())
+        for (AbstractMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
         {
-            c_vector<double, 3> centroid = (*iter)->CalculateCentroid();
+            c_vector<double, 3> centroid = iter->CalculateCentroid();
+
             if (centroid(0)>=0 && centroid(1)>=0 && centroid(2)>=0)
             {
-                (*iter)->Flag();
+                iter->Flag();
             }
-            iter++;
         }
 
         // Calculate boundary
-        std::set<unsigned> boundary=mesh.CalculateBoundaryOfFlaggedRegion();
+        std::set<unsigned> boundary = mesh.CalculateBoundaryOfFlaggedRegion();
 
         // Determine correct boundary
         std::set<unsigned> correct_boundary;

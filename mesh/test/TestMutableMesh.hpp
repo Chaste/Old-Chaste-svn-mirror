@@ -105,6 +105,7 @@ private:
     }
 
 public:
+
     void TestNodeIterator() throw(Exception)
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
@@ -112,8 +113,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         unsigned counter = 0; 
-        
-        for (AbstractMesh<2,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+
+        for (AbstractMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
@@ -121,27 +122,46 @@ public:
             TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give node 0,1..,N in that order
             counter++;
         }            
-        
-        TS_ASSERT_EQUALS(counter,mesh.GetNumNodes());
+
+        TS_ASSERT_EQUALS(counter, mesh.GetNumNodes());
 
         mesh.DeleteNode(0);
         mesh.DeleteNode(10);
         mesh.DeleteNode(70);
 
         unsigned another_counter = 0; 
-        
-        for (AbstractMesh<2,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+
+        for (AbstractMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
             another_counter++;
         }            
-        
+
         TS_ASSERT_EQUALS(another_counter+3, counter)
-        TS_ASSERT_EQUALS(another_counter+3,mesh.GetNumAllNodes());
-        TS_ASSERT_EQUALS(another_counter,mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(another_counter+3, mesh.GetNumAllNodes());
+        TS_ASSERT_EQUALS(another_counter, mesh.GetNumNodes());
     }
 
+    void TestElementIterator() throw(Exception)
+    {
+        TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
+        MutableMesh<2,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        unsigned counter = 0; 
+
+        for (AbstractMesh<2,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
+        {
+            unsigned element_index = (*iter).GetIndex();
+            TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give element 0,1..,N in that order
+            counter++;
+        }            
+
+        TS_ASSERT_EQUALS(counter, mesh.GetNumElements());
+    }
 
     void TestRescaleMeshFromBoundaryNode()
     {

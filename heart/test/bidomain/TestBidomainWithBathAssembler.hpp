@@ -322,15 +322,15 @@ public:
 
         // Set everything outside a central circle (radius 0.4) to be bath
         //for(unsigned i=0; i<mesh.GetNumElements(); i++)
-        for(ParallelTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        it != mesh.GetElementIteratorEnd();
-        ++it)
+        for (ParallelTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
+             it != mesh.GetElementIteratorEnd();
+             ++it)
         {
-            double x = (*it)->CalculateCentroid()[0];
-            double y = (*it)->CalculateCentroid()[1];
-            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
+            double x = it->CalculateCentroid()[0];
+            double y = it->CalculateCentroid()[1];
+            if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
             {
-                (*it)->SetRegion(HeartRegionCode::BATH);
+                it->SetRegion(HeartRegionCode::BATH);
             }
         }
 

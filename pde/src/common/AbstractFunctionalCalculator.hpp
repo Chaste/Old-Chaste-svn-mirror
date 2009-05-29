@@ -174,17 +174,16 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
 
     double result = 0;
 
-    for (typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-           iter = rMesh.GetElementIteratorBegin();
-           iter != rMesh.GetElementIteratorEnd();
-           ++iter)
+    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
+         iter != rMesh.GetElementIteratorEnd();
+         ++iter)
     {
         //// the following if statement is for parallelisation, but doesn't
         //// work yet as multiple processes can own the same elements, so
         //// the if is commented out
         //if ((*iter)->GetOwnership() == true)
         {
-            result += CalculateOnElement(**iter);
+            result += CalculateOnElement(*iter);
         }
     }
 

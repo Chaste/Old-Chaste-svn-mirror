@@ -662,19 +662,17 @@ public:
             TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh2->GetNumAllElements());
             TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(), p_mesh2->GetNumBoundaryElements());
             TS_ASSERT_EQUALS(p_mesh->GetNumAllBoundaryElements(), p_mesh2->GetNumAllBoundaryElements());
-            MutableMesh<2,2>::ElementIterator it = p_mesh->GetElementIteratorBegin();
-            MutableMesh<2,2>::ElementIterator it2 = p_mesh2->GetElementIteratorBegin();
 
-            for (;
-                 it != p_mesh->GetElementIteratorEnd();
-                 ++it, ++it2)
+            AbstractMesh<2,2>::ElementIterator iter2 = p_mesh2->GetElementIteratorBegin();
+
+            for (AbstractMesh<2,2>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
+                 iter != p_mesh->GetElementIteratorEnd();
+                 ++iter, ++iter2)
             {
-                Element<2,2>* p_elt = *it;
-                Element<2,2>* p_elt2 = *it2;
-                TS_ASSERT_EQUALS(p_elt->GetNumNodes(), p_elt2->GetNumNodes());
-                for (unsigned i=0; i<p_elt->GetNumNodes(); i++)
+                TS_ASSERT_EQUALS(iter->GetNumNodes(), iter2->GetNumNodes());
+                for (unsigned i=0; i<iter->GetNumNodes(); i++)
                 {
-                    TS_ASSERT_EQUALS(p_elt->GetNodeGlobalIndex(i), p_elt2->GetNodeGlobalIndex(i));
+                    TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(i), iter2->GetNodeGlobalIndex(i));
                 }
             }
 

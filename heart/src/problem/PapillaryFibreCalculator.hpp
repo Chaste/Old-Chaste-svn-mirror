@@ -163,12 +163,11 @@ c_vector<double,3> PapillaryFibreCalculator::GetRadiusVectorForOneElement(unsign
 void PapillaryFibreCalculator::GetRadiusVectors()
 {
     // Loops over all elements finding radius vector
-    for(TetrahedralMesh<3,3>::ElementIterator iter = mrMesh.GetElementIteratorBegin();
-        iter != mrMesh.GetElementIteratorEnd();
-        ++iter)
+    for (AbstractMesh<3,3>::ElementIterator iter = mrMesh.GetElementIteratorBegin();
+         iter != mrMesh.GetElementIteratorEnd();
+         ++iter)
     {
-        unsigned element_index = (*iter)->GetIndex();
-
+        unsigned element_index = iter->GetIndex();
         mRadiusVectors[element_index] = GetRadiusVectorForOneElement(element_index);
     }
 }
@@ -188,20 +187,20 @@ void PapillaryFibreCalculator::SmoothStructureTensors()
     double g_factor_sum = 0;
     double g_factor = 0;
 
-    for(TetrahedralMesh<3,3>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
-        elem_iter != mrMesh.GetElementIteratorEnd();
-        ++elem_iter)
+    for (AbstractMesh<3,3>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
+         elem_iter != mrMesh.GetElementIteratorEnd();
+         ++elem_iter)
     {
-        mSmoothedStructureTensors[ (*elem_iter)->GetIndex()] = zero_matrix<double>(3,3);
+        mSmoothedStructureTensors[ elem_iter->GetIndex()] = zero_matrix<double>(3,3);
 
-        c_vector<double, 3> centroid = (*elem_iter)->CalculateCentroid();
+        c_vector<double, 3> centroid = elem_iter->CalculateCentroid();
         g_factor_sum = 0;
 
-        for(TetrahedralMesh<3,3>::ElementIterator iter_2 = mrMesh.GetElementIteratorBegin();
-            iter_2 != mrMesh.GetElementIteratorEnd();
-            ++iter_2)
+        for (AbstractMesh<3,3>::ElementIterator iter_2 = mrMesh.GetElementIteratorBegin();
+             iter_2 != mrMesh.GetElementIteratorEnd();
+             ++iter_2)
         {
-            c_vector<double, 3> centroid_2 = (*iter_2)->CalculateCentroid();
+            c_vector<double, 3> centroid_2 = iter_2->CalculateCentroid();
             double r = norm_2(centroid-centroid_2);
             if (r < r_max)
             {
@@ -209,11 +208,11 @@ void PapillaryFibreCalculator::SmoothStructureTensors()
 
                 g_factor_sum += g_factor;
 
-                mSmoothedStructureTensors[ (*elem_iter)->GetIndex()] += g_factor*mStructureTensors[ (*iter_2)->GetIndex()];
+                mSmoothedStructureTensors[elem_iter->GetIndex()] += g_factor*mStructureTensors[iter_2->GetIndex()];
             }
         }
 
-        mSmoothedStructureTensors[ (*elem_iter)->GetIndex()] /= g_factor_sum;
+        mSmoothedStructureTensors[elem_iter->GetIndex()] /= g_factor_sum;
     }
 }
 
