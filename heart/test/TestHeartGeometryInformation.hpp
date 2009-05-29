@@ -379,16 +379,19 @@ public:
         HeartGeometryInformation<3> info(mesh, epi_nodes, lv_nodes, rv_nodes);
         info.DetermineLayerForEachNode(0.25,0.375);
         //and write them out to file
-        OutputFileHandler results_handler("CellularHeterogeneity", false);        
-        out_stream p_file = results_handler.OpenOutputFile("distances.dat");        
-        
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
-        {
-            (*p_file)<<info.rGetLayerForEachNode()[index]<<std::endl;
+        OutputFileHandler results_handler("CellularHeterogeneity", false);
+        if (results_handler.IsMaster())
+        {        
+            out_stream p_file = results_handler.OpenOutputFile("distances.dat");        
+            
+            for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+            {
+                (*p_file)<<info.rGetLayerForEachNode()[index]<<std::endl;
+            }
+            //since we visually checked that the output file is correct,
+            //we check that the data in the file match the calculated one.
+            EXPECT0(system, "diff " + results_handler.GetOutputDirectoryFullPath() + "/distances.dat " + "heart/test/data/heart_geometry_layers.dat");
         }
-        //since we visually checked that the output file is correct,
-        //we check that the data in the file match the calculated one.
-        EXPECT0(system, "diff " + results_handler.GetOutputDirectoryFullPath() + "/distances.dat " + "heart/test/data/heart_geometry_layers.dat");
     }
 };
 
