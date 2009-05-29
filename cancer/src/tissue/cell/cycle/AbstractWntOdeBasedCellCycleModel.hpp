@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
+#include "WntConcentration.hpp"
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -89,6 +90,11 @@ protected:
      * @return time when the ODEs reached their stopping condition.
      */
     virtual double GetOdeStopTime();
+
+    /**
+     * Get the Wnt level experienced by the cell.
+     */
+    double GetWntLevel();
 
 public:
 

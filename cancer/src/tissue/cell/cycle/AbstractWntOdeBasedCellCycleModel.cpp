@@ -67,6 +67,38 @@ double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 }
 
 
+double AbstractWntOdeBasedCellCycleModel::GetWntLevel()
+{
+    assert(mpCell != NULL);
+    double level = 0;
+
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            level = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            level = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            level = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+    return level;
+}
+
+
 void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModel::ResetForDivision();

@@ -504,6 +504,11 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(5);
 
+        // For coverage, shift a node to a negative position
+        ChastePoint<1> shifted_point;
+        shifted_point.rGetLocation()[0] = -0.5;
+        mesh.SetNode(0, shifted_point);
+
         // Set up cells by iterating through the nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;

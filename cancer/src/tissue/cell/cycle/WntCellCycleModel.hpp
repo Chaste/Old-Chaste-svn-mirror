@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
-#include "WntConcentration.hpp"
 #include "CellMutationStates.hpp"
 
 

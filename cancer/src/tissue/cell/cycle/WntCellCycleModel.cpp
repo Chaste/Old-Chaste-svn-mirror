@@ -79,31 +79,11 @@ void WntCellCycleModel::Initialise()
     assert(mpOdeSystem == NULL);
     assert(mpCell != NULL);
 
-    switch (mDimension)
-    {
-        case 1:
-        {
-            const unsigned DIM = 1;
-            mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
-            break;
-        }
-        case 2:
-        {
-            const unsigned DIM = 2;
-            mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
-            break;
-        }
-        case 3:
-        {
-            const unsigned DIM = 3;
-            mpOdeSystem = new WntCellCycleOdeSystem(WntConcentration<DIM>::Instance()->GetWntLevel(mpCell), mpCell->GetMutationState());
-            break;
-        }
-        default:
-            NEVER_REACHED;
-    }
+    double wnt_level = GetWntLevel();
 
+    mpOdeSystem = new WntCellCycleOdeSystem(wnt_level, mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+
     ChangeCellTypeDueToCurrentBetaCateninLevel();
 }
 
@@ -117,30 +97,10 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
 #endif // CHASTE_CVODE
 
+    double wnt_level = GetWntLevel();
+
     // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
-    switch (mDimension)
-    {
-        case 1:
-        {
-            const unsigned DIM = 1;
-            mpOdeSystem->rGetStateVariables()[8] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
-            break;
-        }
-        case 2:
-        {
-            const unsigned DIM = 2;
-            mpOdeSystem->rGetStateVariables()[8] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
-            break;
-        }
-        case 3:
-        {
-            const unsigned DIM = 3;
-            mpOdeSystem->rGetStateVariables()[8] = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
-            break;
-        }
-        default:
-            NEVER_REACHED;
-    }
+    mpOdeSystem->rGetStateVariables()[8] = wnt_level;
 
     // Use the cell's current mutation status as another input
     static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());

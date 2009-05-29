@@ -71,6 +71,17 @@ private:
      */
     unsigned mDimension;
 
+    /**
+     * Get the Wnt level experienced by the cell.
+     */
+    double GetWntLevel();
+
+    /**
+     * Get the type of Wnt concentration (LINEAR, RADIAL, or NONE).
+     * This affects how the cell cycle phase is updated.
+     */
+    WntConcentrationType GetWntType();
+
 protected:
 
     /**

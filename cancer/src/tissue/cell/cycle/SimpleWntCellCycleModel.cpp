@@ -85,6 +85,68 @@ void SimpleWntCellCycleModel::SetG1Duration()
 }
 
 
+double SimpleWntCellCycleModel::GetWntLevel()
+{
+    assert(mpCell != NULL);
+    double level = 0;
+
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            level = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            level = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            level = WntConcentration<DIM>::Instance()->GetWntLevel(mpCell);
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+    return level;
+}
+
+
+WntConcentrationType SimpleWntCellCycleModel::GetWntType()
+{
+    WntConcentrationType wnt_type;
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            wnt_type = WntConcentration<DIM>::Instance()->GetType();
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            wnt_type = WntConcentration<DIM>::Instance()->GetType();
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            wnt_type = WntConcentration<DIM>::Instance()->GetType();
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+    return wnt_type;
+}
+
+
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
     CancerParameters* p_params = CancerParameters::Instance();
@@ -115,93 +177,28 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             NEVER_REACHED;
     }
 
-    switch (mDimension)
+    double wnt_level = GetWntLevel();
+    WntConcentrationType wnt_type = GetWntType();
+
+    // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
+    if (wnt_level >= wnt_division_threshold)
     {
-        case 1:
+        CellType cell_type = TRANSIT;
+
+        // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
+        if ( (wnt_type == RADIAL) && (wnt_level > p_params->GetWntStemThreshold()) )
         {
-            const unsigned DIM = 1;
-            WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
-
-            // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
-            if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
-            {
-                CellType cell_type = TRANSIT;
-
-                // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
-                if ( (p_wnt->GetType()==RADIAL) && (p_wnt->GetWntLevel(mpCell) > p_params->GetWntStemThreshold()) )
-                {
-                    cell_type = STEM;
-                }
-
-                mpCell->SetCellType(cell_type);        
-                AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
-            }
-            else
-            {
-                // The cell is DIFFERENTIATED and so in G0 phase
-                mpCell->SetCellType(DIFFERENTIATED);
-                mCurrentCellCyclePhase = G_ZERO_PHASE;
-            }
-            break;
+            cell_type = STEM;
         }
-        case 2:
-        {
-            const unsigned DIM = 2;
-            WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
 
-            // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
-            if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
-            {
-                CellType cell_type = TRANSIT;
-
-                // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
-                if ( (p_wnt->GetType()==RADIAL) && (p_wnt->GetWntLevel(mpCell) > p_params->GetWntStemThreshold()) )
-                {
-                    cell_type = STEM;
-                }
-
-                // Update the cell type to reflect the Wnt concentration
-                mpCell->SetCellType(cell_type);
-
-                AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
-            }
-            else
-            {
-                // The cell is DIFFERENTIATED and so in G0 phase
-                mpCell->SetCellType(DIFFERENTIATED);
-                mCurrentCellCyclePhase = G_ZERO_PHASE;
-            }
-            break;
-        }
-        case 3:
-        {
-            const unsigned DIM = 3;
-            WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
-
-            // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
-            if (p_wnt->GetWntLevel(mpCell) >= wnt_division_threshold)
-            {
-                CellType cell_type = TRANSIT;
-
-                // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
-                if ( (p_wnt->GetType()==RADIAL) && (p_wnt->GetWntLevel(mpCell) > p_params->GetWntStemThreshold()) )
-                {
-                    cell_type = STEM;
-                }
-
-                mpCell->SetCellType(cell_type);
-                AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
-            }
-            else
-            {
-                // The cell is DIFFERENTIATED and so in G0 phase
-                mpCell->SetCellType(DIFFERENTIATED);
-                mCurrentCellCyclePhase = G_ZERO_PHASE;
-            }
-            break;
-        }
-        default:
-            NEVER_REACHED;
+        mpCell->SetCellType(cell_type);        
+        AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
+    }
+    else
+    {
+        // The cell is DIFFERENTIATED and so in G0 phase
+        mpCell->SetCellType(DIFFERENTIATED);
+        mCurrentCellCyclePhase = G_ZERO_PHASE;
     }
 }
 
@@ -214,37 +211,11 @@ void SimpleWntCellCycleModel::ResetForDivision()
 
 void SimpleWntCellCycleModel::InitialiseDaughterCell()
 {
-    switch (mDimension)
+    WntConcentrationType wnt_type = GetWntType();
+
+    if (wnt_type == RADIAL)
     {
-        case 1:
-        {
-            const unsigned DIM = 1;
-            if (WntConcentration<DIM>::Instance()->GetType()==RADIAL)
-            {
-                mpCell->SetCellType(TRANSIT);
-            }
-            break;
-        }
-        case 2:
-        {
-            const unsigned DIM = 2;
-            if (WntConcentration<DIM>::Instance()->GetType()==RADIAL)
-            {
-                mpCell->SetCellType(TRANSIT);
-            }
-            break;
-        }
-        case 3:
-        {
-            const unsigned DIM = 3;
-            if (WntConcentration<DIM>::Instance()->GetType()==RADIAL)
-            {
-                mpCell->SetCellType(TRANSIT);
-            }
-            break;
-        }
-        default:
-            NEVER_REACHED;
+        mpCell->SetCellType(TRANSIT);
     }
 
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();
