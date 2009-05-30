@@ -89,7 +89,16 @@ public:
             unsigned element_index = (*iter).GetIndex();
             TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give element 0,1..,N in that order
             counter++;
-        }        
+        }
+
+        // For coverage, test with an empty mesh
+        TetrahedralMesh<2,2> empty_mesh;
+
+        // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
+        AbstractMesh<2,2>::ElementIterator iter = empty_mesh.GetElementIteratorBegin();
+
+        // We only have a NOT-equals operator defined on the iterator
+        TS_ASSERT( !(iter != empty_mesh.GetElementIteratorEnd()) );
     }
 
     void TestMeshConstructionFromMeshReader()

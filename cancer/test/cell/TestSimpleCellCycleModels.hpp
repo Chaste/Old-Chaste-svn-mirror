@@ -326,10 +326,10 @@ public:
 
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
-        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(30.0, 2);
 
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        SimpleWntCellCycleModel* p_cell_model_1d = new SimpleWntCellCycleModel(1);
+        SimpleWntCellCycleModel* p_cell_model_1d = new SimpleWntCellCycleModel(1, true);
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
