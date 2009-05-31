@@ -113,7 +113,7 @@ public:
     void DefineFixedDimension(long dimensionSize);
 
     /**
-     * Define the fixed dimension, assuming incomplete data ouput (subset of the nodes).
+     * Define the fixed dimension, assuming incomplete data output (subset of the nodes).
      *
      * @param nodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
      * @param vecSize

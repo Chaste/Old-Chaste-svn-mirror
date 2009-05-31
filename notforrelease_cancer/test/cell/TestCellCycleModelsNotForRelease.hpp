@@ -571,7 +571,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(), true);
 
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
@@ -630,7 +630,7 @@ public:
         oxygen_concentration.push_back(1.0);
         CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // Create an ouput archive
+        // Create an output archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
@@ -683,7 +683,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_div_rule_cell_cycle.arch";
 
-        // Create an ouput archive
+        // Create an output archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
@@ -737,7 +737,7 @@ public:
         oxygen_concentration.push_back(1.0);
         CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // Create an ouput archive
+        // Create an output archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
@@ -751,7 +751,7 @@ public:
 
             p_simulation_time->IncrementTimeOneStep();
 
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 

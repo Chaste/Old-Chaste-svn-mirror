@@ -105,7 +105,7 @@ void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, lo
 
     if ((int) nodesToOuput.back() >= vecSize)
     {
-        EXCEPTION("Vector size doesn't match nodes to ouput");
+        EXCEPTION("Vector size doesn't match nodes to output");
     }
 
     DefineFixedDimension(vecSize);

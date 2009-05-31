@@ -1277,7 +1277,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "conf_mesh.arch";
 
-        // Create an ouput archive
+        // Create an output archive
         {
             TetrahedralMesh<2,2>* const p_mesh = new TetrahedralMesh<2,2>;
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");

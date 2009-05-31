@@ -813,7 +813,7 @@ public:
 
             p_model->SetBirthTime(-1.0);
 
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
@@ -878,7 +878,7 @@ public:
 
             stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
 
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
@@ -953,7 +953,7 @@ public:
 
             stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
 
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
@@ -1044,7 +1044,7 @@ public:
             // When the above tests are included here they pass, so we
             // also put them after the load to see if they still pass.
 
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 

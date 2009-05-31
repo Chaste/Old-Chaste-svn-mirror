@@ -588,7 +588,7 @@ public:
          * change is lost.
          */
 
-        // Create an ouput archive
+        // Create an output archive
         {
             TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 46u);
             TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 15u);

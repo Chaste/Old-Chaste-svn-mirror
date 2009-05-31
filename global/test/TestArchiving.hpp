@@ -197,7 +197,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "simple_vars.arch";
 
-        // Create an ouput archive
+        // Create an output archive
         {
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -259,7 +259,7 @@ public:
 
         // Save
         {
-            // Create an ouput archive
+            // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
@@ -316,7 +316,7 @@ public:
 
         // Save
         {
-            // Create aClassOfSimpleVariablesn ouput archive
+            // Create aClassOfSimpleVariablesn output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 

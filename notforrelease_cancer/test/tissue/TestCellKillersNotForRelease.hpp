@@ -219,7 +219,7 @@ public:
         double radius = 0.4;
 
         {
-            // Create an ouput archive
+            // Create an output archive
             RadialSloughingCellKiller cell_killer(NULL, centre, radius);
 
             std::ofstream ofs(archive_filename.c_str());
@@ -267,7 +267,7 @@ public:
         archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_killer.arch";
 
         {
-            // Create an ouput archive
+            // Create an output archive
             OxygenBasedCellKiller<2> cell_killer(NULL);
 
             std::ofstream ofs(archive_filename.c_str());

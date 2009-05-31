@@ -379,7 +379,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "fixed_cell_cycle.arch";
 
-        // Create an ouput archive
+        // Create an output archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
@@ -402,7 +402,7 @@ public:
             TissueCell* const p_cell = &cell;
 
             output_arch << p_cell;
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
 
             SimulationTime::Destroy();
         }
@@ -424,9 +424,9 @@ public:
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
 
             // Check private data has been restored correctly.
-            TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.0,1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(),2.5,1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
+            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
 
             delete p_cell;
         }
@@ -441,7 +441,7 @@ public:
 
         double random_number_test = 0;
 
-        // Create an ouput archive
+        // Create an output archive
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
@@ -461,13 +461,13 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TS_ASSERT_DELTA(CancerParameters::Instance()->GetSDuration(),5.0,1e-12);
+            TS_ASSERT_DELTA(CancerParameters::Instance()->GetSDuration(), 5.0, 1e-12);
 
             output_arch << p_cell;
 
-            TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.1,1e-12);
-            TS_ASSERT_DELTA(p_model->GetAge(),2.1,1e-12);
-            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(),G_ONE_PHASE);
+            TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
+            TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
 
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
@@ -526,7 +526,7 @@ public:
 
         double random_number_test = 0;
 
-        // Create an ouput archive
+        // Create an output archive
         {
             // Set up the simulation time
             SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -637,7 +637,7 @@ public:
 
         random_number_test = 0;
 
-        // Create an ouput archive
+        // Create an output archive
         {
             // Set up the simulation time
             SimulationTime* p_simulation_time = SimulationTime::Instance();

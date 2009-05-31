@@ -67,7 +67,7 @@ public:
 
         std::string output_dir = mpParallelWriter->GetOutputDirectory();
 
-        // Test that the ouput directory and the .info file was created
+        // Test that the output directory and the .info file was created
         TS_ASSERT_EQUALS(system(("test -f " + output_dir + "ParallelColumnWriter.info").c_str()), 0);
 
         // Set up some data in PETSc vectors

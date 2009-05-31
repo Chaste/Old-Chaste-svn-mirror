@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 
 /**
- * This class contains all the things common to simple Meineke cell cycle
+ * This class contains all the things common to simple generation-based cell cycle
  * models, i.e. models in which the length of cell cycle phases are determined
  * when the cell cycle model is created, rather than evaluated 'on the fly'
  * by ODEs and suchlike, and in which each cell has a 'generation'.

@@ -218,7 +218,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "cancer_params.arch";
 
-        // Create an ouput archive
+        // Create an output archive
         {
             CancerParameters* p_inst1 = CancerParameters::Instance();
 

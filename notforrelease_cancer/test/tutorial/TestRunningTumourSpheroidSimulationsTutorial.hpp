@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *
  */
-#ifndef TESTTUMOURSPHEROIDTUTORIAL_HPP_
-#define TESTTUMOURSPHEROIDTUTORIAL_HPP_
+#ifndef TESTRUNNINGTUMOURSPHEROIDSIMULATIONSTUTORIAL_HPP_
+#define TESTRUNNINGTUMOURSPHEROIDSIMULATIONSTUTORIAL_HPP_
 /*
  * = An example showing how to run tumour spheroid simulations =
  *
@@ -125,8 +125,7 @@ public:
         {
             /*.. then create a cell, and giving a particular cell cycle model
              * - {{{SimpleOxygenBasedCellCycleModel}}}.  The cell cycle model is
-             * parameterised by the dimension of the problem. The index of the node that
-             * this cell is related to also needs to be given. */
+             * parameterised by the dimension of the problem. */
             TissueCell cell(STEM, HEALTHY, new SimpleOxygenBasedCellCycleModel(2));
 
             /* Now, we define a random birth time, chosen from [-T,0], where
@@ -214,4 +213,4 @@ public:
         CellwiseData<2>::Destroy();
     }
 };
-#endif /*TESTTUMOURSPHEROIDTUTORIAL_HPP_*/
+#endif /*TESTRUNNINGTUMOURSPHEROIDSIMULATIONSTUTORIAL_HPP_*/

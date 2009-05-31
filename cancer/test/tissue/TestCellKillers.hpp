@@ -356,7 +356,7 @@ public:
         archive_filename = handler.GetOutputDirectoryFullPath() + "random_killer.arch";
 
         {
-            // Create an ouput archive
+            // Create an output archive
             RandomCellKiller<2> cell_killer(NULL, 0.134);
 
             std::ofstream ofs(archive_filename.c_str());
@@ -400,7 +400,7 @@ public:
         p_params->SetCryptWidth(5.0);
 
         {
-            // Create an ouput archive
+            // Create an output archive
             SloughingCellKiller<2> cell_killer(NULL, true);
 
             std::ofstream ofs(archive_filename.c_str());
