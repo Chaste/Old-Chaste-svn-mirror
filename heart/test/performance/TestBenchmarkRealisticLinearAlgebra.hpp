@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
+#include "BidomainParaParaProblem.hpp"
+
 #include "PetscSetupAndFinalize.hpp"
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
@@ -121,6 +123,26 @@ public:
         HeartEventHandler::Headings();
         HeartEventHandler::Report();
     }
+
+    void TestBenchmarkBidomainParaPara() throw (Exception)
+    {
+        SetParameters();
+
+        // Output filename for this particular test
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLA");
+
+        PointStimulusHeartCellFactory cell_factory;
+        BidomainParaParaProblem<3> para_para_bidomain_problem(&cell_factory);
+
+        para_para_bidomain_problem.UseMatrixBasedRhsAssembly(false);
+
+        para_para_bidomain_problem.Initialise();
+        para_para_bidomain_problem.Solve();
+
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
+    }
+
 };
 
 #endif /*TESTREALISTICLINEARALGEBRA_HPP_*/
