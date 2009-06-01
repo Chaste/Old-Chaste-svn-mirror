@@ -1,1 +1,3 @@
+tutorial/TestCreatingAndUsingANewCellCycleModelTutorial.hpp
+tutorial/TestCreatingAndUsingANewCellKillerTutorial.hpp
 tutorial/TestRunningTumourSpheroidSimulationsTutorial.hpp
