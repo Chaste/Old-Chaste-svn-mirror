@@ -207,9 +207,16 @@ NB. You will need to logout and in again for the above to take effect (or instea
 First, return to the main Chaste directory (the folder with the code and this README file)
 
 You will need to edit the python/hostconfig/default.py to give the correct paths to each 
-of the libraries. Note that if you followed these instructions (placing all dependencies below
+of the libraries.  Note that if you followed these instructions (placing all dependencies below
 a ${CHASTE_LIBS} directory) then this should a matter of removing two lines and editing one 
-line below. 
+line below them.  
+
+If you've used a variation on these instructions then you may need to make other alterations.  For
+example, the name of the Boost serialization library may differ in the 'other_libraries' field.
+The location and names of the Blas and Lapack libraries are also included in the default.py file 
+and should be changed to the correct paths and names for your installation.  The correct names
+for MKL Blas/Lapack libraries are
+blas_lapack = ['mkl_lapack', 'mkl', 'svml']
 
 Note that if you have the Intel compiler available, you may want to enable Chaste compilation 
 with Intel.  We've found that on some tests the build-type for optimised Intel 
