@@ -69,7 +69,6 @@ public:
 
         pTester->Converge("Automated_test");
         TS_ASSERT(pTester->Converged);
-        HeartConfig::Instance()->Reset();
     }
 
     void ConvergeInVarious(StimulusType stimulusType)
@@ -107,6 +106,7 @@ public:
             {
                 TS_ASSERT_DELTA(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-4, 1e-10);
             }
+            HeartConfig::Instance()->Reset();
         }
 
         {
