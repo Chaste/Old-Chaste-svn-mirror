@@ -83,12 +83,12 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initial
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
+void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
 {
     unsigned node_global_index = pNode->GetIndex();
 
-    mIionic                 += phi_i * mpBidomainPde->rGetIionicCacheReplicated()[ node_global_index ];
-    mIIntracellularStimulus += phi_i * mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
+    mIionic                 += phiI * mpBidomainPde->rGetIionicCacheReplicated()[ node_global_index ];
+    mIIntracellularStimulus += phiI * mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -184,14 +184,14 @@ c_vector<double, 2*ELEMENT_DIM> BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::Com
     ChastePoint<SPACE_DIM> &rX)
 {
     // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
-    double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
-    double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
+    double sigma_i_times_grad_phi_i_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
+    double sigma_e_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
 
     c_vector<double, 2*ELEMENT_DIM> ret;
     for (unsigned i=0; i<ELEMENT_DIM; i++)
     {
-        ret(2*i)   = rPhi(i)*D_times_grad_v_dot_n;
-        ret(2*i+1) = rPhi(i)*D_times_grad_phi_e_dot_n;
+        ret(2*i)   = rPhi(i)*sigma_i_times_grad_phi_i_dot_n;
+        ret(2*i+1) = rPhi(i)*(sigma_i_times_grad_phi_i_dot_n + sigma_e_times_grad_phi_e_dot_n);
     }
 
     return ret;
@@ -308,6 +308,39 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
             this->mpLinearSystem->AssembleRhsVector();
         }
     }
+
+    CheckCompatibilityCondition();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
+{
+    if(!PetscTools::NumProcs()>1)
+    {
+        // don't do test in parallel
+        return;
+    }  
+    
+    if (!(mFixedExtracellularPotentialNodes.empty()) || mRowForAverageOfPhiZeroed!=INT_MAX )
+    {
+        // not a singular system, no compability condition
+        return;
+    }
+
+#ifndef NDEBUG
+    ReplicatableVector rep(this->mpLinearSystem->rGetRhsVector());
+    double sum = 0;
+    for(unsigned i=1; i<rep.size(); i+=2) // i=1,3,5,..  ie all the phi_e components
+    {
+        sum += rep[i];
+    }
+    
+    if(fabs(sum)>1e-6) // magic number! sum should really be a sum of zeros and exactly zero though anyway
+    {
+        std::cout << "Linear system does not satisfy compability constraint!\n"; // remove this when done
+        NEVER_REACHED; 
+    }
+#endif
 }
 
 

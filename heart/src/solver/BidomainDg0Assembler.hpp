@@ -121,6 +121,19 @@ protected:
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode);
 
     /**
+     *  Checks whether the linear system will have a solution (if so, infinite solutions) instead of
+     *  zero solutions. The condition is, if the linear system is Ax=b, that sum b_i over for all the PHI_E 
+     *  components (ie i=1,3,5,..) is zero.
+     * 
+     *  This check is not made if running in parallel, or in debug mode.
+     * 
+     *  The reason why the sum must be zero: the Fredholm alternative states that a singular system Ax=b has
+     *  a solution if and only if v.b=0 for all v in ker(A) (ie all v such that Av=b). The nullspace ker(A)
+     *  is one dimensional with basis vector v = (0,1,0,1....,0,1), so v.b = sum_{i=1,3,5..} b_i.
+     */
+    void CheckCompatibilityCondition();
+
+    /**
      * ComputeMatrixTerm()
      *
      * This method is called by AssembleOnElement() and tells the assembler
