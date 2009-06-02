@@ -42,9 +42,10 @@ private:
 
 public:
     PlaneStimulusCellFactory(double stimulusMagnitude=-600)
-        : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>(),
-          mpStimulus(new SimpleStimulus(stimulusMagnitude, 0.5))
+        : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>()//,
+//          mpStimulus(boost::shared_ptr<SimpleStimulus>(new SimpleStimulus(stimulusMagnitude, 0.5)))
     {
+        mpStimulus = boost::shared_ptr<SimpleStimulus>(new SimpleStimulus(stimulusMagnitude, 0.5));
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
     }
 
