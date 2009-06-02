@@ -100,80 +100,9 @@ private:
     static const double sodium_potassium_pump_current_P_NaK;   /**< picoA_per_picoF */
     static const double transient_outward_current_g_to;   /**< nanoS_per_picoF */
 
-    ///////////////////////////////////////////////////////////////////////
-    //variables that need to be computed
-    //////////////////////////////////////////////////////////////////////
-    double L_type_Ca_current_d_gate_alpha_d;   // per_millisecond
-    double L_type_Ca_current_d_gate_beta_d;   // per_millisecond
-    double L_type_Ca_current_d_gate_d_inf;   // dimensionless
-    double L_type_Ca_current_d_gate_gamma_d;   // per_millisecond
-    double L_type_Ca_current_d_gate_tau_d;   // millisecond
-    double L_type_Ca_current_f2_gate_f2_inf;   // dimensionless
-    double L_type_Ca_current_f2_gate_tau_f2;   // millisecond
-    double L_type_Ca_current_fCass_gate_fCass_inf;   // dimensionless
-    double L_type_Ca_current_fCass_gate_tau_fCass;   // millisecond
-    double L_type_Ca_current_f_gate_f_inf;   // dimensionless
-    double L_type_Ca_current_f_gate_tau_f;   // millisecond
-    double L_type_Ca_current_i_CaL;   // picoA_per_picoF
-    double calcium_background_current_i_b_Ca;   // picoA_per_picoF
-    double calcium_dynamics_Ca_i_bufc;   // millimolar
-    double calcium_dynamics_Ca_sr_bufsr;   // millimolar
-    double calcium_dynamics_Ca_ss_bufss;   // millimolar
-    double calcium_dynamics_O;   // dimensionless
-    double calcium_dynamics_i_leak;   // millimolar_per_millisecond
-    double calcium_dynamics_i_rel;   // millimolar_per_millisecond
-    double calcium_dynamics_i_up;   // millimolar_per_millisecond
-    double calcium_dynamics_i_xfer;   // millimolar_per_millisecond
-    double calcium_dynamics_k1;   // per_millimolar2_per_millisecond
-    double calcium_dynamics_k2;   // per_millimolar_per_millisecond
-    double calcium_dynamics_kcasr;   // dimensionless
-    double calcium_pump_current_i_p_Ca;   // picoA_per_picoF
-    double fast_sodium_current_h_gate_alpha_h;   // per_millisecond
-    double fast_sodium_current_h_gate_beta_h;   // per_millisecond
-    double fast_sodium_current_h_gate_h_inf;   // dimensionless
-    double fast_sodium_current_h_gate_tau_h;   // millisecond
-    double fast_sodium_current_i_Na;   // picoA_per_picoF
-    double fast_sodium_current_j_gate_alpha_j;   // per_millisecond
-    double fast_sodium_current_j_gate_beta_j;   // per_millisecond
-    double fast_sodium_current_j_gate_j_inf;   // dimensionless
-    double fast_sodium_current_j_gate_tau_j;   // millisecond
-    double fast_sodium_current_m_gate_alpha_m;   // per_millisecond
-    double fast_sodium_current_m_gate_beta_m;   // per_millisecond
-    double fast_sodium_current_m_gate_m_inf;   // dimensionless
-    double fast_sodium_current_m_gate_tau_m;   // millisecond
-    double inward_rectifier_potassium_current_alpha_K1;   // dimensionless
-    double inward_rectifier_potassium_current_beta_K1;   // dimensionless
-    double inward_rectifier_potassium_current_i_K1;   // picoA_per_picoF
-    double inward_rectifier_potassium_current_xK1_inf;   // dimensionless
-    double potassium_pump_current_i_p_K;   // picoA_per_picoF
-    double rapid_time_dependent_potassium_current_Xr1_gate_alpha_xr1;   // per_millisecond
-    double rapid_time_dependent_potassium_current_Xr1_gate_beta_xr1;   // per_millisecond
-    double rapid_time_dependent_potassium_current_Xr1_gate_tau_xr1;   // millisecond
-    double rapid_time_dependent_potassium_current_Xr1_gate_xr1_inf;   // dimensionless
-    double rapid_time_dependent_potassium_current_Xr2_gate_alpha_xr2;   // per_millisecond
-    double rapid_time_dependent_potassium_current_Xr2_gate_beta_xr2;   // per_millisecond
-    double rapid_time_dependent_potassium_current_Xr2_gate_tau_xr2;   // millisecond
-    double rapid_time_dependent_potassium_current_Xr2_gate_xr2_inf;   // dimensionless
-    double rapid_time_dependent_potassium_current_i_Kr;   // picoA_per_picoF
-    double reversal_potentials_E_Ca;   // millivolt
-    double reversal_potentials_E_K;   // millivolt
-    double reversal_potentials_E_Ks;   // millivolt
-    double reversal_potentials_E_Na;   // millivolt
-    double slow_time_dependent_potassium_current_Xs_gate_alpha_xs;   // per_millisecond
-    double slow_time_dependent_potassium_current_Xs_gate_beta_xs;   // per_millisecond
-    double slow_time_dependent_potassium_current_Xs_gate_tau_xs;   // millisecond
-    double slow_time_dependent_potassium_current_Xs_gate_xs_inf;   // dimensionless
-    double slow_time_dependent_potassium_current_i_Ks;   // picoA_per_picoF
-    double sodium_background_current_i_b_Na;   // picoA_per_picoF
-    double sodium_calcium_exchanger_current_i_NaCa;   // picoA_per_picoF
-    double sodium_potassium_pump_current_i_NaK;   // picoA_per_picoF
-    double transient_outward_current_i_to;   // picoA_per_picoF
-    double transient_outward_current_r_gate_r_inf;   // dimensionless
-    double transient_outward_current_r_gate_tau_r;   // millisecond
-    double transient_outward_current_s_gate_s_inf;   // dimensionless
-    double transient_outward_current_s_gate_tau_s;   // dimensionless
-
-    // This private method will check that gates are within 0 and 1 and concentrations are positive
+    /**
+     *  This private method will check that gates are within 0 and 1 and concentrations are positive
+     */
     void VerifyStateVariables();
 
 public:
