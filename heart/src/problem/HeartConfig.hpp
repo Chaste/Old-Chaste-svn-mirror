@@ -178,7 +178,7 @@ public:
 
     ~HeartConfig();
 protected:
-    // Only to be accesed by the tests
+    // Only to be accessed by the tests
     friend class TestHeartConfig;
 
     chaste_parameters_type* UserParameters();

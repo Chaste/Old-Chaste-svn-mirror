@@ -63,7 +63,7 @@ public:
 
     /**
      * Returns the stimulus at a given time.
-     * 
+     *
      * @param time  time at which to return the stimulus
      */
     virtual double GetStimulus(double time) = 0;
@@ -73,13 +73,14 @@ public:
      */
     virtual ~AbstractStimulusFunction()
     {}
-    
+
     /**
      * Clear is used to managed memory in subclasses where the destructor may or may not need to clean up.
      */
     void virtual Clear()
     {
-        NEVER_REACHED; //Needed in one or more derived classes
+        //Needed in one or more derived classes
+        NEVER_REACHED;
     }
 };
 

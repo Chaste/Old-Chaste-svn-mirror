@@ -82,6 +82,12 @@ public:
         TS_ASSERT_EQUALS(stem_cell.IsDead(), false);
         stem_cell.Kill();
         TS_ASSERT_EQUALS(stem_cell.IsDead(), true);
+
+        // Coverage of operator equals.
+        TissueCell live_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        TS_ASSERT_EQUALS(live_cell.IsDead(), false);
+        live_cell = stem_cell;
+        TS_ASSERT_EQUALS(live_cell.IsDead(), true);
     }
 
 
@@ -1267,7 +1273,7 @@ public:
         TS_ASSERT_EQUALS(cell.GetAncestor(), 2u);
         TS_ASSERT_EQUALS(cell2.GetAncestor(), 2u);
     }
-    
+
     void TestCellId() throw (Exception)
     {
         // Resetting the Maximum cell Id to zero (to account for previous tests)
@@ -1278,7 +1284,7 @@ public:
 
         TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell.InitialiseCellCycleModel();
-        
+
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();
 
@@ -1288,7 +1294,7 @@ public:
 
         TS_ASSERT_EQUALS(cell.GetCellId(), 0u);
         TS_ASSERT_EQUALS(cell2.GetCellId(), 1u);
-    }  
+    }
 
 };
 
