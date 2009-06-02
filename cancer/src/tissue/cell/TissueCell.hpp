@@ -113,17 +113,21 @@ protected:
     /** Whether the cell is currently in apoptosis - don't divide */
     bool mUndergoingApoptosis;
 
-    /** Whether the cell is dead or not (they exist in the Tissue until they are removed by AbstractTissue::RemoveDeadCells() */
+    /**
+     * Whether the cell is dead or not (they exist in the Tissue until they are 
+     * removed by AbstractTissue::RemoveDeadCells()
+     */
     bool mIsDead;
 
     /** Whether the cell is being tracked specially. */
     bool mIsLogged;
 
-    /** Contains code common to both the copy constructor and operator=.
+    /**
+     * Contains code common to both the copy constructor and operator=.
      *
      * @param otherCell  An existing TissueCell
      */
-    void CommonCopy(const TissueCell &otherCell);
+    void CommonCopy(const TissueCell& rOtherCell);
 
 public:
 
@@ -154,9 +158,9 @@ public:
     /**
      * Copy all the attributes of one cell to another.
      *
-     * @param otherCell  An existing TissueCell
+     * @param rOtherCell  An existing TissueCell
      */
-    TissueCell& operator=(const TissueCell &otherCell);
+    TissueCell& operator=(const TissueCell& rOtherCell);
 
     /**
      * Set the birth time of the cell - can be negative so that your cells have an age when a simulation begins

@@ -106,6 +106,15 @@ public:
         TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
+        // Test coverage of operator=
+        TissueCell other_cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        other_cell.InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(other_cell.GetCellType(), TRANSIT);
+        other_cell = stem_cell;
+        TS_ASSERT_EQUALS(other_cell.GetCellType(), STEM);
+
+        // Back to the test
         p_simulation_time->IncrementTimeOneStep(); //t=12
         p_simulation_time->IncrementTimeOneStep(); //t=18
         p_simulation_time->IncrementTimeOneStep(); //t=24

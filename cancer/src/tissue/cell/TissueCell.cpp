@@ -92,11 +92,11 @@ TissueCell::TissueCell(const TissueCell &otherCell)
 }
 
 
-TissueCell& TissueCell::operator=(const TissueCell &otherCell)
+TissueCell& TissueCell::operator=(const TissueCell& rOtherCell)
 {
     // In case this is self-assignment, don't delete the cell cycle model
     AbstractCellCycleModel* temp = mpCellCycleModel;
-    CommonCopy(otherCell);
+    CommonCopy(rOtherCell);
     // ...until after we've copied it.
     delete temp;
     return *this;
@@ -130,6 +130,7 @@ void TissueCell::InitialiseCellCycleModel()
 {
     mpCellCycleModel->Initialise();
 }
+
 
 double TissueCell::GetAge() const
 {
