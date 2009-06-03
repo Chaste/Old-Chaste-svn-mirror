@@ -424,8 +424,7 @@ if ARGUMENTS.get('exe', 0):
     svn_rev = os.popen("svnversion").read().strip()
     uname = ' '.join(os.uname()).replace(' ', '-')
     
-#    env.Append(CCFLAGS=' -DSVN_REV=\'"'+svn_rev+'"\' ')
-    env.Append(CCFLAGS=' -DSVN_REV=\'"'+svn_rev+'"\' -DUNAME=\'"'+uname+'"\' -DBUILD_TYPE=\'"'+build_type+'"\' ')
+    env.Append(CCFLAGS=' -DUNAME=\'"'+uname+'"\' -DBUILD_TYPE=\'"'+build_type+'"\' ')
 
     if static_libs:
         libpath = '#lib'

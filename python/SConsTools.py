@@ -39,26 +39,6 @@ except NameError:
     import sets
     set = sets.Set
 
-def IsTemplateCpp(filepath): 
-    """Check if the .cpp file defines a templated class.
-    
-    We assume this is the case if one of the first 2 lines starts '#ifndef '.
-    
-    TODO: Has this been silently broken by the copyright blocks?
-    """
-    fp = open(filepath)
-    try:
-        line = fp.next()
-    except StopIteration:
-        # Empty file, so not real source code
-        return True
-    template = line.startswith('#ifndef ')
-    if not template:
-        line = fp.next()
-        template = line.startswith('#ifndef ')
-    fp.close()
-    return template
-
 def FindSourceFiles(rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
     """Look for source files under rootDir.
     
@@ -85,7 +65,7 @@ def FindSourceFiles(rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
         if not dirsOnly:
             for filename in filenames:
                 filepath = os.path.join(dirpath, filename)
-                if filename[-4:] == '.cpp' and not IsTemplateCpp(filepath):
+                if filename[-4:] == '.cpp':
                     source_files.append(filepath)
     if dirsOnly:
         return source_dirs
@@ -106,10 +86,9 @@ def BuildTest(target, source, env):
     Takes as a single source the object file compiled for the test,
     and uses its implicit dependencies to work out which other object
     files must be linked against.  For each header file, if it is a
-    Chaste header and has a corresponding 'real' source file (as
-    determined by IsTemplateCpp), then we should link with the
-    associated object file.  This analysis is recursive - we analyse
-    each object file in the same way.
+    Chaste header and has a corresponding source .cpp file, then we
+    should link with the associated object file.  This analysis is
+    recursive - we analyse each object file in the same way.
 
     It requires a few attributes of the environment:
      * env['CHASTE_COMPONENTS']
@@ -142,9 +121,8 @@ def BuildTest(target, source, env):
                     # Does it have a source file?
                     base, ext = os.path.splitext(hdr)
                     cpp_file = base + '.cpp'
-                    if base == 'global/src/Version' or \
-                           (os.path.exists(cpp_file) and \
-                            not IsTemplateCpp(cpp_file)):
+                    if (base == 'global/src/Version' or
+                        os.path.exists(cpp_file)):
                         # Find the object file and analyse it
                         obj = env['CHASTE_OBJECTS'][cpp_file]
                         objects.append(obj)
@@ -251,7 +229,14 @@ def FindTestsToRun(build, BUILD_TARGETS,
 def GetVersionCpp():
     """Return the contents of the Version.cpp source file."""
     chaste_root = Dir('#').abspath
-    chaste_revision = os.popen("svnversion").read().strip()
+    version_file = os.path.join(chaste_root, 'ReleaseVersion.txt')
+    if os.path.exists(version_file):
+        chaste_revision = open(version_file).read().strip()
+    else:
+        version_pipe = os.popen("svnversion")
+        chaste_revision = version_pipe.read().strip()
+        if version_pipe.close():
+            chaste_revision = 'Unknown'
     return '''
 #include "Version.hpp"
 
