@@ -120,15 +120,7 @@ void TenTusscher2006OdeSystem::SetScaleFactorGkr(double sfgkr)
 {
     mScaleFactorGkr=sfgkr;
 }
-/**
- * Fill in a vector representing the RHS of the TenTusscher2006 system
- * of Odes at each time step, y' = [y1' ... yn'].
- * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
- *
- * @param time  the current time, in milliseconds
- * @param rY  current values of the state variables
- * @param rDY  to be filled in with derivatives
- */
+
 void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
                                                     const std::vector<double> &rY,
                                                     std::vector<double> &rDY)
