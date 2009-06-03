@@ -3,8 +3,14 @@
 The files you have downloaded contain the source code for all the
 Chaste functionalities.  Chaste makes use of a variety of external
 libraries and packages that need to be installed on your machine.  The
-file README_INSTALLATION provides a comprehensive guide on how to
+file docs/INSTALLATION.txt provides a comprehensive guide on how to
 install these external tools.
+
+Chaste is distributed under the GNU Lesser General Public License.
+The text of this licence is distributed in the file docs/Copying.txt.
+Chaste uses various third party libraries which have their own
+licences.  For details of these licences and the impact they may have
+on your use of Chaste please see docs/Licences.html.
 
 Chaste includes a complete test suite covering all the source
 code. The easiest way to use existing source codes is to create a test
