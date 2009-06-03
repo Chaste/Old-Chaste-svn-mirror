@@ -256,7 +256,7 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
     this->PrepareForSolve();
     this->InitialiseForSolve(mInitialCondition);
 
-    TimeStepper stepper(mTstart, mTend, mDt);
+    TimeStepper stepper(mTstart, mTend, mDt, mMatrixIsConstant);
 
     Vec current_solution = mInitialCondition;
     Vec next_solution;

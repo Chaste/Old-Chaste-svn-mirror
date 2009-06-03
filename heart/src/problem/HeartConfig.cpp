@@ -88,7 +88,10 @@ HeartConfig::HeartConfig()
     assert(mpInstance.get() == NULL);
     mpDefaultParameters = NULL;
     mpUserParameters = NULL;
-    mpDefaultParameters = ReadFile("ChasteDefaults.xml");
+
+//    mpDefaultParameters = ReadFile("ChasteDefaults.xml");
+    SetDefaultsFile("ChasteDefaults.xml");
+
     mpUserParameters = mpDefaultParameters;
     //CheckTimeSteps(); // necessity of this line of code is not tested -- remove with caution!
 }
@@ -1017,6 +1020,7 @@ void HeartConfig::CheckTimeSteps() const
     {
         EXCEPTION("Printing time-step should be positive");
     }
+
     if (GetPdeTimeStep()>GetPrintingTimeStep())
     {
         EXCEPTION("Printing time-step should not be smaller than PDE time step");

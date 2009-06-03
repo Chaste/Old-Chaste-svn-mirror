@@ -35,9 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cassert>
 
-const double smidge = 1e-10;
+const double SMIDGE = 1e-10;
 
-TimeStepper::TimeStepper(double startTime, double endTime, double dt)
+TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep)
     : mStart(startTime),
       mEnd(endTime),
       mDt(dt),
@@ -52,7 +52,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     /**
      * \todo This assertion breaks several tests
      *
-    if (endTime-startTime < dt-smidge)
+    if (endTime-startTime < dt-SMIDGE)
     {
        std::cout<<"Span is "<<endTime-startTime<<"\n";
        std::cout<<"Delta is "<<dt<<"\n";
@@ -61,12 +61,22 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
      */
 
     mNextTime = CalculateNextTime();
+    
+    // if enforceConstantTimeStep check whether the times are such that we won't have a variable dt
+    if(enforceConstantTimeStep)
+    {
+        if( fabs(mDt*EstimateTimeSteps()-mEnd+mStart)>SMIDGE )
+        {
+            //PRINT_4_VARIABLES(mDt, EstimateTimeSteps(), mDt*EstimateTimeSteps(), mEnd-mStart);
+            EXCEPTION("TimeStepper estimate non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");
+        }
+    }
 }
 
 double TimeStepper::CalculateNextTime() const
 {
     double next_time = mStart + (mTimeStep+1) * mDt;
-    if ((next_time) + smidge*(mDt) >= mEnd)
+    if ((next_time) + SMIDGE*(mDt) >= mEnd)
     {
         next_time = mEnd;
     }
@@ -94,13 +104,14 @@ double TimeStepper::GetNextTime() const
     return mNextTime;
 }
 
-double TimeStepper::GetNextTimeStep() const
+double TimeStepper::GetNextTimeStep() 
 {
     double dt = mDt;
     if (mNextTime == mEnd)
     {
         dt = mEnd - mTime;
     }
+
     return dt;
 }
 
@@ -111,7 +122,7 @@ bool TimeStepper::IsTimeAtEnd() const
 
 unsigned TimeStepper::EstimateTimeSteps() const
 {
-    return (unsigned) ceil((mEnd - mStart)/mDt);
+    return (unsigned) round((mEnd - mStart)/mDt);
 }
 
 unsigned TimeStepper::GetTimeStepsElapsed() const

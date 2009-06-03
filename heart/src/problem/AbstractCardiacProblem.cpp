@@ -250,6 +250,18 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
             EXCEPTION("Either explicitly specify not to print output (call PrintOutput(false)) or specify the output directory and filename prefix");
         }
     }
+    
+    double end_time = HeartConfig::Instance()->GetSimulationDuration();
+    double pde_time = HeartConfig::Instance()->GetPdeTimeStep();
+    
+    // MatrixIsConstant stuff requires CONSTANT dt - do some checks to make sure the TimeStepper won't find 
+    // non-constant dt.
+    // Note: printing_time does not have to divide end_time, but dt must divide printing_time and end_time.
+    // HeartConfig checks pde_dt divides printing dt 
+    if( fabs( end_time - pde_time*round(end_time/pde_time)) > 1e-10 )
+    {
+        EXCEPTION("Pde timestep does not seem to divide end time - check parameters");
+    }
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -444,6 +456,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
     HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
+    
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

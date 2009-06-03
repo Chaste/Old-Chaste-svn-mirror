@@ -46,8 +46,10 @@ public:
      * @param startTime  the start of the interval
      * @param endTime  the end of the interval
      * @param dt  the time step to use.
+     * @param enforceConstantTimeStep If this is true the stepper estimates whether non-constant
+     * timesteps will be used and quits if so.
      */
-    TimeStepper(double startTime, double endTime, double dt);
+    TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep=false);
 
     /**
      * Step forward one step in time and update member variables.
@@ -68,7 +70,7 @@ public:
      * Get the size of the next time step which will be taken.
      * GetNextTimeStep() == GetNextTime() - GetTime()
      */
-    double GetNextTimeStep() const;
+    double GetNextTimeStep() ;
 
     /**
      * True when GetTime ==  endTime

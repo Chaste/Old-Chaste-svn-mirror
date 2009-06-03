@@ -76,7 +76,7 @@ public:
         TimeStepper stepper(start_time, end_time, timestep);
 
         TS_ASSERT_EQUALS( stepper.EstimateTimeSteps(),
-                          (unsigned) ceil((end_time - start_time)/timestep) );
+                          (unsigned) floor((end_time - start_time)/timestep) );
 
         double real_time_step = timestep;
         unsigned time_step_number = 0;
@@ -119,6 +119,24 @@ public:
         TS_ASSERT(stepper.IsTimeAtEnd());
         TS_ASSERT(stepper.GetTimeStepsElapsed()==time_step_number);
     }
+    
+    void TestEnforceConstantTimeStep() throw(Exception)
+    {
+        TimeStepper stepper(0.0, 1.0, 0.3); // timestep does not divide, but no checking..
+        
+        TS_ASSERT_THROWS_ANYTHING( TimeStepper bad_const_dt_stepper(0.0, 1.0, 0.3, true) );
+        TS_ASSERT_THROWS_ANYTHING( TimeStepper bad_const_dt_stepper2(0.0, 1.0, 0.99999999, true) );
+        
+        TimeStepper const_dt_stepper(0.0, 1.0, 0.1, true);
+        unsigned counter=0;
+        while(!const_dt_stepper.IsTimeAtEnd())
+        {
+            counter++;
+            const_dt_stepper.AdvanceOneTimeStep();
+        }
+        TS_ASSERT_EQUALS(counter,10u);
+    }
+        
 };
 
 #endif /*TESTTIMESTEPPER_HPP_*/

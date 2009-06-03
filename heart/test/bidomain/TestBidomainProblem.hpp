@@ -467,7 +467,7 @@ public:
         HeartEventHandler::Enable();
     }
 
-    void TestBidomainFallsOverProducesOutput()
+    void TestBidomainFallsOverProducesOutput() throw(Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(0.3);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
@@ -483,7 +483,9 @@ public:
         bidomain_problem.Initialise();
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
+        // Throws as sodium out goes of range
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        
 
         //Test for regular output
         Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
@@ -518,19 +520,18 @@ public:
 
     void TestBidomainProblemExceptions() throw (Exception)
     {
-
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
-        //Throws because we've not called initialise
+        // Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
 
-        //Throws because mesh filename is unset
+        // Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
 
-        //Negative simulation duration
+        // Negative simulation duration
         HeartConfig::Instance()->SetSimulationDuration(-1.0);  //ms
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
@@ -539,10 +540,17 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("temp");
         HeartConfig::Instance()->SetOutputFilenamePrefix("temp");
 
-        //Exception causes by relative tolerance and no clamping
+        // Exception caused by relative tolerance and no clamping
         HeartConfig::Instance()->SetUseRelativeTolerance(2e-3);
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);
+
+        // Throws (in AbstractCardiacProblem) as dt does not divide end time
+        HeartConfig::Instance()->SetPrintingTimeStep(0.15);
+        HeartConfig::Instance()->SetPdeTimeStep(0.15);
+        TS_ASSERT_THROWS_ANYTHING( bidomain_problem.Solve() );
+        HeartConfig::Instance()->SetPdeTimeStep(0.01);
+        HeartConfig::Instance()->SetPrintingTimeStep(0.01);
 
         //Throws because the node number is slightly bigger than the number of nodes in the mesh
         std::vector<unsigned> too_large;
