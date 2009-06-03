@@ -335,10 +335,12 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
         sum += rep[i];
     }
     
-    if(fabs(sum)>1e-6) // magic number! sum should really be a sum of zeros and exactly zero though anyway
+    if(fabs(sum)>1e-6) // magic number! sum should really be a sum of zeros and exactly zero though anyway (or a-a+b-b+c-c.. etc in the case of electrodes)
     {
-        std::cout << "Linear system does not satisfy compability constraint!\n"; // remove this when done
-        NEVER_REACHED; 
+        #define COVERAGE_IGNORE
+        // shouldn't ever reach this line but useful to have the error printed out if you do
+        EXCEPTION("Linear system does not satisfy compability constraint!");
+        #undef COVERAGE_IGNORE
     }
 #endif
 }
