@@ -222,8 +222,8 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
                 DistributedVector dist_null_basis(nullbasis[0]);
                 DistributedVector::Stripe null_basis_stripe_0(dist_null_basis,0);
                 DistributedVector::Stripe null_basis_stripe_1(dist_null_basis,1);
-                for (DistributedVector::Iterator index = DistributedVector::Begin();
-                     index != DistributedVector::End();
+                for (DistributedVector::Iterator index = dist_null_basis.Begin();
+                     index != dist_null_basis.End();
                      ++index)
                 {
                     null_basis_stripe_0[index] = 0;
@@ -241,8 +241,8 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
                 DistributedVector mask(mExternalVoltageMask);
                 DistributedVector::Stripe v_m(mask,0);
                 DistributedVector::Stripe phi_e(mask,1);
-                for (DistributedVector::Iterator index = DistributedVector::Begin();
-                     index != DistributedVector::End();
+                for (DistributedVector::Iterator index = mask.Begin();
+                     index != mask.End();
                      ++index)
                 {
                     v_m[index] = 0.0;

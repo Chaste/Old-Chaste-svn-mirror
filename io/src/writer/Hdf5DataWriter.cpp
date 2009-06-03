@@ -49,17 +49,6 @@ Hdf5DataWriter::Hdf5DataWriter(std::string directory, std::string baseName, bool
       mNeedExtend(false),
       mCurrentTimeStep(0)
 {
-    int my_rank;
-
-    MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-    if (my_rank==0)
-    {
-        mAmMaster = true;
-    }
-    else
-    {
-        mAmMaster = false;
-    }
 }
 
 Hdf5DataWriter::~Hdf5DataWriter()
@@ -494,7 +483,7 @@ void Hdf5DataWriter::PutUnlimitedVariable(double value)
     }
 
     // This data is only written by the master
-    if (!mAmMaster)
+    if (!PetscTools::AmMaster())
     {
         return;
     }

@@ -174,8 +174,8 @@ void BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVecto
     double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
     double Cm  = HeartConfig::Instance()->GetCapacitance();
 
-    for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index!= DistributedVector::End();
+    for (DistributedVector::Iterator index = dist_vec_matrix_based.Begin();
+         index != dist_vec_matrix_based.End();
          ++index)
     {
         if (this->mpMesh->GetNode(index.Global)->GetRegion() != HeartRegionCode::BATH)

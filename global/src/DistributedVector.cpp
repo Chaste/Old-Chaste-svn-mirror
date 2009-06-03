@@ -114,7 +114,9 @@ Vec DistributedVector::CreateVec(unsigned stride)
     return vec;
 }
 
-DistributedVector::DistributedVector(Vec vec) : mVec(vec)
+DistributedVector::DistributedVector(Vec vec, DistributedVectorFactory* pFactory)
+    : mVec(vec),
+      mpFactory(pFactory)
 {
     VecGetArray(vec, &mpVec);
     PetscInt size;

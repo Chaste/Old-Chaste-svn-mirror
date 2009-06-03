@@ -110,6 +110,22 @@ public:
     {
         return mHi - mLo;
     }
+    
+    /**
+     * @return mHi - The next index above the top one owned by the process.
+     */
+    unsigned GetHigh()
+    {
+        return mHi;
+    }
+    
+    /**
+     * @return mLo - The lowest index owned by the process.
+     */
+    unsigned GetLow()
+    {
+        return mLo;
+    }
 
     /**
      * @return The number of elements in the vector

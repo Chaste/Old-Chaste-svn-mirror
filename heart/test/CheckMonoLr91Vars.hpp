@@ -37,8 +37,8 @@ void CheckMonoLr91Vars(MonodomainProblem<ELEM_DIM, SPACE_DIM>& problem)
 {
 
     DistributedVector voltage(problem.GetSolution());
-    for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index != DistributedVector::End();
+    for (DistributedVector::Iterator index = voltage.Begin();
+         index != voltage.End();
          ++index)
     {
         // assuming LR model has Ena = 54.4 and Ek = -77

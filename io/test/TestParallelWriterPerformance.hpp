@@ -48,8 +48,8 @@ public:
         DistributedVector::SetProblemSize(SIZE);
         Vec petsc_vec = DistributedVector::CreateVec();
         DistributedVector distributed_vector(petsc_vec);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
+        for (DistributedVector::Iterator index = distributed_vector.Begin();
+             index!= distributed_vector.End();
              ++index)
         {
             distributed_vector[index] = -(double)(index.Local*index.Global);

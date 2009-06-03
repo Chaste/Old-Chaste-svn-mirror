@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "DistributedVectorException.hpp"
 
+class DistributedVectorFactory;
+
 /**
  * Gives access to the local portion of a PETSc vector via an iterator.
  *
@@ -45,10 +47,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class DistributedVector
 {
 private:
-
+    friend class TestDistributedVector;
     // Data global to all vectors.
+    
     /** The first entry owned by the current processor. */
     static unsigned mLo;
+    
     /** One above the last entry owned by the current processor. */
     static unsigned mHi;
     /** The problem size, i.e. the length of the vector of unknowns. */
@@ -63,6 +67,12 @@ private:
     Vec mVec;
     /** The local part of the underlying PETSc vector. */
     double *mpVec;
+    
+    /** 
+     * Pointer to the factory that created this DistributedVector. 
+     * Gives access to local and global sizes 
+     */
+    DistributedVectorFactory* mpFactory;
 
     /**
      * Double check (in debug code) that PETSc has been initialised properly
@@ -125,7 +135,7 @@ public:
      *
      * @param vec PETSc vector of which this class shall be a portion.
      */
-    DistributedVector(Vec vec);
+    DistributedVector(Vec vec, DistributedVectorFactory* pFactory=NULL);
 
    /**
     * @param globalIndex
@@ -279,12 +289,14 @@ public:
      * @return iterator pointing to the first element of the distributed
      * vector on this process
      */
+    ///\todo Shouldn't be static - should be called on an instance 
     static Iterator Begin();
 
     /**
      * @return iterator pointing to one past the last element of the distributed
      * vector on this process
      */
+    ///\todo Shouldn't be static - should be called on an instance 
     static Iterator End();
 
     /**

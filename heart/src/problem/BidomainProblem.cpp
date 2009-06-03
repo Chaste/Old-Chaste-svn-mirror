@@ -90,11 +90,11 @@ Vec BidomainProblem<DIM>::CreateInitialCondition()
     if (mHasBath)
     {
         // get the voltage stripe
-        DistributedVector ic(init_cond);
+        DistributedVector ic(init_cond);///\todo Naming convention?
         DistributedVector::Stripe voltage_stripe = DistributedVector::Stripe(ic,0);
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
+        for (DistributedVector::Iterator index = ic.Begin();
+             index!= ic.End();
              ++index)
         {
             if (this->mpMesh->GetNode( index.Global )->GetRegion() == HeartRegionCode::BATH)

@@ -37,14 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DataWriterVariable.hpp"
 #include "OutputFileHandler.hpp"
 
+
 /**
  * A concrete HDF5 data writer class.
  */
 class Hdf5DataWriter//  : public AbstractDataWriter
 {
 private:
-
-    bool mAmMaster;          /**< Set to true in constructor for process is the rank 0 process*/
 
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */

@@ -49,6 +49,85 @@ public:
     {
         TS_ASSERT_EQUALS(DistributedVector::GetProblemSize(), 0u);
     }
+    
+    void TestDistributedVectorFactory()
+    {
+        unsigned num_procs = PetscTools::NumProcs();
+        unsigned total=100;
+        DistributedVectorFactory factory(total);
+        PetscInt petsc_lo, petsc_hi;
+        unsigned expected_local_size = (total/num_procs);
+        unsigned max_expected_local_size = (total/num_procs) + total%num_procs;
+         
+        Vec petsc_vec;
+        petsc_vec = factory.CreateVec();
+        VecGetOwnershipRange(petsc_vec, &petsc_lo, &petsc_hi);
+        unsigned local_size = petsc_hi - petsc_lo;
+        if (expected_local_size != local_size)
+        {
+            //This test is not robust.  PETSc has been known to split a 100 elements among 7 processors like this
+            // 0  1  2  3  4  5  6  7
+            //15 15 14 14 14 14 14 14 
+            //TS_ASSERT_EQUALS(local_size, max_expected_local_size);
+            //This test will fail if there are fewer elements in the vector than the number of processors
+            TS_ASSERT_LESS_THAN_EQUALS(local_size, max_expected_local_size);
+        }    
+        //Test that we can construct a factory from a given vector
+        DistributedVectorFactory factory2(petsc_vec);
+        Vec petsc_vec2;
+        petsc_vec2 = factory2.CreateVec();
+        
+        VecGetOwnershipRange(petsc_vec2, &petsc_lo, &petsc_hi);
+        unsigned local_size2 = petsc_hi - petsc_lo;
+        TS_ASSERT_EQUALS(local_size, local_size2);
+        TS_ASSERT_EQUALS(local_size, factory2.GetLocalOwnership());
+        TS_ASSERT_EQUALS(total, factory2.GetSize());
+        
+        TS_ASSERT_EQUALS((unsigned)(petsc_hi), factory2.GetHigh());
+        TS_ASSERT_EQUALS((unsigned)(petsc_lo), factory2.GetLow());
+        
+
+        //Uneven test (as above).
+        //Calculate total number of elements in the vector
+        unsigned total_elements = (num_procs+1)*num_procs/2;
+        unsigned my_rank=PetscTools::GetMyRank();
+
+        DistributedVectorFactory uneven_factory(total_elements, my_rank+1);
+
+        Vec petsc_vec_uneven = uneven_factory.CreateVec();
+
+        VecGetOwnershipRange(petsc_vec_uneven, &petsc_lo, &petsc_hi);
+
+        unsigned expected_lo = (my_rank+1)*my_rank/2;
+        unsigned expected_hi = (my_rank+2)*(my_rank+1)/2;
+
+        TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
+        TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
+        
+        //Testing the method to create distributed vectors from the factory
+        
+        DistributedVector dist_vec = factory.CreateDistributedVector(petsc_vec);
+        TS_ASSERT(dist_vec.mpFactory == &factory);
+        
+        DistributedVector::SetProblemSize(total);//this is not really needed because the CreateDistributedVector (a line above) does that 
+        Vec petsc_vec_no_factory=DistributedVector::CreateVec();
+        DistributedVector dist_vec_no_factory(petsc_vec_no_factory);
+        
+        // write some values and check
+        for (DistributedVector::Iterator index = dist_vec.Begin();
+             index!= dist_vec.End();
+             ++index)
+        {
+            dist_vec_no_factory[index] =  -(double)(index.Local*index.Global);
+            dist_vec[index] =  -(double)(index.Local*index.Global);
+            TS_ASSERT_EQUALS(dist_vec_no_factory[index], dist_vec[index]);   
+        } 
+        
+        VecDestroy(petsc_vec);
+        VecDestroy(petsc_vec2);
+        VecDestroy(petsc_vec_uneven);  
+        VecDestroy(petsc_vec_no_factory);                                                               
+    }
 
     void TestRead()
     {
@@ -94,11 +173,11 @@ public:
         DistributedVector::Stripe quadratic(distributed_vector2,1);
         // check the range
         TS_ASSERT_EQUALS(DistributedVector::GetProblemSize(), vec_size);
-        TS_ASSERT_EQUALS(DistributedVector::Begin().Global,lo);
-        TS_ASSERT_EQUALS(DistributedVector::End().Global,hi);
+        TS_ASSERT_EQUALS(distributed_vector.Begin().Global,lo);
+        TS_ASSERT_EQUALS(distributed_vector.End().Global,hi);
         // read some values
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
+        for (DistributedVector::Iterator index = distributed_vector.Begin();
+             index!= distributed_vector.End();
              ++index)
         {
             TS_ASSERT_EQUALS(distributed_vector[index], index.Local*index.Global);
@@ -153,8 +232,8 @@ public:
         DistributedVector::Chunk linear_chunk(distributed_vector_chunked, 0);
         DistributedVector::Chunk quadratic_chunk(distributed_vector_chunked, 1);
         // write some values
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
+        for (DistributedVector::Iterator index = distributed_vector.Begin();
+             index!= distributed_vector.End();
              ++index)
         {
             distributed_vector[index] =  -(double)(index.Local*index.Global);
@@ -249,82 +328,6 @@ public:
     }
     
     
-    void TestDistributedVectorFactory()
-    {
-        
-        unsigned num_procs = PetscTools::NumProcs();
-        unsigned total=100;
-        DistributedVectorFactory factory(total);
-        PetscInt petsc_lo, petsc_hi;
-        unsigned expected_local_size = (total/num_procs);
-        unsigned max_expected_local_size = (total/num_procs) + total%num_procs;
-         
-        Vec petsc_vec;
-        petsc_vec = factory.CreateVec();
-        VecGetOwnershipRange(petsc_vec, &petsc_lo, &petsc_hi);
-        unsigned local_size = petsc_hi - petsc_lo;
-        if (expected_local_size != local_size)
-        {
-            //This test is not robust.  PETSc has been known to split a 100 elements among 7 processors like this
-            // 0  1  2  3  4  5  6  7
-            //15 15 14 14 14 14 14 14 
-            //TS_ASSERT_EQUALS(local_size, max_expected_local_size);
-            //This test will fail if there are fewer elements in the vector than the number of processors
-            TS_ASSERT_LESS_THAN_EQUALS(local_size, max_expected_local_size);
-        }    
-        //Test that we can construct a factory from a given vector
-        DistributedVectorFactory factory2(petsc_vec);
-        Vec petsc_vec2;
-        petsc_vec2 = factory2.CreateVec();
-        
-        VecGetOwnershipRange(petsc_vec2, &petsc_lo, &petsc_hi);
-        unsigned local_size2 = petsc_hi - petsc_lo;
-        TS_ASSERT_EQUALS(local_size, local_size2);
-        TS_ASSERT_EQUALS(local_size, factory2.GetLocalOwnership());
-        TS_ASSERT_EQUALS(total, factory2.GetSize());
-        
-        
-
-        //Uneven test (as above).
-        //Calculate total number of elements in the vector
-        unsigned total_elements = (num_procs+1)*num_procs/2;
-        unsigned my_rank=PetscTools::GetMyRank();
-
-        DistributedVectorFactory uneven_factory(total_elements, my_rank+1);
-
-        Vec petsc_vec_uneven = uneven_factory.CreateVec();
-
-        VecGetOwnershipRange(petsc_vec_uneven, &petsc_lo, &petsc_hi);
-
-        unsigned expected_lo = (my_rank+1)*my_rank/2;
-        unsigned expected_hi = (my_rank+2)*(my_rank+1)/2;
-
-        TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
-        TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
-        
-        //Testing the method to create distributed vectors from the factory
-        
-        DistributedVector dist_vec = factory.CreateDistributedVector(petsc_vec);
-        
-        DistributedVector::SetProblemSize(total);//this is not really needed because the CreateDistributedVector (a line above) does that 
-        Vec petsc_vec_no_factory=DistributedVector::CreateVec();
-        DistributedVector dist_vec_no_factory(petsc_vec_no_factory);
-        
-        // write some values and check
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
-             ++index)
-        {
-            dist_vec_no_factory[index] =  -(double)(index.Local*index.Global);
-            dist_vec[index] =  -(double)(index.Local*index.Global);
-            TS_ASSERT_EQUALS(dist_vec_no_factory[index], dist_vec[index]);   
-        } 
-        
-        VecDestroy(petsc_vec);
-        VecDestroy(petsc_vec2);
-        VecDestroy(petsc_vec_uneven);  
-        VecDestroy(petsc_vec_no_factory);                                                               
-    }
 };
 
 #endif /*TESTDISTRIBUTEDVECTOR_HPP_*/

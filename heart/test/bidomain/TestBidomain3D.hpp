@@ -152,8 +152,8 @@ public:
         DistributedVector bidomain_solution(bidomain_problem.GetSolution());
         DistributedVector::Stripe bidomain_voltage(bidomain_solution,0);
         DistributedVector::Stripe extracellular_potential(bidomain_solution,1);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = bidomain_solution.Begin();
+             index != bidomain_solution.End();
              ++index)
         {
             TS_ASSERT_DELTA(monodomain_voltage[index], bidomain_voltage[index], 0.5);

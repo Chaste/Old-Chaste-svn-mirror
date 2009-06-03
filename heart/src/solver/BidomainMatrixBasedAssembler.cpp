@@ -182,8 +182,8 @@ void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatr
     double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
     double Cm  = HeartConfig::Instance()->GetCapacitance();
 
-    for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index!= DistributedVector::End();
+    for (DistributedVector::Iterator index = dist_vec_matrix_based.Begin();
+         index!= dist_vec_matrix_based.End();
          ++index)
     {
         double V = distributed_current_solution_vm[index];

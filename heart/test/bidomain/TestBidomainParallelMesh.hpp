@@ -80,8 +80,8 @@ public:
 
             double seq_local_ave_voltage = 0.0;
 
-            for (DistributedVector::Iterator index = DistributedVector::Begin();
-                 index != DistributedVector::End();
+            for (DistributedVector::Iterator index = dist_nondistributed_voltage.Begin();
+                 index != dist_nondistributed_voltage.End();
                  ++index)
             {
                 if (index.Global==0)
@@ -123,8 +123,8 @@ public:
 
         double para_local_ave_voltage = 0.0;
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = dist_distributed_voltage.Begin();
+             index != dist_distributed_voltage.End();
              ++index)
         {
             if (index.Global==0)

@@ -277,8 +277,8 @@ private:
         for (unsigned time_step=0; time_step<10; time_step++)
         {
             // Write some values
-            for (DistributedVector::Iterator index = DistributedVector::Begin();
-                 index!= DistributedVector::End();
+            for (DistributedVector::Iterator index = distributed_vector_1.Begin();
+                 index!= distributed_vector_1.End();
                  ++index)
             {
                 distributed_vector_1[index] =  index.Global;
@@ -366,8 +366,8 @@ public:
             distributed_vector_3.Restore();
 
             // Check values
-            for (DistributedVector::Iterator index = DistributedVector::Begin();
-                 index!= DistributedVector::End();
+            for (DistributedVector::Iterator index = distributed_vector_1.Begin();
+                 index!= distributed_vector_1.End();
                  ++index)
             {
                 TS_ASSERT_EQUALS(distributed_vector_1[index], index.Global);

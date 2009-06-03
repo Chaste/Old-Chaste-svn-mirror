@@ -98,6 +98,6 @@ DistributedVector DistributedVectorFactory::CreateDistributedVector(Vec vec)
     //Currently the distributed vector class contains static variabled which we need to set here
     ///\todo Make the variables and methods in the DistributedVector class non static
     DistributedVector::SetProblemSize(vec);
-    DistributedVector dist_vector(vec); 
+    DistributedVector dist_vector(vec, this); 
     return dist_vector;
 }
