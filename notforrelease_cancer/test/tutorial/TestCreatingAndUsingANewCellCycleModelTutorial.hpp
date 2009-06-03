@@ -421,7 +421,7 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
 
         /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestTissueSimulationWithMyCellCycleModell");
+        simulator.SetOutputDirectory("TestTissueSimulationWithMyCellCycleModel");
         simulator.SetEndTime(10.0);
 
         /* Test that the Solve() method does not throw any exceptions. */

@@ -366,7 +366,7 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
 
         /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestTissueSimulationWithMyCellCycleModell");
+        simulator.SetOutputDirectory("TestTissueSimulationWithMyCellKiller");
         simulator.SetEndTime(10.0);
 
         /* We now pass the cell killer into the tissue simulation. */
