@@ -46,8 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how to create a new cell cycle model class and 
- * use this in a tissue simulation. 
+ * In this tutorial we show how to create a new cell cycle model class and how this 
+ * can be used in a tissue simulation.
  *
  * EMPTYLINE
  *
@@ -61,8 +61,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 
-/* The next two headers, which are used in archiving, must be included before 
- * any other serialisation headers. */
+/* The next two headers are used in archiving, and only need to be included 
+ * if you want to be able to archive (save or load) the new cell killer object 
+ * in a tissue simulation (in this case, these headers must be included before 
+ * any other serialisation headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
@@ -114,19 +116,16 @@ class MyCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
-    /* To be able to archive a {{{MyCellCycleModel}}} object, we must have the 
-     * following serialize method.
-     * 
-     * We first archive the cell cycle model using the serialization code defined 
-     * in the base class {{{AbstractSimpleGenerationBasedCellCycleModel}}}. 
-     * 
-     * We then archive an instance of the {{{RandomNumberGenerator}}} singleton 
-     * class, which is used in the {{{SetG1Duration()}}} method. Note that serialization 
-     * of singleton objects must be done with care. Before the object is serialized 
-     * via a pointer, it must be serialized directly, or an assertion will trip when 
-     * a second instance of the class is created on de-serialization.
-     * 
-     * We would also archive any member variables, if there were any. */
+    /* You only need to include the next block of code if you want to be able 
+     * to archive (save or load) the cell cycle model object in a tissue simulation. 
+     * The code consists of a serialize method, in which we first archive the cell 
+     * cycle model using the serialization code defined in the base class 
+     * {{{AbstractSimpleGenerationBasedCellCycleModel}}}. We then archive an instance 
+     * of the {{{RandomNumberGenerator}}} singleton class, which is used in the 
+     * {{{SetG1Duration()}}} method. Note that serialization of singleton objects 
+     * must be done with care. Before the object is serialized via a pointer, it must 
+     * be serialized directly, or an assertion will trip when a second instance of the 
+     * class is created on de-serialization. */
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -171,20 +170,23 @@ private:
         }
     }
 
-/* We need two public methods: a default constructor, which just calls the base constructor: */
+/* The first public method is a default constructor, which just calls the base 
+ * constructor. */
 public:
 
     MyCellCycleModel()
     {}
 
-    /* and an overridden builder method to create new copies of this cell cycle model. */
+    /* The second public method overrides {{{CreateCellCycleModel()}}}. This is a 
+     * builder method to create new copies of the cell cycle model. */
     AbstractCellCycleModel* CreateCellCycleModel()
     {
         return new MyCellCycleModel(*this);
     }   
 };
 
-/* Lastly we must declare an identifier for the serializer. */
+/* You only need to include the next block of code if you want to be able to 
+ * archive (save or load) the cell cycle model object in a tissue simulation. */
 BOOST_CLASS_EXPORT(MyCellCycleModel)
 
 /*
