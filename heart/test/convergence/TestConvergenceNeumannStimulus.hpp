@@ -65,6 +65,7 @@ public:
 
     void TestConvergenceBidomain1d()
     {
+        //#1036 Fails with DIVERGED_ITS 
         PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.Stimulus=NEUMANN;
         tester.Converge(__FUNCTION__);
@@ -92,6 +93,7 @@ public:
 
     void TestSpaceConvergence2dBidomain()
     {
+        //#1036 Fails with DIVERGED_ITS 
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus=NEUMANN;
 

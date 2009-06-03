@@ -140,6 +140,7 @@ public:
 
     void TestVariousWithNeumannStimulus() throw(Exception)
     {
+        //#1036 Fails with DIVERGED_ITS 
         ConvergeInVarious(NEUMANN);
     }
 
@@ -165,6 +166,8 @@ public:
 
     void Test2DSpaceSymmLqWithNeumannStimulus() throw(Exception)
     {
+        //#1036 Fails with DIVERGED_INDEFINITE_PC
+        
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
@@ -183,7 +186,6 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus = REGION;
-        //tester.SetKspAbsoluteTolerance(1e-3);
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
         
         tester.Converge(__FUNCTION__);
@@ -194,6 +196,7 @@ public:
 
     void Test2DSpaceWithNeumannStimulus() throw(Exception)
     {
+        //#1036 Fails with DIVERGED_ITS 
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus = NEUMANN;
         //tester.SetKspAbsoluteTolerance(1e-3);
@@ -209,7 +212,6 @@ public:
     void Test3DSpace() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        //tester.SetKspAbsoluteTolerance(1e-3);
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
         
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
@@ -221,8 +223,8 @@ public:
 
     void Test3DSpaceWithNeumannStimulus() throw(Exception)
     {
+        //#1036 Fails with DIVERGED_ITS 
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        //tester.SetKspAbsoluteTolerance(1e-3);
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
         
         tester.RelativeConvergenceCriterion = 4e-2;//Just to prove the thing works
@@ -236,10 +238,6 @@ public:
     void TestSpaceConvergencein1DWithBackwardN98() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
-        //tester.UseAbsoluteStimulus=true;
-        //tester.AbsoluteStimulus=-1e6;
-        //tester.NeumannStimulus = 10000;
-        //tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
@@ -249,8 +247,6 @@ public:
     void TestOdeConvergencein1DWithBackwardN98() throw(Exception)
     {
         OdeConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
-        //tester.NeumannStimulus = 5000;
-        //tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);

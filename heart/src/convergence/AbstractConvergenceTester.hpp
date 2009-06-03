@@ -205,7 +205,7 @@ public:
                                 << "Max absolute err\t"
                                 << "APD90_1st_quad\t"
                                 << "APD90_3rd_quad\t"
-                                << "Conduction velocity (relative errors)" << std::endl;
+                                << "Conduction velocity (relative diffs)" << std::endl;
         }
         SetInitialConvergenceParameters();
 
@@ -487,9 +487,9 @@ public:
                                             << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
                                             << sqrt(sum_sq_abs_error/sum_sq_prev_voltage) << "\t"
                                             << max_abs_error << "\t"
-                                            << apd90_first_qn_error << "\t"
-                                            << apd90_third_qn_error << "\t"
-                                            << cond_velocity_error  << std::endl;
+                                            << apd90_first_qn <<" ("<< apd90_first_qn_error <<")"<< "\t"
+                                            << apd90_third_qn <<" ("<< apd90_third_qn_error <<")"<< "\t"
+                                            << cond_velocity <<" ("<< cond_velocity_error  <<")"<< std::endl;
                     }
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;

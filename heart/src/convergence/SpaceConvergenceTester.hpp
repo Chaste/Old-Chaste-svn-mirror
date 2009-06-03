@@ -52,7 +52,7 @@ public:
         {
             case 1:
             {
-                return this->MeshNum>6;
+                return this->MeshNum>10;
                 break;
             }
             case 2:
@@ -67,7 +67,7 @@ public:
             }
             default:
                 NEVER_REACHED;
-                return true;//To keep Inntel compiler happy
+                return true;//To keep Intel compiler happy
         }
         return true;//To keep Intel compiler happy
     }
