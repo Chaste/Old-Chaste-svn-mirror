@@ -62,33 +62,33 @@ TissueCell::TissueCell(CellType cellType,
 }
 
 
-void TissueCell::CommonCopy(const TissueCell &otherCell)
+void TissueCell::CommonCopy(const TissueCell& rOtherCell)
 {
     // Copy private data members
-    mCanDivide = otherCell.mCanDivide;
+    mCanDivide = rOtherCell.mCanDivide;
 
     // Copy 'easy' protected data members
-    mCellType = otherCell.mCellType;
-    mMutationState = otherCell.mMutationState;
-    mUndergoingApoptosis = otherCell.mUndergoingApoptosis;
-    mIsDead = otherCell.mIsDead;
-    mDeathTime = otherCell.mDeathTime;
-    mStartOfApoptosisTime = otherCell.mStartOfApoptosisTime;
-    mIsLogged = otherCell.mIsLogged;
-    mAncestor = otherCell.mAncestor;
-    mCellId = otherCell.mCellId;
-   
+    mCellType = rOtherCell.mCellType;
+    mMutationState = rOtherCell.mMutationState;
+    mUndergoingApoptosis = rOtherCell.mUndergoingApoptosis;
+    mIsDead = rOtherCell.mIsDead;
+    mDeathTime = rOtherCell.mDeathTime;
+    mStartOfApoptosisTime = rOtherCell.mStartOfApoptosisTime;
+    mIsLogged = rOtherCell.mIsLogged;
+    mAncestor = rOtherCell.mAncestor;
+    mCellId = rOtherCell.mCellId;
+
     // Copy cell cycle model
     // Create a new object of the correct child type and copy its state
-    mpCellCycleModel = otherCell.mpCellCycleModel->CreateCellCycleModel();
+    mpCellCycleModel = rOtherCell.mpCellCycleModel->CreateCellCycleModel();
     // and inform it of the new cell object
     mpCellCycleModel->SetCell(this);
 }
 
 
-TissueCell::TissueCell(const TissueCell &otherCell)
+TissueCell::TissueCell(const TissueCell& rOtherCell)
 {
-    CommonCopy(otherCell);
+    CommonCopy(rOtherCell);
 }
 
 

@@ -125,7 +125,7 @@ protected:
     /**
      * Contains code common to both the copy constructor and operator=.
      *
-     * @param otherCell  An existing TissueCell
+     * @param rOtherCell  An existing TissueCell
      */
     void CommonCopy(const TissueCell& rOtherCell);
 
@@ -151,9 +151,9 @@ public:
 
     /**
      * Create a new tissue cell that is a copy of an existing cell
-     * @param otherCell  An existing TissueCell
+     * @param rOtherCell  An existing TissueCell
      */
-    TissueCell(const TissueCell &otherCell);
+    TissueCell(const TissueCell& rOtherCell);
 
     /**
      * Copy all the attributes of one cell to another.

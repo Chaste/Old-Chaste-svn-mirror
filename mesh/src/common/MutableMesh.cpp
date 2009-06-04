@@ -104,6 +104,12 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
     return this->mNodes.size() - mDeletedNodeIndices.size();
 }
 
+/**
+ * The RescaleMeshFromBoundaryNode method is only defined for 1D meshes.
+ * 
+ * @param updatedPoint point determining the scale factor
+ * @param boundaryNodeIndex index of the boundary node
+ */
 template<>
 void MutableMesh<1, 1>::RescaleMeshFromBoundaryNode(ChastePoint<1> updatedPoint, unsigned boundaryNodeIndex)
 {

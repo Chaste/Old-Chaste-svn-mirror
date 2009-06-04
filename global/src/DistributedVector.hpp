@@ -133,7 +133,8 @@ public:
      *
      * Note that this class does NOT take over responsibility for destroying the Vec.
      *
-     * @param vec PETSc vector of which this class shall be a portion.
+     * @param vec PETSc vector of which this class shall be a portion
+     * @param pFactory pointer to a DistributedVector factory (defaults to NULL)
      */
     DistributedVector(Vec vec, DistributedVectorFactory* pFactory=NULL);
 
