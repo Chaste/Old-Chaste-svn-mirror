@@ -377,7 +377,7 @@ void LinearSystem::ZeroLinearSystem()
     ZeroLhsMatrix();
 }
 
-const unsigned LinearSystem::GetSize() const
+unsigned LinearSystem::GetSize() const
 {
     return (unsigned) mSize;
 }
@@ -426,7 +426,7 @@ Vec& LinearSystem::rGetRhsVector()
     return mRhsVector;
 }
 
-const Vec LinearSystem::GetRhsVector() const
+Vec LinearSystem::GetRhsVector() const
 {
     return mRhsVector;
 }
@@ -436,7 +436,7 @@ Mat& LinearSystem::rGetLhsMatrix()
     return mLhsMatrix;
 }
 
-const Mat LinearSystem::GetLhsMatrix() const
+Mat LinearSystem::GetLhsMatrix() const
 {
     return mLhsMatrix;
 }

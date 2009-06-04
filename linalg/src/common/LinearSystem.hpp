@@ -346,7 +346,7 @@ public:
     /**
      * Get method for mSize.
      */
-    const unsigned GetSize() const;
+    unsigned GetSize() const;
 
     /**
      *
@@ -363,7 +363,7 @@ public:
     /**
      * Get access to the rhs vector for archiving
      */
-    const Vec GetRhsVector() const;
+    Vec GetRhsVector() const;
     
     /**
      * Get access to the lhs matrix directly. Shouldn't generally need to be called.
@@ -373,7 +373,7 @@ public:
     /**
      * Get access to the lhs matrix for archiving
      */
-    const Mat GetLhsMatrix() const;
+    Mat GetLhsMatrix() const;
 
     /**
      * Gets access to the dirichlet boundary conditions vector.
@@ -548,7 +548,8 @@ inline void save_construct_data(
     std::string archive_filename_lhs, archive_filename_rhs;
     archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   
     archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch"; 
-    ar << t->GetSize();
+    const unsigned size = t->GetSize();
+    ar << size;
        
     PetscViewer viewer;
     PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_WRITE, &viewer);
