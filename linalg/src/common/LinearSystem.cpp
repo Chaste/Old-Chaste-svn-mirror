@@ -49,16 +49,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL)
 {
-    VecCreate(PETSC_COMM_WORLD, &mRhsVector);
-    VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
-    VecSetFromOptions(mRhsVector);
-
-    PetscTools::SetupMat(mLhsMatrix, lhsVectorSize, lhsVectorSize, matType);
-
-    mSize = lhsVectorSize;
-
-    VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
-
+    SetupVectorAndMatrix(lhsVectorSize, matType);
+    
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
     strcpy(mKspType, "gmres");
@@ -69,6 +61,33 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
 #endif        
+}
+
+LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType)
+   :mMatNullSpace(NULL),
+    mDestroyMatAndVec(true),
+    mKspIsSetup(false),
+    mNonZerosUsed(0.0),
+    mMatrixIsConstant(false),
+    mTolerance(1e-6),
+    mUseAbsoluteTolerance(false),
+    mDirichletBoundaryConditionsVector(NULL)
+{
+    SetupVectorAndMatrix(lhsVectorSize, matType);
+    
+    /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
+    /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
+    strcpy(mKspType, "gmres");
+    strcpy(mPcType, "jacobi");
+    
+#ifdef TRACE_KSP
+    mNumSolves = 0;
+    mTotalNumIterations = 0;
+    mMaxNumIterations = 0;
+#endif        
+
+    mLhsMatrix = lhsMatrix;
+    mRhsVector = rhsVector;
 }
 
 LinearSystem::LinearSystem(Vec templateVector)
@@ -176,6 +195,19 @@ LinearSystem::~LinearSystem()
     }
 #endif    
     
+}
+
+void LinearSystem::SetupVectorAndMatrix(PetscInt lhsVectorSize, MatType matType)
+{
+    VecCreate(PETSC_COMM_WORLD, &mRhsVector);
+    VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
+    VecSetFromOptions(mRhsVector);
+
+    PetscTools::SetupMat(mLhsMatrix, lhsVectorSize, lhsVectorSize, matType);
+
+    mSize = lhsVectorSize;
+
+    VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 }
 
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
@@ -345,7 +377,7 @@ void LinearSystem::ZeroLinearSystem()
     ZeroLhsMatrix();
 }
 
-unsigned LinearSystem::GetSize()
+const unsigned LinearSystem::GetSize() const
 {
     return (unsigned) mSize;
 }
@@ -394,7 +426,17 @@ Vec& LinearSystem::rGetRhsVector()
     return mRhsVector;
 }
 
+const Vec LinearSystem::GetRhsVector() const
+{
+    return mRhsVector;
+}
+
 Mat& LinearSystem::rGetLhsMatrix()
+{
+    return mLhsMatrix;
+}
+
+const Mat LinearSystem::GetLhsMatrix() const
 {
     return mLhsMatrix;
 }

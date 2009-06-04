@@ -677,40 +677,91 @@ public:
 
     void TestSaveAndLoad()
     {
-        LinearSystem ls = LinearSystem(3);
-
-        ls.SetMatrixIsSymmetric();
-
-        // Enter symmetric data
-        for (int row=0; row<3; row++)
+         //Archive                           
+        OutputFileHandler handler("Archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "ls.arch";       
+        // SAVE
         {
-            for (int col=0; col<3; col++)
+            LinearSystem ls = LinearSystem(3);
+    
+            ls.SetMatrixIsSymmetric();
+    
+            // Enter symmetric data
+            for (int row=0; row<3; row++)
             {
-                ls.SetMatrixElement(row, col, fabs(row-col));
+                for (int col=0; col<3; col++)
+                {
+                    ls.SetMatrixElement(row, col, fabs(row-col));
+                }
             }
-        }
-        ls.AssembleFinalLinearSystem();
-
-        // arbitrary
-        ls.SetRhsVectorElement(0, 14.0);
-        ls.SetRhsVectorElement(1, 32.0);
-        ls.SetRhsVectorElement(2, 50.0);
-            
-        if (PetscTools::AmMaster())
-        {
-            //Archive                           
-            OutputFileHandler handler("Archive", false);
-            std::string archive_filename;
-            archive_filename = handler.GetOutputDirectoryFullPath() + "ls.arch";
+            ls.AssembleFinalLinearSystem();
+    
+            // arbitrary
+            ls.SetRhsVectorElement(0, 14.0);
+            ls.SetRhsVectorElement(1, 32.0);
+            ls.SetRhsVectorElement(2, 50.0);
+                
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
+            LinearSystem* const p_linear_system = &ls;
+            output_arch << p_linear_system;  
             
-            output_arch <<  static_cast<const LinearSystem&>(ls);
-                
+            TS_ASSERT_EQUALS(p_linear_system->GetSize(), 3u);    
+            int lo, hi;
+            VecGetOwnershipRange(p_linear_system->GetRhsVector(), &lo, &hi);
+            std::vector<double> answer;
+            answer.push_back(14.0);
+            answer.push_back(32.0);
+            answer.push_back(50.0);
+            
+            for ( int i = lo; i < hi; i++ )
+            {       
+                TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), answer[i], 1e-9);
+            }
+
+            for (int row=lo; row<hi; row++)
+            {
+                for (int col=0; col<3; col++)
+                {
+                    TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), fabs(row-col), 1e-9);
+                }
+            }
+            
+        }
+        // LOAD
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs); 
+            
+            LinearSystem* p_linear_system;
+            input_arch >> p_linear_system;
+            
+            TS_ASSERT_EQUALS(p_linear_system->GetSize(), 3u);    
+            
+            int lo, hi;
+            VecGetOwnershipRange(p_linear_system->GetRhsVector(), &lo, &hi);
+            
+            std::vector<double> answer;
+            answer.push_back(14.0);
+            answer.push_back(32.0);
+            answer.push_back(50.0);
+            
+            for ( int i = lo; i < hi; i++ )
+            {
+                TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), answer[i], 1e-9);
+            }
+            
+            for (int row=lo; row<hi; row++)
+            {
+                for (int col=0; col<3; col++)
+                {
+                    TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), fabs(row-col), 1e-9);
+                }
+            }
         }
     }
-            
-
+    
     // this test should be the last in the suite
     void TestSetFromOptions()
     {

@@ -32,11 +32,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/access.hpp>
 #include "UblasCustomFunctions.hpp"
+#include "PetscTools.hpp"
+#include "OutputFileHandler.hpp"
 #include <petscvec.h>
 #include <petscmat.h>
 #include <petscksp.h>
+#include <petscviewer.h>
 
 #include <string>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * Linear System class. Stores and solves a linear equation of the form Ax=b,
@@ -85,6 +91,36 @@ private:
     unsigned mTotalNumIterations;
     unsigned mMaxNumIterations;
 #endif    
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        //archive & mLhsMatrix;  ///\todo - use PETSc native format or distributed writer?
+        //mRhsVector;  /**< The right-hand side vector. */
+        // archive & mSize; - done in constructor
+        //mOwnershipRangeLo; ///\todo - this may change 
+        //mOwnershipRangeHi; ///\todo - this may change
+        //MatNullSpace mMatNullSpace; ///\todo 
+        //? mDestroyMatAndVec; ///? How is memory management going to work here?
+
+        //KSP mKspSolver;  ///\todo recreate?
+        archive & mKspIsSetup; //set this to false rather than archiving?
+        archive & mNonZerosUsed;  
+        archive & mMatrixIsConstant;
+        archive & mTolerance; 
+        archive & mUseAbsoluteTolerance;
+        //archive & mKspType;
+        //archive & mPcType;
+
+        //Vec mDirichletBoundaryConditionsVector; ///\todo
+    }    
 
 public:
 
@@ -123,11 +159,29 @@ public:
      * @param jacobianMatrix
      */
     LinearSystem(Vec residualVector, Mat jacobianMatrix);
+    
+    /**
+     * Alternative constructor for archiving.
+     * 
+     * @param lhsVectorSize
+     * @param lhsMatrix
+     * @param rhsVector
+     * @param matType defaults to MATMPIAIJ
+     */
+    LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ);
 
     /**
      * Destructor.
      */
     ~LinearSystem();
+    
+    /**
+     * Helper method for the constructor. Initialized the LHS matrix and RHS vector.
+     * 
+     * @param lhsVectorSize
+     * @param matType
+     */
+    void SetupVectorAndMatrix(PetscInt lhsVectorSize, MatType matType);
 
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
@@ -292,7 +346,7 @@ public:
     /**
      * Get method for mSize.
      */
-    unsigned GetSize();
+    const unsigned GetSize() const;
 
     /**
      *
@@ -305,11 +359,21 @@ public:
      * Get access to the rhs vector directly. Shouldn't generally need to be called.
      */
     Vec& rGetRhsVector();
-
+    
+    /**
+     * Get access to the rhs vector for archiving
+     */
+    const Vec GetRhsVector() const;
+    
     /**
      * Get access to the lhs matrix directly. Shouldn't generally need to be called.
      */
     Mat& rGetLhsMatrix();
+    
+    /**
+     * Get access to the lhs matrix for archiving
+     */
+    const Mat GetLhsMatrix() const;
 
     /**
      * Gets access to the dirichlet boundary conditions vector.
@@ -465,34 +529,79 @@ public:
     }
     
   
-    /**
-     * Archive the member variables.
-     *
-     * @param archive
-     * @param version
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        //archive & mLhsMatrix;  ///\todo - use PETSc native format or distributed writer?
-        //mRhsVector;  /**< The right-hand side vector. */
-        archive & mSize;
-        //mOwnershipRangeLo; ///\todo - this may change 
-        //mOwnershipRangeHi; ///\todo - this may change
-        //MatNullSpace mMatNullSpace; ///\todo 
-        //? mDestroyMatAndVec; ///? How is memory management going to work here?
-
-        //KSP mKspSolver;  ///\todo recreate?
-        archive & mKspIsSetup; //set this to false rather than archiving?
-        archive & mNonZerosUsed;  
-        archive & mMatrixIsConstant;
-        archive & mTolerance; 
-        archive & mUseAbsoluteTolerance;
-        //archive & mKspType;
-        //archive & mPcType;
-
-        //Vec mDirichletBoundaryConditionsVector; ///\todo
-    }     
 };
+
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(LinearSystem);
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const LinearSystem * t, const unsigned int file_version)
+{
+    
+    OutputFileHandler handler("Archive", false);
+    std::string archive_filename_lhs, archive_filename_rhs;
+    archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   
+    archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch"; 
+    ar << t->GetSize();
+       
+    PetscViewer viewer;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_WRITE, &viewer);
+
+    VecView(t->GetRhsVector(), viewer);
+    PetscViewerDestroy(viewer);
+    
+    PetscViewer viewer2;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_lhs.c_str(),FILE_MODE_WRITE, &viewer2);
+
+    MatView(t->GetLhsMatrix(), viewer2);
+    PetscViewerDestroy(viewer2);
+
+}    
+    
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a SimpleStimulus instance (using existing constructor)
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, LinearSystem * t, const unsigned int file_version)
+{
+    /**
+     * Invoke inplace constructor to initialise an instance of SimpleStimulus.
+     * It doesn't actually matter what values we pass to our standard constructor,
+     * provided they are valid parameter values, since the state loaded later
+     * from the archive will overwrite their effect in this case.
+     */
+     
+     OutputFileHandler handler("Archive", false);
+     std::string archive_filename_lhs, archive_filename_rhs;
+     archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   
+     archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch";
+      
+     PetscInt size; 
+     ar >> size;
+     
+     PetscViewer viewer;
+     PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_READ,&viewer);
+     Vec newvec;
+     VecCreate(PETSC_COMM_WORLD,&newvec);
+     VecLoad(viewer, PETSC_NULL, &newvec);
+
+     PetscViewer viewer2;
+     PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_lhs.c_str(),FILE_MODE_READ,&viewer2);
+     Mat newmat;
+     MatCreate(PETSC_COMM_WORLD,&newmat);
+     MatLoad(viewer2, PETSC_NULL, &newmat);
+     
+     ::new(t)LinearSystem(size, newmat, newvec);
+}
+}
+} // namespace ...
 
 #endif //_LINEARSYSTEM_HPP_
