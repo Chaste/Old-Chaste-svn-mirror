@@ -362,8 +362,23 @@ public :
         TS_ASSERT_EQUALS(intra[1], -5.0);
         TS_ASSERT_EQUALS(intra[2], -4.0);
 
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(-3.0, -2.0, -1.0));
+        //One-dimensional set
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(-3.0));
         c_vector<double, 3> extra;
+        HeartConfig::Instance()->GetExtracellularConductivities(extra);
+        TS_ASSERT_EQUALS(extra[0], -3.0);
+        TS_ASSERT_EQUALS(extra[1], 0.0);
+        TS_ASSERT_EQUALS(extra[2], 0.0);
+
+        //Two-dimensional set
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(-3.0, -2.0));
+        HeartConfig::Instance()->GetExtracellularConductivities(extra);
+        TS_ASSERT_EQUALS(extra[0], -3.0);
+        TS_ASSERT_EQUALS(extra[1], -2.0);
+        TS_ASSERT_EQUALS(extra[2], 0.0);
+
+        //Three-dimensional set
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(-3.0, -2.0, -1.0));
         HeartConfig::Instance()->GetExtracellularConductivities(extra);
         TS_ASSERT_EQUALS(extra[0], -3.0);
         TS_ASSERT_EQUALS(extra[1], -2.0);

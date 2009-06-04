@@ -81,14 +81,6 @@ private:
 
 public:
 
-    void setUp()
-    {
-        //TS_TRACE("Beginning test...");
-    }
-    void tearDown()
-    {
-        // TS_TRACE("Completed test");
-    }
     void TestCreateColumnWriter()
     {
         // Create a new csvdata writer
@@ -116,6 +108,7 @@ public:
 
         delete mpTestReader;
     }
+    
 
     void TestDefineUnlimitedDimension()
     {
@@ -301,24 +294,31 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
+        int short_id = 0;
         TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
         TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node", "dimensionless"));
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(short_id = mpTestWriter->DefineVariable("Short_column", "dimensionless"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(node_var_id, 0, -1));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(node_var_id, 0, -2));
 
-        for (int i=0; i<4; i++)
+        for (unsigned i=0; i<4; i++)
         {
             mpTestWriter->PutVariable(node_var_id, (double)(i+1), i);
             mpTestWriter->PutVariable(ina_var_id, 12.0, i);
             mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0, i);
             mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0, i);
         }
-
+        
+        for (unsigned i=0; i<2; i++)
+        {
+            mpTestWriter->PutVariable(short_id, (double)(i), i);
+        }
+        
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
@@ -332,8 +332,22 @@ public:
 
         for (int i=0; i<4; i++)
         {
-            std::vector<double> values_ik = mpTestReader->GetValues("I_K", i);
+            std::vector<double> values_ik = mpTestReader->GetValues("I_K",  i);
             TS_ASSERT_DELTA(values_ik[0]/(7124.12355553*((double)(i+1))/12.0), 1.0, 1e-3);
+        }
+        
+        for (int i=0; i<4; i++)
+        {
+            std::vector<double> values_short = mpTestReader->GetValues("Short_column", i);
+            if (i<2) 
+            {
+                TS_ASSERT_DELTA(values_short[0], (double) i, 1e-3);
+            }
+            else
+            {
+                //Missing data in short column
+                TS_ASSERT_DELTA(values_short[0], DBL_MAX, 1e-3);
+            }
         }
 
         TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1));
