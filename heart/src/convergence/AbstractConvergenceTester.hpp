@@ -212,16 +212,16 @@ public:
         double prev_apd90_first_qn=0.0;
         double prev_apd90_third_qn=0.0;
         double prev_cond_velocity=0.0;
-        double prev_voltage[201];
+        std::vector<double> prev_voltage;
+        std::vector<double> prev_times;
         PopulateStandardResult(prev_voltage);
 
         do
         {
             CuboidMeshConstructor<DIM> constructor;
 
-            assert(fabs(0.04/this->PdeTimeStep - round(0.04/this->PdeTimeStep)) <1e-15 );
-            //Otherwise we can't take the timestep down to machine precision without generating thousands of output files
-            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, 0.04);
+            
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, this->PdeTimeStep);
             HeartConfig::Instance()->SetSimulationDuration(8.0);
             HeartConfig::Instance()->SetOutputDirectory ("Convergence");
             HeartConfig::Instance()->SetOutputFilenamePrefix ("Results");
@@ -309,8 +309,7 @@ public:
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
             cardiac_problem.SetOutputNodes(nodes_to_be_output);
-            ///\todo #606 Added back in about r4058
-
+  
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set
             // the former ones to be used.
@@ -415,6 +414,7 @@ public:
                 // calculate conduction velocity and APD90 error
                 PropagationPropertiesCalculator ppc(&results_reader);
 
+
                 double cond_velocity=0.0, apd90_first_qn=0.0, apd90_third_qn=0.0;
                 try
                 {
@@ -435,6 +435,7 @@ public:
                 double apd90_first_qn_error = 0.0;
                 double apd90_third_qn_error = 0.0;
 
+
                 if (this->PopulatedResult)
                 {
                     //std::cout << "APD90\n"
@@ -454,21 +455,28 @@ public:
                 double max_abs_error = 0;
                 double sum_sq_abs_error =0;
                 double sum_sq_prev_voltage = 0;
-
-                for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                if (this->PopulatedResult)
                 {
-                    if (this->PopulatedResult)
+                    //If the PDE step is varying then we'll have twice as much data now as we use to have
+                    unsigned time_factor=(time_series.size()-1) / (prev_times.size()-1);
+                    assert (time_factor == 1 || time_factor == 2);
+                    //Iterate over the shorter time series data
+                    for (unsigned data_point = 0; data_point<prev_times.size(); data_point++)
                     {
-                        double abs_error = fabs(transmembrane_potential[data_point]-prev_voltage[data_point]);
+                        unsigned this_data_point=time_factor*data_point;
+                        
+                        assert(time_series[this_data_point] == prev_times[data_point]);
+                        double abs_error = fabs(transmembrane_potential[this_data_point]-prev_voltage[data_point]);
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
                         sum_sq_abs_error += abs_error*abs_error;
                         sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
                     }
 
-                    if (!this->PopulatedResult || !FixedResult)
-                    {
-                        prev_voltage[data_point] = transmembrane_potential[data_point];
-                    }
+                }
+                if (!this->PopulatedResult || !FixedResult)
+                {
+                    prev_voltage = transmembrane_potential;
+                    prev_times = time_series;
                 }
 
                 if (this->PopulatedResult)
@@ -512,6 +520,7 @@ public:
             delete p_cell_factory;
         }
         while (!GiveUpConvergence() && !this->Converged);
+
 
         if (conv_info_handler.IsMaster())
         {
@@ -581,7 +590,7 @@ public:
     /** The value of the parameter which is being varied*/
     virtual double Abscissa()=0;
     
-    virtual void PopulateStandardResult(double result[])
+    virtual void PopulateStandardResult(std::vector<double> &result)
     {
         assert(this->PopulatedResult==false);
     }

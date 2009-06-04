@@ -47,7 +47,7 @@ public:
     }
     bool GiveUpConvergence()
     {
-        return this->PdeTimeStep<=1e-8;
+        return (this->PdeTimeStep<=1e-8 || this->PdeTimeStep<this->OdeTimeStep);
     }
     double Abscissa()
     {
