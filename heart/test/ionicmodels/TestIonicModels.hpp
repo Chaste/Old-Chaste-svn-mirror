@@ -62,7 +62,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FoxModel2002Modified.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
 
-#include "FaberRudy2000Version3.cpp"
+#include "FaberRudy2000Version3.hpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
 #include "NobleVargheseKohlNoble1998.hpp"

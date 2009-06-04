@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 
-#include "FaberRudy2000Version3.cpp"
+#include "FaberRudy2000Version3.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 class HeterogeneousCellFactory : public AbstractCardiacCellFactory<1>

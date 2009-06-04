@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerLuoRudyIModel1991.hpp"
 
 #include "FoxModel2002Modified.hpp"
-#include "FaberRudy2000Version3.cpp"
+#include "FaberRudy2000Version3.hpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
 #include "DiFrancescoNoble1985OdeSystem.hpp"
