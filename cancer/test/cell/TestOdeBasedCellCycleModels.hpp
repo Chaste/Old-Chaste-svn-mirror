@@ -158,7 +158,7 @@ public:
             bool result = p_repeating_cell_model->ReadyToDivide();
 //                std::vector<double> proteins = p_repeating_cell_model->GetProteinConcentrations();
 //                out << SimulationTime::Instance()->GetTime() << "\t";
-//                for (unsigned j=0 ; j<proteins.size(); j++)
+//                for (unsigned j=0; j<proteins.size(); j++)
 //                {
 //                    out << proteins[j] << "\t";
 //                }

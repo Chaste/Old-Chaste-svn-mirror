@@ -55,7 +55,7 @@ public:
 
     /// \todo: the following 3 inactivated tests produce a segfault since no mesh is being passed to the assembler (first NULL argument)
 
-    void dontTestAssembleOnElement( void )
+    void dontTestAssembleOnElement()
     {
         SimplePoissonEquation<1,1> pde;
         std::vector<Node<1>*> nodes;
@@ -82,7 +82,7 @@ public:
         delete nodes[1];
     }
 
-    void dontTestAssembleOnElement2DCanonical ( void )
+    void dontTestAssembleOnElement2DCanonical()
     {
         SimplePoissonEquation<2,2> pde;
         std::vector<Node<2>*> nodes;
@@ -120,7 +120,7 @@ public:
         delete nodes[2];
     }
 
-    void dontTestAssembleOnElement2DGeneral ( void )
+    void dontTestAssembleOnElement2DGeneral()
     {
         SimplePoissonEquation<2,2> pde;
         std::vector<Node<2>*> nodes;
@@ -301,7 +301,7 @@ public:
         VecDestroy(result);
     }
 
-    void TestHeatEquationWithNeumannOnUnitDisc( void )
+    void TestHeatEquationWithNeumannOnUnitDisc()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");

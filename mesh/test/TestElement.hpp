@@ -907,7 +907,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_corner_element, new_point));
     }
 
-    void TestGetStiffnessMatrixGlobalIndices ()
+    void TestGetStiffnessMatrixGlobalIndices()
     {
         unsigned PROBLEM_DIM = 1;
 

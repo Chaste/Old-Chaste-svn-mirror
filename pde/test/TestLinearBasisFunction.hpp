@@ -128,7 +128,7 @@ public:
     }
 
 
-    void TestComputeTransformedBasisFunctionDerivatives( void )
+    void TestComputeTransformedBasisFunctionDerivatives()
     {
         // 1D
         ChastePoint<1> one(1);
@@ -168,7 +168,7 @@ public:
         TS_ASSERT_DELTA(trans_deriv3(0,3),    0, 1e-12);
     }
 
-    void TestComputeTransformedBasisFunction2( void )
+    void TestComputeTransformedBasisFunction2()
     {
         // 2D - with better test data
         std::vector<Node<2>*> nodes;

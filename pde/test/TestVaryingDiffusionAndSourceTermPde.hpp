@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestVaryingDiffusionAndSourceTermPde: public CxxTest::TestSuite
 {
 public:
-    void TestVaryingPde1D ( void )
+    void TestVaryingPde1D()
     {
         VaryingDiffusionAndSourceTermPde<1> pde;
         ChastePoint<1> evaluation_point(2);
@@ -43,7 +43,7 @@ public:
         TS_ASSERT_EQUALS(diffusion_term(0,0),4);
     }
 
-    void TestVaryingPde2D ( void )
+    void TestVaryingPde2D()
     {
         VaryingDiffusionAndSourceTermPde<2> pde;
         ChastePoint<2> evaluation_point(3,4);

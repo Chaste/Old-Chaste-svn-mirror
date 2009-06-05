@@ -58,7 +58,7 @@ class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
 {
 public:
 
-    void TestExceptionalBehaviour( void )
+    void TestExceptionalBehaviour()
     {
         // Assembler
         SimpleDg0ParabolicAssembler<1,1, true> assembler(NULL,NULL,NULL);
@@ -71,7 +71,7 @@ public:
     }
 
     /// test 1D problem
-    void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
+    void TestSimpleDg0ParabolicAssembler1DZeroDirich()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -120,7 +120,7 @@ public:
     }
 
 
-    void TestSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm( void )
+    void TestSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -224,7 +224,7 @@ public:
     }
 
 
-    void TestSimpleDg0ParabolicAssembler2DZeroDirich( void )
+    void TestSimpleDg0ParabolicAssembler2DZeroDirich()
     {
         // read mesh on [0,1]x[0,1]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -277,7 +277,7 @@ public:
 
 
     // test 2D problem
-    void TestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTerm( void )
+    void TestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTerm()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -337,7 +337,7 @@ public:
 
     // test 2D problem
     /// \todo - This test fails with current tolerance.
-    void xTestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTermOnFineMeshWithSmallDt( void )
+    void xTestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTermOnFineMeshWithSmallDt()
     {
         // Create mesh from mesh reader
         FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
@@ -409,7 +409,7 @@ public:
     }
 
     // test 2D problem
-    void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
+    void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -492,7 +492,7 @@ public:
     }
 
     // test 2D problem
-    void TestSimpleDg0ParabolicAssembler2DNeumann( void )
+    void TestSimpleDg0ParabolicAssembler2DNeumann()
     {
         // Create mesh from mesh reader
         FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
@@ -575,7 +575,7 @@ public:
         VecDestroy(result);
     }
 
-    void TestHeatEquationSolutionDoesntDrift2D( void )
+    void TestHeatEquationSolutionDoesntDrift2D()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -618,7 +618,7 @@ public:
         VecDestroy(result);
     }
 
-    void TestHeatEquationSolutionDoesntDrift1D( void )
+    void TestHeatEquationSolutionDoesntDrift1D()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -668,7 +668,7 @@ public:
     // diffusion pattern on such a small mesh, to compare with monodomain with
     // centre stimulus - result doesn't look like a circle)
     // !Need to change the diffusion coefficient to 0.001 if running this!
-    void DONOT_TestSimpleDg0ParabolicAssembler2DZeroNeumannNonZeroInCentre( void )
+    void DONOT_TestSimpleDg0ParabolicAssembler2DZeroNeumannNonZeroInCentre()
     {
         // read mesh on [0,1]x[0,1]
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");

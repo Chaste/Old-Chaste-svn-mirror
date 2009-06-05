@@ -82,13 +82,13 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
 
     //Open node file and store the lines as a vector of strings (minus the comments)
     nodeFileName = pathBaseName + nodeFileName;
-    this->mNodeRawData = this->GetRawDataFromFile (nodeFileName);
+    this->mNodeRawData = this->GetRawDataFromFile(nodeFileName);
 
     // Read the node data using TokenizeStringsToDoubles method
-    this->mNodeData = TokenizeStringsToDoubles (this->mNodeRawData);
+    this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
 
     //Initialise iterator for public GetNextNode method
-    this->mpNodeIterator = this->mNodeData.begin ();
+    this->mpNodeIterator = this->mNodeData.begin();
 
 
     //Open element file and store the lines as a vector of strings (minus the comments)
@@ -96,8 +96,8 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     this->mElementRawData = this->GetRawDataFromFile (elementFileName);
 
     // Read the rest of the element data using TokenizeStringsToInts method
-    this->mElementData = TokenizeStringsToInts (this->mElementRawData, SPACE_DIM + 1);
-    this->mpElementIterator = this->mElementData.begin ();
+    this->mElementData = TokenizeStringsToInts(this->mElementRawData, SPACE_DIM + 1);
+    this->mpElementIterator = this->mElementData.begin();
 
 
     /*Open edge file and store the lines as a vector of strings (minus the comments)
@@ -109,8 +109,8 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     this->mFaceRawData = this->GetRawDataFromFile (edgeFileName);
 
     // Read the rest of the face/edge data using TokenizeStringsToInts method
-    this->mFaceData = TokenizeStringsToInts (this->mFaceRawData, SPACE_DIM);
-    this->mpFaceIterator = this->mFaceData.begin ();
+    this->mFaceData = TokenizeStringsToInts(this->mFaceRawData, SPACE_DIM);
+    this->mpFaceIterator = this->mFaceData.begin();
 }
 
 /**
@@ -133,7 +133,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
     //Iterate over the lines of input
     unsigned dimension_count = 0;
     std::vector < std::string >::iterator the_iterator;
-    for (the_iterator = rawData.begin (); the_iterator != rawData.end ();
+    for (the_iterator = rawData.begin(); the_iterator != rawData.end();
          the_iterator++)
     {
         std::string line_of_data = *the_iterator;
@@ -142,7 +142,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
         if (dimension_count == 0)
         {
             //First iteration, build the tokenized_data vector and push in x coordinates
-            while (!line_stream.eof ())
+            while (!line_stream.eof())
             {
                 double item_coord;
 
@@ -157,7 +157,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
             unsigned current_node = 0;
 
             //Other iterations, push in coordinates other than x.
-            while (!line_stream.eof ())
+            while (!line_stream.eof())
             {
                 double item_coord;
                 line_stream >> item_coord;
@@ -208,7 +208,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
         if (i == 0)
         {
             //First iteration, build the tokenized_data vector and push in x coordinates
-            while (!line_stream.eof ())
+            while (!line_stream.eof())
             {
                 double item_index;
 
@@ -223,7 +223,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
             unsigned current_node = 0;
 
             //Other iterations, push in coordinates other than x.
-            while (!line_stream.eof ())
+            while (!line_stream.eof())
             {
                 double item_index;
                 line_stream >> item_index;
@@ -241,7 +241,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
  * Destructor
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::~FemlabMeshReader ()
+FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::~FemlabMeshReader()
 {}
 
 #endif //_FEMLABMESHREADER_H_

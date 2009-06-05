@@ -190,7 +190,7 @@ public:
         TS_ASSERT_DELTA(derivatives(0, 3),  0, 1e-12);
     }
 
-    void TestComputeTransformedQuadraticBasisFunctionDerivatives1d( void )
+    void TestComputeTransformedQuadraticBasisFunctionDerivatives1d()
     {
         std::vector<Node<1>*> nodes;
         nodes.push_back(new Node<1>(0, false, 3.0));
@@ -219,7 +219,7 @@ public:
         }
     }
 
-    void TestComputeTransformedQuadraticBasisFunction2d( void )
+    void TestComputeTransformedQuadraticBasisFunction2d()
     {
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
@@ -260,7 +260,7 @@ public:
         }
     }
 
-    void TestComputeTransformedQuadraticBasisFunction3d( void )
+    void TestComputeTransformedQuadraticBasisFunction3d()
     {
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, false, 4.0, 3.0, 0.0));

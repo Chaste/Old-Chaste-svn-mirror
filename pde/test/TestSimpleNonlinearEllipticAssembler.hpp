@@ -98,7 +98,7 @@ double one_bc(const ChastePoint<2>& p)
 class TestSimpleNonlinearEllipticAssembler : public CxxTest::TestSuite
 {
 public:
-    void TestAssembleResidual( void )
+    void TestAssembleResidual()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/practical1_1d_mesh");
@@ -540,7 +540,7 @@ public:
         VecDestroy(answer);
     }
 
-    void TestHeatEquationWithNeumannOnUnitDisc( void )
+    void TestHeatEquationWithNeumannOnUnitDisc()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");

@@ -210,7 +210,7 @@ public:
         }
     }
 
-    void TestApplyToLinearSystem( void )
+    void TestApplyToLinearSystem()
     {
         const int SIZE = 10;
         LinearSystem some_system(SIZE);
@@ -275,7 +275,7 @@ public:
         VecDestroy(solution);
     }
 
-    void TestApplyToNonlinearSystem( void )
+    void TestApplyToNonlinearSystem()
     {
         const int SIZE = 10;
         DistributedVector::SetProblemSize(10);
@@ -422,7 +422,7 @@ public:
         TS_ASSERT(bcc.Validate(&mesh));
     }
 
-    void TestAddNeumannBoundaryConditions( void )
+    void TestAddNeumannBoundaryConditions()
     {
           // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
@@ -462,7 +462,7 @@ public:
         TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
     }
 
-    void TestApplyToLinearSystem2Unknowns( void )
+    void TestApplyToLinearSystem2Unknowns()
     {
         const int SIZE = 10;
 
@@ -544,7 +544,7 @@ public:
     }
 
 
-    void TestApplyToLinearSystem3Unknowns( void )
+    void TestApplyToLinearSystem3Unknowns()
     {
         const int SIZE = 10;
 
@@ -620,8 +620,7 @@ public:
     }
 
 
-
-    void TestApplyToNonlinearSystem3Unknowns( void )
+    void TestApplyToNonlinearSystem3Unknowns()
     {
         const int SIZE = 10;
         DistributedVector::SetProblemSize(SIZE);

@@ -405,7 +405,7 @@ public:
      *
      *  This is obviously two identical uncoupled problems
      */
-    void TestSimpleCoupledNonlinearPdeWithNeumannBoundaryConditions( void ) throw (Exception)
+    void TestSimpleCoupledNonlinearPdeWithNeumannBoundaryConditions() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         TetrahedralMesh<2,2> mesh;
@@ -492,7 +492,7 @@ public:
      *    u = x^2
      *    v = y
      */
-    void TestRealCoupledPde( void ) throw (Exception)
+    void TestRealCoupledPde() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
 

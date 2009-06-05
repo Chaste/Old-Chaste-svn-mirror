@@ -201,7 +201,7 @@ public:
             if ((elem_index==6)||(elem_index==7)||(elem_index==8)||(elem_index==11)||(elem_index==12)||(elem_index==13)||(elem_index==17))
             {
                 cell_type = TRANSIT;
-                birth_time = -(double)elem_index ;//-23.5;
+                birth_time = -(double)elem_index; //-23.5;
             }
 //            else if (elem_index==15)
 //            {

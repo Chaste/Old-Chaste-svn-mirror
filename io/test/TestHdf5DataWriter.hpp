@@ -957,7 +957,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestCantAddUnlimitedAfterEndDefine ()
+    void TestCantAddUnlimitedAfterEndDefine()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "testdefine"));
         int ina_var_id = 0;
@@ -975,7 +975,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestAdvanceAlongUnlimitedDimension ()
+    void TestAdvanceAlongUnlimitedDimension()
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter("", "testdefine"));
 
@@ -992,7 +992,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestCantWriteDataWhileInDefineMode ()
+    void TestCantWriteDataWhileInDefineMode()
     {
         int number_nodes = 100;
 

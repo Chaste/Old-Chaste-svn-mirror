@@ -116,7 +116,7 @@ public :
      *
      * 1d case.
      */
-    void TestGaussianQuadratureRuleIntegralOneD( void )
+    void TestGaussianQuadratureRuleIntegralOneD()
     {
         for (int num_quad_points=1; num_quad_points<4; num_quad_points++)
         {
@@ -165,7 +165,7 @@ public :
      *
      * We integrate things like x, y, x^2, xy, y^2, ...
      */
-    void TestGaussianQuadratureRuleIntegralTwoD( void )
+    void TestGaussianQuadratureRuleIntegralTwoD()
     {
         // Expected answers [degree_x][degree_y]
         double expected[5][5] = { {1.0/2,  1.0/6,  1.0/12, 1.0/20, 1.0/30},
@@ -213,7 +213,7 @@ public :
      *
      * We integrate things like x, y, z, x^2, y^2, z^2, xy, xz, yz...
      */
-    void TestGaussianQuadratureRuleIntegralThreeD( void )
+    void TestGaussianQuadratureRuleIntegralThreeD()
     {
         // Expected answers [degree_x][degree_y][degree_z]
         double expected[5][5][5]

@@ -230,7 +230,7 @@ public:
      * This method allows the mesh properties to be re-calculated after
      * one or more nodes have been moved.
      */
-    void RefreshMesh(void);
+    void RefreshMesh();
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes

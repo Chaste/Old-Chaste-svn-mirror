@@ -303,7 +303,7 @@ public:
      * conditions u=1
      *
      */
-    void TestSolvingParabolicPde( void )
+    void TestSolvingParabolicPde()
     {
         /* Create a 10 by 10 by 10 mesh in 3D, this time using the {{{ConstructCuboid}}} method
          * on the mesh. */

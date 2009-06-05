@@ -269,7 +269,7 @@ public:
      *  This is obviously really just two virtually identical uncoupled
      *  problems
      */
-    void TestSimpleCoupledPde( void ) throw (Exception)
+    void TestSimpleCoupledPde() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         TetrahedralMesh<2,2> mesh;
@@ -331,7 +331,7 @@ public:
      *
      *  This is obviously two identical uncoupled problems
      */
-    void TestSimpleCoupledPdeWithNeumannBoundaryConditions( void ) throw (Exception)
+    void TestSimpleCoupledPdeWithNeumannBoundaryConditions() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         TetrahedralMesh<2,2> mesh;
@@ -421,7 +421,7 @@ public:
      *
      *     u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
      */
-    void TestRealCoupledPde( void ) throw (Exception)
+    void TestRealCoupledPde() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
         TetrahedralMesh<2,2> mesh;

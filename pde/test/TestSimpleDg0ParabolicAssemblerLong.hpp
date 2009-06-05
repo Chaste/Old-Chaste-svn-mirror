@@ -62,7 +62,7 @@ class TestSimpleDg0ParabolicAssemblerLong : public CxxTest::TestSuite
 public:
     // test 2D problem - takes a long time to run.
     // solution is incorrect to specified tolerance.
-    void xTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
+    void xTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh()
     {
         // Create mesh from mesh reader
         FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
@@ -165,7 +165,7 @@ public:
      * condition u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z)
      *
      */
-    void TestSimpleDg0ParabolicAssembler3DZeroDirich( void )
+    void TestSimpleDg0ParabolicAssembler3DZeroDirich()
     {
         // read mesh on [0,1]x[0,1]x[0,1]
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -227,7 +227,7 @@ public:
      * u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) - (1/6)(x^2+y^2+z^2)
      *
      */
-    void TestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm( void )
+    void TestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -308,7 +308,7 @@ public:
      * u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) + x
      *
      */
-    void TestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh( void )
+    void TestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");

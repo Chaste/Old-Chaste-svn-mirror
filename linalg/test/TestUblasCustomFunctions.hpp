@@ -152,12 +152,9 @@ public:
                          + A(1,1)*SubDeterminant(A,1,1)
                          - A(1,2)*SubDeterminant(A,1,2),
                          1e-10);
-
-
-
     }
 
-    void TestInverse( void )
+    void TestInverse()
     {
         using namespace boost::numeric::ublas;
         c_matrix<double, 1, 1> C;
@@ -249,7 +246,6 @@ public:
         TS_ASSERT_DELTA(identity(1,0), 0.000, 1e-3);        
     }
 
-
     void TestTraceAndSecondInvariant()
     {
         c_matrix<double, 1,1> a;
@@ -285,8 +281,6 @@ public:
         c_matrix<double, 4,4> d = identity_matrix<double>(4);
         TS_ASSERT_DELTA(Trace(d),4,1e-10);
     }
-
-
 
     // Get a row from a matrix
     void TestUblasMatrixRow()

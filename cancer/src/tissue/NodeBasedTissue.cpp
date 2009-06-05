@@ -236,7 +236,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         this->mCellLocationMap.clear();
 
         // Update mNodes to new indices which go from 0 to NumNodes-1
-        for (unsigned i=0; i<old_nodes.size() ; i++)
+        for (unsigned i=0; i<old_nodes.size(); i++)
         {
             // Get the living cell associated with the old node
             TissueCell* p_live_cell = old_map[old_nodes[i]->GetIndex()];
