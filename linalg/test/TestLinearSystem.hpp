@@ -759,7 +759,10 @@ public:
                     TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), fabs(row-col), 1e-9);
                 }
             }
+            
+            delete p_linear_system ;
         }
+        
     }
     
     // this test should be the last in the suite

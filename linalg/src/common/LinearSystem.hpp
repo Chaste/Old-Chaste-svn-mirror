@@ -574,7 +574,7 @@ inline void load_construct_data(
     Archive & ar, LinearSystem * t, const unsigned int file_version)
 {
     /**
-     * Invoke inplace constructor to initialise an instance of SimpleStimulus.
+     * Invoke inplace constructor to initialise an instance of LinearSystem.
      * It doesn't actually matter what values we pass to our standard constructor,
      * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
