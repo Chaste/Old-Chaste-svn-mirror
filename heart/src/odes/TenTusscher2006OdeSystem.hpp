@@ -40,12 +40,10 @@ class TenTusscher2006OdeSystem : public AbstractCardiacCell
 {
 private:
 
-    /** Scale factor for Gks*/
-    double mScaleFactorGks;
-    /** Scale factor for Gto*/
-    double mScaleFactorIto;
-    /** Scale factor for Gkr*/
-    double mScaleFactorGkr;
+    
+    double mScaleFactorGks;/**< Scale factor for Gks*/
+    double mScaleFactorIto;/**< Scale factor for Gto*/
+    double mScaleFactorGkr;/**< Scale factor for Gkr*/
 
     //////////////////////////////////////////////////////////////
     //Constants for the TenTusscher2006 model, values for epicardial cell.

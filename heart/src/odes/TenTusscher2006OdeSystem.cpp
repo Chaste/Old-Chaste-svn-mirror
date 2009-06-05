@@ -349,12 +349,18 @@ double TenTusscher2006OdeSystem::GetIIonic()
 
     assert(!std::isnan(i_ionic));
 
-    double i_ionic_in_microA_per_cm2=i_ionic*membrane_Cm;
+    double i_ionic_in_microA_per_cm2=i_ionic*1.0;
     return i_ionic_in_microA_per_cm2;
 
      /*   i_ionic for this model is in pA/pF.
      *    Please note that in the mono/bidomain formulation, i_ionic needs to be in microA/cm2.
-     *    The cell capacitance is, from the tenTusscher paper (code, actually), Cm = 0.185 microF/cm2.
+     *    We then need to divide by the cell capacitance.
+     *    The cell capacitance of the tenTusscher model is 
+     *    2.0 uF/cm2 in the paper 
+     *    0.185 uF/cm2 in this code (membrane_C)
+     *    1.0 uF/cm2 in the EvaluateRhsDerivatives method above
+     *    
+     *    For consistency, we choose the last option. 
      *    i_ion*pow(10,-6) will be in microA/pF.
      *    Cm*pow(10,6) will be in pF/cm2.
      *    i_ion*pow(10,-6)*Cm*pow(10,6) = i_ion*Cm is in microA/cm2, the correct units

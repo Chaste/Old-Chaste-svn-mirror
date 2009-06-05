@@ -642,12 +642,12 @@ public:
         CheckCellModelResults("TenTusscher");
 
         //Test the GetIIonic method against one hardcoded value.
-        TS_ASSERT_DELTA( TT_model.GetIIonic(), 0.0976, 1e-3);
+        TS_ASSERT_DELTA( TT_model.GetIIonic(), 0.5279, 1e-3);
 
         //Test the GetIIonic method against one hardcoded value for initial values of voltage
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages)
         TenTusscher2006OdeSystem TT_model_initial(p_solver, p_stimulus);
-        TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0002 , 1e-3);
+        TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0012 , 1e-3);
 
         //now test the scale factor methods
 
