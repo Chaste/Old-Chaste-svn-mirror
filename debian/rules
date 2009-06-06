@@ -36,6 +36,8 @@ install-indep:
 
 	install -d $(srcdir)
 	find . -path './debian/*' -prune -o \
+		-path './README.txt' -prune -o \
+		-path './docs' -prune -o \
 		-path './.*' -prune -o -print | \
 		cpio -pd --preserve-modification-time $(srcdir)
 	cp ./debian/default.py $(srcdir)/python/hostconfig/
@@ -44,11 +46,11 @@ install-indep:
 	rm -rf $(srcdir)
 
 
-# Build architecture-independent files here.
+# Build architecture-dependent files here.
 binary-arch:
 # We have nothing to do
 
-# Build architecture-dependent files here.
+# Build architecture-independent files here.
 binary-indep: install-indep
 	dh_testdir
 	dh_testroot
