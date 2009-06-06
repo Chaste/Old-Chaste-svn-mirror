@@ -15,6 +15,7 @@ than the checked-out revision to determine "n.m".
 
 import os
 import sys
+import time
 
 # Configuration
 maintainer_email = 'chaste-admin@maillist.ox.ac.uk'
@@ -42,10 +43,10 @@ for line in pipe:
     if line.startswith('URL'):
         url = line.split()[1]
     elif line.startswith('Repository Root'):
-        repo = line.split(':')[1].strip()
+        repo = line.split(':', 1)[1].strip()
 pipe.close()
 
-location = url[len(repo):]
+location = url[len(repo)+1:]
 
 print repo, location, url
 
@@ -74,7 +75,7 @@ if location == 'trunk':
     for line in pipe:
         tag = line.split()[-1]
         if tag.startswith('release_'):
-            version = release_version(tag[8:])
+            version = release_version(tag[8:-1])
             if version_as_int(version) > version_as_int(latest_release):
                 latest_release = version
     pipe.close()
