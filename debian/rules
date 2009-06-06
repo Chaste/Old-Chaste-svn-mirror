@@ -5,20 +5,6 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-	# Add here commands to configure the package.
-	touch configure-stamp
-
-
-build: build-stamp
-
-build-stamp: configure-stamp 
-	dh_testdir
-	touch $@
-
 clean:
 	dh_testdir
 	dh_testroot
@@ -56,24 +42,13 @@ binary-indep: install-indep
 	dh_testroot
 	dh_installchangelogs -i
 	dh_installdocs -i
-#	dh_installexamples
-#	dh_install
-#	dh_installmenu
-#	dh_installdebconf	
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
 #	dh_python
-#	dh_installinit
-#	dh_installcron
 #	dh_installinfo
 #	dh_installman
 #	dh_link
 #	dh_strip
 	dh_compress -i
 	dh_fixperms -i
-#	dh_perl
 #	dh_makeshlibs
 	dh_installdeb -i
 #	dh_shlibdeps
@@ -82,4 +57,4 @@ binary-indep: install-indep
 	dh_builddeb -i
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure
+.PHONY: clean binary-indep binary-arch binary install
