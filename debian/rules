@@ -27,7 +27,8 @@ install-indep:
 	find . \( -path './debian' -o \
 		  -path './README.txt' -o \
 		  -path './docs' -o \
-		  -name '.*' -o \
+		  -path './.*' -o \
+		  -name '.svn' -o \
 		  -name 'notforrelease*' -o \
 		  -path './python/hostconfig/machines' -o \
 		  -path './infrastructure-scripts' \
