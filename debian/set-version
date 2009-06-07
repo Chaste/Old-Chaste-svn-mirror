@@ -30,9 +30,11 @@ if not os.path.exists(changelog):
     sys.exit(1)
 
 # Get the current revision
-rev = os.popen('svnversion').read().strip()
+rev = rev_str = os.popen('svnversion').read().strip()
+if rev[-1] == 'M':
+    rev_str = rev_str[:-1]
 try:
-    rev = int(rev)
+    rev_int = int(rev_str)
 except ValueError:
     print >>sys.stderr, "Revision", rev, "isn't an integer; is your working copy up-to-date?"
     sys.exit(1)
@@ -48,7 +50,7 @@ pipe.close()
 
 location = url[len(repo)+1:]
 
-print repo, location, url
+print "Packaging", location, "from", url
 
 def release_version(version):
     """Ensure we have a version in the form n.m (not just n)."""
@@ -70,7 +72,7 @@ def version_as_int(version):
 if location == 'trunk':
     # Now we've got to be clever.  Look for the most recent release in tags.
     latest_release = '0.0'
-    cmd = 'svn ls -v -r %d %s/tags' % (rev, repo)
+    cmd = 'svn ls -v -r %d %s/tags' % (rev_int, repo)
     pipe = os.popen(cmd)
     for line in pipe:
         tag = line.split()[-1]
@@ -79,8 +81,8 @@ if location == 'trunk':
             if version_as_int(version) > version_as_int(latest_release):
                 latest_release = version
     pipe.close()
-    package_version = latest_release + '.%d' % rev
-    message = 'Package revision %d of Chaste.' % rev
+    package_version = latest_release + '.' + rev
+    message = 'Package revision %s of Chaste.' % rev
 else:
     # location had better be tags/release_<version>
     assert location.startswith('tags/release_')
