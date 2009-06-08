@@ -32,6 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCellFactory.hpp"
 
+/**
+ * A cell factory that provides cells with no stimulus.
+ */
 template <class CELL, unsigned DIM>
 class ZeroStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {

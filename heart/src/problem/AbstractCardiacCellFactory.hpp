@@ -51,18 +51,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This class saves the user having to create cells in parallel, that work is done
  * by the pde instead.
  */
-
 template<unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class AbstractCardiacCellFactory
 {
 private:
-    /** The mesh is automatically set in MonodomainProblem and BidomainProblem. 
+    /** The mesh is automatically set in MonodomainProblem and BidomainProblem.
      *  This member variable should be accessed through GetMesh(), which will check if it has been set before.*/
     AbstractMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
 
 protected:
-    /** For use at unstimulated cells. */
+    /** For use at un-stimulated cells. */
     boost::shared_ptr<ZeroStimulus> mpZeroStimulus;
+    /** The solver to give each of the cells */
     boost::shared_ptr<AbstractIvpOdeSolver> mpSolver;
 
     /** A fake cell object to use at bath nodes. */
@@ -75,26 +75,37 @@ public:
      * The default implementation checks whether the node is in the bath (in which
      * case a pointer to a (unique) fake cell is returned) and if not, calls
      * CreateCardiacCellForTissueNode (which must be defined by subclasses).
-     * 
-     * @param Global node index
+     *
+     * @param nodeIndex  Global node index.
      */
-    virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned);
+    virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned nodeIndex);
+
     /**
      * Must be overridden by subclasses to return a cell object for the given node.
+     *
+     * @param nodeIndex  Global node index.
      */
-    virtual AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned)=0;
+    virtual AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)=0;
+
     /**
      * May be overridden by subclasses to perform any necessary work after all cells
      * have been created.
+     *
+     * @param pCellsDistributed  Pointer to a vector of cardiac cell pointers.
+     * @param lo  Lowest index owned by this process.
+     * @param hi  Highest index owned by this process.
      */
     virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed,
                                       unsigned lo, unsigned hi);
 
+    /**
+     * @return  The number of cells
+     */
     virtual unsigned GetNumberOfCells();
 
     /**
      * Default constructor.
-     * 
+     *
      * @param pSolver  the ODE solver to use to simulate this cell.
      */
     AbstractCardiacCellFactory(boost::shared_ptr<AbstractIvpOdeSolver> pSolver = boost::shared_ptr<AbstractIvpOdeSolver>(new EulerIvpOdeSolver));
@@ -103,8 +114,14 @@ public:
      */
     virtual ~AbstractCardiacCellFactory();
 
+    /**
+     * @param pMesh  A pointer to the cmesh for which to create cardiac cells.
+     */
     void SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
+    /**
+     * @return  A pointer to the AbstractMesh used to create the cells.
+     */
     AbstractMesh<ELEM_DIM,SPACE_DIM>* GetMesh();
 
 };

@@ -40,6 +40,7 @@ template<unsigned SPACE_DIM>
 class StimulusBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private:
+    /** A pointer to the stimulus that is to be applied as a boundary condition */
     AbstractStimulusFunction* mpStimulus;
 
 public:

@@ -26,77 +26,61 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef GENERALPLANESTIMULUSCELLFACTORY_HPP_
 #define GENERALPLANESTIMULUSCELLFACTORY_HPP_
 
-#include "AbstractCardiacCellFactory.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 
-template <class CELL, unsigned DIM>
-class GeneralPlaneStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
+/**
+ * GeneralPlaneStimulusCellFactory
+ *
+ * Supplies cells with a stimuli that depend upon the number of cells and width of the mesh.
+ *
+ * Applied to cells within 1e-5 of x=0.
+ */
+template <class CELL, unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
+class GeneralPlaneStimulusCellFactory : public PlaneStimulusCellFactory<CELL,ELEM_DIM,SPACE_DIM>
 {
-private:
-    /** The stimulus that gets applied. */
-    boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
-    GeneralPlaneStimulusCellFactory(unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false)
-        : AbstractCardiacCellFactory<DIM>()
+    /**
+     * Constructor
+     *
+     * \todo The useMeshWidth is temporary, while we are sorting out
+     * 3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
+     * scale stimulus depending on space_step of elements
+     *
+     * \todo It looks like the value of the stimulus is specific to 3D
+     *
+     * @param numEleAcross  Number of elements across which to apply the stimulus
+     * @param meshWidth  Width of the mesh (used to calculate magnitude of stimulus)
+     * @param useMeshWidthAsMag  see todo comments above (defaults to false).
+     * @param stimulusMagnitude  Magnitude of the applied stimulus (defaults to -1e7, modified in the constructor dependent on mesh size).
+     * @param stimulusDuration  Duration of the applied stimulus (defaults to 0.5ms).
+     */
+    GeneralPlaneStimulusCellFactory(unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false, double stimulusMagnitude=-1e7, double stimulusDuration=0.5)
+        : PlaneStimulusCellFactory<CELL,ELEM_DIM, SPACE_DIM>(stimulusMagnitude,stimulusDuration) // These values are overridden below anyway.
     {
-        ///\todo The useMeshWidth is temporary, while we are sorting out
-        ///3D stimulus.  It is to be removed later (along with StimulusConvergenceTester)
-        /// scale stimulus depending on space_step of elements
-        ///\todo It looks like the value of the stimulus is specific to 3D
         if (useMeshWidthAsMag)
         {
             #define COVERAGE_IGNORE
-            mpStimulus.reset(new SimpleStimulus(meshWidth, 0.5));
+            this->mpStimulus.reset(new SimpleStimulus(meshWidth, 0.5));
             #undef COVERAGE_IGNORE
         }
         else
         {
-            double stimulus_magnitude=-1e7;//wrt mesh 4 which has 64 elements in 1D
-            switch(DIM)
-            {
-                case 1:
-                {
-                    stimulus_magnitude*=numEleAcross/(64.0);
-                    //Justification: elements go half size with each refinement
-                    stimulus_magnitude*=meshWidth/(0.2);
-                    break;
-                }
-                case 2:
-                {
-                    stimulus_magnitude*=numEleAcross/(64.0);
-                    //Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on boundary
-                    stimulus_magnitude*=meshWidth/(0.2);
-                    break;
-                }
-                default: //3D
-                {
-                    stimulus_magnitude*=numEleAcross/(64.0);
-                    //Hypothesis: Triangles go eighth size with each refinement, but there are four-times as many nodes on boundary
-                    stimulus_magnitude*=meshWidth/(0.2);
-                    break;
-                }
-            }
-            //std::cout<<"Mag is "<<stimulus_magnitude<<"\n";
-            mpStimulus.reset(new SimpleStimulus(stimulus_magnitude, 0.5));
+            stimulusMagnitude*=numEleAcross/(64.0);
+            // ELEM_DIM==1 Justification: elements go half size with each refinement
+            // ELEM_DIM==2 Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on boundary
+            // ELEM_DIM==3 Hypothesis: Triangles go eighth size with each refinement, but there are four-times as many nodes on boundary
+            stimulusMagnitude*=meshWidth/(0.2);
+
+            //std::cout<<"Mag is "<<stimulusMagnitude<<"\n";
+            this->mpStimulus.reset(new SimpleStimulus(stimulusMagnitude, stimulusDuration));
+            LOG(1, "Defined a GeneralPlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<","<< stimulusDuration<< ")\n");
         }
     }
 
-    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
-    {
-        double x = this->GetMesh()->GetNode(node)->GetPoint()[0];
-        if (x*x<=1e-10)
-        {
-            return new CELL(this->mpSolver, this->mpStimulus);
-        }
-        else
-        {
-            return new CELL(this->mpSolver, this->mpZeroStimulus);
-        }
-    }
 };
 
 #endif /*GENERALPLANESTIMULUSCELLFACTORY_HPP_*/

@@ -33,25 +33,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "LogFile.hpp"
 
+/**
+ * PlaneStimulusCellFactory provides cells with a SimpleStimulus.
+ *
+ * Applied to cells within 1e-5 of x=0.
+ */
 template<class CELL, unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>
 {
-private:
+protected:
     // define a new stimulus
     boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
-    PlaneStimulusCellFactory(double stimulusMagnitude=-600)
-        : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>()//,
-//          mpStimulus(boost::shared_ptr<SimpleStimulus>(new SimpleStimulus(stimulusMagnitude, 0.5)))
+    /**
+     * Constructor
+     * @param stimulusMagnitude  The magnitude of the simple stimulus to be applied (defaults to -600).
+     * @param stimulusDuration  The duration of the simple stimulus to be applied (defaults to 0.5ms).
+     */
+    PlaneStimulusCellFactory(double stimulusMagnitude=-600, double stimulusDuration=0.5)
+        : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>()
     {
-        mpStimulus = boost::shared_ptr<SimpleStimulus>(new SimpleStimulus(stimulusMagnitude, 0.5));
-        LOG(1, "Defined a PlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<",0.5)\n");
+        mpStimulus = boost::shared_ptr<SimpleStimulus>(new SimpleStimulus(stimulusMagnitude, stimulusDuration));
+        LOG(1, "Defined a PlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<","<< stimulusDuration<< ")\n");
     }
 
+    /**
+     * @param node  The global index of a node
+     * @return  A cardiac cell which corresponds to this node.
+     */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        if (this->GetMesh()->GetNode(node)->GetPoint()[0] == 0.0)
+        double x = this->GetMesh()->GetNode(node)->GetPoint()[0];
+        if (x*x<=1e-10)
         {
             return new CELL(this->mpSolver, mpStimulus);
         }
