@@ -37,18 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 #include "PetscTools.hpp"
 #include "MechanicsEventHandler.hpp"
-
-//// Note: The following ONLY WORKS IF ***UMFPACK*** IS
-//// INSTALLED (userpc60 only?) - and dealii won't complain
-//// if it isn't, just give wrong answers.
-//#define ___USE_DEALII_LINEAR_SYSTEM___
-
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-  #include "DealiiLinearSystem.hpp"
-#endif
-
-
-//#include "Timer.hpp" // in the dealii folder
+//#include "Timer.hpp" 
 
 /**
  * Abstract nonlinear elasticity assembler.
@@ -83,14 +72,9 @@ protected:
     /**
      *  The linear system where we store all residual vectors which are calculated
      *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
-     *  methods explicitly (in order to easily set num restarts etc). In the future
-     *  it'll be solved using the UMFPACK direct method.
+     *  methods explicitly (in order to easily set number of restarts etc).
      */
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    DealiiLinearSystem* mpLinearSystem;
-#else
     LinearSystem* mpLinearSystem;
-#endif
 
     /**
      *  The linear system which stores the matrix used for preconditioning (given
@@ -352,11 +336,7 @@ template<unsigned DIM>
 double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
 {
     double norm;
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    norm = mpLinearSystem->GetRhsVectorNorm();
-#else
     VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
-#endif
     return norm/mNumDofs;
 }
 
@@ -382,12 +362,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     /////////////////////////////////////////////////////////////
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    // solve using an umfpack (in dealii) direct solve..
-    mpLinearSystem->Solve();
-    Vector<double>& update = mpLinearSystem->rGetLhsVector();
-    //Timer::PrintAndReset("Direct Solve");
-#else
+
     KSP solver;
     Vec solution;
     VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
@@ -415,9 +390,8 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
 
     //Timer::PrintAndReset("KSP Solve");
-
     ReplicatableVector update(solution);
-#endif
+
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -452,11 +426,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     unsigned index = 0;
     for(unsigned j=0; j<mNumDofs; j++)
     {
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-        mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
-#else
         mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-#endif
     }
 
     // compute residual
@@ -477,11 +447,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
         for(unsigned j=0; j<mNumDofs; j++)
         {
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-           mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
-#else
            mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-#endif
         }
 
         // compute residual
@@ -504,11 +470,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
         std::cout << "\tBest s = " << damping_values[index] << "\n"  << std::flush;
         for(unsigned j=0; j<mNumDofs; j++)
         {
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-            mCurrentSolution[j] = old_solution[j] - damping_values[index]*update(j);
-#else
             mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-#endif
         }
     }
 
@@ -528,11 +490,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 //        {
 //            for(unsigned j=0; j<mNumDofs; j++)
 //            {
-//#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-//                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update(j);
-//#else
 //                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update[j];
-//#endif
 //            }
 //
 //            // compute residual
@@ -563,18 +521,13 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 //        // implement best update and recalculate residual
 //        for(unsigned j=0; j<mNumDofs; j++)
 //        {
-//#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-//            mCurrentSolution[j] = old_solution[j] - best_damping_value*update(j);
-//#else
 //            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
-//#endif
 //        }
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::UPDATE);
 
-#ifndef ___USE_DEALII_LINEAR_SYSTEM___
     VecDestroy(solution);
     KSPDestroy(solver);
-#endif
+
     return norm_resid;
 }
 
@@ -608,13 +561,8 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
     assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
 
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    //// has to be done in parent as needs mesh
-    //mpLinearSystem = new DealiiLinearSystem( mesh );
-#else
     mpLinearSystem = new LinearSystem(mNumDofs);
-#endif
-    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
+    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work but assembly is then really slow!
 }
 
 
@@ -645,13 +593,8 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
     assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
 
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    //// has to be done in parent as needs mesh
-    //mpLinearSystem = new DealiiLinearSystem( mesh );
-#else
     mpLinearSystem = new LinearSystem(mNumDofs);
-#endif
-    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ);
+    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work but assembly is then really slow!
 }
 
 

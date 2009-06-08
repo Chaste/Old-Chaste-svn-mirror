@@ -87,10 +87,7 @@ c_vector<double,2> MyTraction(c_vector<double,2>& X)
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
-
-
-#ifndef ___USE_DEALII_LINEAR_SYSTEM___ // remove the dont from dontTest when removing this
-    void dontTestAssembleSystem() throw (Exception)
+    void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
         ExponentialMaterialLaw<2> law(2,3);
@@ -206,7 +203,6 @@ public:
             assembler.mCurrentSolution[j] -= h;
         }
     }
-#endif
 
 
     // A test where the solution should be zero displacement

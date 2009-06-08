@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "NonlinearElasticityAssembler.hpp"
-
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
 
@@ -113,6 +112,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
             }
         }
     }
+    
 
     ////////////////////////////////////////////////////////////
     // loop over specified boundary elements and compute
@@ -162,7 +162,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
         }
     }
 
-#ifndef ___USE_DEALII_LINEAR_SYSTEM___
     if (assembleResidual)
     {
         this->mpLinearSystem->AssembleRhsVector();
@@ -170,10 +169,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     if (assembleJacobian)
     {
         this->mpLinearSystem->AssembleIntermediateLhsMatrix();
-    }
-#endif
-    if (assembleJacobian)
-    {
         this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix();
     }
 
@@ -181,7 +176,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     // Apply Dirichlet boundary conditions
     this->ApplyBoundaryConditions(assembleJacobian);
 
-#ifndef ___USE_DEALII_LINEAR_SYSTEM___
     if (assembleResidual)
     {
         this->mpLinearSystem->AssembleRhsVector();
@@ -189,10 +183,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     if (assembleJacobian)
     {
         this->mpLinearSystem->AssembleFinalLhsMatrix();
-    }
-#endif
-    if (assembleJacobian)
-    {
         this->mpPreconditionMatrixLinearSystem->AssembleFinalLhsMatrix();
     }
 }
@@ -677,11 +667,6 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
                                                 outputDirectory, fixedNodes),
       mpQuadMesh(pQuadMesh)
 {
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    // has to be done in parent as needs mesh
-    this->mpLinearSystem = new DealiiLinearSystem(*pQuadMesh);
-#endif
-
     Initialise(pFixedNodeLocations);
 }
 
@@ -700,11 +685,6 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
                                                 outputDirectory, fixedNodes),
       mpQuadMesh(pQuadMesh)
 {
-#ifdef ___USE_DEALII_LINEAR_SYSTEM___
-    //// has to be done in parent as needs mesh
-    this->mpLinearSystem = new DealiiLinearSystem(*pQuadMesh);
-#endif
-
     assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
     Initialise(pFixedNodeLocations);
 }
