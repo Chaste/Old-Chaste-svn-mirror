@@ -769,7 +769,7 @@ public:
     }
     
     // this test should be the last in the suite
-    void xxxTestSetFromOptions()
+    void TestSetFromOptions()
     {
         LinearSystem ls = LinearSystem(5);
         PetscOptionsSetValue("-ksp_type", "gmres");
