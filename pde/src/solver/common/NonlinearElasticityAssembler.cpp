@@ -76,10 +76,10 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
          iter != mpQuadMesh->GetElementIteratorEnd();
          ++iter)
     {
-        //if(assembleJacobian)
-        //{
-        //    LOG_AND_COUT(1, "Element " << (*iter)->GetIndex() << " of " << this->mpQuadMesh->GetNumElements());
-        //}
+//        if(assembleJacobian)
+//        {
+//            LOG_AND_COUT(1, "Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements());
+//        }
 
         Element<DIM, DIM>& element = *iter;
 
