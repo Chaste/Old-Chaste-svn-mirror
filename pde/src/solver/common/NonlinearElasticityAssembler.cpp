@@ -352,6 +352,16 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
 
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
 
+        static FourthOrderTensor<DIM> dTdE_F;
+        static FourthOrderTensor<DIM> dTdE_FF1;
+        static FourthOrderTensor<DIM> dTdE_FF2;
+        static FourthOrderTensor<DIM> dTdE_FF;
+  
+        dTdE_F.SetAsProduct(this->dTdE, F, 0);  // B^{aNPQ}  = F^a_M * dTdE^{MNPQ}
+        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{aNPb} = F^a_M * F^b_Q * dTdE^{MNPQ} 
+        dTdE_FF2.SetAsProduct(dTdE_F, F, 2);    // B2^{aNbQ} = F^a_M * F^b_P * dTdE^{MNPQ}
+
+
         /////////////////////////////////////////
         // residual vector
         /////////////////////////////////////////
@@ -415,27 +425,50 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                                      * (spatial_dim1==spatial_dim2?1:0)
                                                      * wJ;
 
-                            for (unsigned P=0; P<DIM; P++)
-                            {
-                                for (unsigned Q=0; Q<DIM; Q++)
-                                {
-                                    rAElem(index1,index2)  +=   0.5
-                                                              * this->dTdE(M,N,P,Q)
-                                                              * (
-                                                                  grad_quad_phi(P,node_index2)
-                                                                * F(spatial_dim2,Q)
-                                                                   +
-                                                                  grad_quad_phi(Q,node_index2)
-                                                                * F(spatial_dim2,P)
-                                                                 )
-                                                              * F(spatial_dim1,M)
-                                                              * grad_quad_phi(N,node_index1)
-                                                              * wJ;
-                                }
-                            }
+/////// This bit is now done more efficiently to the two loops before (using temp tensors to avoid nesting)
+//                            for (unsigned P=0; P<DIM; P++)
+//                            {
+//                                for (unsigned Q=0; Q<DIM; Q++)
+//                                {
+//                                    rAElem(index1,index2)  +=   0.5
+//                                                              * this->dTdE(M,N,P,Q)
+//                                                              * (
+//                                                                  grad_quad_phi(P,node_index2)
+//                                                                * F(spatial_dim2,Q)
+//                                                                   +
+//                                                                  grad_quad_phi(Q,node_index2)
+//                                                                * F(spatial_dim2,P)
+//                                                                 )
+//                                                              * F(spatial_dim1,M)
+//                                                              * grad_quad_phi(N,node_index1)
+//                                                              * wJ;
+//                                }
+//                            }
+                        }
+                    }
+                    
+                    for(unsigned N=0; N<DIM; N++)
+                    {
+                        for (unsigned P=0; P<DIM; P++)
+                        {
+                            rAElem(index1,index2)  +=   0.5
+                                                      * dTdE_FF1(spatial_dim1,N,P,spatial_dim2)
+                                                      * grad_quad_phi(P,node_index2)
+                                                      * grad_quad_phi(N,node_index1)
+                                                      * wJ;
+                        }
+                        
+                        for (unsigned Q=0; Q<DIM; Q++)
+                        {
+                           rAElem(index1,index2)  +=   0.5
+                                                     * dTdE_FF2(spatial_dim1,N,spatial_dim2,Q)
+                                                     * grad_quad_phi(Q,node_index2)
+                                                     * grad_quad_phi(N,node_index1)
+                                                     * wJ;
                         }
                     }
                 }
+
                 for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
                 {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;

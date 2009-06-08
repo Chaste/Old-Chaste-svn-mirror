@@ -59,7 +59,7 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
                                           c_matrix<double,2,2>&  invC,
                                           double                 pressure,
                                           c_matrix<double,2,2>&  T,
-                                          FourthOrderTensor2<2>& dTdE,
+                                          FourthOrderTensor<2>&  dTdE,
                                           bool                   computeDTdE)
 {
     c_matrix<double,2,2> E = 0.5*(C-mIdentity);

@@ -27,18 +27,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTFOURTHORDERTENSOR2_HPP_
-#define TESTFOURTHORDERTENSOR2_HPP_
+#ifndef TESTFOURTHORDERTENSOR_HPP_
+#define TESTFOURTHORDERTENSOR_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "FourthOrderTensor2.hpp"
+#include "FourthOrderTensor.hpp"
 
-class TestFourthOrderTensor2 : public CxxTest::TestSuite
+class TestFourthOrderTensor : public CxxTest::TestSuite
 {
 public :
     void testFourthOrderTensor() throw(Exception)
     {
-        FourthOrderTensor2<2> x;
+        FourthOrderTensor<2> x;
 
         for(unsigned M=0; M<2; M++)
         {
@@ -70,7 +70,7 @@ public :
         }
 
 
-        FourthOrderTensor2<3> y;
+        FourthOrderTensor<3> y;
 
         for(unsigned M=0; M<3; M++)
         {
@@ -122,11 +122,11 @@ public :
     // Test the first of the four possibilities for SetAsProduct
     void TestSetAsProduct0() throw(Exception)
     {
-        FourthOrderTensor2<3> X;
+        FourthOrderTensor<3> X;
         c_matrix<double,3,3> A;
 
         // check throws if bad component passed in..
-        FourthOrderTensor2<3> Z;
+        FourthOrderTensor<3> Z;
         TS_ASSERT_THROWS_ANYTHING(Z.SetAsProduct(X,A,5));
 
 
@@ -145,7 +145,7 @@ public :
             }
         }
 
-        FourthOrderTensor2<3> Y;
+        FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,0);
 
         for(unsigned M=0; M<3; M++)
@@ -167,7 +167,7 @@ public :
     // Test the second of the four possibilities for SetAsProduct
     void TestSetAsProduct1() throw(Exception)
     {
-        FourthOrderTensor2<3> X;
+        FourthOrderTensor<3> X;
         c_matrix<double,3,3> A;
 
         for(unsigned M=0; M<3; M++)
@@ -185,7 +185,7 @@ public :
             }
         }
 
-        FourthOrderTensor2<3> Y;
+        FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,1);
 
         for(unsigned M=0; M<3; M++)
@@ -206,7 +206,7 @@ public :
     // Test the third of the four possibilities for SetAsProduct
     void TestSetAsProduct2() throw(Exception)
     {
-        FourthOrderTensor2<3> X;
+        FourthOrderTensor<3> X;
         c_matrix<double,3,3> A;
 
         for(unsigned M=0; M<3; M++)
@@ -224,7 +224,7 @@ public :
             }
         }
 
-        FourthOrderTensor2<3> Y;
+        FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,2);
 
         for(unsigned M=0; M<3; M++)
@@ -245,7 +245,7 @@ public :
     // Test the last of the four possibilities for SetAsProduct
     void TestSetAsProduct3() throw(Exception)
     {
-        FourthOrderTensor2<3> X;
+        FourthOrderTensor<3> X;
         c_matrix<double,3,3> A;
 
         for(unsigned M=0; M<3; M++)
@@ -263,7 +263,7 @@ public :
             }
         }
 
-        FourthOrderTensor2<3> Y;
+        FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,3);
 
         for(unsigned M=0; M<3; M++)
@@ -281,4 +281,4 @@ public :
         }
     }
 };
-#endif /*TESTFOURTHORDERTENSOR2_HPP_*/
+#endif /*TESTFOURTHORDERTENSOR_HPP_*/

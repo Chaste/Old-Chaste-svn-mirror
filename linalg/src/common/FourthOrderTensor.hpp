@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _FOURTHORDERTENSOR2_HPP_
-#define _FOURTHORDERTENSOR2_HPP_
+#ifndef _FOURTHORDERTENSOR_HPP_
+#define _FOURTHORDERTENSOR_HPP_
 
 #include <cassert>
 #include <vector>
@@ -46,7 +46,7 @@ using namespace boost::numeric::ublas;
  *
  */
 template<unsigned DIM>
-class FourthOrderTensor2
+class FourthOrderTensor
 {
 private:
 
@@ -60,13 +60,13 @@ public:
     /**
      * Constructor.
      */
-    FourthOrderTensor2();
+    FourthOrderTensor();
 
     /**
      *  Set to be the inner product of another fourth order tensor and a matrix
      *
      *  @param tensor A fourth order tensor
-     *  @param matrix A Deal.II matrix
+     *  @param matrix A matrix
      *  @param component  The component in the fourth order tensor with which to sum
      *    (indexed from ZERO)
      *
@@ -74,7 +74,7 @@ public:
      *  ie. if component=2, X_{RQ} T_{MNPQ} is returned
      *
      */
-    void SetAsProduct(FourthOrderTensor2<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component);
+    void SetAsProduct(FourthOrderTensor<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component);
 
     /**
      * Access the MNPQ-component of the tensor.
@@ -100,7 +100,7 @@ public:
 
 
 template<unsigned DIM>
-FourthOrderTensor2<DIM>::FourthOrderTensor2()
+FourthOrderTensor<DIM>::FourthOrderTensor()
 {
     // check dim>0 but <4
     assert(DIM>0);
@@ -115,11 +115,11 @@ FourthOrderTensor2<DIM>::FourthOrderTensor2()
 }
 
 template<unsigned DIM>
-void FourthOrderTensor2<DIM>::SetAsProduct(FourthOrderTensor2<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component)
+void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component)
 {
     Zero();
 
-    // messy repeated code but not sure how to do this neatly and efficiently..
+    // messy repeated code but needs to be efficiently over neat..
     switch (component)
     {
         case 0:
@@ -214,7 +214,7 @@ void FourthOrderTensor2<DIM>::SetAsProduct(FourthOrderTensor2<DIM>& tensor, cons
 }
 
 template<unsigned DIM>
-double& FourthOrderTensor2<DIM>::operator()(unsigned M, unsigned N, unsigned P, unsigned Q)
+double& FourthOrderTensor<DIM>::operator()(unsigned M, unsigned N, unsigned P, unsigned Q)
 {
     assert(M<DIM);
     assert(N<DIM);
@@ -226,7 +226,7 @@ double& FourthOrderTensor2<DIM>::operator()(unsigned M, unsigned N, unsigned P, 
 }
 
 template<unsigned DIM>
-void FourthOrderTensor2<DIM>::Zero()
+void FourthOrderTensor<DIM>::Zero()
 {
     for (unsigned i=0; i<mDimToFour; i++)
     {
@@ -234,4 +234,4 @@ void FourthOrderTensor2<DIM>::Zero()
     }
 }
 
-#endif //_FOURTHORDERTENSOR2_HPP_
+#endif //_FOURTHORDERTENSOR_HPP_

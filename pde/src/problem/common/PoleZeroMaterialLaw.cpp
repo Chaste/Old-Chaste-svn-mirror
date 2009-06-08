@@ -87,7 +87,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                                           c_matrix<double,DIM,DIM>& invC,
                                           double                    pressure,
                                           c_matrix<double,DIM,DIM>& T,
-                                          FourthOrderTensor2<DIM>&  dTdE,
+                                          FourthOrderTensor<DIM>&   dTdE,
                                           bool                      computeDTdE)
 {
     assert(fabs(C(0,1)-C(1,0)) < 1e-6);

@@ -43,7 +43,7 @@ void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double
 
     c_matrix<double,DIM,DIM> T;
 
-    static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
+    static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
 
     ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
 
@@ -75,7 +75,7 @@ void AbstractIncompressibleMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_mat
 
     c_matrix<double,DIM,DIM> T;
 
-    static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
+    static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
 
     ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
 
@@ -87,7 +87,7 @@ void AbstractIncompressibleMaterialLaw<DIM>::Compute2ndPiolaKirchoffStress(c_mat
 {
     c_matrix<double,DIM,DIM> invC = Inverse(C);
 
-    static FourthOrderTensor2<DIM> dTdE; // not filled in, made static for efficiency
+    static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
 
     ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
 }

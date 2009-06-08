@@ -83,7 +83,7 @@ public :
                                           c_matrix<double,2,2>&  invC,
                                           double                 pressure,
                                           c_matrix<double,2,2>&  T,
-                                          FourthOrderTensor2<2>& dTdE,
+                                          FourthOrderTensor<2>&  dTdE,
                                           bool                   computeDTdE);
 
     /**

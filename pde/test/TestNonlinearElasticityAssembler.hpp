@@ -535,8 +535,9 @@ public:
         assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
 
         assembler.Solve();
-
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u);
+    
+        // matrix might have (small) errors introduced if this fails 
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u); 
 
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 

@@ -41,6 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 
+#include <iostream>
+#include "ReplicatableVector.hpp"
+
 class TestLinearSystem : public CxxTest::TestSuite
 {
 public:
@@ -766,7 +769,7 @@ public:
     }
     
     // this test should be the last in the suite
-    void TestSetFromOptions()
+    void xxxTestSetFromOptions()
     {
         LinearSystem ls = LinearSystem(5);
         PetscOptionsSetValue("-ksp_type", "gmres");
@@ -790,5 +793,25 @@ public:
         TS_ASSERT( strcmp(pc,"jacobi")==0 );
     }
     // the above test should be last in the suite
+    
+//    void TestSingularSolves() throw(Exception)
+//    {
+//        LinearSystem ls(2);
+//
+//        ls.SetMatrixElement(0, 0, 2);
+//        ls.SetMatrixElement(0, 1, 2);
+//        ls.SetMatrixElement(1, 0, 2);
+//        ls.SetMatrixElement(1, 1, 2);
+//
+//        ls.SetRhsVectorElement(0, 100.0);
+//        ls.SetRhsVectorElement(1, 100.0);
+//
+//        ls.AssembleFinalLinearSystem();
+//        
+//        Vec x = ls.Solve();
+//        ReplicatableVector xx(x);
+//        
+//        std::cout << xx[0] << " " << xx[1] << "\n"; //solves fine without null space?
+//    }
 };
 #endif //_TESTLINEARSYSTEM_HPP_

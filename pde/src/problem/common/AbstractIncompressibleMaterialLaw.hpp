@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <vector>
 #include "Exception.hpp"
-#include "FourthOrderTensor2.hpp"
+#include "FourthOrderTensor.hpp"
 
 /**
  *  AbstractIncompressibleMaterialLaw
@@ -71,7 +71,7 @@ public :
                                                   c_matrix<double,DIM,DIM>& invC,
                                                   double                    pressure,
                                                   c_matrix<double,DIM,DIM>& T,
-                                                  FourthOrderTensor2<DIM>&   dTdE,
+                                                  FourthOrderTensor<DIM>&   dTdE,
                                                   bool                      computeDTdE)=0;
 
     /**
