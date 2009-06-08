@@ -162,7 +162,7 @@ class BuildType(object):
         failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
         ok, ok_count = re.compile('OK!'), 0
         infrastructure_ok = re.compile('Infrastructure test passed ok.')
-        mpi_error = 'semget failed for setnum =  0'
+        mpi_error = 'semget failed for setnum = '
 
         first_line = True
         for line in logFile:
