@@ -124,9 +124,8 @@ public:
     bool PopulatedResult;
     bool FixedResult;
     bool UseAbsoluteStimulus;
-    //bool UseNeumannStimulus;
+    bool SimulateFullActionPotential;
     bool Converged;
-    //bool StimulateRegion;
     StimulusType Stimulus;
     double NeumannStimulus;
 
@@ -222,7 +221,16 @@ public:
 
             
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, this->PdeTimeStep);
-            HeartConfig::Instance()->SetSimulationDuration(8.0);
+#define COVERAGE_IGNORE
+            if (SimulateFullActionPotential)
+            {
+                HeartConfig::Instance()->SetSimulationDuration(350.0);
+            }
+            else
+            {
+                HeartConfig::Instance()->SetSimulationDuration(8.0);
+            }
+#undef COVERAGE_IGNORE
             HeartConfig::Instance()->SetOutputDirectory ("Convergence");
             HeartConfig::Instance()->SetOutputFilenamePrefix ("Results");
 
@@ -438,10 +446,6 @@ public:
 
                 if (this->PopulatedResult)
                 {
-                    //std::cout << "APD90\n"
-                    //          << "Current: " << apd90_first_qn << "\t" << apd90_third_qn << "\n"
-                    //          << "Previous: " << prev_apd90_first_qn << "\t" << prev_apd90_third_qn << "\n";
-
                     cond_velocity_error = fabs(cond_velocity - prev_cond_velocity) / prev_cond_velocity;
                     apd90_first_qn_error = fabs(apd90_first_qn - prev_apd90_first_qn) / prev_apd90_first_qn;
                     apd90_third_qn_error = fabs(apd90_third_qn - prev_apd90_third_qn) / prev_apd90_third_qn;
@@ -482,11 +486,8 @@ public:
                 if (this->PopulatedResult)
                 {
 
-                    std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
-                    std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
-                    //std::cout << log10(Abscissa()) << "\t" << log10(sum_sq_abs_error/sum_sq_prev_voltage) <<"\t#Logs for Gnuplot\n";
-                    //Use "set logscale x; set logscale y" to get loglog plots in Gnuplot
-                    //std::cout << Abscissa() << "\t" << sum_sq_abs_error/sum_sq_prev_voltage <<"\t#Gnuplot raw data\n";
+//                    std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
+//                    std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
 
                     if (conv_info_handler.IsMaster())
                     {
@@ -538,17 +539,17 @@ public:
         double scaling = mMeshWidth/(double) num_ele_across;
 
         std::cout<<"================================================================================"<<std::endl;
-        std::cout<<"Solving in "<<DIM<<"D\n";
-        std::cout<<"Solving with a space step of "<< scaling << " cm (mesh " << this->MeshNum << ")" << std::endl;
-        std::cout<<"Solving with a time step of "<<this->PdeTimeStep<<" ms"<<std::endl;
-        std::cout<<"Solving with an ode time step of "<<this->OdeTimeStep<<" ms"<<std::endl;
+        std::cout<<"Solving in "<<DIM<<"D\t";
+        std::cout<<"Space step "<< scaling << " cm (mesh " << this->MeshNum << ")" << "\n";
+        std::cout<<"PDE step "<<this->PdeTimeStep<<" ms"<<"\t";
+        std::cout<<"ODE step "<<this->OdeTimeStep<<" ms"<<"\t";
         if (HeartConfig::Instance()->GetUseAbsoluteTolerance())
         {
-            std::cout<<"Solving with a KSP absolute tolerance of "<<HeartConfig::Instance()->GetAbsoluteTolerance()<<std::endl;
+            std::cout<<"KSP absolute "<<HeartConfig::Instance()->GetAbsoluteTolerance()<<"\t";
         }
         else
         {
-            std::cout<<"Solving with a KSP relative tolerance of "<<HeartConfig::Instance()->GetRelativeTolerance()<<std::endl;
+            std::cout<<"KSP relative "<<HeartConfig::Instance()->GetRelativeTolerance()<<"\t";
         }
         switch (this->Stimulus)
         {

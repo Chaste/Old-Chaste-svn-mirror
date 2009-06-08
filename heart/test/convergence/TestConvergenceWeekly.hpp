@@ -129,19 +129,6 @@ public:
         HeartConfig::Instance()->Reset();
     }
 
-    void TestSpaceConvergence3d()
-    {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
-        //tester.SetKspAbsoluteTolerance(1e-3);
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);               
-        tester.Stimulus=NEUMANN;
-        tester.SetMeshWidth(0.14);//cm
-        tester.Converge(__FUNCTION__);
-        TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
-        HeartConfig::Instance()->Reset();
-    }
-
 };
 
 #endif /*TESTCONVERGENCEWEEKLY_HPP_*/

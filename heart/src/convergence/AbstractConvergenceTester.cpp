@@ -41,9 +41,8 @@ AbstractUntemplatedConvergenceTester::AbstractUntemplatedConvergenceTester()
       PopulatedResult(false),
       FixedResult(false),
       UseAbsoluteStimulus(false),
-      //UseNeumannStimulus(false),
+      SimulateFullActionPotential(false),
       Converged(false),
-      //StimulateRegion(false)
       Stimulus(PLANE),
       NeumannStimulus(4000)
 {
