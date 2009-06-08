@@ -28,10 +28,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 
-options = ['--conf=config.xml', '--use-chaste-stimulus', '--convert-interfaces', '--Wu']
+options = ['--conf=config.xml',
+           '--use-chaste-stimulus',
+           '--convert-interfaces',
+           '--Wu',
+           '--row-lookup-method']
 # Other possible options:
 #   --assume-valid --no-member-vars
-#   --row-lookup-method
 #   --lt-index-uses-floor
 
 try:
