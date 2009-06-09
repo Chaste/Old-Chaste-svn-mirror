@@ -149,15 +149,16 @@ public:
      * @param matType the matrix type (defaults to MATMPIAIJ)
      * @param numLocalRows the number of local rows (detaults to PETSC_DECIDE)
      * @param numLocalColumns the number of local columns (detaults to PETSC_DECIDE)
-     * @param maxColsPerRow The maximum number of non zeros per row. This value is problem dependent.
-     *     An upper bound is (3^ELEMENT_DIM) * PROBLEM_DIM. The default value (3D bidomain problem)
-     *     should be big enough for any of the problems being solved.
+     * @param maxColsPerRowIfMatMpiAij The maximum number of non zeros per row. This value is problem dependent.
+     *   Since the call to set this depends on the matrix-type (eg MatMPIAIJSetPreallocation/MatSeqAIJSetPreallocation),
+     *   preallocation using this value is done only if the matrix-type is MATMPIAIJ (the default). WITH OTHER
+     *   TYPES OF MATRIX NO PREALLOCATION IS DONE AND YOU MUST PREALLOCATE MANUALLY (by calling the appropriate method)!
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
                          MatType matType=(MatType) MATMPIAIJ,
                          int numLocalRows=PETSC_DECIDE,
                          int numLocalColumns=PETSC_DECIDE,
-                         int maxColsPerRow=54);
+                         int maxColsPerRowIfMatMpiAij=54 /* see doxygen comment! */);
 
     /**
      * Ensure exceptions are handled cleanly in parallel code, by causing all processes to

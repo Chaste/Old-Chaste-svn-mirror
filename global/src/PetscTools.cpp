@@ -178,7 +178,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
                           MatType matType,
                           int numLocalRows,
                           int numLocalColumns,
-                          int maxColsPerRow)
+                          int maxColsPerRowIfMatMpiAij)
 {
     assert(numRows>0);
     assert(numColumns>0);
@@ -194,7 +194,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
 
     if (strcmp(matType,MATMPIAIJ)==0)
     {
-        MatMPIAIJSetPreallocation(rMat, maxColsPerRow, PETSC_NULL, (PetscInt) (maxColsPerRow*0.5), PETSC_NULL);
+        MatMPIAIJSetPreallocation(rMat, maxColsPerRowIfMatMpiAij, PETSC_NULL, (PetscInt) (maxColsPerRowIfMatMpiAij*0.5), PETSC_NULL);
     }
 
     MatSetFromOptions(rMat);

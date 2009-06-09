@@ -77,7 +77,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     {
 //        if(assembleJacobian)
 //        {
-//            LOG_AND_COUT(1, "Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements());
+//            std::cout << "\nElement " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
 //        }
 
         Element<DIM, DIM>& element = *iter;
@@ -112,7 +112,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
             }
         }
     }
-    
 
     ////////////////////////////////////////////////////////////
     // loop over specified boundary elements and compute
