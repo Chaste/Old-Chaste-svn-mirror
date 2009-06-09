@@ -91,7 +91,7 @@ public:
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
      * @param edgeDivisionThreshold the maximum threshold distance for edge division
      */
-    Cylindrical2dVertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold);
+    Cylindrical2dVertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold, bool isFlatBottom=false);
 
     /**
      * Destructor.

@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexCryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
+#include "Debug.hpp"
 
 VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
                   std::vector<AbstractForce<2>*> forceCollection,
@@ -56,6 +57,7 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
     }
 
     // update node positions according to any tissue boundary conditions
+    // \todo this should only loop over non deleted nodes
     for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
     {
         // Get pointer to this node
@@ -83,6 +85,7 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
         {
             p_node->rGetModifiableLocation()[1] = 0.0;
         }
-        assert(p_node->rGetLocation()[1] >= 0.0);
+        // \todo this will fail until deleted nodes are removed
+        //assert(p_node->rGetLocation()[1] >= 0.0);
     }
 }

@@ -56,15 +56,35 @@ public:
         TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumNodes(), 40u);
 
         // Create a vertex mesh writer with cylindrical mesh
-        VertexMeshWriter<2,2> vertex_mesh_writer("TestCylindrical2dVertexMesh", "cylindrical_vertex_mesh");
-        vertex_mesh_writer.WriteFilesUsingMesh(cylindrical_vertex_mesh);
+        VertexMeshWriter<2,2> vertex_mesh_writer_1("TestCylindrical2dVertexMesh", "cylindrical_vertex_mesh");
+        vertex_mesh_writer_1.WriteFilesUsingMesh(cylindrical_vertex_mesh);
 
-        OutputFileHandler handler("TestCylindrical2dVertexMesh", false);
-        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.node";
-        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.cell";
+        OutputFileHandler handler_1("TestCylindrical2dVertexMesh", false);
+        std::string results_file1 = handler_1.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.node";
+        std::string results_file2 = handler_1.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh.cell";
 
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease_cancer/test/data/TestCylindrical2dVertexMesh/cylindrical_vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestCylindrical2dVertexMesh/cylindrical_vertex_mesh.cell").c_str()), 0);
+        
+        // Create periodic mesh with flat bottom
+        Cylindrical2dVertexMesh flat_cylindrical_vertex_mesh(4, 4, 0.01, 2.0, true);
+
+        // The flat bottomed periodic mesh should have the same number of elements and nodes 
+        // \todo there should be 36 nodes but nodes are merged which doesn't delete them
+        TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumNodes(), 40u);
+
+        // Create a vertex mesh writer with cylindrical mesh
+        VertexMeshWriter<2,2> vertex_mesh_writer_2("TestFlatCylindrical2dVertexMesh", "flat_cylindrical_vertex_mesh");
+        vertex_mesh_writer_2.WriteFilesUsingMesh(flat_cylindrical_vertex_mesh);
+
+        OutputFileHandler handler_2("TestFlatCylindrical2dVertexMesh", false);
+        results_file1 = handler_2.GetOutputDirectoryFullPath() + "flat_cylindrical_vertex_mesh.node";
+        results_file2 = handler_2.GetOutputDirectoryFullPath() + "flat_cylindrical_vertex_mesh.cell";
+
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease_cancer/test/data/TestFlatCylindrical2dVertexMesh/flat_cylindrical_vertex_mesh.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestFlatCylindrical2dVertexMesh/flat_cylindrical_vertex_mesh.cell").c_str()), 0);
+        
     }
 
 

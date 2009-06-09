@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptSimulation2d.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
 #include "NagaiHondaForce.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -189,7 +190,7 @@ public:
         simulator.SetEndTime(1.0);
         simulator.SetOutputDirectory("TestVertexCryptWithNoBirth");
 
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, false);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -199,7 +200,7 @@ public:
     void TestCryptWithBirth() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 6, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 6, 0.01, 2.0, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -211,24 +212,24 @@ public:
 
             CellType cell_type;
 
-            // Cell 5 should divide at time t=0.5
-            if ((elem_index==5))
+            // Cell 1 should divide at time t=0.5
+            if (elem_index==0)
             {
-                birth_time = -20.0;
+                birth_time = -23.5;
                 cell_type = STEM;
             }
-            // Cell 7 should divide at time t=0.5
-//            else if (elem_index==7)
-//            {
-//                cell_type = STEM;
-//                birth_time = -23.5;
-//            }
+            // Cells 2 3 and 4 should divide at later times 
+            else if ((elem_index==1)||(elem_index==2)||(elem_index==3))
+            {
+                birth_time = -15.5 - 2.0*(double)elem_index;
+                cell_type = STEM;
+            }
             else
             {
                 cell_type = DIFFERENTIATED;
             }
 
-            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -247,7 +248,15 @@ public:
         simulator.SetEndTime(1.0);
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
 
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
+        // Modified parameters to make cells equilibriate 
+        CancerParameters::Instance()->SetAreaBasedDampingConstantParameter(1.0);
+        CancerParameters::Instance()->SetDeformationEnergyParameter(10.0);
+        CancerParameters::Instance()->SetMembraneSurfaceEnergyParameter(1.0);
+
+        // Make crypt shorter for sloughing 
+        CancerParameters::Instance()->SetCryptLength(5.0);
+                
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
