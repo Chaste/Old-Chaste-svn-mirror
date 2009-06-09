@@ -594,7 +594,7 @@ public:
      *
      * @return the index of the new element in the mesh
      */
-    unsigned AddElement(VertexElement<ELEMENT_DIM, SPACE_DIM> *pNewElement);
+    unsigned AddElement(VertexElement<ELEMENT_DIM, SPACE_DIM>* pNewElement);
 
     /**
      * Delete mNodes and mElements.

@@ -60,17 +60,17 @@ c_vector<double,2> MyTraction(c_vector<double,2>& X)
     c_vector<double,2> traction = zero_vector<double>(2);
 
     double lam = 1+ALPHA*X(0);
-    if(X(0)==1)
+    if (X(0)==1)
     {
         traction(0) =  2*MATERIAL_PARAM * (lam - 1.0/lam);
         traction(1) = -2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
     }
-    else if(X(1)==0)
+    else if (X(1)==0)
     {
         traction(0) =  2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
         traction(1) = -2*MATERIAL_PARAM * (-lam + 1.0/lam);
     }
-    else if(X(1)==1)
+    else if (X(1)==1)
     {
         traction(0) = -2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
         traction(1) =  2*MATERIAL_PARAM * (-lam + 1.0/lam);
@@ -108,7 +108,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         ReplicatableVector rhs_vec(assembler.mpLinearSystem->rGetRhsVector());
         TS_ASSERT_EQUALS( (int)rhs_vec.size(), 2*289+81 );
-        for(unsigned i=0; i<rhs_vec.size(); i++)
+        for (unsigned i=0; i<rhs_vec.size(); i++)
         {
             TS_ASSERT_DELTA(rhs_vec[i], 0.0, 1e-12);
         }
@@ -123,7 +123,7 @@ public:
         int lo, hi;
         MatGetOwnershipRange(assembler.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
 
-        for(unsigned j=0; j<num_dofs; j++)
+        for (unsigned j=0; j<num_dofs; j++)
         {
             assembler.mCurrentSolution.clear();
             assembler.FormInitialGuess();
@@ -133,13 +133,13 @@ public:
 
             ReplicatableVector perturbed_rhs( assembler.mpLinearSystem->rGetRhsVector() );
 
-            for(unsigned i=0; i<num_dofs; i++)
+            for (unsigned i=0; i<num_dofs; i++)
             {
-                if((lo<=(int)i) && ((int)i<hi))
+                if ((lo<=(int)i) && ((int)i<hi))
                 {
                     double analytic_matrix_val = assembler.mpLinearSystem->GetMatrixElement(i,j);
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
-                    if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                    if ((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
                         // relative error
                         TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
@@ -164,7 +164,7 @@ public:
 
         assembler.mCurrentSolution.clear();
         assembler.FormInitialGuess();
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             assembler.mCurrentSolution[2*i]   = (lambda-1)*mesh.GetNode(i)->rGetLocation()[0];
             assembler.mCurrentSolution[2*i+1] = (mu-1)*mesh.GetNode(i)->rGetLocation()[1];
@@ -175,20 +175,20 @@ public:
 
         h=1e-8; // needs to be smaller for this one
 
-        for(unsigned j=0; j<num_dofs; j++)
+        for (unsigned j=0; j<num_dofs; j++)
         {
             assembler.mCurrentSolution[j] += h;
             assembler.AssembleSystem(true, false);
 
             ReplicatableVector perturbed_rhs( assembler.mpLinearSystem->rGetRhsVector() );
 
-            for(unsigned i=0; i<num_dofs; i++)
+            for (unsigned i=0; i<num_dofs; i++)
             {
-                if((lo<=(int)i) && ((int)i<hi))
+                if ((lo<=(int)i) && ((int)i<hi))
                 {
                     double analytic_matrix_val = assembler.mpLinearSystem->GetMatrixElement(i,j);
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec2[i])/h;
-                    if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
+                    if ((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
                         // relative error
                         TS_ASSERT_DELTA( (analytic_matrix_val-numerical_matrix_val)/analytic_matrix_val, 0.0, 1e-2);
@@ -218,9 +218,9 @@ public:
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(c1);
 
         std::vector<unsigned> fixed_nodes;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
             {
                 fixed_nodes.push_back(i);
             }
@@ -253,7 +253,7 @@ public:
         // check the final pressure
         std::vector<double>& r_pressures = assembler.rGetPressures();
         TS_ASSERT_EQUALS(r_pressures.size(), mesh.GetNumVertices());
-        for(unsigned i=0; i<r_pressures.size(); i++)
+        for (unsigned i=0; i<r_pressures.size(); i++)
         {
             TS_ASSERT_DELTA(r_pressures[i], 2*c1, 1e-6);
         }
@@ -273,9 +273,9 @@ public:
         laws.push_back(&law_2);
 
         std::vector<unsigned> fixed_nodes;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
             {
                 fixed_nodes.push_back(i);
             }
@@ -311,9 +311,9 @@ public:
         body_force(1) = 0.0;
 
         std::vector<unsigned> fixed_nodes;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
             {
                 fixed_nodes.push_back(i);
             }
@@ -401,9 +401,9 @@ public:
 
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,2> > locations;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
             {
                 fixed_nodes.push_back(i);
                 c_vector<double,2> new_position;
@@ -418,12 +418,12 @@ public:
         c_vector<double,2> traction;
         traction(0) = 2*c1*(pow(lambda,-1) - lambda*lambda*lambda);
         traction(1) = 0;
-        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
         {
-            if(fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
+            if (fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
             {
                 BoundaryElement<1,2>* p_element = *iter;
                 boundary_elems.push_back(p_element);
@@ -446,14 +446,14 @@ public:
 
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 
-        for(unsigned i=0; i<fixed_nodes.size(); i++)
+        for (unsigned i=0; i<fixed_nodes.size(); i++)
         {
             unsigned index = fixed_nodes[i];
             TS_ASSERT_DELTA(r_solution[index](0), locations[i](0), 1e-8);
             TS_ASSERT_DELTA(r_solution[index](1), locations[i](1), 1e-8);
         }
 
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double exact_x = (1.0/lambda)*mesh.GetNode(i)->rGetLocation()[0];
             double exact_y = lambda*mesh.GetNode(i)->rGetLocation()[1];
@@ -462,7 +462,7 @@ public:
             TS_ASSERT_DELTA( r_solution[i](1), exact_y, 1e-5 );
         }
 
-        for(unsigned i=0; i<mesh.GetNumVertices(); i++)
+        for (unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
             TS_ASSERT_DELTA( assembler.rGetPressures()[i], 2*c1*lambda*lambda, 1e-6 );
         }
@@ -497,22 +497,22 @@ public:
         MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
 
         std::vector<unsigned> fixed_nodes;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            if( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            if ( fabs(mesh.GetNode(i)->rGetLocation()[0])<1e-6)
             {
                 fixed_nodes.push_back(i);
             }
         }
 
         std::vector<BoundaryElement<1,2>*> boundary_elems;
-        for(TetrahedralMesh<2,2>::BoundaryElementIterator iter
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
         {
             // get all boundary elems except those on X=0
-            if(fabs((*iter)->CalculateCentroid()[0])>1e-6)
+            if (fabs((*iter)->CalculateCentroid()[0])>1e-6)
             {
                 BoundaryElement<1,2>* p_element = *iter;
                 boundary_elems.push_back(p_element);
@@ -537,7 +537,7 @@ public:
 
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double X = mesh.GetNode(i)->rGetLocation()[0];
             double Y = mesh.GetNode(i)->rGetLocation()[1];
@@ -549,7 +549,7 @@ public:
             TS_ASSERT_DELTA(r_solution[i](1), exact_y, 1e-4);
         }
 
-        for(unsigned i=0; i<assembler.rGetPressures().size(); i++)
+        for (unsigned i=0; i<assembler.rGetPressures().size(); i++)
         {
             TS_ASSERT_DELTA( assembler.rGetPressures()[i]/(2*MATERIAL_PARAM), 1.0, 1e-3);
         }

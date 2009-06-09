@@ -631,7 +631,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
-        for(TetrahedralMesh<2,2>::BoundaryNodeIterator iter =
+        for (TetrahedralMesh<2,2>::BoundaryNodeIterator iter =
               mesh.GetBoundaryNodeIteratorBegin();
             iter != mesh.GetBoundaryNodeIteratorEnd();
             iter++)
@@ -691,7 +691,7 @@ public:
 
             VecGetOwnershipRange(vector,&petsc_lo,&petsc_hi);
 
-            if(PetscTools::GetMyRank() == 0)
+            if (PetscTools::GetMyRank() == 0)
             {
                 TS_ASSERT_EQUALS(0, petsc_lo);
                 TS_ASSERT_EQUALS(2, petsc_hi);

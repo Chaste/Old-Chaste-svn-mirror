@@ -257,7 +257,7 @@ void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 {
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_det;
-    for(unsigned i=0; i<mrMesh.GetNumElements(); i++)
+    for (unsigned i=0; i<mrMesh.GetNumElements(); i++)
     {
         mrMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);
 

@@ -242,11 +242,11 @@ public:
 
         some_system.AssembleFinalLinearSystem();
 
-        if(PetscTools::NumProcs()==1)
+        if (PetscTools::NumProcs()==1)
         {
-            for(int i=0; i<SIZE; i++)
+            for (int i=0; i<SIZE; i++)
             {
-                for(int j=i+1; j<SIZE; j++)
+                for (int j=i+1; j<SIZE; j++)
                 {
                     double a_ij = some_system.GetMatrixElement(i,j);
                     double a_ji = some_system.GetMatrixElement(j,i);

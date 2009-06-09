@@ -54,9 +54,9 @@ public:
         
         NodeBox<2> test_box(box_size);
         c_vector<double, 2*2> returned_min_max_values = test_box.rGetMinAndMaxValues();
-        for (unsigned i=0;i<4;i++)
+        for (unsigned i=0; i<4; i++)
         {
-            TS_ASSERT_EQUALS(returned_min_max_values(i),box_size(i));
+            TS_ASSERT_EQUALS(returned_min_max_values(i), box_size(i));
         }
     
         c_vector<double, 2> node_location;

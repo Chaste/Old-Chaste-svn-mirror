@@ -272,7 +272,7 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
         // the RHS is assembled without using matrix-based assembly
         // in the first timestep (when the LHS matrix is set up) - no
         // easy way around this
-        if(!mUseMatrixBasedRhsAssembly || !mMatrixIsAssembled)
+        if (!mUseMatrixBasedRhsAssembly || !mMatrixIsAssembled)
         {
             // matrix is constant case: only assembler matrix the first time
             // matrix is not constant case: always assemble
@@ -286,7 +286,7 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
             next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
         }
 
-        if(mMatrixIsConstant)
+        if (mMatrixIsConstant)
         {
             mMatrixIsAssembled = true;
         }

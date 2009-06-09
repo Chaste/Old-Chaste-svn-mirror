@@ -222,7 +222,7 @@ public:
      * @param pNewNode pointer to the new node
      * @return global index of new node in tissue
      */
-    unsigned AddNode(Node<DIM> *pNewNode);
+    unsigned AddNode(Node<DIM>* pNewNode);
 
     /**
      * Overridden SetNode() method.

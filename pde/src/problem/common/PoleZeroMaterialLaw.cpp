@@ -47,13 +47,13 @@ void PoleZeroMaterialLaw<DIM>::SetParameters(std::vector<std::vector<double> > k
     assert(a.size()==DIM);
     assert(b.size()==DIM);
 
-    for(unsigned i=0; i<DIM; i++)
+    for (unsigned i=0; i<DIM; i++)
     {
         assert(k[i].size()==DIM);
         assert(a[i].size()==DIM);
         assert(b[i].size()==DIM);
 
-        for(unsigned j=0; j<DIM; j++)
+        for (unsigned j=0; j<DIM; j++)
         {
             assert( k[i][j] = k[j][i] );
             assert( a[i][j] = a[j][i] );
@@ -65,9 +65,9 @@ void PoleZeroMaterialLaw<DIM>::SetParameters(std::vector<std::vector<double> > k
     mA = a;
     mB = b;
 
-    for(unsigned M=0; M<DIM; M++)
+    for (unsigned M=0; M<DIM; M++)
     {
-        for(unsigned N=0; N<DIM; N++)
+        for (unsigned N=0; N<DIM; N++)
         {
             mIdentity(M,N) = M==N ? 1.0 : 0.0;
         }
@@ -94,12 +94,12 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
 
     c_matrix<double,DIM,DIM> E = 0.5*(C-mIdentity);
 
-    for(unsigned M=0; M<DIM; M++)
+    for (unsigned M=0; M<DIM; M++)
     {
-        for(unsigned N=0; N<DIM; N++)
+        for (unsigned N=0; N<DIM; N++)
         {
             double e = E(M,N);
-          //  if(e > 0)
+          //  if (e > 0)
             {
                 double b = mB[M][N];
                 double a = mA[M][N];
@@ -121,22 +121,22 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
         }
     }
 
-    if(computeDTdE)
+    if (computeDTdE)
     {
-        for(unsigned M=0; M<DIM; M++)
+        for (unsigned M=0; M<DIM; M++)
         {
-            for(unsigned N=0; N<DIM; N++)
+            for (unsigned N=0; N<DIM; N++)
             {
-                for(unsigned P=0; P<DIM; P++)
+                for (unsigned P=0; P<DIM; P++)
                 {
-                    for(unsigned Q=0; Q<DIM; Q++)
+                    for (unsigned Q=0; Q<DIM; Q++)
                     {
                         dTdE(M,N,P,Q) = 2 * pressure * invC(M,P) * invC(Q,N);
                     }
                 }
 
                 double e = E(M,N);
-             //   if(e > 0)
+             //   if (e > 0)
                 {
                     double b = mB[M][N];
                     double a = mA[M][N];
@@ -165,9 +165,9 @@ template<unsigned DIM>
 void PoleZeroMaterialLaw<DIM>::ScaleMaterialParameters(double scaleFactor)
 {
     assert(scaleFactor > 0.0);
-    for(unsigned i=0; i<mK.size(); i++)
+    for (unsigned i=0; i<mK.size(); i++)
     {
-        for(unsigned j=0; j<mK[i].size(); j++)
+        for (unsigned j=0; j<mK[i].size(); j++)
         {
             mK[i][j] /= scaleFactor;
         }

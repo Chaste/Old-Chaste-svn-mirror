@@ -61,8 +61,8 @@ void BackwardEulerIvpOdeSolver::ComputeJacobian(AbstractOdeSystem* pAbstractOdeS
     if (pAbstractOdeSystem->GetUseAnalyticJacobian() && !mForceUseOfNumericalJacobian)
     {
         // The ODE system has an analytic jacobian, so use that
-        AbstractOdeSystemWithAnalyticJacobian *p_ode_system
-        = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
+        AbstractOdeSystemWithAnalyticJacobian* p_ode_system
+            = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
         p_ode_system->AnalyticJacobian(rCurrentGuess, mJacobian, time, timeStep);
     }
     else

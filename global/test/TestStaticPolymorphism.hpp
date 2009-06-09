@@ -45,7 +45,7 @@ public :
 
     void Run()
     {
-        int total=0;
+        int total = 0;
         for (int i=0; i<1e8; i++)
         {
             total += Method(i);
@@ -67,7 +67,7 @@ public :
 
     void Run()
     {
-        int total=0;
+        int total = 0;
         for (int i=0; i<1e8; i++)
         {
             total += Method(i);
@@ -128,7 +128,7 @@ public :
 
     void Run()
     {
-        int total=0;
+        int total = 0;
         for (int i=0; i<1e8; i++)
         {
             total += static_cast<Derived*>(this)->Method(i);
@@ -165,30 +165,25 @@ public:
         single_class.Run();
         std::cout << "Single class: " << MPI_Wtime()-start_time << std::endl;
 
-
         DynamicBaseclass baseclass;
         start_time = MPI_Wtime();
         baseclass.Run();
         std::cout << "Dynamic baseclass: " << MPI_Wtime()-start_time << std::endl;
-
 
         DynamicSubclass subclass;
         start_time = MPI_Wtime();
         subclass.Run();
         std::cout << "Dynamic subclass: " << MPI_Wtime()-start_time << std::endl;
 
-
         DynamicSubsubsubclass subsubsubclass;
         start_time = MPI_Wtime();
         subsubsubclass.Run();
         std::cout << "Dynamic subsubsubclass: " << MPI_Wtime()-start_time << std::endl;
 
-
         StaticSubclass static_subclass;
         start_time = MPI_Wtime();
         static_subclass.Run();
         std::cout << "Static subclass: " << MPI_Wtime()-start_time << std::endl;
-
     }
 
 };

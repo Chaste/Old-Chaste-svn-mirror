@@ -72,7 +72,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
 {
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
     double x, y, z;
-    switch(ELEM_DIM)
+    switch (ELEM_DIM)
     {
     case 0:
         assert(basisIndex == 0);
@@ -186,7 +186,7 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
 
     double x, y, z;
-    switch(ELEM_DIM)
+    switch (ELEM_DIM)
     {
     case 1:
         x = rPoint[0];

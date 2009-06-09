@@ -819,11 +819,11 @@ public:
 
             // Each node in the forward star should appear exactly twice.  Sort and test.
             sort(indices.begin(), indices.end());
-            for (unsigned i=0; i<indices.size();i++)
+            for (unsigned i=0; i<indices.size(); i++)
             {
                 if (i%2 == 0)
                 {
-                   TS_ASSERT_EQUALS(indices[i],indices[i+1])
+                   TS_ASSERT_EQUALS(indices[i], indices[i+1]);
                 }
             }
         }

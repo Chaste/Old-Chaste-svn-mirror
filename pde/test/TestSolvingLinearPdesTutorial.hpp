@@ -182,7 +182,7 @@ public:
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
             /* if x=0 or y=0.. */
-            if((x==0) || (y==0))
+            if ((x==0) || (y==0))
             {
                 /* ..create a new {{{ConstBoundaryConditions}}} object. This is a subclass of
                  * {{{AbstractBoundaryCondition}}}, and tells the caller what value to return
@@ -229,7 +229,7 @@ public:
             double y = mesh.GetNode(node_index)->GetPoint()[1];
 
             /* if x=1 or y=1.. */
-            if( (fabs(x-1.0) < 1e-6) || (fabs(y-1.0) < 1e-6) )
+            if ( (fabs(x-1.0) < 1e-6) || (fabs(y-1.0) < 1e-6) )
             {
                 /* associate the boundary condition with the surface element */
                 bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
@@ -358,7 +358,7 @@ public:
         /* We can now compare the solution of the parabolic PDE at t=1 with the static solution,
          * to see if the static equilibrium solution was reached in the former. (Ideally we should
          * compute some relative error, but we just compute an absolute error for simplicity). */
-        for(unsigned i=0; i<static_solution_repl.size(); i++)
+        for (unsigned i=0; i<static_solution_repl.size(); i++)
         {
             TS_ASSERT_DELTA( solution_repl[i], static_solution_repl[i], 1e-3);
         }

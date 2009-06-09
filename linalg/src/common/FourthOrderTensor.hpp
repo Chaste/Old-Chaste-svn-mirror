@@ -124,16 +124,16 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
     {
         case 0:
         {
-            for(unsigned M=0; M<DIM; M++)
+            for (unsigned M=0; M<DIM; M++)
             {
-                for(unsigned N=0; N<DIM; N++)
+                for (unsigned N=0; N<DIM; N++)
                 {
-                    for(unsigned P=0; P<DIM; P++)
+                    for (unsigned P=0; P<DIM; P++)
                     {
-                        for(unsigned Q=0; Q<DIM; Q++)
+                        for (unsigned Q=0; Q<DIM; Q++)
                         {
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                            for(unsigned s=0; s<DIM; s++)
+                            for (unsigned s=0; s<DIM; s++)
                             {
                                 mData[index] += matrix(M,s) * tensor(s,N,P,Q);
                             }
@@ -145,16 +145,16 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
         }
         case 1:
         {
-            for(unsigned M=0; M<DIM; M++)
+            for (unsigned M=0; M<DIM; M++)
             {
-                for(unsigned N=0; N<DIM; N++)
+                for (unsigned N=0; N<DIM; N++)
                 {
-                    for(unsigned P=0; P<DIM; P++)
+                    for (unsigned P=0; P<DIM; P++)
                     {
-                        for(unsigned Q=0; Q<DIM; Q++)
+                        for (unsigned Q=0; Q<DIM; Q++)
                         {
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                            for(unsigned s=0; s<DIM; s++)
+                            for (unsigned s=0; s<DIM; s++)
                             {
                                 mData[index] += matrix(N,s) * tensor(M,s,P,Q);
                             }
@@ -166,16 +166,16 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
         }
         case 2:
         {
-            for(unsigned M=0; M<DIM; M++)
+            for (unsigned M=0; M<DIM; M++)
             {
-                for(unsigned N=0; N<DIM; N++)
+                for (unsigned N=0; N<DIM; N++)
                 {
-                    for(unsigned P=0; P<DIM; P++)
+                    for (unsigned P=0; P<DIM; P++)
                     {
-                        for(unsigned Q=0; Q<DIM; Q++)
+                        for (unsigned Q=0; Q<DIM; Q++)
                         {
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                            for(unsigned s=0; s<DIM; s++)
+                            for (unsigned s=0; s<DIM; s++)
                             {
                                 mData[index] += matrix(P,s) * tensor(M,N,s,Q);
                             }
@@ -187,16 +187,16 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
         }
         case 3:
         {
-            for(unsigned M=0; M<DIM; M++)
+            for (unsigned M=0; M<DIM; M++)
             {
-                for(unsigned N=0; N<DIM; N++)
+                for (unsigned N=0; N<DIM; N++)
                 {
-                    for(unsigned P=0; P<DIM; P++)
+                    for (unsigned P=0; P<DIM; P++)
                     {
-                        for(unsigned Q=0; Q<DIM; Q++)
+                        for (unsigned Q=0; Q<DIM; Q++)
                         {
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
-                            for(unsigned s=0; s<DIM; s++)
+                            for (unsigned s=0; s<DIM; s++)
                             {
                                 mData[index] += matrix(Q,s) * tensor(M,N,P,s);
                             }

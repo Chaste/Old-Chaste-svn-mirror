@@ -371,7 +371,7 @@ public:
         TS_ASSERT_EQUALS(status, 0);
 
         // Check the index
-        for (unsigned i=0;i<data_size;i++)
+        for (unsigned i=0; i<data_size; i++)
         {
             TS_ASSERT_EQUALS(((unsigned)data[i]%100), i);
         }

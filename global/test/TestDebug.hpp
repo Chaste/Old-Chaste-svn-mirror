@@ -43,7 +43,7 @@ public:
     {
         TRACE("Some trace");
         //Note that these macros do nothing in NDEBUG -- we should ensure that the variables get used anyway.
-        double use_vars=0.0;
+        double use_vars = 0.0;
 
         unsigned my_var = 3141;
         PRINT_VARIABLE(my_var);
@@ -63,24 +63,24 @@ public:
 
         std::cout << "\n\n";
 
-        for(unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             HOW_MANY_TIMES_HERE("inside for loop");
 
-            for(unsigned j=0; j<2; j++)
+            for (unsigned j=0; j<2; j++)
             {
                 HOW_MANY_TIMES_HERE("nested loop");
             }
         }
 
-        for(unsigned j=0; j<10 /*change to 11 and it should quit*/; j++)
+        for (unsigned j=0; j<10 /*change to 11 and it should quit*/; j++)
         {
             QUIT_AFTER_N_VISITS(11);
         }
 
         std::cout << "\n\n\n";
 
-        for(unsigned j=0; j<3; j++)
+        for (unsigned j=0; j<3; j++)
         {
             TRACE_FROM_NTH_VISIT("hello",2);
         }

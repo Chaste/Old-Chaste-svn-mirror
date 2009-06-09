@@ -263,7 +263,6 @@ public:
         {
             TS_ASSERT_DELTA(derivs[i],0.0, 1e-9);
         }
-
     }
 
     /**

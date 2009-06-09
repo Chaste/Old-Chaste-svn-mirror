@@ -114,7 +114,7 @@ protected:
      * @param phiI
      * @param pNode
      */
-    void IncrementInterpolatedQuantities(double phiI, const Node<DIM> *pNode);
+    void IncrementInterpolatedQuantities(double phiI, const Node<DIM>* pNode);
 
 public:
 

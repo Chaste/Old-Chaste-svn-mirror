@@ -425,7 +425,7 @@ public:
     void TestPoleZeroMaterialLaw()
     {
         std::vector<std::vector<double> > k(2),a(2),b(2);
-        for(unsigned i=0; i<2; i++)
+        for (unsigned i=0; i<2; i++)
         {
             k[i].resize(2);
             a[i].resize(2);
@@ -474,14 +474,14 @@ public:
 //        // C such that E_MN < 0, p=0 => T=0, dTdE=0;
 //        pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 //
-//        for(unsigned M=0; M<2; M++)
+//        for (unsigned M=0; M<2; M++)
 //        {
-//            for(unsigned N=0; N<2; N++)
+//            for (unsigned N=0; N<2; N++)
 //            {
 //                TS_ASSERT_DELTA(T(M,N), 0.0, 1e-9);
-//                for(unsigned P=0; P<2; P++)
+//                for (unsigned P=0; P<2; P++)
 //                {
-//                    for(unsigned Q=0; Q<2; Q++)
+//                    for (unsigned Q=0; Q<2; Q++)
 //                    {
 //                        TS_ASSERT_DELTA(dTdE(M,N,P,Q), 0.0, 1e-9);
 //                    }
@@ -517,15 +517,15 @@ public:
         TS_ASSERT_DELTA(dTdE(1,0,1,0), dtde10, 1e-9);
         TS_ASSERT_DELTA(dTdE(1,1,1,1), dtde11, 1e-9);
 
-        for(unsigned M=0; M<2; M++)
+        for (unsigned M=0; M<2; M++)
         {
-            for(unsigned N=0; N<2; N++)
+            for (unsigned N=0; N<2; N++)
             {
-                for(unsigned P=0; P<2; P++)
+                for (unsigned P=0; P<2; P++)
                 {
-                    for(unsigned Q=0; Q<2; Q++)
+                    for (unsigned Q=0; Q<2; Q++)
                     {
-                        if((P!=M) || (Q!=N))
+                        if ((P!=M) || (Q!=N))
                         {
                             TS_ASSERT_DELTA(dTdE(M,N,P,Q), 0.0, 1e-9);
                         }
@@ -552,14 +552,14 @@ public:
         pole_zero_law.ComputeStressAndStressDerivative(C, invC, 0.0, T,  dTdE,  true);
         pole_zero_law.ComputeStressAndStressDerivative(C, invC, 1.0, T2, dTdE2, true);
 
-        for(unsigned M=0; M<2; M++)
+        for (unsigned M=0; M<2; M++)
         {
-            for(unsigned N=0; N<2; N++)
+            for (unsigned N=0; N<2; N++)
             {
                 TS_ASSERT_DELTA(T(M,N) - T2(M,N), invC(M,N), 1e-6);
-                for(unsigned P=0; P<2; P++)
+                for (unsigned P=0; P<2; P++)
                 {
-                    for(unsigned Q=0; Q<2; Q++)
+                    for (unsigned Q=0; Q<2; Q++)
                     {
                         TS_ASSERT_DELTA(dTdE(M,N,P,Q)-dTdE2(M,N,P,Q), -2*invC(M,P)*invC(Q,N), 1e-6);
                     }
@@ -571,7 +571,7 @@ public:
     void TestPoleZeroMaterialLaw3d()
     {
         std::vector<std::vector<double> > k(3),a(3),b(3);
-        for(unsigned i=0; i<3; i++)
+        for (unsigned i=0; i<3; i++)
         {
             k[i].resize(3);
             a[i].resize(3);
@@ -732,7 +732,7 @@ public:
 
         double h=0.0001;
 
-        for(unsigned M=0; M<2; M++)
+        for (unsigned M=0; M<2; M++)
         {
             c_matrix<double,2,2> C;
             c_matrix<double,2,2> invC;
@@ -749,9 +749,9 @@ public:
 
             law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
-            for(unsigned P=0; P<2; P++)
+            for (unsigned P=0; P<2; P++)
             {
-                for(unsigned Q=0; Q<2; Q++)
+                for (unsigned Q=0; Q<2; Q++)
                 {
                     double dtdc = (T(P,Q)-T_base(P,Q))/h;
                     //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n";
@@ -801,7 +801,7 @@ public:
 
         double h=0.00001;
 
-        for(unsigned M=0; M<2; M++)
+        for (unsigned M=0; M<2; M++)
         {
             c_matrix<double,2,2> C;
             c_matrix<double,2,2> invC;
@@ -818,9 +818,9 @@ public:
 
             law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
-            for(unsigned P=0; P<2; P++)
+            for (unsigned P=0; P<2; P++)
             {
-                for(unsigned Q=0; Q<2; Q++)
+                for (unsigned Q=0; Q<2; Q++)
                 {
                     double dtdc = (T(P,Q)-T_base(P,Q))/h;
                     //std::cout << P << Q << M << M << " " << dTdE(P,Q,M,M) << "\n";

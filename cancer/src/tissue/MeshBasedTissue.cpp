@@ -88,7 +88,7 @@ void MeshBasedTissue<DIM>::SetAreaBasedDampingConstant(bool useAreaBasedDampingC
 }
 
 template<unsigned DIM>
-unsigned MeshBasedTissue<DIM>::AddNode(Node<DIM> *pNewNode)
+unsigned MeshBasedTissue<DIM>::AddNode(Node<DIM>* pNewNode)
 {
     return mrMesh.AddNode(pNewNode);
 }

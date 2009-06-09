@@ -129,7 +129,7 @@ public:
 
         p_log_file->Set(1, "TestLogFile", "log4.txt");
 
-        unsigned i=0;
+        unsigned i = 0;
 
         LOG(1, "Level 1 info, will be written. i = " << i);
         LOG(2, "Level 2 info, WONT be written. i = " << i);
@@ -149,7 +149,7 @@ public:
 
         p_log_file->WriteHeader("Complete human");
 
-        // for(unsigned i=0; i<1e9; i++);
+        // for (unsigned i=0; i<1e9; i++);
         p_log_file->WriteElapsedTime(" -> ");
 
         LogFile::Close();
@@ -157,7 +157,7 @@ public:
         // the file will be different on different occasions (as the date is printed),
         // so we test by reading it in
         std::ifstream ifs((OutputFileHandler::GetChasteTestOutputDirectory()+"TestLogFile/log5.txt").c_str());
-        if(ifs.is_open())
+        if (ifs.is_open())
         {
             std::string line;
             // get the second line

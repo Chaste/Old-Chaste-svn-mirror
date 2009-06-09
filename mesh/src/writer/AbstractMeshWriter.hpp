@@ -249,8 +249,8 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
      AbstractMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
     NodeMap node_map(rMesh.GetNumAllNodes());
-    unsigned new_index=0;
-    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes();i++)
+    unsigned new_index = 0;
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
     {
         Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
 
@@ -314,15 +314,15 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
-    for (unsigned i=0; i<rMeshReader.GetNumNodes();i++)
+    for (unsigned i=0; i<rMeshReader.GetNumNodes(); i++)
     {
         SetNextNode(rMeshReader.GetNextNode());
     }
-    for (unsigned i=0; i<rMeshReader.GetNumElements();i++)
+    for (unsigned i=0; i<rMeshReader.GetNumElements(); i++)
     {
         this->SetNextElement(rMeshReader.GetNextElementData().NodeIndices);
     }
-    for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
+    for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
     {
         this->SetNextBoundaryFace(rMeshReader.GetNextFaceData().NodeIndices);
     }
@@ -341,17 +341,17 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     else
     {
         mNodeData.resize(rMeshReader.GetNumNodes());
-        for (unsigned i=0; i<rMeshReader.GetNumNodes();i++)
+        for (unsigned i=0; i<rMeshReader.GetNumNodes(); i++)
         {
             assert(rNodePermutation[i] < rMeshReader.GetNumNodes());
             mNodeData[ rNodePermutation[i] ] = rMeshReader.GetNextNode();
         }
 
-        for (unsigned i=0; i<rMeshReader.GetNumElements();i++)
+        for (unsigned i=0; i<rMeshReader.GetNumElements(); i++)
         {
             ElementData element = rMeshReader.GetNextElementData();
 
-            for(unsigned local_index=0; local_index<element.NodeIndices.size(); local_index++)
+            for (unsigned local_index=0; local_index<element.NodeIndices.size(); local_index++)
             {
                 unsigned old_index = element.NodeIndices[local_index];
                 element.NodeIndices[local_index] = rNodePermutation[old_index];
@@ -360,11 +360,11 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
             SetNextElement(element.NodeIndices);
         }
 
-        for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
+        for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
         {
             ElementData face = rMeshReader.GetNextFaceData();
 
-            for(unsigned local_index=0; local_index<face.NodeIndices.size(); local_index++)
+            for (unsigned local_index=0; local_index<face.NodeIndices.size(); local_index++)
             {
                 unsigned old_index = face.NodeIndices[local_index];
                 face.NodeIndices[local_index] = rNodePermutation[old_index];

@@ -111,7 +111,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
-        for (unsigned i=0;i<SPACE_DIM;i++)
+        for (unsigned i=0; i<SPACE_DIM; i++)
         {
             *p_node_file << current_item[i] << "\t";
         }
@@ -188,7 +188,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         for (unsigned item_num=0; item_num<num_faces; item_num++)
         {
             std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
-            for (unsigned i=0;i<ELEMENT_DIM;i++)
+            for (unsigned i=0; i<ELEMENT_DIM; i++)
             {
                 if (this->mIndexFromZero)
                 {

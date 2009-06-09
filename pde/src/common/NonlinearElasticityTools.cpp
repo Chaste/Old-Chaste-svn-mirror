@@ -34,15 +34,15 @@ std::vector<unsigned> NonlinearElasticityTools<DIM>::GetNodesByComponentValue(Te
 {
     std::vector<unsigned> fixed_nodes;
     double tol = 1e-8;
-    for(unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
-        if( fabs(rMesh.GetNode(i)->rGetLocation()[component] - value)<1e-8)
+        if ( fabs(rMesh.GetNode(i)->rGetLocation()[component] - value)<1e-8)
         {
             fixed_nodes.push_back(i);
         }
     }
 
-    if(fixed_nodes.size()==0)
+    if (fixed_nodes.size()==0)
     {
         std::stringstream error;
         error << "Could not find any nodes on requested surface (note: tolerance = "<<tol<<")";

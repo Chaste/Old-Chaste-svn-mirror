@@ -82,7 +82,7 @@ public:
         assert(quad_rule.GetNumQuadPoints()==4);
         TS_ASSERT_EQUALS(group.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(group.GetNumQuadPointsPerElement(), 4u);
-        for(unsigned quad_index=0; quad_index<4; quad_index++)
+        for (unsigned quad_index=0; quad_index<4; quad_index++)
         {
             c_vector<double,2> X = group.Get(0, quad_index);
             TS_ASSERT_LESS_THAN(X(0)+X(1), 1.0); // quad point in elem 0, so x+y<1
@@ -92,7 +92,7 @@ public:
         }
          
         TS_ASSERT_EQUALS(group.Size(), 8u);
-        for(unsigned index=0; index<group.Size(); index++)
+        for (unsigned index=0; index<group.Size(); index++)
         {
             TS_ASSERT_LESS_THAN(group.Get(index)[0], 0.8);
             TS_ASSERT_LESS_THAN(0.2, group.Get(index)[0]);

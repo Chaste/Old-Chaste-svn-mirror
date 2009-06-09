@@ -76,31 +76,31 @@ public:
 
         double Z = X(2);
 
-        if( fabs(X(0)-1)<1e-6 )
+        if ( fabs(X(0)-1)<1e-6 )
         {
             traction(0) =  lam1 - invlam1;
             traction(1) =  0.0;
             traction(2) =  -a*Z*invlam1*invlam1*invlam2;
         }
-        else if( fabs(X(1)-0)<1e-6 )
+        else if ( fabs(X(1)-0)<1e-6 )
         {
             traction(0) =  0.0;
             traction(1) =  0.0;
             traction(2) =  b*Z*invlam1;
         }
-        else if( fabs(X(1)-1)<1e-6 )
+        else if ( fabs(X(1)-1)<1e-6 )
         {
             traction(0) =  0.0;
             traction(1) =  lam2 - invlam2;
             traction(2) =  -b*Z*invlam2*invlam2*invlam1;
         }
-        else if( fabs(X(2)-0)<1e-6 )
+        else if ( fabs(X(2)-0)<1e-6 )
         {
             traction(0) =  0.0;
             traction(1) =  0.0;
             traction(2) =  lam1*lam2 - invlam1*invlam2;
         }
-        else if( fabs(X(2)-1)<1e-6 )
+        else if ( fabs(X(2)-1)<1e-6 )
         {
             traction(0) =  -a*invlam1*invlam1;
             traction(1) =  -b*invlam2*invlam2;
@@ -155,14 +155,14 @@ public:
         // Define displacement boundary conditions
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,3> > locations;
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double X = mesh.GetNode(i)->rGetLocation()[0];
             double Y = mesh.GetNode(i)->rGetLocation()[1];
             double Z = mesh.GetNode(i)->rGetLocation()[2];
 
             // if X=0
-            if( fabs(X)<1e-6)
+            if ( fabs(X)<1e-6)
             {
                 fixed_nodes.push_back(i);
                 c_vector<double,3> new_position;
@@ -177,12 +177,12 @@ public:
         // Define traction boundary conditions
         // on all boundary elems that are not on X=0
         std::vector<BoundaryElement<2,3>*> boundary_elems;
-        for(TetrahedralMesh<3,3>::BoundaryElementIterator iter
+        for (TetrahedralMesh<3,3>::BoundaryElementIterator iter
               = mesh.GetBoundaryElementIteratorBegin();
             iter != mesh.GetBoundaryElementIteratorEnd();
             ++iter)
         {
-            if(fabs((*iter)->CalculateCentroid()[0])>1e-6)
+            if (fabs((*iter)->CalculateCentroid()[0])>1e-6)
             {
                 BoundaryElement<2,3>* p_element = *iter;
                 boundary_elems.push_back(p_element);
@@ -204,7 +204,7 @@ public:
         // compare
         std::vector<c_vector<double,3> >& r_solution = assembler.rGetDeformedPosition();
 
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double X = mesh.GetNode(i)->rGetLocation()[0];
             double Y = mesh.GetNode(i)->rGetLocation()[1];
@@ -219,7 +219,7 @@ public:
             TS_ASSERT_DELTA(r_solution[i](2), exact_z, 1e-2);
         }
 
-        for(unsigned i=0; i<mesh.GetNumVertices(); i++)
+        for (unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
             TS_ASSERT_DELTA( assembler.rGetPressures()[i]/(2*ThreeDimensionalModelProblem::c1), 1.0, 2e-1);
         }

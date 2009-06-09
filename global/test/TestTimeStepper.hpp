@@ -52,9 +52,9 @@ public:
     {
         const double smidge=1e-10;
 
-        double start_time=0.0;
-        double end_time=2.0;
-        double timestep=3.7e-05;
+        double start_time = 0.0;
+        double end_time = 2.0;
+        double timestep = 3.7e-05;
 
         ////////////////////////////////////////////////////////
         // This is how a time stepper is normally used
@@ -128,8 +128,8 @@ public:
         TS_ASSERT_THROWS_ANYTHING( TimeStepper bad_const_dt_stepper2(0.0, 1.0, 0.99999999, true) );
         
         TimeStepper const_dt_stepper(0.0, 1.0, 0.1, true);
-        unsigned counter=0;
-        while(!const_dt_stepper.IsTimeAtEnd())
+        unsigned counter = 0;
+        while (!const_dt_stepper.IsTimeAtEnd())
         {
             counter++;
             const_dt_stepper.AdvanceOneTimeStep();

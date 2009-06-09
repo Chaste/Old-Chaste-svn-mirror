@@ -48,7 +48,7 @@ public:
         srandom(0);
         ran1=(double)random()/RAND_MAX;
 
-        RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
         double ran2=p_gen->ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
@@ -58,7 +58,7 @@ public:
 
     void TestNewMethodSeed()
     {
-        RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         double ran2=p_gen->ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
 
@@ -71,7 +71,7 @@ public:
         srandom(36);
         ran1=(double)random()/RAND_MAX;
 
-        RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         p_gen->Reseed(36);
 
 
@@ -92,13 +92,13 @@ public:
 
         // Create and archive random number generator
         {    // Save random number generator
-            RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(5);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            for(unsigned i=0; i<5; i++)
+            for (unsigned i=0; i<5; i++)
             {
                 p_gen->ranf();
             }
@@ -113,7 +113,7 @@ public:
 
             // Generator saved here - record the next 10 numbers
 
-            for(unsigned i=0; i<10; i++)
+            for (unsigned i=0; i<10; i++)
             {
                 double random = p_gen->ranf();
                 generated_numbers.push_back(random);
@@ -124,9 +124,9 @@ public:
 
         // Restore
         {
-            RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(25);    // any old seed.
-            for(unsigned i=0; i<7; i++)    // generate some numbers
+            for (unsigned i=0; i<7; i++)    // generate some numbers
             {
                 p_gen->ranf();
             }
@@ -138,7 +138,7 @@ public:
             // Random Number generator restored.
             // check it generates the same numbers as the one we saved.
 
-            for(unsigned i=0; i<generated_numbers.size(); i++)
+            for (unsigned i=0; i<generated_numbers.size(); i++)
             {
                 double random = p_gen->ranf();
                 TS_ASSERT_DELTA(random,generated_numbers[i],1e-7);
@@ -156,12 +156,12 @@ public:
         std::vector<unsigned> shuffled_results;
         p_gen->Shuffle(5,shuffled_results);
 
-        for(unsigned i=0; i<5; i++)
+        for (unsigned i=0; i<5; i++)
         {
             bool found = false;
-            for(unsigned j=0; j<shuffled_results.size(); j++)
+            for (unsigned j=0; j<shuffled_results.size(); j++)
             {
-                if(shuffled_results[j]==i)
+                if (shuffled_results[j]==i)
                 {
                     found = true;
                     break;
@@ -173,23 +173,23 @@ public:
         unsigned num_trials = 100000;
         c_matrix<unsigned,5,5> results = zero_matrix<unsigned>(5,5);
 
-        for(unsigned trial=0; trial<num_trials; trial++)
+        for (unsigned trial=0; trial<num_trials; trial++)
         {
-            p_gen->Shuffle(5,shuffled_results);
-            for(unsigned i=0;i<5;i++)
+            p_gen->Shuffle(5, shuffled_results);
+            for (unsigned i=0; i<5; i++)
             {
-                for(unsigned j=0;j<5;j++)
+                for (unsigned j=0; j<5; j++)
                 {
-                    if(shuffled_results[j] == i)
+                    if (shuffled_results[j] == i)
                     {
                         results(i,j)++;
                     }
                 }
             }
         }
-        for(unsigned i=0; i<5; i++)
+        for (unsigned i=0; i<5; i++)
         {
-            for(unsigned j=0; j<5; j++)
+            for (unsigned j=0; j<5; j++)
             {
                 // prob of i going to position j
                 double prob = (double)results(i,j)/num_trials;

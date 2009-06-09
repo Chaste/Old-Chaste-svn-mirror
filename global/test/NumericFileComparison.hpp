@@ -74,35 +74,35 @@ public:
     bool CompareFiles( double absTolerance=DBL_EPSILON)
     {
         double data1, data2;
-        unsigned failures=0;
-        double max_error=0.0;
-        unsigned max_failures=10;
-        bool empty_files=true;
+        unsigned failures = 0;
+        double max_error = 0.0;
+        unsigned max_failures = 10;
+        bool empty_files = true;
         while (*file1>>data1 && *file2>>data2)
         {
-            empty_files=false;
+            empty_files = false;
             double error=fabs(data1 - data2);
             if ( error > absTolerance )
             {
                 failures++;
-                //Force CxxTest error
+                // Force CxxTest error
                 TS_ASSERT_DELTA(data1, data2, absTolerance);
                 if (error > max_error)
                 {
-                    max_error=error;
+                    max_error = error;
                 }
             }
             if (failures > max_failures)
             {
-                break;//Don't clog the screen
+                break; // Don't clog the screen
             }
         }
-        //Can we read any more?
-        if(*file1>>data1 || *file2>>data2)
+        // Can we read any more?
+        if (*file1>>data1 || *file2>>data2)
         {
             EXCEPTION("Files have different lengths");
         }
-        //Force CxxTest error if there were any major differences
+        // Force CxxTest error if there were any major differences
         TS_ASSERT_LESS_THAN(max_error, absTolerance);
         TS_ASSERT(!empty_files);
         return (failures==0 && !empty_files);

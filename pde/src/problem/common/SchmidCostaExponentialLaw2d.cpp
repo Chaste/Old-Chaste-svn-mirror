@@ -46,9 +46,9 @@ SchmidCostaExponentialLaw2d::SchmidCostaExponentialLaw2d()
     mB[1][0] = bfs;
     mB[1][1] = bss;
 
-    for(unsigned M=0; M<2; M++)
+    for (unsigned M=0; M<2; M++)
     {
-        for(unsigned N=0; N<2; N++)
+        for (unsigned N=0; N<2; N++)
         {
             mIdentity(M,N) = M==N ? 1.0 : 0.0;
         }
@@ -65,9 +65,9 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
     c_matrix<double,2,2> E = 0.5*(C-mIdentity);
 
     double Q = 0;
-    for(unsigned M=0; M<2; M++)
+    for (unsigned M=0; M<2; M++)
     {
-        for(unsigned N=0; N<2; N++)
+        for (unsigned N=0; N<2; N++)
         {
             Q += mB[M][N]*E(M,N)*E(M,N);
         }
@@ -76,18 +76,18 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
     double multiplier = mA*exp(Q-1);
     dTdE.Zero();
 
-    for(unsigned M=0; M<2; M++)
+    for (unsigned M=0; M<2; M++)
     {
-        for(unsigned N=0; N<2; N++)
+        for (unsigned N=0; N<2; N++)
         {
             T(M,N) = multiplier*mB[M][N]*E(M,N) - pressure*invC(M,N);
 
-            if(computeDTdE)
+            if (computeDTdE)
             {
                 //dTdE(M,N,M,N) = multiplier * mB[M][N];
-                for(unsigned P=0; P<2; P++)
+                for (unsigned P=0; P<2; P++)
                 {
-                    for(unsigned Q=0; Q<2; Q++)
+                    for (unsigned Q=0; Q<2; Q++)
                     {
                         dTdE(M,N,P,Q) =    multiplier * mB[M][N] * (M==P)*(N==Q)
                                         +  2*multiplier*mB[M][N]*mB[P][Q]*E(M,N)*E(P,Q)

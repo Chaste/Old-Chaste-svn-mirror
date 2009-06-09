@@ -178,7 +178,7 @@ LinearSystem::~LinearSystem()
         KSPDestroy(mKspSolver);
     }
 
-    if(mDirichletBoundaryConditionsVector)
+    if (mDirichletBoundaryConditionsVector)
     {
         ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
@@ -448,7 +448,7 @@ Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
 
 void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 {
-    if(isSymmetric)
+    if (isSymmetric)
     {
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);

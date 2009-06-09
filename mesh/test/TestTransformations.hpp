@@ -183,7 +183,7 @@ public:
         TetrahedralMesh<3,3> original_mesh;
         original_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (unsigned i=0; i<mesh.GetNumNodes();i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             // Find new coordinates of the translated node
             Node<3>* p_node = mesh.GetNode(i);
@@ -457,7 +457,7 @@ public:
         TetrahedralMesh<3,3> original_mesh;
         original_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (unsigned i=0; i<mesh.GetNumNodes();i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<3>* p_node = mesh.GetNode(i);
             ChastePoint<3> new_coordinate = p_node->GetPoint();
@@ -493,7 +493,7 @@ public:
         TetrahedralMesh<2,2> original_mesh;
         original_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (unsigned i=0; i<mesh.GetNumNodes();i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             // Find new coordinates of the translated node
             Node<2>* p_node = mesh.GetNode(i);

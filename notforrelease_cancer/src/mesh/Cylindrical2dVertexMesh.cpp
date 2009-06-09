@@ -158,7 +158,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
     /*
      * If the mesh has an imposed flat bottom remove unnessesary nodes.
      */  
-    if(isFlatBottom) 
+    if (isFlatBottom) 
     {
         for (unsigned i=0; i<numAcross; i++)
         {

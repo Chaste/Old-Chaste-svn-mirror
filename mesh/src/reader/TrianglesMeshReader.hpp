@@ -305,7 +305,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
         element_data.NodeIndices.push_back(node_index - offset);
     }
 
-    if(mNumElementAttributes>0)
+    if (mNumElementAttributes > 0)
     {
         assert(mNumElementAttributes==1);
 
@@ -388,7 +388,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 
             mFacesRead++;
         }
-        while((mNumFaceAttributes==1) && (face_data.AttributeValue==0));
+        while ((mNumFaceAttributes==1) && (face_data.AttributeValue==0));
     }
 
     mBoundaryFacesRead++;
@@ -527,7 +527,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     {
         buffer_stream2 >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
 
-        if( mNumElementNodes != mNodesPerElement )
+        if ( mNumElementNodes != mNodesPerElement )
         {
             std::stringstream error;
             error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "
@@ -565,11 +565,11 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
         // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
         // the number of faces which are marked as boundary faces
-        if((mNumFaceAttributes==1) && (SPACE_DIM!=1))
+        if ((mNumFaceAttributes==1) && (SPACE_DIM!=1))
         {
             unsigned num_boundary_faces = 0;
             bool end_of_file=false;
-            while(!end_of_file)
+            while (!end_of_file)
             {
                 try
                 {

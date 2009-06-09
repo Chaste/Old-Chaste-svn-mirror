@@ -331,14 +331,14 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
         DumbNodePartitioning(rMeshReader, rNodesOwned);
     }
 
-    for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+    for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
     {
         ElementData element_data = rMeshReader.GetNextElementData();
 
         bool element_owned = false;
         std::set<unsigned> temp_halo_nodes;
 
-        for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
             if (rNodesOwned.find(element_data.NodeIndices[i]) != rNodesOwned.end())
             {
@@ -367,7 +367,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     bool cullInternalFaces)
 {
 
-    if(ELEMENT_DIM==1)
+    if (ELEMENT_DIM==1)
     {
         cullInternalFaces = true;
     }
@@ -465,13 +465,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
         {
             // if I own this node
-            if(mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
+            if (mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
             {
                 own = true;
             }
         }
 
-        if (!own )
+        if (!own)
         {
             // ticket #922: If we are culling internal faces we need to check if this is an external one before incrementing the index.
             //              This turned to be tricky in parallel... since you can't check it in faces you don't own.
@@ -489,7 +489,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
         {
             // if I own this node
-            if(mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
+            if (mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
             {
                 // Add Node pointer to list for creating an element
                 unsigned node_local_index = SolveNodeMapping(node_indices[node_index]);
@@ -497,7 +497,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
 
             // if I halo-own this node
-            if(mHaloNodesMapping.find(node_indices[node_index]) != mHaloNodesMapping.end())
+            if (mHaloNodesMapping.find(node_indices[node_index]) != mHaloNodesMapping.end())
             {
                 // Add Node pointer to list for creating an element
                 unsigned node_local_index = SolveHaloNodeMapping(node_indices[node_index]);
@@ -543,7 +543,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
         unsigned num_owned;
         unsigned rank = PetscTools::GetMyRank();
-        if( rank<PetscTools::NumProcs()-1 )
+        if ( rank<PetscTools::NumProcs()-1 )
         {
             num_owned =  proc_offsets[rank+1]-proc_offsets[rank];
         }
@@ -637,7 +637,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsig
 {
     std::map<unsigned, unsigned>::const_iterator node_position = mNodesMapping.find(index);
 
-    if(node_position == mNodesMapping.end())
+    if (node_position == mNodesMapping.end())
     {
         std::stringstream message;
         message << "Requested node " << index << " does not belong to processor " << PetscTools::GetMyRank();
@@ -658,7 +658,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(un
 {
     std::map<unsigned, unsigned>::const_iterator element_position = mElementsMapping.find(index);
 
-    if(element_position == mElementsMapping.end())
+    if (element_position == mElementsMapping.end())
     {
         std::stringstream message;
         message << "Requested element " << index << " does not belong to processor " << PetscTools::GetMyRank();
@@ -673,7 +673,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMa
 {
     std::map<unsigned, unsigned>::const_iterator boundary_element_position = mBoundaryElementsMapping.find(index);
 
-    if(boundary_element_position == mBoundaryElementsMapping.end())
+    if (boundary_element_position == mBoundaryElementsMapping.end())
     {
         std::stringstream message;
         message << "Requested boundary element " << index << " does not belong to processor " << PetscTools::GetMyRank();
@@ -689,7 +689,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
 {
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
     DistributedVector::SetProblemSize(mTotalNumNodes);
-    for(DistributedVector::Iterator node_number = DistributedVector::Begin(); 
+    for (DistributedVector::Iterator node_number = DistributedVector::Begin(); 
         node_number != DistributedVector::End();
         ++node_number)
     {
@@ -739,11 +739,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
 
 
         // Graph representation of the mesh
-        for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+        for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
         {
             ElementData element_data = rMeshReader.GetNextElementData();
 
-            for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+            for (unsigned i=0; i<ELEMENT_DIM+1; i++)
             {
                     (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
             }
@@ -849,11 +849,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     assert(elmnts != NULL);
 
     unsigned counter=0;
-    for(unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+    for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
     {
         ElementData element_data = rMeshReader.GetNextElementData();
 
-        for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
             elmnts[counter++] = element_data.NodeIndices[i];
         }

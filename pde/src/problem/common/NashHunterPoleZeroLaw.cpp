@@ -33,7 +33,7 @@ NashHunterPoleZeroLaw<3>::NashHunterPoleZeroLaw()
         : PoleZeroMaterialLaw<3>()
 {
     std::vector<std::vector<double> > k(3),a(3),b(3);
-    for(unsigned i=0; i<3; i++)
+    for (unsigned i=0; i<3; i++)
     {
         k[i].resize(3);
         a[i].resize(3);
@@ -76,7 +76,7 @@ NashHunterPoleZeroLaw<2>::NashHunterPoleZeroLaw()
         : PoleZeroMaterialLaw<2>()
 {
     std::vector<std::vector<double> > k(2),a(2),b(2);
-    for(unsigned i=0; i<2; i++)
+    for (unsigned i=0; i<2; i++)
     {
         k[i].resize(2);
         a[i].resize(2);

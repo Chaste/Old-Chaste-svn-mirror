@@ -55,7 +55,7 @@ public:
     ChildClass() : mTag(1)
     {
     }
-    void SetParent(ParentClass *pParent)
+    void SetParent(ParentClass* pParent)
     {
         mpParent = pParent;
     }
@@ -76,7 +76,7 @@ class ParentClass   // this is an abstract of a TissueCell.
 public:
     unsigned mTag;
     ChildClass *mpChild;
-    ParentClass(ChildClass *pChild) : mTag(0), mpChild(pChild)
+    ParentClass(ChildClass* pChild) : mTag(0), mpChild(pChild)
     {
         mpChild->SetParent(this);
     }
@@ -356,8 +356,8 @@ public:
             const std::set<ClassOfSimpleVariables*>& a_set = *(wrapper_set.begin());
             TS_ASSERT_EQUALS(a_set.size(), 2u);
 
-            ClassOfSimpleVariables *p_one_in_set=NULL;
-            ClassOfSimpleVariables *p_two_in_set=NULL;
+            ClassOfSimpleVariables* p_one_in_set = NULL;
+            ClassOfSimpleVariables* p_two_in_set = NULL;
             for (std::set<ClassOfSimpleVariables*>::iterator it = a_set.begin();
                 it!=a_set.end(); ++it)
             {
@@ -376,8 +376,8 @@ public:
                    }
             }
 
-            ClassOfSimpleVariables *p_one_in_list=NULL;
-            ClassOfSimpleVariables *p_two_in_list=NULL;
+            ClassOfSimpleVariables* p_one_in_list = NULL;
+            ClassOfSimpleVariables* p_two_in_list = NULL;
             for (std::list<ClassOfSimpleVariables>::iterator it = a_list.begin();
                 it!=a_list.end(); ++it)
             {

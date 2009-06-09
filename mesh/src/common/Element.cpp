@@ -226,9 +226,9 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
     // Check for negative weights and set them to zero.
     bool negative_weight = false;
 
-    for(unsigned i=0;i<=SPACE_DIM;i++)
+    for (unsigned i=0; i<=SPACE_DIM; i++)
     {
-        if(weights[i] < 0.0)
+        if (weights[i] < 0.0)
         {
             weights[i] = 0.0;
 
@@ -236,7 +236,7 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
         }
     }
 
-    if(negative_weight == false)
+    if (negative_weight == false)
     {
         // If there are no negative weights, there is nothing to do.
         return weights;
@@ -286,7 +286,7 @@ bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(ChastePoint<SPACE_DIM> testP
 
     //If the point is in the simplex then all the weights should be positive
 
-    for (unsigned i=0;i<=SPACE_DIM;i++)
+    for (unsigned i=0; i<=SPACE_DIM; i++)
     {
         if (strict)
         {

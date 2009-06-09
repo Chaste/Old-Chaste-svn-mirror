@@ -89,7 +89,7 @@ void TissueSimulationWithNutrientsAssembler<DIM>::ResetInterpolatedQuantities()
 }
 
 template<unsigned DIM>
-void TissueSimulationWithNutrientsAssembler<DIM>::IncrementInterpolatedQuantities(double phiI, const Node<DIM> *pNode)
+void TissueSimulationWithNutrientsAssembler<DIM>::IncrementInterpolatedQuantities(double phiI, const Node<DIM>* pNode)
 {
     mConstantInUSourceTerm += phiI * this->mpEllipticPde->ComputeConstantInUSourceTermAtNode(*pNode);
     mLinearInUCoeffInSourceTerm += phiI * this->mpEllipticPde->ComputeLinearInUCoeffInSourceTermAtNode(*pNode);

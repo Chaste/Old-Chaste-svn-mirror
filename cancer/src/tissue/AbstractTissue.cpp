@@ -532,7 +532,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
                                                          std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     // Write current simulation time
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    SimulationTime* p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetTime();
 
     *mpVizNodesFile << time << "\t";

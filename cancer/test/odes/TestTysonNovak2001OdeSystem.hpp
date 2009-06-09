@@ -81,7 +81,7 @@ public:
 
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits
 
-        double dt=0.1/60.0;
+        double dt = 0.1/60.0;
 
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(6);

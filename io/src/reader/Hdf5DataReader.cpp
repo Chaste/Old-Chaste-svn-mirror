@@ -56,7 +56,7 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     // Open the file and the main dataset
     mFileId = H5Fopen(file_name.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
-    if (mFileId <=0)
+    if (mFileId <= 0)
     {
         EXCEPTION("Hdf5DataReader could not open " + file_name);
     }
@@ -181,10 +181,10 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
         EXCEPTION("The file does not contain time dependent data");
     }
 
-    unsigned actual_node_index=nodeIndex;
+    unsigned actual_node_index = nodeIndex;
     if (!mIsDataComplete)
     {
-        unsigned node_index=0;
+        unsigned node_index = 0;
         for (node_index=0; node_index<mIncompleteNodeIndices.size(); node_index++)
         {
             if (mIncompleteNodeIndices[node_index]==nodeIndex)

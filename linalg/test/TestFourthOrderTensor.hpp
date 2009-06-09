@@ -40,13 +40,13 @@ public :
     {
         FourthOrderTensor<2> x;
 
-        for(unsigned M=0; M<2; M++)
+        for (unsigned M=0; M<2; M++)
         {
-            for(unsigned N=0; N<2; N++)
+            for (unsigned N=0; N<2; N++)
             {
-                for(unsigned P=0; P<2; P++)
+                for (unsigned P=0; P<2; P++)
                 {
-                    for(unsigned Q=0; Q<2; Q++)
+                    for (unsigned Q=0; Q<2; Q++)
                     {
                         TS_ASSERT_DELTA(x(M,N,P,Q), 0.0, 1e-9);
                         x(M,N,P,Q) = M+N+P+Q;
@@ -55,13 +55,13 @@ public :
             }
         }
 
-        for(unsigned M=0; M<2; M++)
+        for (unsigned M=0; M<2; M++)
         {
-            for(unsigned N=0; N<2; N++)
+            for (unsigned N=0; N<2; N++)
             {
-                for(unsigned P=0; P<2; P++)
+                for (unsigned P=0; P<2; P++)
                 {
-                    for(unsigned Q=0; Q<2; Q++)
+                    for (unsigned Q=0; Q<2; Q++)
                     {
                         TS_ASSERT_DELTA(x(M,N,P,Q), M+N+P+Q, 1e-9);
                     }
@@ -72,13 +72,13 @@ public :
 
         FourthOrderTensor<3> y;
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         TS_ASSERT_DELTA(y(M,N,P,Q), 0.0, 1e-9);
                         y(M,N,P,Q) = M+N+P+Q;
@@ -87,13 +87,13 @@ public :
             }
         }
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         TS_ASSERT_DELTA(y(M,N,P,Q), M+N+P+Q, 1e-9);
                     }
@@ -103,13 +103,13 @@ public :
 
         y.Zero();
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         TS_ASSERT_DELTA(y(M,N,P,Q), 0.0, 1e-9);
                     }
@@ -130,14 +130,14 @@ public :
         TS_ASSERT_THROWS_ANYTHING(Z.SetAsProduct(X,A,5));
 
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
                 A(M,N) = M+N;
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         X(M,N,P,Q) = 3*M+N+P+Q;
                     }
@@ -148,13 +148,13 @@ public :
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,0);
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         TS_ASSERT_DELTA( Y(M,N,P,Q), 15+3*(Q+3*M+N+P)+(Q+N+P)*3*M, 1e-9);
                     }
@@ -170,14 +170,14 @@ public :
         FourthOrderTensor<3> X;
         c_matrix<double,3,3> A;
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
                 A(M,N) = M+N;
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         X(M,N,P,Q) = M+3*N+P+Q;
                     }
@@ -188,13 +188,13 @@ public :
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,1);
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         TS_ASSERT_DELTA( Y(M,N,P,Q), 15+3*(Q+M+3*N+P)+(Q+M+P)*3*N, 1e-9);
                     }
@@ -209,14 +209,14 @@ public :
         FourthOrderTensor<3> X;
         c_matrix<double,3,3> A;
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
                 A(M,N) = M+N;
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         X(M,N,P,Q) = M+N+3*P+Q;
                     }
@@ -227,13 +227,13 @@ public :
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,2);
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         TS_ASSERT_DELTA( Y(M,N,P,Q), 15+3*(Q+M+N+3*P)+(Q+M+N)*3*P, 1e-9);
                     }
@@ -248,14 +248,14 @@ public :
         FourthOrderTensor<3> X;
         c_matrix<double,3,3> A;
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
                 A(M,N) = M+N;
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         X(M,N,P,Q) = M+N+P+3*Q;
                     }
@@ -266,13 +266,13 @@ public :
         FourthOrderTensor<3> Y;
         Y.SetAsProduct(X,A,3);
 
-        for(unsigned M=0; M<3; M++)
+        for (unsigned M=0; M<3; M++)
         {
-            for(unsigned N=0; N<3; N++)
+            for (unsigned N=0; N<3; N++)
             {
-                for(unsigned P=0; P<3; P++)
+                for (unsigned P=0; P<3; P++)
                 {
-                    for(unsigned Q=0; Q<3; Q++)
+                    for (unsigned Q=0; Q<3; Q++)
                     {
                         TS_ASSERT_DELTA( Y(M,N,P,Q), 15+3*(3*Q+M+N+P)+(M+N+P)*3*Q, 1e-9);
                     }

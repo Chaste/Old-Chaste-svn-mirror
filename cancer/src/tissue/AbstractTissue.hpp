@@ -201,7 +201,7 @@ public:
      *
      * @return global index of new node in tissue.
      */
-    virtual unsigned AddNode(Node<DIM> *pNewNode)=0;
+    virtual unsigned AddNode(Node<DIM>* pNewNode)=0;
 
     /**
      * Move the node with a given index to a new point in space.

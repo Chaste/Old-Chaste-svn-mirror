@@ -208,7 +208,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant)
 {
  
-    if(ELEMENT_DIM >= SPACE_DIM)
+    if (ELEMENT_DIM >= SPACE_DIM)
     {
         assert(ELEMENT_DIM == SPACE_DIM);
         EXCEPTION("WeightedDirection undefined for fully dimensional element");

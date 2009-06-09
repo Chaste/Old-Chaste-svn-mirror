@@ -176,7 +176,6 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                             node_indices[0] = (2*numAcross+1)+(2*j-1)*(numAcross+1)+i;
                         }
                     }
-
                 }
                 else // numAcross is odd
                 {
@@ -432,8 +431,6 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
     c_vector<double, SPACE_DIM> first_node;
-
-
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node;
 
@@ -914,7 +911,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
             mElements[i]->ResetIndex(i);
         }
 
-        for (unsigned i=0; i<this->mNodes.size();i++)
+        for (unsigned i=0; i<this->mNodes.size(); i++)
         {
             this->mNodes[i]->SetIndex(i);
         }
@@ -1125,14 +1122,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
-    
+
     // Form the set union
     std::set<unsigned> all_indices, temp_set;
     std::set_union(nodeA_elem_indices.begin(), nodeA_elem_indices.end(),
                    nodeB_elem_indices.begin(), nodeB_elem_indices.end(),
                    std::inserter(temp_set, temp_set.begin()));
     all_indices.swap(temp_set); // temp_set will be deleted
-    
+
     if ((nodeA_elem_indices.size()>3)||(nodeB_elem_indices.size()>3))
     {
         /*
@@ -1151,8 +1148,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     } 
     else //less than 4 elements per node
     {
-        
-    
         if (all_indices.size()==1) // nodes are only in one element hence on boundary so merge nodes
         {
             /*
@@ -1191,9 +1186,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                  *
                  * Here we employ a PartialT1Swap
                  */
-                 //PerformT1Swap(pNodeA, pNodeB, all_indices);
                  PerformNodeMerge(pNodeA, pNodeB);
-                 
             }
         }
         else if (all_indices.size()==3) // nodes are contained in three elments
@@ -1210,7 +1203,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
             *
             * Perform a PartialT1Swap
             */
-            //PerformT1Swap(pNodeA, pNodeB, all_indices);
 #define COVERAGE_IGNORE ///\todo Fix coverage         
             PerformNodeMerge(pNodeA, pNodeB);
 #undef  COVERAGE_IGNORE ///\todo Fix coverage         
@@ -1643,39 +1635,18 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     long_axis(0) = -short_axis(1);
     long_axis(1) = short_axis(0);
 
-    /// \todo Remove this temporary vector of bools?
-
     unsigned num_nodes = pElement->GetNumNodes();
-
-    // Store if the node is on the side of the short axis which the long axis points to
-    bool is_on_left[num_nodes];
+    std::vector<unsigned> intersecting_nodes;
 
     for (unsigned i=0; i<num_nodes; i++)
     {
-        c_vector<double, SPACE_DIM> node_location_from_centroid = pElement->GetNodeLocation(i) - centroid;
+        bool is_current_node_on_left = (inner_prod(pElement->GetNodeLocation(i) - centroid, long_axis) >= 0);
+        bool is_next_node_on_left = (inner_prod(pElement->GetNodeLocation((i+1)%num_nodes) - centroid, long_axis) >= 0);
 
-        if (inner_prod(node_location_from_centroid, long_axis) >= 0)
-        {
-            is_on_left[i] = true;
-        }
-        else // inner_prod(node_location_from_centroid,long_axis)<0
-        {
-            is_on_left[i] = false;
-        }
-    }
-
-    std::vector<unsigned> intersecting_nodes;
-
-    for (unsigned i=0; i<num_nodes-1; i++)
-    {
-        if (is_on_left[i]!=is_on_left[i+1])
+        if ( is_current_node_on_left != is_next_node_on_left)
         {
             intersecting_nodes.push_back(i);
         }
-    }
-    if (is_on_left[0]!=is_on_left[num_nodes-1])
-    {
-        intersecting_nodes.push_back(num_nodes-1);
     }
 
     if (intersecting_nodes.size()!=2)
@@ -1686,13 +1657,12 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     }
 
     std::vector<unsigned> division_node_global_indices;
-
     int nodes_added = 0;
 
     for (unsigned i=0; i<intersecting_nodes.size(); i++)
     {
         // Find intersections between edges and short_axis
-        
+
         // Get pointers to the nodes forming the edge into which one new node will be inserted
         /*
          * Note that when we use the first entry of intersecting_nodes to add a node,
@@ -1701,7 +1671,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
          */
         Node<SPACE_DIM>* p_node_A = pElement->GetNode((intersecting_nodes[i]+nodes_added)%pElement->GetNumNodes());
         Node<SPACE_DIM>* p_node_B = pElement->GetNode((intersecting_nodes[i]+nodes_added+1)%pElement->GetNumNodes());
-       
+
         c_vector<double, SPACE_DIM> position_a = p_node_A->rGetLocation();
         c_vector<double, SPACE_DIM> position_b = p_node_B->rGetLocation();
 
@@ -1720,7 +1690,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         // if intersection is close to existing node use the existing node to divide element
         c_vector<double, SPACE_DIM> a_to_intersection = GetVectorFromAtoB(position_a,intersection);
         c_vector<double, SPACE_DIM> b_to_intersection = GetVectorFromAtoB(position_b,intersection);
-        
+
         if (norm_2(a_to_intersection) < mCellRearrangementThreshold)
         {
             // Use node a to divide element  
@@ -1751,7 +1721,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
                                   elems_containing_node2.begin(),
                                   elems_containing_node2.end(),
                                   std::inserter(shared_elements, shared_elements.begin()));
-    
+
             // Iterate over common elements
             for (std::set<unsigned>::iterator iter=shared_elements.begin();
                  iter!=shared_elements.end();

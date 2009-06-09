@@ -252,7 +252,7 @@ double Face<DIM>::GetArea() const
     #undef COVERAGE_IGNORE
 
     double area_return = 0;
-    for(unsigned i=0; i<mVertices.size(); i++)
+    for (unsigned i=0; i<mVertices.size(); i++)
     {
         //  Area = sum ( x_i * y_i+1 - y_i * x_i+1 )/2.0 over all vertices,
         //      assuming vertices are ordered anti-clockwise

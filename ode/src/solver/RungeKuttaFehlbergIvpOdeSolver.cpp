@@ -184,7 +184,7 @@ void RungeKuttaFehlbergIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbs
     }
 
     pAbstractOdeSystem->EvaluateYDerivatives(time+m12o13*timeStep, myk4, dy);
-    for (unsigned i=0;i<num_equations; i++)
+    for (unsigned i=0; i<num_equations; i++)
     {
         mk4[i] = timeStep*dy[i];
         myk5[i] = rCurrentYValues[i] + m439o216*mk1[i] - 8*mk2[i]

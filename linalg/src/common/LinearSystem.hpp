@@ -421,7 +421,7 @@ public:
     void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
     {
         PetscInt matrix_row_indices[MATRIX_SIZE];
-        PetscInt num_rows_owned=0;
+        PetscInt num_rows_owned = 0;
         PetscInt global_row;
 
         for (unsigned row = 0; row<MATRIX_SIZE; row++)
@@ -484,7 +484,7 @@ public:
     void AddRhsMultipleValues(unsigned* vectorIndices, c_vector<double, VECTOR_SIZE>& smallVector)
     {
         PetscInt indices_owned[VECTOR_SIZE];
-        PetscInt num_indices_owned=0;
+        PetscInt num_indices_owned = 0;
         PetscInt global_row;
 
         for (unsigned row = 0; row<VECTOR_SIZE; row++)
@@ -527,8 +527,7 @@ public:
                          ADD_VALUES);
         }
     }
-    
-  
+
 };
 
 // Declare identifier for the serializer

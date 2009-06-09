@@ -40,7 +40,7 @@ SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver(double linearSolverRela
     mTestDampingValues.push_back(14);
     mTestDampingValues.push_back(-0.1);
     mTestDampingValues.push_back(0.05);
-    for (unsigned i=1;i<=12;i++)
+    for (unsigned i=1; i<=12; i++)
     {
         double val = double(i)/10;
         mTestDampingValues.push_back(val);
@@ -164,7 +164,6 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
             std::cout << "    Iteration " << counter << ": ||residual||/N = " << scaled_residual_norm << "\n";
         }
     }
-
 
     if (mWriteStats)
     {

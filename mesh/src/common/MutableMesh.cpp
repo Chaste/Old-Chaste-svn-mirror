@@ -195,7 +195,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
          !found_target && it != this->mNodes[index]->ContainingElementsEnd();
          ++it)
     {
-        Element <ELEMENT_DIM,SPACE_DIM> *p_element = GetElement(*it);
+        Element <ELEMENT_DIM,SPACE_DIM>* p_element = GetElement(*it);
         for (unsigned i=0; i<=ELEMENT_DIM && !found_target; i++)
         {
             target_index = p_element->GetNodeGlobalIndex(i);
@@ -578,16 +578,16 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
     this->mBoundaryElementWeightedDirections.resize(num_boundary_elements);
     this->mBoundaryElementJacobianDeterminants.resize(num_boundary_elements);
 
-    for (unsigned i=0; i<this->mNodes.size();i++)
+    for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         this->mNodes[i]->SetIndex(i);
     }
-    for (unsigned i=0; i<this->mElements.size();i++)
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
 
         this->mElements[i]->ResetIndex(i);
     }
-    for (unsigned i=0; i<this->mBoundaryElements.size();i++)
+    for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
     {
         this->mBoundaryElements[i]->ResetIndex(i);
     }
@@ -908,7 +908,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
+bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>* pElement, double maxPenetration)
 {
     assert(ELEMENT_DIM == SPACE_DIM);
     unsigned num_nodes = pElement->GetNumNodes();

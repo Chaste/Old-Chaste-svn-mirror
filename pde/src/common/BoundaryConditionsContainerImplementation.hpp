@@ -109,16 +109,16 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannBoun
     // we assume that this could be a non-zero boundary condition
     mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = true;
 
-    for(unsigned unknown=0; unknown<PROBLEM_DIM; unknown++)
+    for (unsigned unknown=0; unknown<PROBLEM_DIM; unknown++)
     {
-        if(unknown==indexOfUnknown)
+        if (unknown==indexOfUnknown)
         {
             (*(mpNeumannMap[indexOfUnknown]))[pBoundaryElement] = pBoundaryCondition;
         }
         else
         {
             // if can't find pBoundaryElement in map[unknown]
-            if( mpNeumannMap[unknown]->find(pBoundaryElement)==mpNeumannMap[unknown]->end() )
+            if ( mpNeumannMap[unknown]->find(pBoundaryElement)==mpNeumannMap[unknown]->end() )
             {
                 // add zero bc to other unknowns (so all maps are in sync)
                 (*(mpNeumannMap[unknown]))[pBoundaryElement] = mpZeroBoundaryCondition;
@@ -267,7 +267,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
     }
 
     //Apply the RHS boundary conditions modification if required.
-    if(rLinearSystem.rGetDirichletBoundaryConditionsVector())
+    if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
     {
         VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
     }
@@ -352,7 +352,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-bool BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(AbstractMesh<ELEM_DIM,SPACE_DIM> *pMesh)
+bool BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 {
     bool valid = true;
 

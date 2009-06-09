@@ -44,7 +44,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
     bool cullInternalFaces)
 {
-    if(ELEMENT_DIM==1)
+    if (ELEMENT_DIM==1)
     {
         cullInternalFaces = true;
     }
@@ -124,7 +124,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             // Add Node pointer to list for creating an element
             nodes.push_back(this->mNodes[node_indices[node_index]]);
 
-            if(cullInternalFaces)
+            if (cullInternalFaces)
             {
                 // Work out what elements contain this face, by taking the intersection
                 // of the sets of elements containing each node in the face.
@@ -144,10 +144,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
         }
 
-        if(cullInternalFaces)
+        if (cullInternalFaces)
         {
             // only if not 1D as this assertion does not apply to quadratic 1D meshes
-            if(ELEMENT_DIM!=1)
+            if (ELEMENT_DIM!=1)
             {
                 //If the following assertion is thrown, it means that the .edge/.face file does not
                 //match the .ele file -- they were generated at separate times.  Simply remove the internal
@@ -156,14 +156,14 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
 
             // if num_containing_elements is greater than 1, it is not an boundary face
-            if(containing_element_indices.size() > 1)
+            if (containing_element_indices.size() > 1)
             {
                 is_boundary_face = false;
             }
 
             // in 1D QUADRATICS, all nodes are faces, so internal nodes which don't have any
             // containing elements must also be unmarked as a boundary face
-            if( (ELEMENT_DIM==1) && (containing_element_indices.size()==0))
+            if ((ELEMENT_DIM==1) && (containing_element_indices.size()==0))
             {
                 is_boundary_face = false;
             }
@@ -208,14 +208,14 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     std::vector<unsigned> nodes_per_processor_vec;
 
     std::ifstream file_stream(nodesPerProcessorFile.c_str());
-    if(file_stream.is_open())
+    if (file_stream.is_open())
     {
-        while(file_stream)
+        while (file_stream)
         {
             unsigned nodes_per_processor;
             file_stream >> nodes_per_processor;
 
-            if(file_stream)
+            if (file_stream)
             {
                 nodes_per_processor_vec.push_back(nodes_per_processor);
             }
@@ -227,12 +227,12 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     }
 
     unsigned sum = 0;
-    for(unsigned i=0; i<nodes_per_processor_vec.size(); i++)
+    for (unsigned i=0; i<nodes_per_processor_vec.size(); i++)
     {
         sum += nodes_per_processor_vec[i];
     }
 
-    if(sum != this->GetNumNodes())
+    if (sum != this->GetNumNodes())
     {
         std::stringstream string_stream;
         string_stream << "Sum of nodes per processor, " << sum
@@ -455,19 +455,19 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(double theta)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
-    RandomNumberGenerator *p_rng=RandomNumberGenerator::Instance();
+    RandomNumberGenerator* p_rng = RandomNumberGenerator::Instance();
 
-    //Working from the back, each node is swapped with a random node that precedes it in the array
+    // Working from the back, each node is swapped with a random node that precedes it in the array
     for (unsigned index=this->mNodes.size()-1; index>0; index--)
     {
         unsigned  other=p_rng->randMod(index+1); //includes the possibility of rolling "index"
-        //Swap index and other
+        // Swap index and other
         Node<SPACE_DIM> *temp=this->mNodes[index];
         this->mNodes[index]=this->mNodes[other];
         this->mNodes[other]=temp;
     }
 
-    //Update indices
+    // Update indices
     for (unsigned index=0; index<this->mNodes.size(); index++)
     {
         this->mNodes[index]->SetIndex(index);
@@ -477,22 +477,22 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>& perm)
 {
-    //Let's not do this if there are any deleted nodes
+    // Let's not do this if there are any deleted nodes
     assert( this->GetNumAllNodes() == this->GetNumNodes());
 
     assert(perm.size() == this->mNodes.size());
 
-    //Copy the node pointers
+    // Copy the node pointers
     std::vector <Node <SPACE_DIM> *> copy_m_nodes;
     copy_m_nodes.assign(this->mNodes.begin(), this->mNodes.end());
 
-    for (unsigned i=0;i<this->mNodes.size();i++)
+    for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         assert(perm[i] < this->mNodes.size());
         this->mNodes[ perm[i] ] = copy_m_nodes[i];
     }
 
-    //Update indices
+    // Update indices
     for (unsigned index=0; index<this->mNodes.size(); index++)
     {
         this->mNodes[index]->SetIndex(index);
@@ -672,9 +672,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
 
     //Construct the nodes
     unsigned node_index=0;
-    for (int j=(int)height;j>=0;j--) //j must be signed for this loop to terminate
+    for (int j=(int)height; j>=0; j--) //j must be signed for this loop to terminate
     {
-        for (unsigned i=0;i<width+1;i++)
+        for (unsigned i=0; i<width+1; i++)
         {
             bool is_boundary=false;
             if (i==0 || j==0 || i==width || j==(int)height)
@@ -683,7 +683,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
             }
             Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j);
             this->mNodes.push_back(p_node);
-            if(is_boundary)
+            if (is_boundary)
             {
                 this->mBoundaryNodes.push_back(p_node);
             }
@@ -693,7 +693,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
     //Construct the boundary elements
     unsigned belem_index=0;
     //Top
-    for (unsigned i=0;i<width;i++)
+    for (unsigned i=0; i<width; i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[i]);
@@ -701,7 +701,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Right
-    for (unsigned i=1;i<height+1;i++)
+    for (unsigned i=1; i<height+1; i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[(width+1)*i-1]);
@@ -709,7 +709,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Bottom
-    for (unsigned i=0;i<width;i++)
+    for (unsigned i=0; i<width; i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[height*(width+1)+i+1]);
@@ -717,7 +717,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Left
-    for (unsigned i=0;i<height;i++)
+    for (unsigned i=0; i<height; i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[(width+1)*(i+1)]);
@@ -726,8 +726,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
     }
 
     //Construct the elements
-    unsigned elem_index=0;
-    for (unsigned j=0;j<height;j++)
+    unsigned elem_index = 0;
+    for (unsigned j=0; j<height; j++)
     {
         for (unsigned i=0; i<width; i++)
         {
@@ -765,7 +765,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict, std::set<unsigned> testElements)
 {
-    for(std::set<unsigned>::iterator iter=testElements.begin(); iter!=testElements.end(); iter++)
+    for (std::set<unsigned>::iterator iter=testElements.begin(); iter!=testElements.end(); iter++)
     {
         assert(*iter<this->GetNumElements());
         ///\todo What if the element is deleted?
@@ -796,18 +796,18 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChasteP
     ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
     ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
 
-    double max_min_weight=-INFINITY;
-    unsigned closest_index=0;
-    for (unsigned i=0; i < this->mElements.size();i++)
+    double max_min_weight = -INFINITY;
+    unsigned closest_index = 0;
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
         ///\todo What if the element is deleted?
         c_vector<double, ELEMENT_DIM+1> weight=this->mElements[i]->CalculateInterpolationWeights(testPoint);
         double neg_weight_sum=0.0;
         for (unsigned j=0; j<=ELEMENT_DIM; j++)
         {
-            if (weight[j]<0.0)
+            if (weight[j] < 0.0)
             {
-                neg_weight_sum+=weight[j];
+                neg_weight_sum += weight[j];
             }
         }
         if (neg_weight_sum > max_min_weight)
@@ -824,7 +824,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint)
 {
     std::vector<unsigned> element_indices;
-    for (unsigned i=0; i < this->mElements.size();i++)
+    for (unsigned i=0; i<this->mElements.size(); i++)
     {
         ///\todo What if the element is deleted?
         if (this->mElements[i]->IncludesPoint(testPoint))
@@ -866,23 +866,23 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
     assert(ELEMENT_DIM == 3);
     //Construct the nodes
 
-    unsigned node_index=0;
-    for (unsigned k=0;k<depth+1;k++)
+    unsigned node_index = 0;
+    for (unsigned k=0; k<depth+1; k++)
     {
-        for (unsigned j=0;j<height+1;j++)
+        for (unsigned j=0; j<height+1; j++)
         {
-            for (unsigned i=0;i<width+1;i++)
+            for (unsigned i=0; i<width+1; i++)
             {
-                bool is_boundary=false;
+                bool is_boundary = false;
                 if (i==0 || j==0 || k==0 || i==width || j==height || k==depth)
                 {
-                    is_boundary=true;
+                    is_boundary = true;
                 }
 
                 Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j, k);
 
                 this->mNodes.push_back(p_node);
-                if(is_boundary)
+                if (is_boundary)
                 {
                     this->mBoundaryNodes.push_back(p_node);
                 }
@@ -892,8 +892,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
     // Construct the elements
 
-    unsigned elem_index=0;
-    unsigned belem_index=0;
+    unsigned elem_index = 0;
+    unsigned belem_index = 0;
     unsigned element_nodes[4][6][4] = {{{0, 1, 5, 7}, {0, 1, 3, 7},
                                         {0, 2, 3, 7}, {0, 2, 6, 7},
                                         {0, 4, 6, 7}, {0, 4, 5, 7}},
@@ -909,11 +909,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
     std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
 
-    for (unsigned k=0;k<depth;k++)
+    for (unsigned k=0; k<depth; k++)
     {
-        for (unsigned j=0;j<height;j++)
+        for (unsigned j=0; j<height; j++)
         {
-            for (unsigned i=0;i<width;i++)
+            for (unsigned i=0; i<width; i++)
             {
                 // Compute the nodes' index
                 unsigned global_node_indices[8];
@@ -1165,10 +1165,10 @@ std::set<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundaryOfF
 
     // get all faces in the map
     std::map<FaceNodes,bool>::iterator it=face_on_boundary.begin();
-    while(it!=face_on_boundary.end())
+    while (it!=face_on_boundary.end())
     {
         // if the face maps to true it is on the boundary
-        if(it->second==true)
+        if (it->second==true)
         {
             // get all nodes in the face and put in set to be returned
             boundary_of_flagged_region.insert(it->first.begin(),it->first.end());
@@ -1349,13 +1349,13 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
         {
             mElemIndex++;
             // ...skipping deleted ones
-            while(mElemIndex!=mrMesh.GetNumAllElements() && mrMesh.GetElement(mElemIndex)->IsDeleted())
+            while (mElemIndex!=mrMesh.GetNumAllElements() && mrMesh.GetElement(mElemIndex)->IsDeleted())
             {
                 mElemIndex++;
             }
         }
 
-        if(mElemIndex != mrMesh.GetNumAllElements())
+        if (mElemIndex != mrMesh.GetNumAllElements())
         {
             unsigned node_a_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
             unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
@@ -1381,7 +1381,7 @@ TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::EdgeIterator(TetrahedralM
       mNodeALocalIndex(0),
       mNodeBLocalIndex(1)
 {
-    if(elemIndex==mrMesh.GetNumAllElements())
+    if (elemIndex==mrMesh.GetNumAllElements())
     {
         return;
     }
@@ -1402,7 +1402,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgesBegin()
 {
     unsigned first_element_index=0;
-    while(first_element_index!=this->GetNumAllElements() && this->GetElement(first_element_index)->IsDeleted())
+    while (first_element_index!=this->GetNumAllElements() && this->GetElement(first_element_index)->IsDeleted())
     {
         first_element_index++;
     }

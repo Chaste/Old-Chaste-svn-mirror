@@ -75,7 +75,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
          iter != mpQuadMesh->GetElementIteratorEnd();
          ++iter)
     {
-//        if(assembleJacobian)
+//        if (assembleJacobian)
 //        {
 //            std::cout << "\nElement " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
 //        }
@@ -87,9 +87,9 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
             AssembleOnElement(element, a_elem, a_elem_precond, b_elem, assembleResidual, assembleJacobian);
 
             unsigned p_indices[STENCIL_SIZE];
-            for(unsigned i=0; i<NUM_NODES_PER_ELEMENT; i++)
+            for (unsigned i=0; i<NUM_NODES_PER_ELEMENT; i++)
             {
-                for(unsigned j=0; j<DIM; j++)
+                for (unsigned j=0; j<DIM; j++)
                 {
                     p_indices[DIM*i+j] = DIM*element.GetNodeGlobalIndex(i) + j;
                 }
@@ -216,9 +216,9 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     ///////////////////////////////////////////////
     static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> element_current_displacements;
     static c_vector<double,NUM_VERTICES_PER_ELEMENT> element_current_pressures;
-    for(unsigned II=0; II<NUM_NODES_PER_ELEMENT; II++)
+    for (unsigned II=0; II<NUM_NODES_PER_ELEMENT; II++)
     {
-        for(unsigned JJ=0; JJ<DIM; JJ++)
+        for (unsigned JJ=0; JJ<DIM; JJ++)
         {
             element_current_displacements(JJ,II) = this->mCurrentSolution[DIM*rElement.GetNodeGlobalIndex(II) + JJ];
         }
@@ -227,7 +227,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     ///////////////////////////////////////////////
     // Get the current pressure at the vertices
     ///////////////////////////////////////////////
-    for(unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
+    for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
     {
         element_current_pressures(II) = this->mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
     }
@@ -239,7 +239,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
 
     // get the material law
     AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-    if(this->mMaterialLaws.size()==1)
+    if (this->mMaterialLaws.size()==1)
     {
         // homogeneous
         p_material_law = this->mMaterialLaws[0];
@@ -277,11 +277,11 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         ////////////////////////////////////////////////////
         c_vector<double,DIM> body_force;
 
-        if(this->mUsingBodyForceFunction)
+        if (this->mUsingBodyForceFunction)
         {
             c_vector<double,DIM> X = zero_vector<double>(DIM);
             // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
-            for(unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+            for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
             {
                 X += linear_phi(node_index)*mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
             }
@@ -298,11 +298,11 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
         grad_u = zero_matrix<double>(DIM,DIM);  // must be on new line!!
 
-        for(unsigned node_index=0; node_index<NUM_NODES_PER_ELEMENT; node_index++)
+        for (unsigned node_index=0; node_index<NUM_NODES_PER_ELEMENT; node_index++)
         {
             for (unsigned i=0; i<DIM; i++)
             {
-                for(unsigned M=0; M<DIM; M++)
+                for (unsigned M=0; M<DIM; M++)
                 {
                     grad_u(i,M) += grad_quad_phi(M,node_index)*element_current_displacements(i,node_index);
                 }
@@ -310,7 +310,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         }
 
         double pressure = 0;
-        for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+        for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
         {
             pressure += linear_phi(vertex_index)*element_current_pressures(vertex_index);
         }
@@ -356,7 +356,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         /////////////////////////////////////////
         if (assembleResidual)
         {
-            for(unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
+            for (unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
             {
                 unsigned spatial_dim = index%DIM;
                 unsigned node_index = (index-spatial_dim)/DIM;
@@ -380,7 +380,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                 }
             }
 
-            for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+            for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
             {
                 rBElem( NUM_NODES_PER_ELEMENT*DIM + vertex_index ) +=   linear_phi(vertex_index)
                                                                       * (detF - 1)
@@ -391,15 +391,15 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         /////////////////////////////////////////
         // Jacobian matrix
         /////////////////////////////////////////
-        if(assembleJacobian)
+        if (assembleJacobian)
         {
-            for(unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
+            for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
             {
                 unsigned spatial_dim1 = index1%DIM;
                 unsigned node_index1 = (index1-spatial_dim1)/DIM;
 
 
-                for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
+                for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
                 {
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
@@ -436,7 +436,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                         }
                     }
                     
-                    for(unsigned N=0; N<DIM; N++)
+                    for (unsigned N=0; N<DIM; N++)
                     {
                         for (unsigned P=0; P<DIM; P++)
                         {
@@ -458,7 +458,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                     }
                 }
 
-                for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+                for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
                 {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
 
@@ -476,11 +476,11 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                 }
             }
 
-            for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+            for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
             {
                 unsigned index1 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
 
-                for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
+                for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
                 {
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
@@ -501,7 +501,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                 // pressure-pressure block. Note, the rest of the
                 // entries are filled in at the end
                 /////////////////////////////////////////////////////
-                for(unsigned vertex_index2=0; vertex_index2<NUM_VERTICES_PER_ELEMENT; vertex_index2++)
+                for (unsigned vertex_index2=0; vertex_index2<NUM_VERTICES_PER_ELEMENT; vertex_index2++)
                 {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
                     rAElemPrecond(index1,index2) +=   linear_phi(vertex_index)
@@ -534,7 +534,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnBoundaryElement(
     rAelem.clear();
     rBelem.clear();
 
-    if(assembleJacobian && !assembleResidual)
+    if (assembleJacobian && !assembleResidual)
     {
         // nothing to do
         return;
@@ -557,10 +557,10 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnBoundaryElement(
         // get the required traction, interpolating X (slightly inefficiently, as interpolating
         // using quad bases) if necessary.
         c_vector<double,DIM> traction = zero_vector<double>(DIM);
-        if(this->mUsingTractionBoundaryConditionFunction)
+        if (this->mUsingTractionBoundaryConditionFunction)
         {
             c_vector<double,DIM> X = zero_vector<double>(DIM);
-            for(unsigned node_index=0; node_index<NUM_NODES_PER_BOUNDARY_ELEMENT; node_index++)
+            for (unsigned node_index=0; node_index<NUM_NODES_PER_BOUNDARY_ELEMENT; node_index++)
             {
                 X += phi(node_index)*mpQuadMesh->GetNode( rBoundaryElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
             }
@@ -572,7 +572,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnBoundaryElement(
         }
 
 
-        for(unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
+        for (unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
         {
             unsigned spatial_dim = index%DIM;
             unsigned node_index = (index-spatial_dim)/DIM;
@@ -591,10 +591,10 @@ void NonlinearElasticityAssembler<DIM>::FormInitialGuess()
 {
     this->mCurrentSolution.resize(this->mNumDofs, 0.0);
 
-    for(unsigned i=0; i<mpQuadMesh->GetNumElements(); i++)
+    for (unsigned i=0; i<mpQuadMesh->GetNumElements(); i++)
     {
         double zero_strain_pressure;
-        if(this->mMaterialLaws.size()==1)
+        if (this->mMaterialLaws.size()==1)
         {
             // homogeneous
             zero_strain_pressure = this->mMaterialLaws[0]->GetZeroStrainPressure();
@@ -606,7 +606,7 @@ void NonlinearElasticityAssembler<DIM>::FormInitialGuess()
         }
 
         // loop over vertices and set pressure solution to be zero-strain-pressure
-        for(unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
+        for (unsigned j=0; j<NUM_VERTICES_PER_ELEMENT; j++)
         {
             unsigned index = mpQuadMesh->GetElement(i)->GetNodeGlobalIndex(j);
             this->mCurrentSolution[ DIM*mpQuadMesh->GetNumNodes() + index ] = zero_strain_pressure;
@@ -619,7 +619,7 @@ void NonlinearElasticityAssembler<DIM>::Initialise(std::vector<c_vector<double,D
 {
     assert(mpQuadMesh);
 
-    for(unsigned i=0; i<this->mFixedNodes.size(); i++)
+    for (unsigned i=0; i<this->mFixedNodes.size(); i++)
     {
         assert(this->mFixedNodes[i] < mpQuadMesh->GetNumNodes());
     }
@@ -631,10 +631,10 @@ void NonlinearElasticityAssembler<DIM>::Initialise(std::vector<c_vector<double,D
 
     // compute the displacements at each of the fixed nodes, given the
     // fixed nodes locations.
-    if(pFixedNodeLocations == NULL)
+    if (pFixedNodeLocations == NULL)
     {
         this->mFixedNodeDisplacements.clear();
-        for(unsigned i=0; i<this->mFixedNodes.size(); i++)
+        for (unsigned i=0; i<this->mFixedNodes.size(); i++)
         {
             this->mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
         }
@@ -642,7 +642,7 @@ void NonlinearElasticityAssembler<DIM>::Initialise(std::vector<c_vector<double,D
     else
     {
         assert(pFixedNodeLocations->size()==this->mFixedNodes.size());
-        for(unsigned i=0; i<this->mFixedNodes.size(); i++)
+        for (unsigned i=0; i<this->mFixedNodes.size(); i++)
         {
             unsigned index = this->mFixedNodes[i];
             c_vector<double,DIM> displacement = (*pFixedNodeLocations)[i]-mpQuadMesh->GetNode(index)->rGetLocation();

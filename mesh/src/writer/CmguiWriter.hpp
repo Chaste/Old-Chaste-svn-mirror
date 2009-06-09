@@ -157,7 +157,7 @@ void CmguiWriter::WriteFiles()
         std::vector<double> current_item = this->mNodeData[item_num];
 
         *p_node_file << "Node:\t" << item_num+1 << "\t";
-        for (unsigned i=0;i<3;i++)
+        for (unsigned i=0; i<3; i++)
         {
             *p_node_file << current_item[i] << "\t";
         }

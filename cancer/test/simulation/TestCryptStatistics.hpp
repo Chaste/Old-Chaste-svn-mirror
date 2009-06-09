@@ -355,7 +355,7 @@ public:
 
         std::vector<unsigned> labelled_cells_counter(max_length_of_crypt_section);
 
-        for (unsigned i=0; i< max_length_of_crypt_section;i++)
+        for (unsigned i=0; i<max_length_of_crypt_section; i++)
         {
             labelled_cells_counter[i] = 0u;
         }
@@ -445,7 +445,7 @@ public:
             labelled = p_crypt_statistics->GetWhetherCryptSectionCellsAreLabelled(crypt_section);
 
             // Store information from this simulation in a global vector.
-            for (unsigned cell_index=0; cell_index < labelled.size();cell_index++)
+            for (unsigned cell_index=0; cell_index < labelled.size(); cell_index++)
             {
                 if (cell_index>=labelled_cells_counter.size())  std::cout << " " << labelled.size() << labelled_cells_counter.size() << std::endl << std::flush;
                 assert(cell_index<labelled_cells_counter.size());

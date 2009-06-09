@@ -311,10 +311,10 @@ void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool app
     // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
     // u the negative update vector and f is the residual is
     // u=current_soln-boundary_values on the boundary nodes
-    for(unsigned i=0; i<mFixedNodes.size(); i++)
+    for (unsigned i=0; i<mFixedNodes.size(); i++)
     {
         unsigned node_index = mFixedNodes[i];
-        for(unsigned j=0; j<DIM; j++)
+        for (unsigned j=0; j<DIM; j++)
         {
             unsigned dof_index = DIM*node_index+j;
             double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
@@ -409,7 +409,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     ///////////////////////////////////////////////////////////////////////////
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::UPDATE);
     std::vector<double> old_solution(mNumDofs);
-    for(unsigned i=0; i<mNumDofs; i++)
+    for (unsigned i=0; i<mNumDofs; i++)
     {
         old_solution[i] = mCurrentSolution[i];
     }
@@ -424,7 +424,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     double initial_norm_resid = CalculateResidualNorm();
     unsigned index = 0;
-    for(unsigned j=0; j<mNumDofs; j++)
+    for (unsigned j=0; j<mNumDofs; j++)
     {
         mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
     }
@@ -438,14 +438,14 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     index = 1;
 
     // exit loop when next norm of the residual first increases
-    while(next_norm_resid < norm_resid  && index<damping_values.size())
+    while (next_norm_resid < norm_resid  && index<damping_values.size())
     {
-        if(index!=1)
+        if (index!=1)
         {
             norm_resid = next_norm_resid;
         }
 
-        for(unsigned j=0; j<mNumDofs; j++)
+        for (unsigned j=0; j<mNumDofs; j++)
         {
            mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
         }
@@ -468,7 +468,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     {
         index-=2;
         std::cout << "\tBest s = " << damping_values[index] << "\n"  << std::flush;
-        for(unsigned j=0; j<mNumDofs; j++)
+        for (unsigned j=0; j<mNumDofs; j++)
         {
             mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
         }
@@ -488,7 +488,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 //
 //        for (unsigned i=0; i<damping_values.size(); i++)
 //        {
-//            for(unsigned j=0; j<mNumDofs; j++)
+//            for (unsigned j=0; j<mNumDofs; j++)
 //            {
 //                mCurrentSolution[j] = old_solution[j] - damping_values[i]*update[j];
 //            }
@@ -519,7 +519,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 //        //Timer::PrintAndReset("Find best damping");
 //
 //        // implement best update and recalculate residual
-//        for(unsigned j=0; j<mNumDofs; j++)
+//        for (unsigned j=0; j<mNumDofs; j++)
 //        {
 //            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
 //        }
@@ -639,16 +639,16 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
     mNumNewtonIterations = 0;
     unsigned counter = 1;
 
-    if(tol<0) // ie if wasn't passed in as a parameter
+    if (tol < 0) // ie if wasn't passed in as a parameter
     {
         tol = NEWTON_REL_TOL*norm_resid;
 
         #define COVERAGE_IGNORE // not going to have tests in cts for everything
-        if(tol > MAX_NEWTON_ABS_TOL)
+        if (tol > MAX_NEWTON_ABS_TOL)
         {
             tol = MAX_NEWTON_ABS_TOL;
         }
-        if(tol < MIN_NEWTON_ABS_TOL)
+        if (tol < MIN_NEWTON_ABS_TOL)
         {
             tol = MIN_NEWTON_ABS_TOL;
         }
@@ -667,7 +667,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
         norm_resid = TakeNewtonStep();
 
         std::cout << "Norm of residual is " << norm_resid << "\n";
-        if(mWriteOutput)
+        if (mWriteOutput)
         {
             WriteOutput(counter+offset);
         }

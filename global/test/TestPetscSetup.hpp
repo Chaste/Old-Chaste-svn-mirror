@@ -54,7 +54,7 @@ public:
 
     void TestPetscExceptions()
     {
-        int err=0;
+        int err = 0;
         TS_ASSERT_THROWS_NOTHING(PETSCEXCEPT(err));
 
         Vec v;
@@ -94,8 +94,8 @@ public:
     
     void TestDivideOneByZero() throw(Exception)
     {
-        double one=1.0;
-        double zero=0.0;
+        double one = 1.0;
+        double zero = 0.0;
         double ans;
 #ifdef TEST_FOR_FPE
 //If we are testing for divide-by-zero, then this will throw an exception
@@ -111,7 +111,7 @@ public:
     
     void TestDivideZeroByZero() throw(Exception)
     {
-        double zero=0.0;
+        double zero = 0.0;
         double ans;
 #ifdef TEST_FOR_FPE
 //If we are testing for divide-by-zero, then this will throw an exception

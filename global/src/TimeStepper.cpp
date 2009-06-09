@@ -63,9 +63,9 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
     mNextTime = CalculateNextTime();
     
     // if enforceConstantTimeStep check whether the times are such that we won't have a variable dt
-    if(enforceConstantTimeStep)
+    if (enforceConstantTimeStep)
     {
-        if( fabs(mDt*EstimateTimeSteps()-mEnd+mStart)>SMIDGE )
+        if ( fabs(mDt*EstimateTimeSteps()-mEnd+mStart) > SMIDGE )
         {
             //PRINT_4_VARIABLES(mDt, EstimateTimeSteps(), mDt*EstimateTimeSteps(), mEnd-mStart);
             EXCEPTION("TimeStepper estimate non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");

@@ -48,7 +48,7 @@ class TestLinearSystem : public CxxTest::TestSuite
 {
 public:
 
-    void TestLinearSystem1( void )
+    void TestLinearSystem1()
     {
         LinearSystem ls(3);
         ls.SetMatrixIsConstant(true);
@@ -225,7 +225,7 @@ public:
         TS_ASSERT_EQUALS(int(num_nonzeros),6);
     }
 
-    void TestCreateFromVector(void)
+    void TestCreateFromVector()
     {
         const int SIZE = 5;
         Vec test_vec;
@@ -244,7 +244,7 @@ public:
         VecDestroy(test_vec);
     }
 
-    void TestLinearSystem2( void )
+    void TestLinearSystem2()
     {
         LinearSystem ls(2);
         ls.SetMatrixRow(0, 1.0);
@@ -283,7 +283,7 @@ public:
     /**
      * This is a stub test for coverage purposes.
      */
-    void TestNullBasis(void)
+    void TestNullBasis()
     {
         const int SIZE = 5;
         Vec test_vec;
@@ -370,7 +370,7 @@ public:
         MatDestroy(m);
     }
 
-    void TestLinearSystem1WithIntialGuess( void )
+    void TestLinearSystem1WithIntialGuess()
     {
         LinearSystem ls(3);
 
@@ -433,7 +433,7 @@ public:
 
     }
 
-    void TestAddMultipleValues( void )
+    void TestAddMultipleValues()
     {
 
         LinearSystem syst = LinearSystem(3);

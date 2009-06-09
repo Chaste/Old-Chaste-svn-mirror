@@ -89,7 +89,7 @@ protected:
         c_matrix<double, SPACE_DIM, SPACE_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
 
         // if statement just saves computing phi*phi^T if it is to be multiplied by zero
-        if(mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)!=0)
+        if (mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)!=0)
         {
             return   prod( trans(rGradPhi), c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
                    - mpEllipticPde->ComputeLinearInUCoeffInSourceTerm(rX,pElement)*outer_prod(rPhi,rPhi);

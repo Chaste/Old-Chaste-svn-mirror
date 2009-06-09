@@ -193,7 +193,7 @@ private:
                 //element.GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, p_indices);
 
                 unsigned p_indices[STENCIL_SIZE];
-                for(unsigned i=0; i<STENCIL_SIZE; i++)
+                for (unsigned i=0; i<STENCIL_SIZE; i++)
                 {
                     p_indices[i] = element.GetNodeGlobalIndex(i);
                 }
@@ -290,7 +290,7 @@ public:
         Vec solution = assembler.Solve();
         ReplicatableVector sol_repl(solution);
 
-        for(unsigned i=0; i<quad_mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<quad_mesh.GetNumNodes(); i++)
         {
             double x = quad_mesh.GetNode(i)->rGetLocation()[0];
             double u = sol_repl[i];
@@ -336,7 +336,7 @@ public:
         // compare results - the following assumes the vertex nodes in the
         // quad mesh are nodes 0-63, i.e. they come before all the internal
         // nodes
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double u_1 = sol_lin_repl[i];
             double u_2 = sol_quads_repl[i];
@@ -388,7 +388,7 @@ public:
 
         // compare results - the following assumes the vertex nodes in the
         // quad mesh come before all the internal nodes
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double u_1 = sol_lin_repl[i];
             double u_2 = sol_quads_repl[i];

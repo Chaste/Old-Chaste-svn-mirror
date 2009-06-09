@@ -61,7 +61,7 @@ public:
         ReplicatableVector vec1_repl(vec1);
 
         TS_ASSERT_EQUALS(vec1_repl.size(), 10u);
-        for(unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_DELTA(vec1_repl[i], 3.41, 1e-12);
         }
@@ -70,7 +70,7 @@ public:
         // test CreateVec which uses a std::vector of data
         ////////////////////////////////////////////////////
         std::vector<double> data(10);
-        for(unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             data[i] = i+0.45;
         }
@@ -80,7 +80,7 @@ public:
         ReplicatableVector vec2_repl(vec2);
 
         TS_ASSERT_EQUALS(vec2_repl.size(), 10u);
-        for(unsigned i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_DELTA(vec2_repl[i], i+0.45, 1e-12);
         }
@@ -173,7 +173,7 @@ public:
         PetscTools::ReadPetscObject(matrix_read, output_dir+"ten_times_ten.mat");
         PetscTools::ReadPetscObject(vector_read, output_dir+"ten_times_ten.vec");
 
-        double *p_vector_read;
+        double* p_vector_read;
         VecGetArray(vector_read, &p_vector_read);
 
         for (PetscInt row=0; row<10; row++)
