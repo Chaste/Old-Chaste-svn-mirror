@@ -108,7 +108,7 @@ public:
      * Constructor
      * 
      * @param pSolver is a pointer to the ODE solver
-     * @param pSolver is a pointer to the intarcellular stimulus
+     * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
     TenTusscher2006OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                              boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
