@@ -576,6 +576,8 @@ public:
             #undef COVERAGE_IGNORE
         }
         std::cout << std::flush;
+        //HeartEventHandler::Headings();
+        //HeartEventHandler::Report();
 
     }
 

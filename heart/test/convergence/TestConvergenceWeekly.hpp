@@ -103,6 +103,8 @@ public:
     //More experiments with ksp_atol follow.
     void TestSpaceConvergencein2DWithAtol() throw(Exception)
     {
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         //tester.SetKspAbsoluteTolerance(1e-5);
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
@@ -119,6 +121,8 @@ public:
     //Copied from projects/jmpf since this converges on mesh4
     void Test3DSpaceRelaxWidthWithAtol() throw(Exception)
     {
+        HeartConfig::Instance()->SetKSPSolver("symmlq");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         //tester.SetKspAbsoluteTolerance(1e-3);
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
