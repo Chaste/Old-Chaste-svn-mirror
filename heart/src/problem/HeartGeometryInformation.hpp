@@ -91,26 +91,38 @@ private:
      * Helper method to calculate the distance between the node and the Endocardial surface
      * as defined to be the closest surface to the node out of left ventricle and right ventricle.
      * 
-     * @param node index is the index of the node in the mesh
+     * @param nodeIndex is the index of the node in the mesh
      * @returns the distance 
      */
-    double GetDistanceToEndo(unsigned node_index);
+    double GetDistanceToEndo(unsigned nodeIndex);
     
      /**
      * Helper method to calculate the distance between the node and the Epicardial surface
      * 
-     * @param node index is the index of the node in the mesh
+     * @param nodeIndex is the index of the node in the mesh
      * @returns the distance 
      */
-    double GetDistanceToEpi(unsigned node_index);
+    double GetDistanceToEpi(unsigned nodeIndex);
 
-    /**The mesh of the problem*/
+    /** The mesh of the problem*/
     TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
-    /**Vectors to store the distance maps*/
-    std::vector<double> mDistMapEpicardium, mDistMapEndocardium, mDistMapRightVentricle, mDistMapLeftVentricle;
-    /**Flag used to tell the methods whether two or three surfaces have been supplied*/
+    
+    /** Vector to store the distance map to epicardium*/
+    std::vector<double> mDistMapEpicardium;
+    
+    /** Vector to store the distance map to endocardium*/
+    std::vector<double> mDistMapEndocardium;
+    
+    /** Vector to store the distance map to the right ventricle surface*/
+    std::vector<double> mDistMapRightVentricle;
+    
+    /** Vector to store the distance map to the left ventricle surface*/
+    std::vector<double> mDistMapLeftVentricle;
+    
+    /** Flag used to tell the methods whether two or three surfaces have been supplied*/
     unsigned mNumberOfSurfacesProvided;
     
+    /** Vector to store the layer for each node*/
     std::vector<HeartLayerType> mLayerForEachNode;
         
 public:
@@ -165,7 +177,7 @@ public:
                              
 
     /**
-     * @param node index is the index of the node in the mesh
+     * @param nodeIndex index is the index of the node in the mesh
      * @returns the region type based on the relative distances to epi and endocardial surfaces 
      */
     HeartRegionType GetHeartRegion (unsigned nodeIndex) const;
@@ -248,7 +260,7 @@ public:
     
     /**
      * Calculates the relative position within the wall thickness (normalised to [0,1])
-     * @param node index is the index of the node in the mesh
+     * @param nodeIndex index is the index of the node in the mesh
      * @returns the relative position
      */
     double CalculateRelativeWallPosition(unsigned nodeIndex);
