@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
 """Script to 
-i) replace tabs with 4 spaces - calls "sed '-i 's/\t/    /g'" on all source files.
+i) replace tabs with 4 spaces - calls "sed -i 's/\t/    /g'" on all source files.
 ii) remove any trailing whitespace - calls " sed -i 's/[ \\t]*$//' "
 """
 
