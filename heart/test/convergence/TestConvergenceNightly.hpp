@@ -141,10 +141,10 @@ public:
         
         ///Note that long plateau phase will force convergence to happen earlier 
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
-        ///\todo Investigate if we're getting a sensible APD.
-        TS_ASSERT_LESS_THAN(100.0, tester.Apd90FirstQn);//Fix. Shouldn't be 1.2907
-        TS_ASSERT_LESS_THAN(100.0, tester.Apd90ThirdQn);//Fix. Shouldn't be 1.5601
-        TS_ASSERT_DELTA( 0.0588, tester.ConductionVelocity, 1e-3);
+        
+        TS_ASSERT_DELTA(329.0, tester.Apd90FirstQn, 1.0);
+        TS_ASSERT_DELTA(329.0, tester.Apd90ThirdQn, 1.0);
+        TS_ASSERT_DELTA(0.0588, tester.ConductionVelocity, 1e-3);
     }
 
     void TestStimulatePlanein1D() throw(Exception)

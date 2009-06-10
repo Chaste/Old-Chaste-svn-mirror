@@ -428,8 +428,8 @@ public:
 
                 try
                 {
-                    Apd90FirstQn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
-                    Apd90ThirdQn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
+                    Apd90FirstQn = ppc.CalculateActionPotentialDuration(90.0, first_quadrant_node);
+                    Apd90ThirdQn = ppc.CalculateActionPotentialDuration(90.0, third_quadrant_node);
 
                     ConductionVelocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
                 }
