@@ -148,8 +148,9 @@ public:
         TS_ASSERT_DELTA(properties_fs.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.057692, 0.001);
         TS_ASSERT_DELTA(properties_fs.CalculateMaximumUpstrokeVelocity(middle_index), 180.28, 0.01);
 
-        //Testing the mtehod that returns all APs
+        //Testing the method that returns all APs
         TS_ASSERT_EQUALS(properties_fs.CalculateActionPotentialDuration(90, middle_index), properties_fs.CalculateAllActionPotentialDurations(90, middle_index)[0]);
+        TS_ASSERT_THROWS_ANYTHING(properties_fs.CalculateActionPotentialDuration(0.9, middle_index));
 
         Hdf5DataReader simulation_data_bw("heart/test/data/BidomainBackwardToCompareWithFastSlow3D",
                                        "res", false);

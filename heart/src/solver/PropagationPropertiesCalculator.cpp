@@ -78,6 +78,10 @@ std::vector<double> PropagationPropertiesCalculator::CalculateUpstrokeTimes(unsi
 double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const double percentage,
         unsigned globalNodeIndex)
 {
+    if (percentage < 1.0)
+    {
+        EXCEPTION("First argument of CalculateActionPotentialDuration() is expected to be a percentage");
+    }
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
     CellProperties cell_props(voltages, times);
