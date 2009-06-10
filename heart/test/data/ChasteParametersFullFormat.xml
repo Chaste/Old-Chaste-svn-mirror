@@ -158,5 +158,13 @@
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>ilu</KSPPreconditioner>
 	</Numerical>
+	
+	<PostProcessing>
+	        <ActionPotentialDurationMap threshold="-30.0" percentage="90"/>
+	        <UpstrokeTimeMap threshold="-30.0" />
+	        <MaxUpstrokeVelocityMap/>              
+	        <ConductionVelocityMap origin_node="10"/>
+	        <ConductionVelocityMap origin_node="20"/>
+	</PostProcessing>
 
 </ChasteParameters>

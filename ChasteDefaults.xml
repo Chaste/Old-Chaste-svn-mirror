@@ -29,5 +29,7 @@
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
-			    
+	
+	<PostProcessing>
+    </PostProcessing>    
 </ChasteParameters>
