@@ -86,10 +86,11 @@ public:
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.
      *
-     * @param numAcross number of VertexElements across
-     * @param numUp number of VertexElements up
-     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
-     * @param edgeDivisionThreshold the maximum threshold distance for edge division
+     * @param numAcross  Number of VertexElements across.
+     * @param numUp  Number of VertexElements up.
+     * @param cellRearrangementThreshold  The minimum threshold distance for element rearrangment.
+     * @param edgeDivisionThreshold  The maximum threshold distance for edge division.
+     * @param isFlatBottom  Whether to enforce a flat bottom to the crypt? (defaults to false).
      */
     Cylindrical2dVertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold, bool isFlatBottom=false);
 
