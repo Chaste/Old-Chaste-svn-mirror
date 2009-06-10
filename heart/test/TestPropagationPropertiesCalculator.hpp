@@ -83,7 +83,7 @@ public:
         // Luo Rudy model with conductivity at 0.2 (unlike above test).
         // 405 ms were simulated. Two stimuli were applied at node 0, one at 2 ms
         // and the other at 402.
-        // The file contains expeorted data at 3 nodes (5, 50 and 95).
+        // The file contains exported data at 3 nodes (5, 50 and 95).
 
          PropagationPropertiesCalculator ppc(&simulation_data);
 
@@ -91,7 +91,15 @@ public:
         TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(5).size(),2U);
         TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(50).size(),1U);
         TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(95).size(),1U);
-
+        TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(5).size(),2U);
+        TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(50).size(),1U);
+        TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(95).size(),1U);
+        
+        TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(5)[0],2.5100,0.01);
+        TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(5)[1],402.5100,0.01);
+        TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(50)[0],7.1300,0.01);
+        TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(95)[0],11.7600,0.01);
+        
         // Checking the velocity from a node with 2 upstrokes to a node with one only.
         // The method checks for the last AP that reached both, i.e. second from lasta t node 5.
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(5,95,0.9), 0.097, 0.003);

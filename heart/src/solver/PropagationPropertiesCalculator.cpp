@@ -42,6 +42,15 @@ PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
     // We don't own the data reader, so we don't destroy it.
 }
 
+/// \todo the following helper method, when used, causes seg faults
+//CellProperties PropagationPropertiesCalculator::GetCellProperties(unsigned globalNodeIndex)
+//{
+//    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
+//    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
+//    CellProperties cell_props(voltages, times);
+//    return cell_props;
+//}
+
 double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
@@ -56,6 +65,14 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllMaximumUpstroke
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
     CellProperties cell_props(voltages, times);
     return cell_props.GetMaxUpstrokeVelocities();
+}
+
+std::vector<double> PropagationPropertiesCalculator::CalculateUpstrokeTimes(unsigned globalNodeIndex)
+{
+    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
+    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
+    CellProperties cell_props(voltages, times);
+    return cell_props.GetTimesAtMaxUpstrokeVelocity();
 }
 
 double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const double percentage,

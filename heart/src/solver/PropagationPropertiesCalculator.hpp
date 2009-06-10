@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _PROPAGATIONPROPERTIESCALCULATOR_HPP_
 
 #include "Hdf5DataReader.hpp"
+#include "CellProperties.hpp"
 #include <string>
 
 class PropagationPropertiesCalculator
@@ -40,6 +41,9 @@ private:
     Hdf5DataReader *mpDataReader;
     /**< Name of the variable representing the membrane potential. */
     const std::string mVoltageName;
+    
+//    CellProperties GetCellProperties(unsigned globalNodeIndex);
+    
 public:
     /**
      * Constructor.
@@ -67,6 +71,14 @@ public:
      * @param globalNodeIndex  The cell at which to calculate.
      */
     std::vector<double> CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex);
+
+     /**
+     * Calculate the times of upstroke at a single cell.
+     * We return all the times of upstroke velocities for all APs.
+     *
+     * @param globalNodeIndex  The cell at which to calculate.
+     */
+    std::vector<double> CalculateUpstrokeTimes(unsigned globalNodeIndex);
 
     /**
      * Calculate the conduction velocity between two cells, i.e. the time
