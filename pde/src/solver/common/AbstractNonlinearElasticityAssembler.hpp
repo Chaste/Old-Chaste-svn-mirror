@@ -212,6 +212,12 @@ protected:
      */
     virtual void PostNewtonStep(unsigned counter, double normResidual);
 
+    /**
+     * Allocates memory for the Jacobian and preconditioner matrices (larger number of
+     * non-zeros per row than with say linear problems)
+     */
+    void AllocateMatrixMemory();
+
 public:
 
     /**
@@ -340,6 +346,19 @@ double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
     return norm/mNumDofs;
 }
 
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
+{
+    mpLinearSystem = new LinearSystem(mNumDofs); // default Mat tyype is MATMPIAIJ
+    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work but assembly is then really slow!
+
+    // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
+    // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
+    unsigned num_non_zeros = DIM < 3 ? 75 : 500;
+
+    MatMPIAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
+    MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
+}
 
 template<unsigned DIM>
 double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
@@ -550,6 +569,7 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
       mDensity(density),
       mOutputDirectory(outputDirectory),
       mFixedNodes(fixedNodes),
+      mNumNewtonIterations(0),
       mUsingBodyForceFunction(false),
       mUsingTractionBoundaryConditionFunction(false)
 {
@@ -560,16 +580,8 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
     assert(density > 0);
     assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
-
-    mpLinearSystem = new LinearSystem(mNumDofs); // default Mat tyype is MATMPIAIJ
-    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work but assembly is then really slow!
-
-    // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
-    // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 250ish
-    unsigned num_non_zeros = DIM < 3 ? 75 : 500;
-
-    MatMPIAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
-    MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
+    
+    AllocateMatrixMemory();
 }
 
 
@@ -600,15 +612,7 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
     assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
 
-    mpLinearSystem = new LinearSystem(mNumDofs); // default Mat tyype is MATMPIAIJ
-    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work but assembly is then really slow!
-
-    // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
-    // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 250ish
-    unsigned num_non_zeros = DIM < 3 ? 75 : 500;
-
-    MatMPIAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
-    MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
+    AllocateMatrixMemory();
 }
 
 
