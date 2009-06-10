@@ -152,6 +152,8 @@ public:
         ode.SetStateVariable(0, 2.0);
 		ode.SetStateVariable(1, 5.0);
 
+		TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariable(2, 1.0)); //cover exception
+
 		state_variables = ode.rGetStateVariables();
 
 		TS_ASSERT_DELTA(state_variables[0], 2.0, 1e-12);
