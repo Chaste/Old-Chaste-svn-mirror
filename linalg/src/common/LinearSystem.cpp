@@ -54,8 +54,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
-    strcpy(mKspType, "gmres");
-    strcpy(mPcType, "jacobi");
+    mKspType = "gmres";
+    mPcType = "jacobi";
     
 #ifdef TRACE_KSP
     mNumSolves = 0;
@@ -111,8 +111,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector,
     
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
-    strcpy(mKspType, "gmres");
-    strcpy(mPcType, "jacobi");
+    mKspType = "gmres";
+    mPcType = "jacobi";
     
 #ifdef TRACE_KSP
     mNumSolves = 0;
@@ -139,8 +139,8 @@ LinearSystem::LinearSystem(Vec templateVector)
 
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
-    strcpy(mKspType, "gmres");
-    strcpy(mPcType, "jacobi");
+    mKspType = "gmres";
+    mPcType = "jacobi";
 
 #ifdef TRACE_KSP
     mNumSolves = 0;
@@ -181,8 +181,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
 
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
-    strcpy(mKspType, "gmres");
-    strcpy(mPcType, "jacobi");
+    mKspType = "gmres";
+    mPcType = "jacobi";
 
 #ifdef TRACE_KSP
     mNumSolves = 0;
@@ -517,7 +517,7 @@ void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
 
 void LinearSystem::SetKspType(const char *kspType)
 {
-    strcpy(mKspType, kspType);
+    mKspType = kspType;
     if (mKspIsSetup)
     {
         KSPSetType(mKspSolver, kspType);
@@ -527,7 +527,7 @@ void LinearSystem::SetKspType(const char *kspType)
 
 void LinearSystem::SetPcType(const char *pcType)
 {
-    strcpy(mPcType, pcType);
+    mPcType=pcType;
     if (mKspIsSetup)
     {
         PC prec;
@@ -579,7 +579,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
 
         // set ksp and pc types
-        KSPSetType(mKspSolver, mKspType);
+        KSPSetType(mKspSolver, mKspType.c_str());
         KSPGetPC(mKspSolver, &prec);
 
 
@@ -590,7 +590,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
         else
         {
-            PCSetType(prec, mPcType);
+            PCSetType(prec, mPcType.c_str());
         }
 
         if (mMatNullSpace)

@@ -82,8 +82,8 @@ private:
      * Default is to false
      */
     bool mUseAbsoluteTolerance;
-    char mKspType[30];/**< KSP solver type (see PETSc KSPSetType() ) */
-    char mPcType[30];/**< Preconditioner type (see PETSc PCSetType() ) */
+    std::string mKspType;/**< KSP solver type (see PETSc KSPSetType() ) */
+    std::string mPcType;/**< Preconditioner type (see PETSc PCSetType() ) */
 
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see AbstractBoundaryConditionsContainer */
 
@@ -103,19 +103,14 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //mOwnershipRangeLo; ///\todo - this may change 
-        //mOwnershipRangeHi; ///\todo - this may change
         //MatNullSpace mMatNullSpace; ///\todo 
-        // archive & mDestroyMatAndVec; ///? How is memory management going to work here?
-
-        //KSP mKspSolver;  ///\todo recreate?
-        //archive & mKspIsSetup; //set this to false rather than archiving?
+  
         archive & mNonZerosUsed;  
         archive & mMatrixIsConstant;
         archive & mTolerance; 
         archive & mUseAbsoluteTolerance;
-        //archive & mKspType;
-        //archive & mPcType;
+        archive & mKspType;
+        archive & mPcType;
 
         //Vec mDirichletBoundaryConditionsVector; ///\todo
     }    

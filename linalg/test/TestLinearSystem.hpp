@@ -779,9 +779,17 @@ public:
         archive_filename = handler.GetOutputDirectoryFullPath() + "ls.arch";       
         
         int lo, hi;
-        // SAVE
+        unsigned size=5;
+        std::vector<double> rhs_values;
+        rhs_values.push_back(14.0);
+        rhs_values.push_back(32.0);
+        rhs_values.push_back(50.0);
+        rhs_values.push_back(50.0);
+        rhs_values.push_back(50.0);
+        TS_ASSERT_EQUALS(rhs_values.size(), size);
+         // SAVE
         {
-            LinearSystem ls = LinearSystem(3);
+            LinearSystem ls = LinearSystem(size);
             Mat temp_mat=ls.GetLhsMatrix();
             PetscTruth symm_set, is_symmetric;
             is_symmetric = PETSC_FALSE;
@@ -796,42 +804,40 @@ public:
             TS_ASSERT_EQUALS(is_symmetric, PETSC_TRUE);
 
             // Enter symmetric data
-            for (int row=0; row<3; row++)
+            for (unsigned row=0; row<size; row++)
             {
-                for (int col=0; col<3; col++)
+                for (unsigned col=0; col<size; col++)
                 {
-                    ls.SetMatrixElement(row, col, fabs(row-col));
+                    ls.SetMatrixElement(row, col, (row == col)?(row+1.0):0.0);
                 }
             }
             ls.AssembleFinalLinearSystem();
     
-            // arbitrary
-            ls.SetRhsVectorElement(0, 14.0);
-            ls.SetRhsVectorElement(1, 32.0);
-            ls.SetRhsVectorElement(2, 50.0);
+            for (unsigned i=0; i<size; i++)
+            {
+                ls.SetRhsVectorElement(i, rhs_values[i]);
+            }
+            ls.SetKspType("cg");
+            ls.SetPcType("none");
                 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             LinearSystem* const p_linear_system = &ls;
             output_arch << p_linear_system;  
             
-            TS_ASSERT_EQUALS(p_linear_system->GetSize(), 3u);    
+            TS_ASSERT_EQUALS(p_linear_system->GetSize(), size);    
             VecGetOwnershipRange(p_linear_system->GetRhsVector(), &lo, &hi);
-            std::vector<double> answer;
-            answer.push_back(14.0);
-            answer.push_back(32.0);
-            answer.push_back(50.0);
             
             for ( int i = lo; i < hi; i++ )
             {       
-                TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), answer[i], 1e-9);
+                TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), rhs_values[i], 1e-9);
             }
 
-            for (int row=lo; row<hi; row++)
+            for (unsigned row=(unsigned)lo; row<(unsigned)hi; row++)
             {
-                for (int col=0; col<3; col++)
+                for (unsigned col=0; col<size; col++)
                 {
-                    TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), fabs(row-col), 1e-9);
+                    TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), (row == col)?(row+1.0):0.0, 1e-9);
                 }
             }         
             
@@ -853,32 +859,39 @@ public:
             TS_ASSERT_EQUALS(is_symmetric, PETSC_TRUE);
 
 
-            TS_ASSERT_EQUALS(p_linear_system->GetSize(), 3u);    
+            TS_ASSERT_EQUALS(p_linear_system->GetSize(), size);    
             
             int saved_lo, saved_hi;
             VecGetOwnershipRange(p_linear_system->GetRhsVector(), &saved_lo, &saved_hi);
             
             TS_ASSERT_EQUALS(hi, saved_hi);
             TS_ASSERT_EQUALS(lo, saved_lo);
-            
-            std::vector<double> answer;
-            answer.push_back(14.0);
-            answer.push_back(32.0);
-            answer.push_back(50.0);
-            
+                     
             for ( int i = lo; i < hi; i++ )
             {
-                TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), answer[i], 1e-9);
+                TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), rhs_values[i], 1e-9);
             }
             
-            for (int row=lo; row<hi; row++)
+            for (unsigned row=(unsigned)lo; row<(unsigned)hi; row++)
             {
-                for (int col=0; col<3; col++)
+                for (unsigned col=0; col<size; col++)
                 {
-                    TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), fabs(row-col), 1e-9);
+                    TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), (row == col)?(row+1.0):0.0, 1e-9);
                 }
             }
             
+            //Check archiving of KSP/PC types
+            Vec solution_vector3;
+            solution_vector3 = p_linear_system->Solve();
+            VecDestroy(solution_vector3);KSPType solver;
+            PCType pc;
+            PC prec;
+            KSPGetType(p_linear_system->mKspSolver, &solver);
+            KSPGetPC(p_linear_system->mKspSolver, &prec);
+            PCGetType(prec, &pc);
+    
+            TS_ASSERT( strcmp(solver, "cg")==0 );
+            TS_ASSERT( strcmp(pc, "none")==0 );
             delete p_linear_system;
         }
         
