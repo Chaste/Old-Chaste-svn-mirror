@@ -157,7 +157,7 @@ public:
         TS_ASSERT_DELTA(next_node[0], 1.0, 1e-6);
         TS_ASSERT_DELTA(next_node[1], 0.0, 1e-6);
 
-        for (int i=0; i<5; i++)
+        for (unsigned i=0; i<5; i++)
         {
             TS_ASSERT_THROWS_NOTHING(next_node = mesh_reader.GetNextNode());
         }

@@ -461,7 +461,7 @@ public:
         TS_ASSERT(typeid(daughter_cell1.GetCellCycleModel()) == typeid(stem_cell.GetCellCycleModel()));
 
         // Go to large time to ensure that differentiated cells can not divide
-        for (int i=0; i<990; i++)
+        for (unsigned i=0; i<990; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
         }
@@ -482,7 +482,7 @@ public:
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
-        for (int i=0; i<600; i++)
+        for (unsigned i=0; i<600; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
         }
@@ -492,7 +492,7 @@ public:
         transit_cell.InitialiseCellCycleModel();
         static_cast<FixedDurationGenerationBasedCellCycleModel*>(transit_cell.GetCellCycleModel())->SetGeneration(2);
 
-        for (int i=0; i<1199; i++)
+        for (unsigned i=0; i<1199; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
         }
@@ -507,7 +507,7 @@ public:
         transit_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(transit_cell.GetCellCycleModel(), cell_cycle_model);
-        for (int i=0; i<1399; i++)
+        for (unsigned i=0; i<1399; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
         }
@@ -533,7 +533,7 @@ public:
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
         const double end_time = 70.0;
-        const int number_of_simulations = 1000;
+        const unsigned number_of_simulations = 1000;
 
         std::vector<TissueCell> cells;
         std::vector<TissueCell> newly_born;
@@ -545,7 +545,7 @@ public:
         double transit_cell_mean = 0.0;
         double differentiated_cell_mean = 0.0;
 
-        for (int simulation_number=0; simulation_number<number_of_simulations; simulation_number++)
+        for (unsigned simulation_number=0; simulation_number<number_of_simulations; simulation_number++)
         {
             SimulationTime::Destroy();
             SimulationTime* p_simulation_time = SimulationTime::Instance();

@@ -197,6 +197,7 @@ void CryptSimulation2d::UseJiggledBottomCells()
     mUseJiggledBottomCells = true;
 }
 
+
 void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
 {
     bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();

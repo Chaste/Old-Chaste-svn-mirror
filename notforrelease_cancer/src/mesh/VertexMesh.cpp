@@ -213,7 +213,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
 
                 std::vector<Node<SPACE_DIM>*> element_nodes;
 
-                for (int i=0; i<6; i++)
+                for (unsigned i=0; i<6; i++)
                 {
                    element_nodes.push_back(this->mNodes[node_indices[i]]);
                 }

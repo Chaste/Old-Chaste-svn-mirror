@@ -145,7 +145,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
     
                 std::vector<Node<2>*> element_nodes;
     
-                for (int i=0; i<6; i++)
+                for (unsigned i=0; i<6; i++)
                 {
                    element_nodes.push_back(mNodes[node_indices[i]]);
                 }

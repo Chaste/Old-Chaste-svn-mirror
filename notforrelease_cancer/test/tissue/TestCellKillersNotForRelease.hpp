@@ -120,7 +120,7 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;
-        int num_timesteps = 100*(int)end_time; // ensure the time step is not too small
+        unsigned num_timesteps = 100*(unsigned)end_time; // ensure the time step is not too small
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
         // Create mesh
