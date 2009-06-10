@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _TESTLINEARSYSTEM_HPP_
 #define _TESTLINEARSYSTEM_HPP_
-
+#include "Debug.hpp"
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -782,9 +782,19 @@ public:
         // SAVE
         {
             LinearSystem ls = LinearSystem(3);
-    
+            Mat temp_mat=ls.GetLhsMatrix();
+            PetscTruth symm_set, is_symmetric;
+            is_symmetric = PETSC_FALSE;
+            MatIsSymmetricKnown(temp_mat, &symm_set, &is_symmetric);
+            TS_ASSERT_EQUALS(symm_set, PETSC_FALSE);
+            TS_ASSERT_EQUALS(is_symmetric, PETSC_FALSE);
+            
             ls.SetMatrixIsSymmetric();
-    
+            
+            MatIsSymmetricKnown(temp_mat, &symm_set, &is_symmetric);
+            TS_ASSERT_EQUALS(symm_set, PETSC_TRUE);
+            TS_ASSERT_EQUALS(is_symmetric, PETSC_TRUE);
+
             // Enter symmetric data
             for (int row=0; row<3; row++)
             {
@@ -823,7 +833,8 @@ public:
                 {
                     TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), fabs(row-col), 1e-9);
                 }
-            }
+            }         
+            
         }
         // LOAD
         {
@@ -834,6 +845,14 @@ public:
             LinearSystem *p_linear_system;//=&linear_system;
             input_arch >> p_linear_system;
             
+            //Check that structural symmetry is preserved
+            PetscTruth symm_set, is_symmetric;
+            is_symmetric=PETSC_FALSE;
+            MatIsSymmetricKnown(p_linear_system->GetLhsMatrix(), &symm_set, &is_symmetric);
+            TS_ASSERT_EQUALS(symm_set, PETSC_TRUE);
+            TS_ASSERT_EQUALS(is_symmetric, PETSC_TRUE);
+
+
             TS_ASSERT_EQUALS(p_linear_system->GetSize(), 3u);    
             
             int saved_lo, saved_hi;
@@ -864,6 +883,7 @@ public:
         }
         
     }
+    
     
     // this test should be the last in the suite
     void TestSetFromOptions()

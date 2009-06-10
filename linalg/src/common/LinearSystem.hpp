@@ -40,7 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscviewer.h>
 
 #include <string>
-
+#include <cassert>
+ 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
@@ -546,17 +547,25 @@ inline void save_construct_data(
     archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch"; 
     const unsigned size = t->GetSize();
     ar << size;
-       
+    
     PetscViewer vec_viewer;
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_WRITE, &vec_viewer);
     VecView(t->GetRhsVector(), vec_viewer);
     PetscViewerDestroy(vec_viewer);
+    
     
     PetscViewer mat_viewer;
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_WRITE, &mat_viewer);
     MatView(t->GetLhsMatrix(), mat_viewer);
     PetscViewerDestroy(mat_viewer);
 
+    //Is the matrix structurally symmetric?
+    PetscTruth symm_set, is_symmetric;
+    is_symmetric = PETSC_FALSE;
+    //Note that the following call only changes is_symmetric when symm_set is true
+    MatIsSymmetricKnown(t->GetLhsMatrix(), &symm_set, &is_symmetric);
+    assert(symm_set == is_symmetric);
+    ar << symm_set;
 }    
     
 /**
@@ -592,10 +601,19 @@ inline void load_construct_data(
      PetscViewer mat_viewer;
      PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_READ, &mat_viewer);
      Mat new_mat;
-     MatLoad(mat_viewer, PETSC_NULL, &new_mat);
+
+     MatLoad(mat_viewer, MATMPIAIJ, &new_mat);
      PetscViewerDestroy(mat_viewer);
-     MatType mat_type;
-     MatGetType(new_mat, &mat_type);
+     
+     //This has to occur after the call to MatLoad as the matrix does not exist until MatLoad is called.
+     //The property will be copied & set correctly in the LinearSystem constructor.
+     PetscTruth symm_set;
+     ar >> symm_set;
+     if (symm_set == PETSC_TRUE)
+     {
+        MatSetOption(new_mat, MAT_SYMMETRIC);
+        MatSetOption(new_mat, MAT_SYMMETRY_ETERNAL);
+     }
 
      ::new(t)LinearSystem(size, new_mat, new_vec, MATMPIMAIJ, true);
 }

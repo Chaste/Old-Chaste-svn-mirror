@@ -77,7 +77,24 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector,
 {
     if (erasePetscInput) // For use with archiver...
     {
+       
         MatDuplicate(lhsMatrix, MAT_COPY_VALUES, &mLhsMatrix);
+        // ... alternatives
+        //MatCopy(lhsMatrix, mLhsMatrix, SAME_NONZERO_PATTERN);
+        //MatConvert(lhsMatrix, MATSAME, MAT_REUSE_MATRIX , &mLhsMatrix);
+        
+        ///\todo There seems to be no way of setting the symmetry flag BEFORE writing in the data.
+        //Check for symmetry
+        PetscTruth symm_set, is_symmetric;
+        is_symmetric = PETSC_FALSE;
+        //Note that the following call only changes is_symmetric when symm_set is true
+        MatIsSymmetricKnown(lhsMatrix, &symm_set, &is_symmetric);
+        if (is_symmetric == PETSC_TRUE)
+        {
+            MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
+            MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
+        }
+        
         VecDuplicate(rhsVector,&mRhsVector);
         VecCopy(rhsVector, mRhsVector);
         VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
