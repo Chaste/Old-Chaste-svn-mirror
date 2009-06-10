@@ -102,16 +102,13 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //archive & mLhsMatrix;  ///\todo - use PETSc native format or distributed writer?
-        //mRhsVector;  /**< The right-hand side vector. */
-        // archive & mSize; - done in constructor
         //mOwnershipRangeLo; ///\todo - this may change 
         //mOwnershipRangeHi; ///\todo - this may change
         //MatNullSpace mMatNullSpace; ///\todo 
-        //? mDestroyMatAndVec; ///? How is memory management going to work here?
+        // archive & mDestroyMatAndVec; ///? How is memory management going to work here?
 
         //KSP mKspSolver;  ///\todo recreate?
-        archive & mKspIsSetup; //set this to false rather than archiving?
+        //archive & mKspIsSetup; //set this to false rather than archiving?
         archive & mNonZerosUsed;  
         archive & mMatrixIsConstant;
         archive & mTolerance; 
@@ -167,8 +164,9 @@ public:
      * @param lhsMatrix
      * @param rhsVector
      * @param matType defaults to MATMPIAIJ
+     * @param erasePetscInput is used by the archive loading method.  It usually defaults to false
      */
-    LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ);
+    LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ, bool erasePetscInput=false);
 
     /**
      * Destructor.
@@ -176,12 +174,11 @@ public:
     ~LinearSystem();
     
     /**
-     * Helper method for the constructor. Initialized the LHS matrix and RHS vector.
+     * Helper method for the constructor. Initializes the LHS matrix and RHS vector.
      * 
-     * @param lhsVectorSize
      * @param matType
      */
-    void SetupVectorAndMatrix(PetscInt lhsVectorSize, MatType matType);
+    void SetupVectorAndMatrix(MatType matType);
 
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
@@ -550,17 +547,15 @@ inline void save_construct_data(
     const unsigned size = t->GetSize();
     ar << size;
        
-    PetscViewer viewer;
-    PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_WRITE, &viewer);
-
-    VecView(t->GetRhsVector(), viewer);
-    PetscViewerDestroy(viewer);
+    PetscViewer vec_viewer;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_WRITE, &vec_viewer);
+    VecView(t->GetRhsVector(), vec_viewer);
+    PetscViewerDestroy(vec_viewer);
     
-    PetscViewer viewer2;
-    PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_lhs.c_str(),FILE_MODE_WRITE, &viewer2);
-
-    MatView(t->GetLhsMatrix(), viewer2);
-    PetscViewerDestroy(viewer2);
+    PetscViewer mat_viewer;
+    PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_WRITE, &mat_viewer);
+    MatView(t->GetLhsMatrix(), mat_viewer);
+    PetscViewerDestroy(mat_viewer);
 
 }    
     
@@ -587,19 +582,22 @@ inline void load_construct_data(
      PetscInt size; 
      ar >> size;
      
-     PetscViewer viewer;
-     PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_READ,&viewer);
-     Vec newvec;
-     VecCreate(PETSC_COMM_WORLD,&newvec);
-     VecLoad(viewer, PETSC_NULL, &newvec);
-
-     PetscViewer viewer2;
-     PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_lhs.c_str(),FILE_MODE_READ,&viewer2);
-     Mat newmat;
-     MatCreate(PETSC_COMM_WORLD,&newmat);
-     MatLoad(viewer2, PETSC_NULL, &newmat);
+     PetscViewer vec_viewer;
+     PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_READ, &vec_viewer);
      
-     ::new(t)LinearSystem(size, newmat, newvec);
+     Vec new_vec;
+     VecLoad(vec_viewer, PETSC_NULL, &new_vec);
+     PetscViewerDestroy(vec_viewer);
+
+     PetscViewer mat_viewer;
+     PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_READ, &mat_viewer);
+     Mat new_mat;
+     MatLoad(mat_viewer, PETSC_NULL, &new_mat);
+     PetscViewerDestroy(mat_viewer);
+     MatType mat_type;
+     MatGetType(new_mat, &mat_type);
+
+     ::new(t)LinearSystem(size, new_mat, new_vec, MATMPIMAIJ, true);
 }
 }
 } // namespace ...

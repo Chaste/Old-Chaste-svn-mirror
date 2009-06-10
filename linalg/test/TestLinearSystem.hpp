@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTLINEARSYSTEM_HPP_
 #define _TESTLINEARSYSTEM_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -676,14 +675,110 @@ public:
         TS_ASSERT_EQUALS(maxits, 10000);
 
     }
+    
+    void TestPetscSaveAndLoad()
+    {
+         //Archive                           
+        OutputFileHandler handler("Archive", false);
+        std::string archive_filename_lhs, archive_filename_rhs;
+        archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   
+        archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch"; 
+        
+        // Make a linear system
+        LinearSystem ls = LinearSystem(3);    
+        ls.SetMatrixIsSymmetric();
+        // Enter symmetric data
+        for (int row=0; row<3; row++)
+        {
+            for (int col=0; col<3; col++)
+            {
+                ls.SetMatrixElement(row, col, fabs(row-col));
+            }
+        }
+        ls.AssembleFinalLinearSystem();
+        // arbitrary
+        ls.SetRhsVectorElement(0, 14.0);
+        ls.SetRhsVectorElement(1, 32.0);
+        ls.SetRhsVectorElement(2, 50.0);
+        
+        // SAVE
+        {
+            PetscViewer vec_viewer;
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_WRITE, &vec_viewer);
+        
+            VecView(ls.GetRhsVector(), vec_viewer);
+            PetscViewerDestroy(vec_viewer);
+            
+            PetscViewer mat_viewer;
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_lhs.c_str(),FILE_MODE_WRITE, &mat_viewer);
+        
+            MatView(ls.GetLhsMatrix(), mat_viewer);
+            PetscViewerDestroy(mat_viewer);            
+        }
+        // LOAD
+        {
+            
+            PetscViewer vec_viewer;
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_READ, &vec_viewer);
+            Vec new_vec;
+            VecLoad(vec_viewer, PETSC_NULL, &new_vec);
+            PetscViewerDestroy(vec_viewer);
+            
+            int lo, hi;
+            VecGetOwnershipRange(new_vec, &lo, &hi);
+            std::vector<double> answer;
+            answer.push_back(14.0);
+            answer.push_back(32.0);
+            answer.push_back(50.0);
+            
+            double *p_vec_values;
+            VecGetArray(new_vec, &p_vec_values);
+            
+            for ( int i = lo; i < hi; i++ )
+            {       
+                TS_ASSERT_DELTA(p_vec_values[i-lo], answer[i], 1e-9);
+            }
+            
+            VecDestroy(new_vec);
+            
+            PetscViewer mat_viewer;
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_READ, &mat_viewer);
+            Mat new_mat;
+            MatLoad(mat_viewer, PETSC_NULL, &new_mat);
+            PetscViewerDestroy(mat_viewer);
+            
+            for (int row=lo; row<hi; row++)
+            {
+                // Get a whole row out of the matrix and check it
+                PetscInt row_as_array[1];
+                row_as_array[0] = row;
+                PetscInt col_as_array[3];
+                for (int col=0; col<3; col++)
+                {
+                   col_as_array[col] = col;
+                }            
+                double ret_array[3];            
+                MatGetValues(new_mat, 1, row_as_array, 3, col_as_array, ret_array);
+                
+                for (int col=0; col<3; col++)
+                {               
+                    TS_ASSERT_DELTA(ret_array[col], fabs(row-col), 1e-9);
+                }
+            }
+            
+            MatDestroy(new_mat);
+        }
+        
+    }
 
-
-    void TestSaveAndLoad()
+    void TestSaveAndLoadLinearSystem()
     {
          //Archive                           
         OutputFileHandler handler("Archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "ls.arch";       
+        
+        int lo, hi;
         // SAVE
         {
             LinearSystem ls = LinearSystem(3);
@@ -711,7 +806,6 @@ public:
             output_arch << p_linear_system;  
             
             TS_ASSERT_EQUALS(p_linear_system->GetSize(), 3u);    
-            int lo, hi;
             VecGetOwnershipRange(p_linear_system->GetRhsVector(), &lo, &hi);
             std::vector<double> answer;
             answer.push_back(14.0);
@@ -730,20 +824,23 @@ public:
                     TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), fabs(row-col), 1e-9);
                 }
             }
-            
         }
         // LOAD
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs); 
             
-            LinearSystem* p_linear_system;
+            //LinearSystem linear_system(3);
+            LinearSystem *p_linear_system;//=&linear_system;
             input_arch >> p_linear_system;
             
             TS_ASSERT_EQUALS(p_linear_system->GetSize(), 3u);    
             
-            int lo, hi;
-            VecGetOwnershipRange(p_linear_system->GetRhsVector(), &lo, &hi);
+            int saved_lo, saved_hi;
+            VecGetOwnershipRange(p_linear_system->GetRhsVector(), &saved_lo, &saved_hi);
+            
+            TS_ASSERT_EQUALS(hi, saved_hi);
+            TS_ASSERT_EQUALS(lo, saved_lo);
             
             std::vector<double> answer;
             answer.push_back(14.0);
@@ -763,7 +860,7 @@ public:
                 }
             }
             
-            delete p_linear_system ;
+            delete p_linear_system;
         }
         
     }
