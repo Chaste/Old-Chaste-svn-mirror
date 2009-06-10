@@ -128,6 +128,20 @@ public:
 
 public:
 
+    void TestFullActionPotential() throw(Exception)
+    {
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
+        tester.SimulateFullActionPotential=true;
+        
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.IsConverged());
+        
+        ///\todo Long plateu phase will force convergence to happen earlier 
+        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
+        ///\todo Investigate if we're getting a sensible APD.
+        //TS_ASSERT_EQUALS(??apd90_first_qn);
+    }
+
     void TestStimulatePlanein1D() throw(Exception)
     {
         ConvergeInVarious(PLANE);
@@ -137,6 +151,7 @@ public:
     {
         ConvergeInVarious(REGION);
     }
+    
 
     //Current test takes about 20 mins.
     //This is much longer (1 hour?) with default ksp
