@@ -120,6 +120,9 @@ public:
     unsigned MeshNum;
     double RelativeConvergenceCriterion;
     double LastDifference;
+    double Apd90FirstQn;
+    double Apd90ThirdQn;
+    double ConductionVelocity;
     double AbsoluteStimulus;
     bool PopulatedResult;
     bool FixedResult;
@@ -423,13 +426,12 @@ public:
                 PropagationPropertiesCalculator ppc(&results_reader);
 
 
-                double cond_velocity=0.0, apd90_first_qn=0.0, apd90_third_qn=0.0;
                 try
                 {
-                    apd90_first_qn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
-                    apd90_third_qn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
+                    Apd90FirstQn = ppc.CalculateActionPotentialDuration(0.9, first_quadrant_node);
+                    Apd90ThirdQn = ppc.CalculateActionPotentialDuration(0.9, third_quadrant_node);
 
-                    cond_velocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
+                    ConductionVelocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
                 }
                 catch (Exception e)
                 {
@@ -442,18 +444,17 @@ public:
                 double cond_velocity_error = 0.0;
                 double apd90_first_qn_error = 0.0;
                 double apd90_third_qn_error = 0.0;
-
-
+                
                 if (this->PopulatedResult)
                 {
-                    cond_velocity_error = fabs(cond_velocity - prev_cond_velocity) / prev_cond_velocity;
-                    apd90_first_qn_error = fabs(apd90_first_qn - prev_apd90_first_qn) / prev_apd90_first_qn;
-                    apd90_third_qn_error = fabs(apd90_third_qn - prev_apd90_third_qn) / prev_apd90_third_qn;
+                    cond_velocity_error = fabs(ConductionVelocity - prev_cond_velocity) / prev_cond_velocity;
+                    apd90_first_qn_error = fabs(Apd90FirstQn - prev_apd90_first_qn) / prev_apd90_first_qn;
+                    apd90_third_qn_error = fabs(Apd90ThirdQn - prev_apd90_third_qn) / prev_apd90_third_qn;
                 }
 
-                prev_cond_velocity = cond_velocity;
-                prev_apd90_first_qn = apd90_first_qn;
-                prev_apd90_third_qn = apd90_third_qn;
+                prev_cond_velocity = ConductionVelocity;
+                prev_apd90_first_qn = Apd90FirstQn;
+                prev_apd90_third_qn = Apd90ThirdQn;
 
                 // calculate l2norm
                 double max_abs_error = 0;
@@ -496,9 +497,9 @@ public:
                                             << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
                                             << sqrt(sum_sq_abs_error/sum_sq_prev_voltage) << "\t"
                                             << max_abs_error << "\t"
-                                            << apd90_first_qn <<" ("<< apd90_first_qn_error <<")"<< "\t"
-                                            << apd90_third_qn <<" ("<< apd90_third_qn_error <<")"<< "\t"
-                                            << cond_velocity <<" ("<< cond_velocity_error  <<")"<< std::endl;
+                                            << Apd90FirstQn <<" ("<< apd90_first_qn_error <<")"<< "\t"
+                                            << Apd90ThirdQn <<" ("<< apd90_third_qn_error <<")"<< "\t"
+                                            << ConductionVelocity <<" ("<< cond_velocity_error  <<")"<< std::endl;
                     }
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;

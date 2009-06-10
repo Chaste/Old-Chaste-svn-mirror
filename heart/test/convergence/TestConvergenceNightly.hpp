@@ -132,14 +132,19 @@ public:
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SimulateFullActionPotential=true;
+        //Time steps are okay for giving a sensible upstroke
+        tester.PdeTimeStep=0.1;
+        tester.OdeTimeStep=0.1;
         
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
         
-        ///\todo Long plateu phase will force convergence to happen earlier 
-        TS_ASSERT_EQUALS(tester.MeshNum, 5u);
+        ///Note that long plateau phase will force convergence to happen earlier 
+        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
         ///\todo Investigate if we're getting a sensible APD.
-        //TS_ASSERT_EQUALS(??apd90_first_qn);
+        TS_ASSERT_LESS_THAN(100.0, tester.Apd90FirstQn);//Fix. Shouldn't be 1.2907
+        TS_ASSERT_LESS_THAN(100.0, tester.Apd90ThirdQn);//Fix. Shouldn't be 1.5601
+        TS_ASSERT_DELTA( 0.0588, tester.ConductionVelocity, 1e-3);
     }
 
     void TestStimulatePlanein1D() throw(Exception)

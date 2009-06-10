@@ -36,7 +36,10 @@ AbstractUntemplatedConvergenceTester::AbstractUntemplatedConvergenceTester()
       PdeTimeStep(0.005),//Justification from 1D test with this->OdeTimeStep held at 0.0025
       MeshNum(5u),//Justification from 1D test
       RelativeConvergenceCriterion(1e-4),
-      LastDifference(1),
+      LastDifference(1.0),
+      Apd90FirstQn(0.0),
+      Apd90ThirdQn(0.0),
+      ConductionVelocity(0.0),
       AbsoluteStimulus(-1e7),
       PopulatedResult(false),
       FixedResult(false),
