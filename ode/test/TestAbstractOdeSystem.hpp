@@ -89,17 +89,17 @@ public:
         TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditionsComponent(2, -3.0));
         TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariables(v));
     }
-    
+
     void TestParameters()
     {
         ParameterisedOde ode;
-        
+
         TS_ASSERT_EQUALS(ode.GetParameter(0), 0);
         TS_ASSERT_EQUALS(ode.GetNumberOfParameters(), 1u);
-        
+
         ode.SetParameter(0, 1);
         TS_ASSERT_EQUALS(ode.GetParameter(0), 1);
-        
+
         TS_ASSERT_EQUALS(ode.rGetParameterNames()[0], "a");
         TS_ASSERT_EQUALS(ode.rGetParameterUnits()[0], "dimensionless");
     }
@@ -135,7 +135,7 @@ public:
         TS_ASSERT_DELTA(state_variables[0], 7.0, 1e-12);
         TS_ASSERT_DELTA(state_variables[1], 8.0, 1e-12);
 
-        ode.SetInitialConditionsComponent(1, 9.0);
+		ode.SetInitialConditionsComponent(1, 9.0);
         initial_conditions = ode.GetInitialConditions();
         TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 9.0, 1e-12);
@@ -148,25 +148,34 @@ public:
         boost::archive::text_oarchive output_arch(ofs);
 
         output_arch <<  static_cast<const TwoDimOdeSystem&>(ode);
+
+        ode.SetStateVariable(0, 2.0);
+		ode.SetStateVariable(1, 5.0);
+
+		state_variables = ode.rGetStateVariables();
+
+		TS_ASSERT_DELTA(state_variables[0], 2.0, 1e-12);
+		TS_ASSERT_DELTA(state_variables[1], 5.0, 1e-12);
+
     }
     void TestLoadAbstractOdeSystem()
     {
         TwoDimOdeSystem ode;
-        
+
         TS_ASSERT_EQUALS( ode.GetNumberOfStateVariables(), 2U );
-        
+
         // Read archive from previous test
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "ode.arch";
-        
+
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
         boost::archive::text_iarchive input_arch(ifs);
-        
+
         input_arch >> ode;
-        
+
         TS_ASSERT_EQUALS( ode.GetNumberOfStateVariables(), 2U );
-    
+
         std::vector<double> state_variables = ode.rGetStateVariables();
 
 
@@ -207,7 +216,7 @@ public:
         state = ode_system.DumpState("Test 2.", rY);
         TS_ASSERT_EQUALS(state, "Test 2.\nState:\n\tx:0\n\tv:1\n");
     }
-    
+
 };
 
 #endif //_TESTABSTRACTODESYSTEM_HPP_
