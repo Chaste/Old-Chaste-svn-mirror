@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+
+# BEGIN SETUP
+results=$CHASTE_TEST_OUTPUT/CryptTrackSingleCell
+first_experiment=300
+last_experiment=700
+# END OF SETUP
+
+if cd $results; then
+	rm -f single_voronoi.dat
+	rm -rf compiled_results
+else
+	echo "Could not change directory! Aborting." 1>&2
+	exit 1
+fi
+
+echo "Compiling results"
+for (( i=$first_experiment ; i<=$last_experiment ; i=i+10 ))
+do
+	awk '{if (NR%1==0) print}' results_from_time_"$i"/results.vizvoronoi >> single_voronoi.dat
+done
+
+mkdir compiled_results
+mv single_voronoi.dat compiled_results/
+echo "Results written to directory ${results}/compiled_results"
