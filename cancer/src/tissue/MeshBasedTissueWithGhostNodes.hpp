@@ -37,8 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A facade class encapsulating a mesh-based 'tissue' with ghost nodes.
  *
- * Hides the 'ghost nodes' concept from the simulation class, so the latter
- * only ever deals with real cells.
+ * If simulating a crypt with a mesh-based tissue, the mesh should be surrounded by at
+ * least one layer of ghost nodes. These are nodes which do not correspond to a cell,
+ * but are necessary for remeshing (because the remesher tries to create a convex hull
+ * of the set of nodes) and visualization purposes. The MeshBasedTissueWithGhostNodes
+ * class deals with these ghost nodes, hiding the 'ghost nodes' concept from the 
+ * TissueSimulation class, so the latter only ever deals with real cells.
  */
 template<unsigned DIM>
 class MeshBasedTissueWithGhostNodes : public MeshBasedTissue<DIM>

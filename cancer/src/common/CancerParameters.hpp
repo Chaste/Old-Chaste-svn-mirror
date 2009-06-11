@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- * A special singleton class which holds all of the parameters used in the cancer simulations
+ * A special singleton class which holds all of the parameters used in the cancer simulations.
  *
  * Because this is a singleton class it can be called from whichever part of the code needs
  * to find out a parameter value, the structure is quite simple with default values given
@@ -438,7 +438,10 @@ private:
 
     /**
      * Spring stiffness.
-     * Represented by the parameter mu in the model by Meineke et al (2001).
+     * 
+     * Represented by the parameter mu in the model by Meineke et al (2001) in 
+     * their off-lattice model of the intestinal crypt 
+     * (doi:10.1046/j.0960-7722.2001.00216.x).
      */
     double mSpringStiffness;
     
@@ -450,7 +453,9 @@ private:
 
     /**
      * Damping constant for normal cells.
-     * Represented by the parameter eta in the model by Meineke et al (2001).
+     * Represented by the parameter eta in the model by Meineke et al (2001) in 
+     * their off-lattice model of the intestinal crypt 
+     * (doi:10.1046/j.0960-7722.2001.00216.x).
      */
     double mDampingConstantNormal;
 

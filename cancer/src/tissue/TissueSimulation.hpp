@@ -43,42 +43,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Run a 2D or 3D tissue simulation, currently based on the Meineke Paper
- * (doi:10.1046/j.0960-7722.2001.00216.x)
+ * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre- or vertex-based 
+ * tissue.
+ * 
+ * In cell-centre-based tissues, each cell is represented by a single node (corresponding 
+ * to its centre), and connectivity is defined either by a Delaunay triangulation or 
+ * a radius of influence. In vertex-based tissues, each cell is represented by a polytope 
+ * (corresponding to its membrane) with a variable number of vertices. 
  *
- * Cells are represented by their centres in space, they are connected by
- * springs defined by the cells' Delaunay/Voronoi tessellation.
- *
- * The spring lengths are governed by the equations
- * dr/dt = stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-s0)
- *       = alpha sum_j r_hat_i,j*(|r_i,j|-s0)
- *
- * where alpha = stem_cycle_time*(mu/eta) = stem_cycle_time*meineke_lambda.
- *       s0    = natural length of the spring.
-
- * Length is scaled by natural length.
- * Time is in hours.
- *
- * meineke_lambda = mu (spring constant) / eta (damping) = 0.01 (from Meineke - note
- * that the value we use for Meineke lambda is completely different because we have
- * nondimensionalised)
- *
- * The TissueSimulation accepts a tissue (facade class), containing either a mesh or
- * just a vector of nodes, where nodes are associated with TissueCells or are ghost
- * nodes. The TissueSimulation then accesses only the TissueCells via an iterator in
- * the tissue facade class.
- *
- * If simulating a crypt with a mesh-based tissue, the mesh should be surrounded by at
- * least one layer of ghost nodes. These are nodes which do not correspond to a cell,
- * but are necessary for remeshing (because the remesher tries to create a convex hull
- * of the set of nodes) and visualization purposes. The MeshBasedTissueWithGhostNodes
- * class deals with ghost nodes.
- *
- * Cells can divide (at a time governed by their cell cycle models).
- *
- * Cells can die - at a time/position specified by cell killers which can be
- * added to the simulation.
- *
+ * The TissueSimulation is constructed with a Tissue, which updates the correspondence 
+ * between each TissueCell and its spatial representation and handles cell division (governed 
+ * by the CellCycleModel associated with each cell); and one or more Force laws, which define 
+ * the mechanical properties of the Tissue. It is also possible to add one or more CellKiller 
+ * objects to the TissueSimulation, which specify the conditions under which a TissueCell dies.
  */
 template<unsigned DIM>
 class TissueSimulation
@@ -141,7 +118,7 @@ protected:
     /** Visualiser setup file */
     out_stream mpSetupFile;
 
-    /** The Meineke and cancer parameters */
+    /** The cancer parameters */
     CancerParameters *mpParams;
 
     /** The singleton RandomNumberGenerator */

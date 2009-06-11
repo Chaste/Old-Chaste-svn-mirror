@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- *  Stochastic cell cycle model.
- *
+ * A stochastic cell cycle model employed by Meineke et al (2001) in their off-lattice
+ * model of the intestinal crypt (doi:10.1046/j.0960-7722.2001.00216.x).
  */
 class StochasticDurationGenerationBasedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
