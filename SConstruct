@@ -403,18 +403,18 @@ if test_summary and not compile_only:
         summary_action = 'python python/DisplayTests.py '+output_dir+' '+build_type
   
     summary_index = os.path.join(output_dir, 'index.html')
-    senv.AlwaysBuild(summary_index)
-    #senv.SourceSignatures('timestamp')
-    #senv.Command(summary_index, Dir(output_dir), summary_action)
     senv.Command(summary_index, Flatten(test_log_files), summary_action)
     # Avoid circular dependencies
     senv.Ignore(summary_index, summary_index)
     senv.Ignore(Dir(output_dir), summary_index)
-    # Make sure the summary is always required by the build targets requested
-    for targ in BUILD_TARGETS:
+    # Make sure the summary is always required by any build targets requested
+    # explicitly
+    for targ in COMMAND_LINE_TARGETS:
         senv.Depends(targ, summary_index)
-    senv.Depends(summary_index, test_log_files)
     senv.Default(summary_index)
+    # Try to ensure it runs even if SCons thinks it's up-to-date, just to
+    # re-assure the user
+    senv.AlwaysBuild(summary_index)
 
 
 if ARGUMENTS.get('exe', 0):

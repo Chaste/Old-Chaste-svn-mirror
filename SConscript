@@ -148,6 +148,8 @@ for testfile in testfiles:
         env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
         env.AlwaysBuild(runner_dummy)
         env.Depends(runner_exe, runner_dummy)
+    # Make sure we build the test unless the user says otherwise
+    Default(runner_exe)
     if not compile_only:
         log_file = env.File(prefix+'.log')
         if use_chaste_libs:
