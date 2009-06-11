@@ -216,7 +216,7 @@ public:
         double prev_cond_velocity=0.0;
         std::vector<double> prev_voltage;
         std::vector<double> prev_times;
-        PopulateStandardResult(prev_voltage);
+        PopulateStandardResult(prev_voltage, prev_times);
 
         do
         {
@@ -475,13 +475,13 @@ public:
                 if (this->PopulatedResult)
                 {
                     //If the PDE step is varying then we'll have twice as much data now as we use to have
-                    unsigned time_factor=(time_series.size()-1) / (prev_times.size()-1);
-                    assert (time_factor == 1 || time_factor == 2);
+                    unsigned time_factor=(time_series.size()-1) / (prev_times.size()-1);               
+                    assert (time_factor == 1 || time_factor == 2 || time_factor == 8);
                     //Iterate over the shorter time series data
                     for (unsigned data_point = 0; data_point<prev_times.size(); data_point++)
                     {
                         unsigned this_data_point=time_factor*data_point;
-                        
+                       
                         assert(time_series[this_data_point] == prev_times[data_point]);
                         double abs_error = fabs(transmembrane_potential[this_data_point]-prev_voltage[data_point]);
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
@@ -606,9 +606,11 @@ public:
     /** The value of the parameter which is being varied*/
     virtual double Abscissa()=0;
     
-    virtual void PopulateStandardResult(std::vector<double> &result)
+    virtual void PopulateStandardResult(std::vector<double> &result, std::vector<double> &times)
     {
         assert(this->PopulatedResult==false);
+        assert(result.size()==0);
+        assert(times.size()==0);
     }
 
     bool IsConverged()
