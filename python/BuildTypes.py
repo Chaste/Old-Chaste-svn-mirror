@@ -350,7 +350,7 @@ class Coverage(GccDebug):
             if status.startswith('warn_'):
                 s = s + status[5:].replace('_', '/') + " lines 'spuriously' uncovered"
             else:
-                s = s + status.replace('_', '/') + ' lines uncovered'
+                s = s + status.replace('_', '/') + ' lines marked uncovered'
         return s
 
     def StatusColour(self, status):

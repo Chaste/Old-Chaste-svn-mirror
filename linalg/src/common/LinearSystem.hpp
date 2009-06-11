@@ -162,7 +162,7 @@ public:
      * @param matType defaults to MATMPIAIJ
      * @param erasePetscInput is used by the archive loading method.  It usually defaults to false
      */
-    LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ, bool erasePetscInput=false);
+    LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ);
 
     /**
      * Destructor.
@@ -610,7 +610,7 @@ inline void load_construct_data(
         MatSetOption(new_mat, MAT_SYMMETRY_ETERNAL);
      }
 
-     ::new(t)LinearSystem(size, new_mat, new_vec, MATMPIMAIJ, true);
+     ::new(t)LinearSystem(size, new_mat, new_vec, MATMPIMAIJ);
 }
 }
 } // namespace ...

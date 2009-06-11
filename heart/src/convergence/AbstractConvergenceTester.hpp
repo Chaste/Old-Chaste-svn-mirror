@@ -428,9 +428,13 @@ public:
 
                 try
                 {
-                    Apd90FirstQn = ppc.CalculateActionPotentialDuration(90.0, first_quadrant_node);
-                    Apd90ThirdQn = ppc.CalculateActionPotentialDuration(90.0, third_quadrant_node);
-
+                    #define COVERAGE_IGNORE
+                    if (SimulateFullActionPotential)
+                    {
+                        Apd90FirstQn = ppc.CalculateActionPotentialDuration(90.0, first_quadrant_node);
+                        Apd90ThirdQn = ppc.CalculateActionPotentialDuration(90.0, third_quadrant_node);
+                    }
+                    #undef COVERAGE_IGNORE
                     ConductionVelocity  = ppc.CalculateConductionVelocity(first_quadrant_node,third_quadrant_node,0.5*mesh_width);
                 }
                 catch (Exception e)
