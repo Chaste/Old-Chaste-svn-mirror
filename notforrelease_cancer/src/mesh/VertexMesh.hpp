@@ -90,19 +90,6 @@ protected:
 
     /**
      * Helper method for ReMesh to merge nodes when needed.
-     * Move node with smallest global index to center and remove other node.
-     *
-     * @param pNodeA one of the nodes to perform the merge with
-     * @param pNodeB the other node to perform the merge with 
-     * @param elementsContainingNodes set of elements containing shared nodes
-     */
-    void PerformNodeMergeOnEdge(Node<SPACE_DIM>* pNodeA,
-                                Node<SPACE_DIM>* pNodeB,
-                                std::set<unsigned> elementsContainingNodes);
-                          
-
-    /**
-     * Helper method for ReMesh to merge nodes when needed.
      * Replaces the node contained in the least number of elements with the other node.
      *
      * @param pNodeA one of the nodes to perform the merge with

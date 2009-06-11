@@ -1158,7 +1158,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
              *
              * on the boundray of the tissue
              */
-            PerformNodeMergeOnEdge(pNodeA, pNodeB, all_indices);
+            PerformNodeMerge(pNodeA, pNodeB);
         }
         else if (all_indices.size()==2) // nodes are in two elments hence on and interior boundary so merge nodes
         {
@@ -1172,7 +1172,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                  *
                  * on an internal edge
                  */
-                 PerformNodeMergeOnEdge(pNodeA, pNodeB, all_indices);
+                 PerformNodeMerge(pNodeA, pNodeB);
             }
             else
             {
@@ -1229,52 +1229,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
             EXCEPTION("Nodes are in more than 4 elements, so a remesh cannot be performed");
             #undef COVERAGE_IGNORE
         }
-    }
-}
-
-// \todo remove this method
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMergeOnEdge(Node<SPACE_DIM>* pNodeA,
-                                                                Node<SPACE_DIM>* pNodeB,
-                                                                std::set<unsigned> elementsContainingNodes)
-{
-    c_vector<double, SPACE_DIM> node_midpoint = pNodeA->rGetLocation() + 0.5*GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
-
-    if (pNodeA->GetIndex() < pNodeB->GetIndex())
-    {
-        // Remove node B
-        c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
-        r_nodeA_location = node_midpoint;
-
-        for (std::set<unsigned>::const_iterator it = elementsContainingNodes.begin();
-             it != elementsContainingNodes.end();
-             ++it)
-        {
-            unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-            assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-
-            mElements[*it]->DeleteNode(nodeB_local_index);
-        }
-        // \todo Delete node B
-        // mDeletedNodeIndices.push_back(pNodeB->GetIndex());
-    }
-    else
-    {
-        // Remove node A
-        c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
-        r_nodeB_location = node_midpoint;
-
-        for (std::set<unsigned>::const_iterator it = elementsContainingNodes.begin();
-             it != elementsContainingNodes.end();
-             ++it)
-        {
-            unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-            assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-
-            mElements[*it]->DeleteNode(nodeA_local_index);
-        }
-        // \todo Delete node A
-        // mDeletedNodeIndices.push_back(pNodeA->GetIndex());
     }
 }
 
