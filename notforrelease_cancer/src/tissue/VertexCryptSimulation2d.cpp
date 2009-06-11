@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexCryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
-#include "Debug.hpp"
 
 VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
                   std::vector<AbstractForce<2>*> forceCollection,

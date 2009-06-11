@@ -78,7 +78,7 @@ std::vector<double> PropagationPropertiesCalculator::CalculateUpstrokeTimes(unsi
 double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const double percentage,
         unsigned globalNodeIndex)
 {
-    if (percentage < 1.0)
+    if (percentage < 1.0 || percentage >= 100.0)
     {
         EXCEPTION("First argument of CalculateActionPotentialDuration() is expected to be a percentage");
     }

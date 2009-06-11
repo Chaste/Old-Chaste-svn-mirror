@@ -46,8 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "OutputFileHandler.hpp"
 
-#include "Debug.hpp"
-
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
 {
 public:

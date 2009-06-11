@@ -440,16 +440,24 @@ public:
                     std::cout<<e.GetMessage() << std::endl;
                     #undef COVERAGE_IGNORE
                 }
-
-                double cond_velocity_error = 0.0;
-                double apd90_first_qn_error = 0.0;
-                double apd90_third_qn_error = 0.0;
+                double cond_velocity_error = 1e10;
+                double apd90_first_qn_error = 1e10;
+                double apd90_third_qn_error = 1e10;
                 
                 if (this->PopulatedResult)
                 {
-                    cond_velocity_error = fabs(ConductionVelocity - prev_cond_velocity) / prev_cond_velocity;
-                    apd90_first_qn_error = fabs(Apd90FirstQn - prev_apd90_first_qn) / prev_apd90_first_qn;
-                    apd90_third_qn_error = fabs(Apd90ThirdQn - prev_apd90_third_qn) / prev_apd90_third_qn;
+                    if (prev_cond_velocity != 0.0)
+                    {
+                        cond_velocity_error = fabs(ConductionVelocity - prev_cond_velocity) / prev_cond_velocity;
+                    }
+                    if (prev_apd90_first_qn != 0.0)
+                    {
+                        apd90_first_qn_error = fabs(Apd90FirstQn - prev_apd90_first_qn) / prev_apd90_first_qn;
+                    }
+                    if (prev_apd90_third_qn != 0.0)
+                    {
+                        apd90_third_qn_error = fabs(Apd90ThirdQn - prev_apd90_third_qn) / prev_apd90_third_qn;
+                    }
                 }
 
                 prev_cond_velocity = ConductionVelocity;

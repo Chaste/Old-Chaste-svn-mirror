@@ -150,7 +150,12 @@ public:
 
         //Testing the method that returns all APs
         TS_ASSERT_EQUALS(properties_fs.CalculateActionPotentialDuration(90, middle_index), properties_fs.CalculateAllActionPotentialDurations(90, middle_index)[0]);
+        
+        //Throws because the percentage "0.9%" looks too small and is likely to be a mistake
         TS_ASSERT_THROWS_ANYTHING(properties_fs.CalculateActionPotentialDuration(0.9, middle_index));
+
+        //Throws because the percentage "100%" looks too big.
+        TS_ASSERT_THROWS_ANYTHING(properties_fs.CalculateActionPotentialDuration(100.0, middle_index));
 
         Hdf5DataReader simulation_data_bw("heart/test/data/BidomainBackwardToCompareWithFastSlow3D",
                                        "res", false);
