@@ -225,6 +225,18 @@ def FindTestsToRun(build, BUILD_TARGETS,
     return testfiles
 
 
+def ExeName(env, exePath):
+    """Figure out the real name of an executable.
+    
+    Given the Linux-style path, this works out what an executable is actually
+    called, so that we can run on cygwin.
+    """
+    pre = env.subst('$PROGPREFIX')
+    suf = env.subst('$PROGSUFFIX')
+    dirpath = os.path.dirname(exePath)
+    name = os.path.basename(exePath)
+    return os.path.join(dirpath, pre+name+suf)
+
 
 def GetVersionCpp():
     """Return the contents of the Version.cpp source file."""
@@ -234,7 +246,7 @@ def GetVersionCpp():
         chaste_revision = open(version_file).read().strip()
     else:
         version_pipe = os.popen("svnversion")
-        chaste_revision = version_pipe.read().strip()
+        chaste_revision = 'r' + version_pipe.read().strip()
         if version_pipe.close():
             chaste_revision = 'Unknown'
     return '''

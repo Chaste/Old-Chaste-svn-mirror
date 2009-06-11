@@ -39,8 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ZeroStimulus.hpp"
 
 /**
- * Class which returns cardiac cells.
- * For use with MonodomainPde and BidomainPdes.
+ * A factory to ease creating cardiac cell objects for use in a mono/bidomain simulation.
  *
  * The user should implement their own concrete class, in particular implementing
  * CreateCardiacCellForTissueNode(unsigned), which should return the cell corresponding to a
@@ -115,12 +114,12 @@ public:
     virtual ~AbstractCardiacCellFactory();
 
     /**
-     * @param pMesh  A pointer to the cmesh for which to create cardiac cells.
+     * @param pMesh  the mesh for which to create cardiac cells.
      */
     void SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
-     * @return  A pointer to the AbstractMesh used to create the cells.
+     * @return  the mesh used to create the cells.
      */
     AbstractMesh<ELEM_DIM,SPACE_DIM>* GetMesh();
 
