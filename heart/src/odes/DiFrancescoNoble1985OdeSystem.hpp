@@ -84,10 +84,19 @@ private:
     static const double Ca_up_max; /**< mM */
     static const double pf; /**< per millisecond */
     static const double Vecs; /**< dimensionless */
-    //other parameters function of the above constants
-    double Vi, Vup, Vrel, Ve;
+    
+    /** total intracellular volume*/
+    double Vi;
+    /** uptake volume (of the SR)*/ 
+    double Vup;
+    /** release volume (of the SR)*/ 
+    double Vrel;
+    /** extracellular volume*/ 
+    double Ve;
+    /** cell volume*/  
     double Vcell;
-    double RToNF;
+    /** R times T over F*/
+    double RToNF; 
     /**
      *  Range-checking on the current values of the state variables. Make sure
      *  all gating variables have are within zero and one, and all concentrations
@@ -96,16 +105,36 @@ private:
     void VerifyStateVariables();
 
 public:
-    // Constructor
+    /**
+     * Constructor
+     * 
+     * @param pSolver is a pointer to the ODE solver
+     * @param pIntracellularStimulus is a pointer to the intracellular stimulus
+     */
     DiFrancescoNoble1985OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                   boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
-    // Destructor
+    /**
+     * Destructor
+     */
     ~DiFrancescoNoble1985OdeSystem();
 
-    // This method will compute the RHS of the Difrancesco-Noble model
+    /**
+     * Fill in a vector representing the RHS of the TenTusscher2006 system
+     * of Odes at each time step, y' = [y1' ... yn'].
+     * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
+     *
+     * @param time  the current time, in milliseconds
+     * @param rY  current values of the state variables
+     * @param rDY  to be filled in with derivatives
+     */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-
+    
+    /**
+     * Returns the ionic current
+     * 
+     * @return the total ionic current
+     */
     double GetIIonic();
 
 };

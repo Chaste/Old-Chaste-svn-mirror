@@ -59,18 +59,32 @@ private:
     }
 
     /** Constants for the LuoRudyIModel1991OdeSystem model */
+    
+    /** membrane capcaitance*/
     static const double membrane_C;
+    /** Faraday constant*/
     static const double membrane_F;
+    /** Universal gas constant*/
     static const double membrane_R;
+    /** Temeperature*/
     static const double membrane_T;
+    /** Reversal potentila for background current*/
     static const double background_current_E_b;
+    /** Maximal conductance for background current*/
     static const double background_current_g_b;
+    /** Maximal conductance for sodium current*/
     static const double fast_sodium_current_g_Na;
+    /** Intracellular potassium concentration*/
     static const double ionic_concentrations_Ki;
+    /** Extracellular potassium concentration*/
     static const double ionic_concentrations_Ko;
+    /** Intracellular sodium concentration*/
     static const double ionic_concentrations_Nai;
+    /** Extracellular sodium concentration*/
     static const double ionic_concentrations_Nao;
+    /** Maximal conductance for plateau current*/
     static const double plateau_potassium_current_g_Kp;
+    /** Permeability ratio Na/K for potassium currents*/
     static const double time_dependent_potassium_current_PR_NaK;
 
     /** Another parameter, which is a function of the above */
@@ -84,18 +98,43 @@ private:
     void VerifyStateVariables();
 
 public:
-    // Constructor
+    /**
+     * Constructor
+     * 
+     * @param pSolver is a pointer to the ODE solver
+     * @param pIntracellularStimulus is a pointer to the intracellular stimulus
+     */
     LuoRudyIModel1991OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
-    // Destructor
+    /**
+     * Destructor
+     */
     ~LuoRudyIModel1991OdeSystem();
 
-    // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
+    /**
+     * Fill in a vector representing the RHS of the TenTusscher2006 system
+     * of Odes at each time step, y' = [y1' ... yn'].
+     * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
+     *
+     * @param time  the current time, in milliseconds
+     * @param rY  current values of the state variables
+     * @param rDY  to be filled in with derivatives
+     */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
 
+    /**
+     * Returns the ionic current
+     * 
+     * @return the total ionic current
+     */
     double GetIIonic();
-
+    
+    /**
+     * Get the intracellular calcium concentration
+     * 
+     * @return the intracellular calcium concentration
+     */
     double GetIntracellularCalciumConcentration();
 };
 

@@ -46,9 +46,18 @@ private:
     /** Scale factor for Gkr*/
     double mScaleFactorGkr;
 public:
+    /**
+     * Constructor
+     * 
+     * @param pSolver is a pointer to the ODE solver
+     * @param pIntracellularStimulus is a pointer to the intracellular stimulus
+     */
     Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                          boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
-
+                         
+    /**
+     * Destructor
+     */
     ~Mahajan2008OdeSystem();
 
     /**
@@ -56,7 +65,7 @@ public:
      */
     void VerifyGatingVariables();
 
-     /**
+    /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
      */
     void SetScaleFactorGks(double sfgks);
