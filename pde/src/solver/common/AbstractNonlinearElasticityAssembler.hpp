@@ -356,7 +356,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
     // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
     unsigned num_non_zeros = DIM < 3 ? 75 : 500;
 
-    MatMPIAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
+    ///\todo Cannot pre-allocate twice on the same matrix without leaking memory MatMPIAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
     MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
 }
 
