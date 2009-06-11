@@ -171,13 +171,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                 node_indices[4] = node_indices[0] + 2*numAcross;
                 node_indices[5] = node_indices[0] + numAcross;
 
-                assert(i != numAcross-1);///\todo Please cover this case
-//                if (i==numAcross-1) // on far right
-//                {
-//                    node_indices[1] = node_indices[0] - (numAcross-1);
-//                    node_indices[2] = node_indices[0] + 1;
-//                    node_indices[3] = node_indices[0] + (numAcross-1) + 2;
-//                }
+                assert(i != numAcross-1); // as numAcross is even so dont get to last columnn 
     
                 /* If the element is even then merge nodes  1 and 2 together 
                  * and merge nodes 0 and 5 together.
