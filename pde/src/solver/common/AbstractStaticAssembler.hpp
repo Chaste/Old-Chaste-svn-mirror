@@ -634,8 +634,8 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     assert(mpMesh->GetNumNodes() == mpMesh->GetDistributedVectorFactory()->GetSize());
     DistributedVector::SetProblemSizePerProcessor(mpMesh->GetNumNodes(), num_local_nodes);
 
-    mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
-                                 DistributedVector::End().Global);
+    mpMesh->SetElementOwnerships(mpMesh->GetDistributedVectorFactory()->GetLow(),
+                                 mpMesh->GetDistributedVectorFactory()->GetHigh());
 }
 
 

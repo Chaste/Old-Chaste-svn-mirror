@@ -72,8 +72,8 @@ public:
         DistributedVector striped_voltage(bidomain_problem.GetSolution());
         DistributedVector::Stripe voltage(striped_voltage, 0);
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = striped_voltage.Begin();
+             index != striped_voltage.End();
              ++index)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77

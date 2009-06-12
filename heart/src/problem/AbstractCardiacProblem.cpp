@@ -281,8 +281,8 @@ Vec AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialConditi
         stripe.push_back(DistributedVector::Stripe(ic, i));
     }
 
-    for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index != DistributedVector::End();
+    for (DistributedVector::Iterator index = ic.Begin();
+         index != ic.End();
          ++index)
     {
         stripe[0][index] = mpCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
@@ -537,7 +537,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::WriteOneStep(double
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
-    mpWriter = new Hdf5DataWriter(mOutputDirectory,mOutputFilenamePrefix);
+    mpWriter = new Hdf5DataWriter(*mpCellFactory->GetMesh()->GetDistributedVectorFactory(), mOutputDirectory,mOutputFilenamePrefix);
     DefineWriterColumns();
     mpWriter->EndDefineMode();
 }

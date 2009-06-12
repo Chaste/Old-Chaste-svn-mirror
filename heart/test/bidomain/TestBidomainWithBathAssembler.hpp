@@ -556,8 +556,8 @@ public:
         DistributedVector::Stripe matrix_based_ex_pot(matrix_based_solution, 1);
         DistributedVector::Stripe non_matrix_based_ex_pot(non_matrix_based_solution, 1);
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = matrix_based_solution.Begin();
+             index != matrix_based_solution.End();
              ++index)
         {
             TS_ASSERT_DELTA(matrix_based_voltage[index], non_matrix_based_voltage[index], 1e-7);

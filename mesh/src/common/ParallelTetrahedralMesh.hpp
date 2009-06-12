@@ -687,13 +687,15 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
 {
+    DistributedVector::SetProblemSize(mTotalNumNodes); /// \todo: to be removed
+    
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
-    DistributedVector::SetProblemSize(mTotalNumNodes);
-    for (DistributedVector::Iterator node_number = DistributedVector::Begin(); 
-        node_number != DistributedVector::End();
-        ++node_number)
+        
+    for (unsigned node_index = this->mpDistributedVectorFactory->GetLow();
+         node_index < this->mpDistributedVectorFactory->GetHigh();
+         node_index++)         
     {
-         rNodesOwned.insert(node_number.Global);
+         rNodesOwned.insert(node_index);
     }
 }
 

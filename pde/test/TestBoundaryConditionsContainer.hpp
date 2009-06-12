@@ -260,8 +260,8 @@ public:
 
         DistributedVector::SetProblemSize(solution);
         DistributedVector d_solution( solution );
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = d_solution.Begin();
+             index != d_solution.End();
              ++index)
         {
             double expected = index.Global < SIZE-1 ? -1.0 : 11.0;
@@ -287,8 +287,8 @@ public:
         DistributedVector d_residual(residual);
 
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = d_solution.Begin();
+             index != d_solution.End();
              ++index)
         {
             d_solution[index]=index.Global;
@@ -312,8 +312,8 @@ public:
         bcc3.ApplyDirichletToNonlinearResidual(solution, residual);
 
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = d_solution.Begin();
+             index != d_solution.End();
              ++index)
         {
             if (index.Global < SIZE-1)
@@ -523,8 +523,8 @@ public:
         DistributedVector::Stripe solution0(d_solution,0);
         DistributedVector::Stripe solution1(d_solution,1);
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = d_solution.Begin();
+             index != d_solution.End();
              ++index)
         {
             if (index.Global!=SIZE-1) // last element of each stripe is not tested -- see ? in previous comment
@@ -600,8 +600,8 @@ public:
         DistributedVector::Stripe solution1(d_solution,1);
         DistributedVector::Stripe solution2(d_solution,2);
 
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = d_solution.Begin();
+             index != d_solution.End();
              ++index)
         {
             if (index.Global!=SIZE-1)

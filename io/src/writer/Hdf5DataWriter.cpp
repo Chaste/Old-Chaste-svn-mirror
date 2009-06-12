@@ -32,8 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "Hdf5DataWriter.hpp"
 
-Hdf5DataWriter::Hdf5DataWriter(std::string directory, std::string baseName, bool cleanDirectory)
-    : mDirectory(directory),
+Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory, std::string directory, std::string baseName, bool cleanDirectory)
+    : mrVectorFactory(rVectorFactory),
+      mDirectory(directory),
       mBaseName(baseName),
       mCleanDirectory(cleanDirectory),
       mIsInDefineMode(true),
@@ -71,9 +72,9 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
     }
 
     // Work out the ownership details
-    mLo = DistributedVector::Begin().Global;
-    mHi = DistributedVector::End().Global;
-    mNumberOwned = mHi - mLo;
+    mLo = mrVectorFactory.GetLow();
+    mHi = mrVectorFactory.GetHigh();
+    mNumberOwned = mrVectorFactory.GetLocalOwnership();
     mOffset = mLo;
     mFileFixedDimensionSize = dimensionSize;
     mDataFixedDimensionSize = dimensionSize;

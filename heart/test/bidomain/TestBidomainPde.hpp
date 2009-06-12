@@ -113,8 +113,8 @@ public:
         DistributedVector bidomain_ic(bidomain_vec);
         DistributedVector::Stripe bidomain_voltage(bidomain_ic,0);
 
-        for (DistributedVector::Iterator index=DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index=monodomain_voltage.Begin();
+             index != monodomain_voltage.End();
              ++index)
         {
             monodomain_voltage[index] = initial_voltage;
@@ -129,11 +129,11 @@ public:
 
 
         // Check that both the monodomain and bidomain PDE have the same ionic cache
-        for (DistributedVector::Iterator index=DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
+        for (unsigned node_index = mesh.GetDistributedVectorFactory()->GetLow();
+             node_index < mesh.GetDistributedVectorFactory()->GetHigh();
+             node_index++)
         {
-            TS_ASSERT_EQUALS(monodomain_pde.rGetIionicCacheReplicated()[index.Global], bidomain_pde.rGetIionicCacheReplicated()[index.Global]);
+            TS_ASSERT_EQUALS(monodomain_pde.rGetIionicCacheReplicated()[node_index], bidomain_pde.rGetIionicCacheReplicated()[node_index]);
         }
 
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1

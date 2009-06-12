@@ -234,8 +234,8 @@ public:
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
 
         /* A loop over all the components owned by this process.. */
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = dist_bidomain_voltage.Begin();
+             index != dist_bidomain_voltage.End();
              ++index)
         {
             /* .. and a simple test, that the 'last' node was stimulated: */

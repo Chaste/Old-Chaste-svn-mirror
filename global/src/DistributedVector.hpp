@@ -290,15 +290,13 @@ public:
      * @return iterator pointing to the first element of the distributed
      * vector on this process
      */
-    ///\todo Shouldn't be static - should be called on an instance 
-    static Iterator Begin();
+    Iterator Begin();
 
     /**
      * @return iterator pointing to one past the last element of the distributed
      * vector on this process
      */
-    ///\todo Shouldn't be static - should be called on an instance 
-    static Iterator End();
+    Iterator End();
 
     /**
     * @param index

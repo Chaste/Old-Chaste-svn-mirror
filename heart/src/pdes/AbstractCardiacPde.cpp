@@ -44,27 +44,31 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
             const unsigned stride)
     : mStride(stride),
       mDoCacheReplication(true),
-      mDoOneCacheReplication(true)
+      mDoOneCacheReplication(true),
+      mpDistributedVectorFactory(pCellFactory->GetMesh()->GetDistributedVectorFactory())
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
     assert(pCellFactory!=NULL);
     assert(pCellFactory->GetMesh()!=NULL);
 
 
-    unsigned num_local_nodes = pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetLocalOwnership();
+    unsigned num_local_nodes = mpDistributedVectorFactory->GetLocalOwnership();
+    unsigned ownership_range_low = mpDistributedVectorFactory->GetLow(); 
+
     DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
 
-    mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
-
-    for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index != DistributedVector::End();
-         ++index)
+    mCellsDistributed.resize(num_local_nodes);
+    
+    for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
     {
-        mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
+        unsigned global_index = ownership_range_low + local_index;
+        mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
     }
+        
+    
     pCellFactory->FinaliseCellCreation(&mCellsDistributed,
-                                       DistributedVector::Begin().Global,
-                                       DistributedVector::End().Global);
+                                       pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetLow(),
+                                       pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetHigh());
 
 
     mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
@@ -148,15 +152,15 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
 {
-    for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index != DistributedVector::End();
-         ++index)
+    for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
+         cell_iterator != mCellsDistributed.end();
+         ++cell_iterator)
     {
         // Only delete real cells
-        FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(mCellsDistributed[index.Local]);
+        FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(*cell_iterator);
         if (p_fake == NULL)
         {
-            delete mCellsDistributed[index.Local];
+            delete (*cell_iterator);
         }
     }
 
@@ -179,9 +183,9 @@ const c_matrix<double, SPACE_DIM, SPACE_DIM>& AbstractCardiacPde<ELEM_DIM,SPACE_
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 AbstractCardiacCell* AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::GetCardiacCell( unsigned globalIndex )
 {
-    assert(DistributedVector::Begin().Global <= globalIndex &&
-           globalIndex < DistributedVector::End().Global);
-    return mCellsDistributed[globalIndex - DistributedVector::Begin().Global];
+    assert(mpDistributedVectorFactory->GetLow() <= globalIndex &&
+           globalIndex < mpDistributedVectorFactory->GetHigh());
+    return mCellsDistributed[globalIndex - mpDistributedVectorFactory->GetLow()];
 }
 
 
@@ -192,8 +196,8 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec currentSolutio
 
     DistributedVector dist_solution(currentSolution);
     DistributedVector::Stripe voltage(dist_solution, 0);
-    for (DistributedVector::Iterator index = DistributedVector::Begin();
-         index != DistributedVector::End();
+    for (DistributedVector::Iterator index = dist_solution.Begin();
+         index != dist_solution.End();
          ++index)
     {
         // overwrite the voltage with the input value
@@ -249,8 +253,8 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::UpdateCaches(unsigned globalIndex, 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::ReplicateCaches()
 {
-    mIionicCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
-    mIntracellularStimulusCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
+    mIionicCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
+    mIntracellularStimulusCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
 }
 
 /////////////////////////////////////////////////////////////////////

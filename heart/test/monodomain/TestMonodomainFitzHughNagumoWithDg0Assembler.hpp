@@ -113,8 +113,8 @@ public:
         need_initialisation = true;
 
         // Test the RHS of the mesh
-        for (DistributedVector::Iterator node_index = DistributedVector::Begin();
-             node_index != DistributedVector::End();
+        for (DistributedVector::Iterator node_index = voltage.Begin();
+             node_index != voltage.End();
              ++node_index)
         {
             if (monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint()[0] == 0.1)

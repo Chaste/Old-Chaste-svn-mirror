@@ -111,8 +111,8 @@ public:
         DistributedVector vec1(petsc_vec);
         DistributedVector::Stripe u1(vec1, 0);
         DistributedVector::Stripe v1(vec1, 1);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = vec1.Begin();
+             index != vec1.End();
              ++index)
         {
             Node<2>* p_node = mesh.GetNode(index.Global);
@@ -132,8 +132,8 @@ public:
         DistributedVector vec2(petsc_vec);
         DistributedVector::Stripe u2(vec2, 0);
         DistributedVector::Stripe v2(vec2, 1);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = vec2.Begin();
+             index != vec2.End();
              ++index)
         {
             Node<2>* p_node = mesh.GetNode(index.Global);

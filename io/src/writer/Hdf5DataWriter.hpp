@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
 #include "OutputFileHandler.hpp"
+#include "DistributedVectorFactory.hpp"
 
 
 /**
@@ -45,6 +46,7 @@ class Hdf5DataWriter//  : public AbstractDataWriter
 {
 private:
 
+    DistributedVectorFactory& mrVectorFactory;
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
     bool mCleanDirectory;   /**< Whether to wipe the output directory */
@@ -97,7 +99,7 @@ public:
      * @param baseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
-    Hdf5DataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
+    Hdf5DataWriter(DistributedVectorFactory& rVectorFactory, std::string directory, std::string baseName, bool cleanDirectory=true);
 
     /**
      * Destructor.

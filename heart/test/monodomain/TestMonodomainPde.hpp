@@ -134,8 +134,8 @@ public:
 
         // Reset the voltage vector from ODE systems
         DistributedVector dist_voltage(voltage);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = dist_voltage.Begin();
+             index != dist_voltage.End();
              ++index)
         {
             if (index.Global==0)

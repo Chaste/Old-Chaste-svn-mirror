@@ -109,6 +109,12 @@ protected:
      */
     bool mDoOneCacheReplication;
 
+    /**
+     * Local pointer to the distributed vector factory associated with the mesh object used.
+     * 
+     * Used to retrieve node ownership range when needed.    
+     */
+    DistributedVectorFactory* mpDistributedVectorFactory;
 public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.

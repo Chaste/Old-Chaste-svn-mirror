@@ -180,8 +180,8 @@ public:
         DistributedVector::Stripe ones(distributed_vector, 1);
 
         // Write some values
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index!= DistributedVector::End();
+        for (DistributedVector::Iterator index = distributed_vector.Begin();
+             index!= distributed_vector.End();
              ++index)
         {
             zeros[index] = 0;

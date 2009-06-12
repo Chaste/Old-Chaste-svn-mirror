@@ -379,8 +379,8 @@ public:
         // hardcoded result to check against
         // assumes endtime = 1.3
         unsigned corners_checked=0;
-        for (DistributedVector::Iterator node_index = DistributedVector::Begin();
-             node_index!= DistributedVector::End();
+        for (DistributedVector::Iterator node_index = voltage.Begin();
+             node_index!= voltage.End();
              ++node_index)
         {
             ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();
@@ -419,8 +419,8 @@ public:
         // hardcoded result to check against
         // assumes endtime = 1.3
         unsigned edges_checked=0;
-        for (DistributedVector::Iterator node_index = DistributedVector::Begin();
-             node_index!= DistributedVector::End();
+        for (DistributedVector::Iterator node_index = voltage.Begin();
+             node_index!= voltage.End();
              ++node_index)
         {
             ChastePoint<2> location = monodomain_problem.rGetMesh().GetNode(node_index.Global)->GetPoint();

@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "Hdf5DataWriter.hpp"
 #include "Hdf5DataReader.hpp"
+#include "DistributedVectorFactory.hpp"
 
 class TestHdf5DataReader : public CxxTest::TestSuite
 {
@@ -254,8 +255,9 @@ private:
     void WriteMultiStepData()
     {
         DistributedVector::SetProblemSize(number_nodes);
+        DistributedVectorFactory vec_factor(number_nodes);                
 
-        Hdf5DataWriter writer("hdf5_reader", "hdf5_test_complete_format", false);
+        Hdf5DataWriter writer(vec_factor, "hdf5_reader", "hdf5_test_complete_format", false);
         writer.DefineFixedDimension(number_nodes);
 
         int node_id = writer.DefineVariable("Node", "dimensionless");
@@ -391,9 +393,9 @@ public:
 
     void TestNonMultiStepExceptions ()
     {
-        DistributedVector::SetProblemSize(number_nodes);
+        DistributedVectorFactory vec_factor(number_nodes);                        
 
-        Hdf5DataWriter writer("hdf5_reader", "hdf5_test_overtime_exceptions", false);
+        Hdf5DataWriter writer(vec_factor, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
         writer.DefineFixedDimension(number_nodes);
 
         writer.DefineVariable("Node", "dimensionless");
@@ -421,9 +423,9 @@ public:
 
     void TestMultiStepExceptions () throw (Exception)
     {
-        DistributedVector::SetProblemSize(number_nodes);
-
-        Hdf5DataWriter writer("hdf5_reader", "hdf5_test_overtime_exceptions", false);
+        DistributedVectorFactory vec_factor(number_nodes);                
+        
+        Hdf5DataWriter writer(vec_factor, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
         writer.DefineFixedDimension(number_nodes);
 
         writer.DefineVariable("Node", "dimensionless");

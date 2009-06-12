@@ -148,8 +148,8 @@ public:
         VecDuplicate(initial_condition_1, &initial_condition_2);
 
         DistributedVector dist_ic(initial_condition_1);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = dist_ic.Begin();
+             index != dist_ic.End();
              ++index)
         {
             double x=mesh.GetNode(index.Global)->GetPoint()[0];
@@ -171,8 +171,8 @@ public:
         DistributedVector dist_sol_2(current_solution_2);
 
         // Compare the results
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = dist_sol_1.Begin();
+             index != dist_sol_1.End();
              ++index)
         {
             TS_ASSERT_DELTA(dist_sol_1[index], dist_sol_2[index], 2e-3);
@@ -225,8 +225,8 @@ public:
         VecDuplicate(initial_condition_1, &initial_condition_2);
 
         DistributedVector dist_ic(initial_condition_1);
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = dist_ic.Begin();
+             index != dist_ic.End();
              ++index)
         {
             double x=mesh.GetNode(index.Global)->GetPoint()[0];
@@ -263,8 +263,8 @@ public:
         DistributedVector dist_sol_2(current_solution_2);
 
         // Compare the results
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
+        for (DistributedVector::Iterator index = dist_sol_1.Begin();
+             index != dist_sol_1.End();
              ++index)
         {
             TS_ASSERT_DELTA(dist_sol_1[index], dist_sol_2[index], 3e-3);
