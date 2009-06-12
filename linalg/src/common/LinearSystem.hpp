@@ -160,7 +160,6 @@ public:
      * @param lhsMatrix
      * @param rhsVector
      * @param matType defaults to MATMPIAIJ
-     * @param erasePetscInput is used by the archive loading method.  It usually defaults to false
      */
     LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ);
 

@@ -77,9 +77,15 @@ public:
     double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double );
 #undef COVERAGE_IGNORE
 
-    /** Virtual, since overridden by Fisher */
+   /**
+     * Compute the diffusion term at a given point.
+     * 
+     * @param rX The point in space at which the diffusion term is computed.
+     * @param pElement the element for which to compute the contribution
+     * @return A matrix.
+     */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(
-                const ChastePoint<SPACE_DIM>& ,
+                const ChastePoint<SPACE_DIM>& rX,
                 Element<ELEM_DIM,SPACE_DIM>* pElement);
 
 

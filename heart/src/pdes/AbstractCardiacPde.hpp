@@ -129,6 +129,7 @@ public:
      * Set whether or not to replicate the caches across all processors.
      *
      * See also mDoCacheReplication.
+     * @param doCacheReplication - true if the cache needs to be replicated
      */
     void SetCacheReplication(bool doCacheReplication);
 

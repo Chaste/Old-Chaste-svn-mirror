@@ -115,8 +115,14 @@ protected:
     /** Mesh width (for cuboid mesh)*/
     double mMeshWidth;
 public:
+    /** OdeTimeStep to be varied in OdeConvergenceTester etc*/
     double OdeTimeStep;
+    /** PdeTimeStep to be varied in PdeConvergenceTester etc*/
     double PdeTimeStep;
+    /** Mesh number - mesh 0 has 4 elements in each space dimension  0.05cm on a 0.2cm mesh
+     *              - mesh 1 has 8 (0.025cm)
+     *              - mesh 2 has 16 (0.0125cm)
+     */
     unsigned MeshNum;
     double RelativeConvergenceCriterion;
     double LastDifference;
@@ -454,6 +460,7 @@ public:
                     {
                         cond_velocity_error = fabs(ConductionVelocity - prev_cond_velocity) / prev_cond_velocity;
                     }
+#define COVERAGE_IGNORE                    
                     if (prev_apd90_first_qn != 0.0)
                     {
                         apd90_first_qn_error = fabs(Apd90FirstQn - prev_apd90_first_qn) / prev_apd90_first_qn;
@@ -462,6 +469,7 @@ public:
                     {
                         apd90_third_qn_error = fabs(Apd90ThirdQn - prev_apd90_third_qn) / prev_apd90_third_qn;
                     }
+#undef COVERAGE_IGNORE                    
                 }
 
                 prev_cond_velocity = ConductionVelocity;

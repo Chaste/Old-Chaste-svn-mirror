@@ -67,25 +67,31 @@ class BidomainPde : public virtual AbstractCardiacPde<SPACE_DIM>
 {
 
 private:
+    /** Extracellular conductivity tensors. */
     AbstractConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors;
 
+    /**
+     *  Cache containing all the stimulus currents for each node,
+     *  replicated over all processes.
+     */
     ReplicatableVector mExtracellularStimulusCacheReplicated;
 
 public:
     /**
      * Constructor sets up extracellular conductivity tensors.
+     * @param pCellFactory factory to pass on to the base class constructor
      */
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
+    /**
+     * Destructor
+     */
     ~BidomainPde();
 
-//    void SetExtracellularConductivityTensors(AbstractConductivityTensors<SPACE_DIM>* pExtracellularTensors)
-//    {
-//        mpExtracellularConductivityTensors = pExtracellularTensors;
-//    }
-
-
-    const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex);
+    /** Get the extracellular conductivity tensor for the given element
+     * @param elementIndex  index of the element of interest
+     */
+     const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex);
 };
 
 
