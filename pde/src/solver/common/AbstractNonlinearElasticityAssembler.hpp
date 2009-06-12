@@ -349,14 +349,18 @@ double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
 template<unsigned DIM>
 void AbstractNonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
 {
-    mpLinearSystem = new LinearSystem(mNumDofs); // default Mat tyype is MATMPIAIJ
-    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work but assembly is then really slow!
+    mpLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); // default Mat tyype is MATMPIAIJ, see below
+    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work
 
     // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
     // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
     unsigned num_non_zeros = DIM < 3 ? 75 : 500;
 
-    ///\todo Cannot pre-allocate twice on the same matrix without leaking memory MatMPIAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
+    //// If linear system was type MATMPIAIJ, would need to reallocate, but can't pre-allocate twice on the same matrix 
+    // without leaking memory. This is the call to preallocate an MPI AIJ matrix: 
+    // MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
+
+    MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
     MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
 }
 
