@@ -76,7 +76,9 @@ private:
     unsigned mNumFaceAttributes;    /**< Is the number of attributes stored for each face. */
 
     unsigned mOrderOfElements;      /**< The order of each element (1 for linear, 2 for quadratic). */
+    unsigned mOrderOfBoundaryElements; /**< The order of each element (1 for linear, 2 for quadratic). */
     unsigned mNodesPerElement;      /**< The number of nodes contained in each element. */
+    unsigned mNodesPerBoundaryElement; /**< The number of nodes in each boundary element. */
 
 public:
 
@@ -85,8 +87,12 @@ public:
      *
      * @param pathBaseName  the base name of the files from which to read the mesh data
      * @param orderOfElements  the order of each element: 1 for linear, 2 for quadratic (defaults to 1)
+     * @param orderOfBoundaryElements the order of each boundary element: 1 for linear, 2 for quadratic (defaults to 1. May
+     *  or may not be different to orderOfElements (Note tetgen with the -o2 flag creates quadratic elements but doesn't 
+     *  create quadratic faces, hence the need for this third parameter)
+     *   
      */
-    TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements=1);
+    TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements=1, unsigned orderOfBoundaryElements=1);
 
     /** Returns the number of elements in the mesh */
     unsigned GetNumElements() const;
@@ -161,7 +167,7 @@ private:
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements)
+TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements, unsigned orderOfBoundaryElements)
     : mFilesBaseName(pathBaseName),
       mNumNodes(0),
       mNumElements(0),
@@ -172,7 +178,8 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
       mBoundaryFacesRead(0),
       mNumElementAttributes(0),
       mNumFaceAttributes(0),
-      mOrderOfElements(orderOfElements)
+      mOrderOfElements(orderOfElements),
+      mOrderOfBoundaryElements(orderOfBoundaryElements)
 {
     // Only linear and quadratic elements
     assert(orderOfElements==1 || orderOfElements==2);
@@ -186,6 +193,18 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
         assert(SPACE_DIM==ELEMENT_DIM);
         #undef COVERAGE_IGNORE
         mNodesPerElement = (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2;
+    }
+
+    if (mOrderOfBoundaryElements==1)
+    {
+        mNodesPerBoundaryElement = ELEMENT_DIM;
+    }
+    else
+    {
+        #define COVERAGE_IGNORE
+        assert(SPACE_DIM==ELEMENT_DIM);
+        #undef COVERAGE_IGNORE
+        mNodesPerBoundaryElement = ELEMENT_DIM*(ELEMENT_DIM+1)/2;
     }
 
     mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
@@ -345,8 +364,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     {
         unsigned offset = mIndexFromZero ? 0 : 1;
 
-        unsigned element_dim = ELEMENT_DIM;//In case ELEMENT_DIM is erroneously instatiated to zero
-        assert(element_dim != 0); //Covered in earlier exception, but needed in loop guard here.
+        assert(ELEMENT_DIM != 0); //Covered in earlier exception, but needed in loop guard here.
         do
         {
             ret_indices.clear();
@@ -367,7 +385,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
             }
 
             unsigned node_index;
-            for (unsigned i = 0; i<element_dim; i++)
+            for (unsigned i=0; i<mNodesPerBoundaryElement; i++)
             {
                 buffer_stream >> node_index;
                 ret_indices.push_back(node_index-offset);

@@ -54,9 +54,12 @@ private:
     /**
      * Load a quadratic mesh from a file.
      *
-     * @param fileName  the name of the file to load the mesh from
+     * @param fileName  the name of the file to load the mesh from.
+     * @param boundaryElemFileIsQuadratic Whether the boundary element file has a quadratic number of nodes (eg 3 in 2d)
+     *  or linear number. Note tetgen with '-o2' creates files with quadratic elements but linear boundary elements.
+     *  QuadraticMesh will compute the extra info in boundaryElemFileIsQuadratic==false (slow).
      */
-    void LoadFromFile(const std::string& fileName);
+    void LoadFromFile(const std::string& fileName, bool boundaryElemFileIsQuadratic);
     
     /**
      * Top level method for making 2D edges have 3 nodes not 2
@@ -155,8 +158,11 @@ public:
      * Constructs a new Quadratic Mesh
      *
      * @param fileName The name of the quadratic mesh file to load
+     * @param boundaryElemFileIsQuadratic Whether the boundary element file has a quadratic number of nodes (eg 3 in 2d)
+     *  or linear number. Note tetgen with '-o2' creates files with quadratic elements but linear boundary elements.
+     *  The AddExtraBoundaryNodes method will compute the extra info in boundaryElemFileIsQuadratic==false (slow).  
      */
-    QuadraticMesh(const std::string& fileName);
+    QuadraticMesh(const std::string& fileName, bool boundaryElemFileIsQuadratic);
 
     ///\todo: 1d constructor
 
@@ -187,11 +193,21 @@ public:
     QuadraticMesh(double xEnd, double yEnd, double zEnd,
                   unsigned numElemX, unsigned numElemY, unsigned numElemZ);
 
+    
+    /** 
+     *  Write the boundary elements to file (in case the boundary elements were linear when read and the 
+     *  quadratic versions have been computed. 
+     * 
+     *  @directory Directory relative to CHASTE_TEST_OUTPUT. Not cleaned
+     *  @fileName Boundary element file name.
+     */ 
+    void WriteBoundaryElementFile(std::string directory, std::string fileName); 
+    
+
     /**
      *  Get the number of vertices, ie non-internal (non-quadratic), nodes.
      */
     unsigned GetNumVertices();
-
 };
 
 

@@ -89,7 +89,7 @@ class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 public:
     void TestAssembleSystem() throw (Exception)
     {
-        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
+        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic", false);
         ExponentialMaterialLaw<2> law(2,3);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
@@ -212,7 +212,7 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
+        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic", false);
 
         double c1 = 3.0;
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(c1);
@@ -303,7 +303,7 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
+        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic", false);
 
         MooneyRivlinMaterialLaw<2> law(0.02);
         c_vector<double,2> body_force;

@@ -37,7 +37,7 @@ public:
 
     void TestQuadraticMesh1d() throw(Exception)
     {
-        QuadraticMesh<1> mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic");
+        QuadraticMesh<1> mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
 
@@ -64,7 +64,7 @@ public:
 
     void TestQuadraticMesh2d() throw(Exception)
     {
-        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic");
+        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_quadratic", false);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 289u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 128u);
@@ -124,7 +124,7 @@ public:
 
     void TestQuadraticMesh3d() throw(Exception)
     {
-        QuadraticMesh<3> mesh("mesh/test/data/3D_Single_tetrahedron_element_quadratic");
+        QuadraticMesh<3> mesh("mesh/test/data/3D_Single_tetrahedron_element_quadratic", false);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
 
@@ -142,7 +142,7 @@ public:
         }
 
         // Lots of internal and boundary nodes in this mesh..
-        QuadraticMesh<3> mesh2("mesh/test/data/cube_1626_elements_quadratic");
+        QuadraticMesh<3> mesh2("mesh/test/data/cube_1626_elements_quadratic", false);
 
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 2570u);
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 1626u);
@@ -310,10 +310,82 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[1], 2.71828183, 1e-5);
         TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[2], 2.99792, 1e-4);
     }
+    
+
+    
+    void TestWritingReadingBoundaryElementsFile2d() throw(Exception)
+    {
+        // read in a quadratic mesh with linear boundary elements
+        QuadraticMesh<2> mesh1("mesh/test/data/square_128_elements_quadratic", false);
+
+        // write the computed quadratic boundary elements
+        mesh1.WriteBoundaryElementFile("TestQuadraticMesh","generated2d.face");
+
+        OutputFileHandler handler("TestQuadraticMesh", false);
+        std::string file = handler.GetOutputDirectoryFullPath() + "/generated2d.face";
+        TS_ASSERT_EQUALS(system(("diff " + file + " mesh/test/data/square_128_elements_fully_quadratic.edge").c_str()), 0);
+ 
+        // read in the same quadratic mesh with /quadratic/ boundary elements 
+        QuadraticMesh<2> mesh2("mesh/test/data/square_128_elements_fully_quadratic", true);
+        
+        // compare the boundary elements of both meshes, should be identical (as one was created from the other)
+        QuadraticMesh<2>::BoundaryElementIterator iter1
+               = mesh1.GetBoundaryElementIteratorBegin();
+        
+        for (QuadraticMesh<2>::BoundaryElementIterator iter2
+               = mesh2.GetBoundaryElementIteratorBegin();
+             iter2 != mesh2.GetBoundaryElementIteratorEnd();
+             ++iter2)
+        {
+            TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 3u );
+            TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 3u );
+            
+            for(unsigned i=0; i<3; i++)
+            {
+               TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
+            }
+            iter1++;
+        }
+    }  
+
+    void TestWritingReadingBoundaryElementsFile3d() throw(Exception)
+    {
+        // read in a quadratic mesh with linear boundary elements
+        QuadraticMesh<3> mesh1("mesh/test/data/cube_1626_elements_quadratic", false);
+
+        // write the computed quadratic boundary elements
+        mesh1.WriteBoundaryElementFile("TestQuadraticMesh","generated3d.face");
+
+        OutputFileHandler handler("TestQuadraticMesh", false);
+        std::string file = handler.GetOutputDirectoryFullPath() + "/generated3d.face";
+        TS_ASSERT_EQUALS(system(("diff " + file + " mesh/test/data/cube_1626_elements_fully_quadratic.face").c_str()), 0);
+ 
+        // read in the same quadratic mesh with /quadratic/ boundary elements 
+        QuadraticMesh<3> mesh2("mesh/test/data/cube_1626_elements_fully_quadratic", true);
+        
+        // compare the boundary elements of both meshes, should be identical (as one was created from the other)
+        QuadraticMesh<3>::BoundaryElementIterator iter1
+               = mesh1.GetBoundaryElementIteratorBegin();
+        
+        for (QuadraticMesh<3>::BoundaryElementIterator iter2
+               = mesh2.GetBoundaryElementIteratorBegin();
+             iter2 != mesh2.GetBoundaryElementIteratorEnd();
+             ++iter2)
+        {
+            TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 6u );
+            TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 6u );
+            
+            for(unsigned i=0; i<6; i++)
+            {
+               TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
+            }
+            iter1++;
+        }
+    }        
 
     void TestExceptions() throw(Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic"));
+        TS_ASSERT_THROWS_ANYTHING(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", false));
     }
 };
 

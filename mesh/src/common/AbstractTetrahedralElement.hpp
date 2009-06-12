@@ -147,8 +147,8 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
     // Sanity checking
-    unsigned total_nodes = ELEMENT_DIM+1;
-    assert(this->mNodes.size() == total_nodes);
+    unsigned num_vectices = ELEMENT_DIM+1;
+//    assert(this->mNodes.size() == total_nodes);
 
     // This is so we know it's the first time of asking
     // Create Jacobian
@@ -167,8 +167,8 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
             // if the Jacobian is negative the orientation of the element is probably
             // wrong, so swap the last two nodes around.
 
-            this->mNodes[total_nodes-1] = rNodes[total_nodes-2];
-            this->mNodes[total_nodes-2] = rNodes[total_nodes-1];
+            this->mNodes[num_vectices-1] = rNodes[num_vectices-2];
+            this->mNodes[num_vectices-2] = rNodes[num_vectices-1];
 
             CalculateJacobian(jacobian, det);
             // If determinant < 0 then element nodes are listed clockwise.

@@ -29,9 +29,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 
 template<unsigned DIM>
-QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName)
+QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName, bool boundaryElemFileIsQuadratic)
 {
-    LoadFromFile(fileName);
+    LoadFromFile(fileName, boundaryElemFileIsQuadratic);
+
+    // check each boundary element has a quadratic number of nodes    
+    unsigned expected_num_nodes = DIM*(DIM+1)/2;
+    for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+          = this->GetBoundaryElementIteratorBegin();
+          iter != this->GetBoundaryElementIteratorEnd();
+          ++iter)
+    {
+        assert((*iter)->GetNumNodes()==expected_num_nodes);
+    }
 }
 
 
@@ -265,7 +275,10 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     return_value = system(command.c_str());
 
     // load
-    LoadFromFile( fileStem + ".1");
+    LoadFromFile( fileStem + ".1", true);
+
+    // using tetgen/triangle so need to add nodes to boundary elements 
+    AddNodesToBoundaryElements();
 
     // delete the temporary files
     command = "rm -f " + outputDir + "/" + fileStem + ".node";
@@ -277,9 +290,11 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
+void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName, bool boundaryElemFileIsQuadratic)
 {
-    TrianglesMeshReader<DIM,DIM> mesh_reader(fileName, 2); // 2=quadratic mesh
+    unsigned order_of_boundary_elements = boundaryElemFileIsQuadratic ? 2 : 1;
+    
+    TrianglesMeshReader<DIM,DIM> mesh_reader(fileName, 2, order_of_boundary_elements); // 2=quadratic mesh
 
     ConstructFromMeshReader(mesh_reader);
 
@@ -316,7 +331,6 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
         }
     }
 
-
     mesh_reader.Reset();
 
     // add the extra nodes (1 extra node in 1D, 3 in 2D, 6 in 3D) to the element
@@ -332,7 +346,31 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName)
         }
     }
 
-    AddNodesToBoundaryElements();
+    if(DIM > 1)
+    {
+        // if boundaryElemFileIsQuadratic can read in the extra nodes for each boundary element, other have to compute them.
+        if(boundaryElemFileIsQuadratic)
+        {
+            mesh_reader.Reset();
+            for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+                  = this->GetBoundaryElementIteratorBegin();
+                 iter != this->GetBoundaryElementIteratorEnd();
+                 ++iter)
+            {
+                std::vector<unsigned> nodes = mesh_reader.GetNextFaceData().NodeIndices;
+    
+                assert(nodes.size()==DIM*(DIM+1)/2); // the reader should have got 6 nodes (3d) for each face
+                for(unsigned i=0; i<DIM; i++)
+                {
+                    assert(nodes[i]==(*iter)->GetNodeGlobalIndex(i));
+                }
+            }
+        }
+        else
+        {
+            AddNodesToBoundaryElements();
+        }
+    }
 }
  
 template<unsigned DIM>
@@ -475,6 +513,42 @@ void QuadraticMesh<DIM>::AddExtraBoundaryNodes(BoundaryElement<DIM-1,DIM>* pBoun
     }
 }
 
+template<unsigned DIM>
+void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::string fileName)
+{
+    OutputFileHandler handler(directory, false);
+    out_stream p_file = handler.OpenOutputFile(fileName);
+
+    unsigned expected_num_nodes = DIM == 1 ? 1 : ( DIM==2 ? 3 : 6 );
+    unsigned num_elements = 0; 
+
+    for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+          = this->GetBoundaryElementIteratorBegin();
+          iter != this->GetBoundaryElementIteratorEnd();
+          ++iter)
+    {
+        assert((*iter)->GetNumNodes()==expected_num_nodes);
+        num_elements++;
+    }
+
+    *p_file << num_elements << " 0\n";
+
+    unsigned counter = 0;
+    for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+          = this->GetBoundaryElementIteratorBegin();
+          iter != this->GetBoundaryElementIteratorEnd();
+          ++iter)
+    {
+        *p_file << counter++ << " ";
+        for(unsigned i=0; i<(*iter)->GetNumNodes(); i++)
+        {
+            *p_file << (*iter)->GetNodeGlobalIndex(i) << " ";
+        }
+        *p_file << "\n";
+    }
+
+    p_file->close();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // two unpleasant helper methods for AddExtraBoundaryNodes()

@@ -279,7 +279,7 @@ public:
     // solve u'' + 1 = 0
     void TestSolveLaplacianWithQuadratics1d() throw (Exception)
     {
-        QuadraticMesh<1> quad_mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic");
+        QuadraticMesh<1> quad_mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
 
         BoundaryConditionsContainer<1,1,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
@@ -306,7 +306,7 @@ public:
     void TestSolveLaplacianWithQuadratics2d() throw (Exception)
     {
         // Solve using quadratics..
-        QuadraticMesh<2> quad_mesh("mesh/test/data/square_128_elements_quadratic");
+        QuadraticMesh<2> quad_mesh("mesh/test/data/square_128_elements_quadratic", false);
 
         BoundaryConditionsContainer<2,2,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
@@ -319,6 +319,7 @@ public:
 
         // Solve using linears
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -360,7 +361,7 @@ public:
     void TestSolveLaplacianWithQuadratics3d() throw (Exception)
     {
         // Solve using quadratics..
-        QuadraticMesh<3> quad_mesh("mesh/test/data/cube_1626_elements_quadratic");
+        QuadraticMesh<3> quad_mesh("mesh/test/data/cube_1626_elements_quadratic", false);
 
         BoundaryConditionsContainer<3,3,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
