@@ -148,7 +148,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
 
                         if (fabs(this_cell_concentration-adjacent_cell_concentration) > 100*DBL_EPSILON )
                         {
-                            c_vector<double, DIM> edge_vector=r_mesh.GetVectorFromAtoB(this_node.rGetLocation(), adjacent_node.rGetLocation());
+                            c_vector<double, DIM> edge_vector = r_mesh.GetVectorFromAtoB(this_node.rGetLocation(), adjacent_node.rGetLocation());
                             double norm_edge_vector = norm_2(edge_vector);
                             gradient_contribution = edge_vector
                                                         * (adjacent_cell_concentration - this_cell_concentration)
@@ -158,7 +158,6 @@ void CellwiseDataGradient<DIM>::SetupGradients()
                         mGradients[node_global_index]+=gradient_contribution;
                         num_real_adjacent_nodes++;
                     }
-
                 }
             }
             mGradients[node_global_index] /= num_real_adjacent_nodes;

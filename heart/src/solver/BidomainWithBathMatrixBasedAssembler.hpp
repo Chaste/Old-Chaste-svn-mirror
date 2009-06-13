@@ -116,7 +116,9 @@ public:
         ChastePoint<DIM> &rX);
 
     /**
-     * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
+     * Constructor takes in a mesh and calls AssembleSystem to construct the matrix.
+     * 
+     * @param pMesh Pointer to a mesh
      */
     BidomainWithBathRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
 

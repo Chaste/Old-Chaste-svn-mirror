@@ -94,14 +94,18 @@ protected:
     /**
      * Assemble residual or jacobian on an element, using the current solution
      * stored in mCurrrentSolution. The ordering assumed is (in 2d)
-     * rBelem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
+     * rBElem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
      * 
-     * @param rElement
-     * @param rAElem
-     * @param rAElemPrecond
-     * @param rBElem
-     * @param assembleResidual
-     * @param assembleJacobian
+     * @param rElement The element to assemble on.
+     * @param rAElem The element's contribution to the LHS matrix is returned in this
+     *     n by n matrix, where n is the no. of nodes in this element. There is no
+     *     need to zero this matrix before calling.
+     * @param rAElemPrecond \todo Document this parameter
+     * @param rBElem The element's contribution to the RHS vector is returned in this
+     *     vector of length n, the no. of nodes in this element. There is no
+     *     need to zero this vector before calling.
+     * @param assembleResidual A bool stating whether to assemble the residual vector.
+     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
      */
     virtual void AssembleOnElement(Element<DIM, DIM>& rElement,
                                    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
@@ -116,16 +120,20 @@ protected:
      * to be added to the Rhs vector.
      * 
      * @param rBoundaryElement
-     * @param rAelem
-     * @param rBelem
+     * @param rAelem The element's contribution to the LHS matrix is returned in this
+     *     n by n matrix, where n is the no. of nodes in this element. There is no
+     *     need to zero this matrix before calling.
+     * @param rBelem The element's contribution to the RHS vector is returned in this
+     *     vector of length n, the no. of nodes in this element. There is no
+     *     need to zero this vector before calling.
      * @param rTraction
-     * @param assembleResidual
-     * @param assembleJacobian
+     * @param assembleResidual A bool stating whether to assemble the residual vector.
+     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
      */
-    virtual void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
-                                           c_matrix<double,BOUNDARY_STENCIL_SIZE,BOUNDARY_STENCIL_SIZE>& rAelem,
-                                           c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-                                           c_vector<double,DIM>& rTraction,
+    virtual void AssembleOnBoundaryElement(BoundaryElement<DIM-1, DIM>& rBoundaryElement,
+                                           c_matrix<double, BOUNDARY_STENCIL_SIZE, BOUNDARY_STENCIL_SIZE>& rAelem,
+                                           c_vector<double, BOUNDARY_STENCIL_SIZE>& rBelem,
+                                           c_vector<double, DIM>& rTraction,
                                            bool assembleResidual,
                                            bool assembleJacobian);
 
@@ -153,8 +161,8 @@ protected:
      * or Jacobian matrix (using the current solution stored in
      * mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
      * 
-     * @param assembleResidual
-     * @param assembleJacobian
+     * @param assembleResidual A bool stating whether to assemble the residual vector.
+     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
      */
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
 

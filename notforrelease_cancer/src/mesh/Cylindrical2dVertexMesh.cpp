@@ -46,7 +46,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                                                  double edgeDivisionThreshold,
                                                  bool isFlatBottom)
     : VertexMesh<2,2>(cellRearrangementThreshold, edgeDivisionThreshold)
-    {
+{
     mWidth = 3*0.5*numAcross/(sqrt(3));   // This accounts for numAcross Elements
     mAddedNodes = true;
     assert(numAcross > 1);
@@ -116,45 +116,43 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
 
     for (unsigned j=0; j<numUp; j++)
     {
+        for (unsigned i=0; i<numAcross; i++)
         {
-            for (unsigned i=0; i<numAcross; i++)
+            element_index = j*numAcross + i;
+
+            if (i%2 == 0) // even
             {
-                element_index = j*numAcross + i;
-    
-                if (i%2 == 0) // even
-                {
-                    node_indices[0] = 2*j*(numAcross)+i;
-                }
-                else // odd
-                {
-                    node_indices[0] = (2*j+1)*(numAcross)+i;
-                }
-    
-                node_indices[1] = node_indices[0] + 1;
-                node_indices[2] = node_indices[0] + numAcross + 1;
-                node_indices[3] = node_indices[0] + 2*numAcross + 1;
-                node_indices[4] = node_indices[0] + 2*numAcross;
-                node_indices[5] = node_indices[0] + numAcross;
-    
-                if (i==numAcross-1) // on far right
-                {
-                    node_indices[1] = node_indices[0] - (numAcross-1);
-                    node_indices[2] = node_indices[0] + 1;
-                    node_indices[3] = node_indices[0] + (numAcross-1) + 2;
-                }
-    
-                std::vector<Node<2>*> element_nodes;
-    
-                for (unsigned i=0; i<6; i++)
-                {
-                   element_nodes.push_back(mNodes[node_indices[i]]);
-                }
-                VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index, element_nodes);
-                mElements.push_back(p_element);
+                node_indices[0] = 2*j*(numAcross)+i;
             }
+            else // odd
+            {
+                node_indices[0] = (2*j+1)*(numAcross)+i;
+            }
+
+            node_indices[1] = node_indices[0] + 1;
+            node_indices[2] = node_indices[0] + numAcross + 1;
+            node_indices[3] = node_indices[0] + 2*numAcross + 1;
+            node_indices[4] = node_indices[0] + 2*numAcross;
+            node_indices[5] = node_indices[0] + numAcross;
+
+            if (i==numAcross-1) // on far right
+            {
+                node_indices[1] = node_indices[0] - (numAcross-1);
+                node_indices[2] = node_indices[0] + 1;
+                node_indices[3] = node_indices[0] + (numAcross-1) + 2;
+            }
+
+            std::vector<Node<2>*> element_nodes;
+
+            for (unsigned i=0; i<6; i++)
+            {
+               element_nodes.push_back(mNodes[node_indices[i]]);
+            }
+            VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index, element_nodes);
+            mElements.push_back(p_element);
         }
     }
-        
+
     /*
      * If the mesh has an imposed flat bottom remove unnessesary nodes.
      */  
@@ -203,11 +201,11 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetVectorFromAtoB(const c_vector<do
 
     // We handle the cylindrical condition here: if the points are more than halfway
     // around the cylinder apart, measure the other way
-    if ( vector[0] > (mWidth / 2.0) )
+    if (vector[0] > mWidth/2.0)
     {
         vector[0] -= mWidth;
     }
-    if ( vector[0] < -(mWidth / 2.0))
+    if (vector[0] < -mWidth/2.0)
     {
         vector[0] += mWidth;
     }

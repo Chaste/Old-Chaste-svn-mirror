@@ -40,9 +40,9 @@ private:
     void Output2DNodesToFile(MutableMesh<2,2>* p_mesh, std::string fileName)
     {
         OutputFileHandler handler("");
-        out_stream file=handler.OpenOutputFile(fileName);
+        out_stream file = handler.OpenOutputFile(fileName);
 
-        unsigned num_nodes=p_mesh->GetNumNodes();
+        unsigned num_nodes = p_mesh->GetNumNodes();
 
         for (unsigned i=0; i<num_nodes; i++)
         {
@@ -56,9 +56,9 @@ private:
     void Output2DNodesToFileCylindrical(Cylindrical2dMesh* p_mesh, std::string fileName)
     {
         OutputFileHandler handler("");
-        out_stream file=handler.OpenOutputFile(fileName);
+        out_stream file = handler.OpenOutputFile(fileName);
 
-        unsigned num_nodes=p_mesh->GetNumNodes();
+        unsigned num_nodes = p_mesh->GetNumNodes();
 
         for (unsigned i=0; i<num_nodes; i++)
         {

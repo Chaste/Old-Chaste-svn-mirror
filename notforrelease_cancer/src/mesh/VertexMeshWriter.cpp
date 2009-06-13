@@ -79,7 +79,6 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<EL
 
         unsigned is_boundary_node = rMesh.GetNode(node_num)->IsBoundaryNode() ? 1 : 0;
         *p_node_file << "\t" << is_boundary_node << "\n";
-
     }
     *p_node_file << comment << "\n";
     p_node_file->close();

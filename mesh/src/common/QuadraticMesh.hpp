@@ -67,7 +67,6 @@ private:
      */
     void AddNodesToBoundaryElements();
 
-
     /**
      * This method adds the given node (defined by an element and a node index)
      * to the given boundary element, and also sets the node as a boundary
@@ -95,7 +94,6 @@ private:
                                Element<DIM,DIM>* pElement,
                                unsigned nodeIndexOppositeToFace);
 
-
     /**
      * Nasty helper method for AddNodeToBoundaryElement() in 3D.
      *
@@ -121,6 +119,7 @@ private:
                        unsigned node0, unsigned node1, unsigned node2,
                        unsigned& rOffset,
                        bool& rReverse);
+
     /**
      * Nasty helper method for AddNodeToBoundaryElement() in 3D.
      *
@@ -193,16 +192,14 @@ public:
     QuadraticMesh(double xEnd, double yEnd, double zEnd,
                   unsigned numElemX, unsigned numElemY, unsigned numElemZ);
 
-    
     /** 
      *  Write the boundary elements to file (in case the boundary elements were linear when read and the 
      *  quadratic versions have been computed. 
      * 
-     *  @directory Directory relative to CHASTE_TEST_OUTPUT. Not cleaned
-     *  @fileName Boundary element file name.
+     *  @param directory Directory relative to CHASTE_TEST_OUTPUT. Not cleaned
+     *  @param fileName Boundary element file name.
      */ 
     void WriteBoundaryElementFile(std::string directory, std::string fileName); 
-    
 
     /**
      *  Get the number of vertices, ie non-internal (non-quadratic), nodes.

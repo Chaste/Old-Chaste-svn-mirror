@@ -58,6 +58,8 @@ public:
     static const unsigned P_DIM = 1u; /**< The problem dimension (to save typing). */
 
 protected:
+
+    /** The source term. */
     double mSourceTerm;
 
     /** The PDE to be solved. */
@@ -127,7 +129,7 @@ public:
      * 
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
-     * @param pBoundaryConditions pointer to the boundary conditions
+     * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MonodomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,

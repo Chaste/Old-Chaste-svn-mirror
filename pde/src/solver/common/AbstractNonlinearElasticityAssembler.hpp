@@ -173,8 +173,8 @@ protected:
      * mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
      * Must be overridden in concrete derived classes.
      * 
-     * @param assembleResidual
-     * @param assembleJacobian
+     * @param assembleResidual A bool stating whether to assemble the residual vector.
+     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
      */
     virtual void AssembleSystem(bool assembleResidual, bool assembleJacobian)=0;
 

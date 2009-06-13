@@ -45,34 +45,34 @@ class VertexMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 
-    /** The base name for mesh files */
+    /** The base name for mesh files. */
     std::string mFilesBaseName;
 
-    /** The nodes file for the mesh */
+    /** The nodes file for the mesh. */
     std::ifstream mNodesFile;
 
-    /** The elements file for the mesh */
+    /** The elements file for the mesh. */
     std::ifstream mElementsFile;
 
-    /** True if input data is numbered from zero, false otherwise */
+    /** True if input data is numbered from zero, false otherwise. */
     bool mIndexFromZero;
 
-    /** Number of nodes in the mesh */
+    /** Number of nodes in the mesh. */
     unsigned mNumNodes;
 
-    /** Number of elements in the mesh */
+    /** Number of elements in the mesh. */
     unsigned mNumElements;
 
-    /** Number of nodes read in by the reader */
+    /** Number of nodes read in by the reader. */
     unsigned mNodesRead;
 
-    /** Number of elements read in by the reader */
+    /** Number of elements read in by the reader. */
     unsigned mElementsRead;
 
-    /** Is the number of attributes stored at each node */
+    /** Is the number of attributes stored at each node. */
     unsigned mNumNodeAttributes;
 
-    /** Is the number of attributes stored for each element */
+    /** Is the number of attributes stored for each element. */
     unsigned mNumElementAttributes;
 
     /**

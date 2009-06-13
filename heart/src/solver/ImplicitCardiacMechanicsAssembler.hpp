@@ -90,11 +90,12 @@ private:
 
 public:
     /**
-     *  Constructor
+     * Constructor
      *
-     *  @param pMesh. A pointer to the mesh. Should have a surface set as the fixed surface
-     *  @param outputDirectory. The output directory, relative to TEST_OUTPUT
-     *  @param pMaterialLaw. The material law for the tissue. Defaults to NULL, in which case
+     * @param pMesh A pointer to the mesh. Should have a surface set as the fixed surface
+     * @param outputDirectory The output directory, relative to TEST_OUTPUT
+     * @param rFixedNodes The fixed nodes
+     * @param pMaterialLaw The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
     ImplicitCardiacMechanicsAssembler(QuadraticMesh<DIM>* pQuadMesh,
@@ -117,7 +118,9 @@ public:
      *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we
      *  would set the active tension as the forcing quantity; the implicit algorithm
      *  takes in the Calcium concentration and solves for the active tension implicitly
-     *  together with the mechanics.
+     *  together with the mechanics).
+     * 
+     *  @param caI the intracellular calcium concentrations
      */
     void SetIntracellularCalciumConcentrations(std::vector<double>& caI);
 
@@ -136,6 +139,10 @@ public:
      *  deformation is solved for. The cell models are integrated implicitly
      *  over the time range using the ODE timestep provided, as part of the solve,
      *  and updated at the end once the solution has been found, as is lambda.
+     * 
+     *  @param currentTime the current time
+     *  @param nextTime the next time
+     *  @param odeTimestep the ODE timestep
      */
     void Solve(double currentTime, double nextTime, double odeTimestep);
 
@@ -143,11 +150,22 @@ public:
 private:
 
     /**
-     *  Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
-     *  the lack of the body force term in the residual, the bits where this is
-     *  different to the base class AssembleOnElement are restricted to two bits
-     *  (see code): calculating Ta implicitly and using it to compute the stress,
-     *  and the addition of a corresponding extra term to the Jacobian
+     * Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
+     * the lack of the body force term in the residual, the bits where this is
+     * different to the base class AssembleOnElement are restricted to two bits
+     * (see code): calculating Ta implicitly and using it to compute the stress,
+     * and the addition of a corresponding extra term to the Jacobian.
+     * 
+     * @param rElement The element to assemble on.
+     * @param rAElem The element's contribution to the LHS matrix is returned in this
+     *     n by n matrix, where n is the no. of nodes in this element. There is no
+     *     need to zero this matrix before calling.
+     * @param rAElemPrecond \todo Document this parameter
+     * @param rBElem The element's contribution to the RHS vector is returned in this
+     *     vector of length n, the no. of nodes in this element. There is no
+     *     need to zero this vector before calling.
+     * @param assembleResidual A bool stating whether to assemble the residual vector.
+     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
      */
     void AssembleOnElement(Element<DIM, DIM>& rElement,
                            c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElem,
