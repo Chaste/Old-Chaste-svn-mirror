@@ -174,15 +174,6 @@ public:
     void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
 
     /**
-     * Scale the mesh.
-     *
-     * @param xFactor is the scale in the x-direction (defaults to 1.0)
-     * @param yFactor is the scale in the y-direction (defaults to 1.0)
-     * @param zFactor is the scale in the z-direction (defaults to 1.0)
-     */
-    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
-
-    /**
      * Do a general mesh rotation with a positive determinant orthonormal rotation matrix.
      * This is the rotation method that actually does the work.
      *
@@ -227,8 +218,7 @@ public:
     void Rotate(double theta);
 
     /**
-     * This method allows the mesh properties to be re-calculated after
-     * one or more nodes have been moved.
+     * Overridden RefreshMesh method. This method calls RefreshJacobianCachedData.
      */
     void RefreshMesh();
 
@@ -334,32 +324,6 @@ public:
     std::set<unsigned> CalculateBoundaryOfFlaggedRegion();
 
     /**
-     * Return the distance between two nodes.
-     *
-     * N.B. This calls GetDistanceBetweenNodes which can be overridden
-     * in daughter classes e.g. Cylindrical2dMesh.  Therefore the distance
-     * is not necessarily Euclidean
-     *
-     * @param indexA a node index
-     * @param indexB a node index
-     *
-     * @return straight line distance between two nodes.
-     */
-    double GetDistanceBetweenNodes(unsigned indexA, unsigned indexB);
-
-    /**
-     * Return a vector between two points in space.
-     *
-     * N.B. This can be overridden in daughter classes, e.g. Cylindrical2dMesh.
-     *
-     * @param rLocationA a c_vector of co-ordinates
-     * @param rLocationB a c_vector of co-ordinates
-     *
-     * @return vector from location A to location B.
-     */
-    virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
-
-    /**
      * Calcuate the angle between the node at indexB and the x axis about
      * the node at indexA. The angle returned is in the range (-pi,pi].
      *
@@ -367,24 +331,6 @@ public:
      * @param indexB a node index
      */
     double GetAngleBetweenNodes(unsigned indexA, unsigned indexB);
-
-    /**
-     * Calculate the `width' of any dimension of the mesh.
-     *
-     * N.B. Overwritten in Cylindrical2dMesh.
-     *
-     * @param rDimension a dimension (0,1 or 2)
-     * @return The maximum distance between any nodes in this dimension.
-     */
-    virtual double GetWidth(const unsigned& rDimension) const;
-
-    /**
-     * Calculate the `width extremes' of any dimension of the mesh.
-     *
-     * @param rDimension a dimension (0,1 or 2)
-     * @return The minimum and maximum co-ordinates of any node in this dimension.
-     */
-    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
 
     /**
      * Unflag all elements in the mesh.

@@ -105,7 +105,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
     }
 
-
     // Add boundary elements & nodes
     unsigned actual_face_index=0;
     for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
@@ -120,7 +119,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         std::vector<Node<SPACE_DIM>*> nodes;
         for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
         {
-            assert(node_indices[node_index] <  this->mNodes.size());
+            assert(node_indices[node_index] < this->mNodes.size());
             // Add Node pointer to list for creating an element
             nodes.push_back(this->mNodes[node_indices[node_index]]);
 
@@ -270,7 +269,7 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceArea()
 {
     //ELEMENT_DIM-1 is the dimension of the boundary element
     assert (ELEMENT_DIM >= 1);
-    const unsigned bound_element_dim=ELEMENT_DIM-1;
+    const unsigned bound_element_dim = ELEMENT_DIM-1;
     assert(bound_element_dim < 3);
     if ( bound_element_dim == 0)
     {
@@ -279,7 +278,6 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceArea()
 
     double mesh_surface = 0.0;
     typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator it = this->GetBoundaryElementIteratorBegin();
-
 
     while (it != this->GetBoundaryElementIteratorEnd())
     {
@@ -296,46 +294,21 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceArea()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
-    const double xScale,
-    const double yScale,
-    const double zScale)
-{
-    unsigned num_nodes=this->GetNumAllNodes();
-
-    for (unsigned i=0; i<num_nodes; i++)
-    {
-        c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
-        if (SPACE_DIM>=3)
-        {
-            r_location[2] *= zScale;
-        }
-        if (SPACE_DIM>=2)
-        {
-            r_location[1] *= yScale;
-        }
-        r_location[0] *= xScale;
-    }
-
-    RefreshMesh();
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
     const double xMovement,
     const double yMovement,
     const double zMovement)
 {
-    c_vector<double , SPACE_DIM> displacement;
+    c_vector<double, SPACE_DIM> displacement;
 
     switch (SPACE_DIM)
     {
         case 3:
-            displacement[2]=zMovement;
+            displacement[2] = zMovement;
         case 2:
-            displacement[1]=yMovement;
+            displacement[1] = yMovement;
         case 1:
-            displacement[0]=xMovement;
+            displacement[0] = xMovement;
     }
 
     Translate(displacement);
@@ -344,7 +317,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM> transVec)
 {
-    unsigned num_nodes=this->GetNumAllNodes();
+    unsigned num_nodes = this->GetNumAllNodes();
 
     for (unsigned i=0; i<num_nodes; i++)
     {
@@ -359,7 +332,8 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
     c_matrix<double , SPACE_DIM, SPACE_DIM> rotationMatrix)
 {
-    unsigned num_nodes=this->GetNumAllNodes();
+    unsigned num_nodes = this->GetNumAllNodes();
+
     for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
@@ -1116,14 +1090,14 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::set<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundaryOfFlaggedRegion()
 {
-    // a set of nodes which lie on the face, size 3 in 2D, size 4 in 3D
+    // A set of nodes which lie on the face, size 3 in 2D, size 4 in 3D
     typedef std::set<unsigned> FaceNodes;
 
-    // face maps to true the first time it is encountered, and false subsequent
+    // Face maps to true the first time it is encountered, and false subsequent
     // times. Thus, faces mapping to true at the end are boundary faces
     std::map<FaceNodes,bool> face_on_boundary;
 
-    // loop over all elements
+    // Loop over all elements
     for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
@@ -1160,39 +1134,23 @@ std::set<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundaryOfF
         }
     }
 
-    // boundary nodes to be returned
+    // Boundary nodes to be returned
     std::set<unsigned> boundary_of_flagged_region;
 
-    // get all faces in the map
+    // Get all faces in the map
     std::map<FaceNodes,bool>::iterator it=face_on_boundary.begin();
     while (it!=face_on_boundary.end())
     {
-        // if the face maps to true it is on the boundary
+        // If the face maps to true it is on the boundary
         if (it->second==true)
         {
-            // get all nodes in the face and put in set to be returned
+            // Get all nodes in the face and put in set to be returned
             boundary_of_flagged_region.insert(it->first.begin(),it->first.end());
         }
         it++;
     }
 
     return boundary_of_flagged_region;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
-{
-    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(this->mNodes[indexA]->rGetLocation(), this->mNodes[indexB]->rGetLocation());
-    return norm_2(vector);
-}
-
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB)
-{
-    c_vector<double, SPACE_DIM> vector = rLocationB - rLocationA;
-
-    return vector;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1222,42 +1180,6 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(unsigned in
 
     double angle = atan2(y_diff,x_diff);
     return angle;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
-{
-    assert(rDimension < SPACE_DIM);
-    c_vector<double,2> extremes = GetWidthExtremes(rDimension);
-    return extremes[1]-extremes[0];
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
-{
-    assert(rDimension < SPACE_DIM);
-    double max = -1e200;
-    double min = 1e200;
-    assert(this->GetNumAllNodes() > 0u);
-    for (unsigned i=0; i<this->GetNumAllNodes(); i++)
-    {
-        if (!this->mNodes[i]->IsDeleted())
-        {
-            double this_node_value = this->mNodes[i]->rGetLocation()[rDimension];
-            if (this_node_value>max)
-            {
-                max = this_node_value;
-            }
-            if (this_node_value < min)
-            {
-                min = this_node_value;
-            }
-        }
-    }
-    c_vector<double,2> extremes;
-    extremes[0] = min;
-    extremes[1] = max;
-    return extremes;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

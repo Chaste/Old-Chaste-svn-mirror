@@ -37,9 +37,9 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
     assert(hi >= lo);
-    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
+    for (unsigned element_index=0; element_index<mElements.size(); element_index++)
     {
-        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element=mElements[element_index];
         p_element->SetOwnership(false);
         for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
         {
@@ -57,7 +57,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
     : mpDistributedVectorFactory(NULL),
       mMeshFileBaseName("")
-      
 {
 }
 
@@ -65,19 +64,19 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()
 {
     // Iterate over nodes and free the memory
-    for (unsigned i=0; i<this->mNodes.size(); i++)
+    for (unsigned i=0; i<mNodes.size(); i++)
     {
-        delete this->mNodes[i];
+        delete mNodes[i];
     }
     // Iterate over elements and free the memory
-    for (unsigned i=0; i<this->mElements.size(); i++)
+    for (unsigned i=0; i<mElements.size(); i++)
     {
-        delete this->mElements[i];
+        delete mElements[i];
     }
     // Iterate over boundary elements and free the memory
-    for (unsigned i=0; i<this->mBoundaryElements.size(); i++)
+    for (unsigned i=0; i<mBoundaryElements.size(); i++)
     {
-        delete this->mBoundaryElements[i];
+        delete mBoundaryElements[i];
     }
     if (mpDistributedVectorFactory)
     {
@@ -88,64 +87,64 @@ AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
-    return this->mNodes.size();
+    return mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
-    return this->mElements.size();
+    return mElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
 {
-    return this->mBoundaryNodes.size();
+    return mBoundaryNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
 {
-    return this->mNodes.size();
+    return mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 {
-    return this->mElements.size();
+    return mElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
 {
-    return this->mBoundaryElements.size();
+    return mBoundaryElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 {
-    return this->mBoundaryElements.size();
+    return mBoundaryElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
 {
     unsigned local_index = SolveNodeMapping(index);
-    return this->mNodes[local_index];
+    return mNodes[local_index];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
 {
     unsigned local_index = SolveElementMapping(index);
-    return this->mElements[local_index];
+    return mElements[local_index];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
 {
     unsigned local_index = SolveBoundaryElementMapping(index);
-    return this->mBoundaryElements[local_index];
+    return mBoundaryElements[local_index];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -155,7 +154,7 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-DistributedVectorFactory * AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
+DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
 {
     if (mpDistributedVectorFactory == NULL)
     {
@@ -230,6 +229,87 @@ std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation
     return mNodesPermutation;
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(
+    const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB)
+{
+    c_vector<double, SPACE_DIM> vector = rLocationB - rLocationA;
+    return vector;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
+{
+    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(mNodes[indexA]->rGetLocation(),
+                                                           mNodes[indexB]->rGetLocation());
+    return norm_2(vector);
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
+{
+    assert(rDimension < SPACE_DIM);
+    c_vector<double,2> extremes = GetWidthExtremes(rDimension);
+    return extremes[1] - extremes[0];
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
+{
+    assert(rDimension < SPACE_DIM);
+
+    double max = -1e200;
+    double min = 1e200;
+
+    assert(GetNumAllNodes() > 0u);
+    for (unsigned i=0; i<GetNumAllNodes(); i++)
+    {
+        if (!mNodes[i]->IsDeleted())
+        {
+            double this_node_value = mNodes[i]->rGetLocation()[rDimension];
+            if (this_node_value>max)
+            {
+                max = this_node_value;
+            }
+            if (this_node_value < min)
+            {
+                min = this_node_value;
+            }
+        }
+    }
+    c_vector<double,2> extremes;
+    extremes[0] = min;
+    extremes[1] = max;
+    return extremes;
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
+{
+    unsigned num_nodes = GetNumAllNodes();
+
+    for (unsigned i=0; i<num_nodes; i++)
+    {
+        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+        if (SPACE_DIM>=3)
+        {
+            r_location[2] *= zScale;
+        }
+        if (SPACE_DIM>=2)
+        {
+            r_location[1] *= yScale;
+        }
+        r_location[0] *= xScale;
+    }
+
+    RefreshMesh();
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
+{
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -314,7 +314,66 @@ public:
      * Get method for mNodesPermutation.
      */
     std::vector<unsigned>& rGetNodePermutation();
-    
+
+    /**
+     * Return a vector between two points in space.
+     *
+     * This method is overridden in some daughter classes (e.g. Cylindrical2dMesh).
+     *
+     * @param rLocationA a c_vector of coordinates
+     * @param rLocationB a c_vector of coordinates
+     *
+     * @return c_vector from location A to location B.
+     */
+    virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA,
+                                                          const c_vector<double, SPACE_DIM>& rLocationB);
+
+    /**
+     * Return the distance between two nodes.
+     *
+     * This method calls GetVectorFromAtoB(), which is overridden in some 
+     * daughter classes (e.g. Cylindrical2dMesh).
+     *
+     * @param indexA a node index
+     * @param indexB a node index
+     *
+     * @return distance between two nodes.
+     */
+    double GetDistanceBetweenNodes(unsigned indexA, unsigned indexB);
+
+    /**
+     * Calculate the 'width' of any dimension of the mesh.
+     *
+     * This method is overridden in some daughter classes (e.g. Cylindrical2dMesh).
+     *
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The maximum distance between any nodes in this dimension.
+     */
+    virtual double GetWidth(const unsigned& rDimension) const;
+
+    /**
+     * Calculate the 'width extremes' of any dimension of the mesh.
+     *
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The minimum and maximum co-ordinates of any node in this dimension.
+     */
+    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
+
+    /**
+     * Scale the mesh.
+     *
+     * @param xFactor is the scale in the x-direction (defaults to 1.0)
+     * @param yFactor is the scale in the y-direction (defaults to 1.0)
+     * @param zFactor is the scale in the z-direction (defaults to 1.0)
+     */
+    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
+
+    /**
+     * This method allows the mesh properties to be re-calculated after
+     * one or more nodes have been moved.
+     */
+    virtual void RefreshMesh();
+
     //////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////

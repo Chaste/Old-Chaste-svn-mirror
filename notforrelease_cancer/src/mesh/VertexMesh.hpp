@@ -66,7 +66,7 @@ protected:
     /** Indices of nodes that have been deleted. These indices can be reused when adding new elements/nodes. */
     std::vector<unsigned> mDeletedNodeIndices;
 
-     /** Indices of elements that have been deleted. These indices can be reused when adding new elements. */
+    /** Indices of elements that have been deleted. These indices can be reused when adding new elements. */
     std::vector<unsigned> mDeletedElementIndices;
 
     /** Whether nodes have been added to the mesh. */
@@ -95,9 +95,7 @@ protected:
      * @param pNodeA one of the nodes to perform the merge with
      * @param pNodeB the other node to perform the merge with 
      */
-    void PerformNodeMerge(Node<SPACE_DIM>* pNodeA,
-                          Node<SPACE_DIM>* pNodeB);
-
+    void PerformNodeMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
 
     /**
      * Helper method for ReMesh to perform the T1 Swap
@@ -108,10 +106,7 @@ protected:
      * @param pNodeB the other node to perform the swap
      * @param elementsContainingNodes set of common elements
      */
-    void PerformT1Swap(Node<SPACE_DIM>* pNodeA,
-                       Node<SPACE_DIM>* pNodeB,
-                       std::set<unsigned> elementsContainingNodes);
-                                          
+    void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, std::set<unsigned> elementsContainingNodes);
 
     /**
      * Method to divide an element given 2 nodes in which to divide the element with
@@ -188,7 +183,6 @@ protected:
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -264,7 +258,7 @@ public:
      * @param edgeDivisionThreshold
      */
     void SetEdgeDivisionThreshold(double edgeDivisionThreshold);
-    
+
     /**
      * Set method for mT2Threshold.
      * 
@@ -289,40 +283,17 @@ public:
      * @return mEdgeDivisionThreshold
      */
     double GetEdgeDivisionThreshold() const;
-    
+
     /**
      * @return mT2Threshold
      */
     double GetT2Threshold() const;
 
     /**
-     * Calculates the `width' of any dimension of the mesh.
-     *
-     * @param rDimension a dimension (0,1 or 2)
-     * @return The maximum distance between any nodes in this dimension.
-     *
-     * N.B. Overwritten in Cylindrical2dVertexMesh.
-     */
-    virtual double GetWidth(const unsigned& rDimension) const;
-
-    /**
-     * Calculates the `width extremes' of any dimension of the mesh.
-     *
-     * @param rDimension a dimension (0,1 or 2)
-     * @return The minimum and maximum co-ordinates of any node in this dimension.
-     */
-    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension) const;
-
-    /**
      * @return the number of Nodes in the mesh.
      */
     unsigned GetNumNodes() const;
-    
-    /**
-     * @return the number of Nodes in the mesh, including Deleted ones.
-     */
-    unsigned GetNumAllNodes() const;
-    
+
     /**
      * @return the number of VertexElements in the mesh.
      */
@@ -332,13 +303,6 @@ public:
      * @return the number of VertexElements in the mesh, including those marked as deleted.
      */
     unsigned GetNumAllElements();
-
-    /**
-     * @param index the global index of a specified node
-     *
-     * @return a pointer to the node
-     */
-    Node<SPACE_DIM>* GetNode(unsigned index) const;
 
     /**
      * @param index  the global index of a specified vertex element
@@ -461,31 +425,6 @@ public:
     c_vector<double, SPACE_DIM> GetShortAxisOfElement(unsigned index);
 
     /**
-     * Returns distance between two nodes
-     *
-     * @param indexA a node index
-     * @param indexB a node index
-     *
-     * @return straight line distance between two nodes.
-     *
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden
-     * in daughter classes for non-Euclidean metrics.
-     */
-    double GetDistanceBetweenNodes(unsigned indexA, unsigned indexB);
-
-    /**
-     * Returns a vector between two points in space
-     *
-     * @param rLocationA a c_vector of co-ordinates
-     * @param rLocationB a c_vector of co-ordinates
-     *
-     * @return vector from location A to location B.
-     *
-     * N.B. This can be overridden in daughter classes for non-Euclidean metrics.
-     */
-    virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
-
-    /**
      * Given a node, find a set containing the indices of its neighbouring nodes.
      *
      * @param nodeIndex global index of the node
@@ -517,15 +456,6 @@ public:
                                  bool cullInternalFaces=false);
 
     /**
-     * Scale the mesh.
-     *
-     * @param xFactor is the scale in the x-direction,
-     * @param yFactor is the scale in the y-direction,
-     * @param zFactor is the scale in the z-direction
-     **/
-    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
-
-    /**
      * Add a node to the mesh.
      *
      * Note: After calling this one or more times, you must then call ReMesh.
@@ -534,7 +464,7 @@ public:
      * @return the global index of the new node in the mesh.
      */
     unsigned AddNode(Node<SPACE_DIM>* pNewNode);
-       
+
     /**
      * Helper method for ReMesh to perform the T2 Swap
      *
