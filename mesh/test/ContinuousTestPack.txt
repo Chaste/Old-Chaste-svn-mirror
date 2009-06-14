@@ -7,6 +7,7 @@ TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestMutableMesh.hpp
 TestNode.hpp
+TestNonCachedTetrahedralMesh.hpp
 TestParallelTetrahedralMesh.hpp
 TestPoint.hpp
 TestQuadraticMesh.hpp

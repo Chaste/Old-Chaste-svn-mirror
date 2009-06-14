@@ -69,7 +69,7 @@ class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
     friend class TestTetrahedralMesh; // to give access to private methods (not variables)
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
 
-private:
+protected:
 
     /**
      * Solve node mapping method.
@@ -345,7 +345,7 @@ public:
     void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
 
     /** Update mElementJacobians, mElementWeightedDirections and mBoundaryElementWeightedDirections. */
-    void RefreshJacobianCachedData();
+    virtual void RefreshJacobianCachedData();
 
     /**
      * Get the Jacobian matrix and its determinant for a given element.
@@ -383,14 +383,6 @@ public:
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
-
-//    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian) const;
-//    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rInverseJacobian) const;
-//    void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const;
-//    double GetJacobianDeterminantForElement(unsigned elementIndex) const;
-//
-//    void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection) const;
-//    double GetJacobianDeterminantForBoundaryElement(unsigned elementIndex) const;
 
     /**
      * Iterator over edges in the mesh.
