@@ -151,22 +151,15 @@ public:
         /*
          *  Check boundary element jacobian data is consistent 
          */
-        cached_access_time = 0.0;
-        non_cached_access_time = 0.0;
-
         for (unsigned boundary_element_index = 0; boundary_element_index < cached_mesh.GetNumBoundaryElements(); boundary_element_index++)              
         {
-            time_t cached_start = std::clock();        
             c_vector<double, 3> wd_cached;
             double det_cached;
             cached_mesh.GetWeightedDirectionForBoundaryElement(boundary_element_index, wd_cached,det_cached);
-            cached_access_time += (std::clock()-cached_start)/(double)CLOCKS_PER_SEC;    
 
-            time_t non_cached_start = std::clock();            
             c_vector<double, 3> wd_non_cached;
             double det_non_cached;
             non_cached_mesh.GetWeightedDirectionForBoundaryElement(boundary_element_index, wd_non_cached,det_non_cached);
-            non_cached_access_time += (std::clock()-non_cached_start)/(double)CLOCKS_PER_SEC;
             
             TS_ASSERT_EQUALS(det_cached, det_non_cached);
             
@@ -175,9 +168,6 @@ public:
                 TS_ASSERT_EQUALS(wd_cached(row), wd_non_cached(row));
             }
         }
-
-        // Retrieving the cached weighted directions should be quicker
-        TS_ASSERT(cached_access_time < non_cached_access_time);        
     }
     
 };
