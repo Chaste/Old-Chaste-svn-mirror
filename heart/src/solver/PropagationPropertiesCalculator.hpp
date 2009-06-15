@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _PROPAGATIONPROPERTIESCALCULATOR_HPP_
 
 #include "Hdf5DataReader.hpp"
-#include "CellProperties.hpp"
+
 #include <string>
 
 class PropagationPropertiesCalculator
