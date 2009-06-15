@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _TESTLINEARSYSTEM_HPP_
 #define _TESTLINEARSYSTEM_HPP_
-#include "Debug.hpp"
+
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
