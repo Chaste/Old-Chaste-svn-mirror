@@ -31,9 +31,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName, bool boundaryElemFileIsQuadratic)
 {
+
     LoadFromFile(fileName, boundaryElemFileIsQuadratic);
 
     // check each boundary element has a quadratic number of nodes    
+#ifndef NDEBUG
     unsigned expected_num_nodes = DIM*(DIM+1)/2;
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
           = this->GetBoundaryElementIteratorBegin();
@@ -42,6 +44,7 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName, bool boundaryElem
     {
         assert((*iter)->GetNumNodes()==expected_num_nodes);
     }
+#endif
 }
 
 
@@ -519,7 +522,20 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
     OutputFileHandler handler(directory, false);
     out_stream p_file = handler.OpenOutputFile(fileName);
 
-    unsigned expected_num_nodes = DIM == 1 ? 1 : ( DIM==2 ? 3 : 6 );
+    unsigned expected_num_nodes;
+    if (DIM == 1)
+    {
+        expected_num_nodes = 1;
+    }
+    else if (DIM == 2)
+    {
+        expected_num_nodes = 3;
+    }
+    else if (DIM == 3)
+    {
+        expected_num_nodes = 6;
+    }
+
     unsigned num_elements = 0; 
 
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
@@ -553,7 +569,6 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
 ///////////////////////////////////////////////////////////////////////////////
 // two unpleasant helper methods for AddExtraBoundaryNodes()
 ///////////////////////////////////////////////////////////////////////////////
-
 
 #define COVERAGE_IGNORE /// \todo These helper methods aren't properly covered
 template<unsigned DIM>
