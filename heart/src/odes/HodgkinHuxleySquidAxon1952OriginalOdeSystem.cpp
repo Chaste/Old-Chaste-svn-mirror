@@ -41,10 +41,6 @@ const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::potassium_channel_g_K 
 const double HodgkinHuxleySquidAxon1952OriginalOdeSystem::sodium_channel_g_Na = 120.0;
 
 
-
-/**
- * Constructor
- */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(
     boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
@@ -55,19 +51,12 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
     Init();
 }
 
-/**
- * Destructor
- */
+
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::~HodgkinHuxleySquidAxon1952OriginalOdeSystem(void)
 {
 }
 
-/**
- * Function returns a vector representing the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem system of Odes at each time step, y' = [y1' ... yn'].
- * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
- *
- * @param rDY filled in derivatives using HodgkinHuxleySquidAxon1952OriginalOdeSystem system of equations
- */
+
 void HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
 {
     /*

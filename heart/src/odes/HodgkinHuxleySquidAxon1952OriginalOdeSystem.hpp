@@ -41,26 +41,45 @@ class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractCardiacCell
 private:
     /* Parameters */
 
-    /** mS/cm2 */
+    /** Maximal conductance for the leak current (mS/cm2) */
     static const double leakage_current_g_L;
-    /** uF/cm2 */
+    /** Membrane capcitance (uF/cm2) */
     static const double membrane_Cm;
-    /** mV */
+    /** Reverse potential (mV) */
     static const double membrane_E_R;
-    /** mS/cm2 */
+    /** Maximal conductance for potassium current (mS/cm2) */
     static const double potassium_channel_g_K;
-    /** mS/cm2 */
+    /** Maximal conductance for sodium current (mS/cm2) */
     static const double sodium_channel_g_Na;
 
 public:
-    // Constructor
+    /**
+     * Constructor
+     * 
+     * @param pSolver is a pointer to the ODE solver
+     * @param pIntracellularStimulus is a pointer to the intracellular stimulus
+     */
     HodgkinHuxleySquidAxon1952OriginalOdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
                                                 boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
-    // Destructor
+    /**
+     * Destructor
+     */
     ~HodgkinHuxleySquidAxon1952OriginalOdeSystem();
 
-    // This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
+    /** 
+     * This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
+     * 
+     * @param time  the current time, in milliseconds
+     * @param rY  current values of the state variables
+     * @param rDY  to be filled in with derivatives
+     */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
+    
+    /**
+     * Calculates the ionic current
+     * 
+     * @returns the total ionic current
+     */
     double GetIIonic();
 };
 

@@ -82,11 +82,17 @@ public:
 
     /**
      * Calculates the ionic current
+     * 
+     * @returns the total ionic current
      */
     double GetIIonic();
 
     /**
      * Evaluate the derivatives of the state variables
+     * 
+     * @param time  the current time, in milliseconds
+     * @param rY  current values of the state variables
+     * @param rDY  to be filled in with derivatives
      */
     void EvaluateYDerivatives(double var_Environment__time, const std::vector<double> &rY, std::vector<double> &rDY);
 

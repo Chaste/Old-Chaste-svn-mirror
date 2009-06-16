@@ -37,9 +37,6 @@ const double FitzHughNagumo1961OdeSystem::mGamma = 3.00;
 const double FitzHughNagumo1961OdeSystem::mEpsilon = 0.005;
 
 
-/**
- * Constructor
- */
 FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(
         boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
         boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
@@ -50,20 +47,10 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(
     Init();
 }
 
-
-/**
- * Destructor
- */
 FitzHughNagumo1961OdeSystem::~FitzHughNagumo1961OdeSystem(void)
 {
 }
 
-/**
- * Returns a vector representing the RHS of the FitzHugh-Nagumo system of Odes at each time step, y' = [y1' ... yn'].
- * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
- *
- * @param rDY filled in vector of derivatives for the FitzHugh-Nagumo system of equations
- */
 void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
 {
     double membrane_V = rY[0]; // v
