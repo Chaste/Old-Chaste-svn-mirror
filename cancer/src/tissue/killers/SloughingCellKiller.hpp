@@ -63,10 +63,10 @@ private:
         archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
         //archive & mSloughSides; // done in load_construct_data
 
-        // Make sure Cancer Parameters are archived
-        CancerParameters* p_params = CancerParameters::Instance();
-        archive & *p_params;
-        archive & p_params;
+        // Make sure Tissue configuration archived
+        TissueConfig* p_config = TissueConfig::Instance();
+        archive & *p_config;
+        archive & p_config;
     }
 
 public:

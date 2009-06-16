@@ -3,8 +3,8 @@ cell/TestOdeBasedCellCycleModels.hpp
 cell/TestSimpleCellCycleModels.hpp
 cell/TestTissueCell.hpp
 cell/TestWntConcentration.hpp
-common/TestCancerParameters.hpp
 common/TestSimulationTime.hpp
+common/TestTissueConfig.hpp
 mesh/TestCylindrical2dMesh.hpp
 mesh/TestHoneycombMeshGenerator.hpp
 mesh/TestVoronoiAreaOnPeriodicMesh.hpp

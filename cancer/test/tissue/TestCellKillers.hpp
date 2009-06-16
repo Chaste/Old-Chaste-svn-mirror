@@ -51,7 +51,7 @@ public:
     void TestRandomCellKiller() throw(Exception)
     {
         // Set up singleton classes
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         // Create mesh
@@ -146,7 +146,7 @@ public:
     void TestSloughingCellKillerTopAndSides() throw(Exception)
     {
         // Set up singleton classes
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -205,7 +205,7 @@ public:
     void TestSloughingCellKillerTopOnly() throw(Exception)
     {
         // Set up singleton classes
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -264,7 +264,7 @@ public:
     void TestSloughingCellKillerIn1d() throw(Exception)
     {
         // Set up singleton classes
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create 1D mesh
         unsigned num_cells = 14;
@@ -394,7 +394,7 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
 
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         p_params->SetCryptLength(10.0);
         p_params->SetCryptWidth(5.0);

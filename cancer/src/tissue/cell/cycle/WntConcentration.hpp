@@ -64,13 +64,13 @@ private:
     static WntConcentration* mpInstance;
 
     /** The cancer parameters */
-    CancerParameters* mpCancerParams;
+    TissueConfig* mpTissueConfig;
 
     /**
      * The type of WntConcentration current options are
      *  NONE - returns zero everywhere
-     *  LINEAR - decreases from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
-     *  RADIAL - decreases from 1 to zero at height specified by CancerParameters::mTopOfLinearWntConcentration
+     *  LINEAR - decreases from 1 to zero at height specified by TissueConfig::mTopOfLinearWntConcentration
+     *  RADIAL - decreases from 1 to zero at height specified by TissueConfig::mTopOfLinearWntConcentration
      */
     WntConcentrationType mWntType;
 
@@ -106,9 +106,9 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        mpCancerParams = CancerParameters::Instance();
-        archive & *mpCancerParams;
-        archive & mpCancerParams;
+        mpTissueConfig = TissueConfig::Instance();
+        archive & *mpTissueConfig;
+        archive & mpTissueConfig;
         archive & mWntType;
         archive & mpTissue;
         archive & mTypeSet;
@@ -146,7 +146,7 @@ public:
 
     /**
      *  Get the Wnt level at a given height in the crypt. Note the
-     *  CancerParameters::CryptLength() is used for this.
+     *  TissueConfig::CryptLength() is used for this.
      *
      *  @param height the height of the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this height in the crypt (dimensionless)
@@ -155,7 +155,7 @@ public:
 
     /**
      *  Get the Wnt level at a given cell in the crypt. The crypt
-     *  must be set for this. Note the CancerParameters::CryptLength()
+     *  must be set for this. Note the TissueConfig::CryptLength()
      *  is used for this.
      *
      *  @param pCell pointer to the cell at which we want the Wnt concentration
@@ -165,7 +165,7 @@ public:
 
     /**
      *  Get the Wnt gradient at a given location in the crypt. Note the
-     *  CancerParameters::CryptLength() is used for this.
+     *  TissueConfig::CryptLength() is used for this.
      *
      *  @param location  the location at which we want the Wnt gradient
      */
@@ -173,7 +173,7 @@ public:
 
     /**
      *  Get the Wnt gradient at a given cell in the crypt. The crypt
-     *  must be set for this. Note the CancerParameters::CryptLength()
+     *  must be set for this. Note the TissueConfig::CryptLength()
      *  is used for this.
      *
      *  @param pCell pointer to the cell at which we want the Wnt gradient

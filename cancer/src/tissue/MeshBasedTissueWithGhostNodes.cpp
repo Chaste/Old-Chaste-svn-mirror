@@ -135,7 +135,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
 
         c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index);
 
-        double damping_constant = CancerParameters::Instance()->GetDampingConstantNormal();
+        double damping_constant = TissueConfig::Instance()->GetDampingConstantNormal();
 
         if (!this->mIsGhostNode[nodeA_global_index])
         {
@@ -179,7 +179,7 @@ c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenN
 
     double rest_length = 1.0;
 
-    return CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    return TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 template<unsigned DIM>

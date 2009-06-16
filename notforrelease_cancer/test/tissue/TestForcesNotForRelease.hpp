@@ -170,7 +170,7 @@ public:
 
     void TestCryptProjectionForceMethods() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh
         unsigned num_cells_width = 10;
@@ -351,7 +351,7 @@ public:
      */
     void TestCryptProjectionForceWithWntBasedChemotaxis() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh
         unsigned num_cells_width = 10;
@@ -428,7 +428,7 @@ public:
         // Store the force of the same node, but now with Wnt-chemotaxis
         c_vector<double,2> new_force = new_node_forces[11];
 
-        double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
+        double wnt_chemotaxis_strength = TissueConfig::Instance()->GetWntChemotaxisStrength();
         c_vector<double,2> wnt_component = wnt_chemotaxis_strength*WntConcentration<2>::Instance()->GetWntGradient(&(cells[11]));
 
         TS_ASSERT_DELTA(new_force[0], old_force[0]+wnt_component[0], 1e-4);
@@ -437,7 +437,7 @@ public:
 
     void TestCryptProjectionForceWithArchiving() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename;
@@ -500,7 +500,7 @@ public:
 
     void TestForceCollection() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         unsigned cells_across = 7;
         unsigned cells_up = 5;

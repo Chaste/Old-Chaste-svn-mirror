@@ -56,7 +56,7 @@ public:
      */
     void TestGenerateSteadyStateCryptArchives() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         std::string output_directory = "SteadyStateCrypt";
 
         double end_of_simulation = 150.0; // hours
@@ -85,7 +85,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        CancerParameters::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
+        TissueConfig::Instance()->SetTopOfLinearWntConcentration(1.0/3.0);
         WntConcentration<2>::Instance()->SetTissue(crypt);
 
         GeneralisedLinearSpringForce<2> linear_force;

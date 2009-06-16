@@ -88,8 +88,8 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set crypt dimensions
-        CancerParameters::Instance()->SetCryptLength(crypt_length);
-        CancerParameters::Instance()->SetCryptWidth(crypt_width);
+        TissueConfig::Instance()->SetCryptLength(crypt_length);
+        TissueConfig::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -153,8 +153,8 @@ public:
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        CancerParameters::Instance()->SetCryptLength(crypt_length);
-        CancerParameters::Instance()->SetCryptWidth(crypt_width);
+        TissueConfig::Instance()->SetCryptLength(crypt_length);
+        TissueConfig::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -211,7 +211,7 @@ public:
     void Test2DCorrectCellNumbers() throw (Exception)
     {
         // Set up singleton class
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
@@ -233,8 +233,8 @@ public:
         double crypt_length = num_cells_depth - 1.0;
 
         // Set crypt dimensions
-        CancerParameters::Instance()->SetCryptLength(crypt_length);
-        CancerParameters::Instance()->SetCryptWidth(crypt_width);
+        TissueConfig::Instance()->SetCryptLength(crypt_length);
+        TissueConfig::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = location_indices.size();
@@ -667,8 +667,8 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        CancerParameters::Instance()->SetCryptLength(crypt_length);
-        CancerParameters::Instance()->SetCryptWidth(crypt_width);
+        TissueConfig::Instance()->SetCryptLength(crypt_length);
+        TissueConfig::Instance()->SetCryptWidth(crypt_width);
 
         // Set up cells
         std::vector<TissueCell> cells;

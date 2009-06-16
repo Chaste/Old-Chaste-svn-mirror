@@ -55,7 +55,7 @@ public:
 
     void TestAlarcon2004OxygenBasedCellCycleModel() throw(Exception)
     {
-        CancerParameters::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetHepaOneParameters();
 
         // Set up SimulationTime
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -116,7 +116,7 @@ public:
 
     void TestSimpleOxygenBasedCellCycleModel() throw(Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetHepaOneParameters();
 
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are
@@ -216,7 +216,7 @@ public:
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*TissueConfig::Instance()->GetCriticalHypoxicDuration(), num_steps);
 
         // Create a cell with a simple oxygen-based cell cycle model
         SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel(2);
@@ -229,7 +229,7 @@ public:
         for (unsigned i=0; i<num_steps; i++)
         {
             TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
-                      p_simulation_time->GetTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
+                      p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -286,7 +286,7 @@ public:
          * Test with asymmetric division
          */
 
-        CancerParameters::Instance()->SetSymmetricDivisionProbability(0.0);
+        TissueConfig::Instance()->SetSymmetricDivisionProbability(0.0);
 
         // Increment time
         for (unsigned i=0; i<num_timesteps/3; i++)
@@ -312,8 +312,8 @@ public:
          * Test with symmetric division
          */
 
-        CancerParameters::Instance()->SetSymmetricDivisionProbability(1.0);
-        CancerParameters::Instance()->SetMaxTransitGenerations(1);
+        TissueConfig::Instance()->SetSymmetricDivisionProbability(1.0);
+        TissueConfig::Instance()->SetMaxTransitGenerations(1);
 
         StochasticDivisionRuleCellCycleModel* p_cycle_model3 = new StochasticDivisionRuleCellCycleModel;
         TissueCell cell3(STEM, HEALTHY, p_cycle_model3);
@@ -384,7 +384,7 @@ public:
 
     void TestStochasticOxygenBasedCellCycleModel() throw(Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetHepaOneParameters();
 
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration
@@ -488,7 +488,7 @@ public:
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*CancerParameters::Instance()->GetCriticalHypoxicDuration(), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*TissueConfig::Instance()->GetCriticalHypoxicDuration(), num_steps);
 
         // Create a cell with a simple oxygen-based cell cycle model
         StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel(2);
@@ -502,7 +502,7 @@ public:
         for (unsigned i=0; i<num_steps; i++)
         {
             TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
-                      p_simulation_time->GetTime() >= CancerParameters::Instance()->GetCriticalHypoxicDuration());
+                      p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -543,7 +543,7 @@ public:
     void TestArchiveAlarcon2004OxygenBasedCellCycleModels()
     {
         // Set up
-        CancerParameters::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetHepaOneParameters();
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
@@ -589,7 +589,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters* inst1 = CancerParameters::Instance();
+            TissueConfig* inst1 = TissueConfig::Instance();
 
             inst1->SetSDuration(101.0);
 
@@ -769,7 +769,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters* inst1 = CancerParameters::Instance();
+            TissueConfig* inst1 = TissueConfig::Instance();
 
             inst1->SetSDuration(101.0);
 

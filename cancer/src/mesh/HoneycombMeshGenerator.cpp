@@ -71,8 +71,8 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
         #undef COVERAGE_IGNORE
     }
 
-    CancerParameters::Instance()->SetCryptLength(mCryptDepth);
-    CancerParameters::Instance()->SetCryptWidth(mCryptWidth);
+    TissueConfig::Instance()->SetCryptLength(mCryptDepth);
+    TissueConfig::Instance()->SetCryptWidth(mCryptWidth);
 }
 
 

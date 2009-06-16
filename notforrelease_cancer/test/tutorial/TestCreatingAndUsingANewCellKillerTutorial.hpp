@@ -207,7 +207,7 @@ public:
         /* The first thing to do is to set up the start time and reset the model 
          * parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0, false);
@@ -321,7 +321,7 @@ public:
         /* The first thing to do, as before, is to set up the start time and
          * reset the parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0, false);

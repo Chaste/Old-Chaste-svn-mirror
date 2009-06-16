@@ -52,7 +52,7 @@ public:
     void TestGetSection() throw (Exception)
     {
         // Set up tissue
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetWntStemThreshold(0.95);
 
         double a = 0.2;
@@ -120,7 +120,7 @@ public:
 
         // Create a radial cell killer and pass it in to the tissue simulation
         c_vector<double,2> centre = zero_vector<double>(2);
-        double crypt_radius = pow(CancerParameters::Instance()->GetCryptLength()/a, 1.0/b);
+        double crypt_radius = pow(TissueConfig::Instance()->GetCryptLength()/a, 1.0/b);
 
         RadialSloughingCellKiller killer(&crypt, centre, crypt_radius);
         crypt_projection_simulator.AddCellKiller(&killer);

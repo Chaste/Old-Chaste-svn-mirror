@@ -198,7 +198,7 @@ void TissueCell::StartApoptosis(bool setDeathTime)
     mStartOfApoptosisTime = SimulationTime::Instance()->GetTime();
     if (setDeathTime)
     {
-        mDeathTime = mStartOfApoptosisTime + CancerParameters::Instance()->GetApoptosisTime();
+        mDeathTime = mStartOfApoptosisTime + TissueConfig::Instance()->GetApoptosisTime();
     }
     else
     {

@@ -97,7 +97,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
 
         // We are going to start at t=0 and jump up in steps of 6.0
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -170,7 +170,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // If the value of GetStemCellG1Duration() changes in p_params the simulation time
         // step and end time will need to be changed accordingly so that
@@ -409,7 +409,7 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(6000.0, 1000);
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -475,7 +475,7 @@ public:
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -525,7 +525,7 @@ public:
 
     void Test0DBucketStochastic()
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -727,7 +727,7 @@ public:
     void TestWithWntCellCycleModel() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        CancerParameters* p_parameters = CancerParameters::Instance();
+        TissueConfig* p_parameters = TissueConfig::Instance();
 
         double SG2MDuration = p_parameters->GetSG2MDuration();
 
@@ -803,7 +803,7 @@ public:
      */
     void TestWithStochasticWntCellCycleModel() throw(Exception)
     {
-        CancerParameters* p_parameters = CancerParameters::Instance();
+        TissueConfig* p_parameters = TissueConfig::Instance();
 
         // These are the first three normal random with mean 10, s.d. 1 and this seed (0)
         double SG2MDuration1 = p_parameters->GetSDuration() + 3.16084 + p_parameters->GetMDuration();
@@ -976,7 +976,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.6, 3);
 
         // This test needs particular apoptosis time
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
 
         TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());

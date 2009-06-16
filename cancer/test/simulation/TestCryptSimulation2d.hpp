@@ -171,8 +171,8 @@ public:
         // Create mesh
         double crypt_length = 10;
         double crypt_width = 10;
-        CancerParameters::Instance()->SetCryptLength(crypt_length);
-        CancerParameters::Instance()->SetCryptWidth(crypt_width);
+        TissueConfig::Instance()->SetCryptLength(crypt_length);
+        TissueConfig::Instance()->SetCryptWidth(crypt_width);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
@@ -1142,8 +1142,8 @@ public:
         double crypt_length = 9.3;
         double crypt_width = 10.0;
 
-        CancerParameters::Instance()->SetCryptLength(crypt_length);
-        CancerParameters::Instance()->SetCryptWidth(crypt_width);
+        TissueConfig::Instance()->SetCryptLength(crypt_length);
+        TissueConfig::Instance()->SetCryptWidth(crypt_width);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
@@ -1182,9 +1182,9 @@ public:
     void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
     {
         // Set up cancer parameters
-        CancerParameters::Instance()->Reset();
-        CancerParameters::Instance()->SetDivisionRestingSpringLength(0.9);//Only coverage
-        CancerParameters::Instance()->SetDivisionSeparation(0.1);
+        TissueConfig::Instance()->Reset();
+        TissueConfig::Instance()->SetDivisionRestingSpringLength(0.9);//Only coverage
+        TissueConfig::Instance()->SetDivisionSeparation(0.1);
 
         // Make a parent node
         c_vector<double,2> location;
@@ -1217,7 +1217,7 @@ public:
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                        CancerParameters::Instance()->GetDivisionSeparation(),
+                        TissueConfig::Instance()->GetDivisionSeparation(),
                         1e-7);
     }
 
@@ -1265,7 +1265,7 @@ public:
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
             TS_ASSERT(daughter_location[1]>=location[1]);
             TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                            1.0*CancerParameters::Instance()->GetDivisionSeparation(),
+                            1.0*TissueConfig::Instance()->GetDivisionSeparation(),
                             1e-7);
        }
     }
@@ -1303,7 +1303,7 @@ public:
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                        CancerParameters::Instance()->GetDivisionSeparation(),
+                        TissueConfig::Instance()->GetDivisionSeparation(),
                         1e-7);
     }
 
@@ -1345,7 +1345,7 @@ public:
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                        CancerParameters::Instance()->GetDivisionSeparation(),
+                        TissueConfig::Instance()->GetDivisionSeparation(),
                         1e-7);
     }
 
@@ -1553,7 +1553,7 @@ public:
         std::string output_directory = "AncestorCrypt";
 
         // Set up cancer parameters
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetDampingConstantNormal(1.0); // normally 1
 
         // Do not give mutant cells any different movement properties to normal ones

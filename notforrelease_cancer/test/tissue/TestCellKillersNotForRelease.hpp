@@ -116,7 +116,7 @@ public:
     void TestOxygenBasedCellKiller() throw(Exception)
     {
         // Set up
-        CancerParameters::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetHepaOneParameters();
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellTypes.hpp"
 #include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
-#include "CancerParameters.hpp"
+#include "TissueConfig.hpp"
 #include "TissueCell.hpp"
 
 // Needs to be included last
@@ -75,7 +75,7 @@ private:
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
         archive & p_time;
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         archive & *p_params;
         archive & p_params;
 

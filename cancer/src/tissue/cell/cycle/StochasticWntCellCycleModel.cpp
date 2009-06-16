@@ -44,19 +44,19 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(std::vector<double> par
 
 void StochasticWntCellCycleModel::SetG2Duration()
 {
-    CancerParameters* p_params = CancerParameters::Instance();
+    TissueConfig* p_config = TissueConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-    double mean = p_params->GetG2Duration();
+    double mean = p_config->GetG2Duration();
     double standard_deviation = 0.9;
 
     mG2Duration = p_gen->NormalRandomDeviate(mean, standard_deviation);
 
     // Check that the normal random deviate has not returned a small or negative G2 duration
-    if (mG2Duration < p_params->GetMinimumGapDuration())
+    if (mG2Duration < p_config->GetMinimumGapDuration())
     {
         #define COVERAGE_IGNORE
-        mG2Duration = p_params->GetMinimumGapDuration();
+        mG2Duration = p_config->GetMinimumGapDuration();
         #undef COVERAGE_IGNORE
     }
 }

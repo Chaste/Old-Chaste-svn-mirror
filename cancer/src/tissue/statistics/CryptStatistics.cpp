@@ -67,7 +67,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     bool is_in_section=false;
 
     c_vector<double,2> intercept;
-    double crypt_width = CancerParameters::Instance()->GetCryptWidth();
+    double crypt_width = TissueConfig::Instance()->GetCryptWidth();
 
     double m; // gradient of line
     double offset;
@@ -118,19 +118,19 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
     //Fill in the default values - in a sequential manner
     if (xBottom == DBL_MAX)
     {
-        xBottom = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth();
+        xBottom = RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth();
     }
 
     if (xTop == DBL_MAX)
     {
-        xTop = RandomNumberGenerator::Instance()->ranf()*CancerParameters::Instance()->GetCryptWidth();
+        xTop = RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth();
     }
 
 
     assert(yTop>0.0);
     std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
 
-    if (fabs(xTop-xBottom)<0.5*CancerParameters::Instance()->GetCryptWidth())
+    if (fabs(xTop-xBottom)<0.5*TissueConfig::Instance()->GetCryptWidth())
     {
         // the periodic version isn't needed, ignore even if periodic was set to true
         periodic = false;

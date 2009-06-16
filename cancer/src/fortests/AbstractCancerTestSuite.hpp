@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CXXTEST_ABORT_TEST_ON_FAIL
 #include "SimulationTime.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "CancerParameters.hpp"
+#include "TissueConfig.hpp"
 
 /**
  * This class provides setUp and tearDown methods that are common to
@@ -51,7 +51,7 @@ protected:
 
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
     }
 
     /**

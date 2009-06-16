@@ -41,7 +41,7 @@ class TestVoronoiAreaOnPeriodicMesh : public CxxTest::TestSuite
 public:
     void TestTessellation2NodesOn2dPeriodic() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         unsigned cells_across = 6;
         unsigned cells_up = 12;

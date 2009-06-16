@@ -84,11 +84,11 @@ double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
         if (   (this->rGetCellUsingLocationIndex(*iter).GetMutationState() != HEALTHY)
             && (this->rGetCellUsingLocationIndex(*iter).GetMutationState() != APC_ONE_HIT) )
         {
-            average_damping_constant += CancerParameters::Instance()->GetDampingConstantMutant()/((double) num_containing_elements);
+            average_damping_constant += TissueConfig::Instance()->GetDampingConstantMutant()/((double) num_containing_elements);
         }
         else
         {
-            average_damping_constant += CancerParameters::Instance()->GetDampingConstantNormal()/((double) num_containing_elements);
+            average_damping_constant += TissueConfig::Instance()->GetDampingConstantNormal()/((double) num_containing_elements);
         }
     }
 
@@ -119,11 +119,11 @@ double VertexBasedTissue<DIM>::GetAdhesionParameter(Node<DIM>* pNodeA, Node<DIM>
     // If the edge corresponds to a single element, then the cell is on the boundary
     if (shared_elements.size() == 1)
     {
-        adhesion_parameter = CancerParameters::Instance()->GetCellBoundaryAdhesionEnergyParameter();
+        adhesion_parameter = TissueConfig::Instance()->GetCellBoundaryAdhesionEnergyParameter();
     }
     else
     {
-        adhesion_parameter = CancerParameters::Instance()->GetCellCellAdhesionEnergyParameter();
+        adhesion_parameter = TissueConfig::Instance()->GetCellCellAdhesionEnergyParameter();
     }
     return adhesion_parameter;
 }
@@ -338,7 +338,7 @@ template<unsigned DIM>
 double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
 {
     // Get target area A of a healthy cell in S, G2 or M phase
-    double cell_target_area = CancerParameters::Instance()->GetMatureCellTargetArea();
+    double cell_target_area = TissueConfig::Instance()->GetMatureCellTargetArea();
 
     double cell_age = rCell.GetAge();
     double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
@@ -347,13 +347,13 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     if (g1_duration == DBL_MAX) // dont use magic number, compare to DBL_MAX
     {
         // This is just for fixed cell cycle models, need to work out how to find the g1 duration
-        g1_duration = CancerParameters::Instance()->GetTransitCellG1Duration();
+        g1_duration = TissueConfig::Instance()->GetTransitCellG1Duration();
     }    
 
     if (rCell.GetCellType()==APOPTOTIC)
     {
         // Age of cell when apoptosis begins
-        //double cell_age_at_death = cell_age - CancerParameters::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath(); 
+        //double cell_age_at_death = cell_age - TissueConfig::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath(); 
         
         if (rCell.GetStartOfApoptosisTime() - rCell.GetBirthTime() < g1_duration)
         {
@@ -361,7 +361,7 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
         }
 
         // The target area of an apoptotic cell decreases linearly to zero (and past it negative)        
-        cell_target_area = cell_target_area - cell_target_area/(CancerParameters::Instance()->GetApoptosisTime())*(SimulationTime::Instance()->GetTime()-rCell.GetStartOfApoptosisTime());
+        cell_target_area = cell_target_area - cell_target_area/(TissueConfig::Instance()->GetApoptosisTime())*(SimulationTime::Instance()->GetTime()-rCell.GetStartOfApoptosisTime());
     
         // Don't allow a negative target area
         if (cell_target_area < 0)

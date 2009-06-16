@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CANCERPARAMETERS_HPP_
-#define CANCERPARAMETERS_HPP_
+#ifndef TISSUECONFIG_HPP_
+#define TISSUECONFIG_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <cassert>
@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * For details of each parameter refer to the member variable documentation for this class
  * rather than the Get() and Set() function descriptions.
  */
-class CancerParameters
+class TissueConfig
 {
 public:
 
@@ -51,7 +51,7 @@ public:
      *
      * @return a single instance of the class
      */
-    static CancerParameters* Instance();
+    static TissueConfig* Instance();
 
     /**
      * @return mStemCellG1Duration
@@ -361,22 +361,22 @@ protected:
     /**
      * Default constructor.
      */
-    CancerParameters();
+    TissueConfig();
 
     /**
      * Copy constructor.
      */
-    CancerParameters(const CancerParameters&);
+    TissueConfig(const TissueConfig&);
 
     /**
      * Overloaded assignement operator.
      */
-    CancerParameters& operator= (const CancerParameters&);
+    TissueConfig& operator= (const TissueConfig&);
 
 private:
 
     /** The single instance of the class */
-    static CancerParameters *mpInstance;
+    static TissueConfig *mpInstance;
 
     /**
      * Duration of G1 phase for stem cells.
@@ -639,4 +639,4 @@ private:
 };
 
 
-#endif /*CANCERPARAMETERS_HPP_*/
+#endif /*TISSUECONFIG_HPP_*/

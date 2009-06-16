@@ -198,7 +198,7 @@ public:
     {
         // Set up simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        double end_time = 10.0 + CancerParameters::Instance()->GetMDuration(); // hours
+        double end_time = 10.0 + TissueConfig::Instance()->GetMDuration(); // hours
         unsigned num_timesteps = 1000*(unsigned)end_time;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
 
@@ -530,7 +530,7 @@ public:
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
-        double SG2M_duration = CancerParameters::Instance()->GetSG2MDuration();
+        double SG2M_duration = TissueConfig::Instance()->GetSG2MDuration();
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
@@ -895,7 +895,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
@@ -970,7 +970,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
@@ -1064,7 +1064,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 2);
 
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 

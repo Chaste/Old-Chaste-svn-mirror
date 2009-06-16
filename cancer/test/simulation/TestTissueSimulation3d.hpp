@@ -167,8 +167,8 @@ public:
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
-                               ( CancerParameters::Instance()->GetStemCellG1Duration()
-                                 + CancerParameters::Instance()->GetSG2MDuration()   ));
+                               ( TissueConfig::Instance()->GetStemCellG1Duration()
+                                 + TissueConfig::Instance()->GetSG2MDuration()   ));
             cells.push_back(cell);
         }
 
@@ -240,8 +240,8 @@ public:
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
-                                (  CancerParameters::Instance()->GetStemCellG1Duration() +
-                                   CancerParameters::Instance()->GetSG2MDuration()  ));
+                                (  TissueConfig::Instance()->GetStemCellG1Duration() +
+                                   TissueConfig::Instance()->GetSG2MDuration()  ));
             cells2.push_back(cell);
 
             if ( norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )

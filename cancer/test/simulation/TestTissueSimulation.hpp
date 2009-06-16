@@ -172,8 +172,8 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                (CancerParameters::Instance()->GetStemCellG1Duration()
-                                    + CancerParameters::Instance()->GetSG2MDuration() );
+                                (TissueConfig::Instance()->GetStemCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -262,7 +262,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
 
@@ -290,7 +290,7 @@ public:
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
 
-        CancerParameters::Instance()->SetApoptosisTime(2.0);
+        TissueConfig::Instance()->SetApoptosisTime(2.0);
         tissue.rGetCellUsingLocationIndex(14).StartApoptosis();
         tissue.rGetCellUsingLocationIndex(15).StartApoptosis();
         simulator.SetNoBirth(true);

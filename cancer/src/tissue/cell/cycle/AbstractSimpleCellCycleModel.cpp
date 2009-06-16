@@ -48,10 +48,10 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
     switch (mpCell->GetCellType())
     {
         case STEM:
-            mG1Duration = CancerParameters::Instance()->GetStemCellG1Duration();
+            mG1Duration = TissueConfig::Instance()->GetStemCellG1Duration();
             break;
         case TRANSIT:
-            mG1Duration = CancerParameters::Instance()->GetTransitCellG1Duration();
+            mG1Duration = TissueConfig::Instance()->GetTransitCellG1Duration();
             break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;

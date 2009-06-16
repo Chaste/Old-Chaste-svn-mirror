@@ -106,7 +106,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  * The rate parameter is a constant, dependent on cell type, whose value is 
  * chosen such that the mean of the distribution, 1/lambda, equals the mean 
- * G1 duration as defined in the {{{CancerParameters}}} singleton class. 
+ * G1 duration as defined in the {{{TissueConfig}}} singleton class. 
  * 
  * To implement this model we define a new cell cycle model, {{{MyCellCycleModel}}}, 
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and 
@@ -157,10 +157,10 @@ private:
         switch (mpCell->GetCellType())
         {
             case STEM:
-                mG1Duration = -log(uniform_random_number)*CancerParameters::Instance()->GetStemCellG1Duration();
+                mG1Duration = -log(uniform_random_number)*TissueConfig::Instance()->GetStemCellG1Duration();
                 break;
             case TRANSIT:
-                mG1Duration = -log(uniform_random_number)*CancerParameters::Instance()->GetTransitCellG1Duration();
+                mG1Duration = -log(uniform_random_number)*TissueConfig::Instance()->GetTransitCellG1Duration();
                 break;
             case DIFFERENTIATED:
                 mG1Duration = DBL_MAX;
@@ -218,12 +218,12 @@ public:
     {
         /* We must first set the start time. In addition, it is advisable to reset 
          * the values of all model parameters. Recall that {{{SimulationTime}}} and 
-         * {{{CancerParameters}}} are ''singleton'' classes; this means one and only 
+         * {{{TissueConfig}}} are ''singleton'' classes; this means one and only 
          * one of each of these objects is instantiated at any time, and that single 
          * object is accessible from anywhere in the code. As a result, we do not need 
          * to keep passing round the current time or model parameter values. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
 
         /* Test that we can construct a {{{MyCellCycleModel}}} object: */
         TS_ASSERT_THROWS_NOTHING(MyCellCycleModel cell_model3);
@@ -242,7 +242,7 @@ public:
 
         /* Find the mean G1 duration and test that it is within some tolerance of 
          * the expected value: */
-        double expected_mean_g1_duration = CancerParameters::Instance()->GetStemCellG1Duration();
+        double expected_mean_g1_duration = TissueConfig::Instance()->GetStemCellG1Duration();
         double sample_mean_g1_duration = 0.0;
 
         for (unsigned i=0; i<num_cells; i++)
@@ -260,8 +260,8 @@ public:
         /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to 
          * test that this cell progresses correctly through the cell cycle. */
         unsigned num_steps = 100;
-        double mean_cell_cycle_time = CancerParameters::Instance()->GetStemCellG1Duration() 
-                                        + CancerParameters::Instance()->GetSG2MDuration();
+        double mean_cell_cycle_time = TissueConfig::Instance()->GetStemCellG1Duration() 
+                                        + TissueConfig::Instance()->GetSG2MDuration();
 
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(mean_cell_cycle_time, num_steps);
 
@@ -365,7 +365,7 @@ public:
         /* The first thing to do, as before, is to set up the start time and
          * reset the parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh covering a 
          * circular domain of given radius.
@@ -387,8 +387,8 @@ public:
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (CancerParameters::Instance()->GetStemCellG1Duration() 
-                                        + CancerParameters::Instance()->GetSG2MDuration());
+                                    (TissueConfig::Instance()->GetStemCellG1Duration() 
+                                        + TissueConfig::Instance()->GetSG2MDuration());
             /* We then set the birth time and push the cell back into the vector of cells. */
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

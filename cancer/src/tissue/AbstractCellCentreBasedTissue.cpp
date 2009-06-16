@@ -118,11 +118,11 @@ double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex
     if (   (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != HEALTHY)
         && (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != APC_ONE_HIT) )
     {
-        return CancerParameters::Instance()->GetDampingConstantMutant()*damping_multiplier;
+        return TissueConfig::Instance()->GetDampingConstantMutant()*damping_multiplier;
     }
     else
     {
-        return CancerParameters::Instance()->GetDampingConstantNormal()*damping_multiplier;
+        return TissueConfig::Instance()->GetDampingConstantNormal()*damping_multiplier;
     }
 }
 

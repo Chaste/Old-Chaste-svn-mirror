@@ -47,11 +47,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
                                          double g1Duration,
-                                         double g2Duration=CancerParameters::Instance()->GetG2Duration())
+                                         double g2Duration=TissueConfig::Instance()->GetG2Duration())
 {
-    // A number of cancer parameters are called in this method,
+    // A number of cancer tissue parameters are called in this method,
     // so for convenience we create a pointer to the instance
-    CancerParameters* p_params = CancerParameters::Instance();
+    TissueConfig* p_params = TissueConfig::Instance();
 
     double age = pModel->GetAge();
 

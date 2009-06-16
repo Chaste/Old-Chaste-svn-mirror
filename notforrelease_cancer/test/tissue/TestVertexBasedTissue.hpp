@@ -172,7 +172,7 @@ public:
 
     void TestGetTargetAreaOfCell() throw (Exception)
     {
-        double apoptosis_time = CancerParameters::Instance()->GetApoptosisTime();
+        double apoptosis_time = TissueConfig::Instance()->GetApoptosisTime();
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(apoptosis_time, 2);
@@ -209,7 +209,7 @@ public:
         for (unsigned elem_index=0; elem_index<tissue.GetNumElements(); elem_index++)
         {
             TissueCell cell = tissue.rGetCellUsingLocationIndex(elem_index);
-            double expected_area = CancerParameters::Instance()->GetMatureCellTargetArea();
+            double expected_area = TissueConfig::Instance()->GetMatureCellTargetArea();
 
             if (elem_index!=4 && elem_index<=7u)
             {
@@ -236,10 +236,10 @@ public:
 
         double expected_area_0 = 0.5;                
 
-        double expected_area_1 = CancerParameters::Instance()->GetMatureCellTargetArea();
+        double expected_area_1 = TissueConfig::Instance()->GetMatureCellTargetArea();
         expected_area_1 *= 0.5*(1.0 + 1.0/7.0); 
 
-        double expected_area_4 = CancerParameters::Instance()->GetMatureCellTargetArea();
+        double expected_area_4 = TissueConfig::Instance()->GetMatureCellTargetArea();
 
         TS_ASSERT_DELTA(actual_area_0, expected_area_0, 1e-12);
         TS_ASSERT_DELTA(actual_area_1, expected_area_1, 1e-12);
@@ -253,7 +253,7 @@ public:
 
         // Have run on for half the apoptosis time therefore the target area should have halved
 
-        expected_area_0 = CancerParameters::Instance()->GetMatureCellTargetArea();
+        expected_area_0 = TissueConfig::Instance()->GetMatureCellTargetArea();
         expected_area_0 *= 0.5*(1.0 + 0.5*apoptosis_time/2.0); 
 
         TS_ASSERT_DELTA(actual_area_0_after_dt, expected_area_0, 1e-12);
@@ -302,8 +302,8 @@ public:
         tissue.InitialiseCells(); // this method must be called explicitly as there is no simulation
 
         // Test GetDampingConstant()
-        double normal_damping_constant = CancerParameters::Instance()->GetDampingConstantNormal();
-        double mutant_damping_constant = CancerParameters::Instance()->GetDampingConstantMutant();
+        double normal_damping_constant = TissueConfig::Instance()->GetDampingConstantNormal();
+        double mutant_damping_constant = TissueConfig::Instance()->GetDampingConstantMutant();
 
         // Node 3 is contained in cell 2 only, therefore should have normal damping constant
         double damping_constant_at_node_3 = tissue.GetDampingConstant(3);
@@ -875,7 +875,7 @@ public:
         VertexBasedTissue<2> tissue(vertex_mesh, cells);
 
         // Set the top of this tissue, for the purposes of computing the WntConcentration
-        CancerParameters::Instance()->SetCryptLength(4.0);
+        TissueConfig::Instance()->SetCryptLength(4.0);
 
         // Set up an instance of the WntConcentration singleton object
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();

@@ -38,7 +38,7 @@ void StochasticDivisionRuleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
 
-    CancerParameters* p_params = CancerParameters::Instance();
+    TissueConfig* p_params = TissueConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     switch (mpCell->GetCellType())
@@ -79,7 +79,7 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
     if (mpCell->GetCellType() == STEM)
     {
         double test_number = RandomNumberGenerator::Instance()->ranf(); // U(0,1)
-        double sym_div_prob = CancerParameters::Instance()->GetSymmetricDivisionProbability();
+        double sym_div_prob = TissueConfig::Instance()->GetSymmetricDivisionProbability();
 
         // If undergoing symmetric division...
         if (test_number < sym_div_prob)

@@ -89,7 +89,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
         {
             // Update G1 duration based on oxygen concentration
             double dt = SimulationTime::Instance()->GetTimeStep();
-            double quiescent_concentration = CancerParameters::Instance()->GetHepaOneCellQuiescentConcentration();
+            double quiescent_concentration = TissueConfig::Instance()->GetHepaOneCellQuiescentConcentration();
 
             if (oxygen_concentration < quiescent_concentration)
             {
@@ -137,7 +137,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
             NEVER_REACHED;
     }
 
-    double hypoxic_concentration = CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration();
+    double hypoxic_concentration = TissueConfig::Instance()->GetHepaOneCellHypoxicConcentration();
 
     if (oxygen_concentration < hypoxic_concentration)
     {
@@ -146,7 +146,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 
         // Include a little bit of stochasticity here
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
-        if (mCurrentHypoxicDuration > CancerParameters::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
+        if (mCurrentHypoxicDuration > TissueConfig::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
             mpCell->SetCellType(APOPTOTIC);
         }

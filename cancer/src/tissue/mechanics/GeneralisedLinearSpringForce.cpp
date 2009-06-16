@@ -86,7 +86,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     // two nodes located a distance apart greater than mUseCutoffPoint
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= CancerParameters::Instance()->GetMechanicsCutOffLength())
+        if (distance_between_nodes >= TissueConfig::Instance()->GetMechanicsCutOffLength())
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }
@@ -109,17 +109,17 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     // If the cells are both newly divided, then the rest length of the spring
     // connecting them grows linearly with time, until 1 hour after division
-    if ( ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
+    if ( ageA<TissueConfig::Instance()->GetMDuration() && ageB<TissueConfig::Instance()->GetMDuration() )
     {
         if (rTissue.HasMesh())
         {
             if ( (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
             {
                 // Spring rest length increases from ???? to normal rest length, 1.0, over 1 hour
-                double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
-                rest_length = lambda + (1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration()));
+                double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
+                rest_length = lambda + (1.0-lambda)*(ageA/(TissueConfig::Instance()->GetMDuration()));
             }
-            if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
+            if (ageA+SimulationTime::Instance()->GetTimeStep() >= TissueConfig::Instance()->GetMDuration())
             {
                 // This spring is about to go out of scope
                 (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
@@ -128,8 +128,8 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         else
         {
             // Spring rest length increases from mDivisionRestingSpringLength to normal rest length, 1.0, over 1 hour
-            double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
-            rest_length = lambda + (1.0-lambda)*(ageA/(CancerParameters::Instance()->GetMDuration()));
+            double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
+            rest_length = lambda + (1.0-lambda)*(ageA/(TissueConfig::Instance()->GetMDuration()));
         }
     }
 
@@ -141,12 +141,12 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
         double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
-        a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
+        a_rest_length = a_rest_length*(time_until_death_a)/(TissueConfig::Instance()->GetApoptosisTime());
     }
     if (rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
     {
         double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
-        b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
+        b_rest_length = b_rest_length*(time_until_death_b)/(TissueConfig::Instance()->GetApoptosisTime());
     }
 
     rest_length = a_rest_length + b_rest_length;
@@ -167,7 +167,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     if (rTissue.HasMesh())
     {
-        return multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+        return multiplication_factor * TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
     }
     else
     {
@@ -175,7 +175,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         if (distance_between_nodes > rest_length)
         {
             double alpha = 5;
-            c_vector<double, DIM> temp = CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length)*exp(-alpha*(distance_between_nodes-rest_length));
+            c_vector<double, DIM> temp = TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length)*exp(-alpha*(distance_between_nodes-rest_length));
             for (unsigned i=0; i<DIM; i++)
             {
                 assert(!std::isnan(temp[i]));
@@ -184,7 +184,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         }
         else
         {
-            c_vector<double, DIM> temp = CancerParameters::Instance()->GetSpringStiffness() * unit_difference * log(1 + distance_between_nodes - rest_length);
+            c_vector<double, DIM> temp = TissueConfig::Instance()->GetSpringStiffness() * unit_difference * log(1 + distance_between_nodes - rest_length);
             for (unsigned i=0; i<DIM; i++)
             {
                 assert(!std::isnan(temp[i]));

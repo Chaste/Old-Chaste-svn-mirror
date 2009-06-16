@@ -49,7 +49,7 @@ public:
 
     void TestFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         unsigned num_steps = 100;
@@ -115,7 +115,7 @@ public:
 
     void TestStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
@@ -163,7 +163,7 @@ public:
 
     void TestSimpleWntCellCycleModel() throw(Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Set up the simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -461,7 +461,7 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TS_ASSERT_DELTA(CancerParameters::Instance()->GetSDuration(), 5.0, 1e-12);
+            TS_ASSERT_DELTA(TissueConfig::Instance()->GetSDuration(), 5.0, 1e-12);
 
             output_arch << p_cell;
 
@@ -488,7 +488,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
@@ -514,7 +514,7 @@ public:
 
     void TestArchiveSimpleWntCellCycleModel()
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
@@ -585,7 +585,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
@@ -697,7 +697,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 

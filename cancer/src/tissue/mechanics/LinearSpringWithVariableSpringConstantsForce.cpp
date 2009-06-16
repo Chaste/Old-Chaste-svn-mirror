@@ -153,7 +153,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
         double min_beta_Cat_of_two_cells = std::min(beta_cat_on_cell_1_edge, beta_cat_on_cell_2_edge);
 
-        double beta_cat_scaling_factor = CancerParameters::Instance()->GetBetaCatSpringScaler();
+        double beta_cat_scaling_factor = TissueConfig::Instance()->GetBetaCatSpringScaler();
         multiplication_factor *= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
     }
 
@@ -161,33 +161,33 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         if (r_cell_A.GetCellType()==APOPTOTIC || r_cell_B.GetCellType()==APOPTOTIC)
         {
-            double spring_a_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
-            double spring_b_stiffness = 2.0*CancerParameters::Instance()->GetSpringStiffness();
+            double spring_a_stiffness = 2.0*TissueConfig::Instance()->GetSpringStiffness();
+            double spring_b_stiffness = 2.0*TissueConfig::Instance()->GetSpringStiffness();
 
             if (r_cell_A.GetCellType()==APOPTOTIC)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
-                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
+                    spring_a_stiffness = TissueConfig::Instance()->GetApoptoticSpringTensionStiffness();
                 }
                 else // if under compression
                 {
-                    spring_a_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
+                    spring_a_stiffness = TissueConfig::Instance()->GetApoptoticSpringCompressionStiffness();
                 }
             }
             if (r_cell_B.GetCellType()==APOPTOTIC)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
-                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringTensionStiffness();
+                    spring_b_stiffness = TissueConfig::Instance()->GetApoptoticSpringTensionStiffness();
                 }
                 else // if under compression
                 {
-                    spring_b_stiffness = CancerParameters::Instance()->GetApoptoticSpringCompressionStiffness();
+                    spring_b_stiffness = TissueConfig::Instance()->GetApoptoticSpringCompressionStiffness();
                 }
             }
 
-            multiplication_factor *= 1.0 / (( 1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*CancerParameters::Instance()->GetSpringStiffness());
+            multiplication_factor *= 1.0 / (( 1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*TissueConfig::Instance()->GetSpringStiffness());
         }
     }
 

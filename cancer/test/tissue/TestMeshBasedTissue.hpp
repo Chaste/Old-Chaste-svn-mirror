@@ -182,11 +182,11 @@ public:
 
         double damping_const = tissue.GetDampingConstant(8);
 
-        TS_ASSERT_DELTA(damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);
+        TS_ASSERT_DELTA(damping_const, TissueConfig::Instance()->GetDampingConstantNormal(), 1e-6);
 
         double mutant_damping_const = tissue.GetDampingConstant(9);
 
-        TS_ASSERT_DELTA(mutant_damping_const, CancerParameters::Instance()->GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(mutant_damping_const, TissueConfig::Instance()->GetDampingConstantMutant(), 1e-6);
 
         tissue.SetAreaBasedDampingConstant(true);
 
@@ -198,7 +198,7 @@ public:
         double area_based_damping_const = tissue.GetDampingConstant(8);
 
         // Since the tissue is in equilibrium, we should get the same damping constant as before
-        TS_ASSERT_DELTA(area_based_damping_const, CancerParameters::Instance()->GetDampingConstantNormal(), 1e-6);
+        TS_ASSERT_DELTA(area_based_damping_const, TissueConfig::Instance()->GetDampingConstantNormal(), 1e-6);
     }
 
     void TestSetNodeAndAddCell()

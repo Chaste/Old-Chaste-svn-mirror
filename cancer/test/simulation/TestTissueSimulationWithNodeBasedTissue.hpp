@@ -53,8 +53,8 @@ private:
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                (CancerParameters::Instance()->GetStemCellG1Duration()
-                                    + CancerParameters::Instance()->GetSG2MDuration() );
+                                (TissueConfig::Instance()->GetStemCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

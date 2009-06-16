@@ -37,7 +37,7 @@ AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCy
 void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
 {
     mGeneration++;
-    if (mGeneration > CancerParameters::Instance()->GetMaxTransitGenerations())
+    if (mGeneration > TissueConfig::Instance()->GetMaxTransitGenerations())
     {
         mpCell->SetCellType(DIFFERENTIATED);
     }
@@ -65,7 +65,7 @@ void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
      * is always of type transit or differentiated.
      */
     mpCell->SetCellType(TRANSIT);
-    if (mGeneration > CancerParameters::Instance()->GetMaxTransitGenerations())
+    if (mGeneration > TissueConfig::Instance()->GetMaxTransitGenerations())
     {
         mpCell->SetCellType(DIFFERENTIATED);
     }

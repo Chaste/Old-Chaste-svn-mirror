@@ -63,7 +63,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
       mSamplingTimestepMultiple(1),
       mForceCollection(forceCollection)
 {
-    mpParams = CancerParameters::Instance();
+    mpConfig = TissueConfig::Instance();
 
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
@@ -177,7 +177,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     c_vector<double, DIM> daughter_coords;
 
     // Get separation parameter
-    double separation = CancerParameters::Instance()->GetDivisionSeparation();
+    double separation = TissueConfig::Instance()->GetDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, DIM> random_vector;

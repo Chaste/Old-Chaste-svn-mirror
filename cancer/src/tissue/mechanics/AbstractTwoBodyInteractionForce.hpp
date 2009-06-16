@@ -55,7 +55,6 @@ private :
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
         archive & mUseCutoffPoint;
-       // CancerParameters::Instance()->SetMechanicsCutOffLength(mCutoffPoint);
     }
 
 protected:

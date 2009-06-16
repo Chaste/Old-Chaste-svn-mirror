@@ -45,7 +45,7 @@ WntConcentration<DIM>* WntConcentration<DIM>::Instance()
 
 template<unsigned DIM>
 WntConcentration<DIM>::WntConcentration()
-    : mpCancerParams(CancerParameters::Instance()),
+    : mpTissueConfig(TissueConfig::Instance()),
       mpTissue(NULL),
       mTypeSet(false),
       mConstantWntValueForTesting(0),
@@ -89,8 +89,8 @@ double WntConcentration<DIM>::GetWntLevel(TissueCell* pCell)
 
     if (mWntType==RADIAL)
     {
-        double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
-        double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
+        double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
+        double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
         height = a*pow(norm_2(mpTissue->GetLocationOfCellCentre(pCell)), b);
     }
     else
@@ -157,8 +157,8 @@ double WntConcentration<DIM>::GetWntLevel(double height)
     // The first type of Wnt concentration to try
     if (mWntType==LINEAR || mWntType==RADIAL)
     {
-        double crypt_height = mpCancerParams->GetCryptLength();
-        double top_of_wnt = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
+        double crypt_height = mpTissueConfig->GetCryptLength();
+        double top_of_wnt = mpTissueConfig->GetTopOfLinearWntConcentration(); // of crypt height.
 
         if ((height >= -1e-9) && (height < top_of_wnt*crypt_height))
         {
@@ -183,8 +183,8 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
 
     if (mWntType!=NONE)
     {
-        double crypt_height = mpCancerParams->GetCryptLength();
-        double top_of_wnt = mpCancerParams->GetTopOfLinearWntConcentration(); // of crypt height.
+        double crypt_height = mpTissueConfig->GetCryptLength();
+        double top_of_wnt = mpTissueConfig->GetTopOfLinearWntConcentration(); // of crypt height.
 
         if (mWntType==LINEAR)
         {
@@ -195,8 +195,8 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
         }
         else // RADIAL Wnt concentration
         {
-            double a = CancerParameters::Instance()->GetCryptProjectionParameterA();
-            double b = CancerParameters::Instance()->GetCryptProjectionParameterB();
+            double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
+            double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
             double r = norm_2(location);
             double r_critical = pow(top_of_wnt*crypt_height/a, 1.0/b);
 

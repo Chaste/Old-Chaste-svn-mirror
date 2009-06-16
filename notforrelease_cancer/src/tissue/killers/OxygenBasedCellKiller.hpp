@@ -64,7 +64,7 @@ public:
      * @param concentration oxygen concentration below which cells become hypoxic.
      */
     OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue,
-                          double concentration=CancerParameters::Instance()->GetHepaOneCellHypoxicConcentration());
+                          double concentration=TissueConfig::Instance()->GetHepaOneCellHypoxicConcentration());
 
     /**
      * Set method for mHypoxicConcentration.

@@ -180,7 +180,7 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -320,7 +320,7 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -401,7 +401,7 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -491,7 +491,7 @@ public:
     void Test1dChainCorrectCellNumbers()
     {
         // Get pointers to singleton object
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // The stem cell cycle time must still be 24 h, otherwise this test may not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -599,7 +599,7 @@ public:
     void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         // Get pointers to singleton object
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // The stem cell cycle time must still be 24 h, otherwise this test may not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -689,7 +689,7 @@ public:
     void TestSave() throw (Exception)
     {
         // Get pointers to singleton object
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart

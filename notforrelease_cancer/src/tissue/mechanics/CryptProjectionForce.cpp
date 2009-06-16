@@ -34,8 +34,8 @@ CryptProjectionForce::CryptProjectionForce()
     : GeneralisedLinearSpringForce<2>(),
       mIncludeWntChemotaxis(false)
 {
-    mA = CancerParameters::Instance()->GetCryptProjectionParameterA();
-    mB = CancerParameters::Instance()->GetCryptProjectionParameterB();
+    mA = TissueConfig::Instance()->GetCryptProjectionParameterA();
+    mB = TissueConfig::Instance()->GetCryptProjectionParameterB();
 }
 
 CryptProjectionForce::~CryptProjectionForce()
@@ -121,7 +121,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     // two nodes located a distance apart greater than mUseCutoffPoint
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= CancerParameters::Instance()->GetMechanicsCutOffLength())
+        if (distance_between_nodes >= TissueConfig::Instance()->GetMechanicsCutOffLength())
         {
             // Return zero (2D projected) force
             return zero_vector<double>(2);
@@ -145,7 +145,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
 
     // If the cells are both newly divided, then the rest length of the spring
     // connecting them grows linearly with time, until 1 hour after division
-    if (ageA<CancerParameters::Instance()->GetMDuration() && ageB<CancerParameters::Instance()->GetMDuration() )
+    if (ageA<TissueConfig::Instance()->GetMDuration() && ageB<TissueConfig::Instance()->GetMDuration() )
     {
         // The static_cast of rTissue to a MeshBasedTissue below should always be okay,
         // since we have previously asserted that the tissue has a mesh
@@ -154,11 +154,11 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
         // over a period of one hour
         if ( (static_cast<MeshBasedTissue<2>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
         {
-            double lambda = CancerParameters::Instance()->GetDivisionRestingSpringLength();
-            rest_length = (lambda + (1.0 - lambda)*(ageA/(CancerParameters::Instance()->GetMDuration())));
+            double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
+            rest_length = (lambda + (1.0 - lambda)*(ageA/(TissueConfig::Instance()->GetMDuration())));
         }
 
-        if (ageA+SimulationTime::Instance()->GetTimeStep() >= CancerParameters::Instance()->GetMDuration())
+        if (ageA+SimulationTime::Instance()->GetTimeStep() >= TissueConfig::Instance()->GetMDuration())
         {
             // This spring is about to go out of scope
             (static_cast<MeshBasedTissue<2>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
@@ -173,12 +173,12 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
         double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
-        a_rest_length = a_rest_length*(time_until_death_a)/(CancerParameters::Instance()->GetApoptosisTime());
+        a_rest_length = a_rest_length*(time_until_death_a)/(TissueConfig::Instance()->GetApoptosisTime());
     }
     if (rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
     {
         double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
-        b_rest_length = b_rest_length*(time_until_death_b)/(CancerParameters::Instance()->GetApoptosisTime());
+        b_rest_length = b_rest_length*(time_until_death_b)/(TissueConfig::Instance()->GetApoptosisTime());
     }
 
     rest_length = a_rest_length + b_rest_length;
@@ -199,7 +199,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
 
     // Calculate the 3D force between the two points
-    c_vector<double,3> force_between_nodes = multiplication_factor * CancerParameters::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    c_vector<double,3> force_between_nodes = multiplication_factor * TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 
     // Calculate an outward normal unit vector to the tangent plane of the crypt surface at the 3D point corresponding to node B
     c_vector<double,3> outward_normal_unit_vector;
@@ -249,7 +249,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
     {
         assert(WntConcentration<2>::Instance()->IsWntSetUp());
 
-        double wnt_chemotaxis_strength = CancerParameters::Instance()->GetWntChemotaxisStrength();
+        double wnt_chemotaxis_strength = TissueConfig::Instance()->GetWntChemotaxisStrength();
 
         for (AbstractTissue<2>::Iterator cell_iter = rTissue.Begin();
              cell_iter != rTissue.End();

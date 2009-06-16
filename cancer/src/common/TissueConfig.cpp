@@ -25,20 +25,20 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "CancerParameters.hpp"
+#include "TissueConfig.hpp"
 
-CancerParameters* CancerParameters::mpInstance = NULL;
+TissueConfig* TissueConfig::mpInstance = NULL;
 
-CancerParameters* CancerParameters::Instance()
+TissueConfig* TissueConfig::Instance()
 {
     if (mpInstance == NULL)
     {
-        mpInstance = new CancerParameters;
+        mpInstance = new TissueConfig;
     }
     return mpInstance;
 }
 
-CancerParameters::CancerParameters()
+TissueConfig::TissueConfig()
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
@@ -84,7 +84,7 @@ CancerParameters::CancerParameters()
  * mCellCellAdhesionEnergyParameter has ? units
  * mCellBoundaryAdhesionEnergyParameter has ? units
  */
-void CancerParameters::Reset()
+void TissueConfig::Reset()
 {
     // Default parameter values
     mStemCellG1Duration = 14.0;
@@ -134,151 +134,151 @@ void CancerParameters::Reset()
 // Getter methods
 ///////////////////////////////////////////////////////////////////////
 
-double CancerParameters::GetStemCellG1Duration()
+double TissueConfig::GetStemCellG1Duration()
 {
     return mStemCellG1Duration;
 }
-double CancerParameters::GetTransitCellG1Duration()
+double TissueConfig::GetTransitCellG1Duration()
 {
     return mTransitCellG1Duration;
 }
-double CancerParameters::GetHepaOneCellG1Duration()
+double TissueConfig::GetHepaOneCellG1Duration()
 {
     return mHepaOneCellG1Duration;
 }
-double CancerParameters::GetMinimumGapDuration()
+double TissueConfig::GetMinimumGapDuration()
 {
     return mMinimumGapDuration;
 }
-double CancerParameters::GetSG2MDuration()
+double TissueConfig::GetSG2MDuration()
 {
     return mSDuration + mG2Duration + mMDuration;
 }
-double CancerParameters::GetSDuration()
+double TissueConfig::GetSDuration()
 {
     return mSDuration;
 }
-double CancerParameters::GetG2Duration()
+double TissueConfig::GetG2Duration()
 {
     return mG2Duration;
 }
-double CancerParameters::GetMDuration()
+double TissueConfig::GetMDuration()
 {
     return mMDuration;
 }
-unsigned CancerParameters::GetMaxTransitGenerations()
+unsigned TissueConfig::GetMaxTransitGenerations()
 {
     return mMaxTransitGenerations;
 }
-double CancerParameters::GetCryptLength()
+double TissueConfig::GetCryptLength()
 {
     return mCryptLength;
 }
-double CancerParameters::GetCryptWidth()
+double TissueConfig::GetCryptWidth()
 {
     return mCryptWidth;
 }
-double CancerParameters::GetSpringStiffness()
+double TissueConfig::GetSpringStiffness()
 {
     return mSpringStiffness;
 }
-double CancerParameters::GetMechanicsCutOffLength()
+double TissueConfig::GetMechanicsCutOffLength()
 {
     return mMechanicsCutOffLength;
 }
-double CancerParameters::GetDampingConstantNormal()
+double TissueConfig::GetDampingConstantNormal()
 {
     return mDampingConstantNormal;
 }
-double CancerParameters::GetDampingConstantMutant()
+double TissueConfig::GetDampingConstantMutant()
 {
     return mDampingConstantMutant;
 }
-double CancerParameters::GetBetaCatSpringScaler()
+double TissueConfig::GetBetaCatSpringScaler()
 {
     return mBetaCatSpringScaler;
 }
-double CancerParameters::GetApoptosisTime()
+double TissueConfig::GetApoptosisTime()
 {
     return mApoptosisTime;
 }
-double CancerParameters::GetDivisionRestingSpringLength()
+double TissueConfig::GetDivisionRestingSpringLength()
 {
     return mDivisionRestingSpringLength;
 }
-double CancerParameters::GetDivisionSeparation()
+double TissueConfig::GetDivisionSeparation()
 {
     return mDivisionSeparation;
 }
-double CancerParameters::GetHepaOneCellHypoxicConcentration()
+double TissueConfig::GetHepaOneCellHypoxicConcentration()
 {
     return mHepaOneCellHypoxicConcentration;
 }
-double CancerParameters::GetHepaOneCellQuiescentConcentration()
+double TissueConfig::GetHepaOneCellQuiescentConcentration()
 {
     return mHepaOneCellQuiescentConcentration;
 }
-double CancerParameters::GetWntTransitThreshold()
+double TissueConfig::GetWntTransitThreshold()
 {
     return mWntTransitThreshold;
 }
-double CancerParameters::GetWntStemThreshold()
+double TissueConfig::GetWntStemThreshold()
 {
     return mWntStemThreshold;
 }
-double CancerParameters::GetTopOfLinearWntConcentration()
+double TissueConfig::GetTopOfLinearWntConcentration()
 {
     return mTopOfLinearWntConcentration;
 }
-double CancerParameters::GetCriticalHypoxicDuration()
+double TissueConfig::GetCriticalHypoxicDuration()
 {
     return mCriticalHypoxicDuration;
 }
-double CancerParameters::GetCryptProjectionParameterA()
+double TissueConfig::GetCryptProjectionParameterA()
 {
     return mCryptProjectionParameterA;
 }
-double CancerParameters::GetCryptProjectionParameterB()
+double TissueConfig::GetCryptProjectionParameterB()
 {
     return mCryptProjectionParameterB;
 }
-double CancerParameters::GetApoptoticSpringTensionStiffness()
+double TissueConfig::GetApoptoticSpringTensionStiffness()
 {
     return mApoptoticSpringTensionStiffness;
 }
-double CancerParameters::GetApoptoticSpringCompressionStiffness()
+double TissueConfig::GetApoptoticSpringCompressionStiffness()
 {
     return mApoptoticSpringCompressionStiffness;
 }
-double CancerParameters::GetWntChemotaxisStrength()
+double TissueConfig::GetWntChemotaxisStrength()
 {
     return mWntChemotaxisStrength;
 }
-double CancerParameters::GetSymmetricDivisionProbability()
+double TissueConfig::GetSymmetricDivisionProbability()
 {
     return mSymmetricDivisionProbability;
 }
-double CancerParameters::GetAreaBasedDampingConstantParameter()
+double TissueConfig::GetAreaBasedDampingConstantParameter()
 {
     return mAreaBasedDampingConstantParameter;
 }
-double CancerParameters::GetMatureCellTargetArea()
+double TissueConfig::GetMatureCellTargetArea()
 {
     return mMatureCellTargetArea;
 }
-double CancerParameters::GetDeformationEnergyParameter()
+double TissueConfig::GetDeformationEnergyParameter()
 {
     return mDeformationEnergyParameter;
 }
-double CancerParameters::GetMembraneSurfaceEnergyParameter()
+double TissueConfig::GetMembraneSurfaceEnergyParameter()
 {
     return mMembraneSurfaceEnergyParameter;
 }
-double CancerParameters::GetCellCellAdhesionEnergyParameter()
+double TissueConfig::GetCellCellAdhesionEnergyParameter()
 {
     return mCellCellAdhesionEnergyParameter;
 }
-double CancerParameters::GetCellBoundaryAdhesionEnergyParameter()
+double TissueConfig::GetCellBoundaryAdhesionEnergyParameter()
 {
     return mCellBoundaryAdhesionEnergyParameter;
 }
@@ -287,192 +287,192 @@ double CancerParameters::GetCellBoundaryAdhesionEnergyParameter()
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
 
-void CancerParameters::SetStemCellG1Duration(double stemCellG1Duration)
+void TissueConfig::SetStemCellG1Duration(double stemCellG1Duration)
 {
     assert(stemCellG1Duration > 0.0);
     mStemCellG1Duration = stemCellG1Duration;
 }
-void CancerParameters::SetTransitCellG1Duration(double transitCellG1Duration)
+void TissueConfig::SetTransitCellG1Duration(double transitCellG1Duration)
 {
     assert(transitCellG1Duration > 0.0);
     mTransitCellG1Duration = transitCellG1Duration;
 }
-void CancerParameters::SetHepaOneCellG1Duration(double hepaOneCellG1Duration)
+void TissueConfig::SetHepaOneCellG1Duration(double hepaOneCellG1Duration)
 {
     assert(hepaOneCellG1Duration > 0.0);
     mHepaOneCellG1Duration = hepaOneCellG1Duration;
 }
-void CancerParameters::SetMinimumGapDuration(double minimumGapDuration)
+void TissueConfig::SetMinimumGapDuration(double minimumGapDuration)
 {
     assert(minimumGapDuration > 0.0);
     mMinimumGapDuration = minimumGapDuration;
 }
-void CancerParameters::SetSDuration(double SDuration)
+void TissueConfig::SetSDuration(double SDuration)
 {
     assert(SDuration > 0.0);
     mSDuration = SDuration;
 }
-void CancerParameters::SetG2Duration(double G2Duration)
+void TissueConfig::SetG2Duration(double G2Duration)
 {
     assert(G2Duration > 0.0);
     mG2Duration = G2Duration;
 }
-void CancerParameters::SetMDuration(double MDuration)
+void TissueConfig::SetMDuration(double MDuration)
 {
     assert(MDuration > 0.0);
     mMDuration = MDuration;
 }
-void CancerParameters::SetMaxTransitGenerations(unsigned maxTransitGens)
+void TissueConfig::SetMaxTransitGenerations(unsigned maxTransitGens)
 {
     mMaxTransitGenerations = maxTransitGens;
 }
-void CancerParameters::SetCryptLength(double cryptLength)
+void TissueConfig::SetCryptLength(double cryptLength)
 {
     assert(cryptLength > 0.0);
     mCryptLength = cryptLength;
 }
-void CancerParameters::SetCryptWidth(double cryptWidth)
+void TissueConfig::SetCryptWidth(double cryptWidth)
 {
     assert(cryptWidth > 0.0);
     mCryptWidth = cryptWidth;
 }
-void CancerParameters::SetSpringStiffness(double springStiffness)
+void TissueConfig::SetSpringStiffness(double springStiffness)
 {
     assert(springStiffness > 0.0);
     mSpringStiffness = springStiffness;
 }
-void CancerParameters::SetMechanicsCutOffLength(double mechanicsCutOffLength)
+void TissueConfig::SetMechanicsCutOffLength(double mechanicsCutOffLength)
 {
     assert(mechanicsCutOffLength > 0.0);
     mMechanicsCutOffLength = mechanicsCutOffLength;
 }
 
-void CancerParameters::SetDampingConstantNormal(double dampingConstantNormal)
+void TissueConfig::SetDampingConstantNormal(double dampingConstantNormal)
 {
     assert(dampingConstantNormal > 0.0);
     mDampingConstantNormal = dampingConstantNormal;
 }
-void CancerParameters::SetDampingConstantMutant(double dampingConstantMutant)
+void TissueConfig::SetDampingConstantMutant(double dampingConstantMutant)
 {
     assert(dampingConstantMutant > 0.0);
     mDampingConstantMutant = dampingConstantMutant;
 }
-void CancerParameters::SetBetaCatSpringScaler(double betaCatSpringScaler)
+void TissueConfig::SetBetaCatSpringScaler(double betaCatSpringScaler)
 {
     assert(betaCatSpringScaler > 0.0);
     mBetaCatSpringScaler = betaCatSpringScaler;
 }
-void CancerParameters::SetApoptosisTime(double apoptosisTime)
+void TissueConfig::SetApoptosisTime(double apoptosisTime)
 {
     assert(apoptosisTime > 0.0);
     mApoptosisTime = apoptosisTime;
 }
-void CancerParameters::SetDivisionRestingSpringLength(double divisionRestingSpringLength)
+void TissueConfig::SetDivisionRestingSpringLength(double divisionRestingSpringLength)
 {
     assert(divisionRestingSpringLength<=1.0);
     assert(divisionRestingSpringLength>=0.0);
 
     mDivisionRestingSpringLength = divisionRestingSpringLength;
 }
-void CancerParameters::SetDivisionSeparation(double divisionSeparation)
+void TissueConfig::SetDivisionSeparation(double divisionSeparation)
 {
     assert(divisionSeparation<=1.0);
     assert(divisionSeparation>=0.0);
     mDivisionSeparation = divisionSeparation;
 }
-void CancerParameters::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypoxicConcentration)
+void TissueConfig::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypoxicConcentration)
 {
     assert(hepaOneCellHypoxicConcentration<=1.0);
     assert(hepaOneCellHypoxicConcentration>=0.0);
     mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
 }
-void CancerParameters::SetHepaOneCellQuiescentConcentration(double hepaOneCellQuiescentConcentration)
+void TissueConfig::SetHepaOneCellQuiescentConcentration(double hepaOneCellQuiescentConcentration)
 {
     assert(hepaOneCellQuiescentConcentration<=1.0);
     assert(hepaOneCellQuiescentConcentration>=0.0);
     mHepaOneCellQuiescentConcentration = hepaOneCellQuiescentConcentration;
 }
-void CancerParameters::SetWntTransitThreshold(double wntThreshold)
+void TissueConfig::SetWntTransitThreshold(double wntThreshold)
 {
     assert(wntThreshold<=1.0);
     assert(wntThreshold>=0.0);
     mWntTransitThreshold = wntThreshold;
 }
-void CancerParameters::SetWntStemThreshold(double wntThreshold)
+void TissueConfig::SetWntStemThreshold(double wntThreshold)
 {
     assert(wntThreshold<=1.0);
     assert(wntThreshold>=0.0);
     mWntStemThreshold = wntThreshold;
 }
-void CancerParameters::SetTopOfLinearWntConcentration(double top)
+void TissueConfig::SetTopOfLinearWntConcentration(double top)
 {
     assert(top > 0.0);
     assert(top <= 1.0);
     mTopOfLinearWntConcentration = top;
 }
-void CancerParameters::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
+void TissueConfig::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
 {
     assert(criticalHypoxicDuration>=0.0);
     mCriticalHypoxicDuration = criticalHypoxicDuration;
 }
-void CancerParameters::SetHepaOneParameters()
+void TissueConfig::SetHepaOneParameters()
 {
     mStemCellG1Duration = mHepaOneCellG1Duration;
 }
-void CancerParameters::SetCryptProjectionParameterA(double cryptProjectionParameterA)
+void TissueConfig::SetCryptProjectionParameterA(double cryptProjectionParameterA)
 {
     assert(cryptProjectionParameterA>=0.0);
     mCryptProjectionParameterA = cryptProjectionParameterA;
 }
-void CancerParameters::SetCryptProjectionParameterB(double cryptProjectionParameterB)
+void TissueConfig::SetCryptProjectionParameterB(double cryptProjectionParameterB)
 {
     assert(cryptProjectionParameterB>=0.0);
     mCryptProjectionParameterB = cryptProjectionParameterB;
 }
-void CancerParameters::SetApoptoticSpringTensionStiffness(double apoptoticSpringTensionStiffness)
+void TissueConfig::SetApoptoticSpringTensionStiffness(double apoptoticSpringTensionStiffness)
 {
     assert(apoptoticSpringTensionStiffness>=0.0);
     mApoptoticSpringTensionStiffness = apoptoticSpringTensionStiffness;
 }
-void CancerParameters::SetApoptoticSpringCompressionStiffness(double apoptoticSpringCompressionStiffness)
+void TissueConfig::SetApoptoticSpringCompressionStiffness(double apoptoticSpringCompressionStiffness)
 {
     assert(apoptoticSpringCompressionStiffness>=0.0);
     mApoptoticSpringCompressionStiffness = apoptoticSpringCompressionStiffness;
 }
-void CancerParameters::SetWntChemotaxisStrength(double wntChemotaxisStrength)
+void TissueConfig::SetWntChemotaxisStrength(double wntChemotaxisStrength)
 {
     assert(wntChemotaxisStrength>=0.0);
     mWntChemotaxisStrength = wntChemotaxisStrength;
 }
-void CancerParameters::SetSymmetricDivisionProbability(double symmetricDivisionProbability)
+void TissueConfig::SetSymmetricDivisionProbability(double symmetricDivisionProbability)
 {
     assert(symmetricDivisionProbability<=1.0);
     assert(symmetricDivisionProbability>=0.0);
     mSymmetricDivisionProbability = symmetricDivisionProbability;
 }
-void CancerParameters::SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter)
+void TissueConfig::SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter)
 {
     assert(areaBasedDampingConstantParameter>=0.0);
     mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
 }
-void CancerParameters::SetMatureCellTargetArea(double matureCellTargetArea)
+void TissueConfig::SetMatureCellTargetArea(double matureCellTargetArea)
 {
     assert(matureCellTargetArea>=0.0);
     mMatureCellTargetArea = matureCellTargetArea;
 }
-void CancerParameters::SetDeformationEnergyParameter(double deformationEnergyParameter)
+void TissueConfig::SetDeformationEnergyParameter(double deformationEnergyParameter)
 {
     mDeformationEnergyParameter = deformationEnergyParameter;
 }
-void CancerParameters::SetMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter)
+void TissueConfig::SetMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter)
 {
     mMembraneSurfaceEnergyParameter = membraneSurfaceEnergyParameter;
 }
-void CancerParameters::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
+void TissueConfig::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
 {
     mCellCellAdhesionEnergyParameter = cellCellAdhesionEnergyParameter;
 }
-void CancerParameters::SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
+void TissueConfig::SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
 {
     mCellBoundaryAdhesionEnergyParameter = cellBoundaryAdhesionEnergyParameter;
 }

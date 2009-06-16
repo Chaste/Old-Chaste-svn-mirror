@@ -102,8 +102,8 @@ public:
         /* The first thing to do, as before, is to set up the start time and
          * reset the parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
-        CancerParameters::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->Reset();
+        TissueConfig::Instance()->SetHepaOneParameters();
 
         /* Now we want to create a ''non-periodic'' 'honeycomb' mesh.
          * We use the honeycomb mesh generator, as before, saying 10 cells wide
@@ -133,8 +133,8 @@ public:
              * of a !HepaOne cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                 (  CancerParameters::Instance()->GetHepaOneCellG1Duration()
-                                  + CancerParameters::Instance()->GetSG2MDuration() );
+                                 (  TissueConfig::Instance()->GetHepaOneCellG1Duration()
+                                  + TissueConfig::Instance()->GetSG2MDuration() );
             /* .. then we set the birth time and push the cell back into the vector
              * of cells. */
             cell.SetBirthTime(birth_time);

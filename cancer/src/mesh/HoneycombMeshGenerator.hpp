@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Cylindrical2dMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
-#include "CancerParameters.hpp"
+#include "TissueConfig.hpp"
 
 #include "PetscTools.hpp"
 

@@ -52,7 +52,7 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Tiss
     c_vector<double, 2> daughter_coords;
 
     // Get separation parameter
-    double separation = CancerParameters::Instance()->GetDivisionSeparation();
+    double separation = TissueConfig::Instance()->GetDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, 2> random_vector;

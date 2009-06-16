@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTCANCERPARAMETERS_HPP_
-#define TESTCANCERPARAMETERS_HPP_
+#ifndef TESTTISSUECONFIG_HPP_
+#define TESTTISSUECONFIG_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -36,13 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 #include "OutputFileHandler.hpp"
-#include "CancerParameters.hpp"
+#include "TissueConfig.hpp"
 
 /**
  * This class contains tests for methods on the
- * CancerParameters singleton class.
+ * TissueConfig singleton class.
  */
-class TestCancerParameters : public CxxTest::TestSuite
+class TestTissueConfig : public CxxTest::TestSuite
 {
 private:
 
@@ -51,7 +51,7 @@ private:
      */
     void CheckValuesAreTheDefaultValues()
     {
-        CancerParameters* p_inst = CancerParameters::Instance();
+        TissueConfig* p_inst = TissueConfig::Instance();
 
         TS_ASSERT_DELTA(p_inst->GetSG2MDuration(), 10.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetSDuration(), 5.0, 1e-12);
@@ -98,7 +98,7 @@ public:
 
     void TestReset()
     {
-        CancerParameters* p_inst = CancerParameters::Instance();
+        TissueConfig* p_inst = TissueConfig::Instance();
 
         p_inst->SetSDuration(11.0);
         p_inst->SetG2Duration(11.0);
@@ -139,7 +139,7 @@ public:
 
     void TestGettersAndSetters()
     {
-        CancerParameters* p_inst1 = CancerParameters::Instance();
+        TissueConfig* p_inst1 = TissueConfig::Instance();
 
         p_inst1->SetSDuration(4.0);
         p_inst1->SetG2Duration(3.0);
@@ -175,7 +175,7 @@ public:
         p_inst1->SetCellCellAdhesionEnergyParameter(0.5);
         p_inst1->SetCellBoundaryAdhesionEnergyParameter(0.6);
 
-        CancerParameters* p_inst2 = CancerParameters::Instance();
+        TissueConfig* p_inst2 = TissueConfig::Instance();
 
         TS_ASSERT_DELTA(p_inst2->GetSG2MDuration(), 9.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetSDuration(), 4.0, 1e-12);
@@ -212,7 +212,7 @@ public:
         TS_ASSERT_DELTA(p_inst2->GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
     }
 
-    void TestArchiveCancerParameters()
+    void TestArchiveTissueConfig()
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
@@ -220,7 +220,7 @@ public:
 
         // Create an output archive
         {
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             // Change the cancer parameter values
             p_inst1->SetSDuration(4.0);
@@ -261,11 +261,11 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Save the changed cancer parameter values
-            output_arch << static_cast<const CancerParameters&>(*p_inst1);
+            output_arch << static_cast<const TissueConfig&>(*p_inst1);
         }
 
         {
-            CancerParameters* p_inst1 = CancerParameters::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             // Restore the cancer parameters to their default values
             p_inst1->SetSDuration(5.0);
@@ -348,4 +348,4 @@ public:
     }
 };
 
-#endif /*TESTCANCERPARAMETERS_HPP_*/
+#endif /*TESTTISSUECONFIG_HPP_*/

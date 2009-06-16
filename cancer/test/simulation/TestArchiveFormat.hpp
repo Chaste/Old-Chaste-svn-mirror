@@ -98,7 +98,7 @@ public:
         delete p_simulator;
 
         // Check that archiving of cancer parameters has not been affected
-        CancerParameters* p_inst = CancerParameters::Instance();
+        TissueConfig* p_inst = TissueConfig::Instance();
         TS_ASSERT_DELTA(p_inst->GetSG2MDuration(), 10.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetSDuration(), 5.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetG2Duration(), 4.0, 1e-12);

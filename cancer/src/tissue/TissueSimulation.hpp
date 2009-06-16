@@ -118,8 +118,8 @@ protected:
     /** Visualiser setup file */
     out_stream mpSetupFile;
 
-    /** The cancer parameters */
-    CancerParameters *mpParams;
+    /** The cancer tissue configuration */
+    TissueConfig *mpConfig;
 
     /** The singleton RandomNumberGenerator */
     RandomNumberGenerator *mpRandomGenerator;
@@ -158,9 +158,9 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        mpParams = CancerParameters::Instance();
-        archive & *mpParams;
-        archive & mpParams;
+        mpConfig = TissueConfig::Instance();
+        archive & *mpConfig;
+        archive & mpConfig;
 
         mpRandomGenerator = RandomNumberGenerator::Instance();
         archive & *mpRandomGenerator;

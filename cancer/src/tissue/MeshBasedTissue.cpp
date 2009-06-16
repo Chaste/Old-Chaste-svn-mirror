@@ -126,7 +126,7 @@ double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
         #undef COVERAGE_IGNORE
 
         double rest_length = 1.0;
-        double d0 = CancerParameters::Instance()->GetAreaBasedDampingConstantParameter();
+        double d0 = TissueConfig::Instance()->GetAreaBasedDampingConstantParameter();
 
         /**
          * Compute the parameter d1 such that d0+A*d1=1, where A is the equilibrium area

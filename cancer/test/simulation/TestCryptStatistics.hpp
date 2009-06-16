@@ -54,7 +54,7 @@ private:
     {
         // Initialise singleton classes
         SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
     }
     void tearDown()
     {
@@ -153,7 +153,7 @@ public:
 
     void TestMakeMeinekeGraphs() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         std::string output_directory = "MakeMeinekeGraphs";
 
@@ -360,7 +360,7 @@ public:
             labelled_cells_counter[i] = 0u;
         }
 
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         p_params->SetDampingConstantNormal(1.0);    // normally 1
         // Do not give mutant cells any different movement properties to normal ones

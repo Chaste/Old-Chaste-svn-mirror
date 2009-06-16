@@ -86,14 +86,14 @@ public:
     {
         /* As in '''all''' tissue simulations, we must first set the start time.
          * In addition, it is advisable to reset the values of all model parameters.
-         * {{{SimulationTime}}} and {{{CancerParameters}}} are ''singleton'' classes; this
+         * {{{SimulationTime}}} and {{{TissueConfig}}} are ''singleton'' classes; this
          * means that one and only one of each of these objects is instantiated at
          * any time, and that that single object is accessible from anywhere in the
          * code. As a result, we do not need to keep passing round the current time or
          * model parameter values.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
 
         /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
          * To enforce periodicity at the left and right hand sides of the mesh, we
@@ -195,7 +195,7 @@ public:
         /* First reinitialise time to 0, and reset the cancer parameters, again. */
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
-        CancerParameters::Instance()->Reset();
+        TissueConfig::Instance()->Reset();
 
         /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
         HoneycombMeshGenerator generator(6, 9, 2, true);

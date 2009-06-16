@@ -93,7 +93,7 @@ void AbstractCellCycleModel::ResetForDivision()
 
 double AbstractCellCycleModel::GetSDuration()
 {
-    return CancerParameters::Instance()->GetSDuration();
+    return TissueConfig::Instance()->GetSDuration();
 }
 
 
@@ -105,13 +105,13 @@ double AbstractCellCycleModel::GetG1Duration()
 
 double AbstractCellCycleModel::GetG2Duration()
 {
-    return CancerParameters::Instance()->GetG2Duration();
+    return TissueConfig::Instance()->GetG2Duration();
 }
 
 
 double AbstractCellCycleModel::GetMDuration()
 {
-    return CancerParameters::Instance()->GetMDuration();
+    return TissueConfig::Instance()->GetMDuration();
 }
 
 

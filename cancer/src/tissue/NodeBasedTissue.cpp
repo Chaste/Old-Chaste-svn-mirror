@@ -272,17 +272,17 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         domain_size(2*i+1) = mMaxSpatialPositions(i);
     }
 
-    double cut_off_length = CancerParameters::Instance()->GetMechanicsCutOffLength();
+    double cut_off_length = TissueConfig::Instance()->GetMechanicsCutOffLength();
     if (cut_off_length==DBL_MAX)
     {
         std::string error =  std::string("NodeBasedTissue cannot create boxes if the cut-off length has not been set - ")
-                           + std::string("Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on CancerParameters");
+                           + std::string("Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on TissueConfig");
         EXCEPTION(error);
     }
 
     // Add this cancer parameter and suggest that mechanics systems set it.
     // Allocates memory for mpNodeBoxCollection and does the splitting and putting nodes into boxes
-    SplitUpIntoBoxes(CancerParameters::Instance()->GetMechanicsCutOffLength(), domain_size);
+    SplitUpIntoBoxes(TissueConfig::Instance()->GetMechanicsCutOffLength(), domain_size);
 
     mpNodeBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
 

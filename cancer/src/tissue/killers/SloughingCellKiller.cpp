@@ -48,7 +48,7 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
     {
         case 1:
         {
-            double crypt_length = CancerParameters::Instance()->GetCryptLength();
+            double crypt_length = TissueConfig::Instance()->GetCryptLength();
         
             for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
                  cell_iter != this->mpTissue->End();
@@ -65,8 +65,8 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
         }
         case 2:
         {
-            double crypt_length = CancerParameters::Instance()->GetCryptLength();
-            double crypt_width = CancerParameters::Instance()->GetCryptWidth();
+            double crypt_length = TissueConfig::Instance()->GetCryptLength();
+            double crypt_width = TissueConfig::Instance()->GetCryptWidth();
         
             for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
                  cell_iter != this->mpTissue->End();

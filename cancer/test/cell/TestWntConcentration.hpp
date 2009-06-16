@@ -80,7 +80,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
 
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         double height = 100;
         double wnt_level = 0.0;
@@ -122,7 +122,7 @@ public:
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetTopOfLinearWntConcentration(1.0/3.0);
 
         double height = 100;
@@ -165,7 +165,7 @@ public:
         p_wnt->SetType(RADIAL);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a tissue is assigned.
 
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Test GetWntLevel(double) method
         double height = 100;
@@ -291,7 +291,7 @@ public:
             double height = 21.0;
             double wnt_level = p_wnt->GetWntLevel(height);
 
-            TS_ASSERT_DELTA(wnt_level, 1.0-height/CancerParameters::Instance()->GetCryptLength(), 1e-9);
+            TS_ASSERT_DELTA(wnt_level, 1.0-height/TissueConfig::Instance()->GetCryptLength(), 1e-9);
         }
 
         WntConcentration<2>::Destroy();
@@ -300,7 +300,7 @@ public:
 
     void TestSingletonnessOfWntConcentration()
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         p_wnt->SetType(NONE);
@@ -368,7 +368,7 @@ public:
         // Create the crypt
         MeshBasedTissue<2> crypt(mesh,cells);
 
-        CancerParameters::Instance()->SetCryptLength(1.0);
+        TissueConfig::Instance()->SetCryptLength(1.0);
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetTissue(crypt);

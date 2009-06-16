@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellMutationStates.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
-#include "CancerParameters.hpp"
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 

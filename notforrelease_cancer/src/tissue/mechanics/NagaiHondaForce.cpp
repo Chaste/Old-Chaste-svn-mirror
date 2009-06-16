@@ -45,8 +45,8 @@ template<unsigned DIM>
 void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                        AbstractTissue<DIM>& rTissue)
 {   
-    // Helper instance of CancerParameters
-    CancerParameters* p_params = CancerParameters::Instance();
+    // Helper instance of TissueConfig
+    TissueConfig* p_params = TissueConfig::Instance();
 
     // Helper variable that is a static cast of the tissue
     VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);

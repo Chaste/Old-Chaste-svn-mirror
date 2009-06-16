@@ -38,16 +38,16 @@ AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModelCellsGene
 template<unsigned DIM>
 double StochasticDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
 {
-    return CancerParameters::Instance()->GetTransitCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();
+    return TissueConfig::Instance()->GetTransitCellG1Duration()
+            + TissueConfig::Instance()->GetSG2MDuration();
 }
 
 
 template<unsigned DIM>
 double StochasticDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
 {
-    return CancerParameters::Instance()->GetStemCellG1Duration()
-            + CancerParameters::Instance()->GetSG2MDuration();
+    return TissueConfig::Instance()->GetStemCellG1Duration()
+            + TissueConfig::Instance()->GetSG2MDuration();
 }
 
 

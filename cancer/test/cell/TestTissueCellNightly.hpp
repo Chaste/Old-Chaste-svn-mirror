@@ -163,7 +163,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        CancerParameters* p_parameters = CancerParameters::Instance();
+        TissueConfig* p_parameters = TissueConfig::Instance();
         double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
@@ -233,7 +233,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        CancerParameters* p_parameters = CancerParameters::Instance();
+        TissueConfig* p_parameters = TissueConfig::Instance();
         double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
@@ -303,7 +303,7 @@ public:
     void TestWithWntCellCycleModelAndMutationAPC2() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        CancerParameters* p_parameters = CancerParameters::Instance();
+        TissueConfig* p_parameters = TissueConfig::Instance();
 
         double s_g2_duration = p_parameters->GetSG2MDuration();
 

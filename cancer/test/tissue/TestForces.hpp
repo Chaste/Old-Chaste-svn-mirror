@@ -48,7 +48,7 @@ public:
 
     void TestGeneralisedLinearSpringForceMethods() throw (Exception)
     {
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         unsigned cells_across = 7;
         unsigned cells_up = 5;
@@ -395,7 +395,7 @@ public:
 
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/18.14, 1e-5);
 
-        CancerParameters::Instance()->SetBetaCatSpringScaler(20/6.0);
+        TissueConfig::Instance()->SetBetaCatSpringScaler(20/6.0);
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/20.0, 1e-5);
 
         WntConcentration<2>::Destroy();
@@ -511,7 +511,7 @@ public:
         // as previously each node had zero net force on it)
         linear_force.AddForceContribution(node_forces, tissue);
 
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         for (unsigned node_index=0; node_index<tissue.GetNumNodes(); node_index++)
         {
             if (node_index == 0)
@@ -614,7 +614,7 @@ public:
         }
 
         // Scale entire mesh and check that forces are correctly calculated
-        CancerParameters* p_params = CancerParameters::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         double scale_factor = 1.5;
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -738,7 +738,7 @@ public:
 
             // Test the member data
             TS_ASSERT_EQUALS(p_linear_force->mUseCutoffPoint,true);
-            TS_ASSERT_EQUALS(CancerParameters::Instance()->GetMechanicsCutOffLength(), 1.1);
+            TS_ASSERT_EQUALS(TissueConfig::Instance()->GetMechanicsCutOffLength(), 1.1);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseMutantSprings, true);

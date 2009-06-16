@@ -107,15 +107,15 @@ public:
         Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
 
         // Set parameters
-        CancerParameters::Instance()->SetMaxTransitGenerations(UINT_MAX);
+        TissueConfig::Instance()->SetMaxTransitGenerations(UINT_MAX);
 
         // Create cells
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                ( CancerParameters::Instance()->GetTransitCellG1Duration()
-                                    + CancerParameters::Instance()->GetSG2MDuration() );
+                                ( TissueConfig::Instance()->GetTransitCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
 
             TissueCell cell(TRANSIT, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
@@ -169,8 +169,8 @@ public:
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                ( CancerParameters::Instance()->GetTransitCellG1Duration()
-                                    + CancerParameters::Instance()->GetSG2MDuration() );
+                                ( TissueConfig::Instance()->GetTransitCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
 
             TissueCell cell(DIFFERENTIATED, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
@@ -207,8 +207,8 @@ public:
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
-                                 ( CancerParameters::Instance()->GetTransitCellG1Duration()
-                                    + CancerParameters::Instance()->GetSG2MDuration() );
+                                 ( TissueConfig::Instance()->GetTransitCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
 
             CellType cell_type;
 
@@ -249,12 +249,12 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
 
         // Modified parameters to make cells equilibriate 
-        CancerParameters::Instance()->SetAreaBasedDampingConstantParameter(1.0);
-        CancerParameters::Instance()->SetDeformationEnergyParameter(10.0);
-        CancerParameters::Instance()->SetMembraneSurfaceEnergyParameter(1.0);
+        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(1.0);
+        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);
+        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(1.0);
 
         // Make crypt shorter for sloughing 
-        CancerParameters::Instance()->SetCryptLength(5.0);
+        TissueConfig::Instance()->SetCryptLength(5.0);
                 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
@@ -274,8 +274,8 @@ public:
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                ( CancerParameters::Instance()->GetTransitCellG1Duration()
-                                    + CancerParameters::Instance()->GetSG2MDuration() );
+                                ( TissueConfig::Instance()->GetTransitCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
 
             TissueCell cell(STEM, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);

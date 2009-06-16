@@ -70,7 +70,7 @@ private:
      *  cells at cell division.
      *
      *  The G1 duration is taken from a normal distribution, whose mean is
-     *  the G1 duration given in CancerParameters for the cell type, and
+     *  the G1 duration given in TissueConfig for the cell type, and
      *  whose standard deviation is 1.
      */
     void SetG1Duration();
