@@ -464,9 +464,9 @@ public:
             local_number_of_nodes = 1;
         }
         
-        DistributedVectorFactory vec_factor(number_nodes, local_number_of_nodes);        
+        DistributedVectorFactory vec_factory(number_nodes, local_number_of_nodes);        
 
-        Hdf5DataWriter writer(vec_factor, "hdf5", "hdf5_non_even_row_dist", false);
+        Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_non_even_row_dist", false);
         writer.DefineFixedDimension(number_nodes);
 
         int node_id = writer.DefineVariable("Node","dimensionless");
@@ -475,11 +475,11 @@ public:
 
         writer.EndDefineMode();
 
-        Vec petsc_data_1=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_1(petsc_data_1);
+        Vec petsc_data_1=vec_factory.CreateVec();
+        DistributedVector distributed_vector_1 = vec_factory.CreateDistributedVector(petsc_data_1);
 
-        Vec petsc_data_2=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_2(petsc_data_2);
+        Vec petsc_data_2=vec_factory.CreateVec();
+        DistributedVector distributed_vector_2 = vec_factory.CreateDistributedVector(petsc_data_2);
 
         // Write some values
         for (DistributedVector::Iterator index = distributed_vector_1.Begin();

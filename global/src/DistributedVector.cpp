@@ -98,6 +98,7 @@ bool DistributedVector::IsGlobalIndexLocal(unsigned globalIndex)
     return (mLo<=globalIndex && globalIndex<mHi);
 }
 
+///\todo #988 This needs to be deprecated (or mHi and mLo need to be read from a factory)
 Vec DistributedVector::CreateVec()
 {
     Vec vec;
