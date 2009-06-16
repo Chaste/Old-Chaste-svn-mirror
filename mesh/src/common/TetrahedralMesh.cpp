@@ -112,12 +112,17 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         ElementData face_data = rMeshReader.GetNextFaceData();
         std::vector<unsigned> node_indices = face_data.NodeIndices;
 
+        // NOTE: as above just read boundary element *vertices* from mesh reader - even if
+        // it is a quadratic mesh with internal elements, the extra nodes are ignored here 
+        // and used elsewhere: ie, we don't do this:
+        //   unsigned nodes_size = node_indices.size();
+
         bool is_boundary_face = true;
 
         // Determine if this is a boundary face
         std::set<unsigned> containing_element_indices; // Elements that contain this face
         std::vector<Node<SPACE_DIM>*> nodes;
-        for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
+        for (unsigned node_index=0; node_index<ELEMENT_DIM; node_index++) // node_index from 0 to DIM-1, not 0 to node.size()-1
         {
             assert(node_indices[node_index] < this->mNodes.size());
             // Add Node pointer to list for creating an element
@@ -172,6 +177,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         {
             // This is a boundary face
             // Ensure all its nodes are marked as boundary nodes
+            
+            assert(nodes.size()==ELEMENT_DIM); // just taken vertices of boundary node from 
             for (unsigned j=0; j<nodes.size(); j++)
             {
                 if (!nodes[j]->IsBoundaryNode())

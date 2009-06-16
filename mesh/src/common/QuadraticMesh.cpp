@@ -342,6 +342,8 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName, bool boundary
     {
         std::vector<unsigned> nodes = mesh_reader.GetNextElementData().NodeIndices;
         assert(nodes.size()==(DIM+1)*(DIM+2)/2);
+        assert(this->GetElement(i)->GetNumNodes()==DIM+1); // element is initially linear
+        // add extra nodes to make it a quad element
         for (unsigned j=DIM+1; j<(DIM+1)*(DIM+2)/2; j++)
         {
             this->GetElement(i)->AddNode( this->GetNode(nodes[j]) );
@@ -362,11 +364,13 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName, bool boundary
             {
                 std::vector<unsigned> nodes = mesh_reader.GetNextFaceData().NodeIndices;
     
+                assert((*iter)->GetNumNodes()==DIM); // so far just the vertices 
                 assert(nodes.size()==DIM*(DIM+1)/2); // the reader should have got 6 nodes (3d) for each face
-                for(unsigned i=0; i<DIM; i++)
+                
+                for (unsigned j=DIM; j<DIM*(DIM+1)/2; j++)
                 {
-                    assert(nodes[i]==(*iter)->GetNodeGlobalIndex(i));
-                }
+                    (*iter)->AddNode( this->GetNode(nodes[j]) );
+                } 
             }
         }
         else
