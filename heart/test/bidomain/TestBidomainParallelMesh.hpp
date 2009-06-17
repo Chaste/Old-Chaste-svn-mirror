@@ -74,7 +74,7 @@ public:
 
             nondistributed_problem.Solve();
 
-            DistributedVector dist_nondistributed_voltage(nondistributed_problem.GetSolution());
+            DistributedVector dist_nondistributed_voltage = nondistributed_problem.GetSolutionDistributedVector();
             DistributedVector::Stripe nondistributed_voltage(dist_nondistributed_voltage, 0);
             DistributedVector::Stripe nondistributed_potential(dist_nondistributed_voltage, 1);
 
@@ -117,7 +117,7 @@ public:
 
         distributed_problem.Solve();
 
-        DistributedVector dist_distributed_voltage(distributed_problem.GetSolution());
+        DistributedVector dist_distributed_voltage = distributed_problem.GetSolutionDistributedVector();
         DistributedVector::Stripe distributed_voltage(dist_distributed_voltage, 0);
         DistributedVector::Stripe distributed_potential(dist_distributed_voltage, 1);
 

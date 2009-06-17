@@ -200,6 +200,11 @@ public:
      *  Use with caution since we don't want to alter the state of the PETSc vector.
      */
     Vec GetSolution();
+    
+    /**
+     * Get the solution vector, wrapped in a DistributedVector.
+     */
+    DistributedVector GetSolutionDistributedVector();
 
     AbstractMesh<ELEM_DIM,SPACE_DIM> & rGetMesh();
 

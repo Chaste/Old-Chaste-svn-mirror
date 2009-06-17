@@ -373,7 +373,7 @@ public:
          * this rather difficult, especially since the edges are sampled
          * during the upstroke.
          */
-        DistributedVector voltage(monodomain_problem.GetSolution());
+        DistributedVector voltage = monodomain_problem.GetSolutionDistributedVector();
 
         // corners -> 0, 10, 110, 120
         // hardcoded result to check against

@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscException.hpp"
 #include "ChastePoint.hpp"
 #include "ConstBoundaryCondition.hpp"
+#include "DistributedVectorFactory.hpp"
 
 
 /**
@@ -190,8 +191,10 @@ public:
      *
      * @param currentSolution
      * @param residual
+     * @param rFactory  the factory to use to create DistributedVector objects
      */
-    void ApplyDirichletToNonlinearResidual(const Vec currentSolution, Vec residual);
+    void ApplyDirichletToNonlinearResidual(const Vec currentSolution, Vec residual,
+                                           DistributedVectorFactory& rFactory);
 
     /**
      * Alter the Jacobian matrix vector for a nonlinear system to satisfy

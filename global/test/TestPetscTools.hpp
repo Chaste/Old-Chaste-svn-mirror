@@ -121,7 +121,7 @@ public:
         // DistributedVectorFactory. This should be refactored once this is complete.
         //
         DistributedVectorFactory factory(1);
-        if (DistributedVector::IsGlobalIndexLocal(0))
+        if (factory.IsGlobalIndexLocal(0))
         {
             TS_ASSERT_THROWS_NOTHING(PetscTools::ReplicateException(true));
         }

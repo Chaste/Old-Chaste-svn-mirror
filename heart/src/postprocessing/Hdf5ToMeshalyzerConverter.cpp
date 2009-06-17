@@ -55,14 +55,9 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
     unsigned num_nodes = mpReader->GetNumberOfRows();
     unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
 
-    if (DistributedVector::GetProblemSize() == 0)
-    {
-        // Problem size was not set before. This sets static variables in DistributedVector. Ideally, a factory should be passed to the method or to the class and used instead.
-        DistributedVectorFactory factory(num_nodes);
-    }
+    DistributedVectorFactory factory(num_nodes);
 
-
-    Vec data = DistributedVector::CreateVec();
+    Vec data = factory.CreateVec();
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
         mpReader->GetVariableOverNodes(data, type, time_step);

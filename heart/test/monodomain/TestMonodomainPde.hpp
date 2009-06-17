@@ -133,7 +133,7 @@ public:
         TS_ASSERT_DELTA(value_pde, value_ode, 0.000001);
 
         // Reset the voltage vector from ODE systems
-        DistributedVector dist_voltage(voltage);
+        DistributedVector dist_voltage = mesh.GetDistributedVectorFactory()->CreateDistributedVector(voltage);
         for (DistributedVector::Iterator index = dist_voltage.Begin();
              index != dist_voltage.End();
              ++index)
@@ -178,13 +178,13 @@ public:
 
         MonodomainPde<1> monodomain_pde( &cell_factory );
 
-        if (DistributedVector::IsGlobalIndexLocal(0))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
         {
             AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(0);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),-80,1e-10);
         }
 
-        if (DistributedVector::IsGlobalIndexLocal(1))
+        if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
         {
             AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(1);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);

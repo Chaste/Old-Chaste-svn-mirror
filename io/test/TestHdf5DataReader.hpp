@@ -250,14 +250,14 @@ public :
 
 private:
 
-    const static unsigned number_nodes = 100;
+    const static unsigned NUMBER_NODES = 100;
 
     void WriteMultiStepData()
     {
-        DistributedVectorFactory factory(number_nodes);
+        DistributedVectorFactory factory(NUMBER_NODES);
 
         Hdf5DataWriter writer(factory, "hdf5_reader", "hdf5_test_complete_format", false);
-        writer.DefineFixedDimension(number_nodes);
+        writer.DefineFixedDimension(NUMBER_NODES);
 
         int node_id = writer.DefineVariable("Node", "dimensionless");
         int ik_id = writer.DefineVariable("I_K", "milliamperes");
@@ -325,7 +325,7 @@ public:
         TS_ASSERT_EQUALS(variable_names[2], "I_Na");
         TS_ASSERT_EQUALS(reader.GetUnit("I_Na"), "milliamperes");
 
-        for (unsigned node_index=0; node_index<number_nodes; node_index++)
+        for (unsigned node_index=0; node_index<NUMBER_NODES; node_index++)
         {
             std::vector<double> node_values = reader.GetVariableOverTime("Node", node_index);
             std::vector<double> i_k_values = reader.GetVariableOverTime("I_K", node_index);
@@ -343,8 +343,8 @@ public:
             }
         }
 
-        unsigned number_nodes=100;
-        DistributedVectorFactory factory(number_nodes);
+        unsigned NUMBER_NODES=100;
+        DistributedVectorFactory factory(NUMBER_NODES);
 
         Vec petsc_data_1=factory.CreateVec();
         DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
@@ -355,7 +355,7 @@ public:
         Vec petsc_data_3=factory.CreateVec();
         DistributedVector distributed_vector_3 = factory.CreateDistributedVector(petsc_data_3);
 
-        TS_ASSERT_EQUALS(reader.GetNumberOfRows(), number_nodes);
+        TS_ASSERT_EQUALS(reader.GetNumberOfRows(), NUMBER_NODES);
         for (unsigned time_step=0; time_step<10; time_step++)
         {
             reader.GetVariableOverNodes(petsc_data_1, "Node", time_step);
@@ -392,10 +392,10 @@ public:
 
     void TestNonMultiStepExceptions ()
     {
-        DistributedVectorFactory factory(number_nodes); //Currently sets static variables on DistributedVector
+        DistributedVectorFactory factory(NUMBER_NODES);
 
         Hdf5DataWriter writer(factory, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
-        writer.DefineFixedDimension(number_nodes);
+        writer.DefineFixedDimension(NUMBER_NODES);
 
         writer.DefineVariable("Node", "dimensionless");
         writer.DefineVariable("I_K", "milliamperes");
@@ -413,7 +413,7 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 99/*node*/));
 
-        Vec data=DistributedVector::CreateVec();
+        Vec data = factory.CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
 
         VecDestroy(data);
@@ -422,11 +422,11 @@ public:
 
     void TestMultiStepExceptions () throw (Exception)
     {
-        DistributedVectorFactory factory(number_nodes); //Currently sets static variables on DistributedVector
+        DistributedVectorFactory factory(NUMBER_NODES);
 
         Hdf5DataWriter writer(factory, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
-        DistributedVectorFactory vec_factor(number_nodes);
-        writer.DefineFixedDimension(number_nodes);
+        DistributedVectorFactory vec_factor(NUMBER_NODES);
+        writer.DefineFixedDimension(NUMBER_NODES);
 
         writer.DefineVariable("Node", "dimensionless");
         writer.DefineVariable("I_K", "milliamperes");
@@ -446,13 +446,13 @@ public:
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("WrongName", 99/*node*/));
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 100/*node*/));
 
-        Vec data=DistributedVector::CreateVec();
+        Vec data = factory.CreateVec();
         reader.GetVariableOverNodes(data, "Node", 0/*timestep*/);
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName")); //Wrong name
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/)); //Time step doesn't exist
         
-        DistributedVectorFactory factory2(number_nodes+1); //Currently sets static variables on DistributedVector
-        Vec data_too_big=DistributedVector::CreateVec();
+        DistributedVectorFactory factory2(NUMBER_NODES+1);
+        Vec data_too_big = factory2.CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 0/*timestep*/)); //Data too big
 
         VecDestroy(data);
@@ -463,9 +463,11 @@ public:
 
     void TestIncompleteData() throw (Exception)
     {
+        DistributedVectorFactory factory(NUMBER_NODES);
+        
         Hdf5DataReader reader("io/test/data","hdf5_test_full_format_incomplete", false);
 
-        std::vector<std::string> variable_names=reader.GetVariableNames();
+        std::vector<std::string> variable_names = reader.GetVariableNames();
         TS_ASSERT_EQUALS(variable_names.size(), 3u);
         TS_ASSERT_EQUALS(variable_names[0], "Node");
         TS_ASSERT_EQUALS(reader.GetUnit("Node"), "dimensionless");
@@ -475,7 +477,7 @@ public:
         TS_ASSERT_EQUALS(reader.GetUnit("I_Na"), "milliamperes");
 
         // Can't read into a PETSc Vec
-        Vec data=DistributedVector::CreateVec();
+        Vec data = factory.CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
         VecDestroy(data);
 

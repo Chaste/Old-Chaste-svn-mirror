@@ -90,7 +90,7 @@ Vec BidomainProblem<DIM>::CreateInitialCondition()
     if (mHasBath)
     {
         // get the voltage stripe
-        DistributedVector ic(init_cond);///\todo Naming convention?
+        DistributedVector ic = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(init_cond);
         DistributedVector::Stripe voltage_stripe = DistributedVector::Stripe(ic,0);
 
         for (DistributedVector::Iterator index = ic.Begin();

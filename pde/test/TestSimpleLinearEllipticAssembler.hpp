@@ -687,7 +687,7 @@ public:
 
             // test set up correctly
             PetscInt petsc_lo, petsc_hi;
-            Vec vector = DistributedVector::CreateVec();
+            Vec vector = mesh.GetDistributedVectorFactory()->CreateVec();
 
             VecGetOwnershipRange(vector,&petsc_lo,&petsc_hi);
 

@@ -674,9 +674,9 @@ public:
     void TestHdf5DataWriterFullFormatStriped() throw(Exception)
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);
+        DistributedVectorFactory vec_factory(number_nodes);
 
-        Hdf5DataWriter writer(vec_factor, "hdf5", "hdf5_test_full_format_striped", false);
+        Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_test_full_format_striped", false);
         writer.DefineFixedDimension(number_nodes);
 
         int node_id = writer.DefineVariable("Node", "dimensionless");
@@ -690,11 +690,11 @@ public:
 
         DistributedVectorFactory factory(number_nodes);
 
-        Vec petsc_data_short = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_short(petsc_data_short);
+        Vec petsc_data_short = vec_factory.CreateVec();
+        DistributedVector distributed_vector_short = vec_factory.CreateDistributedVector(petsc_data_short);
 
-        Vec node_number = DistributedVector::CreateVec();
-        DistributedVector distributed_node_number(node_number);
+        Vec node_number = vec_factory.CreateVec();
+        DistributedVector distributed_node_number = vec_factory.CreateDistributedVector(node_number);
 
         for (DistributedVector::Iterator index = distributed_vector_short.Begin();
              index!= distributed_vector_short.End();
@@ -757,9 +757,9 @@ public:
     void TestHdf5DataWriterFullFormatStripedIncomplete() throw(Exception)
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);       
+        DistributedVectorFactory vec_factory(number_nodes);       
 
-        Hdf5DataWriter writer(vec_factor, "hdf5", "hdf5_test_full_format_striped_incomplete", false);
+        Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_test_full_format_striped_incomplete", false);
 
         std::vector<unsigned> node_numbers;
         node_numbers.push_back(21);
@@ -822,9 +822,9 @@ public:
     void TestNonImplementedFeatures()
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);        
+        DistributedVectorFactory factory(number_nodes);        
 
-        Hdf5DataWriter writer(vec_factor, "hdf5", "hdf5_test_non_implemented", false);
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_non_implemented", false);
         writer.DefineFixedDimension(number_nodes);
 
         int vm_id = writer.DefineVariable("V_m","millivolts");
@@ -833,7 +833,6 @@ public:
 
         writer.EndDefineMode();
 
-        DistributedVectorFactory factory(number_nodes);
         Vec petsc_data_short = factory.CreateVec();
         DistributedVector distributed_vector_short = factory.CreateDistributedVector(petsc_data_short);
 
@@ -846,14 +845,14 @@ public:
         distributed_vector_short.Restore();
 
         DistributedVectorFactory factory2(2*number_nodes);
-        Vec petsc_data_long=factory2.CreateVec();
+        Vec petsc_data_long = factory2.CreateVec();
         DistributedVector distributed_vector_long = factory.CreateDistributedVector(petsc_data_long);
-
+        DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
         for (DistributedVector::Iterator index = distributed_vector_long.Begin();
              index!= distributed_vector_long.End();
              ++index)
         {
-            distributed_vector_long[index] = index.Global;
+            vm_stripe[index] = index.Global;
         }
         distributed_vector_long.Restore();
 
@@ -875,9 +874,9 @@ public:
      */
     void TestDefineThings()
     {
-        DistributedVectorFactory vec_factor(100);
+        DistributedVectorFactory vec_factory(100);
         
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factor, "", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
 
@@ -927,9 +926,9 @@ public:
     void TestEndDefineMode()
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);        
+        DistributedVectorFactory vec_factory(number_nodes);        
         
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factor, "", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "testdefine"));
 
         // Ending define mode without having defined at least a variable and a fixed dimension should raise an exception
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
@@ -972,9 +971,9 @@ public:
     void TestCantAddUnlimitedAfterEndDefine()
     {
         int number_nodes = 100;        
-        DistributedVectorFactory vec_factor(number_nodes);        
+        DistributedVectorFactory vec_factory(number_nodes);        
         
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factor, "", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "testdefine"));
         int ina_var_id = 0;
         int ik_var_id = 0;
 
@@ -993,9 +992,9 @@ public:
     void TestAdvanceAlongUnlimitedDimension()
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);                
+        DistributedVectorFactory vec_factory(number_nodes);                
         
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factor, "", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "testdefine"));
 
         int ina_var_id;
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(5000));
@@ -1013,9 +1012,9 @@ public:
     void TestCantWriteDataWhileInDefineMode()
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);                
+        DistributedVectorFactory vec_factory(number_nodes);                
 
-        Hdf5DataWriter writer(vec_factor, "", "testdefine", false);
+        Hdf5DataWriter writer(vec_factory, "", "testdefine", false);
 //        writer.DefineFixedDimension(number_nodes);
 //
 //        int node_id = writer.DefineVariable("Node","dimensionless");
@@ -1034,11 +1033,11 @@ public:
 
         DistributedVectorFactory factory(number_nodes);
 
-        Vec petsc_data_short = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_short(petsc_data_short);
+        Vec petsc_data_short = vec_factory.CreateVec();
+        DistributedVector distributed_vector_short = vec_factory.CreateDistributedVector(petsc_data_short);
 
-        Vec node_number = DistributedVector::CreateVec();
-        DistributedVector distributed_node_number(node_number);
+        Vec node_number = vec_factory.CreateVec();
+        DistributedVector distributed_node_number = vec_factory.CreateDistributedVector(node_number);
 
         for (DistributedVector::Iterator index = distributed_node_number.Begin();
              index!= distributed_node_number.End();
@@ -1051,7 +1050,7 @@ public:
         distributed_vector_short.Restore();
 
         DistributedVectorFactory factory2(2*number_nodes);
-        Vec petsc_data_long=factory2.CreateVec();
+        Vec petsc_data_long = factory2.CreateVec();
         DistributedVector distributed_vector_long = factory2.CreateDistributedVector(petsc_data_long);
 
         for (DistributedVector::Iterator index = distributed_vector_long.Begin();

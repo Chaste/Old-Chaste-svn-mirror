@@ -239,7 +239,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
 
                 //Make a mask to use if we need to shift the external voltage
                 VecDuplicate(currentSolution, &mExternalVoltageMask);
-                DistributedVector mask(mExternalVoltageMask);
+                DistributedVector mask = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(mExternalVoltageMask);
                 DistributedVector::Stripe v_m(mask,0);
                 DistributedVector::Stripe phi_e(mask,1);
                 for (DistributedVector::Iterator index = mask.Begin();

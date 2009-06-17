@@ -151,7 +151,8 @@ class TestRunningBidomainSimulationsTutorial : public CxxTest::TestSuite
 /* Tests should be public... */
 public:
     /* Define the test. Note the {{{throw(Exception)}}} - without this exception messages
-     * might not get printed out. */
+     * might not get printed out.
+     */
     void TestSimpleSimulation() throw(Exception)
     {
         /* The {{{HeartConfig}}} class is used to set various parameters. It gets the default values
@@ -229,7 +230,7 @@ public:
          * class, which can be used to only iterate over the values of the voltage owned
          * by that process.
          */
-        DistributedVector dist_bidomain_voltage(bidomain_problem.GetSolution());
+        DistributedVector dist_bidomain_voltage = bidomain_problem.GetSolutionDistributedVector();
         DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
         DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
 

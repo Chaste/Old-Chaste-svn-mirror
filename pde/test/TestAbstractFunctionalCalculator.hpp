@@ -106,9 +106,9 @@ public:
         // = 4/3
         ExampleFunctionalOne calculator;
 
-        DistributedVectorFactory factory(mesh.GetNumNodes());
-        Vec petsc_vec = factory.CreateVec(2);
-        DistributedVector vec1 = factory.CreateDistributedVector(petsc_vec);
+        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
+        Vec petsc_vec = p_factory->CreateVec(2);
+        DistributedVector vec1 = p_factory->CreateDistributedVector(petsc_vec);
         DistributedVector::Stripe u1(vec1, 0);
         DistributedVector::Stripe v1(vec1, 1);
         for (DistributedVector::Iterator index = vec1.Begin();
@@ -129,7 +129,7 @@ public:
         // = 5/3
         ExampleFunctionalTwo other_calculator;
 
-        DistributedVector vec2(petsc_vec);
+        DistributedVector vec2 = p_factory->CreateDistributedVector(petsc_vec);
         DistributedVector::Stripe u2(vec2, 0);
         DistributedVector::Stripe v2(vec2, 1);
         for (DistributedVector::Iterator index = vec2.Begin();

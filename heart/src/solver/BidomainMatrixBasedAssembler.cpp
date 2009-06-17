@@ -169,13 +169,14 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(
         Vec currentSolution)
 {
-
+    DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
+    
     // dist stripe for the current Voltage
-    DistributedVector distributed_current_solution(currentSolution);
+    DistributedVector distributed_current_solution = p_factory->CreateDistributedVector(currentSolution);
     DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0);
 
     // dist stripe for z
-    DistributedVector dist_vec_matrix_based(this->mVectorForMatrixBasedRhsAssembly);
+    DistributedVector dist_vec_matrix_based = p_factory->CreateDistributedVector(this->mVectorForMatrixBasedRhsAssembly);
     DistributedVector::Stripe dist_vec_matrix_based_vm(dist_vec_matrix_based, 0);
     //DistributedVector::Stripe dist_vec_matrix_based_phie(dist_vec_matrix_based, 1);
 

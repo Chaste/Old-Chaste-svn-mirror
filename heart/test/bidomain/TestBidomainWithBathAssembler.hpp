@@ -474,6 +474,20 @@ public:
         double boundary_flux = -4e2;
         double duration = 0.2; //ms
 
+        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        // Set everything outside a central circle (radius 0.4) to be bath
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            double x = mesh.GetElement(i)->CalculateCentroid()[0];
+            double y = mesh.GetElement(i)->CalculateCentroid()[1];
+            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
+            {
+                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+            }
+        }
+
         ///////////////////////////////////////////////////////////////////
         // matrix based
         ///////////////////////////////////////////////////////////////////
@@ -484,20 +498,6 @@ public:
 
         {
             Timer::Reset();
-            TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
-            TetrahedralMesh<2,2> mesh;
-            mesh.ConstructFromMeshReader(reader);
-
-            // Set everything outside a central circle (radius 0.4) to be bath
-            for(unsigned i=0; i<mesh.GetNumElements(); i++)
-            {
-                double x = mesh.GetElement(i)->CalculateCentroid()[0];
-                double y = mesh.GetElement(i)->CalculateCentroid()[1];
-                if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
-                {
-                    mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
-                }
-            }
 
             Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
 
@@ -506,7 +506,7 @@ public:
             matrix_based_bido.Initialise();
             matrix_based_bido.Solve();
 
-            Timer::PrintAndReset("2D Matrix based");
+            Timer::Print("2D Matrix based");
         }
 
         ///////////////////////////////////////////////////////////////////
@@ -518,20 +518,7 @@ public:
         BidomainProblem<2> non_matrix_based_bido( &cell_factory, true);
 
         {
-            TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
-            TetrahedralMesh<2,2> mesh;
-            mesh.ConstructFromMeshReader(reader);
-
-            // Set everything outside a central circle (radius 0.4) to be bath
-            for(unsigned i=0; i<mesh.GetNumElements(); i++)
-            {
-                double x = mesh.GetElement(i)->CalculateCentroid()[0];
-                double y = mesh.GetElement(i)->CalculateCentroid()[1];
-                if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
-                {
-                    mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
-                }
-            }
+            Timer::Reset();
 
             Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
 
@@ -547,8 +534,8 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        DistributedVector matrix_based_solution(matrix_based_bido.GetSolution());
-        DistributedVector non_matrix_based_solution(non_matrix_based_bido.GetSolution());
+        DistributedVector matrix_based_solution = matrix_based_bido.GetSolutionDistributedVector();
+        DistributedVector non_matrix_based_solution = non_matrix_based_bido.GetSolutionDistributedVector();
 
         DistributedVector::Stripe matrix_based_voltage(matrix_based_solution, 0);
         DistributedVector::Stripe non_matrix_based_voltage(non_matrix_based_solution, 0);

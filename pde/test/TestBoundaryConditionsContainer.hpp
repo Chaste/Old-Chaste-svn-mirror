@@ -309,7 +309,7 @@ public:
             bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
         }
 
-        bcc3.ApplyDirichletToNonlinearResidual(solution, residual);
+        bcc3.ApplyDirichletToNonlinearResidual(solution, residual, factory);
 
 
         for (DistributedVector::Iterator index = d_solution.Begin();
@@ -666,7 +666,7 @@ public:
             bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition2, 2);
         }
 
-        bcc33.ApplyDirichletToNonlinearResidual(solution, residual);
+        bcc33.ApplyDirichletToNonlinearResidual(solution, residual, factory);
 
         VecGetArray(solution, &p_solution);
         VecGetArray(residual, &p_residual);

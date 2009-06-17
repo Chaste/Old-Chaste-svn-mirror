@@ -28,112 +28,48 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "DistributedVector.hpp"
-
-unsigned DistributedVector::mLo=0;
-unsigned DistributedVector::mHi=0;
-unsigned DistributedVector::mGlobalHi=0;
-bool DistributedVector::mPetscStatusKnown=false;
+#include "DistributedVectorFactory.hpp"
 
 
-void DistributedVector::CheckForPetsc()
-{
-    assert(mPetscStatusKnown==false);
-    PetscTruth petsc_is_initialised;
-    PetscInitialized(&petsc_is_initialised);
-
-    //Tripping this assertion means that PETSc and MPI weren't intialised
-    //A unit test should include the global fixture:
-    //#include "PetscSetupAndFinalize.hpp"
-    assert(petsc_is_initialised);
-    mPetscStatusKnown=true;
-}
-
-//void DistributedVector::SetProblemSizePerProcessor(unsigned size, PetscInt local)
-//{
-//#ifndef NDEBUG
-//    if (!mPetscStatusKnown)
-//    {
-//        CheckForPetsc();
-//    }
-//#endif
-//    Vec vec;
-//    VecCreate(PETSC_COMM_WORLD, &vec);
-//    VecSetSizes(vec, local, size);
-//    VecSetFromOptions(vec);
-//    SetProblemSize(vec);
-//    VecDestroy(vec);
-//}
-//
-//void DistributedVector::SetProblemSize(unsigned size)
-//{
-//    SetProblemSizePerProcessor(size, PETSC_DECIDE);
-//}
-//
-//void DistributedVector::SetProblemSize(Vec vec)
-//{
-//#ifndef NDEBUG
-//    if (!mPetscStatusKnown)
-//    {
-//        CheckForPetsc();
-//    }
-//#endif
-//    // calculate my range
-//    PetscInt petsc_lo, petsc_hi;
-//    VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
-//    mLo = (unsigned)petsc_lo;
-//    mHi = (unsigned)petsc_hi;
-//    // vector size
-//    PetscInt size;
-//    VecGetSize(vec, &size);
-//    mGlobalHi = (unsigned) size;
-//}
-
-unsigned DistributedVector::GetProblemSize()
-{
-    return mGlobalHi;
-}
 
 bool DistributedVector::IsGlobalIndexLocal(unsigned globalIndex)
 {
     return (mLo<=globalIndex && globalIndex<mHi);
 }
 
-///\todo #988 This needs to be deprecated (or mHi and mLo need to be read from a factory)
-Vec DistributedVector::CreateVec()
-{
-    Vec vec;
-    VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, mHi-mLo, mGlobalHi);
-    VecSetFromOptions(vec);
-    return vec;
-}
-
-//Vec DistributedVector::CreateVec(unsigned stride)
-//{
-//    Vec vec;
-//    VecCreateMPI(PETSC_COMM_WORLD, stride*(mHi-mLo), stride*mGlobalHi, &vec);
-//    return vec;
-//}
-
 DistributedVector::DistributedVector(Vec vec, DistributedVectorFactory* pFactory)
     : mVec(vec),
       mpFactory(pFactory)
 {
+    assert(pFactory != NULL);
+    
+    // Set local copies of problem size, etc.
+    mProblemSize = pFactory->GetProblemSize();
+    mLo = pFactory->GetLow();
+    mHi = pFactory->GetHigh();
+    
+    // Set mSizeMultiplier by reading the vec size.
     VecGetArray(vec, &mpVec);
     PetscInt size;
     VecGetSize(vec, &size);
-    mNumChunks = (unsigned) size / mGlobalHi;
-    assert ((mNumChunks * mGlobalHi) == (unsigned)size);
+    mSizeMultiplier = (unsigned) size / mProblemSize;
+    assert ((mSizeMultiplier * mProblemSize) == (unsigned)size);
 }
 
 double& DistributedVector::operator[](unsigned globalIndex) throw (DistributedVectorException)
 {
-    assert(mNumChunks==1);
+    assert(mSizeMultiplier==1);
     if (mLo<=globalIndex && globalIndex<mHi)
     {
         return mpVec[globalIndex - mLo];
     }
     throw DistributedVectorException();
+}
+
+double& DistributedVector::operator[](Iterator index) throw (DistributedVectorException)
+{
+    assert(mSizeMultiplier==1);
+    return mpVec[index.Local];
 }
 
 void DistributedVector::Restore()
@@ -142,6 +78,11 @@ void DistributedVector::Restore()
     VecAssemblyBegin(mVec);
     VecAssemblyEnd(mVec);
 }
+
+//
+// Iterator class
+//
+
 
 bool DistributedVector::Iterator::operator!=(const Iterator& other)
 {
@@ -154,6 +95,10 @@ DistributedVector::Iterator& DistributedVector::Iterator::operator++()
     Global++;
     return(*this);
 }
+
+//
+// Iterator creation
+//
 
 DistributedVector::Iterator DistributedVector::Begin()
 {
@@ -169,11 +114,5 @@ DistributedVector::Iterator DistributedVector::End()
     index.Local = mHi-mLo;
     index.Global = mHi;
     return index;
-}
-
-double& DistributedVector::operator[](Iterator index) throw (DistributedVectorException)
-{
-    assert(mNumChunks==1);
-    return mpVec[index.Local];
 }
 

@@ -131,12 +131,11 @@ public:
     DistributedVector CreateDistributedVector(Vec vec);
     
     /**
-     * Create a distributed vector stripe which wraps a given petsc vector
-     * 
-     * @param vec is the vector
-     * @return the distributed vector 
+     * Test if the given global index is owned by the current process, i.e. is local to it.
+     *
+     * @param globalIndex
      */
-//    DistributedVector::Stripe CreateStripe(Vec vec, unsigned stripe);
+    bool IsGlobalIndexLocal(unsigned globalIndex);
     
     /**
      * @return The number of elements in the vector owned by the local process
@@ -147,7 +146,7 @@ public:
     }
     
     /**
-     * @return mHi - The next index above the top one owned by the process.
+     * @return #mHi - The next index above the top one owned by the process.
      */
     unsigned GetHigh() const
     {
@@ -155,7 +154,7 @@ public:
     }
     
     /**
-     * @return mLo - The lowest index owned by the process.
+     * @return #mLo - The lowest index owned by the process.
      */
     unsigned GetLow() const
     {
@@ -163,9 +162,9 @@ public:
     }
 
     /**
-     * @return The number of elements in the vector
+     * @return The number of elements in (normal) vectors created by CreateVec()
      */
-    unsigned GetSize() const
+    unsigned GetProblemSize() const
     {
         return mProblemSize;
     }
@@ -188,7 +187,7 @@ inline void save_construct_data(
     ar << hi;
     lo = t->GetLow();
     ar << lo;
-    size = t->GetSize();
+    size = t->GetProblemSize();
     ar << size;
     num_procs = PetscTools::GetNumProcs();
     ar << num_procs;

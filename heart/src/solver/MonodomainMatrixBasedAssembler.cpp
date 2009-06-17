@@ -99,7 +99,7 @@ MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::MonodomainRhsMatrixAssembler(A
     this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
 
     //This linear system needs a distribution from the DistributedVector class
-    Vec temp_vec=DistributedVector::CreateVec();
+    Vec temp_vec = pMesh->GetDistributedVectorFactory()->CreateVec();
     this->mpLinearSystem = new LinearSystem(temp_vec);
     VecDestroy(temp_vec);
     this->AssembleSystem(false,true);
@@ -140,7 +140,7 @@ MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainMatrixBasedAsse
     // set variables on parent class so that we do matrix-based assembly, and allocate
     // memory for the vector 'z'
     this->mUseMatrixBasedRhsAssembly = true;
-    this->mVectorForMatrixBasedRhsAssembly = DistributedVector::CreateVec();
+    this->mVectorForMatrixBasedRhsAssembly = pMesh->GetDistributedVectorFactory()->CreateVec();
 
     // Tell pde there's no need to replicate ionic caches
     pPde->SetCacheReplication(false);
@@ -160,7 +160,7 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
     VecCopy(currentSolution, this->mVectorForMatrixBasedRhsAssembly);
 
     // set up a vector which has the nodewise force term (ie A*I_ionic+I_stim)
-    Vec force_term_at_nodes = DistributedVector::CreateVec();
+    Vec force_term_at_nodes = this->mpMesh->GetDistributedVectorFactory()->CreateVec();
     PetscInt lo, hi;
     VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
     double *p_force_term;

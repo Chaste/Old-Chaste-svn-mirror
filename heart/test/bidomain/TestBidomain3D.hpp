@@ -148,8 +148,8 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        DistributedVector monodomain_voltage(monodomain_problem.GetSolution());
-        DistributedVector bidomain_solution(bidomain_problem.GetSolution());
+        DistributedVector monodomain_voltage = monodomain_problem.GetSolutionDistributedVector();
+        DistributedVector bidomain_solution = bidomain_problem.GetSolutionDistributedVector();
         DistributedVector::Stripe bidomain_voltage(bidomain_solution,0);
         DistributedVector::Stripe extracellular_potential(bidomain_solution,1);
         for (DistributedVector::Iterator index = bidomain_solution.Begin();

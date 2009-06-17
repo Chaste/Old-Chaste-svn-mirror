@@ -109,7 +109,7 @@ public:
         bool need_initialisation = true;
         double probe_voltage=0.0;
 
-        DistributedVector voltage(monodomain_problem.GetSolution());
+        DistributedVector voltage = monodomain_problem.GetSolutionDistributedVector();
         need_initialisation = true;
 
         // Test the RHS of the mesh

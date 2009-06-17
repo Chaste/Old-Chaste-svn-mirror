@@ -36,7 +36,7 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM>
 void CheckMonoLr91Vars(MonodomainProblem<ELEM_DIM, SPACE_DIM>& problem)
 {
 
-    DistributedVector voltage(problem.GetSolution());
+    DistributedVector voltage = problem.rGetMesh().GetDistributedVectorFactory()->CreateDistributedVector(problem.GetSolution());
     for (DistributedVector::Iterator index = voltage.Begin();
          index != voltage.End();
          ++index)

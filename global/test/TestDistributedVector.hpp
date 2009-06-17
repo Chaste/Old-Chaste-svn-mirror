@@ -52,11 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestDistributedVector : public CxxTest::TestSuite
 {
 public:
-    void TestUninitialised()
-    {
-        TS_ASSERT_EQUALS(DistributedVector::GetProblemSize(), 0u);
-    }
-    
     void TestDistributedVectorFactory()
     {
         unsigned num_procs = PetscTools::GetNumProcs();
@@ -88,7 +83,7 @@ public:
         unsigned local_size2 = petsc_hi - petsc_lo;
         TS_ASSERT_EQUALS(local_size, local_size2);
         TS_ASSERT_EQUALS(local_size, factory2.GetLocalOwnership());
-        TS_ASSERT_EQUALS(total, factory2.GetSize());
+        TS_ASSERT_EQUALS(total, factory2.GetProblemSize());
         
         TS_ASSERT_EQUALS((unsigned)(petsc_hi), factory2.GetHigh());
         TS_ASSERT_EQUALS((unsigned)(petsc_lo), factory2.GetLow());
@@ -159,7 +154,7 @@ public:
         DistributedVector::Stripe linear(distributed_vector2,0);
         DistributedVector::Stripe quadratic(distributed_vector2,1);
         // check the range
-        TS_ASSERT_EQUALS(DistributedVector::GetProblemSize(), vec_size);
+        TS_ASSERT_EQUALS(factory.GetProblemSize(), vec_size);
         TS_ASSERT_EQUALS(distributed_vector.Begin().Global,lo);
         TS_ASSERT_EQUALS(distributed_vector.End().Global,hi);
         // read some values
@@ -175,25 +170,25 @@ public:
         // read the 2nd element of the first vector
         if (lo<=2 && 2<hi)
         {
-            TS_ASSERT(DistributedVector::IsGlobalIndexLocal(2));
+            TS_ASSERT(distributed_vector.IsGlobalIndexLocal(2));
             TS_ASSERT_EQUALS(distributed_vector[2],2*(2-lo));
         }
         else
         {
-            TS_ASSERT(!DistributedVector::IsGlobalIndexLocal(2));
+            TS_ASSERT(!distributed_vector.IsGlobalIndexLocal(2));
             TS_ASSERT_THROWS_ANYTHING(distributed_vector[2]);
         }
 
         //read the 3rd element of the other vectors
         if (lo<=3 && 3<hi)
         {
-            TS_ASSERT(DistributedVector::IsGlobalIndexLocal(3));
+            TS_ASSERT(distributed_vector.IsGlobalIndexLocal(3));
             TS_ASSERT_EQUALS(linear[3],(3-lo));
             TS_ASSERT_EQUALS(quadratic[3],3*3);
         }
         else
         {
-            TS_ASSERT(!DistributedVector::IsGlobalIndexLocal(3));
+            TS_ASSERT(!distributed_vector.IsGlobalIndexLocal(3));
             TS_ASSERT_THROWS_ANYTHING(linear[3]);
             TS_ASSERT_THROWS_ANYTHING(quadratic[3]);
         }
@@ -211,9 +206,9 @@ public:
         Vec chunked=factory.CreateVec(2);
         Vec petsc_vec=factory.CreateVec();
 
-        DistributedVector distributed_vector(petsc_vec);
-        DistributedVector distributed_vector_striped(striped);
-        DistributedVector distributed_vector_chunked(chunked);
+        DistributedVector distributed_vector = factory.CreateDistributedVector(petsc_vec);
+        DistributedVector distributed_vector_striped = factory.CreateDistributedVector(striped);
+        DistributedVector distributed_vector_chunked = factory.CreateDistributedVector(chunked);
         DistributedVector::Stripe linear(distributed_vector_striped, 0);
         DistributedVector::Stripe quadratic(distributed_vector_striped, 1);
         DistributedVector::Chunk linear_chunk(distributed_vector_chunked, 0);
@@ -267,7 +262,7 @@ public:
         //Read item 2 from the distributed vectors (for coverage)
         if (lo<=2 && 2<hi)
         {
-            TS_ASSERT(DistributedVector::IsGlobalIndexLocal(2));
+            TS_ASSERT(distributed_vector.IsGlobalIndexLocal(2));
             TS_ASSERT_EQUALS(linear[2], -1.0);
             TS_ASSERT_EQUALS(quadratic[2], 3.0 - lo);
             TS_ASSERT_EQUALS(linear_chunk[2], -1.0);
@@ -275,7 +270,7 @@ public:
         }
         else
         {
-            TS_ASSERT(!DistributedVector::IsGlobalIndexLocal(2));
+            TS_ASSERT(!distributed_vector.IsGlobalIndexLocal(2));
             TS_ASSERT_THROWS_ANYTHING(linear[2]);
             TS_ASSERT_THROWS_ANYTHING(linear_chunk[2]);
         }
@@ -320,7 +315,7 @@ public:
         unsigned num_local_items = factory.GetLocalOwnership();
         unsigned hi = factory.GetHigh();
         unsigned lo = factory.GetLow();
-        TS_ASSERT_EQUALS(factory.GetSize(), TOTAL);
+        TS_ASSERT_EQUALS(factory.GetProblemSize(), TOTAL);
         
         // Where to archive
         OutputFileHandler handler("archive");
@@ -343,7 +338,7 @@ public:
             DistributedVectorFactory* p_new_factory;
             input_arch >> p_new_factory;
             
-            TS_ASSERT_EQUALS(p_new_factory->GetSize(), TOTAL);
+            TS_ASSERT_EQUALS(p_new_factory->GetProblemSize(), TOTAL);
             TS_ASSERT_EQUALS(p_new_factory->GetHigh(), hi);
             TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
             TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), num_local_items);
@@ -362,7 +357,7 @@ public:
             {
                 input_arch >> p_new_factory;
             
-                TS_ASSERT_EQUALS(p_new_factory->GetSize(), TOTAL);
+                TS_ASSERT_EQUALS(p_new_factory->GetProblemSize(), TOTAL);
                 TS_ASSERT_EQUALS(p_new_factory->GetHigh(), TOTAL);
                 TS_ASSERT_EQUALS(p_new_factory->GetLow(), 0U);
                 TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), TOTAL);

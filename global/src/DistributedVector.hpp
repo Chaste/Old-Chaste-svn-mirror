@@ -48,22 +48,21 @@ class DistributedVector
 {
 private:
     friend class TestDistributedVector;
-    friend class DistributedVectorFactory; //Temporary measure whilst we remove the static member variables
+    
     // Data global to all vectors.
     
     /** The first entry owned by the current processor. */
-    static unsigned mLo;
+    unsigned mLo;
     
     /** One above the last entry owned by the current processor. */
-    static unsigned mHi;
+    unsigned mHi;
+    
     /** The problem size, i.e. the length of the vector of unknowns. */
-    static unsigned mGlobalHi;
-    /** Whether we've checked that PETSc is initialised. */
-    static bool mPetscStatusKnown;
+    unsigned mProblemSize;
 
     // Data local to a single vector.
-    /** How many processors own parts of this vector. */
-    unsigned mNumChunks;
+    /** How much bigger this vector is than the problem size. */
+    unsigned mSizeMultiplier;
     /** The underlying PETSc vector. */
     Vec mVec;
     /** The local part of the underlying PETSc vector. */
@@ -75,58 +74,15 @@ private:
      */
     DistributedVectorFactory* mpFactory;
 
-    /**
-     * Double check (in debug code) that PETSc has been initialised properly
-     */
-    static void CheckForPetsc();
 
 public:
-
-    /**
-     * Set the problem size specifying distribution over local processor.
-     *
-     * @param size
-     * @param local
-     */
-    //static void SetProblemSizePerProcessor(unsigned size, PetscInt local);
-
-    /**
-     * Set the problem size.
-     *
-     * @param size
-     */
-    //static void SetProblemSize(unsigned size);
-
-    /**
-     * Set the problem with an existing PETSc vector -- must have stride=1.
-     *
-     * @param vec
-     */
-    //static void SetProblemSize(Vec vec);
-
-    /**
-     * Get the global problem size.
-     */
-    static unsigned GetProblemSize();
 
     /**
      * Test if the given global index is owned by the current process, i.e. is local to it.
      *
      * @param globalIndex
      */
-    static bool IsGlobalIndexLocal(unsigned globalIndex);
-
-    /**
-     * Create a PETSc vector of the problem size
-     */
-    static Vec CreateVec();
-
-    /**
-     * Create a striped PETSc vector of size: stride * problem size
-     *
-     * @param stride
-     */
-    //static Vec CreateVec(unsigned stride);
+    bool IsGlobalIndexLocal(unsigned globalIndex);
 
     /**
      * Constructor.
@@ -135,17 +91,41 @@ public:
      * Note that this class does NOT take over responsibility for destroying the Vec.
      *
      * @param vec PETSc vector of which this class shall be a portion
-     * @param pFactory pointer to a DistributedVector factory (defaults to NULL)
+     * @param pFactory pointer to the DistributedVectorFactory used to create this vector
      */
-    DistributedVector(Vec vec, DistributedVectorFactory* pFactory=NULL);
+    DistributedVector(Vec vec, DistributedVectorFactory* pFactory);
 
-   /**
-    * @param globalIndex
-    * @return value of distributed vector at globalIndex
-    * Do not use if stride>1.
-    * For use in tests.
-    * Will throw a DistributedVectorException if the specified element is not on this process.
-    */
+    /**
+     * @return #mHi - The next index above the top one owned by the process.
+     */
+    unsigned GetHigh() const
+    {
+        return mHi;
+    }
+    
+    /**
+     * @return #mLo - The lowest index owned by the process.
+     */
+    unsigned GetLow() const
+    {
+        return mLo;
+    }
+    
+    /**
+     * @return  the factory used to create this vector.
+     */
+    DistributedVectorFactory* GetFactory()
+    {
+        return mpFactory;
+    }
+
+    /**
+     * @param globalIndex
+     * @return value of distributed vector at globalIndex
+     * Do not use if stride>1.
+     * For use in tests.
+     * Will throw a DistributedVectorException if the specified element is not on this process.
+     */
     double& operator[](unsigned globalIndex) throw (DistributedVectorException);
 
     /**
@@ -185,36 +165,50 @@ public:
      */
     class Stripe
     {
-    public:
-        unsigned mStride; /**< How many processors own parts of this vector. */
+        unsigned mStride; /**< Number of types of information in the vector. */
         unsigned mStripe; /**< The number of this stripe within the vector starting from 0. */
         double *mpVec;    /**< The local part of the underlying PETSc vector. */
+        unsigned mLo;     /**< The first entry owned by the current processor. */
+        unsigned mHi;     /**< One above the last entry owned by the current processor. */
+        DistributedVectorFactory* mpFactory; /**< The factory that created our parent vector. */
 
-       /**
-        * Constructor.
-        *
-        * @param parallelVec striped vector
-        * @param stripe number of this stripe within the vector starting from 0
-        */
+    public:
+        /**
+         * Constructor.
+         *
+         * @param parallelVec striped vector
+         * @param stripe number of this stripe within the vector starting from 0
+         */
         Stripe(DistributedVector parallelVec, unsigned stripe)
         {
-            mStride = parallelVec.mNumChunks;
+            mStride = parallelVec.mSizeMultiplier;
             mStripe = stripe;
             assert(mStripe < mStride);
             mpVec = parallelVec.mpVec;
+            mLo = parallelVec.GetLow();
+            mHi = parallelVec.GetHigh();
+            mpFactory = parallelVec.GetFactory();
+        }
+        
+        /**
+         * @return  the factory used to create this vector.
+         */
+        DistributedVectorFactory* GetFactory()
+        {
+            return mpFactory;
         }
 
-       /**
-        * Access a particular element of the stripe if on this processor.
-        * For use in tests. Will throw a DistributedVectorException if
-        * the specified element is not on this process.
-        *
-        * @param globalIndex index within the stripe
-        * @return value of striped vector
-        */
+        /**
+         * Access a particular element of the stripe if on this processor.
+         * For use in tests. Will throw a DistributedVectorException if
+         * the specified element is not on this process.
+         *
+         * @param globalIndex index within the stripe
+         * @return value of striped vector
+         */
         double& operator[](unsigned globalIndex) throw (DistributedVectorException)
         {
-            if (mLo<=globalIndex && globalIndex <mHi)
+            if (mLo <= globalIndex && globalIndex < mHi)
             {
                 return mpVec[(globalIndex - mLo)*mStride + mStripe];
             }
@@ -222,12 +216,12 @@ public:
         }
 
         /**
-        * @param index
-        * @return value of striped distributed vector pointed to by index.
-        */
+         * @param index
+         * @return value of striped distributed vector pointed to by index.
+         */
         double& operator[](Iterator index) throw (DistributedVectorException)
         {
-            return mpVec[index.Local*mStride+mStripe];
+            return mpVec[index.Local*mStride + mStripe];
         }
 
     };
@@ -241,10 +235,12 @@ public:
      */
     class Chunk
     {
-    public:
         unsigned mOffset; /**< The start of this chunk within the locally-owned part of the vector. */
         double *mpVec;    /**< The local part of the underlying PETSc vector. */
+        unsigned mLo;     /**< The first entry owned by the current processor. */
+        unsigned mHi;     /**< One above the last entry owned by the current processor. */
 
+    public:
         /**
          * Constructor.
          *
@@ -253,22 +249,24 @@ public:
          */
         Chunk(DistributedVector parallelVec, unsigned chunk)
         {
-            assert(chunk<parallelVec.mNumChunks);
-            mOffset = chunk*(parallelVec.mHi - parallelVec.mLo);
+            assert(chunk < parallelVec.mSizeMultiplier);
+            mLo = parallelVec.GetLow();
+            mHi = parallelVec.GetHigh();
+            mOffset = chunk * (mHi - mLo);
             mpVec = parallelVec.mpVec;
         }
 
-       /**
-        * Access a particular element of the chunk if on this processor.
-        * For use in tests. Will throw a DistributedVectorException if
-        * the specified element is not on this process.
-        *
-        * @param globalIndex index within the chunk
-        * @return value of striped vector
-        */
+        /**
+         * Access a particular element of the chunk if on this processor.
+         * For use in tests. Will throw a DistributedVectorException if
+         * the specified element is not on this process.
+         *
+         * @param globalIndex index within the chunk
+         * @return value of striped vector
+         */
         double& operator[](unsigned globalIndex) throw (DistributedVectorException)
         {
-            if (mLo<=globalIndex && globalIndex <mHi)
+            if (mLo <= globalIndex && globalIndex < mHi)
             {
                 //localIndex = globalIndex - mLo
                 return mpVec[mOffset + globalIndex - mLo];
@@ -277,9 +275,9 @@ public:
          }
 
         /**
-        * @param index
-        * @return value of striped distributed vector pointed to by index.
-        */
+         * @param index
+         * @return value of striped distributed vector pointed to by index.
+         */
         double& operator[](Iterator index) throw (DistributedVectorException)
         {
             return mpVec[mOffset + index.Local];
@@ -300,10 +298,10 @@ public:
     Iterator End();
 
     /**
-    * @param index
-    * @return value of distributed vector pointed to by index.
-    * Do not use if stride>1.
-    */
+     * @param index
+     * @return value of distributed vector pointed to by index.
+     * Do not use if stride>1.
+     */
     double& operator[](Iterator index) throw (DistributedVectorException);
 };
 

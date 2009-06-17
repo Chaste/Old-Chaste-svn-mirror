@@ -293,14 +293,17 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToNonlinearResidual(const Vec currentSolution, Vec residual)
+void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToNonlinearResidual(
+        const Vec currentSolution,
+        Vec residual,
+        DistributedVectorFactory& rFactory)
 {
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
         this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
 
-        DistributedVector solution_distributed(currentSolution);
-        DistributedVector residual_distributed(residual);
+        DistributedVector solution_distributed = rFactory.CreateDistributedVector(currentSolution);
+        DistributedVector residual_distributed = rFactory.CreateDistributedVector(residual);
 
 
         while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
@@ -312,7 +315,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
 
             double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
 
-            if (DistributedVector::IsGlobalIndexLocal(node_index))
+            if (solution_distributed.IsGlobalIndexLocal(node_index))
             {
                 residual_stripe[node_index]=solution_stripe[node_index] - value;
             }

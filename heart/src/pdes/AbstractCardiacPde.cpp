@@ -190,7 +190,7 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec currentSolutio
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
 
-    DistributedVector dist_solution(currentSolution);
+    DistributedVector dist_solution = mpDistributedVectorFactory->CreateDistributedVector(currentSolution);
     DistributedVector::Stripe voltage(dist_solution, 0);
     for (DistributedVector::Iterator index = dist_solution.Begin();
          index != dist_solution.End();

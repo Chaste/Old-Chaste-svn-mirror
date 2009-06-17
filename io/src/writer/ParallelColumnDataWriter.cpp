@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ParallelColumnDataWriter.hpp"
 #include "Exception.hpp"
+#include "DistributedVectorFactory.hpp"
 #include <iostream>
 
 ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory)
@@ -103,8 +104,9 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe stripe)
 {
     // Put the stripe into its own 'unstriped' vector
-    Vec unstriped_petsc = DistributedVector::CreateVec();
-    DistributedVector unstriped(unstriped_petsc);
+    DistributedVectorFactory* p_factory = stripe.GetFactory();
+    Vec unstriped_petsc = p_factory->CreateVec();
+    DistributedVector unstriped = p_factory->CreateDistributedVector(unstriped_petsc);
     for (DistributedVector::Iterator index = unstriped.Begin();
          index!= unstriped.End();
          ++index)

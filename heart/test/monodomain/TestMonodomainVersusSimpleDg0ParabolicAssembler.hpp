@@ -167,8 +167,8 @@ public:
         Vec current_solution_1 = monodomain_assembler.Solve();
         Vec current_solution_2 = simple_assembler.Solve();
 
-        DistributedVector dist_sol_1(current_solution_1);
-        DistributedVector dist_sol_2(current_solution_2);
+        DistributedVector dist_sol_1 = p_factory->CreateDistributedVector(current_solution_1);
+        DistributedVector dist_sol_2 = p_factory->CreateDistributedVector(current_solution_2);
 
         // Compare the results
         for (DistributedVector::Iterator index = dist_sol_1.Begin();
@@ -259,8 +259,8 @@ public:
             tCurrent += pde_timestep;
         }
 
-        DistributedVector dist_sol_1(current_solution_1);
-        DistributedVector dist_sol_2(current_solution_2);
+        DistributedVector dist_sol_1 = p_factory->CreateDistributedVector(current_solution_1);
+        DistributedVector dist_sol_2 = p_factory->CreateDistributedVector(current_solution_2);
 
         // Compare the results
         for (DistributedVector::Iterator index = dist_sol_1.Begin();

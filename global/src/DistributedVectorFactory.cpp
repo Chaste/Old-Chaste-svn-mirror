@@ -44,12 +44,7 @@ void DistributedVectorFactory::CalculateOwnership(Vec vec)
     // vector size
     PetscInt size;
     VecGetSize(vec, &size);
-    mProblemSize = (unsigned) size;      
-    
-    //Set DistributedVector static variables?
-    DistributedVector::mLo = mLo;
-    DistributedVector::mHi = mHi;
-    DistributedVector::mGlobalHi = mProblemSize;  
+    mProblemSize = (unsigned) size;
 }
 
 DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
@@ -87,6 +82,10 @@ void DistributedVectorFactory::CheckForPetsc()
     mPetscStatusKnown=true;
 }
 
+bool DistributedVectorFactory::IsGlobalIndexLocal(unsigned globalIndex)
+{
+    return (mLo<=globalIndex && globalIndex<mHi);
+}
 
 Vec DistributedVectorFactory::CreateVec()
 {

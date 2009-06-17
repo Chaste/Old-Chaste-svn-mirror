@@ -334,6 +334,12 @@ Vec AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::GetSolution()
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+DistributedVector AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::GetSolutionDistributedVector()
+{
+    return mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(mSolution);
+}
+
+template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractMesh<ELEM_DIM,SPACE_DIM> & AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::rGetMesh()
 {
     assert (mpMesh);

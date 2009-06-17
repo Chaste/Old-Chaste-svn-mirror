@@ -285,7 +285,8 @@ void AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
 
     if (residual)
     {
-        this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentGuess, residual);
+        this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(
+            currentGuess, residual, *(this->mpMesh->GetDistributedVectorFactory()));
     }
     if (jacobian)
     {

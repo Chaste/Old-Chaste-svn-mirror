@@ -631,7 +631,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     assert(this->mpBoundaryConditions != NULL);
 
     mpMesh->GetDistributedVectorFactory(); // Calls GetDistributedVectorFactory to set static variables in DistributedVector class - ultimately this can be removed (hopefully!)
-    assert(mpMesh->GetNumNodes() == mpMesh->GetDistributedVectorFactory()->GetSize());
+    assert(mpMesh->GetNumNodes() == mpMesh->GetDistributedVectorFactory()->GetProblemSize());
     
     mpMesh->SetElementOwnerships(mpMesh->GetDistributedVectorFactory()->GetLow(),
                                  mpMesh->GetDistributedVectorFactory()->GetHigh());
