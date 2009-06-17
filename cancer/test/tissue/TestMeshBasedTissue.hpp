@@ -547,7 +547,7 @@ public:
 
             // The following line is required because the loading of a tissue
             // is usually called by the method TissueSimulation::Load()
-            MeshArchiveInfo::meshPathname = "mesh/test/data/square_4_elements";
+            ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_4_elements");
 
             input_arch >> p_tissue;
 

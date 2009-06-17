@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimulationTime.hpp"
 #include "WntConcentration.hpp"
 #include "CellwiseData.hpp"
-#include "MeshArchiveInfo.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 /**
  * TissueSimulationArchiver handles the checkpointing (saving and loading)
@@ -85,7 +85,7 @@ private:
      * the 'archive' folder in rArchiveDirectory, with the archive itself called
      * 'tissue_sim_at_time_`rTimeStamp`.arch'.  The path to this file is returned.
      *
-     * The path to the mesh is stored as MeshArchiveInfo::meshPathname for use by the
+     * The path to the mesh is stored as ArchiveLocationInfo::GetMeshPathname() for use by the
      * Tissue de-serialization routines.
      *
      * @param rArchiveDirectory  the name of the simulation to load
@@ -107,9 +107,8 @@ std::string TissueSimulationArchiver<DIM, SIM>::GetArchivePathname(const std::st
     std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
 
     std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/tissue_sim_at_time_"+time_stamp.str() +".arch";
-    std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
-    MeshArchiveInfo::meshPathname = mesh_filename;
-    //MeshArchiver::SetMeshPath(mesh_filename);
+    std::string mesh_filename = "mesh_" + time_stamp.str();
+    ArchiveLocationInfo::SetMeshPathname(test_output_directory + rArchiveDirectory + "/archive/", mesh_filename);
     return archive_filename;
 }
 

@@ -763,7 +763,7 @@ public:
 
             // The following line is required because the loading of a tissue
             // is usually called by the method TissueSimulation::Load()
-            MeshArchiveInfo::meshPathname = "notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh";
+            ArchiveLocationInfo::SetMeshPathname ("notforrelease_cancer/test/data/TestVertexMesh/", "vertex_mesh");
 
             input_arch >> p_tissue;
 

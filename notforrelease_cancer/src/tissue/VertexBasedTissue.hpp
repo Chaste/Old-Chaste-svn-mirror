@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTissue.hpp"
 #include "VertexMesh.hpp"
-#include "MeshArchiveInfo.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 #include <climits> // work around boost bug
 
@@ -378,13 +378,13 @@ inline void load_construct_data(
     Archive & ar, VertexBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    assert(MeshArchiveInfo::meshPathname.length() > 0);
+    assert(ArchiveLocationInfo::GetMeshPathname().length() > 0);
     VertexMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
 
     // Re-initialise the mesh
     p_mesh->Clear();
-    VertexMeshReader<DIM, DIM> mesh_reader(MeshArchiveInfo::meshPathname);
+    VertexMeshReader<DIM, DIM> mesh_reader(ArchiveLocationInfo::GetMeshPathname());
     p_mesh->ConstructFromMeshReader(mesh_reader);
 
     // Remesh

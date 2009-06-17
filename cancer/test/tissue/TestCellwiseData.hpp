@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
-#include "MeshArchiveInfo.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 /**
  * This class contains tests for methods on the class CellwiseData.
@@ -203,7 +203,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
 
             // Restore from the archive
-            MeshArchiveInfo::meshPathname = "mesh/test/data/square_4_elements";
+            ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_4_elements");
             input_arch >> *p_data;
 
             // Check the data

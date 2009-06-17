@@ -25,6 +25,27 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "MeshArchiveInfo.hpp"
 
-std::string MeshArchiveInfo::meshPathname = "";
+
+#ifndef TESTARCHIVELOCATIONINFO_HPP_
+#define TESTARCHIVELOCATIONINFO_HPP_
+
+#include "ArchiveLocationInfo.hpp"
+
+class TestArchiveLocationInfo : public CxxTest::TestSuite
+{
+public:
+    void TestMethods()
+    {
+        ArchiveLocationInfo::SetMeshPathname("archive_dir", "mesh_name");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "archive_dir/mesh_name");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "archive_dir/");
+        
+        ArchiveLocationInfo::SetArchiveDirectory("new_archive_dir");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "new_archive_dir/mesh_name");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "new_archive_dir/");
+    }
+};
+
+
+#endif /*TESTARCHIVELOCATIONINFO_HPP_*/

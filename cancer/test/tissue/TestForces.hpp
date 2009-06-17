@@ -725,7 +725,7 @@ public:
         }
 
         {
-            MeshArchiveInfo::meshPathname = "mesh/test/data/square_2_elements";
+            ArchiveLocationInfo::SetMeshPathname("mesh/test/data","square_2_elements");
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);

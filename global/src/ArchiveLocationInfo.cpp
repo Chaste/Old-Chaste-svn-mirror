@@ -25,21 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef MESHARCHIVEINFO_HPP_
-#define MESHARCHIVEINFO_HPP_
+#include "ArchiveLocationInfo.hpp"
 
-#include <string>
-
-/**
- * Mini-class to help archiving of mesh-based tissues. The mesh pathname is
- * required since we cannot serialize meshes directly.
- */
-class MeshArchiveInfo
-{
-public:
-
-    /** Mesh pathname. */
-    static std::string meshPathname;
-};
-
-#endif /*MESHARCHIVEINFO_HPP_*/
+std::string ArchiveLocationInfo::mDirPath = "";
+std::string ArchiveLocationInfo::mMeshFilename = "";
