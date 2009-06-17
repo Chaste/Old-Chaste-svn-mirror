@@ -170,6 +170,20 @@ public:
         }
     }
     
+    void TestExceptions()
+    {
+        NonCachedTetrahedralMesh<3,3> non_cached_mesh;
+        non_cached_mesh.ConstructCuboid(0.4,0.4,0.4);
+
+        c_matrix<double, 3, 3> jacobian;
+        double det_jacobian;                
+        TS_ASSERT_THROWS_ANYTHING(non_cached_mesh.GetJacobianForElement(0u, jacobian, det_jacobian));
+
+        c_vector<double, 3> direction;
+        double det_direction;                        
+        TS_ASSERT_THROWS_ANYTHING(non_cached_mesh.GetWeightedDirectionForElement(0u, direction, det_direction));                
+    }
+    
 };
 
 #endif /*TESTNONCACHEDTETRAHEDRALMESH_HPP_*/
