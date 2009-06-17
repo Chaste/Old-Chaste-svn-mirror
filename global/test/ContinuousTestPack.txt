@@ -1,3 +1,4 @@
+TestArchiveLocationInfo.hpp
 TestArchiving.hpp
 TestCancerEventHandler.hpp
 TestCwd.hpp
