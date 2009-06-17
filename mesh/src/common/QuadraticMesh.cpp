@@ -278,10 +278,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     return_value = system(command.c_str());
 
     // load
-    LoadFromFile( fileStem + ".1", true);
-
-    // using tetgen/triangle so need to add nodes to boundary elements 
-    AddNodesToBoundaryElements();
+    LoadFromFile( fileStem + ".1", false); // false as tetgen/triangle has been used and therefore boundary elems will be linear
 
     // delete the temporary files
     command = "rm -f " + outputDir + "/" + fileStem + ".node";
