@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include <iostream>
+#include <sstream>
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -504,12 +505,13 @@ public:
     void TestArchivingSolvers() throw(Exception)
     {
         OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "ode_solver.arch";
+        std::stringstream archive_filename;
+        archive_filename << handler.GetOutputDirectoryFullPath() << "ode_solver.arch";
+        archive_filename << "." << PetscTools::GetMyRank();
 
-        // Create and archive simulation time
+        // Archive
         {
-            std::ofstream ofs(archive_filename.c_str());
+            std::ofstream ofs(archive_filename.str().c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
             // Set up a solver
@@ -530,7 +532,7 @@ public:
 
         // Restore
         {
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            std::ifstream ifs(archive_filename.str().c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);            
             
             // Create a pointer
