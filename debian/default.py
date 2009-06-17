@@ -36,7 +36,7 @@ intel_path = None
 icpc = 'icpc'
 
 other_includepaths = ['/usr/include/metis/']
-other_libpaths = []
+other_libpaths = ['/usr/lib/atlas']
 libs_for_petsc = ['petsccontrib', 'X11',
                   'HYPRE', 'spooles', 'superlu',
                   'umfpack', 'amd', # Both for Umfpack
