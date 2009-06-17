@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
+#include "DistributedVectorFactory.hpp"
 
 #include <iostream>
 #include "ReplicatableVector.hpp"
@@ -300,10 +301,10 @@ public:
     {
         // First try giving it just a vector
         unsigned size = 5u;
-        DistributedVector::SetProblemSize(size);
-        Vec test_vec = DistributedVector::CreateVec();
+        DistributedVectorFactory factory(size);
+        Vec test_vec = factory.CreateVec();
 
-        DistributedVector dist_vec(test_vec);
+        DistributedVector dist_vec = factory.CreateDistributedVector(test_vec);
         double test_val = -1.0;
         if (dist_vec.Begin() != dist_vec.End())
         {

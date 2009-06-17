@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ParallelColumnDataWriter.hpp"
 #include "DistributedVector.hpp"
+#include "DistributedVectorFactory.hpp"
 #include <petsc.h>
 #include "PetscSetupAndFinalize.hpp"
 
@@ -45,9 +46,10 @@ public:
         const unsigned REPETITIONS = 10;
 
         // Create a distibuted vector
-        DistributedVector::SetProblemSize(SIZE);
-        Vec petsc_vec = DistributedVector::CreateVec();
-        DistributedVector distributed_vector(petsc_vec);
+        DistributedVectorFactory factory(SIZE);
+        
+        Vec petsc_vec = factory.CreateVec();
+        DistributedVector distributed_vector = factory.CreateDistributedVector(petsc_vec);
         for (DistributedVector::Iterator index = distributed_vector.Begin();
              index!= distributed_vector.End();
              ++index)

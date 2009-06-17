@@ -111,29 +111,9 @@ public:
         TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
         TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
         
-        //Testing the method to create distributed vectors from the factory
-        
-        DistributedVector dist_vec = factory.CreateDistributedVector(petsc_vec);
-        TS_ASSERT(dist_vec.mpFactory == &factory);
-        
-        DistributedVector::SetProblemSize(total);//this is not really needed because the CreateDistributedVector (a line above) does that 
-        Vec petsc_vec_no_factory=DistributedVector::CreateVec();
-        DistributedVector dist_vec_no_factory(petsc_vec_no_factory);
-        
-        // write some values and check
-        for (DistributedVector::Iterator index = dist_vec.Begin();
-             index!= dist_vec.End();
-             ++index)
-        {
-            dist_vec_no_factory[index] =  -(double)(index.Local*index.Global);
-            dist_vec[index] =  -(double)(index.Local*index.Global);
-            TS_ASSERT_EQUALS(dist_vec_no_factory[index], dist_vec[index]);   
-        } 
-        
         VecDestroy(petsc_vec);
         VecDestroy(petsc_vec2);
         VecDestroy(petsc_vec_uneven);  
-        VecDestroy(petsc_vec_no_factory);                                                               
     }
 
     void TestRead()
@@ -173,9 +153,9 @@ public:
         VecAssemblyEnd(striped);
 
         // READ VECTOR
-        DistributedVector::SetProblemSize(vec);
-        DistributedVector distributed_vector(vec);
-        DistributedVector distributed_vector2(striped);
+        DistributedVectorFactory factory(vec);
+        DistributedVector distributed_vector = factory.CreateDistributedVector(vec);
+        DistributedVector distributed_vector2 = factory.CreateDistributedVector(striped);
         DistributedVector::Stripe linear(distributed_vector2,0);
         DistributedVector::Stripe quadratic(distributed_vector2,1);
         // check the range
@@ -226,10 +206,10 @@ public:
     {
         //WRITE VECTOR
         // create a 10 element petsc vector
-        DistributedVector::SetProblemSize(10);
-        Vec striped=DistributedVector::CreateVec(2);
-        Vec chunked=DistributedVector::CreateVec(2);
-        Vec petsc_vec=DistributedVector::CreateVec();
+        DistributedVectorFactory factory(10);
+        Vec striped=factory.CreateVec(2);
+        Vec chunked=factory.CreateVec(2);
+        Vec petsc_vec=factory.CreateVec();
 
         DistributedVector distributed_vector(petsc_vec);
         DistributedVector distributed_vector_striped(striped);
@@ -318,9 +298,8 @@ public:
         //Calculate total number of elements in the vector
         unsigned total_elements = (num_procs+1)*num_procs/2;
 
-        DistributedVector::SetProblemSizePerProcessor(total_elements, my_rank+1);
-
-        Vec petsc_vec = DistributedVector::CreateVec(1);
+        DistributedVectorFactory factory(total_elements, my_rank+1);
+        Vec petsc_vec = factory.CreateVec(1);
 
         PetscInt petsc_lo, petsc_hi;
         VecGetOwnershipRange(petsc_vec,&petsc_lo,&petsc_hi);

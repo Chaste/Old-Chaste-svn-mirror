@@ -218,8 +218,9 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
             {
                 // No null space set up, so create one and pass it to the linear system
                 Vec nullbasis[1];
-                nullbasis[0]=DistributedVector::CreateVec(2);
-                DistributedVector dist_null_basis(nullbasis[0]);
+                DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
+                nullbasis[0]=p_factory->CreateVec(2);
+                DistributedVector dist_null_basis = p_factory->CreateDistributedVector(nullbasis[0]);
                 DistributedVector::Stripe null_basis_stripe_0(dist_null_basis,0);
                 DistributedVector::Stripe null_basis_stripe_1(dist_null_basis,1);
                 for (DistributedVector::Iterator index = dist_null_basis.Begin();

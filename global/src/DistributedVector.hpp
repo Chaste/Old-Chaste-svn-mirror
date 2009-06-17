@@ -48,6 +48,7 @@ class DistributedVector
 {
 private:
     friend class TestDistributedVector;
+    friend class DistributedVectorFactory; //Temporary measure whilst we remove the static member variables
     // Data global to all vectors.
     
     /** The first entry owned by the current processor. */
@@ -87,21 +88,21 @@ public:
      * @param size
      * @param local
      */
-    static void SetProblemSizePerProcessor(unsigned size, PetscInt local);
+    //static void SetProblemSizePerProcessor(unsigned size, PetscInt local);
 
     /**
      * Set the problem size.
      *
      * @param size
      */
-    static void SetProblemSize(unsigned size);
+    //static void SetProblemSize(unsigned size);
 
     /**
      * Set the problem with an existing PETSc vector -- must have stride=1.
      *
      * @param vec
      */
-    static void SetProblemSize(Vec vec);
+    //static void SetProblemSize(Vec vec);
 
     /**
      * Get the global problem size.
@@ -125,7 +126,7 @@ public:
      *
      * @param stride
      */
-    static Vec CreateVec(unsigned stride);
+    //static Vec CreateVec(unsigned stride);
 
     /**
      * Constructor.

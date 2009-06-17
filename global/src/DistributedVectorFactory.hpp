@@ -57,8 +57,8 @@ private:
     unsigned mLo;
     /** One above the last entry owned by the current processor. */
     unsigned mHi;
-    /** The problem size, i.e. the length of the vector of unknowns. */
-    unsigned mGlobalHi;
+    /** The problem size, i.e. the number of nodes in the mesh (the number of unknowns may be larger in a Stripe). */
+    unsigned mProblemSize;
     /** Whether we've checked that PETSc is initialised. */
     bool mPetscStatusKnown;
     
@@ -114,6 +114,13 @@ public:
      */    
     Vec CreateVec();
     
+    /**
+     * Create a striped PETSc vector of size: stride * problem size
+     *
+     * @param stride
+     */
+    Vec CreateVec(unsigned stride);
+    
     
     /**
      * Create a distributed vector which wraps a given petsc vector
@@ -121,8 +128,15 @@ public:
      * @param vec is the vector
      * @return the distributed vector 
      */
-    
     DistributedVector CreateDistributedVector(Vec vec);
+    
+    /**
+     * Create a distributed vector stripe which wraps a given petsc vector
+     * 
+     * @param vec is the vector
+     * @return the distributed vector 
+     */
+//    DistributedVector::Stripe CreateStripe(Vec vec, unsigned stripe);
     
     /**
      * @return The number of elements in the vector owned by the local process
@@ -153,7 +167,7 @@ public:
      */
     unsigned GetSize() const
     {
-        return mGlobalHi;
+        return mProblemSize;
     }
     
 };

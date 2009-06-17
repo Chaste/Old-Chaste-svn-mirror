@@ -143,11 +143,11 @@ public:
 
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
-        DistributedVector::SetProblemSize(mesh.GetNumNodes());
-        initial_condition_1 = DistributedVector::CreateVec();
+        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
+        initial_condition_1 = p_factory->CreateVec();
         VecDuplicate(initial_condition_1, &initial_condition_2);
 
-        DistributedVector dist_ic(initial_condition_1);
+        DistributedVector dist_ic = p_factory->CreateDistributedVector(initial_condition_1);
         for (DistributedVector::Iterator index = dist_ic.Begin();
              index != dist_ic.End();
              ++index)
@@ -220,11 +220,11 @@ public:
 
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
-        DistributedVector::SetProblemSize(mesh.GetNumNodes());
-        initial_condition_1 = DistributedVector::CreateVec();
+        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
+        initial_condition_1 = p_factory->CreateVec();
         VecDuplicate(initial_condition_1, &initial_condition_2);
 
-        DistributedVector dist_ic(initial_condition_1);
+        DistributedVector dist_ic = p_factory->CreateDistributedVector(initial_condition_1);
         for (DistributedVector::Iterator index = dist_ic.Begin();
              index != dist_ic.End();
              ++index)

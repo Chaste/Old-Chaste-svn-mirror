@@ -254,10 +254,9 @@ private:
 
     void WriteMultiStepData()
     {
-        DistributedVector::SetProblemSize(number_nodes);
-        DistributedVectorFactory vec_factor(number_nodes);                
+        DistributedVectorFactory factory(number_nodes);
 
-        Hdf5DataWriter writer(vec_factor, "hdf5_reader", "hdf5_test_complete_format", false);
+        Hdf5DataWriter writer(factory, "hdf5_reader", "hdf5_test_complete_format", false);
         writer.DefineFixedDimension(number_nodes);
 
         int node_id = writer.DefineVariable("Node", "dimensionless");
@@ -267,14 +266,14 @@ private:
 
         writer.EndDefineMode();
 
-        Vec petsc_data_1=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_1(petsc_data_1);
+        Vec petsc_data_1=factory.CreateVec();
+        DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
 
-        Vec petsc_data_2=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_2(petsc_data_2);
+        Vec petsc_data_2=factory.CreateVec();
+        DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
 
-        Vec petsc_data_3=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_3(petsc_data_3);
+        Vec petsc_data_3=factory.CreateVec();
+        DistributedVector distributed_vector_3 = factory.CreateDistributedVector(petsc_data_3);
 
         for (unsigned time_step=0; time_step<10; time_step++)
         {
@@ -345,16 +344,16 @@ public:
         }
 
         unsigned number_nodes=100;
-        DistributedVector::SetProblemSize(number_nodes);
+        DistributedVectorFactory factory(number_nodes);
 
-        Vec petsc_data_1=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_1(petsc_data_1);
+        Vec petsc_data_1=factory.CreateVec();
+        DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
 
-        Vec petsc_data_2=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_2(petsc_data_2);
+        Vec petsc_data_2=factory.CreateVec();
+        DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
 
-        Vec petsc_data_3=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_3(petsc_data_3);
+        Vec petsc_data_3=factory.CreateVec();
+        DistributedVector distributed_vector_3 = factory.CreateDistributedVector(petsc_data_3);
 
         TS_ASSERT_EQUALS(reader.GetNumberOfRows(), number_nodes);
         for (unsigned time_step=0; time_step<10; time_step++)
@@ -393,9 +392,9 @@ public:
 
     void TestNonMultiStepExceptions ()
     {
-        DistributedVectorFactory vec_factor(number_nodes);                        
+        DistributedVectorFactory factory(number_nodes); //Currently sets static variables on DistributedVector
 
-        Hdf5DataWriter writer(vec_factor, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
+        Hdf5DataWriter writer(factory, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
         writer.DefineFixedDimension(number_nodes);
 
         writer.DefineVariable("Node", "dimensionless");
@@ -423,9 +422,10 @@ public:
 
     void TestMultiStepExceptions () throw (Exception)
     {
-        DistributedVectorFactory vec_factor(number_nodes);                
-        
-        Hdf5DataWriter writer(vec_factor, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
+        DistributedVectorFactory factory(number_nodes); //Currently sets static variables on DistributedVector
+
+        Hdf5DataWriter writer(factory, "hdf5_reader", "hdf5_test_overtime_exceptions", false);
+        DistributedVectorFactory vec_factor(number_nodes);
         writer.DefineFixedDimension(number_nodes);
 
         writer.DefineVariable("Node", "dimensionless");
@@ -450,7 +450,8 @@ public:
         reader.GetVariableOverNodes(data, "Node", 0/*timestep*/);
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName")); //Wrong name
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/)); //Time step doesn't exist
-        DistributedVector::SetProblemSize(number_nodes+1);
+        
+        DistributedVectorFactory factory2(number_nodes+1); //Currently sets static variables on DistributedVector
         Vec data_too_big=DistributedVector::CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 0/*timestep*/)); //Data too big
 

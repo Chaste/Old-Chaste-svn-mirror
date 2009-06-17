@@ -51,12 +51,8 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
     assert(pCellFactory!=NULL);
     assert(pCellFactory->GetMesh()!=NULL);
 
-
     unsigned num_local_nodes = mpDistributedVectorFactory->GetLocalOwnership();
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow(); 
-
-    DistributedVector::SetProblemSizePerProcessor(pCellFactory->GetMesh()->GetNumNodes(), num_local_nodes);
-
     mCellsDistributed.resize(num_local_nodes);
     
     for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)

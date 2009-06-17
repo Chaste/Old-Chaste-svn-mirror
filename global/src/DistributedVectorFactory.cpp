@@ -44,7 +44,12 @@ void DistributedVectorFactory::CalculateOwnership(Vec vec)
     // vector size
     PetscInt size;
     VecGetSize(vec, &size);
-    mGlobalHi = (unsigned) size;        
+    mProblemSize = (unsigned) size;      
+    
+    //Set DistributedVector static variables?
+    DistributedVector::mLo = mLo;
+    DistributedVector::mHi = mHi;
+    DistributedVector::mGlobalHi = mProblemSize;  
 }
 
 DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
@@ -87,8 +92,15 @@ Vec DistributedVectorFactory::CreateVec()
 {
     Vec vec;
     VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, mHi-mLo, mGlobalHi);
+    VecSetSizes(vec, mHi-mLo, mProblemSize);
     VecSetFromOptions(vec);
+    return vec;
+}
+
+Vec DistributedVectorFactory::CreateVec(unsigned stride)
+{
+    Vec vec;
+    VecCreateMPI(PETSC_COMM_WORLD, stride*(mHi-mLo), stride*mProblemSize, &vec);
     return vec;
 }
 
@@ -96,7 +108,15 @@ DistributedVector DistributedVectorFactory::CreateDistributedVector(Vec vec)
 {
     //Currently the distributed vector class contains static variabled which we need to set here
     ///\todo Make the variables and methods in the DistributedVector class non static
-    DistributedVector::SetProblemSize(vec);
+    //DistributedVector::SetProblemSize(vec);
     DistributedVector dist_vector(vec, this); 
     return dist_vector;
 }
+
+//{
+//    //Currently the distributed vector class contains static variabled which we need to set here
+//    ///\todo Make the variables and methods in the DistributedVector class non static
+////    DistributedVector::SetProblemSize(vec);
+//    DistributedVector::Stripe dist_vector(vec, this); 
+//    return dist_vector;
+//}

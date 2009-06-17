@@ -106,9 +106,9 @@ public:
         // = 4/3
         ExampleFunctionalOne calculator;
 
-        DistributedVector::SetProblemSize(mesh.GetNumNodes());
-        Vec petsc_vec = DistributedVector::CreateVec(2);
-        DistributedVector vec1(petsc_vec);
+        DistributedVectorFactory factory(mesh.GetNumNodes());
+        Vec petsc_vec = factory.CreateVec(2);
+        DistributedVector vec1 = factory.CreateDistributedVector(petsc_vec);
         DistributedVector::Stripe u1(vec1, 0);
         DistributedVector::Stripe v1(vec1, 1);
         for (DistributedVector::Iterator index = vec1.Begin();

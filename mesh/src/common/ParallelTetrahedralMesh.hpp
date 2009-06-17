@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BoundaryElement.hpp"
 #include "Node.hpp"
 #include "DistributedVector.hpp"
+#include "DistributedVectorFactory.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 
@@ -553,7 +554,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
         
         this->mpDistributedVectorFactory=new DistributedVectorFactory(this->GetNumNodes(), num_owned);
-        DistributedVector::SetProblemSizePerProcessor(this->GetNumNodes(), num_owned);//\todo remove
     }
     else 
     {
@@ -687,10 +687,9 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
 {
-    DistributedVector::SetProblemSize(mTotalNumNodes); /// \todo: to be removed
+    DistributedVectorFactory factory(mTotalNumNodes); /// \todo: to be removed
     
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
-        
     for (unsigned node_index = this->mpDistributedVectorFactory->GetLow();
          node_index < this->mpDistributedVectorFactory->GetHigh();
          node_index++)         

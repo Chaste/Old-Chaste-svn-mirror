@@ -258,8 +258,8 @@ public:
 
         Vec solution = some_system.Solve();
 
-        DistributedVector::SetProblemSize(solution);
-        DistributedVector d_solution( solution );
+        DistributedVectorFactory factory(solution);
+        DistributedVector d_solution = factory.CreateDistributedVector( solution );
         for (DistributedVector::Iterator index = d_solution.Begin();
              index != d_solution.End();
              ++index)
@@ -278,13 +278,13 @@ public:
     void TestApplyToNonlinearSystem()
     {
         const int SIZE = 10;
-        DistributedVector::SetProblemSize(10);
+        DistributedVectorFactory factory(SIZE);
 
-        Vec solution = DistributedVector::CreateVec();
-        DistributedVector d_solution(solution);
+        Vec solution = factory.CreateVec();
+        DistributedVector d_solution = factory.CreateDistributedVector(solution);
 
-        Vec residual = DistributedVector::CreateVec();
-        DistributedVector d_residual(residual);
+        Vec residual = factory.CreateVec();
+        DistributedVector d_residual = factory.CreateDistributedVector(residual);
 
 
         for (DistributedVector::Iterator index = d_solution.Begin();
@@ -466,8 +466,8 @@ public:
     {
         const int SIZE = 10;
 
-        DistributedVector::SetProblemSize(SIZE);
-        Vec template_vec = DistributedVector::CreateVec(2);
+        DistributedVectorFactory factory(SIZE);
+        Vec template_vec = factory.CreateVec(2);
         LinearSystem some_system(template_vec);
         VecDestroy(template_vec);
 
@@ -518,8 +518,7 @@ public:
 
 
         Vec solution = some_system.Solve();
-        DistributedVector::SetProblemSize(SIZE);
-        DistributedVector d_solution(solution);
+        DistributedVector d_solution = factory.CreateDistributedVector(solution);
         DistributedVector::Stripe solution0(d_solution,0);
         DistributedVector::Stripe solution1(d_solution,1);
 
@@ -548,8 +547,8 @@ public:
     {
         const int SIZE = 10;
 
-        DistributedVector::SetProblemSize(SIZE);
-        Vec template_vec = DistributedVector::CreateVec(3);
+        DistributedVectorFactory factory(SIZE);
+        Vec template_vec = factory.CreateVec(3);
         LinearSystem some_system(template_vec);
         VecDestroy(template_vec);
 
@@ -594,8 +593,7 @@ public:
 
         Vec solution = some_system.Solve();
 
-        DistributedVector::SetProblemSize(SIZE);
-        DistributedVector d_solution(solution);
+        DistributedVector d_solution = factory.CreateDistributedVector(solution);
         DistributedVector::Stripe solution0(d_solution,0);
         DistributedVector::Stripe solution1(d_solution,1);
         DistributedVector::Stripe solution2(d_solution,2);
@@ -623,10 +621,10 @@ public:
     void TestApplyToNonlinearSystem3Unknowns()
     {
         const int SIZE = 10;
-        DistributedVector::SetProblemSize(SIZE);
+        DistributedVectorFactory factory(SIZE);
 
-        Vec solution = DistributedVector::CreateVec(3);
-        Vec residual = DistributedVector::CreateVec(3);
+        Vec solution = factory.CreateVec(3);
+        Vec residual = factory.CreateVec(3);
 
         double *p_solution;
         VecGetArray(solution, &p_solution);

@@ -271,8 +271,9 @@ Vec AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialConditi
     //{
     //    DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
     //}
-    Vec initial_condition = DistributedVector::CreateVec(PROBLEM_DIM);
-    DistributedVector ic(initial_condition);
+    DistributedVectorFactory* p_factory = mpMesh->GetDistributedVectorFactory(); 
+    Vec initial_condition = p_factory->CreateVec(PROBLEM_DIM);
+    DistributedVector ic = p_factory->CreateDistributedVector(initial_condition);
     std::vector<DistributedVector::Stripe> stripe;
     stripe.reserve(PROBLEM_DIM);
 

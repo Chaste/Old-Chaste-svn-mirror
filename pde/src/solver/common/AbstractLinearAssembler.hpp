@@ -166,8 +166,7 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
             // Static problem, create linear system
             // The following ensures all the unknowns for a particular node
             // are on the same processor
-            DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
-            Vec template_vec = DistributedVector::CreateVec(PROBLEM_DIM);
+            Vec template_vec = this->mpMesh->GetDistributedVectorFactory()->CreateVec(PROBLEM_DIM);
 
             this->mpLinearSystem = new LinearSystem(template_vec);
 

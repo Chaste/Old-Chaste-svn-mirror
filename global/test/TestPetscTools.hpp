@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <petscvec.h>
 #include <petscmat.h>
+#include "DistributedVectorFactory.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "OutputFileHandler.hpp"
@@ -114,7 +115,12 @@ public:
 
     void TestReplicateError()
     {
-        DistributedVector::SetProblemSize(1);
+        //
+        // A factory is created here to set static members on DistributedVector. 
+        // As part of #988 these members are being moved to non-static members on 
+        // DistributedVectorFactory. This should be refactored once this is complete.
+        //
+        DistributedVectorFactory factory(1);
         if (DistributedVector::IsGlobalIndexLocal(0))
         {
             TS_ASSERT_THROWS_NOTHING(PetscTools::ReplicateException(true));

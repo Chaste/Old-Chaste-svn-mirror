@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ColumnDataReader.hpp"
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
+#include "DistributedVectorFactory.hpp"
 #include <petsc.h>
 #include "PetscSetupAndFinalize.hpp"
 
@@ -172,10 +173,10 @@ public:
         // Create a vector slice
 
         const unsigned problem_size = 10;
-        DistributedVector::SetProblemSize(problem_size);
-        Vec striped = DistributedVector::CreateVec(2);
+        DistributedVectorFactory factory(problem_size);
+        Vec striped = factory.CreateVec(2);
 
-        DistributedVector distributed_vector(striped);
+        DistributedVector distributed_vector = factory.CreateDistributedVector(striped);
         DistributedVector::Stripe zeros(distributed_vector, 0);
         DistributedVector::Stripe ones(distributed_vector, 1);
 

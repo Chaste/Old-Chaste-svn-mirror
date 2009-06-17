@@ -113,9 +113,10 @@ private:
 
         if (is_complete1)
         {
-            DistributedVector::SetProblemSize(number_nodes1);
-            Vec data1 = DistributedVector::CreateVec();
-            Vec data2 = DistributedVector::CreateVec();
+            DistributedVectorFactory factory(number_nodes1);
+            
+            Vec data1 = factory.CreateVec();
+            Vec data2 = factory.CreateVec();
 
             for (unsigned timestep=0; timestep<times1.size(); timestep++)
             {
@@ -392,10 +393,10 @@ public:
     void TestHdf5DataWriterMultipleColumns() throw(Exception)
     {
         int number_nodes = 100;
-        DistributedVector::SetProblemSize(number_nodes); 
-        DistributedVectorFactory vec_factor(number_nodes);
 
-        Hdf5DataWriter writer(vec_factor, "hdf5", "hdf5_test_multi_column", false);
+        DistributedVectorFactory factory(number_nodes);
+
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_multi_column", false);
         writer.DefineFixedDimension(number_nodes);
 
         int node_id = writer.DefineVariable("Node","dimensionless");
@@ -404,11 +405,11 @@ public:
 
         writer.EndDefineMode();
 
-        Vec petsc_data_1 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_1(petsc_data_1);
+        Vec petsc_data_1 = factory.CreateVec();
+        DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
 
-        Vec petsc_data_2 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_2(petsc_data_2);
+        Vec petsc_data_2 = factory.CreateVec();
+        DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
 
         // Write some values
         for (DistributedVector::Iterator index = distributed_vector_1.Begin();
@@ -464,9 +465,9 @@ public:
             local_number_of_nodes = 1;
         }
         
-        DistributedVectorFactory vec_factory(number_nodes, local_number_of_nodes);        
+        DistributedVectorFactory factory(number_nodes, local_number_of_nodes);        
 
-        Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_non_even_row_dist", false);
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_non_even_row_dist", false);
         writer.DefineFixedDimension(number_nodes);
 
         int node_id = writer.DefineVariable("Node","dimensionless");
@@ -475,11 +476,11 @@ public:
 
         writer.EndDefineMode();
 
-        Vec petsc_data_1=vec_factory.CreateVec();
-        DistributedVector distributed_vector_1 = vec_factory.CreateDistributedVector(petsc_data_1);
+        Vec petsc_data_1=factory.CreateVec();
+        DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
 
-        Vec petsc_data_2=vec_factory.CreateVec();
-        DistributedVector distributed_vector_2 = vec_factory.CreateDistributedVector(petsc_data_2);
+        Vec petsc_data_2=factory.CreateVec();
+        DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
 
         // Write some values
         for (DistributedVector::Iterator index = distributed_vector_1.Begin();
@@ -524,9 +525,10 @@ public:
     void TestHdf5DataWriterFullFormatIncomplete() throw(Exception)
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);        
+        
+        DistributedVectorFactory factory(number_nodes);
 
-        Hdf5DataWriter writer(vec_factor, "hdf5", "hdf5_test_full_format_incomplete", false);
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format_incomplete", false);
 
         int node_id = writer.DefineVariable("Node","dimensionless");
         int ik_id = writer.DefineVariable("I_K","milliamperes");
@@ -541,14 +543,14 @@ public:
 
         writer.EndDefineMode();
 
-        Vec petsc_data_1 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_1(petsc_data_1);
+        Vec petsc_data_1 = factory.CreateVec();
+        DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
 
-        Vec petsc_data_2 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_2(petsc_data_2);
+        Vec petsc_data_2 = factory.CreateVec();
+        DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
 
-        Vec petsc_data_3 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_3(petsc_data_3);
+        Vec petsc_data_3 = factory.CreateVec();
+        DistributedVector distributed_vector_3 = factory.CreateDistributedVector(petsc_data_3);
 
         for (unsigned time_step=0; time_step<10; time_step++)
         {
@@ -601,9 +603,10 @@ public:
     void TestHdf5DataWriterFullFormat() throw(Exception)
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factor(number_nodes);
 
-        Hdf5DataWriter writer(vec_factor, "hdf5", "hdf5_test_full_format", false);
+        DistributedVectorFactory factory(number_nodes);
+
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format", false);
         writer.DefineFixedDimension(number_nodes);
 
         int node_id = writer.DefineVariable("Node", "dimensionless");
@@ -613,14 +616,14 @@ public:
 
         writer.EndDefineMode();
 
-        Vec petsc_data_1 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_1(petsc_data_1);
+        Vec petsc_data_1 = factory.CreateVec();
+        DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
 
-        Vec petsc_data_2 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_2(petsc_data_2);
+        Vec petsc_data_2 = factory.CreateVec();
+        DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
 
-        Vec petsc_data_3 = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_3(petsc_data_3);
+        Vec petsc_data_3 = factory.CreateVec();
+        DistributedVector distributed_vector_3 = factory.CreateDistributedVector(petsc_data_3);
 
         for (unsigned time_step=0; time_step<10; time_step++)
         {
@@ -685,7 +688,7 @@ public:
 
         writer.EndDefineMode();
 
-        DistributedVector::SetProblemSize(number_nodes);
+        DistributedVectorFactory factory(number_nodes);
 
         Vec petsc_data_short = DistributedVector::CreateVec();
         DistributedVector distributed_vector_short(petsc_data_short);
@@ -703,9 +706,8 @@ public:
         distributed_node_number.Restore();
         distributed_vector_short.Restore();
 
-        DistributedVector::SetProblemSize(number_nodes);
-        Vec petsc_data_long = DistributedVector::CreateVec(2);
-        DistributedVector distributed_vector_long(petsc_data_long);
+        Vec petsc_data_long = factory.CreateVec(2);
+        DistributedVector distributed_vector_long = factory.CreateDistributedVector(petsc_data_long);
         DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
         DistributedVector::Stripe phi_e_stripe(distributed_vector_long,1 );
 
@@ -772,9 +774,9 @@ public:
 
         writer.EndDefineMode();
 
-        DistributedVector::SetProblemSize(number_nodes);
-        Vec petsc_data_long = DistributedVector::CreateVec(2);
-        DistributedVector distributed_vector_long(petsc_data_long);
+        DistributedVectorFactory factory(number_nodes);
+        Vec petsc_data_long = factory.CreateVec(2);
+        DistributedVector distributed_vector_long = factory.CreateDistributedVector(petsc_data_long);
         DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
         DistributedVector::Stripe phi_e_stripe(distributed_vector_long,1 );
 
@@ -831,9 +833,9 @@ public:
 
         writer.EndDefineMode();
 
-        DistributedVector::SetProblemSize(number_nodes);
-        Vec petsc_data_short = DistributedVector::CreateVec();
-        DistributedVector distributed_vector_short(petsc_data_short);
+        DistributedVectorFactory factory(number_nodes);
+        Vec petsc_data_short = factory.CreateVec();
+        DistributedVector distributed_vector_short = factory.CreateDistributedVector(petsc_data_short);
 
         for (DistributedVector::Iterator index = distributed_vector_short.Begin();
              index!= distributed_vector_short.End();
@@ -843,9 +845,9 @@ public:
         }
         distributed_vector_short.Restore();
 
-        DistributedVector::SetProblemSize(2*number_nodes);
-        Vec petsc_data_long=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_long(petsc_data_long);
+        DistributedVectorFactory factory2(2*number_nodes);
+        Vec petsc_data_long=factory2.CreateVec();
+        DistributedVector distributed_vector_long = factory.CreateDistributedVector(petsc_data_long);
 
         for (DistributedVector::Iterator index = distributed_vector_long.Begin();
              index!= distributed_vector_long.End();
@@ -958,8 +960,8 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
 
         // Test that we can't write incomplete data from a vector that doesn't have the right entries (0 to 59)
-        DistributedVector::SetProblemSize(60);
-        Vec petsc_data_short=DistributedVector::CreateVec();
+        DistributedVectorFactory factory(60);
+        Vec petsc_data_short=factory.CreateVec();
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVector(0, petsc_data_short));
         VecDestroy(petsc_data_short);
 
@@ -1030,7 +1032,7 @@ public:
         int phi_e_id = 3;
         int ina_id = 4;
 
-        DistributedVector::SetProblemSize(number_nodes);
+        DistributedVectorFactory factory(number_nodes);
 
         Vec petsc_data_short = DistributedVector::CreateVec();
         DistributedVector distributed_vector_short(petsc_data_short);
@@ -1048,9 +1050,9 @@ public:
         distributed_node_number.Restore();
         distributed_vector_short.Restore();
 
-        DistributedVector::SetProblemSize(2*number_nodes);
-        Vec petsc_data_long=DistributedVector::CreateVec();
-        DistributedVector distributed_vector_long(petsc_data_long);
+        DistributedVectorFactory factory2(2*number_nodes);
+        Vec petsc_data_long=factory2.CreateVec();
+        DistributedVector distributed_vector_long = factory2.CreateDistributedVector(petsc_data_long);
 
         for (DistributedVector::Iterator index = distributed_vector_long.Begin();
              index!= distributed_vector_long.End();

@@ -107,7 +107,7 @@ BidomainWithBathRhsMatrixAssembler<DIM>::BidomainWithBathRhsMatrixAssembler(Abst
     this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
 
     //DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes()); WOULD BE WRONG -- we need the maintain an uneven distribution, if given
-    Vec template_vec = DistributedVector::CreateVec(2);
+    Vec template_vec = this->mpMesh->GetDistributedVectorFactory()->CreateVec(2);
     this->mpLinearSystem = new LinearSystem(template_vec);
     VecDestroy(template_vec);
 

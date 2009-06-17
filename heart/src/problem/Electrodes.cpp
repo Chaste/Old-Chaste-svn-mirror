@@ -37,8 +37,8 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
                        double magnitude,
                        double duration)
 {
-    DistributedVector::SetProblemSizePerProcessor(rMesh.GetDistributedVectorFactory()->GetSize(), 
-                                                  rMesh.GetDistributedVectorFactory()->GetLocalOwnership());
+    DistributedVectorFactory factory(rMesh.GetDistributedVectorFactory()->GetSize(), 
+                                     rMesh.GetDistributedVectorFactory()->GetLocalOwnership());
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);

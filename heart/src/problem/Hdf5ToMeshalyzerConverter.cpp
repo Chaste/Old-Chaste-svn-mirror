@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
+#include "DistributedVectorFactory.hpp"
 
 void Hdf5ToMeshalyzerConverter::Write(std::string type)
 {
@@ -56,8 +57,8 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
 
     if (DistributedVector::GetProblemSize() == 0)
     {
-        // Problem size was not set before.
-        DistributedVector::SetProblemSize(num_nodes);
+        // Problem size was not set before. This sets static variables in DistributedVector. Ideally, a factory should be passed to the method or to the class and used instead.
+        DistributedVectorFactory factory(num_nodes);
     }
 
 

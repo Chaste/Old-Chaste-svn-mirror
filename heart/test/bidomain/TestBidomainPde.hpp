@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
+#include "DistributedVectorFactory.hpp"
 #include "OrthotropicConductivityTensors.hpp"
 #include "TetrahedralMesh.hpp"
 #include <petsc.h>
@@ -107,10 +108,11 @@ public:
         double initial_voltage = -83.853;
 
         // initial condition;
-        Vec monodomain_vec = DistributedVector::CreateVec();
-        DistributedVector monodomain_voltage(monodomain_vec);
-        Vec bidomain_vec = DistributedVector::CreateVec(2);
-        DistributedVector bidomain_ic(bidomain_vec);
+        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
+        Vec monodomain_vec = p_factory->CreateVec();
+        DistributedVector monodomain_voltage = p_factory->CreateDistributedVector(monodomain_vec);
+        Vec bidomain_vec = p_factory->CreateVec(2);
+        DistributedVector bidomain_ic = p_factory->CreateDistributedVector(bidomain_vec);
         DistributedVector::Stripe bidomain_voltage(bidomain_ic,0);
 
         for (DistributedVector::Iterator index=monodomain_voltage.Begin();

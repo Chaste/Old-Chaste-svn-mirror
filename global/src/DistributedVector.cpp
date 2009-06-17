@@ -48,45 +48,45 @@ void DistributedVector::CheckForPetsc()
     mPetscStatusKnown=true;
 }
 
-void DistributedVector::SetProblemSizePerProcessor(unsigned size, PetscInt local)
-{
-#ifndef NDEBUG
-    if (!mPetscStatusKnown)
-    {
-        CheckForPetsc();
-    }
-#endif
-    Vec vec;
-    VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, local, size);
-    VecSetFromOptions(vec);
-    SetProblemSize(vec);
-    VecDestroy(vec);
-}
-
-void DistributedVector::SetProblemSize(unsigned size)
-{
-    SetProblemSizePerProcessor(size, PETSC_DECIDE);
-}
-
-void DistributedVector::SetProblemSize(Vec vec)
-{
-#ifndef NDEBUG
-    if (!mPetscStatusKnown)
-    {
-        CheckForPetsc();
-    }
-#endif
-    // calculate my range
-    PetscInt petsc_lo, petsc_hi;
-    VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
-    mLo = (unsigned)petsc_lo;
-    mHi = (unsigned)petsc_hi;
-    // vector size
-    PetscInt size;
-    VecGetSize(vec, &size);
-    mGlobalHi = (unsigned) size;
-}
+//void DistributedVector::SetProblemSizePerProcessor(unsigned size, PetscInt local)
+//{
+//#ifndef NDEBUG
+//    if (!mPetscStatusKnown)
+//    {
+//        CheckForPetsc();
+//    }
+//#endif
+//    Vec vec;
+//    VecCreate(PETSC_COMM_WORLD, &vec);
+//    VecSetSizes(vec, local, size);
+//    VecSetFromOptions(vec);
+//    SetProblemSize(vec);
+//    VecDestroy(vec);
+//}
+//
+//void DistributedVector::SetProblemSize(unsigned size)
+//{
+//    SetProblemSizePerProcessor(size, PETSC_DECIDE);
+//}
+//
+//void DistributedVector::SetProblemSize(Vec vec)
+//{
+//#ifndef NDEBUG
+//    if (!mPetscStatusKnown)
+//    {
+//        CheckForPetsc();
+//    }
+//#endif
+//    // calculate my range
+//    PetscInt petsc_lo, petsc_hi;
+//    VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);
+//    mLo = (unsigned)petsc_lo;
+//    mHi = (unsigned)petsc_hi;
+//    // vector size
+//    PetscInt size;
+//    VecGetSize(vec, &size);
+//    mGlobalHi = (unsigned) size;
+//}
 
 unsigned DistributedVector::GetProblemSize()
 {
@@ -108,12 +108,12 @@ Vec DistributedVector::CreateVec()
     return vec;
 }
 
-Vec DistributedVector::CreateVec(unsigned stride)
-{
-    Vec vec;
-    VecCreateMPI(PETSC_COMM_WORLD, stride*(mHi-mLo), stride*mGlobalHi, &vec);
-    return vec;
-}
+//Vec DistributedVector::CreateVec(unsigned stride)
+//{
+//    Vec vec;
+//    VecCreateMPI(PETSC_COMM_WORLD, stride*(mHi-mLo), stride*mGlobalHi, &vec);
+//    return vec;
+//}
 
 DistributedVector::DistributedVector(Vec vec, DistributedVectorFactory* pFactory)
     : mVec(vec),

@@ -109,7 +109,7 @@ BidomainRhsMatrixAssembler<DIM>::BidomainRhsMatrixAssembler(AbstractMesh<DIM,DIM
     this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(pMesh);
 
     //DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes()); WOULD BE WRONG -- we need the maintain an uneven distribution, if given
-    Vec template_vec = DistributedVector::CreateVec(2);
+    Vec template_vec = this->mpMesh->GetDistributedVectorFactory()->CreateVec(2);
     this->mpLinearSystem = new LinearSystem(template_vec);
     VecDestroy(template_vec);
 
@@ -151,7 +151,7 @@ BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainMatrixBasedAssemble
     // set variables on parent class so that we do matrix-based assembly, and allocate
     // memory for the vector 'z'
     this->mUseMatrixBasedRhsAssembly = true;
-    this->mVectorForMatrixBasedRhsAssembly = DistributedVector::CreateVec(2);
+    this->mVectorForMatrixBasedRhsAssembly = this->mpMesh->GetDistributedVectorFactory()->CreateVec(2);
 
     // Tell pde there's no need to replicate ionic caches
     pPde->SetCacheReplication(false);
