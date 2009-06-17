@@ -34,6 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include <petscmat.h>
 
+#include <fstream>
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscException.hpp"
 
@@ -41,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 #include "DistributedVectorFactory.hpp"
+
+#include "OutputFileHandler.hpp"
 
 class TestDistributedVector : public CxxTest::TestSuite
 {
@@ -52,7 +59,7 @@ public:
     
     void TestDistributedVectorFactory()
     {
-        unsigned num_procs = PetscTools::NumProcs();
+        unsigned num_procs = PetscTools::GetNumProcs();
         unsigned total=100;
         DistributedVectorFactory factory(total);
         PetscInt petsc_lo, petsc_hi;
@@ -306,7 +313,7 @@ public:
     void TestUnevenDistribution()
     {
         unsigned my_rank = PetscTools::GetMyRank();
-        unsigned num_procs = PetscTools::NumProcs();
+        unsigned num_procs = PetscTools::GetNumProcs();
 
         //Calculate total number of elements in the vector
         unsigned total_elements = (num_procs+1)*num_procs/2;
@@ -327,7 +334,69 @@ public:
         VecDestroy(petsc_vec);
     }
     
-    
+    void TestArchiving()
+    {
+        const unsigned TOTAL = 100;
+        DistributedVectorFactory factory(TOTAL);
+        unsigned num_local_items = factory.GetLocalOwnership();
+        unsigned hi = factory.GetHigh();
+        unsigned lo = factory.GetLow();
+        TS_ASSERT_EQUALS(factory.GetSize(), TOTAL);
+        
+        // Where to archive
+        OutputFileHandler handler("archive");
+        std::string archive_filename = handler.GetProcessUniqueFilePath("factory.arch");
+        
+        // Archive
+        {
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            const DistributedVectorFactory* const p_factory = &factory;
+            output_arch << p_factory;
+        }
+        
+        // Restore
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            DistributedVectorFactory* p_new_factory;
+            input_arch >> p_new_factory;
+            
+            TS_ASSERT_EQUALS(p_new_factory->GetSize(), TOTAL);
+            TS_ASSERT_EQUALS(p_new_factory->GetHigh(), hi);
+            TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
+            TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), num_local_items);
+            
+            delete p_new_factory;
+        }
+        
+        //Restore from a single process archive
+        {
+            std::ifstream ifs("global/test/data/distributed_vector_factory.arch", std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            DistributedVectorFactory* p_new_factory = NULL;
+            
+            if (PetscTools::IsSequential())
+            {
+                input_arch >> p_new_factory;
+            
+                TS_ASSERT_EQUALS(p_new_factory->GetSize(), TOTAL);
+                TS_ASSERT_EQUALS(p_new_factory->GetHigh(), TOTAL);
+                TS_ASSERT_EQUALS(p_new_factory->GetLow(), 0U);
+                TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), TOTAL);
+            }
+            else
+            {
+                //Should not read this archive
+                TS_ASSERT_THROWS_ANYTHING(input_arch >> p_new_factory);
+            }
+            
+            delete p_new_factory;
+        }
+    }
 };
 
 #endif /*TESTDISTRIBUTEDVECTOR_HPP_*/

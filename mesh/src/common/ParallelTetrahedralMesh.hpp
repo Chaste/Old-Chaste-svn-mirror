@@ -318,11 +318,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
 {
     ///\todo: add a timing event for the partitioning
 
-    if (mMetisPartitioning==METIS_BINARY && PetscTools::NumProcs() > 1)
+    if (mMetisPartitioning==METIS_BINARY && PetscTools::GetNumProcs() > 1)
     {
         MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);
     }
-    else if (mMetisPartitioning==METIS_LIBRARY && PetscTools::NumProcs() > 1)
+    else if (mMetisPartitioning==METIS_LIBRARY && PetscTools::GetNumProcs() > 1)
     {
         MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);
     }
@@ -383,7 +383,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     std::set<unsigned> nodes_owned;
     std::set<unsigned> halo_nodes_owned;
     std::set<unsigned> elements_owned;
-    std::vector<unsigned> proc_offsets;//(PetscTools::NumProcs());
+    std::vector<unsigned> proc_offsets;//(PetscTools::GetNumProcs());
 
     ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets, this->mNodesPermutation);
 
@@ -536,14 +536,14 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
     }
 
-    if (mMetisPartitioning != DUMB && PetscTools::NumProcs()>1)
+    if (mMetisPartitioning != DUMB && PetscTools::GetNumProcs()>1)
     {
         assert(this->mNodesPermutation.size() != 0);
         ReorderNodes(this->mNodesPermutation);
 
         unsigned num_owned;
         unsigned rank = PetscTools::GetMyRank();
-        if ( rank<PetscTools::NumProcs()-1 )
+        if ( rank<PetscTools::GetNumProcs()-1 )
         {
             num_owned =  proc_offsets[rank+1]-proc_offsets[rank];
         }
@@ -705,11 +705,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
                                                                                   std::vector<unsigned>& rProcessorsOffset,
                                                                                   std::vector<unsigned>& rNodePermutation)
 {
-    assert(PetscTools::NumProcs() > 1);
+    assert(PetscTools::GetNumProcs() > 1);
 
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
 
-    unsigned num_procs = PetscTools::NumProcs();
+    unsigned num_procs = PetscTools::GetNumProcs();
 
     // Open a file for the elements
     OutputFileHandler handler("");
@@ -786,7 +786,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     assert(partition_stream.is_open());
 
     assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
-    rProcessorsOffset.resize(PetscTools::NumProcs(), 0);
+    rProcessorsOffset.resize(PetscTools::GetNumProcs(), 0);
 
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
@@ -803,7 +803,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
         // Offset is defined as the first node owned by a processor. We compute it incrementally.
         // i.e. if node_index belongs to proc 3 (of 6) we have to shift the processors 4, 5, and 6
         // offset a position
-        for (unsigned proc=part_read+1; proc<PetscTools::NumProcs(); proc++)
+        for (unsigned proc=part_read+1; proc<PetscTools::GetNumProcs(); proc++)
         {
             rProcessorsOffset[proc]++;
         }
@@ -815,7 +815,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     // Move stream pointer to the beginning of the file
     partition_stream.seekg (0, std::ios::beg);
 
-    std::vector<unsigned> local_index(PetscTools::NumProcs(), 0);
+    std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
 
     rNodePermutation.resize(this->GetNumNodes());
 
@@ -840,7 +840,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
                                                                                   std::vector<unsigned>& rProcessorsOffset,
                                                                                   std::vector<unsigned>& rNodePermutation)
 {
-    assert(PetscTools::NumProcs() > 1);
+    assert(PetscTools::GetNumProcs() > 1);
 
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
 
@@ -877,7 +877,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     }
 
     int numflag = 0; //0 means C-style numbering is assumed
-    int nparts = PetscTools::NumProcs();
+    int nparts = PetscTools::GetNumProcs();
     int edgecut;
     idxtype* epart = new idxtype[ne];
     assert(epart != NULL);
@@ -887,7 +887,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);
 
     assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
-    rProcessorsOffset.resize(PetscTools::NumProcs(), 0);
+    rProcessorsOffset.resize(PetscTools::GetNumProcs(), 0);
 
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
@@ -902,7 +902,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
         // Offset is defined as the first node owned by a processor. We compute it incrementally.
         // i.e. if node_index belongs to proc 3 (of 6) we have to shift the processors 4, 5, and 6
         // offset a position.
-        for (unsigned proc=part_read+1; proc<PetscTools::NumProcs(); proc++)
+        for (unsigned proc=part_read+1; proc<PetscTools::GetNumProcs(); proc++)
         {
             rProcessorsOffset[proc]++;
         }
@@ -911,7 +911,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     /*
      *  Once we know the offsets we can compute the permutation vector
      */
-    std::vector<unsigned> local_index(PetscTools::NumProcs(), 0);
+    std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
 
     rNodePermutation.resize(this->GetNumNodes());
 
@@ -934,7 +934,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<unsigned>& rNodePermutation)
 {
-    assert(PetscTools::NumProcs() > 1);
+    assert(PetscTools::GetNumProcs() > 1);
 
     // Need to rebuild global-local maps
     mNodesMapping.clear();

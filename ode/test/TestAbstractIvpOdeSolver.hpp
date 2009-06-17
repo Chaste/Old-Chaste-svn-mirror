@@ -505,13 +505,11 @@ public:
     void TestArchivingSolvers() throw(Exception)
     {
         OutputFileHandler handler("archive",false);
-        std::stringstream archive_filename;
-        archive_filename << handler.GetOutputDirectoryFullPath() << "ode_solver.arch";
-        archive_filename << "." << PetscTools::GetMyRank();
+        std::string archive_filename = handler.GetProcessUniqueFilePath("ode_solver.arch");
 
         // Archive
         {
-            std::ofstream ofs(archive_filename.str().c_str());
+            std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
             // Set up a solver
@@ -524,7 +522,7 @@ public:
             output_arch << p_runge_kutta_2_ode_solver;
             output_arch << p_runge_kutta_4_ode_solver;
             
-            // Change stimulus a bit           
+            // Free memory
             delete p_euler_ivp_ode_solver;
             delete p_runge_kutta_2_ode_solver;
             delete p_runge_kutta_4_ode_solver;
@@ -532,7 +530,7 @@ public:
 
         // Restore
         {
-            std::ifstream ifs(archive_filename.str().c_str(), std::ios::binary);
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);            
             
             // Create a pointer

@@ -83,10 +83,10 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
 }
 
 
-std::string OutputFileHandler::GetOutputDirectoryFullPath(std::string directory)
+std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDirectory)
 {
     std::string directory_root = GetChasteTestOutputDirectory();
-    directory = directory_root + directory;
+    std::string directory = directory_root + rDirectory;
     // Make sure it exists (ish)
     if (mAmMaster)
     {
@@ -107,26 +107,32 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath()
     return mDirectory;
 }
 
+std::string OutputFileHandler::GetProcessUniqueFilePath(const std::string& rFileName)
+{
+    std::stringstream filepath;
+    filepath << mDirectory << rFileName << "." << PetscTools::GetMyRank();
+    return filepath.str();
+}
 
-out_stream OutputFileHandler::OpenOutputFile(std::string fileName,
+out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
                                              std::ios_base::openmode mode)
 {
-    out_stream p_output_file(new std::ofstream((mDirectory+fileName).c_str(), mode));
+    out_stream p_output_file(new std::ofstream((mDirectory+rFileName).c_str(), mode));
     if (!p_output_file->is_open())
     {
-        EXCEPTION("Could not open file " + fileName + " in " + mDirectory);
+        EXCEPTION("Could not open file " + rFileName + " in " + mDirectory);
     }
     return p_output_file;
 }
 
 
-out_stream OutputFileHandler::OpenOutputFile(std::string fileName,
+out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
                                              unsigned number,
-                                             std::string fileFormat,
+                                             const std::string& rFileFormat,
                                              std::ios_base::openmode mode)
 {
     std::stringstream string_stream;
-    string_stream << fileName << number << fileFormat;
+    string_stream << rFileName << number << rFileFormat;
     return OpenOutputFile(string_stream.str(), mode);
 }
 

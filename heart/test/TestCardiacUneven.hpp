@@ -67,7 +67,7 @@ public:
 
         monodomain_problem.SetNodesPerProcessorFilename("heart/test/data/11_nodes_2_processors.txt");
 
-        if(PetscTools::NumProcs() == 2)
+        if(PetscTools::GetNumProcs() == 2)
         {
             monodomain_problem.Initialise();
 
@@ -127,7 +127,7 @@ public:
 
         bidomain_problem.SetNodesPerProcessorFilename("heart/test/data/11_nodes_2_processors.txt");
 
-        if(PetscTools::NumProcs() == 2)
+        if(PetscTools::GetNumProcs() == 2)
         {
             bidomain_problem.Initialise();
 

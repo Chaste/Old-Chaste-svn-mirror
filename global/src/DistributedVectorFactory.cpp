@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DistributedVectorFactory.hpp"
-#include "Exception.hpp"
 
 void DistributedVectorFactory::CalculateOwnership(Vec vec)
 {

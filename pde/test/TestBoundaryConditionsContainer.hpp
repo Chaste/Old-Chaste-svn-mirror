@@ -242,7 +242,7 @@ public:
 
         some_system.AssembleFinalLinearSystem();
 
-        if (PetscTools::NumProcs()==1)
+        if (PetscTools::GetNumProcs()==1)
         {
             for (int i=0; i<SIZE; i++)
             {

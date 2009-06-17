@@ -93,7 +93,7 @@ public:
     /**
      *  Returns total number of processors
      */
-    static unsigned NumProcs();
+    static unsigned GetNumProcs();
 
     /**
      * Return our rank.

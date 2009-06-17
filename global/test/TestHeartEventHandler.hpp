@@ -79,7 +79,7 @@ public:
 
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
-        if (PetscTools::GetMyRank() != PetscTools::NumProcs()-1)
+        if (PetscTools::GetMyRank() != PetscTools::GetNumProcs()-1)
         {
             MPISLEEP(0.05);
         }

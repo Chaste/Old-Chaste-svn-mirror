@@ -564,19 +564,12 @@ inline void save_construct_data(
     
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SimpleStimulus instance (using existing constructor)
+ * instantiate an instance (using existing constructor)
  */
 template<class Archive>
 inline void load_construct_data(
     Archive & ar, LinearSystem * t, const unsigned int file_version)
 {
-    /**
-     * Invoke inplace constructor to initialise an instance of LinearSystem.
-     * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later
-     * from the archive will overwrite their effect in this case.
-     */
-     
      OutputFileHandler handler("Archive", false);
      std::string archive_filename_lhs, archive_filename_rhs;
      archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   

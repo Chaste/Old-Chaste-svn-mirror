@@ -29,9 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef DISTRIBUTEDVECTORFACTORY_HPP_
 #define DISTRIBUTEDVECTORFACTORY_HPP_
 
+#include <boost/serialization/access.hpp>
 #include <petscvec.h>
 #include <cassert>
 #include "DistributedVector.hpp"
+#include "Exception.hpp"
+#include "PetscTools.hpp"
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 /**
  * Factory for creating PETSc vectors distributed across processes.
@@ -68,6 +73,22 @@ private:
      * @param vec the sample PETSc vector from which to calculate ownerships 
      */
     void CalculateOwnership(Vec vec);
+    
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // Nothing to do - all done in load_construct_data
+    }    
+    
     
 public:
     /**
@@ -106,7 +127,7 @@ public:
     /**
      * @return The number of elements in the vector owned by the local process
      */
-    unsigned GetLocalOwnership()
+    unsigned GetLocalOwnership() const
     {
         return mHi - mLo;
     }
@@ -114,7 +135,7 @@ public:
     /**
      * @return mHi - The next index above the top one owned by the process.
      */
-    unsigned GetHigh()
+    unsigned GetHigh() const
     {
         return mHi;
     }
@@ -122,7 +143,7 @@ public:
     /**
      * @return mLo - The lowest index owned by the process.
      */
-    unsigned GetLow()
+    unsigned GetLow() const
     {
         return mLo;
     }
@@ -130,11 +151,56 @@ public:
     /**
      * @return The number of elements in the vector
      */
-    unsigned GetSize()
+    unsigned GetSize() const
     {
         return mGlobalHi;
     }
     
 };
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(DistributedVectorFactory);
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const DistributedVectorFactory * t, const unsigned int file_version)
+{
+    unsigned num_procs, lo, hi, size;
+    hi = t->GetHigh();
+    ar << hi;
+    lo = t->GetLow();
+    ar << lo;
+    size = t->GetSize();
+    ar << size;
+    num_procs = PetscTools::GetNumProcs();
+    ar << num_procs;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate an instance (using existing constructor)
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, DistributedVectorFactory * t, const unsigned int file_version)
+{
+    unsigned num_procs, lo, hi, size;
+    ar >> hi;
+    ar >> lo;
+    ar >> size;
+    ar >> num_procs;
+    if (num_procs != PetscTools::GetNumProcs())
+    {
+        EXCEPTION("This archive was written for a different number of processors");
+    }
+    ::new(t)DistributedVectorFactory(size, hi-lo);
+}
+
+}
+} // namespace ...
 
 #endif /*DISTRIBUTEDVECTORFACTORY_HPP_*/

@@ -64,7 +64,7 @@ class AbstractCardiacPde
 {
 protected:
 
-    /** Intracellular conductivity tensors. */
+    /** Intracellular conductivity tensors.  Not archived, since it's loaded from the HeartConfig singleton. */
     AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
 
     /** The vector of cells. Distributed. */

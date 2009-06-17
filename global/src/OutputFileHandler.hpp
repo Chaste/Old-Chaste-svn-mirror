@@ -82,27 +82,39 @@ public:
      * and non-empty it is taken to be a directory where test output should be stored.
      * Otherwise the current directory is used.
      *
-     * @param directory  pathname of the output directory, relative to where Chaste
+     * @param rDirectory  pathname of the output directory, relative to where Chaste
      *         output will be stored (user shouldn't care about this).
      * @return full pathname to the output directory
      */
-    std::string GetOutputDirectoryFullPath(std::string directory);
+    std::string GetOutputDirectoryFullPath(const std::string& rDirectory);
     /**
      * Return the full pathname to the directory this object will create files
      * in.
      */
     std::string GetOutputDirectoryFullPath();
+    
+    /**
+     * Get the full path to an output file which has a name unique to the current
+     * process.  Useful for ensuring that each process writes to / reads from a
+     * separate file when running in parallel.
+     * 
+     * The path will have the form "path_to_output_dir/rFileName.process_rank"
+     * 
+     * @param rFileName the base file name
+     * @return a full path to the file for this process
+     */
+    std::string GetProcessUniqueFilePath(const std::string& rFileName);
 
     /**
      * Open an output file in our directory, and check it was opened successfully.
      * Throws an Exception if not.
      *
-     * @param fileName  the name of the file to open, relative to the output directory.
+     * @param rFileName  the name of the file to open, relative to the output directory.
      * @param mode  optionally, flags to use when opening the file (defaults are as for
      *         std::ofstream).
      * @return  a managed pointer to the opened file stream.
      */
-    out_stream OpenOutputFile(std::string fileName,
+    out_stream OpenOutputFile(const std::string& rFileName,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
 
 
@@ -112,15 +124,15 @@ public:
      * creates results_3.dat. See documentation for
      * OpenOutputFile(std::string, std::ios_base::openmode).
      *
-     * @param fileName  the root name of the file to open
+     * @param rFileName  the root name of the file to open
      * @param number  the number to append to the root name of the file
-     * @param fileFormat  the file format
+     * @param rFileFormat  the file format
      * @param mode  optionally, flags to use when opening the file (defaults are as for
      *         std::ofstream).
      */
-    out_stream OpenOutputFile(std::string fileName,
+    out_stream OpenOutputFile(const std::string& rFileName,
                               unsigned number,
-                              std::string fileFormat,
+                              const std::string& rFileFormat,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
     /**
      * Returns true if this process is the master, or if running without Petsc i.e. in serial

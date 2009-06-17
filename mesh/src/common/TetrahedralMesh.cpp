@@ -248,7 +248,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     
     unsigned num_owned=nodes_per_processor_vec[PetscTools::GetMyRank()];
     
-    if (nodes_per_processor_vec.size() != PetscTools::NumProcs())
+    if (nodes_per_processor_vec.size() != PetscTools::GetNumProcs())
     {
         EXCEPTION("Number of processes doesn't match the size of the nodes-per-processor file");
     }

@@ -33,9 +33,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <unistd.h> //For rmdir()
 #include <petsc.h>
 #include "OutputFileHandler.hpp"
+#include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestOutputFileHandler : public CxxTest::TestSuite
@@ -110,6 +112,18 @@ public:
         {
             TS_ASSERT(!handler.IsMaster());
         }
+    }
+    
+    void TestProcessUniqueNaming()
+    {
+        OutputFileHandler handler("handler_test", true);
+        std::string unique_filepath = handler.GetProcessUniqueFilePath("test_file");
+        
+        std::stringstream expected_filepath;
+        expected_filepath << handler.GetOutputDirectoryFullPath() << "test_file";
+        expected_filepath << "." << PetscTools::GetMyRank();
+        
+        TS_ASSERT_EQUALS(expected_filepath.str(), unique_filepath);
     }
 };
 

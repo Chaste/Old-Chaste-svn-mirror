@@ -671,7 +671,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        if (PetscTools::NumProcs() == 2)
+        if (PetscTools::GetNumProcs() == 2)
         {
             mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");
 

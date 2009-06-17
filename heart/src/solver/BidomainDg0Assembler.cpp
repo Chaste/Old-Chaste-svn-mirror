@@ -315,7 +315,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
 {
-    if(!PetscTools::NumProcs()>1)
+    if(!PetscTools::GetNumProcs()>1)
     {
         // don't do test in parallel
         return;

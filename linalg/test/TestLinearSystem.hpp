@@ -787,7 +787,7 @@ public:
         rhs_values.push_back(50.0);
         rhs_values.push_back(50.0);
         TS_ASSERT_EQUALS(rhs_values.size(), size);
-         // SAVE
+        // SAVE
         {
             LinearSystem ls = LinearSystem(size);
             Mat temp_mat=ls.GetLhsMatrix();

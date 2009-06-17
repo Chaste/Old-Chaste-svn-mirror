@@ -73,7 +73,7 @@ bool PetscTools::IsSequential()
     return (mNumProcessors == 1);
 }
 
-unsigned PetscTools::NumProcs()
+unsigned PetscTools::GetNumProcs()
 {
     CheckCache();
     return mNumProcessors;

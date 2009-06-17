@@ -1338,7 +1338,7 @@ public:
         // Throws because sum of nodes is not equal to the number of nodes in the mesh
         TS_ASSERT_THROWS_ANYTHING(mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt"));
 
-        if (PetscTools::NumProcs() == 2)
+        if (PetscTools::GetNumProcs() == 2)
         {
             mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_2.txt");
 

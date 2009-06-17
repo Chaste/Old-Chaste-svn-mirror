@@ -233,7 +233,7 @@ public:
         }
         const unsigned top_event = NUM_EVENTS-1;
         double total = ConvertTicksToSeconds(mCpuTime[top_event]);
-        for (unsigned turn=0; turn<PetscTools::NumProcs(); turn++)
+        for (unsigned turn=0; turn<PetscTools::GetNumProcs(); turn++)
         {
             std::cout.flush();
             PetscTools::Barrier();
@@ -267,7 +267,7 @@ public:
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
                     const double secs = ConvertTicksToSeconds(total_cpu_time[event]);
-                    printf("%7.2e ", secs/PetscTools::NumProcs());
+                    printf("%7.2e ", secs/PetscTools::GetNumProcs());
                     printf("(%3.0f%%)  ", secs/total*100.0);
                 }
                 std::cout << "(seconds) \n";

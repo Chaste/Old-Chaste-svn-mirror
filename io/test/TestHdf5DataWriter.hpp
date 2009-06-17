@@ -457,7 +457,7 @@ public:
 
         if (PetscTools::AmMaster())
         {
-            local_number_of_nodes = number_nodes - PetscTools::NumProcs() + 1;
+            local_number_of_nodes = number_nodes - PetscTools::GetNumProcs() + 1;
         }
         else
         {
