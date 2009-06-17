@@ -767,6 +767,114 @@ const char* HeartConfig::GetKSPPreconditioner() const
 #undef COVERAGE_IGNORE
 }
 
+/*
+ * PostProcessing
+ */
+
+bool HeartConfig::GetIsPostProcessingRequested() const
+{
+    return DecideLocation( & mpUserParameters->PostProcessing(),
+                           & mpDefaultParameters->PostProcessing(),
+                           "PostProcessing")->present(); 
+}
+
+bool HeartConfig::GetApdMapsRequested() const
+{
+    assert(GetIsPostProcessingRequested());
+
+    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
+        apd_maps = DecideLocation( & mpUserParameters->PostProcessing(),
+                                   & mpDefaultParameters->PostProcessing(),
+                                   "ActionPotentialDurationMap")->get().ActionPotentialDurationMap();
+    return (apd_maps.begin() != apd_maps.end());                             
+}
+
+void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const
+{
+    assert(GetApdMapsRequested());
+    assert(apd_maps.size() == 0);
+
+    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
+        apd_maps_sequence = DecideLocation( & mpUserParameters->PostProcessing(),
+                                   & mpDefaultParameters->PostProcessing(),
+                                   "ActionPotentialDurationMap")->get().ActionPotentialDurationMap();
+
+    for (XSD_ITERATOR_TYPE(postprocessing_type::ActionPotentialDurationMap) i = apd_maps_sequence.begin();
+         i != apd_maps_sequence.end();
+         ++i)
+    {
+        std::pair<double,double> map(i->threshold(), i->repolarisation_percentage());
+        
+        apd_maps.push_back(map);        
+    }               
+}
+
+bool HeartConfig::GetUpstrokeTimeMapsRequested() const
+{
+    assert(GetIsPostProcessingRequested());
+
+    XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
+        upstroke_map = DecideLocation( & mpUserParameters->PostProcessing(),
+                                   & mpDefaultParameters->PostProcessing(),
+                                   "UpstrokeTimeMap")->get().UpstrokeTimeMap();
+    return (upstroke_map.begin() != upstroke_map.end());       
+}
+void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const
+{
+    assert(GetApdMapsRequested());
+    assert(upstroke_time_maps.size() == 0);
+
+    XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
+        upstroke_maps_sequence = DecideLocation( & mpUserParameters->PostProcessing(),
+                                   & mpDefaultParameters->PostProcessing(),
+                                   "UpstrokeTimeMap")->get().UpstrokeTimeMap();
+
+    for (XSD_ITERATOR_TYPE(postprocessing_type::UpstrokeTimeMap) i = upstroke_maps_sequence.begin();
+         i != upstroke_maps_sequence.end();
+         ++i)
+    {
+        upstroke_time_maps.push_back(i->threshold());        
+    }   
+}
+
+bool HeartConfig::GetIsMaxUpstrokeVelocityMapRequested() const
+{
+    assert(GetIsPostProcessingRequested());
+
+    return DecideLocation( & mpUserParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
+                            & mpDefaultParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
+                            "MaxUpstrokeVelocityMap")->present();  
+}
+
+bool HeartConfig::GetConductionVelocityMapsRequested() const
+{
+    assert(GetIsPostProcessingRequested());
+
+    XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&
+        cond_vel_maps = DecideLocation( & mpUserParameters->PostProcessing(),
+                                   & mpDefaultParameters->PostProcessing(),
+                                   "ConductionVelocityMap")->get().ConductionVelocityMap();
+    return (cond_vel_maps.begin() != cond_vel_maps.end());           
+}
+
+void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const
+{
+    assert(GetApdMapsRequested());
+    assert(conduction_velocity_maps.size() == 0);
+
+    XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&
+        cond_vel_maps_sequence = DecideLocation( & mpUserParameters->PostProcessing(),
+                                   & mpDefaultParameters->PostProcessing(),
+                                   "ConductionVelocityMap")->get().ConductionVelocityMap();
+
+    for (XSD_ITERATOR_TYPE(postprocessing_type::ConductionVelocityMap) i = cond_vel_maps_sequence.begin();
+         i != cond_vel_maps_sequence.end();
+         ++i)
+    {
+        conduction_velocity_maps.push_back(i->origin_node());        
+    }       
+}
+
 
 /*
  *  Set methods

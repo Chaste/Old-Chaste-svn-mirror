@@ -186,6 +186,32 @@ public :
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
 
+        TS_ASSERT(HeartConfig::Instance()->GetIsPostProcessingRequested());
+        
+        TS_ASSERT(HeartConfig::Instance()->GetApdMapsRequested());
+        std::vector<std::pair<double,double> > apd_maps_requested;
+        HeartConfig::Instance()->GetApdMaps(apd_maps_requested);
+        TS_ASSERT_EQUALS(apd_maps_requested.size(), 1u);
+        TS_ASSERT_EQUALS(apd_maps_requested[0].first, -30.0);
+        TS_ASSERT_EQUALS(apd_maps_requested[0].second, 90.0);
+
+        TS_ASSERT(HeartConfig::Instance()->GetUpstrokeTimeMapsRequested());
+        std::vector<double> upstroke_time_maps_requested;
+        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_maps_requested);
+        TS_ASSERT_EQUALS(upstroke_time_maps_requested.size(), 1u);
+        TS_ASSERT_EQUALS(upstroke_time_maps_requested[0], -30.0);
+
+        TS_ASSERT(HeartConfig::Instance()->GetIsMaxUpstrokeVelocityMapRequested());
+                
+        TS_ASSERT(HeartConfig::Instance()->GetConductionVelocityMapsRequested());        
+        std::vector<unsigned> conduction_velocity_maps_requested;
+        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps_requested);
+        TS_ASSERT_EQUALS(conduction_velocity_maps_requested.size(), 2u);
+        TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
+        TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
+        
+
+        /// \todo: refactor from here until the end of the test into a different test
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
 
         TS_ASSERT(!HeartConfig::Instance()->GetCreateMesh());

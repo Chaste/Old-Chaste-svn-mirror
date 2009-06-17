@@ -92,13 +92,13 @@
   </xs:complexType>
   
   <xs:complexType name="apd_map_type">
-    <xs:attribute name="threshold" type="xs:double"/>
+    <xs:attribute name="threshold" type="xs:double" use="required"/>
     <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
     <xs:attribute name="repolarisation_percentage" type="xs:double" use="required"/>
   </xs:complexType>
   
   <xs:complexType name="upstrokes_map_type">
-    <xs:attribute name="threshold" type="xs:double"/>
+    <xs:attribute name="threshold" type="xs:double" use="required"/>
     <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
   </xs:complexType>
     
@@ -107,7 +107,7 @@
   </xs:complexType>
   
   <xs:complexType name="conduction_velocity_map_type">
-    <xs:attribute name="origin_node" type="xs:double"/>
+    <xs:attribute name="origin_node" type="xs:double" use="required"/>
   </xs:complexType>
   
   <xs:simpleType name="media_type">

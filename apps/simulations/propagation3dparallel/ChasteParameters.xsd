@@ -91,20 +91,23 @@
     </xs:sequence>
   </xs:complexType>
   
-  <xs:complexType name="APD_map_type">
-    <xs:attribute name="threshold" type="xs:double"/>
-    <xs:attribute name="percentage" type="xs:double" use="required"/>
+  <xs:complexType name="apd_map_type">
+    <xs:attribute name="threshold" type="xs:double" use="required"/>
+    <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
+    <xs:attribute name="repolarisation_percentage" type="xs:double" use="required"/>
   </xs:complexType>
   
   <xs:complexType name="upstrokes_map_type">
-    <xs:attribute name="threshold" type="xs:double"/>
+    <xs:attribute name="threshold" type="xs:double" use="required"/>
+    <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
   </xs:complexType>
     
-  <xs:complexType name="max_upstroke_velocity_type">
+  <!-- Type with no content or attributes -->    
+  <xs:complexType name="empty_type">
   </xs:complexType>
   
   <xs:complexType name="conduction_velocity_map_type">
-    <xs:attribute name="origin_node" type="xs:double"/>
+    <xs:attribute name="origin_node" type="xs:double" use="required"/>
   </xs:complexType>
   
   <xs:simpleType name="media_type">
@@ -294,9 +297,9 @@
   
   <xs:complexType name="postprocessing_type">
     <xs:sequence>  
-      <xs:element name="ActionPotentialDurationMap" type="APD_map_type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="ActionPotentialDurationMap" type="apd_map_type" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="UpstrokeTimeMap" type="upstrokes_map_type" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="MaxUpstrokeVelocityMap" type="max_upstroke_velocity_type" minOccurs="0"/>
+      <xs:element name="MaxUpstrokeVelocityMap" type="empty_type" minOccurs="0"/>
       <xs:element name="ConductionVelocityMap" type="conduction_velocity_map_type" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>      
   </xs:complexType> 

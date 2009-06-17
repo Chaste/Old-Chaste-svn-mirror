@@ -127,6 +127,20 @@ public:
     const char* GetKSPSolver() const;
     const char* GetKSPPreconditioner() const;
 
+    // Post processing
+    bool GetIsPostProcessingRequested() const;
+    
+    bool GetApdMapsRequested() const;
+    void GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const;
+    
+    bool GetUpstrokeTimeMapsRequested() const;
+    void GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const;
+    
+    bool GetIsMaxUpstrokeVelocityMapRequested() const;
+    
+    bool GetConductionVelocityMapsRequested() const;
+    void GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const;
+
 
     /*
      *  Set methods
