@@ -430,8 +430,8 @@ public:
         TS_ASSERT_EQUALS( node_0.size(), 4U);
         TS_ASSERT_DELTA( node_0[0], -83.853, 1e-10);
         TS_ASSERT_DELTA( node_0[1], -83.8354, 3e-4);
-        TS_ASSERT_DELTA( node_0[2], -83.8263, 3e-4);
-        TS_ASSERT_DELTA( node_0[3], -83.8197, 3e-4);
+        TS_ASSERT_DELTA( node_0[2], -83.8266, 3e-4);
+        TS_ASSERT_DELTA( node_0[3], -83.8200, 3e-4);
         std::vector<double> node_5 = data_reader1.GetVariableOverTime("V", 5);
         TS_ASSERT_EQUALS( node_5.size(), 4U);
         std::vector<double> node_10 = data_reader1.GetVariableOverTime("V", 10);

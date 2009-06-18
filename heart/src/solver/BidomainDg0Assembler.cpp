@@ -216,6 +216,8 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
             // We're not using the 'Average phi_e = 0' method, hence use a null space
             if (!mNullSpaceCreated)
             {
+                double sqrt_num_nodes = sqrt((double) this->mpMesh->GetNumNodes());
+
                 // No null space set up, so create one and pass it to the linear system
                 Vec nullbasis[1];
                 DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
@@ -227,8 +229,8 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
                      index != dist_null_basis.End();
                      ++index)
                 {
-                    null_basis_stripe_0[index] = 0;
-                    null_basis_stripe_1[index] = 1;
+                    null_basis_stripe_0[index] = 0.0;
+                    null_basis_stripe_1[index] = 1.0/sqrt_num_nodes; // normalised vector
                 }
                 dist_null_basis.Restore();
 
