@@ -42,6 +42,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/shared_ptr.hpp>
 
+/**
+ * A singleton class containing configuration parameters for heart simulations.
+ *
+ * This class wraps the settings from the XML configuration file in a more friendly
+ * interface, providing methods to read and write all the settings, and round-trip
+ * them to/from XML format.  It also deals with the complexities of supporting
+ * multiple versions of CodeSynthesis XSD.
+ */
 class HeartConfig
 {
 private:

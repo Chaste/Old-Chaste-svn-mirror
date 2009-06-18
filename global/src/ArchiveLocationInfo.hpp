@@ -85,7 +85,7 @@ public:
     
     /**
      * Set the directory that archives are being written to.
-     * @param the directory in question.
+     * @param rDirectory  the directory in question.
      */
     static void SetArchiveDirectory(const std::string &rDirectory)
     {

@@ -31,6 +31,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 
+/**
+ * A drop-in replacement for TetrahedralMesh that doesn't cache any
+ * jacobian-related data.
+ *
+ * It thus provides essentially a serial version of the memory-efficient
+ * ParallelTetrahedralMesh, enabling the use of larger meshes on
+ * single-processor machines.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class NonCachedTetrahedralMesh : public TetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {

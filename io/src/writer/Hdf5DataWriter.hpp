@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Hdf5DataWriter//  : public AbstractDataWriter
 {
 private:
-
+    /** The factory to use in creating PETSc Vec and DistributedVector objects. */
     DistributedVectorFactory& mrVectorFactory;
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
@@ -57,10 +57,10 @@ private:
     std::string mUnlimitedDimensionUnit; /**< The physical units of the unlimited dimension. */
     unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/
     unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/
-    unsigned mLo; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
-    unsigned mHi; /**< Local ownership of a PETSc vector of size mFixedDimensionSize*/
-    unsigned mNumberOwned; /**< mNumberOwned=mHi-mLo; except with incomplete data*/
-    unsigned mOffset; /**< mOffset=mLo; except with incomplete data*/
+    unsigned mLo; /**< Local ownership of a PETSc vector of size #mFixedDimensionSize*/
+    unsigned mHi; /**< Local ownership of a PETSc vector of size #mFixedDimensionSize*/
+    unsigned mNumberOwned; /**< mNumberOwned=#mHi-#mLo; except with incomplete data*/
+    unsigned mOffset; /**< mOffset=#mLo; except with incomplete data*/
     bool mIsDataComplete; /**< Whether the data file is complete. */
     bool mNeedExtend; /**< Used so that the data set is only extended when data is written*/
     std::vector<unsigned> mIncompleteNodeIndices; /**< Vector of node indices for which the data file does not contain data. */
@@ -95,6 +95,7 @@ public:
     /**
      * Constructor.
      *
+     * @param rVectorFactory the factory to use in creating PETSc Vec and DistributedVector objects.
      * @param directory  the directory in which to write the data to file
      * @param baseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
