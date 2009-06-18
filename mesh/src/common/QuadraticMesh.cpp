@@ -524,7 +524,7 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
     out_stream p_file = handler.OpenOutputFile(fileName);
 
     unsigned expected_num_nodes;
-    assert (DIM > 1);
+    assert(DIM > 1);
     if (DIM == 2)
     {
         expected_num_nodes = 3;
