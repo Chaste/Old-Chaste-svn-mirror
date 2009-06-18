@@ -121,7 +121,7 @@ public:
     ////////////////////////////////////////////////////////////
     // Compare Mono and Bidomain Simulations
     ////////////////////////////////////////////////////////////
-    void xxTestCompareBidomainProblemWithMonodomain3D()
+    void TestCompareBidomainProblemWithMonodomain3D()
     {
         // the bidomain equations reduce to the monodomain equations
         // if sigma_e is infinite (equivalent to saying the extra_cellular
