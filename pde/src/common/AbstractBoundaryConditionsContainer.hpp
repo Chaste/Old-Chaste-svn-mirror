@@ -80,14 +80,8 @@ public:
      */
     ~AbstractBoundaryConditionsContainer();
 
-    /** {
-        assert(indexOfUnknown < PROBLEM_DIM);
-
-        this->mDirichIterator = this->mpDirichletMap[indexOfUnknown]->find(pNode);
-
-        return (this->mDirichIterator != this->mpDirichletMap[indexOfUnknown]->end());
-    }
-     * Return whether any Dirichlet conditions are defined.
+    /** 
+     * Return whether any Dirichlet conditions are defined (for ANY of the unknowns).
      */
     bool HasDirichletBoundaryConditions();
 
