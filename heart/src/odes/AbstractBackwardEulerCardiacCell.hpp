@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractCardiacCell.hpp"
 

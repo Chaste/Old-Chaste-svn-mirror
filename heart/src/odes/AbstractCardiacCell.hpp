@@ -316,6 +316,6 @@ public:
 
 };
 
-BOOST_IS_ABSTRACT(AbstractCardiacCell);
+BOOST_IS_ABSTRACT(AbstractCardiacCell)
 
 #endif /*ABSTRACTCARDIACCELL_HPP_*/

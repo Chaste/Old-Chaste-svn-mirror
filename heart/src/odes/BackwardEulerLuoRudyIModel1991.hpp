@@ -125,7 +125,7 @@ public:
     double GetIntracellularCalciumConcentration();
 };
 
-BOOST_CLASS_EXPORT(BackwardEulerLuoRudyIModel1991);
+BOOST_CLASS_EXPORT(BackwardEulerLuoRudyIModel1991)
 
 namespace boost
 {

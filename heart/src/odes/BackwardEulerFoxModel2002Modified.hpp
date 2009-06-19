@@ -728,7 +728,7 @@ void OdeSystemInformation<BackwardEulerFoxModel2002Modified>::Initialise(void)
     this->mInitialised = true;
 }
 
-BOOST_CLASS_EXPORT(BackwardEulerFoxModel2002Modified);
+BOOST_CLASS_EXPORT(BackwardEulerFoxModel2002Modified)
 
 namespace boost
 {

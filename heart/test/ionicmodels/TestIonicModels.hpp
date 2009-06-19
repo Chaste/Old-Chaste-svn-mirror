@@ -904,12 +904,10 @@ public:
     {
         //Archive
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "lr91.arch";
+        std::string archive_filename = handler.GetProcessUniqueFilePath("lr91.arch");
 
         // Save
         {
-            TS_ASSERT(PetscTools::IsSequential());
             // Set stimulus
             double magnitude_stimulus = -3;  // uA/cm2
             double duration_stimulus = 3;  // ms
@@ -962,12 +960,10 @@ public:
     {
         //Archive
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "backward_cells.arch";
-
+        std::string archive_filename = handler.GetProcessUniqueFilePath("backward_cells.arch");
+        
         // Save
         {
-            TS_ASSERT(PetscTools::IsSequential());
             // Set stimulus
             double magnitude_stimulus = -3;  // uA/cm2
             double duration_stimulus = 3;  // ms
@@ -1050,12 +1046,10 @@ public:
     {
         //Archive
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "noble98.arch";
+        std::string archive_filename = handler.GetProcessUniqueFilePath("noble98.arch");
 
         // Save
         {
-            TS_ASSERT(PetscTools::IsSequential());
             // Set stimulus
             double magnitude_stimulus = -3;  // uA/cm2
             double duration_stimulus = 3;  // ms
