@@ -208,7 +208,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::PrepareForAssembleSystem(Vec c
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec currentSolution, double currentTime)
 {
-    if (mFixedExtracellularPotentialNodes.empty())
+    if (!(this->mpBoundaryConditions->HasDirichletBoundaryConditions()))
     {
         // We're not pinning any nodes.
         if (mRowForAverageOfPhiZeroed==INT_MAX)
@@ -253,6 +253,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
                 }
                 mask.Restore();
             }
+
             //Try to fudge the solution vector with respect to the external voltage
             //Find the largest absolute value
             double min, max;
@@ -324,7 +325,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
         return;
     }  
     
-    if (!(mFixedExtracellularPotentialNodes.empty()) || mRowForAverageOfPhiZeroed!=INT_MAX )
+    if (this->mpBoundaryConditions->HasDirichletBoundaryConditions() || mRowForAverageOfPhiZeroed!=INT_MAX )
     {
         // not a singular system, no compability condition
         return;
@@ -342,7 +343,8 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
     {
         #define COVERAGE_IGNORE
         // shouldn't ever reach this line but useful to have the error printed out if you do
-        EXCEPTION("Linear system does not satisfy compability constraint!");
+        //std::cout << "Sum of b_{2i+1} = " << sum << " (should be zero for compatibility)\n";
+        EXCEPTION("Linear system does not satisfy compatibility constraint!");
         #undef COVERAGE_IGNORE
     }
 #endif
