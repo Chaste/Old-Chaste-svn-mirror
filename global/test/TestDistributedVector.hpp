@@ -31,8 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTDISTRIBUTEDVECTOR_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
-#include <petscmat.h>
 
 #include <fstream>
 
