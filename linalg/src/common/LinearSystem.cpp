@@ -48,7 +48,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mMatrixIsConstant(false),
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
-    mDirichletBoundaryConditionsVector(NULL)
+    mDirichletBoundaryConditionsVector(NULL),
+    mpBlockDiagonalPC(NULL)
 {
     SetupVectorAndMatrix(matType);
     
@@ -73,7 +74,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector,
     mMatrixIsConstant(false),
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
-    mDirichletBoundaryConditionsVector(NULL)
+    mDirichletBoundaryConditionsVector(NULL),
+    mpBlockDiagonalPC(NULL)
 {
     // Conveniently, PETSc Mats and Vecs are actually pointers
     mLhsMatrix = lhsMatrix;
@@ -95,7 +97,8 @@ LinearSystem::LinearSystem(Vec templateVector)
     mMatrixIsConstant(false),
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
-    mDirichletBoundaryConditionsVector(NULL)
+    mDirichletBoundaryConditionsVector(NULL),
+    mpBlockDiagonalPC(NULL)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -123,7 +126,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mMatrixIsConstant(false),
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
-    mDirichletBoundaryConditionsVector(NULL)
+    mDirichletBoundaryConditionsVector(NULL),
+    mpBlockDiagonalPC(NULL)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -180,6 +184,11 @@ LinearSystem::~LinearSystem()
     {
         ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
+    }
+    
+    if (mpBlockDiagonalPC)
+    {
+        delete mpBlockDiagonalPC;
     }
     
 #ifdef TRACE_KSP
@@ -417,6 +426,17 @@ double LinearSystem::GetRhsVectorElement(PetscInt row)
     return answer;
 }
 
+unsigned LinearSystem::GetNumIterations() const
+{
+    assert(this->mKspIsSetup);
+    
+    PetscInt num_its;
+    KSPGetIterationNumber(this->mKspSolver, &num_its);
+    
+    return (unsigned) num_its;
+}
+
+
 Vec& LinearSystem::rGetRhsVector()
 {
     return mRhsVector;
@@ -497,9 +517,16 @@ void LinearSystem::SetPcType(const char *pcType)
     mPcType=pcType;
     if (mKspIsSetup)
     {
-        PC prec;
-        KSPGetPC(mKspSolver, &prec);
-        PCSetType(prec, pcType);
+        if (mPcType == "blockdiagonal")
+        {
+            mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
+        }
+        else
+        {        
+            PC prec;
+            KSPGetPC(mKspSolver, &prec);
+            PCSetType(prec, pcType);
+        }
         KSPSetFromOptions(mKspSolver);
     }
 }
@@ -557,7 +584,14 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
         else
         {
-            PCSetType(prec, mPcType.c_str());
+            if (mPcType == "blockdiagonal")
+            {
+                mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
+            }
+            else
+            {            
+                PCSetType(prec, mPcType.c_str());
+            }
         }
 
         if (mMatNullSpace)

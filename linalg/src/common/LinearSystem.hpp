@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
+#include "PCBlockDiagonal.hpp"
 #include <petscvec.h>
 #include <petscmat.h>
 #include <petscksp.h>
@@ -86,6 +87,9 @@ private:
     std::string mPcType;/**< Preconditioner type (see PETSc PCSetType() ) */
 
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see AbstractBoundaryConditionsContainer */
+
+    /** Stores a pointer to a purpose-build preconditioner*/
+    PCBlockDiagonal* mpBlockDiagonalPC;
 
 #ifdef TRACE_KSP
     unsigned mNumSolves;
@@ -400,6 +404,12 @@ public:
      */
     double GetRhsVectorElement(PetscInt row);
 
+
+    /**
+     * Return the number of iterations taken by the last Solve()     
+     */
+    unsigned GetNumIterations() const;
+    
     /**
      * Add multiple values to the matrix of linear system.
      *
