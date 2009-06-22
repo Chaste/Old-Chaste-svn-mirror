@@ -77,22 +77,23 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& ksp_object)
 
 void PCBlockDiagonal::PCBlockDiagonalSetUp()
 {
-    /// \todo: there should be a way of providing this options. If we do it this way, PETSc reports them as unused
-//    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");        
-//    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");            
+    // These options will get read by PCSetFromOptions
+    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");        
+    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");            
+    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");        
 
     // Set up amg preconditioner for block A11
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
     PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
     PCSetOperators(mPCContext.PC_amg_A11, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
-    PCHYPRESetType(mPCContext.PC_amg_A11, "boomeramg");
+    PCSetFromOptions(mPCContext.PC_amg_A11);
     PCSetUp(mPCContext.PC_amg_A11);
 
     // Set up amg preconditioner for block A22
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A22));
     PCSetType(mPCContext.PC_amg_A22, PCHYPRE);
     PCSetOperators(mPCContext.PC_amg_A22, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
-    PCHYPRESetType(mPCContext.PC_amg_A22, "boomeramg");
+    PCSetFromOptions(mPCContext.PC_amg_A22);
     PCSetUp(mPCContext.PC_amg_A22);        
 }
 
