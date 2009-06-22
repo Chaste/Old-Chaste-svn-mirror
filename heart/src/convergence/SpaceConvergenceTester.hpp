@@ -33,19 +33,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractConvergenceTester.hpp"
 
+/**
+ * Run the same simulation on cuboid meshes at progressively finer scales
+ * until some convergence criterion is met.
+ */
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class SpaceConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM, PROBLEM_DIM>
 {
 public:
+    /** 
+     * The intial mesh is mesh 0 which has a space-step of 0.05cm on a 0.2cm mesh
+     */
     void SetInitialConvergenceParameters()
     {
         this->MeshNum=0;
     }
+    /**
+     * Each new run has an increased the mesh number. This halves the space step and increased 
+     * the complexity of the simulation by 2^DIM
+     */ 
     void UpdateConvergenceParameters()
     {
         this->MeshNum++;
 
     }
+    /**
+     * @return true to give up convergence when the number of unknowns becomes too high (either
+     * from memory or CPU perspective).
+     */ 
     bool GiveUpConvergence()
     {
         switch(DIM)
@@ -71,16 +86,25 @@ public:
         }
         return true;//To keep Intel compiler happy
     }
+    /**
+     * @return the typical step size as the abcissa.
+     */
     double Abscissa()
     {
         unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2); // number of elements in each dimension
         return this->mMeshWidth/(double) mesh_size;
     }
 
+    /**
+     * @return the number of the current mesh (cast to int).
+     */
     int GetMeshNum()
     {
         return (int) this->MeshNum; //unsigned -> int is just cosmetic here.  (The test looks prettier).
     }
+    /**
+     * @return the space step in the Cartesian directions
+     */
     double GetSpaceStep()
     {
         unsigned mesh_size = (unsigned) pow(2, this->MeshNum+2);// number of elements in each dimension

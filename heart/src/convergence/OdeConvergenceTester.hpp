@@ -31,26 +31,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ODECONVERGENCETESTER_HPP_
 
 #include "AbstractConvergenceTester.hpp"
-
+/**
+ * Drop the ODE time-step until a convergence criterion is met
+ */
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class OdeConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM, PROBLEM_DIM>
 {
 public:
+    /**
+     * Begin with a coarse ODE step (and 2 ODE solves per PDE time-step)
+     */
     void SetInitialConvergenceParameters()
     {
         this->PdeTimeStep = 2e-2;
         this->OdeTimeStep = 1e-2;
     }
+    /**
+     * Each new run has the #OdeTimeStep halved.
+     */
     void UpdateConvergenceParameters()
     {
         this->OdeTimeStep *= 0.5;
 
     }
+    /**
+     * @return true to give up convergence when either the Ode time-step is unreasonably small.
+     */
     bool GiveUpConvergence()
     {
         return this->OdeTimeStep<=1e-8;
     }
-
+    /**
+     * @return the #OdeTimeStep as abcissa
+     */
     double Abscissa()
     {
         return this->OdeTimeStep;

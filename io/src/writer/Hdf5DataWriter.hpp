@@ -57,8 +57,8 @@ private:
     std::string mUnlimitedDimensionUnit; /**< The physical units of the unlimited dimension. */
     unsigned mFileFixedDimensionSize; /**< The size of the fixed dimension (number of rows)*/
     unsigned mDataFixedDimensionSize; /**< The size of the fixed dimension (size of the vector of nodes)*/
-    unsigned mLo; /**< Local ownership of a PETSc vector of size #mFixedDimensionSize*/
-    unsigned mHi; /**< Local ownership of a PETSc vector of size #mFixedDimensionSize*/
+    unsigned mLo; /**< Local ownership of a PETSc vector of size #mFileFixedDimensionSize*/
+    unsigned mHi; /**< Local ownership of a PETSc vector of size #mFileFixedDimensionSize*/
     unsigned mNumberOwned; /**< mNumberOwned=#mHi-#mLo; except with incomplete data*/
     unsigned mOffset; /**< mOffset=#mLo; except with incomplete data*/
     bool mIsDataComplete; /**< Whether the data file is complete. */

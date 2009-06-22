@@ -88,7 +88,12 @@ public:
     }
 
     /** Create cell model
-     * @param Global node index
+     * \todo - I thought that the concept here was to ramp the stimulus down
+     * over the first quarter, in order to make sure that there is no interface
+     * between stimulated region and un-stimulated region where the FEM linear interpolation
+     * makes the stimulus mesh-dependant.
+     * 
+     * @param node Global node index
      */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
@@ -124,22 +129,40 @@ public:
      *              - mesh 2 has 16 (0.0125cm)
      */
     unsigned MeshNum;
-    double RelativeConvergenceCriterion;
-    double LastDifference;
-    double Apd90FirstQn;
-    double Apd90ThirdQn;
-    double ConductionVelocity;
-    double AbsoluteStimulus;
+    double RelativeConvergenceCriterion; /**< Main convergence test is LastDifference < RelativeConvergenceCriterion */
+    double LastDifference; /**< Used to store and retrieve the difference between success runs (relative 2-norm of Vm at 3rd quarter node).*/ 
+    double Apd90FirstQn; /**< Used to store and retrieve the APD90 of a node in the first quarter x-value*/
+    double Apd90ThirdQn; /**< Used to store and retrieve the APD90 of a node in the third quarter x-value*/
+    double ConductionVelocity;  /**< Used to store and retrieve the conduction velocity between the first & third quarter nodes*/
+    /** Set to true once the result of a test is known (either read from file
+     * or produced by the coarsest run of the tester).
+     */
     bool PopulatedResult;
+    /** true if converging to a known standard result
+     *  used in StimulusConverger in projects/jmpf
+     */
     bool FixedResult;
-    bool UseAbsoluteStimulus;
-    bool SimulateFullActionPotential;
-    bool Converged;
-    StimulusType Stimulus;
-    double NeumannStimulus;
+    /** true if the plane stimulus should applied with an exact value (not scaled by space-step)
+     *  used in StimulusConverger in projects/jmpf
+     */
+    bool UseAbsoluteStimulus; 
+    /** 
+     * A value to be used with a plane stimulus (not scaled by space-step)
+     *  used in StimulusConverger in projects/jmpf
+     */
+    double AbsoluteStimulus;
+    bool SimulateFullActionPotential; /**< Set it true in order to run simulations for long enough to get a whole AP (and thus get convergence history for APD90).  Note that this slackens the relative L2 norm criterion, since we are in plateau phase for longer*/
+    bool Converged; /**< Set to true when convergence has been reached */
+    StimulusType Stimulus; /**< The type of stimulus: PLANE (x=0), REGION (first quarter in x) or NEUMANN (monodomain only)*/
+    double NeumannStimulus; /**< Quantity of face stimulus to use in the Neumann case */
 
     AbstractUntemplatedConvergenceTester();
-
+    
+    /**
+     * Run the same test at different levels of refinement until
+     * some convergence criterion is met.
+     * @param nameOfTest The name of the convergence test (typically the name in the suite) for use in naming files.
+     */
     virtual void Converge(std::string nameOfTest)=0;
 
     virtual ~AbstractUntemplatedConvergenceTester();
@@ -190,6 +213,7 @@ class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 public:
     /**
      * \todo This is a scarily long method; could do with some parts extracted?
+     * @param nameOfTest The name of the convergence test (typically the name in the suite) for use in naming files.
      */
     void Converge(std::string nameOfTest)
     {
@@ -613,7 +637,12 @@ public:
     virtual bool GiveUpConvergence()=0;
     /** The value of the parameter which is being varied*/
     virtual double Abscissa()=0;
-    
+    /** This is currently used as stub for convergence testers which need to converge
+     * to a known standardised result (the StimulusConvergence tester in projects/jmpf).
+     * 
+     * @param result a standard vector to be sized and filled with V_m values by this method (in subclass)
+     * @param times a standard vector to be sized and filled with times values by this method (in subclass)
+     */
     virtual void PopulateStandardResult(std::vector<double> &result, std::vector<double> &times)
     {
         assert(this->PopulatedResult==false);
@@ -621,11 +650,17 @@ public:
         assert(times.size()==0);
     }
 
+    /**
+     * @return when the convergence criterion is met
+     */ 
     bool IsConverged()
     {
         return Converged;
     }
 
+    /**
+     * @param meshWidth set the dimension of the cuboid mesh (default value is 0.2cm)
+     */
     void SetMeshWidth(double meshWidth)
     {
         mMeshWidth=meshWidth;
