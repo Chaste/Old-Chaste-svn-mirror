@@ -507,6 +507,7 @@ public:
                 if (this->PopulatedResult)
                 {
                     //If the PDE step is varying then we'll have twice as much data now as we use to have
+                    
                     unsigned time_factor=(time_series.size()-1) / (prev_times.size()-1);               
                     assert (time_factor == 1 || time_factor == 2 || time_factor == 8);
                     //Iterate over the shorter time series data
@@ -517,8 +518,16 @@ public:
                         assert(time_series[this_data_point] == prev_times[data_point]);
                         double abs_error = fabs(transmembrane_potential[this_data_point]-prev_voltage[data_point]);
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
-                        sum_sq_abs_error += abs_error*abs_error;
-                        sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
+                        //Only do resolve the upstroke...
+                        if (time_series[this_data_point] <= 8.0)
+                        {   
+                            sum_sq_abs_error += abs_error*abs_error;
+                            sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
+                        }
+                        else
+                        {
+                            assert(0);
+                        }
                     }
 
                 }
@@ -548,6 +557,14 @@ public:
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
                     this->LastDifference=sum_sq_abs_error/sum_sq_prev_voltage;
+#define COVERAGE_IGNORE
+                    if (time_series.size() == 1u)
+                    {
+                        std::cout<<"Failed after successful convergence - give up this convergence test\n";
+                        break;
+                    }
+#undef COVERAGE_IGNORE
+
                 }
 
                 if (!this->PopulatedResult)
