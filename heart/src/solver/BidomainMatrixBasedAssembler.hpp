@@ -124,6 +124,7 @@ public:
 
     /**
      * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
+     * @param pMesh pointer to mesh
      */
     BidomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
 
@@ -194,6 +195,7 @@ class BidomainMatrixBasedAssembler
     : public virtual BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
+    /** Helper assembler for doing the RHS (matrix B)*/ 
     BidomainRhsMatrixAssembler<SPACE_DIM>* mpBidomainRhsMatrixAssembler;
 
 public:
@@ -219,6 +221,7 @@ public:
     /**
      *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class
      *  documentation.
+     * @param currentSolution the vector of ionic currents to use in the assembly \todo Rename
      */
     virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
 };

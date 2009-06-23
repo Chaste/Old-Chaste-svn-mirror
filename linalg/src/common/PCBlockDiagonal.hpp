@@ -71,15 +71,15 @@ public:
      *  This struct defines the state of the preconditioner (initialised data and objects to be reused)
      */   
     typedef struct{
-        Mat A11_matrix_subblock;
-        Mat A22_matrix_subblock;        
-        PC  PC_amg_A11;
-        PC  PC_amg_A22;
+        Mat A11_matrix_subblock; /**< See \todo */
+        Mat A22_matrix_subblock; /**< See \todo */        
+        PC  PC_amg_A11; /**< See \todo */
+        PC  PC_amg_A22; /**< See \todo */
         
     } PCBlockDiagonalContext;
 
-    PCBlockDiagonalContext mPCContext;
-    PC mPetscPCObject;
+    PCBlockDiagonalContext mPCContext; /**< As above.  See PCShellSetContext().*/
+    PC mPetscPCObject;/**< Actual preconditioner */
 
 public:
 

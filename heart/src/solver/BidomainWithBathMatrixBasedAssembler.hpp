@@ -133,7 +133,8 @@ public:
     Mat* GetMatrix();
 };
 
-
+/** Assemble with matrix-based system in the presence of a perfusing bath
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainWithBathMatrixBasedAssembler
     : public BidomainMatrixBasedAssembler<ELEMENT_DIM, SPACE_DIM>,
@@ -166,6 +167,7 @@ public:
     /**
      *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class
      *  documentation.
+     * @param currentSolution \todo Rename!
      */
     void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
 

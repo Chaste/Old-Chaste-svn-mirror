@@ -43,6 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance
 // of the member variables in A
 
+/** Assembler for a bidomain simulation with a perfusing bath.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainWithBathAssembler
     : public virtual BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
@@ -93,6 +95,12 @@ public:
      *  bath nodes voltages are zero, except for the diagonal (set to 1). The
      *  corresponding rhs vector entry is also set to 0, so the equation for the
      *  bath node voltage is 1*V = 0.
+     * @param currentSolutionOrGuess voltages (not used) \todo rename
+     * @param currentTime \todo rename
+     * @param assembleVector If set, then RHS corresponding to bath nodes are affected as described
+     * @param assembleMatrix If set, then matrix rows corresponding to bath nodes are affected as described
+     * 
+     * 
      */
     void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix);
 

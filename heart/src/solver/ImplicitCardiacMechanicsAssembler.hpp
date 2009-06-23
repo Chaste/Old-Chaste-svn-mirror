@@ -92,7 +92,7 @@ public:
     /**
      * Constructor
      *
-     * @param pMesh A pointer to the mesh. Should have a surface set as the fixed surface
+     * @param pQuadMesh A pointer to the mesh. Should have a surface set as the fixed surface
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
      * @param rFixedNodes The fixed nodes
      * @param pMaterialLaw The material law for the tissue. Defaults to NULL, in which case

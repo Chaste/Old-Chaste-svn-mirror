@@ -85,19 +85,35 @@ protected:
     /** The PDE to be solved. */
     BidomainPde<SPACE_DIM>* mpBidomainPde;
 
+    /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
 
-    // quantities to be interpolated
+    /** Ionic current to be interpolated from cache*/
     double mIionic;
+    /** Intracellular stimulus to be interpolated from cache*/
     double mIIntracellularStimulus;
+    /** Extracellular stimulus to be interpolated from cache*/
     double mIExtracellularStimulus;
 
+    /** Used when intialising null-space solver to resolve singularity*/ 
     bool mNullSpaceCreated;
 
+    /** Used when finding drift of phi_e from origin
+     * \todo Is this needed after #1059 r6273 ?
+     */
     Vec mExternalVoltageMask;
+    
+    /** Used when pinning nodes to resolve singularity.
+     * This vector indicates the global indices of the nodes to be pinned
+     */
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
 
-    unsigned mRowForAverageOfPhiZeroed;
+    /** Used when removing a single row to resolve singularity and
+     * replacing it with a constraint on the average phi_e being zero.
+     * This number indicates the row of the matrix to be replaced.  This is INT_MAX if unset.
+     * It is set from the problem class. 
+     */
+     unsigned mRowForAverageOfPhiZeroed;
 
     /**
      * Overridden ResetInterpolatedQuantities() method.
@@ -203,6 +219,8 @@ protected:
      *
      *  Called at the beginning of AbstractLinearAssembler::AssembleSystem()
      *  after the system. Here, used to integrate cell odes.
+     *  @param currentSolution is the voltage to feed into the cell models \todo rename
+     *  @param time the simulation time 
      */
     virtual void PrepareForAssembleSystem(Vec currentSolution, double time);
 
@@ -213,6 +231,8 @@ protected:
      *  has been assembled. Here, used to avoid problems with phi_e drifting
      *  by one of 3 methods: pinning nodes, using a null space, or using an
      *  "average phi_e = 0" row.
+     *  @param currentSolution voltages (phi_e may need shifting) \todo rename
+     *  @param currentTime \todo rename
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime);
 
@@ -223,7 +243,7 @@ public:
      * 
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
-     * @param pBoundaryConditions pointer to the boundary conditions
+     * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     BidomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
@@ -241,14 +261,19 @@ public:
      *  zero. This does not necessarily have to be called. If it is not, phi_e
      *  is only defined up to a constant.
      *
-     *  @param the nodes to be fixed.
+     *  @param fixedExtracellularPotentialNodes the nodes to be fixed.
      *
      *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> fixedExtracellularPotentialNodes);
 
-    void SetRowForAverageOfPhiZeroed(unsigned rowMeanPhiEZero);
+    /** Used when removing a single row to resolve singularity and
+     * replacing it with a constraint on the average phi_e being zero.
+     * It is set from the problem class.
+     * @param  rowMeanPhiEZero  indicates the row of the matrix to be replaced.  Ought to be an odd number...
+     */
+     void SetRowForAverageOfPhiZeroed(unsigned rowMeanPhiEZero);
 };
 
 /**

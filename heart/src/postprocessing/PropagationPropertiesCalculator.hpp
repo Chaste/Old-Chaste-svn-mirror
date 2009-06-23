@@ -33,13 +33,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 
 #include <string>
-
+/**
+ * Calculate physiological properties at given global mesh indices
+ *  - maximum upstroke velocity at a single cell
+ *  - times of upstroke at a single cell
+ *  - (all) conduction velocities between two cells
+ *  - (all) action potential duration at a single cell
+ *  - maximum transmembrane potential (maximum systolic potential) at a single cell.
+ */
 class PropagationPropertiesCalculator
 {
 private:
-    /**< Reader to get the data from which we use to calculate properties. */
+    /** Reader to get the data from which we use to calculate properties. */
     Hdf5DataReader *mpDataReader;
-    /**< Name of the variable representing the membrane potential. */
+    /** Name of the variable representing the membrane potential. */
     const std::string mVoltageName;
     
 //    CellProperties GetCellProperties(unsigned globalNodeIndex);

@@ -46,21 +46,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  ..
  *  V_node_N_time_M
  *
- *  The files that are written are <base_name>_V.dat or <base_name>_Phi_e.dat,
- *  where <base_name> is the base name of the original .h5 file. The new files
+ *  The files that are written are [base_name]_V.dat or [base_name]_Phi_e.dat,
+ *  where [base_name] is the base name of the original .h5 file. The new files
  *  are written in the same directory as the .h5 file. All paths are relative
  *  to the CHASTE_TEST_OUTPUT directory.
  */
 class Hdf5ToMeshalyzerConverter
 {
 private:
-    Hdf5DataReader* mpReader;
-    std::string mOutputDirectory;
-    std::string mFileBaseName;
+    Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
+    std::string mOutputDirectory; /**< Directory name where the Meshalyzer output is going*/
+    std::string mFileBaseName; /**< Base name for the files [basename]_V.dat etc.*/
 
     /** A helper method which takes in a string, which must be 'V' or 'Phi_e'
      *  and reads the data corresponding to that string, writing it out in
      *  meshalyzer format.
+     * @param type - the type of data stored in this file (V/Phi_e)
      */
     void Write(std::string type);
 
