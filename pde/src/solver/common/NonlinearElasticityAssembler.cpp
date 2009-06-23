@@ -75,10 +75,10 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
          iter != mpQuadMesh->GetElementIteratorEnd();
          ++iter)
     {
-        if (assembleJacobian)
-        {
-            std::cout << "\nElement " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
-        }
+//        if (assembleJacobian)
+//        {
+//            std::cout << "\rElement " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
+//        }
 
         Element<DIM, DIM>& element = *iter;
 
@@ -344,7 +344,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         static FourthOrderTensor<DIM> dTdE_F;
         static FourthOrderTensor<DIM> dTdE_FF1;
         static FourthOrderTensor<DIM> dTdE_FF2;
-        static FourthOrderTensor<DIM> dTdE_FF;
   
         dTdE_F.SetAsProduct(this->dTdE, F, 0);  // B^{aNPQ}  = F^a_M * dTdE^{MNPQ}
         dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{aNPb} = F^a_M * F^b_Q * dTdE^{MNPQ} 

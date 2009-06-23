@@ -384,11 +384,24 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements()
     // the elements, and add the extra nodes to the boundary element
     if (DIM>1)
     {
+//        unsigned total = 0;
+//        for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+//              = this->GetBoundaryElementIteratorBegin();
+//            iter != this->GetBoundaryElementIteratorEnd();
+//            ++iter)
+//        {
+//            total++;
+//        }
+//        
+//        unsigned counter = 0;
+
         for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
               = this->GetBoundaryElementIteratorBegin();
             iter != this->GetBoundaryElementIteratorEnd();
             ++iter)
         {
+//            std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << total << std::flush;
+            
             // collect the nodes of this boundary element in a set
             std::set<unsigned> boundary_element_node_indices;
             for (unsigned i=0; i<DIM; i++)
