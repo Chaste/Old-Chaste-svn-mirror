@@ -494,6 +494,18 @@ public:
                         apd90_third_qn_error = fabs(Apd90ThirdQn - prev_apd90_third_qn) / prev_apd90_third_qn;
                     }
 #undef COVERAGE_IGNORE                    
+                    if (cond_velocity_error == 0.0)
+                    {
+                        cond_velocity_error = DBL_EPSILON; //Avoid log zero on plot
+                    }
+                    if (apd90_first_qn_error == 0.0)
+                    {
+                        apd90_first_qn_error = DBL_EPSILON; //Avoid log zero on plot
+                    }
+                    if (apd90_third_qn_error == 0.0)
+                    {
+                        apd90_third_qn_error = DBL_EPSILON; //Avoid log zero on plot
+                    }
                 }
 
                 prev_cond_velocity = ConductionVelocity;
@@ -546,9 +558,9 @@ public:
                                             << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
                                             << sqrt(sum_sq_abs_error/sum_sq_prev_voltage) << "\t"
                                             << max_abs_error << "\t"
-                                            << Apd90FirstQn <<" ("<< apd90_first_qn_error <<")"<< "\t"
-                                            << Apd90ThirdQn <<" ("<< apd90_third_qn_error <<")"<< "\t"
-                                            << ConductionVelocity <<" ("<< cond_velocity_error  <<")"<< std::endl;
+                                            << Apd90FirstQn <<" "<< apd90_first_qn_error <<""<< "\t"
+                                            << Apd90ThirdQn <<" "<< apd90_third_qn_error <<""<< "\t"
+                                            << ConductionVelocity <<" "<< cond_velocity_error  <<""<< std::endl;
                     }
                     // convergence criterion
                     this->Converged = sum_sq_abs_error/sum_sq_prev_voltage<this->RelativeConvergenceCriterion;
