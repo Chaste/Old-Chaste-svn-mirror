@@ -524,10 +524,6 @@ public:
                             sum_sq_abs_error += abs_error*abs_error;
                             sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
                         }
-                        else
-                        {
-                            assert(0);
-                        }
                     }
 
                 }
