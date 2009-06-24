@@ -296,7 +296,9 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
         // Avoid memory leaks
         if (current_solution != mInitialCondition)
         {
+            HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
             VecDestroy(current_solution);
+            HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
         }
         current_solution = next_solution;
     }

@@ -86,9 +86,11 @@ public:
         need_initialisation = true;
 
         // Test the RHF of the mesh
-        for (unsigned i = 0; i < bidomain_problem.rGetMesh().GetNumNodes(); i++)
+        for (AbstractMesh<3,3>::NodeIterator it = bidomain_problem.rGetMesh().GetNodeIteratorBegin();
+             it != bidomain_problem.rGetMesh().GetNodeIteratorEnd();
+             ++it)
         {
-            if (bidomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
+            if (it->GetPoint()[0] == 0.1)
             {
                 // x = 0 is where the stimulus has been applied
                 // x = 0.1cm is the other end of the mesh and where we want to
@@ -96,7 +98,7 @@ public:
 
                 if (need_initialisation)
                 {
-                    probe_voltage = voltage_replicated[2*i];
+                    probe_voltage = voltage_replicated[2*it->GetIndex()];
                     need_initialisation = false;
                 }
                 else
@@ -104,14 +106,17 @@ public:
                     // the voltage at the end face varies a little because
                     // of drift due to the orientation of the tets in the mesh,
                     // hence the tolerance of 0.2
-                    TS_ASSERT_DELTA(voltage_replicated[2*i], probe_voltage, 0.2);
+                    TS_ASSERT_DELTA(voltage_replicated[2*it->GetIndex()], probe_voltage, 0.2);
                 }
 
                 // if a 1D simulation is run for 4ms on the 0_1mm_10elements mesh
                 // the result at the end node is 20.0755
-                TS_ASSERT_DELTA(voltage_replicated[2*i], 20.0755, 1.3);
+                TS_ASSERT_DELTA(voltage_replicated[2*it->GetIndex()], 20.0755, 1.3);
             }
         }
+        
+        HeartEventHandler::Headings();
+        HeartEventHandler::Report();
 
     }
 

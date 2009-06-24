@@ -142,6 +142,7 @@ public:
     }
     void TestSilentlyCloseEvent()
     {
+        AnEventHandler::Headings();
         AnEventHandler::Reset();
         AnEventHandler::Enable();
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);

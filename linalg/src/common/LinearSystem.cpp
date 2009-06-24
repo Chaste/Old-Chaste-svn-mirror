@@ -543,6 +543,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
     if (!mKspIsSetup)
     {
+        HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         mNonZerosUsed=mat_info.nz_used;
         //MatNorm(mLhsMatrix, NORM_FROBENIUS, &mMatrixNorm);
         PC prec; //Type of pre-conditioner
@@ -578,7 +579,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
 
         // Turn off pre-conditioning if the system size is very small
-       if (mSize <= 4)
+        if (mSize <= 4)
         {
             PCSetType(prec, PCNONE);
         }
@@ -612,6 +613,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
         mKspIsSetup = true;
                 
+        HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
     }
     else
     {
@@ -631,6 +633,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
     // Create solution vector
     ///\todo Should it be compulsory for the caller to supply this and manage the memory?
+    HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     Vec lhs_vector;
     VecDuplicate(mRhsVector, &lhs_vector);//Sets the same size (doesn't copy)
     if (lhsGuess)
@@ -638,6 +641,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         VecCopy(lhsGuess, lhs_vector);
         //VecZeroEntries(lhs_vector);
     }
+    HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 //    //Double check that the mRhsVector contains sensible values
 //    double *p_rhs, *p_guess;
 //    VecGetArray(mRhsVector, &p_rhs);

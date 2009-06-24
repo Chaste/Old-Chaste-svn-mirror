@@ -161,6 +161,7 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 {
     if (this->mpLinearSystem == NULL)
     {
+        HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         if (initialSolution == NULL)
         {
             // Static problem, create linear system
@@ -181,6 +182,7 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         }
 
         this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);
+        HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
     }
 }
 

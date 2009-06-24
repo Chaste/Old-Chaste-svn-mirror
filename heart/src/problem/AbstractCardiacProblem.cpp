@@ -93,6 +93,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     mOutputDirectory = HeartConfig::Instance()->GetOutputDirectory();
     mOutputFilenamePrefix = HeartConfig::Instance()->GetOutputFilenamePrefix();
 
+    HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
     if (mpMesh==NULL)
     {
         // If no mesh has been passed, we get it from the configuration file
@@ -112,9 +113,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                     mpMesh = new ParallelTetrahedralMesh<ELEM_DIM, SPACE_DIM>();
                 }
 
-                HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
                 mpMesh->ConstructFromMeshReader(mesh_reader);
-                HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
             }
             else
             {
@@ -215,6 +214,8 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     {
         mpMesh->ReadNodesPerProcessorFile(mNodesPerProcessorFilename);
     }
+    HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
+    
     ///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
     delete mpCardiacPde; // In case we're called twice
     mpCardiacPde = CreateCardiacPde();
@@ -357,7 +358,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 {
     PreSolveChecks();
 
-    if(mpBoundaryConditionsContainer == NULL) // the user didnt supply a bcc
+    if (mpBoundaryConditionsContainer == NULL) // the user didn't supply a bcc
     {
         // set up the default bcc
         mpDefaultBoundaryConditionsContainer = new BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>;
@@ -399,9 +400,11 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     // If we have already run a simulation, free the old solution vec
     if (mSolution)
     {
+        HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         VecDestroy(mSolution);
+        HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
     }
-
+    
     while ( !stepper.IsTimeAtEnd() )
     {
         // solve from now up to the next printing time
@@ -428,7 +431,9 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         PetscTools::ReplicateException(false);
 
         // Free old initial condition
+        HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         VecDestroy(initial_condition);
+        HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 
         // Initial condition for next loop is current solution
         initial_condition = mSolution;
@@ -441,7 +446,9 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             // print out details at current time if asked for
             if (mWriteInfo)
             {
+                HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
                 WriteInfo(stepper.GetTime());
+                HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
             }
 
             // Writing data out to the file <mOutputFilenamePrefix>.dat

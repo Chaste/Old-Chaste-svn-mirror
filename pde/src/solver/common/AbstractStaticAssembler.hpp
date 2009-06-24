@@ -589,7 +589,9 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     ////////////////////////////////////////////////////////
     if (assembleVector)
     {
+        HeartEventHandler::EndEvent(assemble_event);
         this->ApplyNeummanBoundaryConditions();
+        HeartEventHandler::BeginEvent(assemble_event);
     }
 
     if (assembleVector)
