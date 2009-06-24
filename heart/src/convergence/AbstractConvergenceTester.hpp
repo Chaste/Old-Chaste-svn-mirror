@@ -493,11 +493,6 @@ public:
                     {
                         apd90_third_qn_error = fabs(Apd90ThirdQn - prev_apd90_third_qn) / prev_apd90_third_qn;
                     }
-#undef COVERAGE_IGNORE                    
-                    if (cond_velocity_error == 0.0)
-                    {
-                        cond_velocity_error = DBL_EPSILON; //Avoid log zero on plot
-                    }
                     if (apd90_first_qn_error == 0.0)
                     {
                         apd90_first_qn_error = DBL_EPSILON; //Avoid log zero on plot
@@ -505,6 +500,11 @@ public:
                     if (apd90_third_qn_error == 0.0)
                     {
                         apd90_third_qn_error = DBL_EPSILON; //Avoid log zero on plot
+                    }
+#undef COVERAGE_IGNORE                    
+                    if (cond_velocity_error == 0.0)
+                    {
+                        cond_velocity_error = DBL_EPSILON; //Avoid log zero on plot
                     }
                 }
 
