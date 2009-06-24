@@ -618,11 +618,9 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     double largest_eigenvalue, discriminant;
 
     discriminant = sqrt((moments(0) - moments(1))*(moments(0) - moments(1)) + 4.0*moments(2)*moments(2));
-
     // This is always the largest eigenvalue as both eigenvalues are real as it is a
     // symmetric matrix
     largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;
-
     if (fabs(discriminant) < 1e-10)
     {
         // Return a random unit vector
@@ -633,8 +631,16 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     {
         if (moments(2) == 0.0)
         {
-             short_axis(0) = 0.0;
-             short_axis(1) = 1.0;
+            if (moments(0)<moments(1))
+            {
+                short_axis(0) = 0.0;
+                short_axis(1) = 1.0;
+            }
+            else
+            {
+                short_axis(0) = 1.0;
+                short_axis(1) = 0.0;
+            }
         }
         else
         {

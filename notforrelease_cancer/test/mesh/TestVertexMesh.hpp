@@ -1936,10 +1936,9 @@ public:
 
         // Test GetShortAxisOfElement() method
         short_axis = mesh2.GetShortAxisOfElement(0);
-        // \todo this test should pass!!! as the short axis is (1,0))
         
-        //TS_ASSERT_DELTA(short_axis(0), 1.0, 1e-6);
-        //TS_ASSERT_DELTA(short_axis(1), 0.0, 1e-6);
+        TS_ASSERT_DELTA(short_axis(0), 1.0, 1e-6);
+        TS_ASSERT_DELTA(short_axis(1), 0.0, 1e-6);
 
 
         // Third test
