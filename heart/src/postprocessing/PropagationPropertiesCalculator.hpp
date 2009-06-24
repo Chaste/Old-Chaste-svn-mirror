@@ -141,9 +141,11 @@ public:
      *
      * @param percentage  The percentage of the amplitude to calculate for.
      * @param globalNodeIndex  The cell at which to calculate.
+     * @param threshold  The voltage threshold for APD calculation (we count this as the start of an AP)
      */
     std::vector<double> CalculateAllActionPotentialDurations(const double percentage,
-                                                             unsigned globalNodeIndex);
+                                                             unsigned globalNodeIndex,
+                                                             double threshold);
 
 };
 

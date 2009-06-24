@@ -89,11 +89,11 @@ double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const d
 }
 
 std::vector<double> PropagationPropertiesCalculator::CalculateAllActionPotentialDurations(const double percentage,
-        unsigned globalNodeIndex)
+        unsigned globalNodeIndex, double threshold)
 {
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times);
+    CellProperties cell_props(voltages, times, threshold);
     return cell_props.GetAllActionPotentialDurations(percentage);
 }
 

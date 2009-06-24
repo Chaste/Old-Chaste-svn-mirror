@@ -1,6 +1,6 @@
 bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
-TestCellProperties.hpp
+postprocessing/TestCellProperties.hpp
 mechanics/TestCellularMechanicsOdeSystems.hpp
 convergence/TestConvergenceTester.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
@@ -11,5 +11,5 @@ monodomain/TestMonodomainPde.hpp
 monodomain/TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestPlaneStimulusCellFactory.hpp
-TestPropagationPropertiesCalculator.hpp
+postprocessing/TestPropagationPropertiesCalculator.hpp
 TestStimulus.hpp

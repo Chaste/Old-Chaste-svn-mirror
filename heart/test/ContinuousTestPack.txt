@@ -4,14 +4,14 @@ bidomain/TestBidomainProblem.hpp
 bidomain/TestBidomainWithBathAssembler.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
 TestCardiacUneven.hpp
-TestCellProperties.hpp
+postprocessing/TestCellProperties.hpp
 mechanics/TestCellularMechanicsOdeSystems.hpp
 TestConductivityTensors.hpp
 convergence/TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
 TestElectrodes.hpp
 ionicmodels/TestFaberRudyAgainstLimpet.hpp
-TestHdf5ToMeshalyzerConverter.hpp
+postprocessing/TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
 TestHeartGeometryInformation.hpp
 TestHeterogeneousConductivities.hpp
@@ -27,7 +27,8 @@ TestNeumannStimulus.hpp
 mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestPapillaryFibreCalculator.hpp
 TestPlaneStimulusCellFactory.hpp
-TestPropagationPropertiesCalculator.hpp
+postprocessing/TestPostProcessingWriter.hpp
+postprocessing/TestPropagationPropertiesCalculator.hpp
 TestChasteParametersReader.hpp
 TestStimulus.hpp
 TestStimulusBoundaryCondition.hpp

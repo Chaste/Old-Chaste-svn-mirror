@@ -149,7 +149,7 @@ public:
         TS_ASSERT_DELTA(properties_fs.CalculateMaximumUpstrokeVelocity(middle_index), 180.28, 0.01);
 
         //Testing the method that returns all APs
-        TS_ASSERT_EQUALS(properties_fs.CalculateActionPotentialDuration(90, middle_index), properties_fs.CalculateAllActionPotentialDurations(90, middle_index)[0]);
+        TS_ASSERT_EQUALS(properties_fs.CalculateActionPotentialDuration(90, middle_index), properties_fs.CalculateAllActionPotentialDurations(90, middle_index, -30.0)[0]);
         
         //Throws because the percentage "0.9%" looks too small and is likely to be a mistake
         TS_ASSERT_THROWS_ANYTHING(properties_fs.CalculateActionPotentialDuration(0.9, middle_index));
@@ -175,7 +175,7 @@ public:
         TS_ASSERT_DELTA(properties_bw.CalculateMaximumUpstrokeVelocity(middle_index), 173.02, 0.01);
 
         //Testing the mtehod that returns all APs
-        TS_ASSERT_EQUALS(properties_bw.CalculateActionPotentialDuration(90, middle_index), properties_bw.CalculateAllActionPotentialDurations(90, middle_index)[0]);
+        TS_ASSERT_EQUALS(properties_bw.CalculateActionPotentialDuration(90, middle_index), properties_bw.CalculateAllActionPotentialDurations(90, middle_index, -30.0)[0]);
     }
 
     void TestUpstrokeBidomain3D()
@@ -190,7 +190,7 @@ public:
         TS_ASSERT_DELTA(ppc_fs.CalculateActionPotentialDuration(90, 14895U), 230.25, 1.0);
 
         //Testing the mtehod that returns all APs
-        TS_ASSERT_EQUALS(ppc_fs.CalculateActionPotentialDuration(90, 14895U), ppc_fs.CalculateAllActionPotentialDurations(90, 14895U)[0]);
+        TS_ASSERT_EQUALS(ppc_fs.CalculateActionPotentialDuration(90, 14895U), ppc_fs.CalculateAllActionPotentialDurations(90, 14895U, -30.0)[0]);
 
         Hdf5DataReader mono_bw_reader("heart/test/data/MonodomainBackwardToCompareWithFastSlow3D", "res", false);
         //std::vector<double> voltage_fast_slow=mono_fs_reader.GetVariableOverTime("V", mMiddleIndex);
