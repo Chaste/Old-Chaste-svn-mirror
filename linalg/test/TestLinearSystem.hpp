@@ -776,9 +776,9 @@ public:
     {
          //Archive                           
         OutputFileHandler handler("Archive", false);
+        handler.SetArchiveDirectory();
         std::string archive_filename;
-        ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
-        archive_filename = handler.GetOutputDirectoryFullPath() + "ls.arch";       
+        archive_filename = handler.GetOutputDirectoryFullPath() + "linear_system.arch";       
         
         int lo, hi;
         unsigned size=5;

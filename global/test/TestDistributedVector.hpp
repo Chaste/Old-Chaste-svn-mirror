@@ -317,7 +317,8 @@ public:
         
         // Where to archive
         OutputFileHandler handler("archive");
-        std::string archive_filename = handler.GetProcessUniqueFilePath("factory.arch");
+        handler.SetArchiveDirectory();
+        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("factory.arch");
         
         // Archive
         {

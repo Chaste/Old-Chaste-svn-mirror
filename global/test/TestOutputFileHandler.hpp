@@ -114,17 +114,6 @@ public:
         }
     }
     
-    void TestProcessUniqueNaming()
-    {
-        OutputFileHandler handler("handler_test", true);
-        std::string unique_filepath = handler.GetProcessUniqueFilePath("test_file");
-        
-        std::stringstream expected_filepath;
-        expected_filepath << handler.GetOutputDirectoryFullPath() << "test_file";
-        expected_filepath << "." << PetscTools::GetMyRank();
-        
-        TS_ASSERT_EQUALS(expected_filepath.str(), unique_filepath);
-    }
 };
 
 #endif /*TESTOUTPUTFILEHANDLER_HPP_*/

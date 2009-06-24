@@ -107,13 +107,6 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath()
     return mDirectory;
 }
 
-std::string OutputFileHandler::GetProcessUniqueFilePath(const std::string& rFileName)
-{
-    std::stringstream filepath;
-    filepath << mDirectory << rFileName << "." << PetscTools::GetMyRank();
-    return filepath.str();
-}
-
 out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
                                              std::ios_base::openmode mode)
 {

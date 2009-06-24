@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <memory>
 
+#include "ArchiveLocationInfo.hpp"
+
 /** Type of our output streams; a managed pointer to an std::ofstream */
 typedef std::auto_ptr<std::ofstream> out_stream;
 
@@ -94,17 +96,12 @@ public:
     std::string GetOutputDirectoryFullPath();
     
     /**
-     * Get the full path to an output file which has a name unique to the current
-     * process.  Useful for ensuring that each process writes to / reads from a
-     * separate file when running in parallel.
-     * 
-     * The path will have the form "path_to_output_dir/rFileName.process_rank"
-     * 
-     * @param rFileName the base file name
-     * @return a full path to the file for this process
+     * Helper method to set up ArchiveLocationInfo
      */
-    std::string GetProcessUniqueFilePath(const std::string& rFileName);
-
+    void SetArchiveDirectory()
+    {
+        ArchiveLocationInfo::SetArchiveDirectory(GetOutputDirectoryFullPath());
+    }
     /**
      * Open an output file in our directory, and check it was opened successfully.
      * Throws an Exception if not.

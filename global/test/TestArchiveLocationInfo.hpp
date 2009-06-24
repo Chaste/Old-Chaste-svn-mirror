@@ -49,6 +49,19 @@ public:
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "new_archive_dir/mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "new_archive_dir/");
     }
+
+    void TestProcessUniqueNaming()
+    {
+        ArchiveLocationInfo::SetArchiveDirectory("new_archive_dir");
+        
+        std::stringstream expected_filepath;
+        expected_filepath << ArchiveLocationInfo::GetArchiveDirectory() << "fred";
+        expected_filepath << "." << PetscTools::GetMyRank();
+        
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred"), expected_filepath.str());
+    }
+
+
 };
 
 

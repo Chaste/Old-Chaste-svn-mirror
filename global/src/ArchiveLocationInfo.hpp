@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ARCHIVELOCATIONINFO_HPP_
 
 #include "Exception.hpp"
+#include "PetscTools.hpp"
 
 /**
  * Mini-class to help with 'archiving' various classes that don't write their
@@ -90,7 +91,23 @@ public:
         }
         return mDirPath;
     }
-    
+    /**
+     * Get the full path to an output file which has a name unique to the current
+     * process.  Useful for ensuring that each process writes to / reads from a
+     * separate file when running in parallel.
+     * 
+     * The path will have the form "path_to_output_dir/rFileName.process_rank"
+     * 
+     * @param rFileName the base file name
+     * @return a full path to the file for this process
+     */   
+    static std::string GetProcessUniqueFilePath(const std::string& rFileName)
+    {
+        std::stringstream filepath;
+        filepath << GetArchiveDirectory() << rFileName << "." << PetscTools::GetMyRank();
+        return filepath.str();
+    }
+      
     /**
      * Set the directory that archives are being written to.
      * @param rDirectory  the directory in question.
@@ -103,6 +120,7 @@ public:
             mDirPath = mDirPath + "/";
         }
     }
+    
 };
 
 #endif /*ARCHIVELOCATIONINFO_HPP_*/

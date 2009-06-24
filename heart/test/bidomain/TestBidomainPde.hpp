@@ -30,10 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTBIDOMAINPDE_HPP_
 #define TESTBIDOMAINPDE_HPP_
 
+#include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <iostream>
 #include <vector>
 
+//#include "ArchiveLocationInfo.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -47,7 +51,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OrthotropicConductivityTensors.hpp"
 #include "TetrahedralMesh.hpp"
 #include <petsc.h>
-#include <cxxtest/TestSuite.h>
 
 
 // cell factory for creating 2 cells with both intra and extracellular stimuli
@@ -144,6 +147,30 @@ public:
 
         VecDestroy(monodomain_vec);
         VecDestroy(bidomain_vec);
+    }
+    
+    void TestSaveAndLoadCardiacPDE()
+    {
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(1);
+
+        MyCardiacCellFactory cell_factory;
+        cell_factory.SetMesh(&mesh);
+
+        BidomainPde<1> bidomain_pde( &cell_factory );
+        
+        //Archive                           
+        OutputFileHandler handler("Archive", false);
+        std::string archive_filename;
+        handler.SetArchiveDirectory();
+        archive_filename = handler.GetOutputDirectoryFullPath() + "bidomain_pde.arch";       
+        
+        std::ofstream ofs(archive_filename.c_str());
+        boost::archive::text_oarchive output_arch(ofs);
+        BidomainPde<1>* const p_bidomain_pde = &bidomain_pde;
+        output_arch << p_bidomain_pde;  
+        
+        
     }
 };
 

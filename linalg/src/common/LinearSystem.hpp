@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include "UblasCustomFunctions.hpp"
 #include "PetscTools.hpp"
-#include "ArchiveLocationInfo.hpp"
 #include "OutputFileHandler.hpp"
 #include "PCBlockDiagonal.hpp"
 #include <petscvec.h>

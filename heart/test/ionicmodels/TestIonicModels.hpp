@@ -72,6 +72,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 
+//#include "ArchiveLocationInfo.hpp"
+
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
@@ -904,7 +906,8 @@ public:
     {
         //Archive
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetProcessUniqueFilePath("lr91.arch");
+        handler.SetArchiveDirectory();
+        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("lr91.arch");
 
         // Save
         {
@@ -960,7 +963,8 @@ public:
     {
         //Archive
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetProcessUniqueFilePath("backward_cells.arch");
+        handler.SetArchiveDirectory();
+        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("backward_cells.arch");
         
         // Save
         {
@@ -1046,7 +1050,8 @@ public:
     {
         //Archive
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetProcessUniqueFilePath("noble98.arch");
+        ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
+        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("noble98.arch");
 
         // Save
         {

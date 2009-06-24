@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPDE_HPP_
 #define ABSTRACTCARDIACPDE_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
 
@@ -39,7 +43,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ReplicatableVector.hpp"
 #include "HeartConfig.hpp"
+#include "TemplatedExport.hpp"
 
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
@@ -62,6 +69,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class AbstractCardiacPde
 {
+private:
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        //Archive vectory factory?  Do we have one available?  (If not - do it in the test to guard against errors)
+        
+        //Archive cells using handler.GetProcessUniqueFilePath("") and ArchiveLocationInfo
+        
+        archive & mpDistributedVectorFactory;
+    }
+
+    
 protected:
 
     /** Intracellular conductivity tensors.  Not archived, since it's loaded from the HeartConfig singleton. */
@@ -192,6 +220,40 @@ public:
      */
     void ReplicateCaches();
 };
+
+// Declare identifier for the serializer
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(AbstractCardiacPde);
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive, unsigned ELEM_DIM, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const AbstractCardiacPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
+{
+ 
+    std::string archive_filename_cells =  ArchiveLocationInfo::GetProcessUniqueFilePath("cells");
+    std::ofstream ofs(archive_filename_cells.c_str());
+//    boost::archive::text_oarchive output_arch(ofs);
+//    ofs << t->mCellsDistributed;
+}    
+    
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate an instance (using existing constructor)
+ */
+template<class Archive, unsigned ELEM_DIM, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, AbstractCardiacPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
+{
+    std::string archive_filename_cells =  ArchiveLocationInfo::GetProcessUniqueFilePath("cells");
+
+}
+}
+} // namespace ...
+
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
 

@@ -505,7 +505,8 @@ public:
     void TestArchivingSolvers() throw(Exception)
     {
         OutputFileHandler handler("archive",false);
-        std::string archive_filename = handler.GetProcessUniqueFilePath("ode_solver.arch");
+        handler.SetArchiveDirectory();
+        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("ode_solver.arch");
 
         // Archive
         {
