@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellProperties.hpp"
 #include "Exception.hpp"
+#include "Debug.hpp"
 #include <cmath>
 
 #include <iostream>
@@ -169,11 +170,14 @@ void CellProperties::CalculateProperties()
 }
 
 
-std::vector<double> CellProperties::CalculateActionPotentialDurations(const double percentage,
-                                            std::vector<double>& rOnsets,
-                                            std::vector<double>& rRestingPotentials,
-                                            std::vector<double>& rPeakPotentials)
+std::vector<double> CellProperties::CalculateActionPotentialDurations(const double percentage)
 {
+   if (mOnsets.size() == 0)
+    {
+        // possible false error here if the simulation started at time < 0
+        EXCEPTION("No upstroke occurred");
+    }
+
     double prev_v = -DBL_MAX;
     unsigned APcounter=0;//will keep count of the APDs that we calculate
     bool apd_is_calculated=true;//this will ensure we hit the target only once per AP.
@@ -186,13 +190,13 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
         double v = mrVoltage[i];
 
         //First we make sure we stop calculating after the last AP has been calculated
-        if (APcounter<rPeakPotentials.size())
+        if (APcounter<mPeakValues.size())
         {
             //Set the target potential
-            target  = rRestingPotentials[APcounter]+0.01*(100-percentage)*(rPeakPotentials[APcounter]-rRestingPotentials[APcounter]);
+            target  = mRestingValues[APcounter]+0.01*(100-percentage)*(mPeakValues[APcounter]-mRestingValues[APcounter]);
 
             //if we reach the peak, we need to start to calculate an APD
-            if (fabs(v-rPeakPotentials[APcounter])<=1e-6)
+            if (fabs(v-mPeakValues[APcounter])<=1e-6)
             {
                apd_is_calculated=false;
             }
@@ -200,50 +204,29 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
             //and we are told this apd is not calculated yet.
             if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
             {
-                apds.push_back (t - rOnsets[APcounter]);
+                apds.push_back (t - mOnsets[APcounter]);
                 APcounter++;
                 apd_is_calculated=true;
             }
         }
         prev_v = v;
     }
-
+    if (apds.size() == 0)
+    {
+        EXCEPTION("No full action potential was recorded");
+    }
     return apds;
 }
 
 
 std::vector<double> CellProperties::GetAllActionPotentialDurations(const double percentage)
 {
-    if (mOnsets.size() == 0)
-    {
-        // possible false error here if the simulation started at time < 0
-        EXCEPTION("No action potential occurred");
-    }
-
-    std::vector<double> apds = CalculateActionPotentialDurations(percentage,
-                                                        mOnsets,
-                                                        mRestingValues,
-                                                        mPeakValues);
-
-    return apds;
+    return CalculateActionPotentialDurations(percentage);
 }
 
 double CellProperties::GetLastActionPotentialDuration(const double percentage)
 {
-    if (mOnsets.size() == 0)
-    {
-        // possible false error here if the simulation started at time < 0
-        EXCEPTION("No action potential occurred");
-    }
-
-    std::vector<double> apds = CalculateActionPotentialDurations(percentage,
-                                                        mOnsets,
-                                                        mRestingValues,
-                                                        mPeakValues);
-    if (apds.size()==0)
-    {
-        EXCEPTION("No complete action potential occurred");
-    }
+     std::vector<double> apds = CalculateActionPotentialDurations(percentage);
 
     //return the last apd
     return apds[apds.size()-1];

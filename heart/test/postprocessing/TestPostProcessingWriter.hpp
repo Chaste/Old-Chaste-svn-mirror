@@ -44,8 +44,9 @@ public:
     {
         Hdf5DataReader simulation_data("heart/test/data",
                                        "postprocessingapd", false);
-        std::string output_dir = "TestPostProcessingWriter";
-        PostProcessingWriter writer(&simulation_data, output_dir);
+                                       
+        std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
+        PostProcessingWriter writer(&simulation_data);
         
         // These things are available in the XML output requests
         //    <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
@@ -65,6 +66,21 @@ public:
 //        writer.WriteUpstrokeTimeMap(-30.0);
 //        writer.WriteMaxUpstrokeVelocityMap();
 //        writer.WriteConductionVelocityMap(0u);
+    }
+    
+    void TestApdWritingWithNoApdsPresent() throw(Exception)
+    {
+        Hdf5DataReader simulation_data("heart/test/data/Monodomain1d",
+                                       "MonodomainLR91_1d", false);
+                                       
+        std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
+        PostProcessingWriter writer(&simulation_data);  
+        
+        writer.WriteApdMapFile(-30.0, 60.0);
+        
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ApdMap.dat " 
+                                   + "heart/test/data/101_zeroes.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
 };

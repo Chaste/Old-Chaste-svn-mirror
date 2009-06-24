@@ -86,16 +86,10 @@ private:
      * RestingPotential+'percentage'*(amplitude-resting).
      *
      * @param percentage  The percentage of the amplitude to calculate for.
-     * @param rOnsets  A vector containg the times at which the upstroke crosses the threshold.
-     * @param rRestingPotentials  A vector containg the resting potentials of all APs.
-     * @param rPeakPotentials  A vector containg the peak potentials of all APs.
      * 
      * @return a vector containing the APDs.
      */
-    std::vector<double> CalculateActionPotentialDurations(const double percentage,
-                                            std::vector<double>& rOnsets,
-                                            std::vector<double>& rRestingPotentials,
-                                            std::vector<double>& rPeakPotentials);
+    std::vector<double> CalculateActionPotentialDurations(const double percentage);
 
 public:
 

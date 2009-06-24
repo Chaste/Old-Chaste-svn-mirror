@@ -32,34 +32,59 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "Hdf5DataReader.hpp"
 #include "PropagationPropertiesCalculator.hpp"
+#include "HeartConfig.hpp"
+#include "Debug.hpp"
+
 #include <iostream>
 
+/** 
+ * Write out physiological parameters at the end of a simulation
+ * - APD map
+ * - ...
+ */
 class PostProcessingWriter
 {
   private:
-    PropagationPropertiesCalculator* mpCalculator;   
-    unsigned mNumberOfNodes;
-    std::string mOutputDirectory;
+    PropagationPropertiesCalculator* mpCalculator; /**< PropagationPropertiesCalculator based on HDF5 data reader*/
+    unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
     
   public:
-    PostProcessingWriter(Hdf5DataReader* pDataReader, std::string outputDirectory)
+    /** 
+     * Constructor
+     * @param pDataReader  an HDF5 reader from which to build the PropagationPropertiesCalculator
+     */
+    PostProcessingWriter(Hdf5DataReader* pDataReader)
     {
          mpCalculator = new PropagationPropertiesCalculator(pDataReader);
          mNumberOfNodes = pDataReader->GetNumberOfRows();
-         mOutputDirectory = outputDirectory;
     }
     
+    /**
+     * Destructor
+     */
     ~PostProcessingWriter()
     {
         delete mpCalculator;
     }
     
+    /**
+     * Method for opening an APD map file and writing one row per node
+     * line 1: <first APD for node 0> <second APD for node 0> ...
+     * line 2: <first APD for node 1> <second APD for node 1> ...
+     * etc.
+     * 
+     * Nodes where there is no APD are respresented by a single
+     * 0
+     * 
+     * @param  threshold - Vm used to signify the upstroke (mV)
+     * @param  repolarisationPercentage eg. 90.0 for APD90
+     */
     void WriteApdMapFile(double threshold, double repolarisationPercentage)
     {
         if(PetscTools::AmMaster())
         {
             out_stream p_file=out_stream(NULL);
-            OutputFileHandler output_file_handler(mOutputDirectory, false);
+            OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
             p_file = output_file_handler.OpenOutputFile("ApdMap.dat");
             for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
             { 
@@ -67,11 +92,12 @@ class PostProcessingWriter
                 try
                 {
                     apds = mpCalculator->CalculateAllActionPotentialDurations(repolarisationPercentage, node_index, threshold);
+                    assert(apds.size() != 0);
                 }
                 catch(Exception& e)
-                {
-                    
+                {                    
                     apds.push_back(0);
+                    assert(apds.size() == 1);
                 }
                 for (unsigned i = 0; i < apds.size(); i++)
                 {
