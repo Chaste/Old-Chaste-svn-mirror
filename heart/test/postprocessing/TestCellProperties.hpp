@@ -159,7 +159,7 @@ public:
         TS_ASSERT_EQUALS(cell_properties.GetMaxUpstrokeVelocities()[size-1], cell_properties.GetLastMaxUpstrokeVelocity() );
 
         // Then check against hardcoded values (checked manually from the file)
-        TS_ASSERT_DELTA(apds[0], 186.3, 0.1);
+        TS_ASSERT_DELTA(apds[0], 185.37, 0.1);
         TS_ASSERT_DELTA(apds[1], 186.3, 0.1);
         TS_ASSERT_DELTA(apds[2], 185.3, 0.1);
         TS_ASSERT_DELTA(apds[3], 184.3, 0.1);
@@ -174,7 +174,7 @@ public:
         std::vector<double> resting_values = cell_properties.GetRestingPotentials();
         size = resting_values.size();
 
-        TS_ASSERT_DELTA(resting_values[0], -85.1, 0.1);
+        TS_ASSERT_DELTA(resting_values[0], -84.6, 0.1);
         TS_ASSERT_DELTA(resting_values[1], -84.6, 0.1);
         TS_ASSERT_DELTA(resting_values[2], -84.6, 0.1);
         TS_ASSERT_DELTA(resting_values[3], -84.6, 0.1);

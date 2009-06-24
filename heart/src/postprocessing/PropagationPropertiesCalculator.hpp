@@ -84,8 +84,9 @@ public:
      * We return all the times of upstroke velocities for all APs.
      *
      * @param globalNodeIndex  The cell at which to calculate.
+     * @param threshold   The voltage threshold for APD calculation (we count this as the start of an AP)
      */
-    std::vector<double> CalculateUpstrokeTimes(unsigned globalNodeIndex);
+    std::vector<double> CalculateUpstrokeTimes(unsigned globalNodeIndex, double threshold);
 
     /**
      * Calculate the conduction velocity between two cells, i.e. the time

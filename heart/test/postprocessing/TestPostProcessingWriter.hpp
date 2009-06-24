@@ -40,7 +40,14 @@ class TestPropagationPropertiesCalculator : public CxxTest::TestSuite
 {
     
 public:
-    void TestBasicSetup() throw(Exception)
+// These things are available in the XML output requests
+//    <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
+//    <UpstrokeTimeMap threshold="-30.0" threshold_unit="mV"/>
+//    <MaxUpstrokeVelocityMap/>
+//    <ConductionVelocityMap origin_node="10"/>
+//    <ConductionVelocityMap origin_node="20"/>
+        
+    void TestWriting() throw(Exception)
     {
         Hdf5DataReader simulation_data("heart/test/data",
                                        "postprocessingapd", false);
@@ -48,24 +55,31 @@ public:
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         PostProcessingWriter writer(&simulation_data);
         
-        // These things are available in the XML output requests
-        //    <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
-        //    <UpstrokeTimeMap threshold="-30.0" threshold_unit="mV"/>
-        //    <MaxUpstrokeVelocityMap/>
-        //    <ConductionVelocityMap origin_node="10"/>
-        //    <ConductionVelocityMap origin_node="20"/>
-        
-        writer.WriteApdMapFile(-30.0, 60.0);
-        
-        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-                                  
-        std::string command = "cmp " + test_output_directory + output_dir + "/ApdMap.dat "
-                                     + "heart/test/data/good_apd_postprocessing.dat";
+        //writer.WriteApdMapFile(-30.0, 60.0);
+                                   
+        std::string command;
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+                                    + output_dir + "/Apd60Map.dat "
+                                    + "heart/test/data/good_apd_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         
-//        writer.WriteUpstrokeTimeMap(-30.0);
+        writer.WriteUpstrokeTimeMap(-30.0);
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+                                    + output_dir + "/UpstrokeTimeMap.dat "
+                                    + "heart/test/data/good_upstroke_time_postprocessing.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+//        
 //        writer.WriteMaxUpstrokeVelocityMap();
+//        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+//                                    + output_dir + "/MaxUpstrokeVelocityMap.dat "
+//                                    + "heart/test/data/good_upstroke_velocity_postprocessing.dat";
+//        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+//
 //        writer.WriteConductionVelocityMap(0u);
+//        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+//                                    + output_dir + "/ConductionVelocityFromNode0.dat "
+//                                    + "heart/test/data/good_conduction_velocity_postprocessing.dat";
+//        TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
     
     void TestApdWritingWithNoApdsPresent() throw(Exception)
@@ -76,9 +90,9 @@ public:
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         PostProcessingWriter writer(&simulation_data);  
         
-        writer.WriteApdMapFile(-30.0, 60.0);
+        //writer.WriteApdMapFile(-30.0, 90.0);
         
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ApdMap.dat " 
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd90Map.dat " 
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }

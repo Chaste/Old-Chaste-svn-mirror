@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellProperties.hpp"
 #include "Exception.hpp"
-#include "Debug.hpp"
 #include <cmath>
 
 #include <iostream>
@@ -62,17 +61,7 @@ void CellProperties::CalculateProperties()
     {
         double v = mrVoltage[i];
         double t = mrTime[i];
-        double upstroke_vel;
-
-        if (i==1)
-        {   // artificially set initial upstroke_vel to be zero otherwise
-            // end up dividing by zero
-            upstroke_vel = 0;
-        }
-        else
-        {
-            upstroke_vel = (v - prev_v) / (t - prev_t);
-        }
+        double upstroke_vel = (v - prev_v) / (t - prev_t);
 
         //Look for the upstroke velocity and when it happens (could be below or above threshold).
         if(upstroke_vel>=current_upstroke_velocity)
@@ -89,7 +78,7 @@ void CellProperties::CalculateProperties()
                 if(fabs(upstroke_vel)<=current_minimum_velocity)
                 {
                     current_minimum_velocity=fabs(upstroke_vel);
-                    current_resting_value = v;
+                    current_resting_value = prev_v;
                 }
 
                 // If we cross the threshold, this counts as an AP

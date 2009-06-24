@@ -85,7 +85,9 @@ class PostProcessingWriter
         {
             out_stream p_file=out_stream(NULL);
             OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-            p_file = output_file_handler.OpenOutputFile("ApdMap.dat");
+            std::stringstream stream;
+            stream << repolarisationPercentage;
+            p_file = output_file_handler.OpenOutputFile("Apd" + stream.str() + "Map.dat");
             for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
             { 
                 std::vector<double> apds;
@@ -102,6 +104,39 @@ class PostProcessingWriter
                 for (unsigned i = 0; i < apds.size(); i++)
                 {
                     *p_file << apds[i] << "\t";
+                }
+                *p_file << std::endl;
+            }
+            p_file->close();
+        }
+    }
+    
+    /**
+     * Write out times of each upstroke for each node:
+     * 
+     * line 1: <first upstroke time for node 0> <second upstroke time for node 0> ...
+     * line 2: <first upstroke time for node 1> <second upstroke time for node 1> ...
+     * etc.
+     * 
+     * If there is no upstroke then there will a ...///\todo Fix (see below)
+     * 
+     * @param threshold  - Vm used to signify the upstroke (mV) 
+     */
+    void WriteUpstrokeTimeMap(double threshold)
+    {
+        if(PetscTools::AmMaster())
+        {
+            out_stream p_file=out_stream(NULL);
+            OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+            p_file = output_file_handler.OpenOutputFile("UpstrokeTimeMap.dat");
+            for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
+            { 
+                std::vector<double> upstroke_times;
+                upstroke_times = mpCalculator->CalculateUpstrokeTimes(node_index, threshold);
+                assert(upstroke_times.size()!=0); ///\todo Fix (see above)
+                for (unsigned i = 0; i < upstroke_times.size(); i++)
+                {
+                    *p_file << upstroke_times[i] << "\t";
                 }
                 *p_file << std::endl;
             }
