@@ -222,7 +222,9 @@ public:
 };
 
 // Declare identifier for the serializer
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(AbstractCardiacPde);
+EXPORT_TEMPLATE_CLASS2(AbstractCardiacPde, 1, 2);
+EXPORT_TEMPLATE_CLASS2(AbstractCardiacPde, 1, 3);
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(AbstractCardiacPde);
 
 namespace boost
 {
