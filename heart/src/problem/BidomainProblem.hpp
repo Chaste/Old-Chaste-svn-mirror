@@ -83,7 +83,7 @@ protected:
 
     /**
      * Annotate bath nodes with the correct region code, if a bath is present.
-     * Will throw if mHasBath is set but no bath is present in the mesh.
+     * Will throw if #mHasBath is set but no bath is present in the mesh.
      */
     void AnalyseMeshForBath();
 
@@ -104,7 +104,7 @@ public:
      * Constructor
      * @param pCellFactory User defined cell factory which shows how the pde should
      *   create cells.
-     * @hasBath Whether the simulation has a bath (if this is true, all elements with
+     * @param hasBath Whether the simulation has a bath (if this is true, all elements with
      *   attribute = 1 will be set to be bath elements (the rest should have
      *   attribute = 0)).
      *
@@ -165,8 +165,10 @@ public:
     void PreSolveChecks();
 
     /**
-     *  Set an electrode class (which provides boundary conditions). Only
-     *  valid if there is a bath
+     *  Set an electrode object (which provides boundary conditions). Only
+     *  valid if there is a bath.
+     * 
+     * @param rElectrodes
      */
     void SetElectrodes(Electrodes<DIM>& rElectrodes);
 

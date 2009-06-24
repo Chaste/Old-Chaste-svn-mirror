@@ -60,8 +60,10 @@ protected:
     /** If this is set, the nodes for each processor are read */
     std::string mNodesPerProcessorFilename;
 
-    /** Data is not written if output directory or output file prefix are not set*/
-    std::string  mOutputDirectory, mOutputFilenamePrefix;
+    /** Data is not written if output directory is not set */
+    std::string mOutputDirectory;
+    /** Data is not written if output file prefix is not set */
+    std::string mOutputFilenamePrefix;
 
     /**
      *  Whether to use matrix-based assembly of the RHS vector (much more efficient).

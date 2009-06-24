@@ -70,16 +70,19 @@ public:
 
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
+     * @param sfgks
      */
     void SetScaleFactorGks(double sfgks);
 
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
+     * @param sfito
      */
     void SetScaleFactorIto(double sfito);
 
     /**
      * Set the scale factor for Gkr (might be useful for simulating LQT2)
+     * @param sfgkr
      */
     void SetScaleFactorGkr(double sfgkr);
 
@@ -93,7 +96,7 @@ public:
     /**
      * Evaluate the derivatives of the state variables
      * 
-     * @param time  the current time, in milliseconds
+     * @param var_Environment__time  the current time, in milliseconds
      * @param rY  current values of the state variables
      * @param rDY  to be filled in with derivatives
      */
