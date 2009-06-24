@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include "UblasCustomFunctions.hpp"
 #include "PetscTools.hpp"
+#include "ArchiveLocationInfo.hpp"
 #include "OutputFileHandler.hpp"
 #include "PCBlockDiagonal.hpp"
 #include <petscvec.h>
@@ -545,23 +546,13 @@ inline void save_construct_data(
     Archive & ar, const LinearSystem * t, const unsigned int file_version)
 {
     
-    OutputFileHandler handler("Archive", false);
-    std::string archive_filename_lhs, archive_filename_rhs;
-    archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   
-    archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch"; 
+    std::string archive_filename_lhs = ArchiveLocationInfo::GetArchiveDirectory() + "lhs.mat";   
+    std::string archive_filename_rhs = ArchiveLocationInfo::GetArchiveDirectory() + "rhs.vec"; 
     const unsigned size = t->GetSize();
     ar << size;
     
-    PetscViewer vec_viewer;
-    PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_WRITE, &vec_viewer);
-    VecView(t->GetRhsVector(), vec_viewer);
-    PetscViewerDestroy(vec_viewer);
-    
-    
-    PetscViewer mat_viewer;
-    PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_WRITE, &mat_viewer);
-    MatView(t->GetLhsMatrix(), mat_viewer);
-    PetscViewerDestroy(mat_viewer);
+    PetscTools::DumpPetscObject(t->GetRhsVector(), archive_filename_rhs);
+    PetscTools::DumpPetscObject(t->GetLhsMatrix(), archive_filename_lhs);
 
     //Is the matrix structurally symmetric?
     PetscTruth symm_set, is_symmetric;
@@ -580,27 +571,17 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, LinearSystem * t, const unsigned int file_version)
 {
-     OutputFileHandler handler("Archive", false);
-     std::string archive_filename_lhs, archive_filename_rhs;
-     archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   
-     archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch";
+     std::string archive_filename_lhs = ArchiveLocationInfo::GetArchiveDirectory() + "lhs.mat";
+     std::string archive_filename_rhs = ArchiveLocationInfo::GetArchiveDirectory() + "rhs.vec";
       
      PetscInt size; 
      ar >> size;
      
-     PetscViewer vec_viewer;
-     PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_READ, &vec_viewer);
-     
      Vec new_vec;
-     VecLoad(vec_viewer, PETSC_NULL, &new_vec);
-     PetscViewerDestroy(vec_viewer);
+     PetscTools::ReadPetscObject(new_vec, archive_filename_rhs);
 
-     PetscViewer mat_viewer;
-     PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_READ, &mat_viewer);
      Mat new_mat;
-
-     MatLoad(mat_viewer, MATMPIAIJ, &new_mat);
-     PetscViewerDestroy(mat_viewer);
+     PetscTools::ReadPetscObject(new_mat, archive_filename_lhs);
      
      //This has to occur after the call to MatLoad as the matrix does not exist until MatLoad is called.
      //The property will be copied & set correctly in the LinearSystem constructor.

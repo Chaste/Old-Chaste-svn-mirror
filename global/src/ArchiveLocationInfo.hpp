@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHIVELOCATIONINFO_HPP_
 #define ARCHIVELOCATIONINFO_HPP_
 
-#include <string>
+#include "Exception.hpp"
 
 /**
  * Mini-class to help with 'archiving' various classes that don't write their
@@ -60,7 +60,11 @@ public:
      */
     static std::string GetMeshPathname()
     {
-        return mDirPath + mMeshFilename;
+        if (mMeshFilename == "")
+        {
+            EXCEPTION("ArchiveLocationInfo::mMeshFilename has not been set");
+        }
+        return GetArchiveDirectory() + mMeshFilename;
     }
     
     /**
@@ -80,6 +84,10 @@ public:
      */
     static std::string GetArchiveDirectory()
     {
+        if (mDirPath == "")
+        {
+            EXCEPTION("ArchiveLocationInfo::mDirPath has not been set");
+        }
         return mDirPath;
     }
     

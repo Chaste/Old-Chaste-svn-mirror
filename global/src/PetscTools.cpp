@@ -200,7 +200,7 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     MatSetFromOptions(rMat);
 }
 
-void PetscTools::DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPath)
+void PetscTools::DumpPetscObject(const Mat& rMat, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
 #if (PETSC_VERSION_MINOR == 2) //Old API
@@ -215,7 +215,7 @@ void PetscTools::DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
     PetscViewerDestroy(view);
 }
 
-void PetscTools::DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPath)
+void PetscTools::DumpPetscObject(const Vec& rVec, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
 #if (PETSC_VERSION_MINOR == 2) //Old API

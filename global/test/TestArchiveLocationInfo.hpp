@@ -37,6 +37,10 @@ class TestArchiveLocationInfo : public CxxTest::TestSuite
 public:
     void TestMethods()
     {
+        //These throw because we are getting things before they are set.
+        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveDirectory());
+        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetMeshPathname());
+        
         ArchiveLocationInfo::SetMeshPathname("archive_dir", "mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "archive_dir/mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "archive_dir/");

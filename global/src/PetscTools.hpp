@@ -200,7 +200,7 @@ public:
      * @param rMat a matrix
      * @param rOutputFileFullPath where to dump the matrix to disk
      */
-    static void DumpPetscObject(Mat& rMat, const std::string& rOutputFileFullPath);
+    static void DumpPetscObject(const Mat& rMat, const std::string& rOutputFileFullPath);
 
     /**
      * Dumps a given Petsc object to disk.
@@ -208,7 +208,7 @@ public:
      * @param rVec a vector
      * @param rOutputFileFullPath where to dump the vector to disk
      */
-    static void DumpPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
+    static void DumpPetscObject(const Vec& rVec, const std::string& rOutputFileFullPath);
 
     /**
      * Read a previously dumped Petsc object from disk.

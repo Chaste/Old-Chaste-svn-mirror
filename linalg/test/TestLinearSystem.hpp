@@ -682,8 +682,8 @@ public:
          //Archive                           
         OutputFileHandler handler("Archive", false);
         std::string archive_filename_lhs, archive_filename_rhs;
-        archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "lhs.arch";   
-        archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "rhs.arch"; 
+        archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "direct_lhs.mat";   
+        archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "direct_rhs.vec"; 
         
         // Make a linear system
         LinearSystem ls = LinearSystem(3);    
@@ -777,6 +777,7 @@ public:
          //Archive                           
         OutputFileHandler handler("Archive", false);
         std::string archive_filename;
+        ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
         archive_filename = handler.GetOutputDirectoryFullPath() + "ls.arch";       
         
         int lo, hi;
