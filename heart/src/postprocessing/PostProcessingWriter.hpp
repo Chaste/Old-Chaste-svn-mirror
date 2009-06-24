@@ -111,6 +111,7 @@ class PostProcessingWriter
         }
     }
     
+
     /**
      * Write out times of each upstroke for each node:
      * 
@@ -137,6 +138,39 @@ class PostProcessingWriter
                 for (unsigned i = 0; i < upstroke_times.size(); i++)
                 {
                     *p_file << upstroke_times[i] << "\t";
+                }
+                *p_file << std::endl;
+            }
+            p_file->close();
+        }
+    }
+
+    /**
+     * Write out velocities of each max upstroke for each node:
+     * 
+     * line 1: <first upstroke velocity for node 0> <second upstroke velocity for node 0> ...
+     * line 2: <first upstroke velocity for node 1> <second upstroke velocity for node 1> ...
+     * etc.
+     * 
+     * If there is no upstroke then there will a ...///\todo Fix (see below)
+     * 
+     * @param threshold  - Vm used to signify the upstroke (mV) 
+     */
+    void WriteMaxUpstrokeVelocityMap(double threshold)
+    {
+        if(PetscTools::AmMaster())
+        {
+            out_stream p_file=out_stream(NULL);
+            OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+            p_file = output_file_handler.OpenOutputFile("MaxUpstrokeVelocityMap.dat");
+            for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
+            { 
+                std::vector<double> upstroke_velocities;
+                upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
+                assert(upstroke_velocities.size()!=0); ///\todo Fix (see above)
+                for (unsigned i = 0; i < upstroke_velocities.size(); i++)
+                {
+                    *p_file << upstroke_velocities[i] << "\t";
                 }
                 *p_file << std::endl;
             }

@@ -76,8 +76,9 @@ public:
      * We return all the max upstroke velocities for all APs.
      *
      * @param globalNodeIndex  The cell at which to calculate.
+     * @param threshold   The voltage threshold (we use this for marking the end of an AP)
      */
-    std::vector<double> CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex);
+    std::vector<double> CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex, double threshold);
 
      /**
      * Calculate the times of upstroke at a single cell.

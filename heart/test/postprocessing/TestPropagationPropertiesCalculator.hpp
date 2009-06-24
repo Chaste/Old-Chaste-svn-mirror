@@ -88,9 +88,9 @@ public:
          PropagationPropertiesCalculator ppc(&simulation_data);
 
          // Make sure that node 5 has 2 upstrokes, Node 50 and 95 only one
-        TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(5).size(),2U);
-        TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(50).size(),1U);
-        TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(95).size(),1U);
+        TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(5, -30.0).size(),2U);
+        TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(50, -30.0).size(),1U);
+        TS_ASSERT_EQUALS (ppc.CalculateAllMaximumUpstrokeVelocities(95, -30.0).size(),1U);
         TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(5,  -30.0).size(),2U);
         TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(50, -30.0).size(),1U);
         TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(95, -30.0).size(),1U);

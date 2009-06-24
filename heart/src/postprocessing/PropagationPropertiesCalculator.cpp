@@ -59,11 +59,11 @@ double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(unsigne
     return cell_props.GetLastMaxUpstrokeVelocity();
 }
 
-std::vector<double> PropagationPropertiesCalculator::CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex)
+std::vector<double> PropagationPropertiesCalculator::CalculateAllMaximumUpstrokeVelocities(unsigned globalNodeIndex, double threshold)
 {
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-    CellProperties cell_props(voltages, times);
+    CellProperties cell_props(voltages, times, threshold);
     return cell_props.GetMaxUpstrokeVelocities();
 }
 

@@ -55,7 +55,7 @@ public:
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         PostProcessingWriter writer(&simulation_data);
         
-        //writer.WriteApdMapFile(-30.0, 60.0);
+        writer.WriteApdMapFile(-30.0, 60.0);
                                    
         std::string command;
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
@@ -68,13 +68,13 @@ public:
                                     + output_dir + "/UpstrokeTimeMap.dat "
                                     + "heart/test/data/good_upstroke_time_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-//        
-//        writer.WriteMaxUpstrokeVelocityMap();
-//        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
-//                                    + output_dir + "/MaxUpstrokeVelocityMap.dat "
-//                                    + "heart/test/data/good_upstroke_velocity_postprocessing.dat";
-//        TS_ASSERT_EQUALS(system(command.c_str()), 0);
-//
+        
+        writer.WriteMaxUpstrokeVelocityMap(-30.0);
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+                                    + output_dir + "/MaxUpstrokeVelocityMap.dat "
+                                    + "heart/test/data/good_upstroke_velocity_postprocessing.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
 //        writer.WriteConductionVelocityMap(0u);
 //        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
 //                                    + output_dir + "/ConductionVelocityFromNode0.dat "
@@ -90,7 +90,7 @@ public:
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         PostProcessingWriter writer(&simulation_data);  
         
-        //writer.WriteApdMapFile(-30.0, 90.0);
+        writer.WriteApdMapFile(-30.0, 90.0);
         
         std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd90Map.dat " 
                                    + "heart/test/data/101_zeroes.dat";
