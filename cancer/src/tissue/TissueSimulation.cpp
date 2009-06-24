@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCentreBasedTissue.hpp"
 #include "CancerEventHandler.hpp"
 #include "LogFile.hpp"
-#include "Debug.hpp"
 
 template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
