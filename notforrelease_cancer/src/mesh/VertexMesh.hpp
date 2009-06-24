@@ -503,6 +503,19 @@ public:
     unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
+     * Method to divide an element in half using a specific axis
+     *
+     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     *
+     * @param pElement the element to divide
+     * @param AxisOfDivision axis to divide the element by 
+     * 
+     * @return the index of the new element
+     */
+    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> AxisOfDivision);
+
+
+    /**
      * Add an element to the mesh.
      *
      * @param pNewElement the new element

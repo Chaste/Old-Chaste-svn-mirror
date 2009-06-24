@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexBasedTissue.hpp"
 #include "VertexMeshWriter.hpp"
+#include "Debug.hpp"
 
 
 template<unsigned DIM>
@@ -209,8 +210,22 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
     // Get the element associated with this cell
     VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pParentCell);
 
-    // Divide this element along the short axis
-    unsigned new_element_index = mrMesh.DivideElement(p_element);
+    // Divide the element
+    unsigned new_element_index; 
+    if (pParentCell->GetCellType() == STEM)
+    {
+        // Divide this element horizontally
+        c_vector<double, 2> axis_of_division;
+        axis_of_division(0)=1.0;
+        axis_of_division(1)=0.0;
+        
+        new_element_index = mrMesh.DivideElement(p_element,axis_of_division);
+    }
+    else
+    {
+        // Divide this element along the short axis
+        new_element_index = mrMesh.DivideElement(p_element);
+    }
 
     // Associate the new cell with the element
     this->mCells.push_back(rNewCell);

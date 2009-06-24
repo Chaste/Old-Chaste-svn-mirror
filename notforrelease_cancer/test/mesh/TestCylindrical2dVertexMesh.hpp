@@ -262,6 +262,80 @@ public:
             TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
         }
     }
+    
+    void TestDivideElement()
+    {
+        // Create mesh
+        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40u);
+                
+        c_vector<double, 2> axis_of_division;
+        axis_of_division(0)=1.0/sqrt(2.0);
+        axis_of_division(1)=1.0/sqrt(2.0);
+
+        //Divide non periodic element
+        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(2), axis_of_division);
+        
+        TS_ASSERT_EQUALS(new_element_index, 16u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 17u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 42u);
+        
+        TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[0], 2.6754, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[1], 0.8660, 1e-4);
+
+        TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[0], 1.9433, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[1], 0.1339, 1e-4);
+        
+        // Test new elements have correct nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(2)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(3)->GetIndex(), 40u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(4)->GetIndex(), 41u);
+        
+        
+        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(0)->GetIndex(), 40u);
+        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(1)->GetIndex(), 11u);
+        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(2)->GetIndex(), 10u);
+        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(3)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(4)->GetIndex(), 41u);
+        
+        
+        // Divide periodic element
+        new_element_index = mesh.DivideElement(mesh.GetElement(3),axis_of_division);
+        
+        TS_ASSERT_EQUALS(new_element_index, 17u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 18u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 44u);
+        
+        TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[0], 0.0773, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[1], 1.3660, 1e-4);
+
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[0], 2.8094, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[1], 0.6339, 1e-4);
+                
+        // Test new elements have correct nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(0)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(1)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(2)->GetIndex(), 8u);
+        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(3)->GetIndex(), 42u);
+        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(4)->GetIndex(), 43u);
+        
+        
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(0)->GetIndex(), 42u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(1)->GetIndex(), 12u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(2)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(3)->GetIndex(), 11u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(4)->GetIndex(), 40u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(5)->GetIndex(), 43u);
+        
+    }
 
 
     void TestArchiving() throw (Exception)

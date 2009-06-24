@@ -455,8 +455,8 @@ public:
             // Cell 5 should divide at time t=0.5
             if (elem_index==5)
             {
-                cell_type = STEM;
-                birth_time = -23.5;
+                cell_type = TRANSIT;
+                birth_time = -11.5;
             }
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());

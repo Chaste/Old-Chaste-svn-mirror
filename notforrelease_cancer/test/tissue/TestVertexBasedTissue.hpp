@@ -430,9 +430,9 @@ public:
         TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNumNodes(), 4u);
 
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(0), 5u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(1), 2u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(2), 3u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(2), 5u);
         TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(3), 6u);
 
         TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNodeGlobalIndex(0), 1u);
@@ -440,9 +440,9 @@ public:
         TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNodeGlobalIndex(2), 2u);
         TS_ASSERT_EQUALS(tissue.GetElement(1)->GetNodeGlobalIndex(3), 5u);
 
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(0), 0u);
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(1), 1u);
-        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(2), 5u);
+        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(0), 5u);
+        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(1), 2u);
+        TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(2), 3u);
         TS_ASSERT_EQUALS(tissue.GetElement(2)->GetNodeGlobalIndex(3), 6u);
 
         // Test ownership of the new nodes
@@ -480,7 +480,7 @@ public:
             // Cell 4 should divide immediately
             if (elem_index==4)
             {
-                cell_type = STEM;
+                cell_type = TRANSIT; // As stem cells always divide horizontally 
                 birth_time = -50.0;
             }
 
@@ -552,10 +552,10 @@ public:
         TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(4), 8u);
         TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(5), 4u);
 
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(0), 30u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(1), 22u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(2), 21u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(3), 17u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(0), 13u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(1), 14u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(2), 18u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(3), 30u);
         TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(4), 31u);
 
         TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(0), 18u);
@@ -577,7 +577,7 @@ public:
         std::set<unsigned> expected_elements_containing_node_13;
         expected_elements_containing_node_13.insert(1);
         expected_elements_containing_node_13.insert(3);
-        expected_elements_containing_node_13.insert(9);
+        expected_elements_containing_node_13.insert(4);
 
         TS_ASSERT_EQUALS(tissue.GetNode(13)->rGetContainingElementIndices(), expected_elements_containing_node_13);
 
