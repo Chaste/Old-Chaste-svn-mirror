@@ -70,7 +70,7 @@ AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
 {
-    if(mpDefaultBoundaryConditionsContainer!=NULL)
+    if (mpDefaultBoundaryConditionsContainer!=NULL)
     {
         delete mpDefaultBoundaryConditionsContainer;
     }

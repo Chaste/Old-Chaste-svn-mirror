@@ -120,10 +120,15 @@ protected:
     virtual AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
 public:
-    // This (and things in MonodomainProblem) being public are hacks for
-    // CardiacElectroMechanicsProblem to work.
-    // ///\todo CardiacElectroMechanicsProblem should be a friend, but not sure
-    // how to get friends to work when both friends are templated and abstract.
+    /**
+     * The object to use to write results to disk.
+     * 
+     * This (and things in MonodomainProblem) being public are hacks for
+     * CardiacElectroMechanicsProblem to work.
+     * 
+     * \todo CardiacElectroMechanicsProblem should be a friend, but not sure
+     * how to get friends to work when both friends are templated and abstract.
+     */
     Hdf5DataWriter* mpWriter;
 
 public:
@@ -133,24 +138,29 @@ public:
      * create cells.
      */
     AbstractCardiacProblem(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
-
+    
+    /**
+     *  Destructor
+     */
     virtual ~AbstractCardiacProblem();
 
-    /*
+    /**
      *  Initialise the system. Must be called before Solve()
      */
     void Initialise();
 
     /**
      *  Set a file from which the nodes for each processor are read
+     * 
+     * @param rFilename
      */
-    void SetNodesPerProcessorFilename(const std::string& filename);
+    void SetNodesPerProcessorFilename(const std::string& rFilename);
 
     /**
      *  Set the boundary conditions container.
-     *  @param *pbcc is a pointer to a boundary conditions container
+     *  @param pbcc is a pointer to a boundary conditions container
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM> *bcc);
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM> *pbcc);
 
     /**
      *  Performs a series of checks before solving.
@@ -173,19 +183,29 @@ public:
      *  This script gets everything ready to visualize the results with meshalyser
      *  and is useful in testing. By default the script is called.
      *  In performance testing for example it desirable to disable the script.
+     * 
+     * @param call whether to call the script
      */
     void ConvertOutputToMeshalyzerFormat(bool call = true);
 
-    /** This only needs to be called if a mesh filename has not been set */
+    /**
+     * This only needs to be called if a mesh filename has not been set.
+     * 
+     * @param pMesh  the mesh object to use
+     */
     void SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
      *  Set whether the simulation will generate results files.
+     * 
+     * @param rPrintOutput
      */
     void PrintOutput(bool rPrintOutput);
 
     /**
      *  Set whether extra info will be written to stdout during computation.
+     * 
+     * @param writeInfo
      */
     void SetWriteInfo(bool writeInfo = true);
 
@@ -203,11 +223,19 @@ public:
     
     /**
      * Get the solution vector, wrapped in a DistributedVector.
+     * 
+     * See also GetSolution.
      */
     DistributedVector GetSolutionDistributedVector();
 
+    /**
+     * @return the mesh used
+     */
     AbstractMesh<ELEM_DIM,SPACE_DIM> & rGetMesh();
 
+    /**
+     * @return the cardiac PDE used
+     */
     AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* GetPde();
 
     /**
@@ -226,11 +254,26 @@ public:
      */
     void CloseFilesAndPostProcess();
 
-
+    /**
+     * Write informative details about the progress of the simulation to standard output.
+     * 
+     * Implemented only in subclasses.
+     * 
+     * @param time  the current time
+     */
     virtual void WriteInfo(double time)=0;
 
+    /**
+     * Define what variables are written to the primary results file.
+     */
     virtual void DefineWriterColumns();
 
+    /**
+     * Write one timestep of output data to the primary results file.
+     * 
+     * @param time  the current time
+     * @param voltageVec  the solution vector to write
+     */
     virtual void WriteOneStep(double time, Vec voltageVec);
 
     /**
@@ -242,23 +285,31 @@ public:
 
     /**
      * Specifies which nodes in the mesh to output.
-     * @param &nodesToOutput is a reference to a vector with the indexes of the nodes
+     * 
+     * @param rNodesToOutput is a reference to a vector with the indexes of the nodes
      * where the output is desired.
      * If empty, the output will be for all the nodes in the mesh.
      */
-    void SetOutputNodes(std::vector<unsigned> &nodesToOutput);
+    void SetOutputNodes(std::vector<unsigned> & rNodesToOutput);
 
+    /**
+     * Create and return a data reader configured to read the results we've been outputting.
+     */
     Hdf5DataReader GetDataReader();
 
     /**
-     *  Whether to use matrix-based RHS assembly or not
+     *  Whether to use matrix-based RHS assembly or not.
+     * 
+     * @param usematrix
      */
     void UseMatrixBasedRhsAssembly(bool usematrix=true);
 
     /**
      *  Called at end of each time step in the main time-loop in
      *  Solve(). Empty implementation but can be overloaded by child
-     *  classes
+     *  classes.
+     * 
+     * @param time  the current time
      */
     virtual void OnEndOfTimestep(double time)
     {}

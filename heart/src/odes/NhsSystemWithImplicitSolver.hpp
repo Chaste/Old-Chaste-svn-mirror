@@ -86,24 +86,39 @@ private:
      *  Compute T0, Q and then T_a
      */
     void ImplicitSolveForActiveTension();
-    /** The residual function for the main Newton solve. See ImplicitSolveForActiveTension() */
+    /** The residual function for the main Newton solve. See ImplicitSolveForActiveTension()
+     * 
+     * @param activeTensionGuess
+     */
     double CalcActiveTensionResidual(double activeTensionGuess);
 
     /**
      *  Assume the active tension is known and solve for the Ca_trop at the next time
      *  implicitly using backward euler. This can be done directly as the rhs is linear
      *  in Ca_trop
+     * 
+     * @param newActiveTension
      */
     double ImplicitSolveForCaTrop(double newActiveTension);
 
     /**
      *  Assume the Ca_trop is known and solve for the z at the next time
-     *  implicitly using backward euler. Uses Newton's method
+     *  implicitly using backward euler. Uses Newton's method.
+     * 
+     * @param newCaTrop
      */
     double ImplicitSolveForZ(double newCaTrop);
-    /** Residual for solving z implicitly. See ImplicitSolveForZ() */
+    /**
+     * Residual for solving z implicitly. See ImplicitSolveForZ().
+     * 
+     * @param z
+     * @param newCaTrop
+     */
     double CalcZResidual(double z, double newCaTrop);
-    /** Solve for z semi implicitly. See UseImplicitExplicitSolveForZ() */
+    /** Solve for z semi implicitly. See UseImplicitExplicitSolveForZ().
+     * 
+     * @param newCaTrop
+     */
     double ImplicitExplicitSolveForZ(double newCaTrop);
 
     /**
@@ -129,7 +144,9 @@ public :
 
     /**
      *  Set a current active tension guess. Generally not needed as the current
-     *  active tension is used if this isn't called
+     *  active tension is used if this isn't called.
+     * 
+     * @param activeTensionInitialGuess
      */
     void SetActiveTensionInitialGuess(double activeTensionInitialGuess);
 
@@ -142,6 +159,10 @@ public :
      *  The state variables are not updated because this solve will be called as part
      *  of the newton iteration (ie guess stretch, see what the new active tension is)
      *  in a fully implicit method
+     * 
+     * @param startTime
+     * @param endTime
+     * @param timestep
      */
     void SolveDoNotUpdate(double startTime, double endTime, double timestep);
 
@@ -157,6 +178,8 @@ public :
      *  implicitly in the linear terms on the rhs of dzdt (the (1-z) and (z) terms), and
      *  explicitly in the nonlinear term (the z^nr/(z^nr + K^nr) term. This means the
      *  problem can be solved directly and no Newton iterations are needed.
+     * 
+     * @param useImplicitExplicitSolveForZ
      */
     void UseImplicitExplicitSolveForZ(bool useImplicitExplicitSolveForZ = true);
 

@@ -142,6 +142,8 @@ protected :
 
     /**
      *  Calculate T0. This is a function of constants, lambda and z
+     * 
+     * @param z
      */
     double CalculateT0(double z);
 
@@ -154,11 +156,16 @@ public :
 
     /**
      *  Set the current stretch and the stretch rate of the cell/fibre
+     * 
+     * @param lambda  current stretch
+     * @param dlambdaDt  current stretch rate
      */
     void SetLambdaAndDerivative(double lambda, double dlambdaDt);
 
     /**
      *  Set the current intracellular calcium concentration
+     * 
+     *  @param calciumI is the intracellular calcium
      */
     void SetIntracellularCalciumConcentration(double calciumI);
 
@@ -168,6 +175,13 @@ public :
      */
     double GetCalciumTroponinValue();
 
+    /**
+     * Evaluate the derivatives of the state variables
+     * 
+     * @param time  the current time, in milliseconds
+     * @param rY  current values of the state variables
+     * @param rDY  to be filled in with derivatives
+     */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
 
     /**

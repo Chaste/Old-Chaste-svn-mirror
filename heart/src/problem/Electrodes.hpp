@@ -63,15 +63,15 @@ private:
 
 public:
     /** Constructor.
-     *  @rMesh The mesh, assumed to be a cuboid.
-     *  @groundSecondElectrode Whether to ground the second electrode (see class documentation)
-     *  @index The value i when applying the electrodes to x_i=a and x_i=b (a<b)
-     *  @lowerValue The value a when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *  @param rMesh The mesh, assumed to be a cuboid.
+     *  @param groundSecondElectrode Whether to ground the second electrode (see class documentation)
+     *  @param index The value i when applying the electrodes to x_i=a and x_i=b (a<b)
+     *  @param lowerValue The value a when applying the electrodes to x_i=a and x_i=b (a<b) (should
      *    be the minimum value of x_i for the given mesh)
-     *  @upperValue The value b when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *  @param upperValue The value b when applying the electrodes to x_i=a and x_i=b (a<b) (should
      *    be the maximum value of x_i for the given mesh)
-     *  @magnitude Magnitude of the stimulus
-     *  @duration Duration of the stimulus. Note, start time currently assumed to be zero.
+     *  @param magnitude Magnitude of the stimulus
+     *  @param duration Duration of the stimulus. Note, start time currently assumed to be zero.
      */
     Electrodes(AbstractMesh<DIM,DIM>& rMesh,
                bool groundSecondElectrode,
@@ -101,6 +101,8 @@ public:
      *  Whether it is time to switch off the electrodes yet. THIS ONLY RETURNS
      *  TRUE ONCE - the first appropriate time. After that the electrodes assume
      *  they have been switched off and therefore this returns false.
+     * 
+     * @param time  the current time
      */
     bool SwitchOff(double time)
     {

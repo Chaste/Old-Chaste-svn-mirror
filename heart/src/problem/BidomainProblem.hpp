@@ -56,10 +56,17 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
 friend class TestBidomainWithBathAssembler;
 
 protected:
+    /** The bidomain PDE */
     BidomainPde<DIM>* mpBidomainPde;
 
-    std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
+    /** Nodes at which the extracellular voltage is fixed to zero (replicated) */
+    std::vector<unsigned> mFixedExtracellularPotentialNodes;
+    /** Used by the writer */
     unsigned mExtracelluarColumnId;
+    /**
+     * Another method of resolving the singularity in the bidomain equations.
+     * Specifies a row of the matrix at which to impose an extra condition.
+     */
     unsigned mRowForAverageOfPhiZeroed;
 
     /** Whether the mesh has a bath, ie whether this is a bath simulation */
@@ -86,18 +93,20 @@ protected:
      */
     BidomainDg0Assembler<DIM,DIM>* mpAssembler;
 
+    /** Create our bidomain PDE object */
     virtual AbstractCardiacPde<DIM> *CreateCardiacPde();
 
+    /** Create a suitable bidomain assembler */
     virtual AbstractDynamicAssemblerMixin<DIM, DIM, 2>* CreateAssembler();
 
 public:
     /**
      * Constructor
      * @param pCellFactory User defined cell factory which shows how the pde should
-     * create cells.
+     *   create cells.
      * @hasBath Whether the simulation has a bath (if this is true, all elements with
-     * attribute = 1 will be set to be bath elements (the rest should have
-     * attribute = 0)).
+     *   attribute = 1 will be set to be bath elements (the rest should have
+     *   attribute = 0)).
      *
      */
     BidomainProblem(AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath=false);
@@ -107,9 +116,9 @@ public:
      *  zero. This does not necessarily have to be called. If it is not, phi_e
      *  is only defined up to a constant.
      *
-     *  @param the nodes to be fixed.
+     *  @param nodes  the nodes to be fixed.
      *
-     *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
+     *  @note currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes);
@@ -118,6 +127,8 @@ public:
      * Set which row of the linear system should be used to enforce the
      * condition that the average of phi_e is zero.  If not called, this
      * condition will not be used.
+     * 
+     * @param node  the mesh node index giving the row at which to impose the constraint
      */
     void SetNodeForAverageOfPhiZeroed(unsigned node);
 
@@ -128,13 +139,29 @@ public:
 
     /**
      *  Print out time and max/min voltage/phi_e values at current time.
+     * @param time  current time.
      */
     void WriteInfo(double time);
 
+    /**
+     * Define what variables are written to the primary results file.
+     * Adds the extracellular potential.
+     */
     virtual void DefineWriterColumns();
 
+    /**
+     * Write one timestep of output data to the primary results file.
+     * Adds the extracellular potential to the results.
+     * 
+     * @param time  the current time
+     * @param voltageVec  the solution vector to write
+     */
     virtual void WriteOneStep(double time, Vec voltageVec);
 
+    /**
+     * Performs a series of checks before solving.
+     * Checks that a suitable method of resolving the singularity is being used.
+     */
     void PreSolveChecks();
 
     /**
@@ -147,6 +174,8 @@ public:
      *  Called at end of each time step in the main time-loop in
      *  AbstractCardiacProblem::Solve(). Overloaded here to switch off
      *  the electrodes (if there are any).
+     * 
+     * @param time  the current time
      */
     void OnEndOfTimestep(double time);
 };

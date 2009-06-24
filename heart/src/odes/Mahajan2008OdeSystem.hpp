@@ -36,6 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
 
+/**
+ * The Mahajan-Shiferaw model of a rabbit ventricular cell
+ */
 class Mahajan2008OdeSystem : public AbstractCardiacCell
 {
 private:

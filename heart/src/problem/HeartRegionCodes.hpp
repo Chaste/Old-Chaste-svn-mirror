@@ -65,7 +65,9 @@ public:
 private:
     /** No instances of this class should be created. */
     HeartRegionCode();
+    /** No instances of this class should be created. */
     HeartRegionCode(const HeartRegionCode&);
+    /** No instances of this class should be created. */
     HeartRegionCode& operator=(const HeartRegionCode&);
 };
 

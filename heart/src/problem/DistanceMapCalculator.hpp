@@ -34,15 +34,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 
 /**
- * \todo This class defines
- *
- *
+ * This class provides functionalities to compute a distance map in a given mesh
+ * from a given surface, specifying the distance from each node to the surface.
+ * 
+ * The mesh is specified in the constructor, and the ComputeDistanceMap computes
+ * (and returns by reference) the map.
  */
 template<unsigned SPACE_DIM>
 class DistanceMapCalculator
 {
 private:
+
+    /** The mesh*/
     TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
+    /** Number of nodes in the mesh*/
     unsigned mNumNodes;
 
     /**
@@ -63,6 +68,12 @@ private:
 
 
 public:
+
+    /**
+     * Constructor
+     * 
+     * @param rMesh the mesh to compute maps for
+     */
     DistanceMapCalculator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);
 
     /**
@@ -71,7 +82,7 @@ public:
      *  @param rOriginSurface set of node indexes defining the surface
      *  @param rNodeDistances distance map computed
      */
-    void ComputeDistanceMap(std::vector<unsigned>& rOriginSurface,
+    void ComputeDistanceMap(const std::vector<unsigned>& rOriginSurface,
                             std::vector<double>& rNodeDistances);
 };
 

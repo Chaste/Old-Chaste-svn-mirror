@@ -34,15 +34,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 
 /**
- * PlaneStimulusCellFactory provides cells with a SimpleStimulus.
- *
- * Applied to cells within 1e-5 of x=0.
+ * PlaneStimulusCellFactory provides cells within 1e-5 of x=0 with a SimpleStimulus.
  */
 template<class CELL, unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>
 {
 protected:
-    // define a new stimulus
+    /** The stimulus to apply at stimulated nodes */
     boost::shared_ptr<SimpleStimulus> mpStimulus;
 
 public:
@@ -65,6 +63,7 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         double x = this->GetMesh()->GetNode(node)->GetPoint()[0];
+        
         if (x*x<=1e-10)
         {
             return new CELL(this->mpSolver, mpStimulus);

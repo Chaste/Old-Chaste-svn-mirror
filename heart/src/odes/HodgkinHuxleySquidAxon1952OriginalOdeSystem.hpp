@@ -56,7 +56,7 @@ public:
     /**
      * Constructor
      * 
-     * @param pSolver is a pointer to the ODE solver
+     * @param pOdeSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
     HodgkinHuxleySquidAxon1952OriginalOdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,

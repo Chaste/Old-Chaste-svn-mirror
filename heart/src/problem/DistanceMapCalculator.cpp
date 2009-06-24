@@ -71,7 +71,7 @@ DistanceMapCalculator<SPACE_DIM>::DistanceMapCalculator(
 
 template<unsigned SPACE_DIM>
 void DistanceMapCalculator<SPACE_DIM>::ComputeDistanceMap(
-        std::vector<unsigned>& rOriginSurface,
+        const std::vector<unsigned>& rOriginSurface,
         std::vector<double>& rNodeDistances)
 {
     if (rNodeDistances.size() != mNumNodes)

@@ -52,9 +52,7 @@ const double BackwardEulerLuoRudyIModel1991::ionic_concentrations_Nao = 140.0;
 const double BackwardEulerLuoRudyIModel1991::plateau_potassium_current_g_Kp = 0.0183;
 const double BackwardEulerLuoRudyIModel1991::time_dependent_potassium_current_PR_NaK = 0.01833;
 
-/**
- * Constructor
- */
+
 BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : AbstractBackwardEulerCardiacCell<1>(8, 4, pIntracellularStimulus)
@@ -62,10 +60,6 @@ BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
     Init();
 }
 
-
-/**
- * Constructor with the same signature as the forward cell models
- */
 BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
     boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
@@ -74,10 +68,6 @@ BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
     Init();
 }
 
-
-/**
- * Destructor
- */
 BackwardEulerLuoRudyIModel1991::~BackwardEulerLuoRudyIModel1991(void)
 {
 }

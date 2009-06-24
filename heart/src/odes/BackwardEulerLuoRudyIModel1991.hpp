@@ -63,35 +63,48 @@ private:
     /*
      * Constants for the LuoRudyIModel1991OdeSystem model
      */
-    static const double membrane_C; /**< Membrane capacitance, ?? */
-    static const double membrane_F; /**< Faraday's constant, ?? */
-    static const double membrane_R; /**<  */
+    static const double membrane_C; /**< Membrane capacitance, uF/cm^2 */
+    static const double membrane_F; /**< Faraday's constant, C/mol */
+    static const double membrane_R; /**< Universal gas constant, J/kmol K */
     static const double membrane_T; /**< Temperature, K */
-    static const double background_current_E_b; /**<  */
-    static const double background_current_g_b; /**<  */
-    static const double fast_sodium_current_g_Na; /**<  */
-    static const double ionic_concentrations_Ki; /**< Intracellular potassium concentration, ?? */
-    static const double ionic_concentrations_Ko; /**< Extracellular potassium concentration, ?? */
-    static const double ionic_concentrations_Nai; /**< Intracellular sodium concentration, ?? */
-    static const double ionic_concentrations_Nao; /**< Extracellular sodium concentration, ?? */
-    static const double plateau_potassium_current_g_Kp; /**<  */
-    static const double time_dependent_potassium_current_PR_NaK; /**<  */
+    static const double background_current_E_b; /**< Reversal potential for background current, mV */
+    static const double background_current_g_b; /**< Maximal conductance for background current, mS/cm^2 */
+    static const double fast_sodium_current_g_Na; /**< Maximal conductance for sodium current, mS/cm^2 */
+    static const double ionic_concentrations_Ki; /**< Intracellular potassium concentration, mM */
+    static const double ionic_concentrations_Ko; /**< Extracellular potassium concentration, mM */
+    static const double ionic_concentrations_Nai; /**< Intracellular sodium concentration, mM */
+    static const double ionic_concentrations_Nao; /**< Extracellular sodium concentration, mM */
+    static const double plateau_potassium_current_g_Kp; /**< Maximal conductance for plateau potassium current, mS/cm^2 */
+    static const double time_dependent_potassium_current_PR_NaK; /**< Permeability ratio of sodium over potassium, dimensionless */
 
     /** another parameter, which is a function of the above */
     double fast_sodium_current_E_Na;
 
     
 public:
-    // Constructor
+    /**
+     * Constructor
+     * 
+     * @param pIntracellularStimulus a pointer to the intracellular stimulus
+     */
     BackwardEulerLuoRudyIModel1991(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
                                    
-    // Constructor with the same signature as the forward cell models
+    /**
+     * Constructor with the same signature as the forward cell models
+     * 
+     * @param pIntracellularStimulus a pointer to the intracellular stimulus
+     */
     BackwardEulerLuoRudyIModel1991(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
                                    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
                                    
-    // Destructor
+    /**
+     *  Destructor
+     */
     ~BackwardEulerLuoRudyIModel1991();
     
+    /**
+     *  Calculates the remaining parameters and calls the base class Init method.
+     */
     void Init();
     
 protected:
@@ -107,7 +120,20 @@ protected:
     void UpdateTransmembranePotential(double time);
     
 public:
+    /**
+     * Compute the residual for the Newton iteration for the non-linear system portion of the model.
+     * 
+     * @param rCurrentGuess  current values of the non-linear system variables
+     * @param rResidual  to be filled in with the residual vector
+     */
     void ComputeResidual(const double rCurrentGuess[1], double rResidual[1]);
+    
+    /**
+     * Compute the Jacobian for the Newton iteration for the non-linear system portion of the model.
+     * 
+     * @param rCurrentGuess  current values of the non-linear system variables
+     * @param rJacobian  to be filled in with the jacobian matrix
+     */
     void ComputeJacobian(const double rCurrentGuess[1], double rJacobian[1][1]);
     
     /**
@@ -122,6 +148,9 @@ public:
      */
     void VerifyStateVariables();
 
+    /**
+     * @returns the intracellular calcium concentration
+     */
     double GetIntracellularCalciumConcentration();
 };
 
