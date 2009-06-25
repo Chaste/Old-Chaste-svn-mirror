@@ -107,7 +107,7 @@
   </xs:complexType>
   
   <xs:complexType name="conduction_velocity_map_type">
-    <xs:attribute name="origin_node" type="xs:double" use="required"/>
+    <xs:attribute name="origin_node" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
   
   <xs:simpleType name="media_type">
