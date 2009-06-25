@@ -100,7 +100,8 @@ protected:
      * @param rAElem The element's contribution to the LHS matrix is returned in this
      *     n by n matrix, where n is the no. of nodes in this element. There is no
      *     need to zero this matrix before calling.
-     * @param rAElemPrecond \todo Document this parameter
+     * @param rAElemPrecond The element's contribution to the matrix passed to PetSC
+     *     in creating a preconditioner
      * @param rBElem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.

@@ -48,10 +48,10 @@ public:
      * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
      * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
      * @param pCellFactory factory to use to create cells
-     * @param endTime the end time to use
-     * @param numElecTimeStepsPerMechTimestep \todo document this parameter
-     * @param nhsOdeTimeStep \todo document this parameter
+     * @param endTime the end time to use 
      * @param outputDirectory the output directory
+     * 
+     * \todo document numElecTimeStepsPerMechTimestep and nhsOdeTimeStep
      */
     CardiacElectroMechProbRegularGeom(double width,
                                       unsigned numMechanicsElementsEachDir,

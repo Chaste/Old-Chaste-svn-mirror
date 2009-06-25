@@ -158,7 +158,7 @@ public:
     /**
      * Get the node with a given local index in this element.
      *
-     * @param localIndex
+     * @param localIndex local index of the node in this element
      * @return a pointer to the node.
      */
     Node<SPACE_DIM>* GetNode(unsigned localIndex) const;

@@ -203,10 +203,6 @@ void SetConductivities(MonodomainProblem<DIM>& rProblem)
 }
 
 
-
-/**
- * \todo Documentation...
- */
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {

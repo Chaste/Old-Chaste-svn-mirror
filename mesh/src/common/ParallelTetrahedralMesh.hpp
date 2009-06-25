@@ -54,9 +54,6 @@ extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, 
 #include "metis.h"
 
 
-/**
- * \todo explicit instantiation
- */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {
@@ -291,6 +288,8 @@ private:
      */
     void ReorderNodes(std::vector<unsigned>& rNodePermutation);
 };
+
+/// \todo explicit instantiation
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh(PartitionType metisPartitioning)

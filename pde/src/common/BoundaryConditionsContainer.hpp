@@ -228,8 +228,8 @@ public:
      *
      * It is up to the user to ensure that the point x is contained in the surface element.
      *
-     * @param pSurfaceElement
-     * @param rX
+     * @param pSurfaceElement pointer to a boundary element
+     * @param rX a point
      * @param indexOfUnknown defaults to 0
      */
     double GetNeumannBCValue(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
@@ -243,7 +243,7 @@ public:
      * \todo
      * This is a horrendously inefficient fix. Perhaps have flag in element object?
      *
-     * @param pSurfaceElement
+     * @param pSurfaceElement pointer to a boundary element
      * @param indexOfUnknown defaults to 0
      */
     bool HasNeumannBoundaryCondition(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,

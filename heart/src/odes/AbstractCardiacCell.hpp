@@ -286,7 +286,7 @@ public:
      *
      * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
      *
-     * @param rSlowValues  DOCUMENT ME!
+     * \todo document rSlowValues
      */
     virtual void AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues);
 
