@@ -464,7 +464,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName)
+void VertexBasedTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName)
 {
     // The false is so the directory isn't cleaned
     VertexMeshWriter<DIM, DIM> mesh_writer(rArchiveDirectory, rMeshFileName, false);
@@ -474,7 +474,7 @@ void VertexBasedTissue<DIM>::WriteMeshToFile(const std::string &rArchiveDirector
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
+void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory,
                                                bool rCleanOutputDirectory,
                                                bool outputCellMutationStates,
                                                bool outputCellTypes,

@@ -1885,8 +1885,6 @@ public:
             TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16/9, 1e-6);    // Iyy
             TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
         }
-        
-        
     }
 
 
@@ -1956,7 +1954,7 @@ public:
         //nodes3.push_back(new Node<2>(2, false, -1.0, 0.0));
         nodes3.push_back(new Node<2>(2, false, -2.5, -sqrt(3.0)/2.0));
         nodes3.push_back(new Node<2>(3, false, -0.5, -sqrt(3.0)/2.0));
-        
+
         // Create element
         std::vector<VertexElement<2,2>*> elements3;
         elements3.push_back(new VertexElement<2,2>(0, nodes3));
@@ -1991,12 +1989,10 @@ public:
         // Test GetShortAxisOfElement() method
         short_axis = mesh4.GetShortAxisOfElement(0);
         TS_ASSERT_DELTA(short_axis(0)*short_axis(0)+short_axis(1)*short_axis(1), 1.0, 1e-6);
-        
+
         // This is the same as seeding the random axis
         TS_ASSERT_DELTA(short_axis(0), 0.8401, 1e-4);
         TS_ASSERT_DELTA(short_axis(1), 0.5422, 1e-4);
-        
-        
     }
 
 

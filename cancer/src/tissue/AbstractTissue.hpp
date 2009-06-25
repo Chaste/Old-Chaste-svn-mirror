@@ -393,7 +393,7 @@ public:
      * @param rArchiveDirectory directory in which archive is stored
      * @param rMeshFileName base name for mesh files
      */
-    virtual void WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName);
+    virtual void WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName);
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.
@@ -407,7 +407,7 @@ public:
      * @param outputCellAncestors  whether to create a cell ancestor results file
      * @param outputCellAges whether to output cell age results
      */
-    virtual void CreateOutputFiles(const std::string &rDirectory,
+    virtual void CreateOutputFiles(const std::string& rDirectory,
                                    bool rCleanOutputDirectory,
                                    bool outputCellMutationStates,
                                    bool outputCellTypes,

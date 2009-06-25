@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
@@ -47,14 +48,14 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     Clear();
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
     {
-        Node<SPACE_DIM>* temp_node = nodes[node_index];
-        this->mNodes.push_back(temp_node);
+        Node<SPACE_DIM>* p_temp_node = nodes[node_index];
+        this->mNodes.push_back(p_temp_node);
     }
 
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* temp_vertex_element = vertexElements[elem_index];
-        mElements.push_back(temp_vertex_element);
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = vertexElements[elem_index];
+        mElements.push_back(p_temp_vertex_element);
     }
 
     SetupVertexElementsOwnedByNodes();
@@ -354,6 +355,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
     return mElements.size();
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
 {
@@ -516,9 +518,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGradi
     assert(SPACE_DIM==2);
     #undef COVERAGE_IGNORE
 
-    unsigned num_nodes_in_element = pElement->GetNumNodes();
-
-    unsigned next_local_index = (localIndex+1)%num_nodes_in_element;
+    unsigned next_local_index = (localIndex+1)%(pElement->GetNumNodes());
 
     unsigned current_global_index = pElement->GetNodeGlobalIndex(localIndex);
     unsigned next_global_index = pElement->GetNodeGlobalIndex(next_local_index);
@@ -915,11 +915,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                 }
             }
         }
-        
-        
+
         // Loop over elements, performing T2 swaps where necesary
         for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
         {
+            ///\todo This code will be re-implemented once mesh inheritance is sorted (see #1001)
             //PerformT2SwapIfNecessary(mElements[elem_index]);
         }
 
@@ -1073,11 +1073,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
          *  /
          * 
          */
-#define COVERAGE_IGNORE ///\todo Fix coverage  
+#define COVERAGE_IGNORE ///\todo Fix coverage
         PerformNodeMerge(pNodeA, pNodeB);
-#undef  COVERAGE_IGNORE ///\todo Fix coverage         
+#undef  COVERAGE_IGNORE ///\todo Fix coverage
     } 
-    else //less than 4 elements per node
+    else // less than 4 elements per node
     {
         if (all_indices.size()==1) // nodes are only in one element hence on boundary so merge nodes
         {
@@ -1152,6 +1152,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
              *
              */
             PerformT1Swap(pNodeA, pNodeB, all_indices);
+            ///\todo Delete the following line?
             //PerformNodeMerge(pNodeA, pNodeB);
         }
         else
@@ -1639,9 +1640,6 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
                         -moved_centroid[1]*a_to_b[0] + position_a[1]*a_to_b[0])/determinant;
 
         c_vector<double, SPACE_DIM> intersection = moved_centroid + alpha*short_axis;
-//PRINT_VARIABLE(short_axis);
-//PRINT_3_VARIABLES(position_a , position_b, a_to_b);
-//PRINT_VARIABLES(centroid , intersection);
 
         // if intersection is close to existing node use the existing node to divide element
         c_vector<double, SPACE_DIM> a_to_intersection = this->GetVectorFromAtoB(position_a, intersection);
@@ -1649,15 +1647,17 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
         if (norm_2(a_to_intersection) < mCellRearrangementThreshold)
         {
-            // Use node a to divide element  
-            division_node_global_indices.push_back(p_node_A->GetIndex()); 
+#define COVERAGE_IGNORE ///\todo Fix coverage
+            // Use node a to divide element
+            division_node_global_indices.push_back(p_node_A->GetIndex());
+#undef  COVERAGE_IGNORE ///\todo Fix coverage
         }
         else if (norm_2(b_to_intersection) < mCellRearrangementThreshold)
         {
-#define COVERAGE_IGNORE ///\todo Fix coverage         
+#define COVERAGE_IGNORE ///\todo Fix coverage
             // Use node b to divide element
             division_node_global_indices.push_back(p_node_B->GetIndex());
-#undef  COVERAGE_IGNORE ///\todo Fix coverage         
+#undef  COVERAGE_IGNORE ///\todo Fix coverage
         }
         else
         {
@@ -1759,13 +1759,10 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     // Copy element
     std::vector<Node<SPACE_DIM>*> nodes_elem;
     unsigned num_nodes = pElement->GetNumNodes(); // store this as it changes when you delete nodes from element
-//PRINT_VARIABLE(pElement->GetIndex());
-//PRINT_VARIABLE(GetCentroidOfElement(pElement->GetIndex()));
+
     for (unsigned i=0; i<num_nodes; i++)
     {
         nodes_elem.push_back(pElement->GetNode(i));
-//PRINT_VARIABLES(i,pElement->GetNodeGlobalIndex(i));
-//PRINT_VARIABLE(pElement->GetNodeLocation(i))
     }
 
     unsigned new_element_index;
@@ -1779,8 +1776,6 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         mDeletedElementIndices.pop_back();
         delete mElements[new_element_index];
     }
-
-
 
     AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
 
@@ -1803,32 +1798,34 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
             height_midpoint_2 += pElement->GetNode(i)->rGetLocation()[1];
         }
     }
-    height_midpoint_1 /=node2Index-node1Index+1;
-    height_midpoint_2 /=num_nodes - node2Index + node1Index+1;
-    
+    height_midpoint_1 /= node2Index-node1Index+1;
+    height_midpoint_2 /= num_nodes - node2Index + node1Index+1;
+
     if  (height_midpoint_1 < height_midpoint_2)
     {
         // Remove nodes  # < node1 and # > node2 from pElement
         // Remove nodes node1 < # < node2 from new_element
-//TRACE("One");    
         for (unsigned i=num_nodes; i>0; i--)
         {
             if (i-1<node1Index || i-1>node2Index)
             {
+#define COVERAGE_IGNORE ///\todo Fix coverage
                 pElement->DeleteNode(i-1);
+#undef  COVERAGE_IGNORE ///\todo Fix coverage
             }
             else if (i-1>node1Index && i-1<node2Index)
             {
+#define COVERAGE_IGNORE ///\todo Fix coverage
                 mElements[new_element_index]->DeleteNode(i-1);
+#undef  COVERAGE_IGNORE ///\todo Fix coverage
             }
         }
     }
     else
     {
-//TRACE("Two");
-        // Remove nodes  # < node1 and # > node2 from new_lement
+        // Remove nodes  # < node1 and # > node2 from new_element
         // Remove nodes node1 < # < node2 from pElement
-    
+
         for (unsigned i=num_nodes; i>0; i--)
         {
             if (i-1<node1Index || i-1>node2Index)
@@ -1998,6 +1995,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
             min_distance_edge_index = local_index;
         }
     }
+
     return min_distance_edge_index;
 }
 

@@ -43,11 +43,11 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2>* > nodes)
     assert(width > 0.0);
     for (unsigned index=0; index<nodes.size(); index++)
     {
-        Node<2>* temp_node = nodes[index];
-        double x = temp_node->rGetLocation()[0];
-        x=x; // Fix optimised build
+        Node<2>* p_temp_node = nodes[index];
+        double x = p_temp_node->rGetLocation()[0];
+        x = x; // Fix optimised build
         assert( 0 <= x && x < width);
-        mNodes.push_back(temp_node);
+        mNodes.push_back(p_temp_node);
     }
 
     NodeMap node_map(nodes.size());

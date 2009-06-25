@@ -247,7 +247,7 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     }
 }
 
-void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
+void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
     double r = rY[0];
     double e = rY[1];
@@ -379,7 +379,7 @@ CellMutationState& IngeWntSwatCellCycleOdeSystem::rGetMutationState()
     return mMutationState;
 }
 
-bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
 {
     //std::cout << "Calculating Inge stopping event\t";
     std::vector<double> dy(rY.size());
@@ -388,7 +388,7 @@ bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const st
     return (rY[1] > 1.0 && dy[1] > 0.0);
 }
 
-double IngeWntSwatCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)
+double IngeWntSwatCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
     //std::cout << "Calculating Inge root function\t" << rY[1]-1.0 << std::endl;
     return rY[1]-1.0;

@@ -51,12 +51,12 @@ public :
         rDY[1]=rY[0]*rY[0] + 2*rY[1]*rY[1];
     }
 
-    void AnalyticJacobian(const std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
+    void AnalyticJacobian(const std::vector<double>& rSolutionGuess, double** jacobian, double time, double timeStep)
     {
-        jacobian[0][0] = 1 - 2.0*timeStep*solutionGuess[0];
-        jacobian[0][1] =   - 2.0*timeStep*solutionGuess[1];
-        jacobian[1][0] =   - 2.0*timeStep*solutionGuess[0];
-        jacobian[1][1] = 1 - 4.0*timeStep*solutionGuess[1];
+        jacobian[0][0] = 1 - 2.0*timeStep*rSolutionGuess[0];
+        jacobian[0][1] =   - 2.0*timeStep*rSolutionGuess[1];
+        jacobian[1][0] =   - 2.0*timeStep*rSolutionGuess[0];
+        jacobian[1][1] = 1 - 4.0*timeStep*rSolutionGuess[1];
     }
 };
 

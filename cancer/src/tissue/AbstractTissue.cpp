@@ -189,12 +189,12 @@ unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCell* pCell)
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName)
+void AbstractTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName)
 {
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::CreateOutputFiles(const std::string &rDirectory,
+void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory,
                                             bool rCleanOutputDirectory,
                                             bool outputCellMutationStates,
                                             bool outputCellTypes,

@@ -123,7 +123,7 @@ public:
      *
      * @param rMutationState the mutation state
      */
-    void SetMutationState(const CellMutationState &rMutationState);
+    void SetMutationState(const CellMutationState& rMutationState);
 
     /**
      * Called by the archive function on the cell cycle model.
@@ -143,7 +143,7 @@ public:
      * @param rY value of the solution vector used to evaluate the RHS.
      * @param rDY filled in with the resulting derivatives (using Alarcons et al. (2004) system of equations).
      */
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
 
     /**
      * Calculate whether the conditions for the cell cycle to finish have been met.
@@ -153,7 +153,7 @@ public:
      *
      * @return whether or not stopping conditions have been met
      */
-    bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
+    bool CalculateStoppingEvent(double time, const std::vector<double>& rY);
 
 };
 

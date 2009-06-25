@@ -254,7 +254,7 @@ namespace serialization {
 template<class Archive, unsigned SPACE_DIM>
 inline void save(
     Archive & ar,
-    const Node<SPACE_DIM> &rNode,
+    const Node<SPACE_DIM>& rNode,
     const unsigned int /* file_version */)
 {
     // Save deleted flag
@@ -268,7 +268,7 @@ inline void save(
 template<class Archive, unsigned SPACE_DIM>
 inline void load(
     Archive & ar,
-    Node<SPACE_DIM> &rNode,
+    Node<SPACE_DIM>& rNode,
     const unsigned int /* file_version */)
 {
     // Load deleted flag

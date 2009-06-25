@@ -340,7 +340,7 @@ public:
             TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 3u );
             TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 3u );
             
-            for(unsigned i=0; i<3; i++)
+            for (unsigned i=0; i<3; i++)
             {
                TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
             }

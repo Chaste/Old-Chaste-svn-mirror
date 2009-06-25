@@ -130,7 +130,7 @@ public:
      * @param rY value of the solution vector used to evaluate the RHS.
      * @param rDY filled in with the resulting derivatives (using Alarcons et al. (2004) system of equations).
      */
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
 
 };
 

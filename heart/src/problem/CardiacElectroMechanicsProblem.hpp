@@ -169,8 +169,18 @@ protected :
     void WriteWatchedLocationData(double time, Vec voltage);
 
 public :
+
     /**
-     *  Constructor
+     * Constructor.
+     * 
+     * @param width Width and height of the square
+     * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
+     * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
+     * @param pCellFactory factory to use to create cells
+     * @param endTime the end time to use
+     * @param numElecTimeStepsPerMechTimestep \todo document this parameter
+     * @param nhsOdeTimeStep \todo document this parameter
+     * @param outputDirectory the output directory
      */
     CardiacElectroMechanicsProblem(TetrahedralMesh<DIM,DIM>* pElectricsMesh,
                                    QuadraticMesh<DIM>* pMechanicsMesh,
@@ -198,7 +208,12 @@ public :
      */
     void Solve();
 
-    // short helper function - the max of a std::vec. this is in the wrong place
+    /**
+     * Short helper function - the max of a std::vec.
+     * \todo this is in the wrong place
+     * 
+     * @param vec a vector of doubles
+     */
     double Max(std::vector<double>& vec);
 
     /** Call to not write out voltages */

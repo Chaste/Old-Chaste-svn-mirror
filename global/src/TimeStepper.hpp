@@ -70,7 +70,7 @@ public:
      * Get the size of the next time step which will be taken.
      * GetNextTimeStep() == GetNextTime() - GetTime()
      */
-    double GetNextTimeStep() ;
+    double GetNextTimeStep();
 
     /**
      * True when GetTime ==  endTime

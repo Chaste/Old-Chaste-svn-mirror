@@ -98,7 +98,7 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::Init()
     mB = 0.01;
 }
 
-void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
+void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
     double x = rY[0];
     double y = rY[1];
@@ -154,7 +154,7 @@ CellMutationState& Alarcon2004OxygenBasedCellCycleOdeSystem::rGetMutationState()
     return mMutationState;
 }
 
-bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
 {
     return (rY[0] < mxThreshold && rY[1] > myThreshold);
 }

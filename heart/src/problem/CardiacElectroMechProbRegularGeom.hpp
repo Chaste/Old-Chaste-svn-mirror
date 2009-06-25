@@ -40,11 +40,18 @@ template<unsigned DIM>
 class CardiacElectroMechProbRegularGeom : public CardiacElectroMechanicsProblem<DIM>
 {
 public:
+
     /**
-     *  Constructor
-     *  @param width Width and height of the square.
-     *  @param numMechanicsElementsEachDir Num elements in each direction in the mechanics mesh.
-     *  @param numElectricsElementsEachDir Num elements in each direction in the electrics mesh
+     * Constructor.
+     * 
+     * @param width Width and height of the square
+     * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
+     * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
+     * @param pCellFactory factory to use to create cells
+     * @param endTime the end time to use
+     * @param numElecTimeStepsPerMechTimestep \todo document this parameter
+     * @param nhsOdeTimeStep \todo document this parameter
+     * @param outputDirectory the output directory
      */
     CardiacElectroMechProbRegularGeom(double width,
                                       unsigned numMechanicsElementsEachDir,

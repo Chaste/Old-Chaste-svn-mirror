@@ -85,7 +85,7 @@ void Lee2003WntSignallingOdeSystem::Init()
     mv14 = 8.22e-5;
 }
 
-void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
+void Lee2003WntSignallingOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
     double X5 = mGSK0;
     double X2 = rY[0];

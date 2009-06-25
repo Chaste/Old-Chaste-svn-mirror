@@ -375,8 +375,6 @@ public:
         delete p_simulator;
     }
 
-
-
     /// \todo Add more tests (see #923)
 
 };

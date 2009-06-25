@@ -166,7 +166,7 @@ void WntCellCycleOdeSystem::Init()
     mPhiE2F1 = phi_E2F1;
 }
 
-void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
+void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
     double r = rY[0];
     double e = rY[1];
@@ -264,7 +264,7 @@ CellMutationState& WntCellCycleOdeSystem::rGetMutationState()
     return mMutationState;
 }
 
-bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
 {
     double r = rY[0];
     double e = rY[1];
@@ -278,7 +278,7 @@ bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vecto
     return (rY[1] > 1.0 && dY1 > 0.0);
 }
 
-double WntCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)
+double WntCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
     return rY[1] - 1.0;
 }

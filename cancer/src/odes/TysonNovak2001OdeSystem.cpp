@@ -84,7 +84,7 @@ void TysonNovak2001OdeSystem::Init()
     mMstar = 10.0;
 }
 
-void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
+void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
     double x1 = rY[0];
     double x2 = rY[1];
@@ -144,15 +144,15 @@ void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vecto
     rDY[5] = dx6*60.0;
 }
 
-void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
+void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double>& rSolutionGuess, double** jacobian, double time, double timeStep)
 {
     timeStep *= 60.0; // to scale Jacobian so in hours not minutes
-    double x1 = solutionGuess[0];
-    double x2 = solutionGuess[1];
-    double x3 = solutionGuess[2];
-    double x4 = solutionGuess[3];
-    double x5 = solutionGuess[4];
-    double x6 = solutionGuess[5];
+    double x1 = rSolutionGuess[0];
+    double x2 = rSolutionGuess[1];
+    double x3 = rSolutionGuess[2];
+    double x4 = rSolutionGuess[3];
+    double x5 = rSolutionGuess[4];
+    double x6 = rSolutionGuess[5];
     
     // f1
     double df1_dx1 = -mK2d - mK2dd*x2;
@@ -207,7 +207,7 @@ void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double> &soluti
     jacobian[5][5] = 1-timeStep*df6_dx6;
 }
 
-bool TysonNovak2001OdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+bool TysonNovak2001OdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
 {
     std::vector<double> dy(rY.size());
     EvaluateYDerivatives(time, rY, dy);
@@ -217,7 +217,7 @@ bool TysonNovak2001OdeSystem::CalculateStoppingEvent(double time, const std::vec
     return ( (rY[5] > 0.6 )&& (rY[0] < mCycB_threshold) && dy[0] < 0.0 );
 }
 
-double TysonNovak2001OdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)
+double TysonNovak2001OdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
     std::vector<double> dy(rY.size());
     EvaluateYDerivatives(time, rY, dy);

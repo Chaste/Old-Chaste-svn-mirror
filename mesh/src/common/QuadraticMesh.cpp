@@ -348,10 +348,10 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName, bool boundary
         }
     }
 
-    if(DIM > 1)
+    if (DIM > 1)
     {
         // if boundaryElemFileIsQuadratic can read in the extra nodes for each boundary element, other have to compute them.
-        if(boundaryElemFileIsQuadratic)
+        if (boundaryElemFileIsQuadratic)
         {
             mesh_reader.Reset();
             for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
@@ -567,7 +567,7 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
           ++iter)
     {
         *p_file << counter++ << " ";
-        for(unsigned i=0; i<(*iter)->GetNumNodes(); i++)
+        for (unsigned i=0; i<(*iter)->GetNumNodes(); i++)
         {
             *p_file << (*iter)->GetNodeGlobalIndex(i) << " ";
         }

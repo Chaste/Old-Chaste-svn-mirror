@@ -217,7 +217,7 @@ public:
      *
      * @param rMutationState the mutation state.
      */
-    void SetMutationState(const CellMutationState &rMutationState);
+    void SetMutationState(const CellMutationState& rMutationState);
 
     /**
      * Called by the archive function on the Wnt cell cycle model.
@@ -237,7 +237,7 @@ public:
      * @param rY value of the solution vector used to evaluate the RHS.
      * @param rDY filled in with the resulting derivatives (using van Leeuwen et al. (2007) system of equations)
      */
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
 
     /**
      * Calculate whether the conditions for the cell cycle to finish have been met.
@@ -247,7 +247,7 @@ public:
      *
      * @return whether or not stopping conditions have been met
      */
-    bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
+    bool CalculateStoppingEvent(double time, const std::vector<double>& rY);
 
     /**
      * When using CVODE this function is called instead of CalculateStoppingEvent.
@@ -258,7 +258,7 @@ public:
      *
      * @return How close we are to the root of the stopping condition
      */
-    double CalculateRootFunction(double time, const std::vector<double> &rY);
+    double CalculateRootFunction(double time, const std::vector<double>& rY);
 
 };
 

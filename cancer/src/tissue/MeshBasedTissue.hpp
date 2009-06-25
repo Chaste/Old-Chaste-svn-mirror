@@ -310,7 +310,7 @@ public:
      * @param rArchiveDirectory directory in which archive is stored
      * @param rMeshFileName base name for mesh files
      */
-    void WriteMeshToFile(const std::string &rArchiveDirectory, const std::string &rMeshFileName);
+    void WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName);
 
     /**
      * Overridden CreateOutputFiles() method.
@@ -324,7 +324,7 @@ public:
      * @param outputCellAncestors  whether to create a cell ancestor results file
      * @param outputCellAges whether to output cell age results
      */
-    void CreateOutputFiles(const std::string &rDirectory,
+    void CreateOutputFiles(const std::string& rDirectory,
                            bool rCleanOutputDirectory,
                            bool outputCellMutationStates,
                            bool outputCellTypes,
