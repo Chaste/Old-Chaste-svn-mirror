@@ -35,6 +35,12 @@ MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(
 {
 }
 
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed)
+        :  AbstractCardiacPde<ELEM_DIM, SPACE_DIM>(rCellsDistributed)
+{
+}
+
 
 //The following are hidden from the coverage test while it is waiting
 //for a re-factor. (Ticket #157)

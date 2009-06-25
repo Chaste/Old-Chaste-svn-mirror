@@ -146,6 +146,18 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
+                                                      const unsigned stride)
+    : mCellsDistributed(rCellsDistributed),
+      mStride(stride),      
+      mDoCacheReplication(true),
+      mDoOneCacheReplication(true),
+      mpDistributedVectorFactory(NULL)
+{
+    /// todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
+}
+
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
 {
     for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
@@ -251,6 +263,12 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::ReplicateCaches()
 {
     mIionicCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
     mIntracellularStimulusCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
+}
+
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+const std::vector<AbstractCardiacCell*>& AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::GetCellsDistributed() const
+{
+    return mCellsDistributed;    
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINPDE_HPP_
 #define BIDOMAINPDE_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
 
@@ -65,8 +68,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned SPACE_DIM>
 class BidomainPde : public virtual AbstractCardiacPde<SPACE_DIM>
 {
-
 private:
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+    }
+
     /** Extracellular conductivity tensors. */
     AbstractConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors;
 
@@ -83,6 +99,9 @@ public:
      */
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
+    /** Another constructor (for archiving) */
+    BidomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed);
+
     /**
      * Destructor
      */
@@ -94,6 +113,44 @@ public:
      const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex);
 };
 
+// Declare identifier for the serializer
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainPde) 
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const BidomainPde<SPACE_DIM> * t, const unsigned int file_version)
+{
+ 
+    const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
+    
+    ar << r_cells_distributed;
+    
+    /// \todo: #98 Archive intra and extra conductivity tensors       
+}    
+    
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate an instance (using existing constructor)
+ */
+template<class Archive, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, BidomainPde<SPACE_DIM> * t, const unsigned int file_version)
+{
+    std::vector<AbstractCardiacCell*> cells_distributed;
+
+    ar >> cells_distributed;
+
+    /// \todo: #98 Retrieve intra and extra conductivity tensors
+
+    ::new(t)BidomainPde<SPACE_DIM>(cells_distributed /*, pass intra and extracellular conductivity tensors*/);
+}
+}
+} // namespace ...
 
 
 #endif /*BIDOMAINPDE_HPP_*/

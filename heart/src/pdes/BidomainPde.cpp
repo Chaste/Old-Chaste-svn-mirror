@@ -114,6 +114,13 @@ BidomainPde<SPACE_DIM>::BidomainPde(
 }
 
 template <unsigned SPACE_DIM>
+BidomainPde<SPACE_DIM>::BidomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed)
+        :  AbstractCardiacPde<SPACE_DIM>(rCellsDistributed)
+{
+}
+
+
+template <unsigned SPACE_DIM>
 BidomainPde<SPACE_DIM>::~BidomainPde()
 {
     delete mpExtracellularConductivityTensors;

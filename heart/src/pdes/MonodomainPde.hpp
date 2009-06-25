@@ -30,12 +30,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MONODOMAINPDE_HPP_
 #define MONODOMAINPDE_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include <vector>
 #include "AbstractCardiacPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
+
 
 /**
  * MonodomainPde class.
@@ -57,9 +64,26 @@ class MonodomainPde : public virtual AbstractCardiacPde<ELEM_DIM,SPACE_DIM>, pub
 private:
     friend class TestMonodomainPde;
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+    }
+
+
 public:
     /// Constructor
     MonodomainPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
+    
+    // Another constructor (for archiving)
+    MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed);
 
     //The following are hidden from the coverage test while it is waiting
     //for a re-factor. (Ticket #157)
@@ -94,5 +118,47 @@ public:
 
     double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& );
 };
+
+// Declare identifier for the serializer
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1) 
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2) 
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3) 
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive, unsigned ELEM_DIM, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const MonodomainPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
+{
+ 
+    const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
+    
+    ar << r_cells_distributed;
+    
+    /// \todo: #98 Archive intra conductivity tensors       
+}    
+    
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate an instance (using existing constructor)
+ */
+template<class Archive, unsigned ELEM_DIM, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, MonodomainPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
+{
+    std::vector<AbstractCardiacCell*> cells_distributed;
+
+    ar >> cells_distributed;
+
+    /// \todo: #98 Retrieve intra conductivity tensors
+
+    ::new(t)MonodomainPde<ELEM_DIM, SPACE_DIM>(cells_distributed /*, pass intracellular conductivity tensors*/);
+}
+}
+} // namespace ...
+
 
 #endif /*MONODOMAINPDE_HPP_*/
