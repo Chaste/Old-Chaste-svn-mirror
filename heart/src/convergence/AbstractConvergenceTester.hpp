@@ -253,7 +253,7 @@ public:
 #define COVERAGE_IGNORE
             if (SimulateFullActionPotential)
             {
-                HeartConfig::Instance()->SetSimulationDuration(350.0);
+                HeartConfig::Instance()->SetSimulationDuration(400.0);
             }
             else
             {

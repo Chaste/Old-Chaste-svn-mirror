@@ -53,7 +53,13 @@ extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, 
 };
 #include "metis.h"
 
-
+/**
+ * Parallel implementation of a mesh
+ * Nodes are distributed such that each process has
+ * A set of nodes (possibly reordered) with contiguous global indices
+ * A local copy of all the elements supporting those nodes
+ * A local copy of ghost/halo nodes which are all the nodes used in the supporting elements, but not owned outright.
+ */ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 {

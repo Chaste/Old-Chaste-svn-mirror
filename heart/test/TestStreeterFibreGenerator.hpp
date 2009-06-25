@@ -72,14 +72,11 @@ public:
         TS_ASSERT_THROWS_ANYTHING(fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "file.fibres"));
 
         // Wrong surface filename
-        fibre_generator.SetSurfaceFiles("wrong_name", "wrong_name", "wrong_name");
-        TS_ASSERT_THROWS_ANYTHING(fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "file.fibres"));
+        TS_ASSERT_THROWS_ANYTHING(fibre_generator.SetSurfaceFiles("wrong_name", "wrong_name", "wrong_name"));
 
         // Wrong surface format
         std::string wrong_face_file = "heart/test/data/point50_heart_mesh/wrong_format.tri";
-        fibre_generator.SetSurfaceFiles(wrong_face_file, wrong_face_file, wrong_face_file);
-
-        TS_ASSERT_THROWS_ANYTHING(fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "file.fibres"));
+        TS_ASSERT_THROWS_ANYTHING(fibre_generator.SetSurfaceFiles(wrong_face_file, wrong_face_file, wrong_face_file));
 
 
     }

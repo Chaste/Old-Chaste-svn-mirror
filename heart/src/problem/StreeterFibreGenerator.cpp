@@ -85,13 +85,13 @@ double StreeterFibreGenerator<SPACE_DIM>::GetAveragedThickness(
 
 template<unsigned SPACE_DIM>
 double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
-        const c_vector<HeartRegionType, SPACE_DIM+1>& nodesRegion) const
+        const c_vector<HeartRegionType, SPACE_DIM+1>& nodesRegionsForElement) const
 {
     unsigned lv=0, rv=0;
 
     for (unsigned index=0; index<SPACE_DIM+1; index++)
     {
-        switch (nodesRegion[index])
+        switch (nodesRegionsForElement[index])
         {
             case HeartRegionCode::LEFT_VENTRICLE_SURFACE:
             case HeartRegionCode::LEFT_VENTRICLE_WALL:
@@ -124,11 +124,8 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
 template<unsigned SPACE_DIM>
 StreeterFibreGenerator<SPACE_DIM>::StreeterFibreGenerator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh)
     : mrMesh(rMesh),
-      mFilesSet(false)
+      mpGeometryInfo(NULL)
 {
-    mNumNodes = mrMesh.GetNumNodes();
-    mNumElements = mrMesh.GetNumElements();
-    mpGeometryInfo = NULL;
 }
 
 template<unsigned SPACE_DIM>
@@ -139,15 +136,12 @@ StreeterFibreGenerator<SPACE_DIM>::~StreeterFibreGenerator()
 
 template<unsigned SPACE_DIM>
 void StreeterFibreGenerator<SPACE_DIM>::SetSurfaceFiles(
-            std::string epicardiumFile,
-            std::string rightVentricleFile,
-            std::string leftVentricleFile)
+            const std::string &epicardiumFile,
+            const std::string &rightVentricleFile,
+            const std::string &leftVentricleFile)
 {
-    mEpiFile = epicardiumFile;
-    mRVFile = rightVentricleFile;
-    mLVFile = leftVentricleFile;
-
-    mFilesSet = true;
+    // Compute the distance map of each surface
+     mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, epicardiumFile, leftVentricleFile, rightVentricleFile);
 }
 
 template<unsigned SPACE_DIM>
@@ -156,7 +150,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
             std::string fibreOrientationFile,
             bool logInfo)
 {
-    if (!mFilesSet)
+    if (mpGeometryInfo == NULL)
     {
         EXCEPTION("Files defining the heart surfaces not set");
     }
@@ -175,16 +169,17 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     }
 
     // First line of the fibre file: number of elements of the mesh
-    *p_fibre_file << mNumElements << std::endl;
-
+    unsigned num_elements = mrMesh.GetNumElements();
+    *p_fibre_file << num_elements << std::endl;
     // Compute the distance map of each surface
-    mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, mEpiFile, mLVFile, mRVFile);
+
 
     CheckVentricleAlignment();
 
     // Compute wall thickness parameter
-    std::vector<double> wall_thickness(mNumNodes);
-    for (unsigned node_index=0; node_index<mNumNodes; node_index++)
+    unsigned num_nodes = mrMesh.GetNumNodes();
+    std::vector<double> wall_thickness(num_nodes);
+    for (unsigned node_index=0; node_index<num_nodes; node_index++)
     {
         double dist_epi, dist_endo;
 
@@ -255,8 +250,8 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     /*
      *  For each node, average its value of e with the values of all the neighbours
      */
-    std::vector<double> averaged_wall_thickness(mNumNodes);
-    for (unsigned node_index=0; node_index<mNumNodes; node_index++)
+    std::vector<double> averaged_wall_thickness(num_nodes);
+    for (unsigned node_index=0; node_index<num_nodes; node_index++)
     {
         averaged_wall_thickness[node_index] = GetAveragedThickness(node_index, wall_thickness);
 
@@ -272,7 +267,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
      */
     c_vector<double,SPACE_DIM> grad_ave_wall_thickness;
 
-    for (unsigned element_index=0; element_index<mNumElements; element_index++)
+    for (unsigned element_index=0; element_index<num_elements; element_index++)
     {
         Element<SPACE_DIM,SPACE_DIM>* p_element = mrMesh.GetElement(element_index);
 
