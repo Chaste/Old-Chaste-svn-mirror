@@ -137,9 +137,10 @@ public:
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
         //Test in milliseconds (at least 10 and not too much)
         TS_ASSERT_LESS_THAN_EQUALS(10.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST2));
-        TS_ASSERT_LESS_THAN_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 25.0);
+        TS_ASSERT_LESS_THAN_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 35.0);
                    
     }
+    
     void TestSilentlyCloseEvent()
     {
         AnEventHandler::Headings();
@@ -148,6 +149,27 @@ public:
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         MPISLEEP(0.01);
         
+        AnEventHandler::Report();
+    }
+    
+    void TestReportPrecision()
+    {
+        AnEventHandler::Headings();
+        AnEventHandler::Reset();
+        AnEventHandler::Enable();
+        AnEventHandler::BeginEvent(AnEventHandler::TEST3);      // total time
+        AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e3; // fake short run time
+        AnEventHandler::EndEvent(AnEventHandler::TEST3);
+        AnEventHandler::Report();
+        
+        AnEventHandler::BeginEvent(AnEventHandler::TEST3);
+        AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e5; // fake longer run time
+        AnEventHandler::EndEvent(AnEventHandler::TEST3);
+        AnEventHandler::Report();
+        
+        AnEventHandler::BeginEvent(AnEventHandler::TEST3);
+        AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e7; // fake long run time
+        AnEventHandler::EndEvent(AnEventHandler::TEST3);
         AnEventHandler::Report();
     }
 };

@@ -51,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned NUM_EVENTS, class CONCRETE>
 class GenericEventHandler
 {
+    friend class TestGenericEventHandler;
 private:
     static std::vector<double> mCpuTime; /**< CPU ticks assigned to each event */
     static std::vector<bool> mHasBegun; /**< Whether each event is in progress */
@@ -236,7 +237,11 @@ public:
         
         // Make the output precision depend on total run time
         const char* format;
-        if (total > 999999.0)
+        if (total > 999999.0)      // 11.5 days
+        {
+            format = "%8.0f ";     // will allow up to 115 days before columns unaligned
+        }
+        else if (total > 9999.0)   // 2.7 hours
         {
             format = "%8.1f ";
         }
