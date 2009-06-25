@@ -25,8 +25,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-
 #ifndef ABSTRACTCARDIACPDE_HPP_
 #define ABSTRACTCARDIACPDE_HPP_
 
@@ -35,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#define BOOST_NO_INTRINSIC_INT64_T  /// \todo #1024 remove upon boost upgrade to over v1.35.
 #include <boost/serialization/vector.hpp>
 
 #include <vector>
@@ -85,14 +84,14 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //Archive vectory factory?  Do we have one available?  (If not - do it in the test to guard against errors)
-        
+        //Archive vector factory?  Do we have one available?  (If not - do it in the test to guard against errors)
+
         //Archive cells using handler.GetProcessUniqueFilePath("") and ArchiveLocationInfo
-        
+
         archive & mpDistributedVectorFactory;
     }
 
-    
+
 protected:
 
     /** Intracellular conductivity tensors.  Not archived, since it's loaded from the HeartConfig singleton. */
@@ -142,8 +141,8 @@ protected:
 
     /**
      * Local pointer to the distributed vector factory associated with the mesh object used.
-     * 
-     * Used to retrieve node ownership range when needed.    
+     *
+     * Used to retrieve node ownership range when needed.
      */
     DistributedVectorFactory* mpDistributedVectorFactory;
 public:
@@ -158,15 +157,15 @@ public:
      */
     AbstractCardiacPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory,
                        const unsigned stride=1);
-                       
+
     /**
      * This constructor is called by the archiver
-     * 
+     *
      * @param cellsDistributed  pointer to the cardiac cells.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                       const unsigned stride = 1);                
+                       const unsigned stride = 1);
 
     /** Virtual destructor */
     virtual ~AbstractCardiacPde();
@@ -231,9 +230,9 @@ public:
      *  Replicate the Iionic and intracellular stimulus caches.
      */
     void ReplicateCaches();
-    
+
     /**
-     *  Returns a reference to the vector of distributed cells. Needed for archiving.  
+     *  Returns a reference to the vector of distributed cells. Needed for archiving.
      */
     const std::vector<AbstractCardiacCell*>& GetCellsDistributed() const;
 
