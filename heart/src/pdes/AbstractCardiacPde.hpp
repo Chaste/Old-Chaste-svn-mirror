@@ -28,12 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPDE_HPP_
 #define ABSTRACTCARDIACPDE_HPP_
 
+#include <climits> // Work around a boost bug - see #1024.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#define BOOST_NO_INTRINSIC_INT64_T  /// \todo #1024 remove upon boost upgrade to over v1.35.
 #include <boost/serialization/vector.hpp>
 
 #include <vector>

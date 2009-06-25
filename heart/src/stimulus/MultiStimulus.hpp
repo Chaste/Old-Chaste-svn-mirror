@@ -31,15 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define MULTISTIMULUS_HPP_
 
 #include <new> // Apparently 'new' (for boost's two phase construction) isn't included - words fail me.
+#include <climits> // Work around a boost bug - see #1024.
+#include <vector>
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
-#define BOOST_NO_INTRINSIC_INT64_T /// \todo remove this when boost bug fixed - see ticket:1024.
 #include <boost/serialization/vector.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractStimulusFunction.hpp"
-#include <vector>
 
 // Needs to be included last
 #include <boost/serialization/export.hpp>
@@ -89,11 +90,11 @@ public:
      * @return  Magnitude of stimulus at time 'time'.
      */
      double GetStimulus(double time);
-     
+
      /**
       * Clear is responsible for managing the memory of
       * delegated stimuli
-      * 
+      *
       */
      void Clear();
 };
