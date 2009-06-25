@@ -54,6 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 #include "OutputFileHandler.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {

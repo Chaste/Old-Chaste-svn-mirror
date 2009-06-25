@@ -31,10 +31,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/access.hpp>
 #include <petscvec.h>
-#include <cassert>
+
 #include "DistributedVector.hpp"
 #include "Exception.hpp"
 #include "PetscTools.hpp"
+
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 

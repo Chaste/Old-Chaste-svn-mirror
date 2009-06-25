@@ -31,9 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TIMER_HPP_
 
 #include <ctime>
-#include <iostream>
 #include <string>
-#include "LogFile.hpp"
+
 
 /**
  *  A very simple lightweight benchmarking tool. Call Timer::Reset() to reset the timer

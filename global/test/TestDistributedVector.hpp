@@ -46,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 
 #include "OutputFileHandler.hpp"
+#include "ArchiveLocationInfo.hpp"
+
 
 class TestDistributedVector : public CxxTest::TestSuite
 {

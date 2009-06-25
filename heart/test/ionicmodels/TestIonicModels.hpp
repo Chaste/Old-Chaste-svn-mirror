@@ -72,7 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 
-//#include "ArchiveLocationInfo.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
 

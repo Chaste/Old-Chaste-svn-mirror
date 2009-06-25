@@ -26,7 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <cassert>
+
 #include "ProgressReporter.hpp"
+#include "Exception.hpp"
 
 ProgressReporter::ProgressReporter(std::string outputDirectory, double startTime, double endTime)
     : mStartTime(startTime),

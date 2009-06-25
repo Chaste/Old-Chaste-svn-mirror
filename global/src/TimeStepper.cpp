@@ -31,8 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include <cmath>
 #include <cfloat>
-#include <iostream>
-#include <iomanip>
 #include <cassert>
 
 const double SMIDGE = 1e-10;

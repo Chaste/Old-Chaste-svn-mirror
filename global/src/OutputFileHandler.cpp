@@ -35,6 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "Exception.hpp"
 
+#include "ArchiveLocationInfo.hpp"
+
+
+
 #define CHECK_SYSTEM(cmd) EXPECT0(system, cmd)
 
 
@@ -132,4 +136,9 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
 bool OutputFileHandler::IsMaster()
 {
     return mAmMaster;
+}
+
+void OutputFileHandler::SetArchiveDirectory()
+{
+    ArchiveLocationInfo::SetArchiveDirectory(GetOutputDirectoryFullPath());
 }

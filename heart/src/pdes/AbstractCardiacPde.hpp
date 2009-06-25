@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPDE_HPP_
 #define ABSTRACTCARDIACPDE_HPP_
 
+#include <vector>
 #include <climits> // Work around a boost bug - see #1024.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -36,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include "AbstractCardiacCell.hpp"
@@ -45,10 +45,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ReplicatableVector.hpp"
 #include "HeartConfig.hpp"
-#include "TemplatedExport.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 // Needs to be included last
-#include <boost/serialization/export.hpp>
+#include "TemplatedExport.hpp"
+
 
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'

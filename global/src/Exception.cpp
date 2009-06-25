@@ -26,9 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <sstream>
 
 #include "Exception.hpp"
-#include "LogFile.hpp"
+//#include "LogFile.hpp"
 
 Exception::Exception(std::string message,
                      std::string filename, const unsigned rLineNumber)

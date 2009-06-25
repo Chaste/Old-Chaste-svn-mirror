@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class DistributedVectorException
 {
-    public:
+public:
     DistributedVectorException();
 };
 

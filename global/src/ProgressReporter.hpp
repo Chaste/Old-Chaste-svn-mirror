@@ -28,9 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PROGRESSREPORTER_HPP_
 #define PROGRESSREPORTER_HPP_
 
-#include <cassert>
 #include "OutputFileHandler.hpp"
-#include "Exception.hpp"
 
 
 /**

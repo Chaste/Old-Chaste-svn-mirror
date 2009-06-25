@@ -26,6 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <cmath>
+#include <ctime>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
 
 #include "RandomNumberGenerator.hpp"
 

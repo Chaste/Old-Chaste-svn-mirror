@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <memory>
 
-#include "ArchiveLocationInfo.hpp"
 
 /** Type of our output streams; a managed pointer to an std::ofstream */
 typedef std::auto_ptr<std::ofstream> out_stream;
@@ -96,12 +95,10 @@ public:
     std::string GetOutputDirectoryFullPath();
     
     /**
-     * Helper method to set up ArchiveLocationInfo
+     * Helper method to set up ArchiveLocationInfo.
      */
-    void SetArchiveDirectory()
-    {
-        ArchiveLocationInfo::SetArchiveDirectory(GetOutputDirectoryFullPath());
-    }
+    void SetArchiveDirectory();
+
     /**
      * Open an output file in our directory, and check it was opened successfully.
      * Throws an Exception if not.

@@ -30,11 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PETSCTOOLS_HPP_
 #define PETSCTOOLS_HPP_
 
-
+#include <string>
 #include <vector>
-#include <iostream>
-#include <cassert>
-#include <cstring> //For strcmp etc. Needed in gcc-4.3
 
 #ifndef SPECIAL_SERIAL
 #include <petsc.h>

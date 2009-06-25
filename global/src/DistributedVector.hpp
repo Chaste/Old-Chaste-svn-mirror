@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include <iostream>
 #include <cassert>
+
 #include "DistributedVectorException.hpp"
 
 class DistributedVectorFactory;

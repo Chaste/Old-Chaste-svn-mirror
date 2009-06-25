@@ -33,13 +33,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petsc.h>
 #include <petscksp.h>
 
-#include "Exception.hpp"
-
 extern void PetscException(PetscInt petscError, unsigned line,
-                               const char* funct, const char* file);
+                           const char* funct, const char* file);
 
 extern void KspException(PetscInt kspError, unsigned line,
-                             const char* funct, const char* file);
+                         const char* funct, const char* file);
 
 //Positive codes mean that there's an error
 //Zero means success

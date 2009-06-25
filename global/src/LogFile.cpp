@@ -29,7 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "LogFile.hpp"
 #include "Exception.hpp"
+
 #include <cmath>
+#include <sstream>
 
 LogFile* LogFile::mpInstance = NULL;
 

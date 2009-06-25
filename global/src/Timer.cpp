@@ -26,8 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <iostream>
 
 #include "Timer.hpp"
+#include "LogFile.hpp"
 
 time_t Timer::StartTime;
 

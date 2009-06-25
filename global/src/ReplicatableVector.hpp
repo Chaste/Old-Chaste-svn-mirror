@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <petscvec.h>
-#include <iostream>
 
 /**
  * Helper class for replicating a PETSc vector.

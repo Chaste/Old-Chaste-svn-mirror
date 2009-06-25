@@ -28,6 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHIVELOCATIONINFO_HPP_
 #define ARCHIVELOCATIONINFO_HPP_
 
+#include <string>
+#include <sstream>
+
 #include "Exception.hpp"
 #include "PetscTools.hpp"
 

@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <cassert>
 #include <iomanip>
+#include <ctime>
 
 /**
  *  A singleton log file class. Allows the user to define log file in the test, which
@@ -59,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  This checks whether the given level (here '1') is greater or equal to the given
  *  logging level, in which case it writes to the current log file. If there is
- *  no log file is set up it does nothing.
+ *  no log file set up it does nothing.
  *
  *  Note the log file can be written to directly, without any level-checking, using
  *  (*LogFile::Instance()) << "Info to be written to the log file\n";

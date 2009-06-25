@@ -31,10 +31,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _LINEARSYSTEM_HPP_
 
 #include <boost/serialization/access.hpp>
-#include "UblasCustomFunctions.hpp"
+#include "UblasCustomFunctions.hpp" // meeds to be 'first'
+
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "PCBlockDiagonal.hpp"
+#include "ArchiveLocationInfo.hpp"
+
 #include <petscvec.h>
 #include <petscmat.h>
 #include <petscksp.h>

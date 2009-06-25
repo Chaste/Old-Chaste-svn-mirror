@@ -26,8 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <sstream>
 
 #include "PetscException.hpp"
+#include "Exception.hpp"
 
 
 //Positive codes mean that there's an error

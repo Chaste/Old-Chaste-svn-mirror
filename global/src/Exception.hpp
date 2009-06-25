@@ -30,13 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _EXCEPTION_HPP_
 #define _EXCEPTION_HPP_
 
-#include <ostream>
 #include <string>
-#include <sstream>
 
 #include <cfloat>
 #include <climits> //For UINT_MAX etc., necessary in gcc-4.3
 #include <cstdlib> //For system() etc., necessary in gcc-4.3
+
 const unsigned UNSIGNED_UNSET=UINT_MAX;
 const int INT_UNSET=INT_MAX;
 const double DOUBLE_UNSET=DBL_MAX;
