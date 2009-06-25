@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LogFile.hpp"
 #include "PetscTools.hpp"
 #include "MechanicsEventHandler.hpp"
+#include "ReplicatableVector.hpp"
 //#include "Timer.hpp" 
 
 /**

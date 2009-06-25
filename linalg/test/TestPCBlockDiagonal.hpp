@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "LinearSystem.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "ReplicatableVector.hpp"
 
 
 class TestPCBlockDiagonal : public CxxTest::TestSuite

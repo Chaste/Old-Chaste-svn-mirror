@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include <petscmat.h>
 #include "DistributedVectorFactory.hpp"
+#include "ReplicatableVector.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "OutputFileHandler.hpp"

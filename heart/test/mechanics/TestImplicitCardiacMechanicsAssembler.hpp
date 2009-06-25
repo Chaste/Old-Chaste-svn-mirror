@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "QuadraturePointsGroup.hpp"
 #include "NonlinearElasticityTools.hpp"
+#include "ReplicatableVector.hpp"
 
 class TestImplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
 {

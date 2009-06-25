@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _ABSTRACTODESYSTEM_HPP_
 #define _ABSTRACTODESYSTEM_HPP_
-#include "UblasIncludes.hpp"
+
 #include <boost/serialization/access.hpp>
 #define BOOST_NO_INTRINSIC_INT64_T   /// \todo remove this when boost bug fixed - see ticket:1024.
 #include <boost/serialization/vector.hpp>

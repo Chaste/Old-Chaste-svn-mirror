@@ -40,9 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petsc.h>
 #include <petscvec.h>
 #include <petscmat.h>
-
-#include "DistributedVector.hpp"
-#include "ReplicatableVector.hpp"
 #endif //SPECIAL_SERIAL
 
 #define EXIT_IF_PARALLEL if(!PetscTools::IsSequential()){TS_TRACE("This test does not pass in parallel yet.");return;}
