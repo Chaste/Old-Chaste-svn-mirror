@@ -82,8 +82,8 @@ private:
      * Note that serialization of the nodes is handled by load/save_construct_data,
      * so we don't actually have to do anything here except delegate to the base class.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -186,7 +186,7 @@ public:
     /**
      * Overridden GetNode() method.
      *
-     * @param index  global index of the specified node
+     * @param index global index of the specified node
      *
      * @return a pointer to the node with a given index.
      */
@@ -212,7 +212,7 @@ public:
     /**
      * Remove nodes that have been marked as deleted and update the node cell map.
      * 
-     * @param hasHadBirthsOrDeaths - a bool saying whether tissue has had Births Or Deaths
+     * @param hasHadBirthsOrDeaths whether tissue has had Births Or Deaths
      */
     void Update(bool hasHadBirthsOrDeaths=true);
 

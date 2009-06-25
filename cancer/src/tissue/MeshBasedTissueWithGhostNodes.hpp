@@ -65,8 +65,8 @@ private:
      * Note also that member data related to writers is not saved - output must
      * be set up again by the caller after a restart.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -78,9 +78,9 @@ private:
     /**
      * Set the ghost nodes by taking in a set of which nodes indices are ghost nodes.
      *
-     * @param ghostNodeIndices
+     * @param rGhostNodeIndices set of node indices corresponding to ghost nodes
      */
-    void SetGhostNodes(const std::set<unsigned>& ghostNodeIndices);
+    void SetGhostNodes(const std::set<unsigned>& rGhostNodeIndices);
 
     /**
      * This is called after a tissue has been constructed to check the

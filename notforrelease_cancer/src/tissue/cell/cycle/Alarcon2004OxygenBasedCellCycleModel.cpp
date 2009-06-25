@@ -30,13 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
 
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel &other)
-    : AbstractOdeBasedCellCycleModel(other),
-      mDimension(other.mDimension)
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& rOtherModel)
+    : AbstractOdeBasedCellCycleModel(rOtherModel),
+      mDimension(rOtherModel.mDimension)
 {
-    if (other.mpOdeSystem != NULL)
+    if (rOtherModel.mpOdeSystem != NULL)
     {
-        mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(other.mpOdeSystem));
+        mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
 }
 
@@ -49,8 +49,10 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(unsig
 
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                                                           const CellMutationState& rMutationState)
+                                                                           const CellMutationState& rMutationState,
+                                                                           const unsigned& rDimension)
 {
+    mDimension = rDimension;
     mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], rMutationState);
 
     // Set the model to be the same as the parent cell.

@@ -96,9 +96,9 @@ public:
      * 
      * Also copies our ODE system.
      * 
-     * @param other  the instance being copied.
+     * @param rOtherModel the instance being copied.
      */
-    Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& other);
+    Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& rOtherModel);
 
 
 
@@ -107,9 +107,11 @@ public:
      *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param rDimension the spatial dimension
      */
     Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                         const CellMutationState& rMutationState);
+                                         const CellMutationState& rMutationState,
+                                         const unsigned& rDimension);
 
     /**
      * Resets the oxygen-based model to the start of the cell cycle
@@ -196,7 +198,10 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }
-    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, HEALTHY);
+    CellMutationState mutation_state = HEALTHY;
+    unsigned dimension = UINT_MAX;
+
+    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, mutation_state, dimension);
 }
 }
 } // namespace ...

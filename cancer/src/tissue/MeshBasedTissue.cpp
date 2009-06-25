@@ -676,9 +676,9 @@ TissueCell& MeshBasedTissue<DIM>::SpringIterator::rGetCellB()
 }
 
 template<unsigned DIM>
-bool MeshBasedTissue<DIM>::SpringIterator::operator!=(const MeshBasedTissue<DIM>::SpringIterator& other)
+bool MeshBasedTissue<DIM>::SpringIterator::operator!=(const MeshBasedTissue<DIM>::SpringIterator& rOther)
 {
-    return (mEdgeIter != other.mEdgeIter);
+    return (mEdgeIter != rOther.mEdgeIter);
 }
 
 template<unsigned DIM>

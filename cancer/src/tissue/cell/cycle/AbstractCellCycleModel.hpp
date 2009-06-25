@@ -65,8 +65,8 @@ private:
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -88,11 +88,12 @@ private:
     }
 
     /**
-     * Assignment operator has no definition and can't be called.  (This is to prevent running the default assignment operator.)
+     * Assignment operator has no definition and can't be called.
+     * This is to prevent running the default assignment operator.
      *  
-     *  @param other  the cell cycle model being copied.
+     * @param rOtherModel the cell cycle model being copied.
      */
-    AbstractCellCycleModel & operator = (const AbstractCellCycleModel & other);
+    AbstractCellCycleModel & operator = (const AbstractCellCycleModel& rOtherModel);
 
 protected:
 
@@ -118,9 +119,6 @@ protected:
      * Whether the cell is currently ready to undergo division.
      */
     bool mReadyToDivide;
-
-
-
 
 public:
 

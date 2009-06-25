@@ -58,8 +58,8 @@ private:
     /**
      * Archive the member variables.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -208,7 +208,7 @@ public:
     /**
      * Set method for mCellType.
      *
-     * @param cellType
+     * @param cellType the cell's type
      */
     void SetCellType(CellType cellType);
 
@@ -220,7 +220,7 @@ public:
     /**
      * Set method for mMutationState.
      *
-     * @param mutationState
+     * @param mutationState the cell's mutation state
      */
     void SetMutationState(CellMutationState mutationState);
 
@@ -242,7 +242,7 @@ public:
      * Makes the cell enter apoptosis and sets #mDeathTime using the apoptosis
      * time from the cancer parameters.
      * 
-     * @param setDeathTime  Tell the cell exactly when to die.
+     * @param setDeathTime whether we tell the cell exactly when to die (defaults to true)
      */
     void StartApoptosis(bool setDeathTime=true);
 
@@ -279,7 +279,8 @@ public:
 
     /**
      * Give the TissueCell an index which it passes to its children.
-     * @param ancestorIndex
+     * 
+     * @param ancestorIndex the cell's ancestor index
      */
     void SetAncestor(unsigned ancestorIndex);
 
@@ -295,11 +296,9 @@ public:
     unsigned GetCellId() const;
 
     /**
-     * Reset the current max Id.
+     * Reset the current max ID.
      */
     static void ResetMaxCellId();
-    
-    
 };
 
 

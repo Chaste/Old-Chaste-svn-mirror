@@ -40,13 +40,13 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(unsigned hypothesis, unsign
 }
 
 
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& other)
-    : AbstractWntOdeBasedCellCycleModel(other),
-      mHypothesis(other.mHypothesis)
+IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& rOtherModel)
+    : AbstractWntOdeBasedCellCycleModel(rOtherModel),
+      mHypothesis(rOtherModel.mHypothesis)
 {
-    if (other.mpOdeSystem != NULL)
+    if (rOtherModel.mpOdeSystem != NULL)
     {
-        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(*static_cast<IngeWntSwatCellCycleOdeSystem*>(other.mpOdeSystem));
+        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(*static_cast<IngeWntSwatCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
 }
 

@@ -97,9 +97,9 @@ public:
      *
      * Also copies our ODE system.
      *
-     * @param other  the instance being copied.
+     * @param rOtherModel the instance being copied.
      */
-    WntCellCycleModel(const WntCellCycleModel& other);
+    WntCellCycleModel(const WntCellCycleModel& rOtherModel);
 
     /**
      * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
@@ -126,16 +126,13 @@ public:
     /**
      * A private constructor for archiving.
      *
-     * \todo why are these arguments declared to be const, but they are not
-     *       in the corresponding Stochastic WntCellCycleModel constructor?
-     *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param rMutationState the mutation state of the cell (used by ODEs)
-     * @param dimension the spatial dimension
+     * @param rDimension the spatial dimension
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                       const CellMutationState& rMutationState,
-                      const unsigned dimension);
+                      const unsigned& rDimension);
 
     /**
      * Overridden builder method to create new copies of

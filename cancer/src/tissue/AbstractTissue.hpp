@@ -107,8 +107,8 @@ protected:
     /**
      * Serialize the facade.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -545,9 +545,9 @@ public:
         /**
          * Comparison not-equal-to.
          *
-         * @param other iterator with which comparison is made
+         * @param rOther iterator with which comparison is made
          */
-        inline bool operator!=(const AbstractTissue<DIM>::Iterator& other);
+        inline bool operator!=(const AbstractTissue<DIM>::Iterator& rOther);
 
         /**
          * Prefix increment operator.
@@ -653,9 +653,9 @@ TissueCell* AbstractTissue<DIM>::Iterator::operator->()
 }
 
 template<unsigned DIM>
-bool AbstractTissue<DIM>::Iterator::operator!=(const AbstractTissue<DIM>::Iterator& other)
+bool AbstractTissue<DIM>::Iterator::operator!=(const AbstractTissue<DIM>::Iterator& rOther)
 {
-    return mCellIter != other.mCellIter;
+    return mCellIter != rOther.mCellIter;
 }
 
 template<unsigned DIM>

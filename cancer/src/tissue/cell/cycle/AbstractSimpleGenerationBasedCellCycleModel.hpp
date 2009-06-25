@@ -55,8 +55,8 @@ private:
     /**
      * Archive the cell cycle model.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -95,7 +95,7 @@ public:
     /**
      * Sets the cell's generation.
      *
-     * @param generation
+     * @param generation the cell's generation
      */
     void SetGeneration(unsigned generation);
 

@@ -54,8 +54,8 @@ private:
     /**
      * Archive the object and its member variables.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

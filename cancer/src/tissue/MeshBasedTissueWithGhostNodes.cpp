@@ -99,14 +99,14 @@ std::set<unsigned> MeshBasedTissueWithGhostNodes<DIM>::GetGhostNodeIndices()
 }
 
 template<unsigned DIM>
-void MeshBasedTissueWithGhostNodes<DIM>::SetGhostNodes(const std::set<unsigned>& ghostNodeIndices)
+void MeshBasedTissueWithGhostNodes<DIM>::SetGhostNodes(const std::set<unsigned>& rGhostNodeIndices)
 {
     // Reinitialise all entries of mIsGhostNode to false
     this->mIsGhostNode = std::vector<bool>(this->mrMesh.GetNumNodes(), false);
 
     // Update mIsGhostNode
-    std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
-    while (iter!=ghostNodeIndices.end())
+    std::set<unsigned>::iterator iter = rGhostNodeIndices.begin();
+    while (iter!=rGhostNodeIndices.end())
     {
         this->mIsGhostNode[*iter] = true;
         iter++;

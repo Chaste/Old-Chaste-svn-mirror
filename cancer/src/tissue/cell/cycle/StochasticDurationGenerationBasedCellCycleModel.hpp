@@ -48,8 +48,8 @@ private:
     /**
      * Archive the cell cycle model and random number generator, never used directly - boost uses this.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

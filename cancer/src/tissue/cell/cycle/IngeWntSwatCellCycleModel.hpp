@@ -58,8 +58,8 @@ private:
     /**
      * Archive the cell cycle model and ODE system, never used directly - boost uses this.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -104,9 +104,9 @@ public:
      *
      * Creates an appropriate copy of our ODE system too.
      *
-     * @param other  the instance being copied.
+     * @param rOtherModel the instance being copied.
      */
-    IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& other);
+    IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& rOtherModel);
 
 
     /**

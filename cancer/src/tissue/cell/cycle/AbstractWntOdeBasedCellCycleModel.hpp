@@ -61,8 +61,8 @@ private:
     /**
      * Archive the cell cycle model, never used directly - boost uses this.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -113,9 +113,9 @@ public:
      * subclass will use a different type.  Hence subclasses *must* copy their
      * own ODE system in their copy constructor.
      * 
-     * @param other  the cell cycle model being copied.
+     * @param rOtherModel the cell cycle model being copied.
      */
-    AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& other);
+    AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel);
 
     /**
      * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)

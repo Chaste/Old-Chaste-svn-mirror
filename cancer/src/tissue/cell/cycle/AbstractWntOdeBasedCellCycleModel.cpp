@@ -47,9 +47,9 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(unsigned di
 }
 
 
-AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& other)
-    : AbstractOdeBasedCellCycleModel(other),
-      mDimension(other.mDimension)
+AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel)
+    : AbstractOdeBasedCellCycleModel(rOtherModel),
+      mDimension(rOtherModel.mDimension)
 {
 }
 

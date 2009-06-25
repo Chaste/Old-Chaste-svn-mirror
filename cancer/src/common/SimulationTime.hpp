@@ -56,8 +56,8 @@ public:
      * Sets the end time and the number of time steps.
      * This must be called after SetStartTime() but before using any other methods.
      *
-     * @param endTime  Time at which to end this run of the simulation
-     * @param totalTimeStepsInSimulation  the number of time steps into which the above will be dvided
+     * @param endTime time at which to end this run of the simulation
+     * @param totalTimeStepsInSimulation  the number of time steps into which the above will be divided
      */
     void SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation);
 
@@ -65,18 +65,16 @@ public:
      * Reset method for the end time and the number of time steps, to run the simulation
      * further after a first initial run.
      *
-     * @param rEndTime The new end time for this simulation (now extended)
-     * note that the simulation will run from the current time to this new end time
-     * NOT from 0 to this end time.
-     * @param rNumberOfTimeStepsInThisRun the number of time steps to
-     * split the next run into.
+     * @param rEndTime the new end time for this simulation (the simulation will run from 
+     *      the current time to this new end time, NOT from 0 to this end time)
+     * @param rNumberOfTimeStepsInThisRun the number of time steps into which the next run is split
      */
     void ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, const unsigned& rNumberOfTimeStepsInThisRun);
 
     /**
      * Get the simulation time step, set in earlier calls.
-     * Warning: Use of this method may result in round errors
-     *  -- generally use GetTime() instead.
+     * 
+     * Warning: Use of this method may result in round errors; generally use GetTime() instead.
      *
      * @return time step for this run of the simulation
      */
@@ -133,7 +131,7 @@ public:
     /**
      * Set the start time of the simulation
      *
-     * @param startTime  the time at which the simulation begins (usually 0.0 hours)
+     * @param startTime the time at which the simulation begins (usually 0.0 hours)
      */
     void SetStartTime(double startTime);
 
@@ -214,8 +212,8 @@ private:
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

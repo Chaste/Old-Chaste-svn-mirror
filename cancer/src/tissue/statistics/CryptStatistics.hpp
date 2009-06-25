@@ -39,30 +39,31 @@ class CryptStatistics : public AbstractCryptStatistics
 protected:
 
     /**
-     * Method computing the perpendicular distance from the cell to the line from (xBottom,0) to (xTop,yTop),
-     * and returning if the distance is within the specified width to the section (defaults to 0.5)
+     * Method computing the perpendicular distance from the cell to the line from (xBottom, 0) to 
+     * (xTop, yTop), and returning if the distance is within the specified width to the section 
+     * (defaults to 0.5).
      *
-     * @param xBottom
-     * @param xTop
-     * @param yTop
-     * @param cellPosition
-     * @param widthOfSection
+     * @param xBottom the x coordinate of the bottom of the line
+     * @param xTop the x coordinate of the top of the line
+     * @param yTop the y coordinate of the top of the line
+     * @param cellPosition the location of the cell centre
+     * @param widthOfSection the width of the line
      *
      * @return whether the cell is in the section
      */
     bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5);
 
     /**
-     * Method computing the perpendicular distance from the cell to the line from (xBottom,0) to
-     * (xTop,yTop), taking into account periodicity, and returning if the distance is within the
+     * Method computing the perpendicular distance from the cell to the line from (xBottom, 0) to
+     * (xTop, yTop), taking into account periodicity, and returning if the distance is within the
      * specified width to the section (defaults to 1.0). Done by considering the two possible lines
      * and checking if cells are within range.
      *
-     * @param xBottom
-     * @param xTop
-     * @param yTop
-     * @param cellPosition
-     * @param widthOfSection
+     * @param xBottom the x coordinate of the bottom of the line
+     * @param xTop the x coordinate of the top of the line
+     * @param yTop the y coordinate of the top of the line
+     * @param cellPosition the location of the cell centre
+     * @param widthOfSection the width of the line
      *
      * @return whether the cell is in the section
      */
@@ -92,10 +93,10 @@ public :
      *  width apart then a more realistic section will be across the periodic boundary), using the
      *  final parameter. This obviously requires the mesh to be cylindrical.
      *
-     * @param xBottom  (defaults to a random number U[0,crypt_width])
-     * @param xTop  (defaults to a random number U[0,crypt_width])
-     * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
-     * @param periodic  (defaults to false)
+     * @param xBottom the x coordinate of the bottom of the line (defaults to a random number U[0,crypt_width])
+     * @param xTop the x coordinate of the top of the line (defaults to a random number U[0,crypt_width])
+     * @param yTop the y coordinate of the top of the line (defaults to crypt_length +2, to get the cells near the top)
+     * @param periodic whether periodicity is accounted for (defaults to false)
      *
      * @return  an ordered list of pointes to TissueCells from the bottom to the top of the crypt.
      *
@@ -123,9 +124,9 @@ public :
      * execute these in a sensible order. It appears that Intel goes left-to-right and Gcc goes
      * right-to-left.
      *
-     * @param xBottom  (defaults to a random number U[0,crypt_width])
-     * @param xTop  (defaults to a random number U[0,crypt_width])
-     * @param yTop  (defaults to crypt_length +2, to get the cells near the top)
+     * @param xBottom the x coordinate of the bottom of the line (defaults to a random number U[0,crypt_width])
+     * @param xTop the x coordinate of the top of the line (defaults to a random number U[0,crypt_width])
+     * @param yTop the y coordinate of the top of the line (defaults to crypt_length +2, to get the cells near the top)
      *
      * @return an ordered list of pointes to TissueCells from the bottom to the top of the crypt.
      */

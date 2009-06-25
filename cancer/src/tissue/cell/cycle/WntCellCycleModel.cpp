@@ -27,12 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WntCellCycleModel.hpp"
 
-WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& other)
-    : AbstractWntOdeBasedCellCycleModel(other)
+WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
+    : AbstractWntOdeBasedCellCycleModel(rOtherModel)
 {
-    if (other.mpOdeSystem != NULL)
+    if (rOtherModel.mpOdeSystem != NULL)
     {
-        mpOdeSystem = new WntCellCycleOdeSystem(*static_cast<WntCellCycleOdeSystem*>(other.mpOdeSystem));
+        mpOdeSystem = new WntCellCycleOdeSystem(*static_cast<WntCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
 }
 
@@ -40,8 +40,8 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& other)
 
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CellMutationState& rMutationState,
-                                     unsigned dimension)
-    : AbstractWntOdeBasedCellCycleModel(dimension)
+                                     const unsigned& rDimension)
+    : AbstractWntOdeBasedCellCycleModel(rDimension)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState); // Wnt pathway is reset in a couple of lines
 

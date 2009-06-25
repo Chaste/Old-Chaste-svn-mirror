@@ -47,12 +47,12 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 #endif //CHASTE_CVODE
 }
 
-TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleModel& other)
-    : AbstractOdeBasedCellCycleModel(other)
+TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleModel& rOtherModel)
+    : AbstractOdeBasedCellCycleModel(rOtherModel)
 {
-    if (other.mpOdeSystem != NULL)
+    if (rOtherModel.mpOdeSystem != NULL)
     {
-        mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(other.mpOdeSystem));
+        mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(rOtherModel.mpOdeSystem));
     }
 }
 

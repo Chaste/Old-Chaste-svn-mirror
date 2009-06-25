@@ -53,8 +53,8 @@ private:
     /**
      * Archive the cell cycle model and member variables.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -104,9 +104,9 @@ public:
      * subclass will use a different type.  Hence subclasses *must* copy their
      * own ODE system in their copy constructor.
      * 
-     * @param other  the cell cycle model being copied.
+     * @param rOtherModel the cell cycle model being copied.
      */
-    AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& other);
+    AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& rOtherModel);
 
     /**
      * This destructor deletes the mpOdeSystem.
@@ -122,9 +122,9 @@ public:
     virtual void UpdateCellCyclePhase();
 
     /**
-     * This method must be implemented by each subclass - solves the ODEs to a given time and
+     * This method must be implemented by each subclass - solves the ODEs to a given time.
      *
-     * @param currentTime
+     * @param currentTime the current time
      *
      * @return Whether a stopping event occurred.
      */

@@ -61,14 +61,14 @@ public:
     /**
      * Add a node to this box.
      * 
-     * @param pNode Address of the node to be added
+     * @param pNode address of the node to be added
      */
     void AddNode(Node<DIM>* pNode);
 
     /**
      * Remove a node from this box.
      * 
-     * @param pNode Address of the node to be removed
+     * @param pNode address of the node to be removed
      */
     void RemoveNode(Node<DIM>* pNode);
 
@@ -106,7 +106,7 @@ private:
      * 2D specific helper method - whether a box is on the bottom row of 
      * all the boxes.
      * 
-     * @param boxIndex The box
+     * @param boxIndex the box index
      */
     bool IsBottomRow(unsigned boxIndex)
     {
@@ -117,7 +117,7 @@ private:
      * 2D specific helper methods - whether a box is on the top row of 
      * all the boxes.
      * 
-     * @param boxIndex The box
+     * @param boxIndex the box index
      */
     bool IsTopRow(unsigned boxIndex)
     {
@@ -128,7 +128,7 @@ private:
      * 2D specific helper methods - whether a box is on the left side of 
      * the boxes.
      * 
-     * @param boxIndex The box
+     * @param boxIndex the box index
      */
     bool IsLeftColumn(unsigned boxIndex)
     {
@@ -139,7 +139,7 @@ private:
      * 2D specific helper methods - whether a box is on the right side of 
      * the boxes.
      *  
-     * @param boxIndex The box
+     * @param boxIndex the box index
      */
     bool IsRightColumn(unsigned boxIndex)
     {
@@ -151,22 +151,22 @@ public:
     /**
      * Constructor 
      * 
-     * @param cutOffLength  the width of each box (cutOffLength) 
-     * @param domainSize  the size of the domain, in the form (xmin, xmax, ymin, ymax) (etc)
+     * @param cutOffLength the width of each box (cutOffLength) 
+     * @param domainSize the size of the domain, in the form (xmin, xmax, ymin, ymax) (etc)
      */ 
     NodeBoxCollection(double cutOffLength, c_vector<double, 2*DIM> domainSize);
 
     /**
      * Calculate which box this node is contained in.
      * 
-     * @param pNode Address of the node
+     * @param pNode address of the node
      */
     unsigned CalculateContainingBox(Node<DIM>* pNode);
 
     /** 
      * Get a box.
      *
-     * @param boxIndex  the index of the box to return
+     * @param boxIndex the index of the box to return
      * @return a NodeBox 
      */
     NodeBox<DIM>& rGetBox(unsigned boxIndex);
@@ -180,7 +180,7 @@ public:
     /**
      * Get the set of all the local boxes, i.e. itself and its nearest-neighbours.
      * 
-     * @param boxIndex  the index of the box
+     * @param boxIndex the index of the box
      */
     std::set<unsigned> GetLocalBoxes(unsigned boxIndex);
 
@@ -190,8 +190,8 @@ public:
      *  pairs are less than the cut-off distance apart.** The pairs are checked so that index1 < index2,
      *  so each connected pair of nodes is only in the set once.   
      * 
-     *  @param rNodes All the nodes to be consider
-     *  @param rNodePairs The return value, a set of pairs of nodes
+     *  @param rNodes all the nodes to be consider
+     *  @param rNodePairs the return value, a set of pairs of nodes
      */
     void CalculateNodePairs(std::vector<Node<DIM>*>& rNodes, std::set<std::pair<Node<DIM>*, Node<DIM>*> >& rNodePairs);
 };

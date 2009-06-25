@@ -152,8 +152,8 @@ protected:
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -238,7 +238,7 @@ protected:
     /**
      * Apply any tissue boundary conditions. Can be overridden in subclasses.
      *
-     * @param rOldLocations
+     * @param rOldLocations the node locations before any boundary conditions are applied
      */
     virtual void ApplyTissueBoundaryConditions(const std::vector< c_vector<double, DIM> >& rOldLocations)
     {
@@ -299,9 +299,9 @@ public:
     virtual ~TissueSimulation();
 
     /**
-     * Get a node's location (ONLY FOR TESTING)
+     * Get a node's location (ONLY FOR TESTING).
      *
-     * @param rNodeIndex  the node index
+     * @param rNodeIndex the node index
      * @return the co-ordinates of this node.
      */
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);

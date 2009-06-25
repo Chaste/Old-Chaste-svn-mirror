@@ -55,34 +55,17 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
         WntConcentration<2>::Destroy();
     }
 
-    // update node positions according to any tissue boundary conditions
-    // \todo this should only loop over non deleted nodes
-    for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
+    // Update node positions according to any tissue boundary conditions
+    VertexBasedTissue<2>* p_static_cast_tissue = static_cast<VertexBasedTissue<2>*>(&mrTissue);
+
+    for (AbstractMesh<2,2>::NodeIterator iter = p_static_cast_tissue->rGetMesh().GetNodeIteratorBegin();
+         iter != p_static_cast_tissue->rGetMesh().GetNodeIteratorEnd();
+         ++iter)
     {
-        // Get pointer to this node
-        Node<2>* p_node = mrTissue.GetNode(node_index);
-
-//        if (!is_wnt_included)
-//        {
-//            /**
-//             * If WntConcentration is not set up then stem cells must be pinned,
-//             * so we reset the location of each stem cell.
-//             */
-//            if (cell_iter->GetCellType()==STEM)
-//            {
-//                // Get old node location
-//                c_vector<double, 2> old_node_location = rOldLocations[node_index];
-//
-//                // Return node to old location
-//                p_node->rGetModifiableLocation()[0] = old_node_location[0];
-//                p_node->rGetModifiableLocation()[1] = old_node_location[1];
-//            }
-//        }
-
         // Any cell that has moved below the bottom of the crypt must be moved back up
-        if (p_node->rGetLocation()[1] < 0.0)
+        if (iter->rGetLocation()[1] < 0.0)
         {
-            p_node->rGetModifiableLocation()[1] = 0.0;
+            iter->rGetModifiableLocation()[1] = 0.0;
         }
         // \todo this will fail until deleted nodes are removed
         //assert(p_node->rGetLocation()[1] >= 0.0);

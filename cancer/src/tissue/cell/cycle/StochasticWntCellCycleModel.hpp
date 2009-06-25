@@ -58,8 +58,8 @@ private:
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -126,13 +126,13 @@ public:
     /**
      * A private constructor for archiving.
      *
-     * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param mutationState the mutation state of the cell (used by ODEs)
-     * @param dimension the spatial dimension
+     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param rDimension the spatial dimension
      */
-    StochasticWntCellCycleModel(std::vector<double> parentProteinConcentrations,
-                                CellMutationState mutationState,
-                                unsigned dimension);
+    StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+                                const CellMutationState& rMutationState,
+                                const unsigned& rDimension);
 
     /**
      * Overridden builder method to create new copies of

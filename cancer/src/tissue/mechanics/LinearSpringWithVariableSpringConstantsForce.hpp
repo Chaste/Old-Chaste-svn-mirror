@@ -48,8 +48,8 @@ private :
     /**
      * Archive the object and its member variables.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -100,7 +100,7 @@ public :
     /**
      * Set whether to use an edge-based spring constant.
      *
-     * @param useEdgeBasedSpringConstant
+     * @param useEdgeBasedSpringConstant whether to use an edge-based spring constant
      */
     void SetEdgeBasedSpringConstant(bool useEdgeBasedSpringConstant);
 
@@ -108,9 +108,9 @@ public :
      * Use different spring strengths depending on two cells:
      * Normal-normal, Normal-mutant, mutant-mutant
      *
-     * @param useMutantSprings  whether to use mutant springs
-     * @param mutantMutantMultiplier  the multiplier for springs connecting two mutant cells
-     * @param normalMutantMultiplier  the multiplier for springs connecting a mutant cell with a normal cell
+     * @param useMutantSprings whether to use mutant springs
+     * @param mutantMutantMultiplier the multiplier for springs connecting two mutant cells
+     * @param normalMutantMultiplier the multiplier for springs connecting a mutant cell with a normal cell
      */
     void SetMutantSprings(bool useMutantSprings, double mutantMutantMultiplier=2, double normalMutantMultiplier=1.5);
 
