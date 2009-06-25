@@ -60,8 +60,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 struct ElementAndWeights
 {
-    unsigned ElementNum;
-    c_vector<double,DIM+1> Weights;
+    unsigned ElementNum; /**< Which element*/
+    c_vector<double,DIM+1> Weights; /**<Gauss weights for this element*/
 };
 
 
@@ -165,6 +165,9 @@ protected :
     /**
      *  Write info (x, y, V, and Ca) for the watched node. Note: the Ca is written,
      *  but this ASSUMES LUO-RUDY IS USED
+     * 
+     * @param time  Time-step now, to write out
+     * @param voltage  Vm vector (this is Monodomain)
      */
     void WriteWatchedLocationData(double time, Vec voltage);
 
@@ -172,15 +175,16 @@ public :
 
     /**
      * Constructor.
-     * 
-     * @param width Width and height of the square
-     * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
-     * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
+     * @param pElectricsMesh  Mesh on which to solve electrics (Monodomain)
+     * @param pMechanicsMesh  Mesh (2nd order) on which to solve mechanics
+     * @param fixedMechanicsNodes  Indices of those nodes which a pinned in space
      * @param pCellFactory factory to use to create cells
      * @param endTime the end time to use
+     * @param numElecTimeStepsPerMechTimestep simple ratio
+     * @param nhsOdeTimeStep Step size for NHS (Niederer, Hunter, Smith) model of active tension in cardiac cells.
      * @param outputDirectory the output directory
      * 
-     * \todo document numElecTimeStepsPerMechTimestep and nhsOdeTimeStep
+     * 
      */
     CardiacElectroMechanicsProblem(TetrahedralMesh<DIM,DIM>* pElectricsMesh,
                                    QuadraticMesh<DIM>* pMechanicsMesh,
@@ -227,10 +231,11 @@ public :
      *  time x_pos y_pos [z_pos] voltage Ca_i_conc.
      *
      *  NOTE: for the Calcium - assumes LUO_RUDY IS USED
+     *  @param watchedLocation  location (x,y,z) in space.  Watched node is the closest to this point.
      */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
 
-    /** Get the current deformed position of the nodes */
+    /** @return the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 };
 

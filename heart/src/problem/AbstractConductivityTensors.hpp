@@ -41,32 +41,45 @@ template<unsigned SPACE_DIM>
 class AbstractConductivityTensors
 {
 protected:
-    unsigned mNumElements;
+    unsigned mNumElements; /**< Number of elements (in the mesh) read from file in the derived classes*/
 
-    bool mUseNonConstantConductivities;
-    bool mUseFibreOrientation;
+    bool mUseNonConstantConductivities; /**< Whether conductivities can be non-constant*/
+    bool mUseFibreOrientation; /**< Set by SetFibreOrientationFile so that fibre orientation can be read*/
 
-    // Constant Conductivities
+    /** Single constant conductivities for all space (when mUseNonConstantConductivities==false)*/
     c_vector<double, SPACE_DIM> mConstantConductivities; // mS/cm
 
-    // Non-constant Conductivities
+    /** Non-constant conductivities for each elemenet (when mUseNonConstantConductivities==true)*/
     std::vector<c_vector<double, SPACE_DIM> >* mpNonConstantConductivities; // mS/cm
 
-    // Container for Tensors (single or multiple)
+    /** Container for conductivity tensors (single [one for all space] or multiple [one for each element]) */
     std::vector< c_matrix<double,SPACE_DIM,SPACE_DIM> > mTensors;
 
+    /** Set by Init() in the base classes*/
     bool mInitialised;
 
+    /** Name of fibre orienation file (see SetFibreOrientationFile)*/
     std::string mFibreOrientationFilename;
+    
+    /** File stream to use for GetTokensAtNextLine*/
     std::ifstream mDataFile;
 
-
+    /** Open mDataFile using the name mFibreOrientationFilename*/
     void OpenFibreOrientationFile();
 
+    /** Close mDataFile*/
     void CloseFibreOrientationFile();
 
-    unsigned GetTokensAtNextLine(std::vector<double>& tokens);
+    /** Read a line of numbers from mDataFile
+     * @param rTokens  a vector to store the data in
+     * @return the size of the vector
+     */
+    unsigned GetTokensAtNextLine(std::vector<double>& rTokens);
 
+    /** Read number of elements from mDataFile
+     * Note: Must be called before GetTokensAtNextLine (it assumes that
+     * it's reading the first line.
+     */
     unsigned GetNumElementsFromFile();
 
 public:
@@ -84,26 +97,32 @@ public:
 
     /**
      *  Sets constant conductivities for all the elements of the mesh.
-     *
-     *  @param constLongConduc Longitudinal conductivity (x axis)
-     *  @param constTransConduc Transverse conductivity (y axis)
-     *  @param constNormalConduc Normal conductivity (z axis)
+     *  @param constantConductivities Longitudinal, Transverse (y axis) and Normal conductivity (z axis)
      *
      *  \todo Explain problem with c_vector and SPACE_DIM
      */
     void SetConstantConductivities(c_vector<double, 1> constantConductivities);
 
+    /**
+     *  Sets constant conductivities for all the elements of the mesh.
+     *  @param constantConductivities Longitudinal, Transverse (y axis) and Normal conductivity (z axis)
+     *
+     *  \todo Explain problem with c_vector and SPACE_DIM
+     */
     void SetConstantConductivities(c_vector<double, 2> constantConductivities);
 
+    /**
+     *  Sets constant conductivities for all the elements of the mesh.
+     *  @param constantConductivities Longitudinal, Transverse (y axis) and Normal conductivity (z axis)
+     *
+     *  \todo Explain problem with c_vector and SPACE_DIM
+     */
     virtual void SetConstantConductivities(c_vector<double, 3> constantConductivities);
 
 
     /**
-     *  Sets a different longitudinal and transverse conductivity for every elements of the mesh.
      *
-     *  @param rLongitudinalConductivities Vector containing longitudinal conductivities of the elements (x axis)
-     *  @param rTransverseConductivities Vector containing transverse conductivities of the elements (y axis)
-     *  @param rNormalConductivities Vector containing normal conductivities of the elements (z axis)
+     *  @param pNonConstantConductivities pointer to vector of conductivities (one per element)
      */
     void SetNonConstantConductivities(std::vector<c_vector<double, SPACE_DIM> >* pNonConstantConductivities);
 

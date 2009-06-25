@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 template<unsigned SPACE_DIM>
-void AxisymmetricConductivityTensors<SPACE_DIM>::ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& orientVector)
+void AxisymmetricConductivityTensors<SPACE_DIM>::ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& rOrientVector)
 {
     std::vector<double> tokens;
 
@@ -46,7 +46,7 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::ReadOrientationVectorFromFile (
 
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        orientVector[i] = tokens[i];
+        rOrientVector[i] = tokens[i];
     }
 }
 

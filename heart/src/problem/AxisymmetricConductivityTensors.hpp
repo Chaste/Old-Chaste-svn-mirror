@@ -44,12 +44,21 @@ class AxisymmetricConductivityTensors : public AbstractConductivityTensors<SPACE
 {
 private:
 
-    void ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& orientVector);
+    /**
+     * Read from mDataFile with GetTokensAtNextLine
+     * @param rOrientVector  vector into which to read the orientation
+     */
+    void ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& rOrientVector);
 
 public:
+    /**Constructor*/
     AxisymmetricConductivityTensors();
 
-    void SetConstantConductivities(c_vector<double, 3> constantConductivities);
+    /**
+     *  Sets constant conductivities for all the elements of the mesh.
+     *  @param constantConductivities Longitudinal, Transverse (y axis) and Normal conductivity (z axis)
+     */
+     void SetConstantConductivities(c_vector<double, 3> constantConductivities);
 
     /** \todo there are extensive comments within the implementation of this method */
     void Init() throw (Exception);

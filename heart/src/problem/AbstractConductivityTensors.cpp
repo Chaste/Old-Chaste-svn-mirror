@@ -47,13 +47,14 @@ void AbstractConductivityTensors<SPACE_DIM>::CloseFibreOrientationFile()
 }
 
 template<unsigned SPACE_DIM>
-unsigned AbstractConductivityTensors<SPACE_DIM>::GetTokensAtNextLine(std::vector<double>& tokens)
+unsigned AbstractConductivityTensors<SPACE_DIM>::GetTokensAtNextLine(std::vector<double>& rTokens)
 {
     std::string line;
 
     bool comment_line;
     bool blank_line;
-
+    //We've assuming this is a fresh vector.  Why?
+    assert(rTokens.size() == 0);
     do
     {
         getline(mDataFile, line);
@@ -77,10 +78,10 @@ unsigned AbstractConductivityTensors<SPACE_DIM>::GetTokensAtNextLine(std::vector
     {
         double item;
         line_stream >> item;
-        tokens.push_back(item);
+        rTokens.push_back(item);
     }
 
-    return tokens.size();
+    return rTokens.size();
 }
 
 template<unsigned SPACE_DIM>

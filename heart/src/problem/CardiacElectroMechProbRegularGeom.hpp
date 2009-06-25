@@ -40,7 +40,7 @@ template<unsigned DIM>
 class CardiacElectroMechProbRegularGeom : public CardiacElectroMechanicsProblem<DIM>
 {
 public:
-
+   
     /**
      * Constructor.
      * 
@@ -49,9 +49,9 @@ public:
      * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
      * @param pCellFactory factory to use to create cells
      * @param endTime the end time to use 
+     * @param numElecTimeStepsPerMechTimestep simple ratio
+     * @param nhsOdeTimeStep Step size for NHS (Niederer, Hunter, Smith) model of active tension in cardiac cells.
      * @param outputDirectory the output directory
-     * 
-     * \todo document numElecTimeStepsPerMechTimestep and nhsOdeTimeStep
      */
     CardiacElectroMechProbRegularGeom(double width,
                                       unsigned numMechanicsElementsEachDir,
