@@ -202,7 +202,10 @@ void SetConductivities(MonodomainProblem<DIM>& rProblem)
     HeartConfig::Instance()->SetIntracellularConductivities(conductivities);
 }
 
-
+/**
+ * AbstractConvergenceTester
+ * Run convergence for a particular cell type, mono/bidomain and dimension
+ */
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class AbstractConvergenceTester : public AbstractUntemplatedConvergenceTester
 {

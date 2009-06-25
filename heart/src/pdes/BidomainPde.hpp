@@ -99,7 +99,9 @@ public:
      */
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
-    /** Another constructor (for archiving) */
+    /** Another constructor (for archiving) 
+     *  @param rCellsDistributed  local cell models (recovered from archive)
+     */
     BidomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed);
 
     /**

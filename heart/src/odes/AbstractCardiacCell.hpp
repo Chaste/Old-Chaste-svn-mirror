@@ -282,11 +282,16 @@ public:
     virtual bool IsFastOnly();
 
     /**
-     * \todo what do I do?
+     * In a multiscale simulation a cut-down cell model can be run:
+     *  - fast values are calculated according to the CellML definition
+     *  - slow values are interpolated on synchronisation time-steps.
+     * There's a chance that linear interpolation/extrapolation may push
+     * some gating variable out of the range [0, 1].  This method alters
+     * any values which are out-of-range.
      *
      * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
      *
-     * \todo document rSlowValues
+     * @param rSlowValues A vector of the slow values for a particular cell after they have been interpolated from nearby coarse cells
      */
     virtual void AdjustOutOfRangeSlowValues(std::vector<double>& rSlowValues);
 

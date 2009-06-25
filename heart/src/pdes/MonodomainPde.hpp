@@ -82,7 +82,10 @@ public:
     /// Constructor
     MonodomainPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
 
-    // Another constructor (for archiving)
+    
+    /** Another constructor (for archiving) 
+     *  @param rCellsDistributed  local cell models (recovered from archive)
+     */
     MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed);
 
     //The following are hidden from the coverage test while it is waiting

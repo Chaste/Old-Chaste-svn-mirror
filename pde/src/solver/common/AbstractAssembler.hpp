@@ -365,10 +365,10 @@ public:
      * if there are some quantities which need to be computed at each Gauss point.
      * They are called in AssembleOnElement().
      * 
-     * \todo phi_i should really be called phiI
+     * @param phiI
      * @param pNode pointer to a node
      */
-    virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
+    virtual void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
     {}
 
 };

@@ -162,7 +162,7 @@ public:
     /**
      * This constructor is called by the archiver
      *
-     * @param cellsDistributed  pointer to the cardiac cells.
+     * @param rCellsDistributed  pointers to the cardiac cells.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,

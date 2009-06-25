@@ -106,10 +106,10 @@ protected:
     /**
      * Overridden IncrementInterpolatedQuantities() method.
      *
-     * @param phi_i \todo This should be phiI
+     * @param phiI
      * @param pNode
      */
-    void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode);
+    void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode);
 
     virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime);
 
