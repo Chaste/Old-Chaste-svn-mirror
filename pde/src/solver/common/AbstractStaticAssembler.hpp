@@ -225,12 +225,14 @@ protected:
      */
     virtual void PrepareForSolve();
 
+public:
     /**
      * Accessor method that subclasses of AbstractAssembler (but not us)
      * can use to get to useful data.
      */
     LinearSystem** GetLinearSystem();
 
+protected:
     /**
      * Accessor method that subclasses of AbstractAssembler (but not us)
      * can use to get to useful data.

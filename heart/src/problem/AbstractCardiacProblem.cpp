@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <boost/archive/text_oarchive.hpp>
+
 #include "AbstractCardiacProblem.hpp"
 
 #include "TrianglesMeshReader.hpp"
@@ -40,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "DistributedVector.hpp"
 #include "ProgressReporter.hpp"
+#include "LinearSystem.hpp"
+
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
@@ -53,6 +57,7 @@ AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
       mpDefaultBoundaryConditionsContainer(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
+      mArchiveKSP(false),
       mpWriter(NULL)
 {
     mWriteInfo = false;
@@ -69,7 +74,7 @@ AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
-{
+{    
     if (mpDefaultBoundaryConditionsContainer!=NULL)
     {
         delete mpDefaultBoundaryConditionsContainer;
@@ -463,6 +468,24 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         OnEndOfTimestep(stepper.GetTime());
     }
 
+    // We need to do this before the assembler is destroyed
+    if (mArchiveKSP)
+    {
+        OutputFileHandler handler(mOutputDirectory, false);
+        handler.SetArchiveDirectory();
+        
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + mOutputFilenamePrefix +"_ls.arch";       
+        
+        std::ofstream ofs(archive_filename.c_str());
+        boost::archive::text_oarchive output_arch(ofs);
+
+        LinearSystem* const p_linear_system = *(mpAssembler->GetLinearSystem());
+        output_arch << p_linear_system;          
+
+        ofs.close();
+    }
+
     // Free assembler
     delete mpAssembler;
 
@@ -578,6 +601,11 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::UseMatrixBasedRhsAs
     mUseMatrixBasedRhsAssembly = usematrix;
 }
 
+template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::SetArchiveKSPObject(bool archive)
+{
+    mArchiveKSP = archive;
+}     
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

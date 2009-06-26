@@ -304,11 +304,13 @@ protected:
      */
     virtual void InitialiseForSolve(Vec initialGuess)=0;
 
+public:
     /**
      * Accessor method that subclasses can use to get to useful data.
      */
     virtual LinearSystem** GetLinearSystem()=0;
-
+    
+protected:   
     /**
      * Accessor method that subclasses can use to get to useful data.
      */

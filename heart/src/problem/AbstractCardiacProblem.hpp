@@ -106,6 +106,9 @@ protected:
     /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and
      *  [V_0 phi_0 .. V_N phi_N] for bidomain */
     Vec mSolution;
+    
+    /** Tells the destructor to archive the linear system */
+    bool mArchiveKSP;
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.
@@ -315,6 +318,11 @@ public:
      */
     virtual void OnEndOfTimestep(double time)
     {}
+    
+    /**
+     *  Tells the problem class to archive the linear system just before going out of scope
+     */
+    void SetArchiveKSPObject(bool archive=true);  
 
 };
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

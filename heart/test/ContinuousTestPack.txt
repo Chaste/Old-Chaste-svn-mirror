@@ -1,3 +1,4 @@
+bidomain/TestBidomainArchiveKSP.hpp
 bidomain/TestBidomainParallelMesh.hpp
 bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
