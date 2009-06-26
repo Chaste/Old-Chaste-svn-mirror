@@ -33,6 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+#include <iostream>
+#include <cassert>
+#include <cstring> //For strcmp etc. Needed in gcc-4.3
+
 #ifndef SPECIAL_SERIAL
 #include <petsc.h>
 #include <petscvec.h>

@@ -27,10 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <iostream>
-#include <cassert>
-#include <cstring> //For strcmp etc. Needed in gcc-4.3
-
 #include "PetscTools.hpp"
 #include "Exception.hpp"
 
