@@ -27,6 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "QuadraticMesh.hpp"
+#include "OutputFileHandler.hpp"
+
+//Jonathan Shewchuk's triangle
+#define REAL double
+#define VOID void
+#include "triangle.h"
+#undef REAL
+#undef VOID
 
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName, bool boundaryElemFileIsQuadratic)

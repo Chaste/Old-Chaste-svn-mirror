@@ -27,47 +27,60 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "SimpleDataWriter.hpp"
+#include "OutputFileHandler.hpp"
+#include "Exception.hpp"
 
-SimpleDataWriter::SimpleDataWriter(std::string directory, std::string fileName, std::vector<std::vector<double> > data, bool cleanDirectory)
+
+SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
+				   const std::string& rFileName,
+				   const std::vector<std::vector<double> >& rData,
+				   bool cleanDirectory)
 {
-    if (data.size()==0)
+    if (rData.size()==0)
     {
         EXCEPTION("Data vector is empty");
     }
 
-    for (unsigned i=0; i<data.size(); i++)
+    for (unsigned i=0; i<rData.size(); i++)
     {
-        if (data[i].size()!=data[0].size())
+        if (rData[i].size() != rData[0].size())
         {
             EXCEPTION("Data vector sizes are not all equal");
         }
     }
 
-    OutputFileHandler output_file_handler(directory, cleanDirectory);
-    out_stream p_file = output_file_handler.OpenOutputFile(fileName);
+    OutputFileHandler output_file_handler(rDirectory, cleanDirectory);
+    out_stream p_file = output_file_handler.OpenOutputFile(rFileName);
 
-    for (unsigned j=0; j<data[0].size(); j++)
+    for (unsigned j=0; j<rData[0].size(); j++)
     {
-        for (unsigned i=0; i<data.size(); i++)
+        for (unsigned i=0; i<rData.size(); i++)
         {
-            (*p_file) << data[i][j] << "\t";
+            (*p_file) << rData[i][j] << "\t";
         }
         (*p_file) << "\n";
     }
     p_file->close();
 }
 
-SimpleDataWriter::SimpleDataWriter(std::string directory, std::string fileName, std::vector<double> t, std::vector<double> x, bool cleanDirectory)
+SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
+				   const std::string& rFileName,
+				   const std::vector<double>& rT,
+				   const std::vector<double>& rX,
+				   bool cleanDirectory)
 {
     std::vector<std::vector<double> > data;
-    data.push_back(t);
-    data.push_back(x);
-    SimpleDataWriter(directory, fileName, data, cleanDirectory);
+    data.push_back(rT);
+    data.push_back(rX);
+    SimpleDataWriter(rDirectory, rFileName, data, cleanDirectory);
 }
 
-SimpleDataWriter::SimpleDataWriter(std::string directory, std::string fileName, std::vector<double> data, bool cleanDirectory)
+SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
+				   const std::string& rFileName,
+				   const std::vector<double>& rData,
+				   bool cleanDirectory)
 {
-    std::vector<std::vector<double> > data_;
-    data_.push_back(data);
-    SimpleDataWriter(directory, fileName, data_, cleanDirectory);
+    std::vector<std::vector<double> > data;
+    data.push_back(rData);
+    SimpleDataWriter(rDirectory, rFileName, data, cleanDirectory);
 }

@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "TissueCell.hpp"
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
+#include "RandomNumberGenerator.hpp"
 
 
 /**

@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "CryptProjectionStatistics.hpp"
+#include "RandomNumberGenerator.hpp"
 
 /** This global function is to allow the list of cells in to be compared in
  *  terms of their y-value and std::list.sort() to be called

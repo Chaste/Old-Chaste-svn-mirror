@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "SimpleOxygenBasedCellCycleModel.hpp"
+#include "RandomNumberGenerator.hpp"
 
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel(unsigned dimension)
     : mTimeSpentInG1Phase(0.0),

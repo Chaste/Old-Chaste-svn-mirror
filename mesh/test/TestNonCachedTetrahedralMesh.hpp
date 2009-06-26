@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "NonCachedTetrahedralMesh.hpp"
+#include "OutputFileHandler.hpp"
 
 
 class TestNonCachedTetrahedralMesh : public CxxTest::TestSuite

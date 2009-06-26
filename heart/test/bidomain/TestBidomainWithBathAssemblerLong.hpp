@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "HeartRegionCodes.hpp"
+#include "TrianglesMeshReader.hpp"
 
 template<unsigned DIM>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>

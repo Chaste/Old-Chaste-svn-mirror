@@ -31,9 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTREMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "MutableMesh.hpp"
 #include <cmath>
+#include "MutableMesh.hpp"
+#include "OutputFileHandler.hpp"
+#include "TrianglesMeshReader.hpp"
 
+//Jonathan Shewchuk's triangle
+#define REAL double
+#define VOID void
+#include "triangle.h"
+#undef REAL
+#undef VOID
 
 class TestRemesh : public CxxTest::TestSuite
 {

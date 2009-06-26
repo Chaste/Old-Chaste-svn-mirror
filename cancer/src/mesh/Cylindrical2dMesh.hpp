@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include <cmath>
+#include <map>
 
 #include "MutableMesh.hpp"
 #include "TrianglesMeshWriter.hpp"

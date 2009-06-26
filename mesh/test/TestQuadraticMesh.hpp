@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "QuadraticMesh.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestQuadraticMesh : public CxxTest::TestSuite
 {

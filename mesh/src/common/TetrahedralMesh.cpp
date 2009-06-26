@@ -28,6 +28,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 
+// used
+#include <iostream>
+#include <cassert>
+#include <sstream>
+#include <map>
+
+#include "BoundaryElement.hpp"
+#include "Element.hpp"
+#include "Exception.hpp"
+#include "Node.hpp"
+#include "OutputFileHandler.hpp"
+#include "PetscTools.hpp"
+#include "RandomNumberGenerator.hpp"
+
+//// unused
+//#include <algorithm>
+//
+////Jonathan Shewchuk's triangle
+//#define REAL double
+//#define VOID void
+//#include "triangle.h"
+//#undef REAL
+//
+//#include "TrianglesMeshReader.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
 /////////////////////////////////////////////////////////////////////////////////////
@@ -499,7 +524,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     // Only the master process should do IO and call METIS
     if (handler.IsMaster())
     {
-        out_stream metis_file=handler.OpenOutputFile(basename);
+        out_stream metis_file = handler.OpenOutputFile(basename);
 
         (*metis_file)<<this->GetNumElements()<<"\t";
         if (ELEMENT_DIM==2)

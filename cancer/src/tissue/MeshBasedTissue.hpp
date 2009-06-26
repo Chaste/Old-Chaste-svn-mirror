@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VoronoiTessellation.hpp"
 #include "Exception.hpp"
 #include "ArchiveLocationInfo.hpp"
+#include "TrianglesMeshReader.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

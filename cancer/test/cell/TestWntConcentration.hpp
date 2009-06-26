@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "WntCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "TrianglesMeshReader.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,

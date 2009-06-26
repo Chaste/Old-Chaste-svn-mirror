@@ -28,15 +28,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef HDF5DATAWRITER_HPP_
 #define HDF5DATAWRITER_HPP_
 
+#include <string>
+#include <vector>
+
 #include <hdf5.h>
 #include <petscvec.h>
-#include <cassert>
-#include <vector>
-#include "Exception.hpp"
-#include "AbstractDataWriter.hpp"
+
+//#include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
-#include "OutputFileHandler.hpp"
 #include "DistributedVectorFactory.hpp"
+
 
 
 /**
@@ -70,16 +71,16 @@ private:
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      *
-     * @param name variable name
+     * @param rName variable name
      */
-    void CheckVariableName(std::string name);
+    void CheckVariableName(const std::string& rName);
 
     /**
      * Check name of unit is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      *
-     * @param name unit name
+     * @param rName unit name
      */
-    void CheckUnitsName(std::string name);
+    void CheckUnitsName(const std::string& rName);
 
     hid_t mFileId; /**< The data file ID. */
     hid_t mDatasetId; /**< The variables data set ID. */
@@ -96,11 +97,14 @@ public:
      * Constructor.
      *
      * @param rVectorFactory the factory to use in creating PETSc Vec and DistributedVector objects.
-     * @param directory  the directory in which to write the data to file
-     * @param baseName  the name of the file in which to write the data
+     * @param rDirectory  the directory in which to write the data to file
+     * @param rBaseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
-    Hdf5DataWriter(DistributedVectorFactory& rVectorFactory, std::string directory, std::string baseName, bool cleanDirectory=true);
+    Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
+		   const std::string& rDirectory,
+		   const std::string& rBaseName,
+		   bool cleanDirectory=true);
 
     /**
      * Destructor.
@@ -117,20 +121,20 @@ public:
     /**
      * Define the fixed dimension, assuming incomplete data output (subset of the nodes).
      *
-     * @param nodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
+     * @param rNodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
      * @param vecSize
      */
-    void DefineFixedDimension(std::vector<unsigned> nodesToOuput, long vecSize);
+    void DefineFixedDimension(const std::vector<unsigned>& rNodesToOuput, long vecSize);
 
     /**
      * Define a variable.
      *
-     * @param variableName The name of the dimension
-     * @param variableUnits The physical units of the dimension
+     * @param rVariableName The name of the dimension
+     * @param rVariableUnits The physical units of the dimension
      *
      * @return The identifier of the variable
      */
-    void DefineUnlimitedDimension(std::string variableName, std::string variableUnits);
+    void DefineUnlimitedDimension(const std::string& rVariableName, const std::string& rVariableUnits);
 
     /**
      * Advance along the unlimited dimension. Normally this will be called
@@ -141,12 +145,12 @@ public:
     /**
      * Define a variable.
      *
-     * @param variableName The name of the dimension
-     * @param variableUnits The physical units of the dimension
+     * @param rVariableName The name of the dimension
+     * @param rVariableUnits The physical units of the dimension
      *
      * @return The identifier of the variable
      */
-    int DefineVariable(std::string variableName, std::string variableUnits);
+    int DefineVariable(const std::string& rVariableName, const std::string& rVariableUnits);
 
     /**
      * End the define mode of the DataWriter.

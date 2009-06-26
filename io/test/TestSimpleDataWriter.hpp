@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "SimpleDataWriter.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestSimpleDataWriter : public CxxTest::TestSuite
 {

@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PARALLELCOLUMNDATAWRITER_HPP_
 #define PARALLELCOLUMNDATAWRITER_HPP_
 
+#include <string>
 
 #include "ColumnDataWriter.hpp"
 #include "DistributedVector.hpp"
@@ -51,11 +52,13 @@ public:
     /**
      * Constructor.
      *
-     * @param directory  the directory in which to write the data to file
-     * @param baseName  the name of the file in which to write the data
+     * @param rDirectory  the directory in which to write the data to file
+     * @param rBaseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
-    ParallelColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
+    ParallelColumnDataWriter(const std::string& rDirectory,
+			     const std::string& rBaseName,
+			     bool cleanDirectory=true);
 
     /**
      * Destructor.
@@ -79,9 +82,10 @@ public:
      * Write data for a given variable from a stripe to the dataset.
      *
      * @param variableId the variable
-     * @param stripe the data
+     * @param rStripe the data
+     * \todo allow this to be a const-reference
      */
-    void PutVectorStripe(int variableId, DistributedVector::Stripe stripe);
+    void PutVectorStripe(int variableId, DistributedVector::Stripe& rStripe);
 
     /**
      * Input the variable value to the output file or ancillary file

@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationWithNutrientsAssembler.hpp"
 #include "CellwiseData.hpp"
 #include "AbstractTwoBodyInteractionForce.hpp"
+#include "TrianglesMeshReader.hpp"
 
 template<unsigned DIM>
 TissueSimulationWithNutrients<DIM>::TissueSimulationWithNutrients(AbstractTissue<DIM>& rTissue,

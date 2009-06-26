@@ -29,17 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MUTABLEMESH_HPP_
 #define MUTABLEMESH_HPP_
 
-//#include <boost/serialization/access.hpp>
-//
-////Jonathan Shewchuk's triangle
-//#define REAL double
-//#define VOID void
-//#include "triangle.h"
-//#undef REAL
-//
-//#include <boost/serialization/export.hpp>
-
 #include "TetrahedralMesh.hpp"
+#include "NodeMap.hpp"
 
 /**
  * A concrete mutable mesh class.

@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIvpOdeSolver.hpp"
 #include "TimeStepper.hpp"
 
+#include <iostream>
 
 // CVODE headers
 #include <cvode/cvode.h>

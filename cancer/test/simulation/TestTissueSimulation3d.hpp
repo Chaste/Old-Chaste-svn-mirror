@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Must be included before other cancer headers
 #include "TissueSimulationArchiver.hpp"
 
+#include "TrianglesMeshReader.hpp"
 #include "TissueSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "GeneralisedLinearSpringForce.hpp"

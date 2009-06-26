@@ -29,13 +29,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 * Implementation file for Hdf5DataWriter class.
 *
 */
-#include "PetscTools.hpp"
+
 #include "Hdf5DataWriter.hpp"
 
-Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory, std::string directory, std::string baseName, bool cleanDirectory)
+#include "Exception.hpp"
+#include "OutputFileHandler.hpp"
+#include "PetscTools.hpp"
+
+
+Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
+			       const std::string& rDirectory,
+			       const std::string& rBaseName,
+			       bool cleanDirectory)
     : mrVectorFactory(rVectorFactory),
-      mDirectory(directory),
-      mBaseName(baseName),
+      mDirectory(rDirectory),
+      mBaseName(rBaseName),
       mCleanDirectory(cleanDirectory),
       mIsInDefineMode(true),
       mIsFixedDimensionSet(false),
@@ -81,19 +89,19 @@ void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
     mIsFixedDimensionSet = true;
 }
 
-void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, long vecSize)
+void Hdf5DataWriter::DefineFixedDimension(const std::vector<unsigned>& rNodesToOuput, long vecSize)
 {
-    unsigned vector_size = nodesToOuput.size();
+    unsigned vector_size = rNodesToOuput.size();
 
     for (unsigned index=0; index < vector_size-1; index++)
     {
-        if (nodesToOuput[index] >= nodesToOuput[index+1])
+        if (rNodesToOuput[index] >= rNodesToOuput[index+1])
         {
             EXCEPTION("Input should be monotonic increasing");
         }
     }
 
-    if ((int) nodesToOuput.back() >= vecSize)
+    if ((int) rNodesToOuput.back() >= vecSize)
     {
         EXCEPTION("Vector size doesn't match nodes to output");
     }
@@ -102,7 +110,7 @@ void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, lo
 
     mFileFixedDimensionSize = vector_size;
     mIsDataComplete = false;
-    mIncompleteNodeIndices = nodesToOuput;
+    mIncompleteNodeIndices = rNodesToOuput;
     mOffset = 0;
     mNumberOwned = 0;
 
@@ -120,28 +128,29 @@ void Hdf5DataWriter::DefineFixedDimension(std::vector<unsigned> nodesToOuput, lo
      }
 }
 
-int Hdf5DataWriter::DefineVariable(std::string variableName, std::string variableUnits)
+int Hdf5DataWriter::DefineVariable(const std::string& rVariableName,
+				   const std::string& rVariableUnits)
 {
     if (!mIsInDefineMode)
     {
         EXCEPTION("Cannot define variables when not in Define mode");
     }
 
-    CheckVariableName(variableName);
-    CheckUnitsName(variableUnits);
+    CheckVariableName(rVariableName);
+    CheckUnitsName(rVariableUnits);
 
     // Check for the variable being already defined
     for (unsigned index=0; index<mVariables.size(); index++)
     {
-        if (mVariables[index].mVariableName == variableName)
+        if (mVariables[index].mVariableName == rVariableName)
         {
             EXCEPTION("Variable name already exists");
         }
     }
 
     DataWriterVariable new_variable;
-    new_variable.mVariableName = variableName;
-    new_variable.mVariableUnits = variableUnits;
+    new_variable.mVariableName = rVariableName;
+    new_variable.mVariableUnits = rVariableUnits;
     int variable_id;
 
     // Add the variable to the variable vector
@@ -154,22 +163,22 @@ int Hdf5DataWriter::DefineVariable(std::string variableName, std::string variabl
     return variable_id;
 }
 
-void Hdf5DataWriter::CheckVariableName(std::string name)
+void Hdf5DataWriter::CheckVariableName(const std::string& rName)
 {
-    if (name.length() == 0)
+    if (rName.length() == 0)
     {
         EXCEPTION("Variable name not allowed: may not be blank.");
     }
-    CheckUnitsName(name);
+    CheckUnitsName(rName);
 }
 
-void Hdf5DataWriter::CheckUnitsName(std::string name)
+void Hdf5DataWriter::CheckUnitsName(const std::string& rName)
 {
-    for (unsigned i=0; i<name.length(); i++)
+    for (unsigned i=0; i<rName.length(); i++)
     {
-        if (!isalnum(name[i]) && !(name[i]=='_'))
+        if (!isalnum(rName[i]) && !(rName[i]=='_'))
         {
-            std::string error = "Variable name/units '" + name + "' not allowed: may only contain alphanumeric characters or '_'.";
+            std::string error = "Variable name/units '" + rName + "' not allowed: may only contain alphanumeric characters or '_'.";
             EXCEPTION(error);
         }
     }
@@ -523,7 +532,8 @@ void Hdf5DataWriter::Close()
     H5Fclose(mFileId);
 }
 
-void Hdf5DataWriter::DefineUnlimitedDimension(std::string variableName, std::string variableUnits)
+void Hdf5DataWriter::DefineUnlimitedDimension(const std::string& rVariableName,
+					      const std::string& rVariableUnits)
 {
     if (mIsUnlimitedDimensionSet)
     {
@@ -536,8 +546,8 @@ void Hdf5DataWriter::DefineUnlimitedDimension(std::string variableName, std::str
     }
 
     mIsUnlimitedDimensionSet = true;
-    mUnlimitedDimensionName = variableName;
-    mUnlimitedDimensionUnit = variableUnits;
+    mUnlimitedDimensionName = rVariableName;
+    mUnlimitedDimensionUnit = rVariableUnits;
 }
 
 void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()

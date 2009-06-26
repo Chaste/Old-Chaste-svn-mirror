@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include <cmath>
 #include <cfloat>
+#include <iostream>
 
 const double smidge = 1e-10;
 

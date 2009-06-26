@@ -26,8 +26,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MutableMesh.hpp"
+#include <map>
 #include <cstring>
+
+#include "MutableMesh.hpp"
+#include "OutputFileHandler.hpp"
+#include "TrianglesMeshReader.hpp"
+
+//Jonathan Shewchuk's triangle
+#define REAL double
+#define VOID void
+#include "triangle.h"
+#undef REAL
+#undef VOID
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()

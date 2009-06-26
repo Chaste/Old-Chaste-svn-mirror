@@ -26,34 +26,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _TETRAHEDRALMESH_HPP_
 #define _TETRAHEDRALMESH_HPP_
 
-#include <iostream>
 #include <vector>
-#include <map>
+#include <string>
 #include <set>
-#include <algorithm>
 
-
-//Jonathan Shewchuk's triangle
-#define REAL double
-#define VOID void
-#include "triangle.h"
-#undef REAL
+#include "UblasIncludes.hpp" // must be 'first'
 
 #include "AbstractMesh.hpp"
 #include "AbstractMeshReader.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "Element.hpp"
-#include "BoundaryElement.hpp"
-#include "Node.hpp"
-#include "NodeMap.hpp"
-#include "Exception.hpp"
-#include "OutputFileHandler.hpp"
-#include "RandomNumberGenerator.hpp"
-#include "PetscTools.hpp"
+#include "ChastePoint.hpp"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -141,9 +125,9 @@ public:
     /**
      * Read in the number of nodes per processor from file.
      *
-     * @param nodesPerProcessorFile
+     * @param rNodesPerProcessorFile
      */
-    void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
+    void ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile);
 
     /**
      * Return the volume of the mesh, calculated by adding the determinant of each element
@@ -161,6 +145,7 @@ public:
      * This is the translation method that actually does the work.
      *
      * @param displacement is a translation vector of the correct size
+     * \todo pass by const reference?
      */
     void Translate(c_vector<double, SPACE_DIM> displacement);
 
@@ -340,9 +325,10 @@ public:
     /**
      * Flag all elements not containing ANY of the given nodes
      *
-     * @param nodesList  List of nodes to check for
+     * @param nodes  set of nodes to check for
+     * \todo pass by const reference?
      */
-    void FlagElementsNotContainingNodes(std::set<unsigned> nodesList);
+    void FlagElementsNotContainingNodes(std::set<unsigned> nodes);
 
     /** Update mElementJacobians, mElementWeightedDirections and mBoundaryElementWeightedDirections. */
     virtual void RefreshJacobianCachedData();

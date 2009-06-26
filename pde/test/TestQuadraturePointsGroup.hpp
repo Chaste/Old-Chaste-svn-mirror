@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "QuadraturePointsGroup.hpp"
+#include "TrianglesMeshReader.hpp"
 
 class TestQuadraturePointsGroup : public CxxTest::TestSuite
 {

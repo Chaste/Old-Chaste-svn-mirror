@@ -28,12 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef DATAWRITERVARIABLE_HPP_
 #define DATAWRITERVARIABLE_HPP_
 
+#include <string>
+
 /**
  * DataWriter variable structure.
  */
-#include <string>
-#include <vector>
-
 struct DataWriterVariable
 {
     std::string mVariableName;          /**< The name of the variable. */

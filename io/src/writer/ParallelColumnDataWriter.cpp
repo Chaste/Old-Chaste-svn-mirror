@@ -29,10 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ParallelColumnDataWriter.hpp"
 #include "Exception.hpp"
 #include "DistributedVectorFactory.hpp"
-#include <iostream>
 
-ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory)
-    : ColumnDataWriter::ColumnDataWriter(directory, baseName, cleanDirectory),
+ParallelColumnDataWriter::ParallelColumnDataWriter(const std::string& rDirectory,
+						   const std::string& rBaseName,
+						   bool cleanDirectory)
+    : ColumnDataWriter::ColumnDataWriter(rDirectory, rBaseName, cleanDirectory),
       mConcentrated(NULL)
 {
     int num_procs, my_rank;
@@ -64,7 +65,6 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 
     if (size != mFixedDimensionSize)
     {
-        //std::cout << "fixed_dim: " << mFixedDimensionSize << ", vec_size " << size << "\n";
         EXCEPTION("Size of vector does not match FixedDimensionSize.");
     }
 
@@ -101,17 +101,17 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 
 }
 
-void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe stripe)
+void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe& rStripe)
 {
     // Put the stripe into its own 'unstriped' vector
-    DistributedVectorFactory* p_factory = stripe.GetFactory();
+    DistributedVectorFactory* p_factory = rStripe.GetFactory();
     Vec unstriped_petsc = p_factory->CreateVec();
     DistributedVector unstriped = p_factory->CreateDistributedVector(unstriped_petsc);
     for (DistributedVector::Iterator index = unstriped.Begin();
          index!= unstriped.End();
          ++index)
     {
-        unstriped[index] = stripe[index];
+        unstriped[index] = rStripe[index];
     }
 
     // Put the unstriped vector
@@ -163,9 +163,6 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
     // Make sure that everyone has queued their messages
     MPI_Barrier(PETSC_COMM_WORLD);
 
-//    std::cout<<"In AdvanceAlongUnlimitedDimension mAmMaster="<< mAmMaster<<
-//     " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n"<<std::flush;
-
     if (mAmMaster)
     {
         ///\todo
@@ -177,7 +174,6 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
 
 void ParallelColumnDataWriter::Close()
 {
-    //std::cout<<"In Close mMyRank="<< mMyRank<<"\n";
     MPI_Barrier(PETSC_COMM_WORLD);
 
     ///\todo.. we may still have queued messages at this point.

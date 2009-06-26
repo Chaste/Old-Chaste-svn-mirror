@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "HoneycombMeshGenerator.hpp"
+#include "RandomNumberGenerator.hpp"
 
 
 HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts, bool cylindrical, double scaleFactor)

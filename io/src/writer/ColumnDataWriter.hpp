@@ -25,31 +25,24 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-/*
- * Concrete DataWriter class. Writes grid-formatted data in space separated column form.
- * Each file has a header row with names and optional units for each column.
- *
-*/
-#ifndef COLUMNDATAWRITER_HPP
-#define COLUMNDATAWRITER_HPP
+
+#ifndef COLUMNDATAWRITER_HPP_
+#define COLUMNDATAWRITER_HPP_
+
+#include <string>
+#include <vector>
 
 #include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
 #include "OutputFileHandler.hpp"
-#include "Exception.hpp"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <cassert>
-#include <ctype.h>
-//#include <sys/stat.h> // For chmod()
-
+/** Also used by ColumnDataReader */
 const int FILE_SUFFIX_WIDTH = 6;
 
 /**
- * A concrete column data writer class.
+ * A concrete column data writer class.  Writes grid-formatted data in
+ * space separated column form.  Each file has a header row with names
+ * and optional units for each column.
  */
 class ColumnDataWriter : public AbstractDataWriter
 {
@@ -96,30 +89,30 @@ protected:
     /**
      * Create the output file and write out the header for it.
      *
-     * @param fileName  the name of the file to write to, relative to the output directory
+     * @param rFileName  the name of the file to write to, relative to the output directory
      */
-    void CreateFixedDimensionFile(std::string fileName);
+    void CreateFixedDimensionFile(const std::string& rFileName);
 
     /**
      * Create the info file.
      *
-     * @param fileName  the name of the file to create, relative to the output directory
+     * @param rFileName  the name of the file to create, relative to the output directory
      */
-    void CreateInfoFile(std::string fileName);
+    void CreateInfoFile(const std::string& rFileName);
 
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      *
-     * @param name variable name
+     * @param rName variable name
      */
-    void CheckVariableName(std::string name);
+    void CheckVariableName(const std::string& rName);
 
     /**
      * Check name of unit is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      *
-     * @param name unit name
+     * @param rName unit name
      */
-    void CheckUnitsName(std::string name);
+    void CheckUnitsName(const std::string& rName);
 
     /**
      * Advance along the unlimited dimension. Normally this will be called
@@ -132,11 +125,13 @@ public:
     /**
      * Constructor.
      *
-     * @param directory  the directory in which to write the data to file
-     * @param baseName  the name of the file in which to write the data
+     * @param rDirectory  the directory in which to write the data to file
+     * @param rBaseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
-    ColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory=true);
+    ColumnDataWriter(const std::string& rDirectory,
+		     const std::string& rBaseName,
+		     bool cleanDirectory=true);
 
     /**
      * Destructor. Closes any open files.
@@ -146,34 +141,37 @@ public:
     /**
      * Define the unlimited dimension, i.e. the dimension that increases as the simulation progresses.
      *
-     * @param dimensionName The name of the unlimited dimension
-     * @param dimensionUnits The physical units of the unlimited dimension
+     * @param rDimensionName The name of the unlimited dimension
+     * @param rDimensionUnits The physical units of the unlimited dimension
      *
      * @return The identifier of the variable
      */
-    int DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits);
+    int DefineUnlimitedDimension(const std::string& rDimensionName,
+				 const std::string& rDimensionUnits);
 
     /**
      * Define the fixed dimension.
      *
-     * @param dimensionName The name of the dimension
-     * @param dimensionUnits The physical units of the dimension
+     * @param rDimensionName The name of the dimension
+     * @param rDimensionUnits The physical units of the dimension
      * @param dimensionSize The size of the dimension
      *
      * @return The identifier of the variable
      */
-    int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
+    int DefineFixedDimension(const std::string& rDimensionName,
+			     const std::string& rDimensionUnits,
+			     long dimensionSize);
 
     /**
      * Define a variable.
      *
-     * @param variableName The name of the dimension
-     * @param variableUnits The physical units of the dimension
-     * @param variableUnits The dimensions along which this variable will be stored
+     * @param rVariableName The name of the variable
+     * @param rVariableUnits The physical units of the variable
      *
      * @return The identifier of the variable
      */
-    int DefineVariable(std::string variableName, std::string variableUnits);
+    int DefineVariable(const std::string& rVariableName,
+		       const std::string& rVariableUnits);
 
     /**
      * End the define mode of the DataWriter.
@@ -206,4 +204,4 @@ public:
     std::string GetOutputDirectory();
 };
 
-#endif //COLUMNDATAWRITER_HPP
+#endif //COLUMNDATAWRITER_HPP_

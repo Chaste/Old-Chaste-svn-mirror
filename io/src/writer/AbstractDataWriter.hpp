@@ -44,35 +44,39 @@ public:
      * Define the fixed dimension.
      * This method must be overridden in concrete classes.
      *
-     * @param dimensionName The name of the dimension
-     * @param dimensionUnits The physical units of the dimension
+     * @param rDimensionName The name of the dimension
+     * @param rDimensionUnits The physical units of the dimension
      * @param dimensionSize The size of the dimension
      *
      * @return The identifier of the variable
      */
-    virtual int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize)=0;
+    virtual int DefineFixedDimension(const std::string& rDimensionName,
+				     const std::string& rDimensionUnits,
+				     long dimensionSize)=0;
 
     /**
      * Define the unlimited dimension, i.e. the dimension that increases as the simulation progresses.
      * This method must be overridden in concrete classes.
      *
-     * @param dimensionName The name of the unlimited dimension
-     * @param dimensionUnits The physical units of the unlimited dimension
+     * @param rDimensionName The name of the unlimited dimension
+     * @param rDimensionUnits The physical units of the unlimited dimension
      *
      * @return The identifier of the variable
      */
-    virtual int  DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits)=0;
+    virtual int  DefineUnlimitedDimension(const std::string& rDimensionName,
+					  const std::string& rDimensionUnits)=0;
 
     /**
      * Define a variable.
      * This method must be overridden in concrete classes.
      *
-     * @param variableName The name of the dimension
-     * @param variableUnits The physical units of the dimension
+     * @param rVariableName The name of the dimension
+     * @param rVariableUnits The physical units of the dimension
      *
      * @return The identifier of the variable
      */
-    virtual int  DefineVariable(std::string variableName, std::string variableUnits)=0;
+    virtual int DefineVariable(const std::string& rVariableName,
+			       const std::string& rVariableUnits)=0;
 
     /**
      * End the define mode of the DataWriter.
@@ -84,7 +88,7 @@ public:
      * Dummy function for DoAdvanceAlongUnlimitedDimension.
      * This method must be overridden in concrete classes.
      */
-    virtual void AdvanceAlongUnlimitedDimension() = 0;
+    virtual void AdvanceAlongUnlimitedDimension()=0;
 
     /**
      * Input the variable value to the output file or ancillary file
@@ -95,13 +99,13 @@ public:
      * @param dimensionPosition  The position in column (defaults to -1). This is required if
      *      there is a fixed dimension, and will be the position along that dimension
      */
-    virtual void PutVariable(int variableID, double variableValue, long dimensionPosition=-1) = 0;
+    virtual void PutVariable(int variableID, double variableValue, long dimensionPosition=-1)=0;
 
     /**
      * Close any open files.
      * This method must be overridden in concrete classes.
      */
-    virtual void Close() = 0;
+    virtual void Close()=0;
 
     /**
      * Base class with virtual methods needs a virtual destructor.

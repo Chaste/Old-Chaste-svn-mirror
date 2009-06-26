@@ -25,6 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
+#include <map>
+
 #include "Cylindrical2dMesh.hpp"
 
 

@@ -31,11 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ColumnDataWriter.hpp"
+#include "Exception.hpp"
 
-ColumnDataWriter::ColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory)
-    : mOutputFileHandler(directory, cleanDirectory),
-      mDirectory(directory),
-      mBaseName(baseName),
+#include <ctype.h>
+#include <sstream>
+#include <iomanip>
+#include <fstream>
+
+//#include <sys/stat.h> // For chmod()
+
+ColumnDataWriter::ColumnDataWriter(const std::string& rDirectory,
+				   const std::string& rBaseName,
+				   bool cleanDirectory)
+    : mOutputFileHandler(rDirectory, cleanDirectory),
+      mDirectory(rDirectory),
+      mBaseName(rBaseName),
       mIsInDefineMode(true),
       mIsFixedDimensionSet(false),
       mIsUnlimitedDimensionSet(false),
@@ -86,28 +96,29 @@ void ColumnDataWriter::Close()
     }
 }
 
-void ColumnDataWriter::CheckVariableName(std::string name)
+void ColumnDataWriter::CheckVariableName(const std::string& rName)
 {
-    if (name.length() == 0)
+    if (rName.length() == 0)
     {
         EXCEPTION("Variable name not allowed: may not be blank.");
     }
-    CheckUnitsName(name);
+    CheckUnitsName(rName);
 }
 
-void ColumnDataWriter::CheckUnitsName(std::string name)
+void ColumnDataWriter::CheckUnitsName(const std::string& rName)
 {
-    for (unsigned i=0; i<name.length(); i++)
+    for (unsigned i=0; i<rName.length(); i++)
     {
-        if (!isalnum(name[i]) && !(name[i]=='_'))
+        if (!isalnum(rName[i]) && !(rName[i]=='_'))
         {
-            std::string error = "Variable name/units '" + name + "' not allowed: may only contain alphanumeric characters or '_'.";
+            std::string error = "Variable name/units '" + rName + "' not allowed: may only contain alphanumeric characters or '_'.";
             EXCEPTION(error);
         }
     }
 }
 
-int ColumnDataWriter::DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits)
+int ColumnDataWriter::DefineUnlimitedDimension(const std::string& rDimensionName,
+					       const std::string& rDimensionUnits)
 {
     if (mIsUnlimitedDimensionSet)
     {
@@ -119,22 +130,24 @@ int ColumnDataWriter::DefineUnlimitedDimension(std::string dimensionName, std::s
         EXCEPTION("Cannot define variables when not in Define mode");
     }
 
-    CheckVariableName(dimensionName);
-    CheckUnitsName(dimensionUnits);
+    CheckVariableName(rDimensionName);
+    CheckUnitsName(rDimensionUnits);
 
-    mUnlimitedDimensionName = dimensionName;
-    mUnlimitedDimensionUnits = dimensionUnits;
+    mUnlimitedDimensionName = rDimensionName;
+    mUnlimitedDimensionUnits = rDimensionUnits;
 
     mpUnlimitedDimensionVariable = new DataWriterVariable;
-    mpUnlimitedDimensionVariable->mVariableName = dimensionName;
-    mpUnlimitedDimensionVariable->mVariableUnits = dimensionUnits;
+    mpUnlimitedDimensionVariable->mVariableName = rDimensionName;
+    mpUnlimitedDimensionVariable->mVariableUnits = rDimensionUnits;
 
     mIsUnlimitedDimensionSet = true;
 
     return UNLIMITED_DIMENSION_VAR_ID;
 }
 
-int ColumnDataWriter::DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize)
+int ColumnDataWriter::DefineFixedDimension(const std::string& rDimensionName,
+					   const std::string& rDimensionUnits,
+					   long dimensionSize)
 {
     if (!mIsInDefineMode)
     {
@@ -145,47 +158,48 @@ int ColumnDataWriter::DefineFixedDimension(std::string dimensionName, std::strin
         EXCEPTION("Fixed dimension must be at least 1 long");
     }
 
-    CheckVariableName(dimensionName);
-    CheckUnitsName(dimensionUnits);
+    CheckVariableName(rDimensionName);
+    CheckUnitsName(rDimensionUnits);
 
-    mFixedDimensionName = dimensionName;
-    mFixedDimensionUnits = dimensionUnits;
+    mFixedDimensionName = rDimensionName;
+    mFixedDimensionUnits = rDimensionUnits;
     mFixedDimensionSize = dimensionSize;
 
     mIsFixedDimensionSet = true;
 
     mpFixedDimensionVariable = new DataWriterVariable;
-    mpFixedDimensionVariable->mVariableName = dimensionName;
-    mpFixedDimensionVariable->mVariableUnits = dimensionUnits;
+    mpFixedDimensionVariable->mVariableName = rDimensionName;
+    mpFixedDimensionVariable->mVariableUnits = rDimensionUnits;
     return FIXED_DIMENSION_VAR_ID;
 }
 
-int ColumnDataWriter::DefineVariable(std::string variableName, std::string variableUnits)
+int ColumnDataWriter::DefineVariable(const std::string& rVariableName,
+				     const std::string& rVariableUnits)
 {
     if (!mIsInDefineMode)
     {
         EXCEPTION("Cannot define variables when not in Define mode");
     }
 
-    CheckVariableName(variableName);
-    CheckUnitsName(variableUnits);
+    CheckVariableName(rVariableName);
+    CheckUnitsName(rVariableUnits);
 
-    DataWriterVariable new_variable;
-    new_variable.mVariableName = variableName;
-    new_variable.mVariableUnits = variableUnits;
     int variable_id;
 
-    if (variableName == mUnlimitedDimensionName)
+    if (rVariableName == mUnlimitedDimensionName)
     {
-        EXCEPTION("Variable name: " + variableName + " already in use as unlimited dimension");
+        EXCEPTION("Variable name: " + rVariableName + " already in use as unlimited dimension");
     }
-    else if (variableName == mFixedDimensionName)
+    else if (rVariableName == mFixedDimensionName)
     {
-        EXCEPTION("Variable name: " + variableName + " already in use as fixed dimension");
+        EXCEPTION("Variable name: " + rVariableName + " already in use as fixed dimension");
     }
     else // ordinary variable
     {
         // Add the variable to the variable vector
+        DataWriterVariable new_variable;
+        new_variable.mVariableName = rVariableName;
+        new_variable.mVariableUnits = rVariableUnits;
         mVariables.push_back(new_variable);
 
         // Use the index of the variable vector as the variable ID.
@@ -286,10 +300,10 @@ void ColumnDataWriter::EndDefineMode()
     mIsInDefineMode = false;
 }
 
-void ColumnDataWriter::CreateFixedDimensionFile(std::string fileName)
+void ColumnDataWriter::CreateFixedDimensionFile(const std::string& rFileName)
 {
     // Create new data file
-    mpCurrentOutputFile = mOutputFileHandler.OpenOutputFile(fileName, std::ios::out);
+    mpCurrentOutputFile = mOutputFileHandler.OpenOutputFile(rFileName, std::ios::out);
     (*mpCurrentOutputFile) << std::setiosflags(std::ios::scientific);
     (*mpCurrentOutputFile) << std::setprecision(FIELD_WIDTH-6);
     if (mpFixedDimensionVariable != NULL)
@@ -315,10 +329,10 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string fileName)
     }
 }
 
-void ColumnDataWriter::CreateInfoFile(std::string fileName)
+void ColumnDataWriter::CreateInfoFile(const std::string& rFileName)
 {
     // Create new info file
-    out_stream p_info_file = mOutputFileHandler.OpenOutputFile(fileName, std::ios::out);
+    out_stream p_info_file = mOutputFileHandler.OpenOutputFile(rFileName, std::ios::out);
     (*p_info_file) << "FIXED " << mFixedDimensionSize << std::endl;
     (*p_info_file) << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
     (*p_info_file) << "VARIABLES " << mVariables.size() << std::endl;
