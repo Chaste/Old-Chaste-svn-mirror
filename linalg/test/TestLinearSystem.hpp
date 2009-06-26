@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 
 #include <iostream>
+#include <cstring>
 #include "ReplicatableVector.hpp"
 
 class TestLinearSystem : public CxxTest::TestSuite

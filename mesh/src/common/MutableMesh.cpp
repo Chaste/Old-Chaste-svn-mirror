@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MutableMesh.hpp"
-
+#include <cstring>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()
