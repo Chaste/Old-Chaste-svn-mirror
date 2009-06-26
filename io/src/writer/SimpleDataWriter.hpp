@@ -47,8 +47,8 @@ public:
     /**
      *  Write the provided data out to the given file in columns
      *
-     *  @param directory The directory, relative to TEST_OUTPUT
-     *  @param fileName  The full file name (no format will be apended)
+     *  @param rDirectory The directory, relative to TEST_OUTPUT
+     *  @param rFileName  The full file name (no format will be apended)
      *  @param rData     The data. data[0] will written as the first column, data[1] the
      *                   second, and so on. An exception is thrown if they are not the same size
      *  @param cleanDirectory Whether to clean the directory (defaults to true)
@@ -61,8 +61,8 @@ public:
     /**
      *  Write the provided data out to the given file in 2 columns
      *
-     *  @param directory The directory, relative to TEST_OUTPUT
-     *  @param fileName  The full file name (no format will be apended)
+     *  @param rDirectory The directory, relative to TEST_OUTPUT
+     *  @param rFileName  The full file name (no format will be apended)
      *  @param rT        The first column of data
      *  @param rX        The second column of data. An exception is thrown if the size
      *             of x is not the same as the size of t.
@@ -77,9 +77,9 @@ public:
     /**
      *  Write the provided data out to the given file in one column
      *
-     *  @param directory The directory, relative to TEST_OUTPUT
-     *  @param fileName  The full file name (no format will be apended)
-     *  @param data      A std::vec of data
+     *  @param rDirectory The directory, relative to TEST_OUTPUT
+     *  @param rFileName  The full file name (no format will be apended)
+     *  @param rData      A std::vec of data
      *  @param cleanDirectory Whether to clean the directory (defaults to true)
      */
     SimpleDataWriter(const std::string& rDirectory,

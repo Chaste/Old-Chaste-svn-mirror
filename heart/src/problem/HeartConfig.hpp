@@ -55,6 +55,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class HeartConfig
 {
 private:
+    /**
+     * Throws if the time steps don't obey constraints (within machine precision)
+     * ode_step > 0.0
+     * pde_step = n1 * ode_step (where n1 is a positive integer)
+     * printing_step = n2 * pde_step (where n2 is a positive integer)
+     * 
+     * @param Param-Paramanathan This line is left in for Alex F.
+     */
     void CheckTimeSteps() const;
 
 public:
@@ -82,6 +90,11 @@ public:
      * @param fileName Name of file (ideally will have ".xml" suffix)
      */
     void Write(std::string dirName, std::string fileName);
+    
+    /**
+     * Throw away the current instance by resetting auto_ptr #mpInstance to NULL.
+     * "New" another #mpInstance
+     */
     static void Reset();
 
     /*
@@ -145,17 +158,55 @@ public:
     
     media_type GetConductivityMedia() const;/**< @return media (Orthotropic/Axisymmetric/NoFibreOrientation) so that we know whether to read a .ortho/.axi file*/
 
+    /**
+     * Return a number of stimulated regions (Axis-aligned boxes)
+     * \todo - do we assume the vectors are initially empty?
+     * The returned std::vectors are all of the same length
+     * @param rStimuliApplied  rStimuliApplied[0] is stimulus for the first region
+     * @param rStimulatedAreas  rStimulatedAreas[0] is the first region to be stimulated
+     * 
+     * \todo There is no set method
+     */
     void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid>& rStimulatedAreas) const;
+    
+    /**
+     * Return a number of heterogeneous regions (Axis-aligned boxes) for special gating variable changes
+     * \todo - do we assume the vectors are initially empty?
+     * The returned std::vectors are all of the same length
+     * @param cellHeterogeneityAreas  cellHeterogeneityAreas[0] is the first region
+     * @param scaleFactorGks  scaleFactorGks[0] is a scaling factorfor the first region
+     * @param scaleFactorIto  scaleFactorIto[0] is a scaling factorfor the first region
+     * @param scaleFactorGkr  scaleFactorGkr[0] is a scaling factorfor the first region
+     * \todo There is no set method
+     */
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
                                 std::vector<double>& scaleFactorGks,
                                 std::vector<double>& scaleFactorIto,
                                 std::vector<double>& scaleFactorGkr) const;
-    bool GetConductivityHeterogeneitiesProvided() const;
+    bool GetConductivityHeterogeneitiesProvided() const; /**< @return  true if there are conductivity heterogeneities for GetConductivityHeterogeneities to return*/
+    /**
+     * Return a number of heterogeneous regions (Axis-aligned boxes)
+     * \todo - do we assume the vectors are initially empty?
+     * The returned std::vectors are all of the same length
+     * @param conductivitiesHeterogeneityAreas  conductivitiesHeterogeneityAreas[0] is the first region
+     * @param intraConductivities  intraConductivities[0] is conductivity vector for the first region
+     * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
+     */
     void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities) const;
-    std::string GetOutputDirectory() const;
-    std::string GetOutputFilenamePrefix() const;
+    std::string GetOutputDirectory() const; /**< @return output directory path name*/
+    
+    /**
+     * @return  Prefix for files
+     * If set to "res" this produces
+     * [path]/res.h5
+     * [path]/output/res_mesh.pts
+     * [path]/output/res_mesh.tri  
+     * [path]/output/res_parameters.xml  (a copy of this configuration at the end of the simulation)
+     * [path]/output/res_times.info
+     * [path]/output/res_V.dat
+     */std::string GetOutputFilenamePrefix() const;
 
     // Physiological
     /**
@@ -223,14 +274,44 @@ public:
      * \todo - no set method 
      */
     bool GetApdMapsRequested() const;
+    /**
+     * @param apd_maps  each entry is a request for a map with 
+     *  - a threshold (in mV)
+     *  - a percentage in the range [1, 100) 
+     * \todo - no set method 
+     */
     void GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const;
     
+    /**
+     * @return true if upstroke time maps have been requested
+     * \todo - no set method 
+     */
     bool GetUpstrokeTimeMapsRequested() const;
+    /**
+     * @param upstroke_time_maps  each entry is a request for a map with 
+     *  - a threshold (in mV)
+     * \todo - no set method 
+     */
     void GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const;
     
+    /**
+     * @return true maximum upstroke velocity maps have been requested
+     * \todo - no set method 
+     * \todo - This method has "Is" in the name, others do not.
+     */
     bool GetIsMaxUpstrokeVelocityMapRequested() const;
     
+    /**
+     * @return true if conduction velocity maps have been requested
+     * \todo - no set method 
+     */
     bool GetConductionVelocityMapsRequested() const;
+    
+    /**
+     * @param conduction_velocity_maps  each entry is a request for a map with 
+     *  - an index to treat as ths source for wave propagation
+     * \todo - no set method 
+     */
     void GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const;
 
 
@@ -312,12 +393,12 @@ public:
     /**
      * @param outputFilenamePrefix  Prefix for files
      * If set to "res" this will produce
-     * <path>/res.h5
-     * <path>/output/res_mesh.pts
-     * <path>/output/res_mesh.tri  
-     * <path>/output/res_parameters.xml  (a copy of this configuration at the end of the simulation)
-     * <path>/output/res_times.info
-     * <path>/output/res_V.dat
+     * [path]/res.h5
+     * [path]/output/res_mesh.pts
+     * [path]/output/res_mesh.tri  
+     * [path]/output/res_parameters.xml  (a copy of this configuration at the end of the simulation)
+     * [path]/output/res_times.info
+     * [path]/output/res_V.dat
      */
     void SetOutputFilenamePrefix(std::string outputFilenamePrefix);
 
