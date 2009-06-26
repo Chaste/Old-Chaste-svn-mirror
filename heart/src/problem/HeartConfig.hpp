@@ -60,8 +60,6 @@ private:
      * ode_step > 0.0
      * pde_step = n1 * ode_step (where n1 is a positive integer)
      * printing_step = n2 * pde_step (where n2 is a positive integer)
-     * 
-     * @param Param-Paramanathan This line is left in for Alex F.
      */
     void CheckTimeSteps() const;
 
