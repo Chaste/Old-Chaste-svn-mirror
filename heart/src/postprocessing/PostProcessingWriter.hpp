@@ -29,12 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef POSTPROCESSINGWRITER_HPP_
 #define POSTPROCESSINGWRITER_HPP_
 
-#include "PetscTools.hpp"
+
 #include "Hdf5DataReader.hpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "HeartConfig.hpp"
-
-#include <iostream>
 
 /** 
  * Write out physiological parameters at the end of a simulation
@@ -52,20 +49,12 @@ class PostProcessingWriter
      * Constructor
      * @param pDataReader  an HDF5 reader from which to build the PropagationPropertiesCalculator
      */
-    PostProcessingWriter(Hdf5DataReader* pDataReader)
-    {
-         mpCalculator = new PropagationPropertiesCalculator(pDataReader);
-         mNumberOfNodes = pDataReader->GetNumberOfRows();
-    }
+    PostProcessingWriter(Hdf5DataReader* pDataReader);
     
     /**
      * Destructor
      */
-    ~PostProcessingWriter()
-    {
-        delete mpCalculator;
-    }
-    
+    ~PostProcessingWriter();
     /**
      * Method for opening an APD map file and writing one row per node
      * line 1: <first APD for node 0> <second APD for node 0> ...
@@ -78,37 +67,7 @@ class PostProcessingWriter
      * @param  threshold - Vm used to signify the upstroke (mV)
      * @param  repolarisationPercentage eg. 90.0 for APD90
      */
-    void WriteApdMapFile(double threshold, double repolarisationPercentage)
-    {
-        if(PetscTools::AmMaster())
-        {
-            out_stream p_file=out_stream(NULL);
-            OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-            std::stringstream stream;
-            stream << repolarisationPercentage;
-            p_file = output_file_handler.OpenOutputFile("Apd" + stream.str() + "Map.dat");
-            for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
-            { 
-                std::vector<double> apds;
-                try
-                {
-                    apds = mpCalculator->CalculateAllActionPotentialDurations(repolarisationPercentage, node_index, threshold);
-                    assert(apds.size() != 0);
-                }
-                catch(Exception& e)
-                {                    
-                    apds.push_back(0);
-                    assert(apds.size() == 1);
-                }
-                for (unsigned i = 0; i < apds.size(); i++)
-                {
-                    *p_file << apds[i] << "\t";
-                }
-                *p_file << std::endl;
-            }
-            p_file->close();
-        }
-    }
+    void WriteApdMapFile(double threshold, double repolarisationPercentage);
     
 
     /**
@@ -122,27 +81,7 @@ class PostProcessingWriter
      * 
      * @param threshold  - Vm used to signify the upstroke (mV) 
      */
-    void WriteUpstrokeTimeMap(double threshold)
-    {
-        if(PetscTools::AmMaster())
-        {
-            out_stream p_file=out_stream(NULL);
-            OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-            p_file = output_file_handler.OpenOutputFile("UpstrokeTimeMap.dat");
-            for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
-            { 
-                std::vector<double> upstroke_times;
-                upstroke_times = mpCalculator->CalculateUpstrokeTimes(node_index, threshold);
-                assert(upstroke_times.size()!=0); ///\todo Fix (see above)
-                for (unsigned i = 0; i < upstroke_times.size(); i++)
-                {
-                    *p_file << upstroke_times[i] << "\t";
-                }
-                *p_file << std::endl;
-            }
-            p_file->close();
-        }
-    }
+    void WriteUpstrokeTimeMap(double threshold);
 
     /**
      * Write out velocities of each max upstroke for each node:
@@ -155,27 +94,7 @@ class PostProcessingWriter
      * 
      * @param threshold  - Vm used to signify the upstroke (mV) 
      */
-    void WriteMaxUpstrokeVelocityMap(double threshold)
-    {
-        if(PetscTools::AmMaster())
-        {
-            out_stream p_file=out_stream(NULL);
-            OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-            p_file = output_file_handler.OpenOutputFile("MaxUpstrokeVelocityMap.dat");
-            for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
-            { 
-                std::vector<double> upstroke_velocities;
-                upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
-                assert(upstroke_velocities.size()!=0); ///\todo Fix (see above)
-                for (unsigned i = 0; i < upstroke_velocities.size(); i++)
-                {
-                    *p_file << upstroke_velocities[i] << "\t";
-                }
-                *p_file << std::endl;
-            }
-            p_file->close();
-        }
-    }
+    void WriteMaxUpstrokeVelocityMap(double threshold);
 };
 
 #endif /*POSTPROCESSINGWRITER_HPP_*/
