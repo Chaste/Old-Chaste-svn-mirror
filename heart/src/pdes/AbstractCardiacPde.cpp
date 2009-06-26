@@ -98,7 +98,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
     else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
     {
         // See previous todo.
-    mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
     }
 
     c_vector<double, SPACE_DIM> intra_conductivities;

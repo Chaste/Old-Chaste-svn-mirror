@@ -321,6 +321,8 @@ public:
     
     /**
      *  Tells the problem class to archive the linear system just before going out of scope
+     * 
+     * @param  archive set true to archive the LinearSystem object (not KSP*) at the end
      */
     void SetArchiveKSPObject(bool archive=true);  
 

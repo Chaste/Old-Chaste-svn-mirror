@@ -88,28 +88,62 @@ public:
      *  Get methods
      */
     // Simulation
-    unsigned GetSpaceDimension() const;
-    double GetSimulationDuration() const;
+    unsigned GetSpaceDimension() const; /**< @return space dimension 1, 2 or 3.*/
+    double GetSimulationDuration() const; /**< @return duration of the simulation (ms)*/
+    /**
+     * domain_type is an xsd convenience class type
+     * 
+     * @return domain type of simulation bi- mono-domain
+     */
     domain_type GetDomain() const;
+   /**
+     * Default cardiac cell model to use at all mesh nodes 
+     * (unless otherwise specified by IonicModelRegions) 
+     * ionic_models_available_type is an xsd convenience class type
+     * 
+     * @return  type of model
+     */
     ionic_models_available_type GetDefaultIonicModel() const;
-    void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
+    
+    /**
+     * Regions where we need to use a different cell model (think infarction) 
+     * ionic_models_available_type is an xsd convenience class type.
+     * 
+     * \todo - do we assume the vectors are initially empty?
+     * The standard vectors returned are of the same length (one entry per region)
+     *  
+     * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
+     * @param ionicModels vector of models (one per cellular heterogeneity)
+     * \todo No set method
+     */
+     void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
                               std::vector<ionic_models_available_type>& ionicModels) const;
 
 
-    bool GetIsMeshProvided() const;
-    bool GetCreateMesh() const;
-    bool GetCreateSlab() const;
-    bool GetCreateSheet() const;
-    bool GetCreateFibre() const;
-    bool GetLoadMesh() const;
-
+    bool GetIsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
+    bool GetCreateMesh() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
+    bool GetCreateSlab() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
+    bool GetCreateSheet() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
+    bool GetCreateFibre() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
+    bool GetLoadMesh() const; /**< @return true if a mesh file name is given and we are expecting to load a mesh from file*/
+    ///\todo GetIsMeshProvided and GetLoadMesh are subtly different but very similar.  Can one of them go?
+    /**
+     * @param slabDimensions  return vector for the (cuboid) mesh dimensions (cm)
+     */
     void GetSlabDimensions(c_vector<double, 3>& slabDimensions) const;
+    /**
+     * @param sheetDimensions  return vector for the (cuboid) mesh dimensions (cm)
+     */
     void GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const;
+    /**
+     * @param fibreLength  return vector for the (cuboid) mesh dimensions (cm)
+     */
     void GetFibreLength(c_vector<double, 1>& fibreLength) const;
-    double GetInterNodeSpace() const;
+    double GetInterNodeSpace() const; /**< @return internode space of cuboid mesh (cm)*/
 
-    std::string GetMeshName() const;
-    media_type GetConductivityMedia() const;
+    std::string GetMeshName() const;/**< @return path/basename of mesh files*/
+    
+    media_type GetConductivityMedia() const;/**< @return media (Orthotropic/Axisymmetric/NoFibreOrientation) so that we know whether to read a .ortho/.axi file*/
 
     void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid>& rStimulatedAreas) const;
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
@@ -124,36 +158,70 @@ public:
     std::string GetOutputFilenamePrefix() const;
 
     // Physiological
+    /**
+     * 3D version
+     * @param intraConductivities  DIM-vector for returning intracellular conductivities (mS/cm)
+     */
     void GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const;
+    /**
+     * 2D version
+     * @param intraConductivities  DIM-vector for returning intracellular conductivities (mS/cm)
+     */
     void GetIntracellularConductivities(c_vector<double, 2>& intraConductivities) const;
+    /**
+     * 1D version
+     * @param intraConductivities  DIM-vector for returning intracellular conductivities (mS/cm)
+     */
     void GetIntracellularConductivities(c_vector<double, 1>& intraConductivities) const;
 
+    /**
+     * 3D version
+     * @param extraConductivities  DIM-vector for returning extracellular conductivities (mS/cm)
+     */
     void GetExtracellularConductivities(c_vector<double, 3>& extraConductivities) const;
+    /**
+     * 2D version
+     * @param extraConductivities  DIM-vector for returning extracellular conductivities (mS/cm)
+     */
     void GetExtracellularConductivities(c_vector<double, 2>& extraConductivities) const;
+    /**
+     * 1D version
+     * @param extraConductivities  DIM-vector for returning extracellular conductivities (mS/cm)
+     */
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
 
-    double GetBathConductivity() const;
+    double GetBathConductivity() const; /**< @return conductivity for perfusing bath (mS/cm)*/
+ 
 
-    double GetSurfaceAreaToVolumeRatio() const;
-    double GetCapacitance() const;
+    double GetSurfaceAreaToVolumeRatio() const; /**< @return surface area to volume ratio Am for PDE (1/cm)*/
+    
+    double GetCapacitance() const; /**< @return surface capacitance Cm for PDE (uF/cm^2)*/
 
     // Numerical
-    double GetOdeTimeStep() const;
-    double GetPdeTimeStep() const;
-    double GetPrintingTimeStep() const;
+    double GetOdeTimeStep() const; /**< @return ODE time-step (ms)*/
+    double GetPdeTimeStep() const; /**< @return PDE time-step (ms)*/
+    double GetPrintingTimeStep() const; /**< @return priting time-step (ms)*/
 
-    bool GetUseAbsoluteTolerance() const;
-    double GetAbsoluteTolerance() const;
+    bool GetUseAbsoluteTolerance() const; /**< @return true if we are using KSP absolute tolerance*/
+    double GetAbsoluteTolerance() const; /**< @return KSP absolute tolerance (or throw if we are using relative)*/
 
-    bool GetUseRelativeTolerance() const;
-    double GetRelativeTolerance() const;
+    bool GetUseRelativeTolerance() const; /**< @return true if we are using KSP relative tolerance*/
+    double GetRelativeTolerance() const;  /**< @return KSP relative tolerance (or throw if we are using absolute)*/
 
-    const char* GetKSPSolver() const;
-    const char* GetKSPPreconditioner() const;
+    const char* GetKSPSolver() const; /**< @return name of -ksp_type from {"gmres", "cg", "symmlq"}*/
+    const char* GetKSPPreconditioner() const; /**< @return name of -pc_type from {"ilu", "jacobi", "bjacobi", "hypre", "none"}*/
 
     // Post processing
+    /**
+     * @return true if there is a post-processing section
+     * \todo - no set method 
+     */
     bool GetIsPostProcessingRequested() const;
     
+    /**
+     * @return true if APD maps have been requested
+     * \todo - no set method 
+     */
     bool GetApdMapsRequested() const;
     void GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const;
     
@@ -182,11 +250,11 @@ public:
      * Set the configuration to run mono or bidomain
      * domain_type is an xsd convenience class type
      * 
-     * @param domain  type of simulation bi- mono-domain
+     * @param domain type of simulation bi- mono-domain
      */
     void SetDomain(domain_type domain);
     /**
-     * Set the configuration place given cardiac cell models at all mesh nodes 
+     * Set the configuration to place the given cardiac cell models at all mesh nodes 
      * (unless otherwise specified by IonicModelRegions) 
      * ionic_models_available_type is an xsd convenience class type
      * 
@@ -219,8 +287,7 @@ public:
     /**
      * Sets the name of a mesh to be read from disk for this simulation
      * @param meshPrefix  path and basename of a set of mesh files (.nodes .ele etc) in triangle/tetget format
-     * @param fibreDefinition  if set (Orthotropic/Axisymmetric) then a fibre file should also be read
-     * \todo Is fibre file reading implemented?  If so, where?
+     * @param fibreDefinition  if set (Orthotropic/Axisymmetric) then a (.ortho/.axi) file should also be read
      * \todo There is no Get method
      */
     void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
@@ -345,7 +412,7 @@ public:
      */
     void SetKSPSolver(const char* kspSolver);
     /** Set the type of preconditioner as with the flag "-pc_type"
-     * @param kspPreconditioner  a string from {""ilu", "jacobi", "bjacobi", "hypre", "none"}
+     * @param kspPreconditioner  a string from {"ilu", "jacobi", "bjacobi", "hypre", "none"}
      */
     void SetKSPPreconditioner(const char* kspPreconditioner);
 
