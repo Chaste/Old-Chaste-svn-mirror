@@ -167,15 +167,6 @@ void HeartConfig::SetParametersFile(std::string fileName)
     mpUserParameters = ReadFile(fileName);
 }
 
-chaste_parameters_type* HeartConfig::UserParameters()
-{
-    return mpUserParameters;
-}
-
-chaste_parameters_type* HeartConfig::DefaultParameters()
-{
-    return mpDefaultParameters;
-}
 
 void HeartConfig::Reset()
 {
@@ -1166,6 +1157,7 @@ void HeartConfig::SetUseAbsoluteTolerance(double absoluteTolerance)
 
 void HeartConfig::SetKSPSolver(const char* kspSolver)
 {
+    /* Note that changes in these conditions need to be reflected in the Doxygen*/
     if ( strcmp(kspSolver, "gmres") == 0)
     {
         mpUserParameters->Numerical().KSPSolver().set(ksp_solver_type::gmres);
@@ -1187,6 +1179,7 @@ void HeartConfig::SetKSPSolver(const char* kspSolver)
 
 void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 {
+    /* Note that changes in these conditions need to be reflected in the Doxygen*/
     if ( strcmp(kspPreconditioner, "ilu") == 0)
     {
         mpUserParameters->Numerical().KSPPreconditioner().set(ksp_preconditioner_type::ilu);

@@ -38,19 +38,19 @@ class TestHeartConfig : public CxxTest::TestSuite
 public :
     void TestHeartConfigBasic()
     {
-        double chi = HeartConfig::Instance()->DefaultParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
+        double chi = HeartConfig::Instance()->mpDefaultParameters->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
 
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
 
-        chi = HeartConfig::Instance()->UserParameters()->Physiological().SurfaceAreaToVolumeRatio().get();
+        chi = HeartConfig::Instance()->mpUserParameters->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
 
-        double capacitance = HeartConfig::Instance()->UserParameters()->Physiological().Capacitance().get();
+        double capacitance = HeartConfig::Instance()->mpUserParameters->Physiological().Capacitance().get();
         TS_ASSERT_EQUALS(capacitance, 1.0);
 
-        double conductivity_1 = HeartConfig::Instance()->UserParameters()->Physiological().IntracellularConductivities().get().longi();
-        double conductivity_2 = HeartConfig::Instance()->UserParameters()->Physiological().ExtracellularConductivities().get().longi();
+        double conductivity_1 = HeartConfig::Instance()->mpUserParameters->Physiological().IntracellularConductivities().get().longi();
+        double conductivity_2 = HeartConfig::Instance()->mpUserParameters->Physiological().ExtracellularConductivities().get().longi();
 
         TS_ASSERT_EQUALS(conductivity_1, 1.75);
         TS_ASSERT_EQUALS(conductivity_2, 7.0);
@@ -60,10 +60,10 @@ public :
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
 
-        ionic_models_available_type default_ionic_model = HeartConfig::Instance()->DefaultParameters()->Simulation().IonicModels().get().Default();
+        ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().IonicModels().get().Default();
         TS_ASSERT_EQUALS(default_ionic_model, ionic_models_available_type::LuoRudyI);
 
-        ionic_models_available_type user_ionic_model = HeartConfig::Instance()->UserParameters()->Simulation().IonicModels().get().Default();
+        ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().IonicModels().get().Default();
         TS_ASSERT_EQUALS(user_ionic_model, ionic_models_available_type::FaberRudy2000);
 
         ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
