@@ -320,11 +320,11 @@ public:
     {}
     
     /**
-     *  Tells the problem class to archive the linear system just before going out of scope
+     *  Tells the problem class to archive the linear system after every call to Solve()
      * 
-     * @param  archive set true to archive the LinearSystem object (not KSP*) at the end
+     * @param  archive set true to archive the LinearSystem object at the end
      */
-    void SetArchiveKSPObject(bool archive=true);  
+    void SetArchiveLinearSystemObject(bool archive=true);  
 
 };
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

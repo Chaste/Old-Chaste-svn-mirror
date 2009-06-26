@@ -602,7 +602,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::UseMatrixBasedRhsAs
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::SetArchiveKSPObject(bool archive)
+void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::SetArchiveLinearSystemObject(bool archive)
 {
     mArchiveKSP = archive;
 }     

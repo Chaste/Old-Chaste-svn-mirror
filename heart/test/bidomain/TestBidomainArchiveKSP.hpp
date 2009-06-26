@@ -59,7 +59,7 @@ public:
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
 
-        bidomain_problem.SetArchiveKSPObject();        
+        bidomain_problem.SetArchiveLinearSystemObject();        
         bidomain_problem.ConvertOutputToMeshalyzerFormat();
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
