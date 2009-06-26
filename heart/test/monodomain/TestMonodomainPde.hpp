@@ -221,17 +221,17 @@ public:
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
         boost::archive::text_iarchive input_arch(ifs); 
         
-        MonodomainPde<1> *p_monodomain_pde;
+        //MonodomainPde<1> *p_monodomain_pde;
         try
         {
-            input_arch >> p_monodomain_pde;
+            //input_arch >> p_monodomain_pde;
+            //delete p_monodomain_pde;
         }
         catch (Exception& e)
         {
             std::cout << "here\n";            
         }
             
-        
         // Test rGetIntracellularConductivityTensor
         /// \todo: #98 Can't test this yet. Intracellular tensors have not been generated. Check second constructor of AbstractCardiacPde.
 //        const c_matrix<double, 1, 1>& tensor_before_archiving = monodomain_pde.rGetIntracellularConductivityTensor(1);
