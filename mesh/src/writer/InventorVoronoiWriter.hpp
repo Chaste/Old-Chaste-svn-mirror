@@ -192,7 +192,7 @@ void InventorVoronoiWriter::Write(const VoronoiTessellation<3>& rTessellation)
 
     // Write out vertices and construct map from pointer to vertex to vertex number
     std::map< c_vector<double, 3>*, unsigned> vertex_number_map;
-    for (unsigned vertex_number=0; vertex_number<rTessellation.mVertices.size(); vertex_number++)
+    for (unsigned vertex_number=0; vertex_number<rTessellation.GetNumVertices(); vertex_number++)
     {
         c_vector<double ,3>& vertex = *(rTessellation.mVertices[vertex_number]);
         *p_file << "        " << vertex(0) << " " << vertex(1) << " " << vertex(2) << ",\n";
@@ -203,16 +203,16 @@ void InventorVoronoiWriter::Write(const VoronoiTessellation<3>& rTessellation)
     *p_file << INVENTOR_MID; //  CHANGE this to: *p_file << "\n";
 
     // Write out faces
-    for (unsigned face_number=0; face_number<rTessellation.mFaces.size(); face_number++)
+    for (unsigned face_number=0; face_number<rTessellation.GetNumFaces(); face_number++)
     {
         *p_file << "        ";
         Face<3>& face = *(rTessellation.mFaces[face_number]);
         for (unsigned vertex_local_number = 0;
-             vertex_local_number < face.mVertices.size();
+             vertex_local_number < face.GetNumVertices();
              vertex_local_number++)
         {
             // Note this assumes we can definitely find the vertex in the map
-            unsigned vertex_number = vertex_number_map[face.mVertices[vertex_local_number]];
+            unsigned vertex_number = vertex_number_map[&(face.rGetVertex(vertex_local_number))];
             *p_file << vertex_number << ", ";
         }
         *p_file << "\n";
@@ -250,18 +250,20 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
 
         const VoronoiCell& r_cell = rTessellation.mVoronoiCells[cell_index];
 
-        for (unsigned face_number=0; face_number<r_cell.mFaces.size(); face_number++)
+        for (unsigned face_number=0; face_number<r_cell.GetNumFaces(); face_number++)
         {
             std::vector<unsigned> face_vertex_data;
 
-            Face<3>& r_face = *(r_cell.mFaces[face_number]);
-            for (unsigned face_vertex_number=0; face_vertex_number<r_face.mVertices.size(); face_vertex_number++)
+            Face<3> face = r_cell.rGetFace(face_number);
+
+            for (unsigned face_vertex_number=0; face_vertex_number<face.GetNumVertices(); face_vertex_number++)
             {
                 unsigned global_number_for_this_vertex;
 
                 // See if vertex is in the map
-                std::map< c_vector<double,3>*,unsigned>::iterator iter = vertex_number_map.find(r_face.mVertices[face_vertex_number]);
-                if (iter!=vertex_number_map.end())
+                std::map<c_vector<double, 3>*, unsigned>::iterator iter = vertex_number_map.find(&(face.rGetVertex(face_vertex_number)));
+
+                if (iter != vertex_number_map.end())
                 {
                     global_number_for_this_vertex = iter->second;
                 }
@@ -270,11 +272,11 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
                     global_number_for_this_vertex = global_vertex_number;
 
                     // Not in the map, so add it to map
-                    vertex_number_map[r_face.mVertices[face_vertex_number]] = global_number_for_this_vertex;
+                    vertex_number_map[&(face.rGetVertex(face_vertex_number))] = global_number_for_this_vertex;
                     global_vertex_number++;
 
                     // Scale the vertex and print out the new position
-                    c_vector<double,3> new_vertex = *(r_face.mVertices[face_vertex_number]);
+                    c_vector<double, 3> new_vertex = face.rGetVertex(face_vertex_number);
                     new_vertex = scaleFactor*(new_vertex - r_cell_centre) + r_cell_centre;
 
                     *p_file << "        " << new_vertex(0) << " " << new_vertex(1) << " " << new_vertex(2) << ",\n";
@@ -289,7 +291,7 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
         }
 
         // Store how many faces were in this cell
-        number_faces_per_cell.push_back(r_cell.mFaces.size());
+        number_faces_per_cell.push_back(r_cell.GetNumFaces());
     }
 
     unsigned index = 0;
@@ -306,7 +308,7 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
             {
                 *p_file << "        ";
                 assert(index<new_faces_data.size());
-                if ((rTessellation.rGetCell(i).mOrientations)[j])
+                if ( rTessellation.rGetCell(i).FaceIsOrientatedClockwise(j) )
                 {
                     for (unsigned k=0; k<new_faces_data[index].size(); k++)
                     {

@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 #include "Exception.hpp"
+#include "VertexAndAngle.hpp"
 #include <vector>
 
 
@@ -44,6 +45,15 @@ class Face
 private:
 
     /**
+     * The vertices of the face, in anticlockwise order. Each vertex 
+     * must be distinct.
+     * 
+     * This member variable is public as it is accessed directly by 
+     * VoronoiTessellation methods.
+     */
+    std::vector< c_vector<double, DIM>* > mVertices;
+
+    /**
      * Increment the Face vertex iterator.
      * 
      * @param rIterator the Face vertex iterator
@@ -53,43 +63,6 @@ private:
                    Face<DIM>& rFace) const;
 
 public:
-
-    /**
-     * Helper class containing a pointer to a vertex of the face 
-     * and the polar angle from the centre of the face to this 
-     * vertex.
-     * 
-     * \todo This is duplicated in the VoronoiTessellation class; move to a separate file?
-     */  
-    class VertexAndAngle
-    {
-    public:
-
-        /** Pointer to a vertex. */
-        c_vector<double, DIM>* mpVertex;
-
-        /** Polar angle. */
-        double mAngle; 
-
-        /**
-         * Less-than angle comparison operator.
-         * 
-         * @param rOther the VertexAndAngle object to compare to
-         */
-        bool operator<(const VertexAndAngle& rOther) const
-        {
-            return mAngle < rOther.mAngle;
-        }
-    };
-
-    /**
-     * The vertices of the face, in anticlockwise order. Each vertex 
-     * must be distinct.
-     * 
-     * This member variable is public as it is accessed directly by 
-     * VoronoiTessellation methods.
-     */
-    std::vector< c_vector<double, DIM>* > mVertices;
 
     /**
      * Compare two faces for equality. Two faces are the same if their 
@@ -143,16 +116,36 @@ public:
     void OrderVerticesAntiClockwise();
 
     /**
-     * Return the polar angle of the point (x,y).
+     * Add a vertex to the Face.
      * 
-     * \todo This is duplicated in the VoronoiTessellation class; move to a separate file?
-     * 
-     * @param x x-coordinate
-     * @param y y-coordinate
-     * @return Polar angle in interval (-PI,PI]
+     * @param pVertex the location of the new vertex
      */
-    double ReturnPolarAngle(double x, double y) const;
+    void AddVertex(c_vector<double, DIM>* pVertex);
 
+    /**
+     * @return the number of vertices in the Face.
+     */
+    unsigned GetNumVertices();
+
+    /**
+     * Get the Vertex with a given index.
+     * 
+     * @param index the index of the Vertex in the Face
+     */
+    c_vector<double, DIM>& rGetVertex(unsigned index);
+
+    /**
+     * Get the vertices in the Face.
+     */
+    std::vector< c_vector<double, DIM>* >& rGetVertices();
+
+    /**
+     * Reset the location of the Vertex with a given index.
+     * 
+     * @param index the index of the Vertex in the Face
+     * @param pNewLocation the new location of the Vertex
+     */
+    void SetVertex(unsigned index, c_vector<double, DIM>* pNewLocation);
 };
 
 
@@ -275,42 +268,10 @@ std::vector< c_vector<double, DIM>* > Face<DIM>::GetVertices() const
 }
 
 template<unsigned DIM>
-double Face<DIM>::ReturnPolarAngle(double x, double y) const
-{
-    if (x == 0)
-    {
-        if (y > 0)
-        {
-            return M_PI/2.0;
-        }
-        else if (y < 0)
-        {
-            return -M_PI/2.0;
-        }
-        else
-        {
-            EXCEPTION("Tried to compute polar angle of (0,0)");
-        }
-    }
-
-    double angle = atan(y/x);
-
-    if (y >= 0 && x < 0 )
-    {
-        angle += M_PI;
-    }
-    else if (y < 0 && x < 0 )
-    {
-        angle -= M_PI;
-    }
-    return angle;
-}
-
-template<unsigned DIM>
 void Face<DIM>::OrderVerticesAntiClockwise()
 {
     // Reorder mVertices anticlockwise
-    std::vector<VertexAndAngle> vertices_and_angles;
+    std::vector<VertexAndAngle<DIM> > vertices_and_angles;
 
     c_vector<double,DIM> centre = zero_vector<double>(DIM);
 
@@ -322,11 +283,11 @@ void Face<DIM>::OrderVerticesAntiClockwise()
     centre /= mVertices.size();
     for (unsigned j=0; j<mVertices.size(); j++)
     {
-        VertexAndAngle va;
+        VertexAndAngle<DIM> va;
         c_vector<double, DIM> centre_to_vertex = *(mVertices[j]) - centre;
 
-        va.mAngle = ReturnPolarAngle(centre_to_vertex(0), centre_to_vertex(1));
-        va.mpVertex = mVertices[j];
+        va.ComputeAndSetAngle(centre_to_vertex(0), centre_to_vertex(1));
+        va.SetVertex(mVertices[j]);
         vertices_and_angles.push_back(va);
     }
 
@@ -334,12 +295,42 @@ void Face<DIM>::OrderVerticesAntiClockwise()
 
     // Create face
     mVertices.clear();
-    for (typename std::vector<VertexAndAngle>::iterator vertex_iterator = vertices_and_angles.begin();
+    for (typename std::vector<VertexAndAngle<DIM> >::iterator vertex_iterator = vertices_and_angles.begin();
          vertex_iterator !=vertices_and_angles.end();
          vertex_iterator++)
     {
-        mVertices.push_back(vertex_iterator->mpVertex);
+        mVertices.push_back(vertex_iterator->GetVertex());
     }
+}
+
+template<unsigned DIM>
+void Face<DIM>::AddVertex(c_vector<double, DIM>* pVertex)
+{
+    mVertices.push_back(pVertex);
+}   
+
+template<unsigned DIM>
+unsigned Face<DIM>::GetNumVertices()
+{
+    return mVertices.size();
+}
+
+template<unsigned DIM>
+c_vector<double, DIM>& Face<DIM>::rGetVertex(unsigned index)
+{
+    return *(mVertices[index]);
+}
+
+template<unsigned DIM>
+std::vector< c_vector<double, DIM>* >& Face<DIM>::rGetVertices()
+{
+    return mVertices;
+}
+
+template<unsigned DIM>
+void Face<DIM>::SetVertex(unsigned index, c_vector<double, DIM>* pNewLocation)
+{
+    mVertices[index] = pNewLocation;
 }
 
 #endif /*FACE_HPP_*/

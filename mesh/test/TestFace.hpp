@@ -74,34 +74,34 @@ public:
 
         Face<3> face0;
         Face<3> face1;
-        face1.mVertices.push_back(&vertex2);
-        face1.mVertices.push_back(&vertex3);
-        face1.mVertices.push_back(&vertex4);
+        face1.AddVertex(&vertex2);
+        face1.AddVertex(&vertex3);
+        face1.AddVertex(&vertex4);
 
         Face<3> face2;
-        face2.mVertices.push_back(&vertex1);
-        face2.mVertices.push_back(&vertex5);
-        face2.mVertices.push_back(&vertex6);
+        face2.AddVertex(&vertex1);
+        face2.AddVertex(&vertex5);
+        face2.AddVertex(&vertex6);
 
         Face<3> face3;
-        face3.mVertices.push_back(&vertex0);
-        face3.mVertices.push_back(&vertex5);
-        face3.mVertices.push_back(&vertex6);
+        face3.AddVertex(&vertex0);
+        face3.AddVertex(&vertex5);
+        face3.AddVertex(&vertex6);
 
         Face<3> face4;
-        face4.mVertices.push_back(&vertex3);
-        face4.mVertices.push_back(&vertex4);
-        face4.mVertices.push_back(&vertex6);
+        face4.AddVertex(&vertex3);
+        face4.AddVertex(&vertex4);
+        face4.AddVertex(&vertex6);
 
         Face<3> face5;
-        face5.mVertices.push_back(&vertex3);
-        face5.mVertices.push_back(&vertex4);
-        face5.mVertices.push_back(&vertex2);
+        face5.AddVertex(&vertex3);
+        face5.AddVertex(&vertex4);
+        face5.AddVertex(&vertex2);
 
         Face<3> face6;
-        face6.mVertices.push_back(&vertex4);
-        face6.mVertices.push_back(&vertex3);
-        face6.mVertices.push_back(&vertex2);
+        face6.AddVertex(&vertex4);
+        face6.AddVertex(&vertex3);
+        face6.AddVertex(&vertex2);
 
         TS_ASSERT_EQUALS(face1,face1);
         TS_ASSERT_DIFFERS(face1,face2);
@@ -139,13 +139,13 @@ public:
         vertex3(1) = 1.0;
 
         Face<2> face;
-        face.mVertices.push_back(&vertex0);
-        face.mVertices.push_back(&vertex1);
-        face.mVertices.push_back(&vertex2);
-        face.mVertices.push_back(&vertex3);
+        face.AddVertex(&vertex0);
+        face.AddVertex(&vertex1);
+        face.AddVertex(&vertex2);
+        face.AddVertex(&vertex3);
 
-        TS_ASSERT_DELTA(face.GetPerimeter(),4.0,1e-12);
-        TS_ASSERT_DELTA(face.GetArea(),1.0,1e-12);
+        TS_ASSERT_DELTA(face.GetPerimeter(), 4.0, 1e-12);
+        TS_ASSERT_DELTA(face.GetArea(), 1.0, 1e-12);
 
         // Test the reorder method
 
@@ -154,10 +154,7 @@ public:
 
         reordered_face.OrderVerticesAntiClockwise();
 
-        TS_ASSERT_EQUALS(reordered_face,face);
-
-        // Cover an exception
-        TS_ASSERT_THROWS_ANYTHING(face.ReturnPolarAngle(0,0));
+        TS_ASSERT_EQUALS(reordered_face, face);
     }
 };
 

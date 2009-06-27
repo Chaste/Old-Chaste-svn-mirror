@@ -43,22 +43,7 @@ class VoronoiCell
 private:
 
     /**
-     * Return whether two faces are equal.
-     * 
-     * @param face1 the first face
-     * @param orientation1 whether the first face is oriented
-     * @param face2 the second face
-     * @param orientation2 whether the second face is oriented
-     */
-    bool EqualFaces(Face<3>& face1, bool orientation1, Face<3>& face2, bool orientation2);
-
-public:
-
-    /**
      * Faces of the VoronoiCell, which should be distinct.
-     * 
-     * This member variable is public as it is accessed directly by 
-     * VoronoiTessellation methods.
      */
     std::vector< Face<3>* > mFaces;
 
@@ -71,19 +56,25 @@ public:
      * N.B. Most faces belong to two VoronoiCell, but with opposite 
      * orientations. This allows us to reuse the face data across the 
      * two cells.
-     * 
-     * This member variable is public as it is accessed directly by 
-     * VoronoiTessellation methods.
      */
     std::vector<bool> mOrientations;
 
     /**
-     * The centre of the VoronoiCell. 
-     * 
-     * This member variable is public as it is accessed directly by 
-     * VoronoiTessellation methods.
+     * The centre of the VoronoiCell.
      */
     c_vector<double, 3> mCellCentre;
+
+    /**
+     * Return whether two faces are equal.
+     * 
+     * @param face1 the first face
+     * @param orientation1 whether the first face is oriented
+     * @param face2 the second face
+     * @param orientation2 whether the second face is oriented
+     */
+    bool EqualFaces(Face<3>& face1, bool orientation1, Face<3>& face2, bool orientation2);
+
+public:
 
     /**
      * Test whether two VoronoiCells are equal.
@@ -100,6 +91,45 @@ public:
      */
     c_vector<double, 3>& rGetVoronoiCellCentre();
 
+    /**
+     * Get the number of faces in the VoronoiCell.
+     */
+    unsigned GetNumFaces() const;
+
+    /**
+     * Get the face with a given index.
+     * 
+     * @param index the index of the face in the VoronoiCell
+     */
+    const Face<3>& rGetFace(unsigned index) const;
+
+    /**
+     * Get whether the face with a given index is oriented clockwise.
+     * 
+     * @param index the index of the face in the VoronoiCell
+     */
+    const bool FaceIsOrientatedClockwise(unsigned index) const;
+
+    /**
+     * Add an entry to the end of mFaces.
+     * 
+     * @param pFace pointer to the new Face
+     */
+    void AddFace(Face<3>* pFace);
+
+    /**
+     * Add an entry to the end of mOrientations.
+     * 
+     * @param isOrientedClockwise whether the new Face is oriented clockwise
+     */
+    void AddOrientation(bool isOrientedClockwise);
+
+    /**
+     * Set the centre of the VoronoiCell.
+     * 
+     * @param cellCentre the cell centre
+     */
+    void SetCellCentre(c_vector<double, 3> cellCentre);
 };
 
 #endif /*VORONOICELL_HPP_*/

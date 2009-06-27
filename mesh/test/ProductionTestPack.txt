@@ -10,5 +10,6 @@ TestNode.hpp
 TestPoint.hpp
 TestTransformations.hpp
 TestRemesh.hpp
+TestVertexAndAngle.hpp
 TestVoronoiCell.hpp
 TestVoronoiTessellation.hpp

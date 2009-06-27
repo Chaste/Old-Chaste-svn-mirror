@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "TetrahedralMesh.hpp"
 #include "VoronoiCell.hpp"
+#include "VertexAndAngle.hpp"
 
 
 /**
@@ -59,49 +60,10 @@ private:
     std::vector< VoronoiCell > mVoronoiCells;
 
     /**
-     * Helper class containing a pointer to a vertex of the face 
-     * and the polar angle from the centre of the face to this 
-     * vertex.
-     * 
-     * \todo This is duplicated in the Face class; move to a separate file?
-     */  
-    class VertexAndAngle
-    {
-    public:
-
-        /** Pointer to a vertex. */
-        c_vector<double, DIM>* mpVertex;
-
-        /** Polar angle. */
-        double mAngle; 
-
-        /**
-         * Less-than angle comparison operator.
-         * 
-         * @param rOther the VertexAndAngle object to compare to
-         */
-        bool operator<(const VertexAndAngle& rOther) const
-        {
-            return mAngle < rOther.mAngle;
-        }
-    };
-
-    /**
      * Generate the vertices of the tessellation using the 
      * circumcentres of the mesh elements.
      */
     void GenerateVerticesFromElementCircumcentres();
-
-    /**
-     * Return the polar angle of the point (x,y).
-     * 
-     * \todo This is duplicated in the Face class; move to a separate file?
-     * 
-     * @param x x-coordinate
-     * @param y y-coordinate
-     * @return Polar angle in interval (-PI,PI]
-     */
-    double ReturnPolarAngle(double x, double y) const;
 
     /**
      * Use a tetrahedral mesh to initialise the faces and vertices 
@@ -139,12 +101,12 @@ public:
      *
      * @param index  The index of the cell is the index of the corresponding node in the original mesh.
      */
-    const Face<DIM>* GetFace(unsigned index) const;
+    const Face<DIM>& rGetFace(unsigned index) const;
 
     /**
      * Get the number of faces in the tessellation.
      */
-    unsigned GetNumFaces();
+    unsigned GetNumFaces() const;
 
     /**
      * Get the area of the face with a given index.
@@ -171,7 +133,7 @@ public:
     /**
      * Get the number of vertices in the tessellation.
      */
-    unsigned GetNumVertices();
+    unsigned GetNumVertices() const;
 
     /**
      * Get the vertex with a given index.

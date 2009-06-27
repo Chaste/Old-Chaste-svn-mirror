@@ -60,25 +60,25 @@ public:
         //  Get two neighbouring nodes on boundary 48 and 53.
         //  Check that they have a common edge
         //  check it is a reasonable length (O(1)?)
-        const Face<2> cell48 = *(tessellation.GetFace(48u));
-        for (unsigned i=0; i<cell48.GetNumVertices(); i++)
+        const Face<2> cell_48 = tessellation.rGetFace(48);
+        for (unsigned i=0; i<cell_48.GetNumVertices(); i++)
         {
-            std::vector< c_vector<double, 2>*> vertices_of_face48 = cell48.GetVertices();
-            c_vector<double, 2> vertex_of_face48 = *(vertices_of_face48[i]);
+            std::vector< c_vector<double, 2>*> vertices_of_face_48 = cell_48.GetVertices();
+            c_vector<double, 2> vertex_of_face_48 = *(vertices_of_face_48[i]);
         }
-        const Face<2> cell53 = *(tessellation.GetFace(53u));
-        for (unsigned i=0; i<cell53.GetNumVertices(); i++)
+        const Face<2> cell_53 = tessellation.rGetFace(53);
+        for (unsigned i=0; i<cell_53.GetNumVertices(); i++)
         {
-            std::vector< c_vector<double, 2>*> vertices_of_face53 = cell53.GetVertices();
-            c_vector<double, 2> vertex_of_face53 = *(vertices_of_face53[i]);
+            std::vector< c_vector<double, 2>*> vertices_of_face_53 = cell_53.GetVertices();
+            c_vector<double, 2> vertex_of_face_53 = *(vertices_of_face_53[i]);
         }
 
-        c_vector<double, 2> location48 = p_mesh->GetNode(48)->rGetLocation();
-        double common_edge_between48and53 = tessellation.GetEdgeLength(48u, 53u);
+        c_vector<double, 2> location_48 = p_mesh->GetNode(48)->rGetLocation();
+        double common_edge_between_48_and_53 = tessellation.GetEdgeLength(48u, 53u);
 
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(48u, 49u), pow(3.0, -0.5), 1e-4);
 
-        TS_ASSERT_DELTA(common_edge_between48and53,  pow(3.0, -0.5), 1e-4);
+        TS_ASSERT_DELTA(common_edge_between_48_and_53,  pow(3.0, -0.5), 1e-4);
 
         //  Check that both cells have a reasonable sized area
         TS_ASSERT_DELTA(tessellation.GetFaceArea(44u),  0.5 * pow(3.0, 0.5), 1e-4);

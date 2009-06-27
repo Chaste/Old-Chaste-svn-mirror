@@ -41,7 +41,7 @@ class ColumnDataReader : public AbstractDataReader
 {
 private:
 
-    std::map<std::string, int> mVariablesToColumns;       /**< Map between variable names and data column numbers. */
+    std::map<std::string, int> mVariablesToColumns;       /**< Map between variable names and data column numbers. \todo Change int to unsigned? (#991) */
     std::map<std::string, std::string> mVariablesToUnits; /**< Map between variable names and variable units. */
     int mNumFixedDimensions;                              /**< The number of fixed dimensions in data file. */
     bool mHasUnlimitedDimension;                          /**< Whether the data file has an unlimited dimension. */

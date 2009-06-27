@@ -50,7 +50,7 @@ bool VoronoiCell::EqualFaces(Face<3>& face1, bool orientation1, Face<3>& face2, 
 
 bool VoronoiCell::operator==(VoronoiCell& rOtherCell)
 {
-    if (mFaces.size() != rOtherCell.mFaces.size())
+    if (mFaces.size() != rOtherCell.GetNumFaces())
     {
         return false;
     }
@@ -85,4 +85,34 @@ bool VoronoiCell::operator==(VoronoiCell& rOtherCell)
 c_vector<double, 3>& VoronoiCell::rGetVoronoiCellCentre()
 {
     return mCellCentre;
+}
+
+unsigned VoronoiCell::GetNumFaces() const
+{
+    return mFaces.size();
+}
+
+const Face<3>& VoronoiCell::rGetFace(unsigned index) const
+{
+    return *(mFaces[index]);
+}
+
+const bool VoronoiCell::FaceIsOrientatedClockwise(unsigned index) const
+{
+    return mOrientations[index];
+}
+
+void VoronoiCell::AddFace(Face<3>* pFace)
+{
+    mFaces.push_back(pFace);
+}
+
+void VoronoiCell::AddOrientation(bool isOrientedClockwise)
+{
+    mOrientations.push_back(isOrientedClockwise);
+}
+
+void VoronoiCell::SetCellCentre(c_vector<double, 3> cellCentre)
+{
+    mCellCentre = cellCentre;
 }

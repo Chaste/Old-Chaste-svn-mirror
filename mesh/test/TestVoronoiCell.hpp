@@ -64,93 +64,93 @@ public:
         vertex5(2) = 1.0;
 
         Face<3> face1;
-        face1.mVertices.push_back(&vertex2);
-        face1.mVertices.push_back(&vertex3);
-        face1.mVertices.push_back(&vertex4);
+        face1.AddVertex(&vertex2);
+        face1.AddVertex(&vertex3);
+        face1.AddVertex(&vertex4);
         Face<3> face2;
-        face2.mVertices.push_back(&vertex1);
-        face2.mVertices.push_back(&vertex4);
-        face2.mVertices.push_back(&vertex3);
+        face2.AddVertex(&vertex1);
+        face2.AddVertex(&vertex4);
+        face2.AddVertex(&vertex3);
         Face<3> face3;
-        face3.mVertices.push_back(&vertex1);
-        face3.mVertices.push_back(&vertex2);
-        face3.mVertices.push_back(&vertex4);
+        face3.AddVertex(&vertex1);
+        face3.AddVertex(&vertex2);
+        face3.AddVertex(&vertex4);
         Face<3> face4;
-        face4.mVertices.push_back(&vertex1);
-        face4.mVertices.push_back(&vertex3);
-        face4.mVertices.push_back(&vertex2);
+        face4.AddVertex(&vertex1);
+        face4.AddVertex(&vertex3);
+        face4.AddVertex(&vertex2);
 
         Face<3> face1b;
-        face1b.mVertices.push_back(&vertex2);
-        face1b.mVertices.push_back(&vertex3);
-        face1b.mVertices.push_back(&vertex5);
+        face1b.AddVertex(&vertex2);
+        face1b.AddVertex(&vertex3);
+        face1b.AddVertex(&vertex5);
         Face<3> face2b;
-        face2b.mVertices.push_back(&vertex1);
-        face2b.mVertices.push_back(&vertex4);
-        face2b.mVertices.push_back(&vertex5);
+        face2b.AddVertex(&vertex1);
+        face2b.AddVertex(&vertex4);
+        face2b.AddVertex(&vertex5);
         Face<3> face3b;
-        face3b.mVertices.push_back(&vertex1);
-        face3b.mVertices.push_back(&vertex2);
-        face3b.mVertices.push_back(&vertex5);
+        face3b.AddVertex(&vertex1);
+        face3b.AddVertex(&vertex2);
+        face3b.AddVertex(&vertex5);
 
         // Face 1 permuted
         Face<3> face1p;
-        face1p.mVertices.push_back(&vertex4);
-        face1p.mVertices.push_back(&vertex3);
-        face1p.mVertices.push_back(&vertex2);
+        face1p.AddVertex(&vertex4);
+        face1p.AddVertex(&vertex3);
+        face1p.AddVertex(&vertex2);
 
         // Face 1 rotated
         Face<3> face1r;
-        face1r.mVertices.push_back(&vertex4);
-        face1r.mVertices.push_back(&vertex2);
-        face1r.mVertices.push_back(&vertex3);
+        face1r.AddVertex(&vertex4);
+        face1r.AddVertex(&vertex2);
+        face1r.AddVertex(&vertex3);
 
         VoronoiCell cell1;
-        cell1.mFaces.push_back(&face1);
-        cell1.mOrientations.push_back(true);
-        cell1.mFaces.push_back(&face2);
-        cell1.mOrientations.push_back(true);
-        cell1.mFaces.push_back(&face3);
-        cell1.mOrientations.push_back(true);
-        cell1.mFaces.push_back(&face4);
-        cell1.mOrientations.push_back(true);
+        cell1.AddFace(&face1);
+        cell1.AddOrientation(true);
+        cell1.AddFace(&face2);
+        cell1.AddOrientation(true);
+        cell1.AddFace(&face3);
+        cell1.AddOrientation(true);
+        cell1.AddFace(&face4);
+        cell1.AddOrientation(true);
         TS_ASSERT_EQUALS(cell1, cell1);
 
         // A different cell
         VoronoiCell cell1b;
-        cell1b.mFaces.push_back(&face1b);
-        cell1b.mOrientations.push_back(true);
-        cell1b.mFaces.push_back(&face2b);
-        cell1b.mOrientations.push_back(true);
-        cell1b.mFaces.push_back(&face3b);
-        cell1b.mOrientations.push_back(true);
-        cell1b.mFaces.push_back(&face4);
-        cell1b.mOrientations.push_back(true);
+        cell1b.AddFace(&face1b);
+        cell1b.AddOrientation(true);
+        cell1b.AddFace(&face2b);
+        cell1b.AddOrientation(true);
+        cell1b.AddFace(&face3b);
+        cell1b.AddOrientation(true);
+        cell1b.AddFace(&face4);
+        cell1b.AddOrientation(true);
         TS_ASSERT_DIFFERS(cell1, cell1b);
 
         // Like first cell but face 1 permuted
         VoronoiCell cell1p;
-        cell1p.mFaces.push_back(&face1p);
-        cell1p.mOrientations.push_back(true);
-        cell1p.mFaces.push_back(&face2);
-        cell1p.mOrientations.push_back(true);
-        cell1p.mFaces.push_back(&face3);
-        cell1p.mOrientations.push_back(true);
-        cell1p.mFaces.push_back(&face4);
-        cell1p.mOrientations.push_back(true);
+        cell1p.AddFace(&face1p);
+        cell1p.AddOrientation(true);
+        cell1p.AddFace(&face2);
+        cell1p.AddOrientation(true);
+        cell1p.AddFace(&face3);
+        cell1p.AddOrientation(true);
+        cell1p.AddFace(&face4);
+        cell1p.AddOrientation(true);
 
         TS_ASSERT_DIFFERS(cell1, cell1p);
 
         // Like first cell but face 1 rotated, and faces in different order
         VoronoiCell cell1r;
-        cell1r.mFaces.push_back(&face3);
-        cell1r.mOrientations.push_back(true);
-        cell1r.mFaces.push_back(&face1r);
-        cell1r.mOrientations.push_back(true);
-        cell1r.mFaces.push_back(&face2);
-        cell1r.mOrientations.push_back(true);
-        cell1r.mFaces.push_back(&face4);
-        cell1r.mOrientations.push_back(true);
+        cell1r.AddFace(&face3);
+        cell1r.AddOrientation(true);
+        cell1r.AddFace(&face1r);
+        cell1r.AddOrientation(true);
+        cell1r.AddFace(&face2);
+        cell1r.AddOrientation(true);
+        cell1r.AddFace(&face4);
+        cell1r.AddOrientation(true);
 
         TS_ASSERT_EQUALS(cell1, cell1r);
 
@@ -162,14 +162,14 @@ public:
 
         // Like first cell but face 1 premuted and opposite orientation
         VoronoiCell cell1o;
-        cell1o.mFaces.push_back(&face3);
-        cell1o.mOrientations.push_back(true);
-        cell1o.mFaces.push_back(&face1p);
-        cell1o.mOrientations.push_back(false);
-        cell1o.mFaces.push_back(&face2);
-        cell1o.mOrientations.push_back(true);
-        cell1o.mFaces.push_back(&face4);
-        cell1o.mOrientations.push_back(true);
+        cell1o.AddFace(&face3);
+        cell1o.AddOrientation(true);
+        cell1o.AddFace(&face1p);
+        cell1o.AddOrientation(false);
+        cell1o.AddFace(&face2);
+        cell1o.AddOrientation(true);
+        cell1o.AddFace(&face4);
+        cell1o.AddOrientation(true);
         TS_ASSERT_EQUALS(cell1, cell1o);
     }
 

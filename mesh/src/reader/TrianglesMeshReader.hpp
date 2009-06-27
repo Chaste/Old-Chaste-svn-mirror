@@ -132,7 +132,7 @@ private:
     /** Open mesh files. */
     void OpenFiles();
 
-    /** Open node file. */
+    /** Open node file. \todo Change name to OpenNodesFile for consistency with OpenElementsFile and OpenFacesFile? (#991) */
     void OpenNodeFile();
 
     /** Open elements file. */

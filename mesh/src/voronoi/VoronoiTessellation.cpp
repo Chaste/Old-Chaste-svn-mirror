@@ -102,31 +102,31 @@ void VoronoiTessellation<2>::Initialise(TetrahedralMesh<2,2>& rMesh)
         for (unsigned node_index=0; node_index<3; node_index++)
         {
             unsigned node_global_index = mrMesh.GetElement(i)->GetNodeGlobalIndex(node_index);
-            mFaces[node_global_index]->mVertices.push_back(p_circumcentre);
+            mFaces[node_global_index]->AddVertex(p_circumcentre);
         }
     }
 
     // Reorder mVertices Anticlockwise
     for (unsigned i=0; i<mFaces.size(); i++)
     {
-        std::vector<VertexAndAngle> vertices_and_angles;
-        for (unsigned j=0; j<mFaces[i]->mVertices.size(); j++)
+        std::vector<VertexAndAngle<2> > vertices_and_angles;
+        for (unsigned j=0; j<mFaces[i]->GetNumVertices(); j++)
         {
-            VertexAndAngle va;
-            c_vector<double, 2> centre_to_vertex = *(mFaces[i]->mVertices[j]) - mrMesh.GetNode(i)->rGetLocation();
-            va.mAngle = ReturnPolarAngle(centre_to_vertex(0), centre_to_vertex(1));
-            va.mpVertex = mFaces[i]->mVertices[j];
+            VertexAndAngle<2> va;
+            c_vector<double, 2> centre_to_vertex = mFaces[i]->rGetVertex(j) - mrMesh.GetNode(i)->rGetLocation();
+            va.ComputeAndSetAngle(centre_to_vertex(0), centre_to_vertex(1));
+            va.SetVertex(&(mFaces[i]->rGetVertex(j)));
             vertices_and_angles.push_back(va);
         }
         std::sort(vertices_and_angles.begin(), vertices_and_angles.end());
 
         // Create face
         Face<2>* p_face = new Face<2>;
-        for (std::vector<VertexAndAngle>::iterator vertex_iterator = vertices_and_angles.begin();
-             vertex_iterator !=vertices_and_angles.end();
+        for (std::vector<VertexAndAngle<2> >::iterator vertex_iterator = vertices_and_angles.begin();
+             vertex_iterator != vertices_and_angles.end();
              vertex_iterator++)
         {
-            p_face->mVertices.push_back(vertex_iterator->mpVertex);
+            p_face->AddVertex(vertex_iterator->GetVertex());
         }
 
         // Add face to list of faces
@@ -181,7 +181,7 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
             basis_vector2[1] = edge_vector[2]*basis_vector1[0] - edge_vector[0]*basis_vector1[2];
             basis_vector2[2] = edge_vector[0]*basis_vector1[1] - edge_vector[1]*basis_vector1[0];
 
-            std::vector<VertexAndAngle> vertices;
+            std::vector<VertexAndAngle<3> > vertices;
 
             // Loop over each element containing this edge:
             // the elements are those containing both nodes of the edge
@@ -195,9 +195,9 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
                 double local_vertex_dot_basis_vector1 = inner_prod(vertex_vector, basis_vector1);
                 double local_vertex_dot_basis_vector2 = inner_prod(vertex_vector, basis_vector2);
 
-                VertexAndAngle va;
-                va.mAngle = ReturnPolarAngle(local_vertex_dot_basis_vector1, local_vertex_dot_basis_vector2);
-                va.mpVertex = mVertices[*element_index_iterator];
+                VertexAndAngle<3> va;
+                va.ComputeAndSetAngle(local_vertex_dot_basis_vector1, local_vertex_dot_basis_vector2);
+                va.SetVertex(mVertices[*element_index_iterator]);
                 vertices.push_back(va);
             }
 
@@ -206,11 +206,11 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
 
             // Create face
             Face<3>* p_face = new Face<3>;
-            for (std::vector<VertexAndAngle>::iterator vertex_iterator = vertices.begin();
-                 vertex_iterator !=vertices.end();
+            for (std::vector<VertexAndAngle<3> >::iterator vertex_iterator = vertices.begin();
+                 vertex_iterator != vertices.end();
                  vertex_iterator++)
             {
-                p_face->mVertices.push_back(vertex_iterator->mpVertex);
+                p_face->AddVertex(vertex_iterator->GetVertex());
             }
 
             // Add face to list of faces...
@@ -219,15 +219,15 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
             // ...and appropriate elements
             if (!p_node_a->IsBoundaryNode())
             {
-                mVoronoiCells[p_node_a->GetIndex()].mFaces.push_back(p_face);
-                mVoronoiCells[p_node_a->GetIndex()].mOrientations.push_back(true);
-                mVoronoiCells[p_node_a->GetIndex()].mCellCentre = p_node_a->rGetLocation();
+                mVoronoiCells[p_node_a->GetIndex()].AddFace(p_face);
+                mVoronoiCells[p_node_a->GetIndex()].AddOrientation(true);
+                mVoronoiCells[p_node_a->GetIndex()].SetCellCentre(p_node_a->rGetLocation());
             }
             if (!p_node_b->IsBoundaryNode())
             {
-                mVoronoiCells[p_node_b->GetIndex()].mFaces.push_back(p_face);
-                mVoronoiCells[p_node_b->GetIndex()].mOrientations.push_back(false);
-                mVoronoiCells[p_node_b->GetIndex()].mCellCentre = p_node_b->rGetLocation();
+                mVoronoiCells[p_node_b->GetIndex()].AddFace(p_face);
+                mVoronoiCells[p_node_b->GetIndex()].AddOrientation(false);
+                mVoronoiCells[p_node_b->GetIndex()].SetCellCentre(p_node_b->rGetLocation());
             }
         }
     }
@@ -273,51 +273,19 @@ void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 }
 
 template<unsigned DIM>
-double VoronoiTessellation<DIM>::ReturnPolarAngle(double x, double y) const
-{
-    if (x == 0)
-    {
-        if (y > 0)
-        {
-            return M_PI/2.0;
-        }
-        else if (y < 0)
-        {
-            return -M_PI/2.0;
-        }
-        else
-        {
-            EXCEPTION("Tried to compute polar angle of (0,0)");
-        }
-    }
-
-    double angle = atan(y/x);
-
-    if (y >= 0 && x < 0 )
-    {
-        angle += M_PI;
-    }
-    else if (y < 0 && x < 0 )
-    {
-        angle -= M_PI;
-    }
-    return angle;
-}
-
-template<unsigned DIM>
 const VoronoiCell& VoronoiTessellation<DIM>::rGetCell(unsigned index) const
 {
     return mVoronoiCells[index];
 }
 
 template<unsigned DIM>
-const Face<DIM>* VoronoiTessellation<DIM>::GetFace(unsigned index) const
+const Face<DIM>& VoronoiTessellation<DIM>::rGetFace(unsigned index) const
 {
     #define COVERAGE_IGNORE
     assert(DIM==2);
     #undef COVERAGE_IGNORE
 
-    return mFaces[index];
+    return *(mFaces[index]);
 }
 
 template<unsigned DIM>
@@ -327,8 +295,8 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned nodeIndex1, unsigned nod
     assert(DIM==2);
     #undef COVERAGE_IGNORE
 
-    std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[nodeIndex1]->mVertices;
-    std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[nodeIndex2]->mVertices;
+    std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[nodeIndex1]->rGetVertices();
+    std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[nodeIndex2]->rGetVertices();
     std::sort(vertices_1.begin(), vertices_1.end());
     std::sort(vertices_2.begin(), vertices_2.end());
     std::vector< c_vector<double, DIM>* > intersecting_vertices;
@@ -372,23 +340,22 @@ double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
 #undef COVERAGE_IGNORE
 
     Face<DIM>& face = *(mFaces[index]);
-    assert(face.mVertices.size() > 0);
+    assert(face.GetNumVertices() > 0);
 
     Face<DIM> normalised_face;
     std::vector< c_vector<double, DIM> > normalised_vertices;
-    normalised_vertices.reserve(face.mVertices.size());
+    normalised_vertices.reserve(face.GetNumVertices());
 
     c_vector<double, DIM> vertex = zero_vector<double>(DIM);
     normalised_vertices.push_back(vertex);
 
-    normalised_face.mVertices.push_back( &(normalised_vertices[0]) );
+    normalised_face.AddVertex( &(normalised_vertices[0]) );
 
-    for (unsigned vertex_index=1; vertex_index<face.mVertices.size(); vertex_index++)
+    for (unsigned vertex_index=1; vertex_index<face.GetNumVertices(); vertex_index++)
     {
-        vertex = mrMesh.GetVectorFromAtoB( *(face.mVertices[0]),
-                                           *(face.mVertices[vertex_index]) );
+        vertex = mrMesh.GetVectorFromAtoB(face.rGetVertex(0), face.rGetVertex(vertex_index));
         normalised_vertices.push_back(vertex);
-        normalised_face.mVertices.push_back( &(normalised_vertices.back()) );
+        normalised_face.AddVertex( &(normalised_vertices.back()) );
     }
     normalised_face.OrderVerticesAntiClockwise();
 
@@ -403,23 +370,22 @@ double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
     #undef COVERAGE_IGNORE
 
     Face<DIM>& face = *(mFaces[index]);
-    assert(face.mVertices.size() > 0);
+    assert(face.GetNumVertices() > 0);
 
     Face<DIM> normalised_face;
     std::vector< c_vector<double, DIM> > normalised_vertices;
-    normalised_vertices.reserve(face.mVertices.size());
+    normalised_vertices.reserve(face.GetNumVertices());
 
     c_vector<double, DIM> vertex = zero_vector<double>(DIM);
     normalised_vertices.push_back(vertex);
 
-    normalised_face.mVertices.push_back( &(normalised_vertices[0]) );
+    normalised_face.AddVertex( &(normalised_vertices[0]) );
 
-    for (unsigned vertex_index=1; vertex_index<face.mVertices.size(); vertex_index++)
+    for (unsigned vertex_index=1; vertex_index<face.GetNumVertices(); vertex_index++)
     {
-        vertex = mrMesh.GetVectorFromAtoB( *(face.mVertices[0]),
-                                           *(face.mVertices[vertex_index]) );
+        vertex = mrMesh.GetVectorFromAtoB(face.rGetVertex(0), face.rGetVertex(vertex_index));
         normalised_vertices.push_back(vertex);
-        normalised_face.mVertices.push_back( &(normalised_vertices.back()) );
+        normalised_face.AddVertex( &(normalised_vertices.back()) );
     }
     normalised_face.OrderVerticesAntiClockwise();
 
@@ -427,13 +393,13 @@ double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
 }
 
 template<unsigned DIM>
-unsigned VoronoiTessellation<DIM>::GetNumVertices()
+unsigned VoronoiTessellation<DIM>::GetNumVertices() const
 {
     return mVertices.size();
 }
 
 template<unsigned DIM>
-unsigned VoronoiTessellation<DIM>::GetNumFaces()
+unsigned VoronoiTessellation<DIM>::GetNumFaces() const
 {
     return mFaces.size();
 }

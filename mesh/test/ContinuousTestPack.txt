@@ -15,5 +15,6 @@ TestRemesh.hpp
 TestTetrahedralMesh.hpp
 TestTransformations.hpp
 TestTrianglesMeshReader.hpp
+TestVertexAndAngle.hpp
 TestVoronoiCell.hpp
 TestVoronoiTessellation.hpp
