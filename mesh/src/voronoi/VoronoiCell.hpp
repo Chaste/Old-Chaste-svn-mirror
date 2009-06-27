@@ -108,7 +108,7 @@ public:
      * 
      * @param index the index of the face in the VoronoiCell
      */
-    const bool FaceIsOrientatedClockwise(unsigned index) const;
+    bool FaceIsOrientatedClockwise(unsigned index) const;
 
     /**
      * Add an entry to the end of mFaces.

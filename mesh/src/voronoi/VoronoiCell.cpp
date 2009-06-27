@@ -97,7 +97,7 @@ const Face<3>& VoronoiCell::rGetFace(unsigned index) const
     return *(mFaces[index]);
 }
 
-const bool VoronoiCell::FaceIsOrientatedClockwise(unsigned index) const
+bool VoronoiCell::FaceIsOrientatedClockwise(unsigned index) const
 {
     return mOrientations[index];
 }
