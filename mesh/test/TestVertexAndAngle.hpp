@@ -47,22 +47,22 @@ public:
 
         // First check the computation for points inside each of the four quadrants
         
-        // x> 0, y>0
+        // x>0, y>0
         va.ComputeAndSetAngle(1.0, sqrt(3.0));
         double computed_angle = va.GetAngle();
         TS_ASSERT_DELTA(computed_angle, M_PI/3.0, 1e-7);
 
-        // x> 0, y<0
+        // x>0, y<0
         va.ComputeAndSetAngle(1.0, -sqrt(3.0));
         computed_angle = va.GetAngle();
         TS_ASSERT_DELTA(computed_angle, -M_PI/3.0, 1e-7);
 
-        // x< 0, y>0
+        // x<0, y>0
         va.ComputeAndSetAngle(-1.0, sqrt(3.0));
         computed_angle = va.GetAngle();
         TS_ASSERT_DELTA(computed_angle, 2.0*M_PI/3.0, 1e-7);
 
-        // x< 0, y<0
+        // x<0, y<0
         va.ComputeAndSetAngle(-1.0, -sqrt(3.0));
         computed_angle = va.GetAngle();
         TS_ASSERT_DELTA(computed_angle, -2.0*M_PI/3.0, 1e-7);
@@ -86,6 +86,17 @@ public:
         TS_ASSERT_DELTA(computed_angle, -M_PI/2.0, 1e-7);
 
         TS_ASSERT_THROWS_ANYTHING(va.ComputeAndSetAngle(0.0, 0.0));
+
+        // Coverage of templated dimensions
+        VertexAndAngle<1> va_1d;
+        va_1d.ComputeAndSetAngle(1.0, sqrt(3.0));
+        computed_angle = va_1d.GetAngle();
+        TS_ASSERT_DELTA(computed_angle, M_PI/3.0, 1e-7);
+
+        VertexAndAngle<2> va_2d;
+        va_2d.ComputeAndSetAngle(1.0, sqrt(3.0));
+        computed_angle = va_2d.GetAngle();
+        TS_ASSERT_DELTA(computed_angle, M_PI/3.0, 1e-7);
     }
 };
 
