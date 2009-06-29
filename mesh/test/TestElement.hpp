@@ -485,7 +485,7 @@ public:
         c_matrix<double, 1, 1> jacobian, inverse_jacobian;
         double det;
         element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
-        c_vector <double, 2> circum=element.CalculateCircumsphere(jacobian, inverse_jacobian);
+        c_vector<double, 2> circum = element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum[0], 12.5, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum[1]), 2.5, 1e-7);
 
@@ -510,7 +510,7 @@ public:
         double det;
         
         equilateral_element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
-        c_vector <double, 3> circum=equilateral_element.CalculateCircumsphere(jacobian, inverse_jacobian);
+        c_vector<double, 3> circum = equilateral_element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
         TS_ASSERT_DELTA(circum[1], 0.0, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum[2]), 2.0, 1e-7);
@@ -524,7 +524,7 @@ public:
         Element<2,2> right_angle_element(0, right_angle_nodes);
 
         right_angle_element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
-        c_vector <double, 3> circum2=right_angle_element.CalculateCircumsphere(jacobian, inverse_jacobian);
+        c_vector<double, 3> circum2 = right_angle_element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
         TS_ASSERT_DELTA(circum2[1], 0.5, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum2[2]), 1.0/sqrt(2.0), 1e-7);
@@ -554,7 +554,7 @@ public:
         c_matrix<double, 3, 3> jacobian, inverse_jacobian;
         double det;
         element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
-        c_vector <double, 4> circum=element.CalculateCircumsphere(jacobian, inverse_jacobian);
+        c_vector<double, 4> circum = element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
         TS_ASSERT_DELTA(circum[1], 0.0, 1e-7);
         TS_ASSERT_DELTA(circum[2], 0.0, 1e-7);
@@ -571,7 +571,7 @@ public:
         Element<3,3> right_angle_element(0, right_angle_nodes);
 
         right_angle_element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
-        c_vector <double, 4> circum2=right_angle_element.CalculateCircumsphere(jacobian, inverse_jacobian);
+        c_vector<double, 4> circum2 = right_angle_element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
         TS_ASSERT_DELTA(circum2[1], 0.5, 1e-7);
         TS_ASSERT_DELTA(circum2[2], 0.5, 1e-7);

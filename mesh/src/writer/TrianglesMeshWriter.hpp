@@ -49,8 +49,8 @@ public:
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param clearOutputDir  whether to clean the directory (defaults to true)
      */
-    TrianglesMeshWriter(const std::string &rDirectory,
-                        const std::string &rBaseName,
+    TrianglesMeshWriter(const std::string& rDirectory,
+                        const std::string& rBaseName,
                         const bool clearOutputDir=true);
 
     /**
@@ -81,8 +81,8 @@ public:
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshWriter(
-    const std::string &rDirectory,
-    const std::string &rBaseName,
+    const std::string& rDirectory,
+    const std::string& rBaseName,
     const bool clearOutputDir)
         : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, clearOutputDir)
 {

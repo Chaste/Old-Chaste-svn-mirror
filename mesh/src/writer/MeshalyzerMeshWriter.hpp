@@ -48,10 +48,10 @@ public:
      * @param rCleanDirectory  whether to clean the directory (defaults to true)
      * @param rSetCoolGraphics (defaults to false)
      */
-    MeshalyzerMeshWriter(const std::string &rDirectory,
-                         const std::string &rBaseName,
-                         const bool &rCleanDirectory=true,
-                         const bool &rSetCoolGraphics=false);
+    MeshalyzerMeshWriter(const std::string& rDirectory,
+                         const std::string& rBaseName,
+                         const bool& rCleanDirectory=true,
+                         const bool& rSetCoolGraphics=false);
 
     /**
      * Write mesh data to files.
@@ -71,10 +71,10 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::string &rDirectory,
-        const std::string &rBaseName,
-        const bool &rCleanDirectory,
-        const bool &rSetCoolGraphics)
+MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::string& rDirectory,
+        const std::string& rBaseName,
+        const bool& rCleanDirectory,
+        const bool& rSetCoolGraphics)
         : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
 {
    /* if (ELEMENT_DIM != SPACE_DIM)

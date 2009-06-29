@@ -55,7 +55,7 @@ public:
      * @param rJacobian the Jacobian matrix
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
-    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant) const;
+    void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double& rJacobianDeterminant) const;
 
     /**
      * Get the Jacobian matrix, its inverse and its determinant for a given element.
@@ -65,7 +65,7 @@ public:
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      * @param rInverseJacobian the inverse Jacobian matrix
      */
-    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const;
+    void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double& rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const;
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given element.
@@ -74,7 +74,7 @@ public:
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
-    void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+    void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant) const;
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given boundary element.
@@ -83,7 +83,7 @@ public:
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
-    void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+    void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant) const;
     
 };
 

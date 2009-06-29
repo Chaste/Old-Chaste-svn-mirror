@@ -46,7 +46,7 @@ public:
      * Constructor which takes in a vector of nodes.
      *
      * @param index  the index of the element in the mesh
-     * @param nodes  the nodes owned by the element
+     * @param nodes  the nodes owned by the element \todo make rNodes like in AbstractTetrahedralElement? (#991) 
      */
     Element(unsigned index, std::vector<Node<SPACE_DIM>*> nodes);
 
@@ -58,7 +58,7 @@ public:
      * @param element  an element to copy
      * @param index the index of the new element
      */
-    Element(const Element &element, const unsigned index);
+    Element(const Element& rElement, const unsigned index);
 
     /**
      * Inform all nodes forming this element that they are in this element.

@@ -69,7 +69,7 @@ public:
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param clearOutputDir  whether to clean the directory (defaults to true)
      */
-    VtkWriter(const std::string &rDirectory, const std::string &rBaseName, const bool &rCleanDirectory=true);
+    VtkWriter(const std::string& rDirectory, const std::string& rBaseName, const bool& rCleanDirectory=true);
 
     /**
      * Write mesh data to files.
@@ -90,9 +90,9 @@ public:
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
-VtkWriter::VtkWriter(const std::string &rDirectory,
-                     const std::string &rBaseName,
-                     const bool &rCleanDirectory)
+VtkWriter::VtkWriter(const std::string& rDirectory,
+                     const std::string& rBaseName,
+                     const bool& rCleanDirectory)
     : AbstractMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero = true;

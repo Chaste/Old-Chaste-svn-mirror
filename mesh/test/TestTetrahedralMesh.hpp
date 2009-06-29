@@ -982,7 +982,7 @@ public:
         ChastePoint<1> on_point(2.00);
         ChastePoint<1> out_point(1.25);
 
-        c_vector <double, 2> weights;
+        c_vector<double, 2> weights;
         weights = element1d.CalculateInterpolationWeights(on_point);
         TS_ASSERT_EQUALS(weights[0], 1.0);
         TS_ASSERT_EQUALS(weights[1], 0.0);
@@ -1057,13 +1057,13 @@ public:
         Element<2,2> element2d(INDEX_IS_NOT_USED, nodes2d);
 
         ChastePoint<2> on_point(0.0, 2.0);
-        c_vector <double, 3> weights;
+        c_vector<double, 3> weights;
         bool strict = true;
         TS_ASSERT_EQUALS(element2d.IncludesPoint(on_point), true);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(on_point, strict), false);
 
         weights = element2d.CalculateInterpolationWeights(on_point);
-        c_vector <double, 2> psi_on = element2d.CalculatePsi(on_point);
+        c_vector<double, 2> psi_on = element2d.CalculatePsi(on_point);
         TS_ASSERT_DELTA(weights[0], 1.0/3.0, 1e-5);
         TS_ASSERT_DELTA(weights[1], 0.0, 1e-5);
         TS_ASSERT_DELTA(weights[2], 2.0/3.0, 1e-5);
@@ -1073,7 +1073,7 @@ public:
         ChastePoint<2> in_point(1.0, 1.0);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(in_point), true);
         weights = element2d.CalculateInterpolationWeights(in_point);
-        c_vector <double, 2> psi_in = element2d.CalculatePsi(in_point);
+        c_vector<double, 2> psi_in = element2d.CalculatePsi(in_point);
         TS_ASSERT_LESS_THAN(0.0, weights[0]);
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(0.0, weights[2]);
@@ -1083,7 +1083,7 @@ public:
         ChastePoint<2> out_point(1.0, 0.0);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(out_point), false);
         weights = element2d.CalculateInterpolationWeights(out_point);
-        c_vector <double, 2> psi_out = element2d.CalculatePsi(out_point);
+        c_vector<double, 2> psi_out = element2d.CalculatePsi(out_point);
         TS_ASSERT_LESS_THAN(0.0, weights[0]);
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(weights[2], 0.0);
@@ -1138,11 +1138,11 @@ public:
 
         bool strict = true;
         ChastePoint<3> on_point(0., 0.2, 0.);
-        c_vector <double, 4> weights;
+        c_vector<double, 4> weights;
         TS_ASSERT_EQUALS(element3d.IncludesPoint(on_point), true);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(on_point, strict), false);
         weights = element3d.CalculateInterpolationWeights(on_point);
-        c_vector <double, 3> psi_on = element3d.CalculatePsi(on_point);
+        c_vector<double, 3> psi_on = element3d.CalculatePsi(on_point);
 
         TS_ASSERT_DELTA(weights[0], 0.8, 1e-5);
         TS_ASSERT_DELTA(weights[1], 0.0, 1e-5);

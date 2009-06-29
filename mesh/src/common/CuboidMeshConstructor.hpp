@@ -51,7 +51,7 @@ private:
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
-    void ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width);
+    void ConstructHyperCube(TetrahedralMesh<1,1>& rMesh, unsigned width);
 
     /**
      * Construct a two-dimensional rectangular mesh.
@@ -59,7 +59,7 @@ private:
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
-    void ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width);
+    void ConstructHyperCube(TetrahedralMesh<2,2>& rMesh, unsigned width);
 
     /**
      * Construct a three-dimensional cuboidal mesh.
@@ -67,7 +67,7 @@ private:
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
-    void ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width);
+    void ConstructHyperCube(TetrahedralMesh<3,3>& rMesh, unsigned width);
 
 public:
 

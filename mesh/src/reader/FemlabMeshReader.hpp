@@ -26,6 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#ifndef _FEMLABMESHREADER_H_
+#define _FEMLABMESHREADER_H_
+
+#include "AbstractCachedMeshReader.hpp"
+#include "Exception.hpp"
 
 /**
  * Concrete version of the AbstractCachedMeshReader class.
@@ -34,53 +39,78 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * (std::vector<double> GetNextNode(); etc) can be called to interrogate the
  * data
  */
-#ifndef _FEMLABMESHREADER_H_
-#define _FEMLABMESHREADER_H_
-
-#include "AbstractCachedMeshReader.hpp"
-#include "Exception.hpp"
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class FemlabMeshReader : public AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-    std::vector<std::vector<double> > TokenizeStringsToDoubles(
-        std::vector<std::string> rawData);
 
-    std::vector<std::vector<unsigned> > TokenizeStringsToInts(
-        std::vector<std::string> rawData,
-        unsigned dimensionOfObject);
+    /**
+     * TokenizeStringsToDoubles is specific to reading node data which came from
+     * a Femlab or Matlab PDE toolbox file.
+     *
+     * Each string is expected to be a series of doubles.
+     * Return value is a vector where each item is a vector of double which represents
+     * position.  Indices are implicit in the vector.
+     *
+     * @param rawData the node data to be read
+     */
+    std::vector<std::vector<double> > TokenizeStringsToDoubles(std::vector<std::string> rawData);
+
+    /**
+     * TokenizeStringsToInts is for reading element, face or edge data which came from
+     * a Femlab or Matlab PDE toolbox file.
+     *  Each string is expected to be a series of unsigned which represent:
+     *  The first several lines denote the indices of nodes
+     *  The rest contains extra information which are ignored currently.
+     *  ( In 2-D: 2 indices for an edge, 3 for a triangle)
+     *  ( In 3-D: 3 indices for a face, 4 for a tetrahedron)
+     * Return value is a vector where each item is a vector of ints which represents
+     * indices of nodes.
+     *
+     * @param rawData  the element, face or edge data to be read
+     * @param dimensionOfObject  the number of lines of data to be read
+     */
+    std::vector<std::vector<unsigned> > TokenizeStringsToInts(std::vector<std::string> rawData, 
+                                                              unsigned dimensionOfObject);
+
 public:
+
+    /**
+     * The constructor takes the path to and names of a set of Femlab mesh files
+     * (ie. the nodes, elements and faces files (in that order) and allows the data to
+     * be queried.
+     * Typical use:
+     *    AbstractMeshReader* pMeshReader = new FemlabMeshReader("pdes/tests/meshdata/",
+     *                                                           "femlab_lshape_nodes.dat",
+     *                                                           "femlab_lshape_elements.dat",
+     *                                                           "femlab_lshape_edges.dat",);
+     *
+     * @param pathBaseName  the base name of the files from which to read the mesh data
+     * @param nodeFileName  the name of the nodes file
+     * @param elementFileName  the name of the elements file
+     * @param edgeFileName  the name of the edges file
+     */
     FemlabMeshReader(std::string pathBaseName, std::string nodeFileName, std::string elementFileName, std::string edgeFileName);
+
+    /**
+     * Destructor
+     */
     virtual ~FemlabMeshReader();
 };
 
 
+///////////////////////////////////////////////////////////////////////////////////
+// Implementation
+///////////////////////////////////////////////////////////////////////////////////
 
-/**
- * The constructor takes the path to and names of a set of Femlab mesh files
- * (ie. the node, elements and face files (in that order) and allows the data to
- * be queried.
- * Typical use:
- *    AbstractMeshReader *pMeshReader=new FemlabMeshReader(
- *                        "pdes/tests/meshdata/",
- *                        "femlab_lshape_nodes.dat",
- *                        "femlab_lshape_elements.dat",
- *                        "femlab_lshape_edges.dat",);
- *
- * @param pathBaseName  the base name of the files from which to read the mesh data
- * @param nodeFileName
- * @param elementFileName
- * @param edgeFileName
- */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBaseName,
-                                                            std::string nodeFileName,
-                                                            std::string elementFileName,
-                                                            std::string edgeFileName)
+FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader(std::string pathBaseName,
+                                                           std::string nodeFileName,
+                                                           std::string elementFileName,
+                                                           std::string edgeFileName)
 {
 
-    //Open node file and store the lines as a vector of strings (minus the comments)
+    // Open node file and store the lines as a vector of strings (minus the comments)
     nodeFileName = pathBaseName + nodeFileName;
     this->mNodeRawData = this->GetRawDataFromFile(nodeFileName);
 
@@ -91,7 +121,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     this->mpNodeIterator = this->mNodeData.begin();
 
 
-    //Open element file and store the lines as a vector of strings (minus the comments)
+    // Open element file and store the lines as a vector of strings (minus the comments)
     elementFileName = pathBaseName + elementFileName;
     this->mElementRawData = this->GetRawDataFromFile (elementFileName);
 
@@ -100,7 +130,8 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     this->mpElementIterator = this->mElementData.begin();
 
 
-    /*Open edge file and store the lines as a vector of strings (minus the comments)
+    /*
+     * Open edge file and store the lines as a vector of strings (minus the comments)
      * We store edges as "faces" but the superclass
      * provides a GetNextEdgeData method which queries this data.
      */
@@ -113,26 +144,15 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     this->mpFaceIterator = this->mFaceData.begin();
 }
 
-/**
- * TokenizeStringsToDoubles is specific to reading node data which came from
- * a Femlab or Matlab PDE toolbox file.
- *
- * Each string is expected to be a series of doubles.
- * Return value is a vector where each item is a vector of double which represents
- * position.  Indices are implicit in the vector.
- *
- * @param rawData
- */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector < std::vector < double > >
-FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector < std::string >
-        rawData)
+std::vector< std::vector<double> > FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(
+    std::vector<std::string> rawData)
 {
-    std::vector < std::vector < double > >tokenized_data;        // Output
+    std::vector< std::vector<double> >tokenized_data;        // Output
 
-    //Iterate over the lines of input
+    // Iterate over the lines of input
     unsigned dimension_count = 0;
-    std::vector < std::string >::iterator the_iterator;
+    std::vector<std::string>::iterator the_iterator;
     for (the_iterator = rawData.begin(); the_iterator != rawData.end();
          the_iterator++)
     {
@@ -141,12 +161,12 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
 
         if (dimension_count == 0)
         {
-            //First iteration, build the tokenized_data vector and push in x coordinates
+            // First iteration, build the tokenized_data vector and push in x coordinates
             while (!line_stream.eof())
             {
                 double item_coord;
 
-                std::vector < double >x_coord;
+                std::vector<double> x_coord;
                 line_stream >> item_coord;
                 x_coord.push_back (item_coord);
                 tokenized_data.push_back (x_coord);
@@ -156,7 +176,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
         {
             unsigned current_node = 0;
 
-            //Other iterations, push in coordinates other than x.
+            // Other iterations, push in coordinates other than x
             while (!line_stream.eof())
             {
                 double item_coord;
@@ -165,9 +185,8 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
                 current_node++;
             }
         }
-        //dimension of mesh is the same as the line of rawData.
+        // Dimension of mesh is the same as the line of rawData
         dimension_count++;
-
     }
 
     if (SPACE_DIM != dimension_count)
@@ -177,44 +196,29 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
     return (tokenized_data);
 }
 
-
-/**
- * TokenizeStringsToInts is for reading element, face or edge data which came from
- * a Femlab or Matlab PDE toolbox file.
- *  Each string is expected to be a series of unsigned which represent:
- *  The first several lines denote the indices of nodes
- *  The rest contains extra information which are ignored currently.
- *  ( In 2-D: 2 indices for an edge, 3 for a triangle)
- *  ( In 3-D: 3 indices for a face, 4 for a tetrahedron)
- * Return value is a vector where each item is a vector of ints which represents
- * indices of nodes.
- *
- * @param rawData
- * @param dimensionOfObject
- */
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector < std::vector < unsigned > >
-FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < std::string > rawData,
-        unsigned dimensionOfObject)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector< std::vector<unsigned> > FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
+    std::vector<std::string> rawData,
+    unsigned dimensionOfObject)
 {
-    std::vector < std::vector < unsigned > >tokenized_data;
+    std::vector<std::vector<unsigned> > tokenized_data;
 
-    /* There are dimensionOfObject lines to be read */
-    for (unsigned i = 0; i < dimensionOfObject; i++)
+    // There are dimensionOfObject lines to be read
+    for (unsigned i=0; i<dimensionOfObject; i++)
     {
         std::string line_of_data = rawData[i];
         std::stringstream line_stream (line_of_data);
 
         if (i == 0)
         {
-            //First iteration, build the tokenized_data vector and push in x coordinates
+            // First iteration, build the tokenized_data vector and push in x coordinates
             while (!line_stream.eof())
             {
                 double item_index;
 
-                std::vector < unsigned >first_index;
+                std::vector<unsigned> first_index;
                 line_stream >> item_index;
-                first_index.push_back ((unsigned) (item_index - 0.5));       //item indices should be minus 1.
+                first_index.push_back ((unsigned) (item_index - 0.5)); // item indices should be minus 1
                 tokenized_data.push_back (first_index);
             }
         }
@@ -222,7 +226,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
         {
             unsigned current_node = 0;
 
-            //Other iterations, push in coordinates other than x.
+            // Other iterations, push in coordinates other than x
             while (!line_stream.eof())
             {
                 double item_index;
@@ -236,10 +240,6 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
     return (tokenized_data);
 }
 
-
-/**
- * Destructor
- */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::~FemlabMeshReader()
 {}

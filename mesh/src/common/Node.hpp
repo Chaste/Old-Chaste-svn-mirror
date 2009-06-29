@@ -167,7 +167,7 @@ public:
      *
      * Don't forget to assign the result of this call to a reference!
      */
-    c_vector<double, SPACE_DIM> &rGetModifiableLocation();
+    c_vector<double, SPACE_DIM>& rGetModifiableLocation();
 
     /**
      * Get the index of this node in the mesh.
@@ -210,12 +210,12 @@ public:
     /**
      * Return a set of indices of elements containing this node as a vertex.
      */
-    std::set<unsigned> &rGetContainingElementIndices();
+    std::set<unsigned>& rGetContainingElementIndices();
 
     /**
      * Return a set of indices of boundary elements containing this node as a vertex.
      */
-    std::set<unsigned> &rGetContainingBoundaryElementIndices();
+    std::set<unsigned>& rGetContainingBoundaryElementIndices();
 
     /**
      * Get the number of elements in the mesh that contain this node.

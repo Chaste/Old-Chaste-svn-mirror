@@ -35,7 +35,7 @@ void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant) const
+void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double& rJacobianDeterminant) const
 {
     EXCEPTION("Use GetInverseJacobianForElement to retrieve Jacobian data instead.");
 }
@@ -45,14 +45,14 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(
         unsigned elementIndex,
         c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
-        double &rJacobianDeterminant,
+        double& rJacobianDeterminant,
         c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const
 {
     this->mElements[this->SolveElementMapping(elementIndex)]->CalculateInverseJacobian(rJacobian, rJacobianDeterminant, rInverseJacobian);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const
+void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant) const
 {
     // See comment in AbstractMesh::GetWeightedDirectionForBoundaryElement()
     EXCEPTION("Probably redundant method.");
@@ -62,7 +62,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElement(
         unsigned elementIndex,
         c_vector<double, SPACE_DIM>& rWeightedDirection,
-        double &rJacobianDeterminant) const
+        double& rJacobianDeterminant) const
 {
     this->mBoundaryElements[this->SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection, rJacobianDeterminant );
 }

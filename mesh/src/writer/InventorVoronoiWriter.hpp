@@ -135,8 +135,8 @@ public:
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param clearOutputDir  whether to clean the directory (defaults to true)
      */
-    InventorVoronoiWriter(const std::string &rDirectory,
-                          const std::string &rBaseName,
+    InventorVoronoiWriter(const std::string& rDirectory,
+                          const std::string& rBaseName,
                           const bool clearOutputDir=true);
 
     /**
@@ -168,8 +168,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-InventorVoronoiWriter::InventorVoronoiWriter(const std::string &rDirectory,
-                                             const std::string &rBaseName,
+InventorVoronoiWriter::InventorVoronoiWriter(const std::string& rDirectory,
+                                             const std::string& rBaseName,
                                              const bool clearOutputDir)
     : mBaseName(rBaseName)
 {

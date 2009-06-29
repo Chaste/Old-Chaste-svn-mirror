@@ -109,9 +109,9 @@ public:
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param rCleanDirectory  whether to clean the directory (defaults to true) \todo make this cleanDirectory to be consistent with other writers? (#991)
      */
-    CmguiWriter(const std::string &rDirectory,
-                const std::string &rBaseName,
-                const bool &rCleanDirectory=true);
+    CmguiWriter(const std::string& rDirectory,
+                const std::string& rBaseName,
+                const bool& rCleanDirectory=true);
 
     /**
      * Write mesh data to files.
@@ -131,9 +131,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-CmguiWriter::CmguiWriter(const std::string &rDirectory,
-                         const std::string &rBaseName,
-                         const bool &rCleanDirectory)
+CmguiWriter::CmguiWriter(const std::string& rDirectory,
+                         const std::string& rBaseName,
+                         const bool& rCleanDirectory)
         : AbstractMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero=false;

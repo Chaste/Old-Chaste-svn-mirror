@@ -76,8 +76,8 @@ private:
     /**
      * Serialize the mesh.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -100,7 +100,7 @@ protected:  // Give access of these variables to subclasses
     std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
 
     /** DistributedVectorFactory capable of reproducing the given number of nodes owned by each processor. */
-    DistributedVectorFactory *mpDistributedVectorFactory;
+    DistributedVectorFactory* mpDistributedVectorFactory;
 
     /** Vector containing node permutation information. */
     std::vector<unsigned> mNodesPermutation;
@@ -243,7 +243,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                          bool cullInternalFaces=false)=0;
 
     /**
@@ -294,7 +294,9 @@ public:
      * @param rJacobianDeterminant  the determinant of the Jacobian matrix
      * @param rInverseJacobian  the inverse Jacobian matrix
      */
-    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const;
+    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
+                                              double& rJacobianDeterminant,
+                                              c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const;
 
     /**
      * Compute the weighted direction for a given boundary element.
@@ -305,7 +307,9 @@ public:
      * 
      * \todo: this method doesn't seem to be used anywhere but in the test. Consider removing it.
      */
-    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex,
+                                                        c_vector<double, SPACE_DIM>& rWeightedDirection,
+                                                        double& rJacobianDeterminant) const;
 
     /**
      * Get method for mMeshFileBaseName.

@@ -36,19 +36,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width)
+void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<1,1>& rMesh, unsigned width)
 {
     rMesh.ConstructLinearMesh(width);
 }
 
 template<unsigned DIM>
-void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width)
+void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<2,2>& rMesh, unsigned width)
 {
     rMesh.ConstructRectangularMesh(width, width);
 }
 
 template<unsigned DIM>
-void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width)
+void CuboidMeshConstructor<DIM>::ConstructHyperCube(TetrahedralMesh<3,3>& rMesh, unsigned width)
 {
     rMesh.ConstructCuboid(width, width, width);
 }

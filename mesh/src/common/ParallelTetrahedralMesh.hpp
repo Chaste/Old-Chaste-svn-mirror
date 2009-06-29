@@ -126,7 +126,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
                                  bool cullInternalFaces=false);
 
     /**
@@ -239,7 +239,7 @@ private:
      * \todo Make it clear which way the permutation applies
      *  
      */
-    void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+    void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                std::set<unsigned>& rNodesOwned,
                                std::set<unsigned>& rHaloNodesOwned,
                                std::set<unsigned>& rElementsOwned,
@@ -253,7 +253,7 @@ private:
      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
      * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
      */
-    void DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+    void DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                               std::set<unsigned>& rNodesOwned);
 
     /**
@@ -266,7 +266,7 @@ private:
      * @param rNodePermutation a vector to be filled with the permutation applied to the node numberig by the partitioning method
      * 
      */
-    void MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+    void MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                      std::set<unsigned>& rNodesOwned, 
                                      std::vector<unsigned>& rProcessorsOffset,
                                      std::vector<unsigned>& rNodePermutation);
@@ -281,7 +281,7 @@ private:
      * @param rNodePermutation a vector to be filled with the permutation applied to the node numberig by the partitioning method
      * 
      */
-    void MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+    void MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                      std::set<unsigned>& rNodesOwned, 
                                      std::vector<unsigned>& rProcessorsOffset,
                                      std::vector<unsigned>& rNodePermutation);
@@ -315,7 +315,7 @@ ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
-    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     std::set<unsigned>& rNodesOwned,
     std::set<unsigned>& rHaloNodesOwned,
     std::set<unsigned>& rElementsOwned,
@@ -369,7 +369,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
-    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     bool cullInternalFaces)
 {
 
@@ -689,7 +689,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMa
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
 {
     DistributedVectorFactory factory(mTotalNumNodes); /// \todo: to be removed
@@ -704,7 +704,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned,
                                                                                   std::vector<unsigned>& rProcessorsOffset,
                                                                                   std::vector<unsigned>& rNodePermutation)
@@ -839,7 +839,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned,
                                                                                   std::vector<unsigned>& rProcessorsOffset,
                                                                                   std::vector<unsigned>& rNodePermutation)

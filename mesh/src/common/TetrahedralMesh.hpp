@@ -119,7 +119,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader,
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
                                  bool cullInternalFaces=false);
 
     /**
@@ -340,7 +340,7 @@ public:
      * @param rJacobian the Jacobian matrix
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
-    virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double &rJacobianDeterminant) const;
+    virtual void GetJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, SPACE_DIM>& rJacobian, double& rJacobianDeterminant) const;
 
     /**
      * Get the Jacobian matrix, its inverse and its determinant for a given element.
@@ -350,7 +350,7 @@ public:
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      * @param rInverseJacobian the inverse Jacobian matrix
      */
-    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const;
+    virtual void GetInverseJacobianForElement(unsigned elementIndex, c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double& rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian) const;
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given element.
@@ -359,7 +359,7 @@ public:
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
-    virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+    virtual void GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant) const;
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given boundary element.
@@ -368,7 +368,7 @@ public:
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
-    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant) const;
+    virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant) const;
 
     /**
      * Iterator over edges in the mesh.

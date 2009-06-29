@@ -83,7 +83,9 @@ public:
      * @param rJacobianDeterminant  the determinant of the Jacobian
      * @param concreteMove (defaults to true) \todo this argument is not used in the method, should it be removed? (#991) 
      */
-    void CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove=true);
+    void CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
+                           double& rJacobianDeterminant,
+                           bool concreteMove=true);
 
     /**
      * Compute the weighted direction for this element.
@@ -91,7 +93,7 @@ public:
      * @param rWeightedDirection  the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian
      */
-    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant);
+    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant);
 
     /**
      * Compute the inverse Jacobian for this element.
@@ -100,7 +102,9 @@ public:
      * @param rJacobianDeterminant  the determinant of the Jacobian
      * @param rInverseJacobian  the inverse Jacobian matrix
      */
-    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian); //const
+    void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
+                                  double& rJacobianDeterminant,
+                                  c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian); /// \todo const?
 
     /** Get the volume of an element (or area in 2d, or length in 1d) 
      * @param determinant a pre-calculated Jacobian determinant for this element.
@@ -185,7 +189,7 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
 {}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, bool concreteMove)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double& rJacobianDeterminant, bool concreteMove)
 {
 
     assert(ELEMENT_DIM <= SPACE_DIM);
@@ -205,7 +209,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_mat
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant)
 {
  
     if (ELEMENT_DIM >= SPACE_DIM)
@@ -262,7 +266,7 @@ c_vector<double, SPACE_DIM> AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double &rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double& rJacobianDeterminant, c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian)
 {
     assert(ELEMENT_DIM <= SPACE_DIM);
     CalculateJacobian(rJacobian, rJacobianDeterminant);
@@ -357,7 +361,7 @@ public:
      * @param rWeightedDirection  the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian
      */
-    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double &rJacobianDeterminant);
+    void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant);
 
     /**
      * Place in the pIndices array, the global indices (within the stiffness matrix)
@@ -402,7 +406,7 @@ AbstractTetrahedralElement<0, SPACE_DIM>::AbstractTetrahedralElement(unsigned in
 template<unsigned SPACE_DIM>
 void AbstractTetrahedralElement<0, SPACE_DIM>::CalculateWeightedDirection(
         c_vector<double, SPACE_DIM>& rWeightedDirection,
-        double &rJacobianDeterminant)
+        double& rJacobianDeterminant)
 {
     assert(SPACE_DIM > 0);
 

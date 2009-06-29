@@ -44,10 +44,10 @@ Element<ELEMENT_DIM, SPACE_DIM>::Element(unsigned index, std::vector<Node<SPACE_
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Element<ELEMENT_DIM, SPACE_DIM>::Element(const Element &element, const unsigned index)
+Element<ELEMENT_DIM, SPACE_DIM>::Element(const Element& rElement, const unsigned index)
 {
-    *this = element;
-    this->mIndex=index;
+    *this = rElement;
+    this->mIndex = index;
 
     RegisterWithNodes();
 }
@@ -118,7 +118,7 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
      */
 
     assert(ELEMENT_DIM == SPACE_DIM);
-    c_vector <double, ELEMENT_DIM> rhs;
+    c_vector<double, ELEMENT_DIM> rhs;
 
     for (unsigned j=0; j<ELEMENT_DIM; j++)
     {
@@ -131,9 +131,9 @@ c_vector<double,SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateCircumsph
         rhs[j]=squared_location/2.0;
     }
 
-    c_vector <double, SPACE_DIM> centre;
+    c_vector<double, SPACE_DIM> centre;
     centre = prod(rhs, rInverseJacobian);
-    c_vector <double, SPACE_DIM+1> circum;
+    c_vector<double, SPACE_DIM+1> circum;
     double squared_radius = 0.0;
     for (unsigned i=0; i<SPACE_DIM; i++)
     {
