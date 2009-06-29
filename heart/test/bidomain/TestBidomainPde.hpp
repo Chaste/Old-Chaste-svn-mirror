@@ -175,10 +175,10 @@ public:
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
         boost::archive::text_iarchive input_arch(ifs); 
         
-        //BidomainPde<1> *p_bidomain_pde;
-        //input_arch >> p_bidomain_pde; 
+        BidomainPde<1> *p_bidomain_pde;
+        input_arch >> p_bidomain_pde; 
         
-        //delete p_bidomain_pde;
+        delete p_bidomain_pde;
     }
 };
 

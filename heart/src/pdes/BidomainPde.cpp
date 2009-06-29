@@ -117,13 +117,18 @@ template <unsigned SPACE_DIM>
 BidomainPde<SPACE_DIM>::BidomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed)
         :  AbstractCardiacPde<SPACE_DIM>(rCellsDistributed)
 {
+    mpExtracellularConductivityTensors = NULL;
 }
 
 
 template <unsigned SPACE_DIM>
 BidomainPde<SPACE_DIM>::~BidomainPde()
 {
-    delete mpExtracellularConductivityTensors;
+    /// \todo: #98 once the archiving constructor is creating the conductivity tensors properly we won't need this if statement
+    if (mpExtracellularConductivityTensors)
+    {
+        delete mpExtracellularConductivityTensors;
+    }
 }
 
 

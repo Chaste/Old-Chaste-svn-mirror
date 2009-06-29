@@ -155,6 +155,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractC
       mpDistributedVectorFactory(NULL)
 {
     /// todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
+    mpIntracellularConductivityTensors = NULL;
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
@@ -172,7 +173,11 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
         }
     }
 
-    delete mpIntracellularConductivityTensors;
+    /// \todo: #98 once the archiving constructor is creating the conductivity tensors properly we won't need this if statement
+    if (mpIntracellularConductivityTensors)
+    {
+        delete mpIntracellularConductivityTensors;
+    }
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
