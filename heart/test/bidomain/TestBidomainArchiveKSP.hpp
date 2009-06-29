@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
-#include "PetscSetupAndFinalize.hpp"
+
 
 /// \todo: test unarchiving
 //#include <boost/archive/text_iarchive.hpp>
@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "BidomainProblem.hpp"
-
+#include "PetscSetupAndFinalize.hpp"
 
 
 class TestBidomainArchiveKSP : public CxxTest::TestSuite
