@@ -32,9 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
-				   const std::string& rFileName,
-				   const std::vector<std::vector<double> >& rData,
-				   bool cleanDirectory)
+                                   const std::string& rFileName,
+                                   const std::vector<std::vector<double> >& rData,
+                                   bool cleanDirectory)
 {
     if (rData.size()==0)
     {
@@ -64,10 +64,10 @@ SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
 }
 
 SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
-				   const std::string& rFileName,
-				   const std::vector<double>& rT,
-				   const std::vector<double>& rX,
-				   bool cleanDirectory)
+                                   const std::string& rFileName,
+                                   const std::vector<double>& rT,
+                                   const std::vector<double>& rX,
+                                   bool cleanDirectory)
 {
     std::vector<std::vector<double> > data;
     data.push_back(rT);
@@ -76,9 +76,9 @@ SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
 }
 
 SimpleDataWriter::SimpleDataWriter(const std::string& rDirectory,
-				   const std::string& rFileName,
-				   const std::vector<double>& rData,
-				   bool cleanDirectory)
+                                   const std::string& rFileName,
+                                   const std::vector<double>& rData,
+                                   bool cleanDirectory)
 {
     std::vector<std::vector<double> > data;
     data.push_back(rData);

@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+/*
 
-"""Copyright (C) University of Oxford, 2005-2009
+Copyright (C) University of Oxford, 2005-2009
 
 University of Oxford means the Chancellor, Masters and Scholars of the
 University of Oxford, having an administrative office at Wellington
@@ -23,33 +23,20 @@ being under the jurisdiction of the English Courts.
 
 You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
-"""
 
-"""Script to 
-i) replace tabs with 4 spaces - calls "sed -i 's/\t/    /g'" on all source files.
-ii) remove any trailing whitespace - calls " sed -i 's/[ \\t]*$//' "
-"""
+*/
 
+/**
+ * @file
+ *
+ * Constants used by both the ColumnDataWriter and ColumnDataReader.
+ */
 
-import os, sys
-
-exts = ['.cpp', '.hpp']
-dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects']
-tab_spaces = ' ' * 4
-chaste_dir = '.'
-    
-for root, dirs, files in os.walk(chaste_dir):
-    for dir in dir_ignores:
-        if dir in dirs:
-            dirs.remove(dir)
-    # Check for source files
-    for file in files:
-        name, ext = os.path.splitext(file)
-        if ext in exts:
-            file_name = os.path.join(root, file)
-            command = "sed -i 's/\\t/%s/g' %s" % (tab_spaces, file_name)
-            print "Checking " + file_name
-            os.system(command)
-            ### for removing trailing whitespace
-            command = " sed -i 's/[ \\t]*$//' " + file_name
-            os.system(command)
+/**
+ * The width of the suffix for datafiles.
+ *
+ * Each time the writer advances along the unlimited dimension, a new
+ * datafile is created, and the suffix index is incremented.  Suffices
+ * are formatted zero-padded to this width.
+ */
+const int FILE_SUFFIX_WIDTH = 6;

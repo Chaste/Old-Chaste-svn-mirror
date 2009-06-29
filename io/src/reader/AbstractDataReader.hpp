@@ -42,18 +42,18 @@ public:
      * Get the entries for a given variable.
      * This method must be implemented by each subclass.
      *
-     * @param variableName
+     * @param rVariableName
      */
-    virtual std::vector<double> GetValues(std::string variableName) = 0;
+    virtual std::vector<double> GetValues(const std::string& rVariableName) = 0;
 
     /**
      * Get the entries for a given variable with fixed dimension.
      * This method must be implemented by each subclass.
      *
-     * @param variableName
+     * @param rVariableName
      * @param fixedDimension
      */
-    virtual std::vector<double> GetValues(std::string variableName, int fixedDimension) = 0;
+    virtual std::vector<double> GetValues(const std::string& rVariableName, int fixedDimension) = 0;
 
     /**
      * Base class with virtual methods needs a virtual destructor.

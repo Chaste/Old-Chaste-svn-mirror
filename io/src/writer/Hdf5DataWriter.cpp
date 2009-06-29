@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
-			       const std::string& rDirectory,
-			       const std::string& rBaseName,
-			       bool cleanDirectory)
+                               const std::string& rDirectory,
+                               const std::string& rBaseName,
+                               bool cleanDirectory)
     : mrVectorFactory(rVectorFactory),
       mDirectory(rDirectory),
       mBaseName(rBaseName),
@@ -129,7 +129,7 @@ void Hdf5DataWriter::DefineFixedDimension(const std::vector<unsigned>& rNodesToO
 }
 
 int Hdf5DataWriter::DefineVariable(const std::string& rVariableName,
-				   const std::string& rVariableUnits)
+                                   const std::string& rVariableUnits)
 {
     if (!mIsInDefineMode)
     {
@@ -533,7 +533,7 @@ void Hdf5DataWriter::Close()
 }
 
 void Hdf5DataWriter::DefineUnlimitedDimension(const std::string& rVariableName,
-					      const std::string& rVariableUnits)
+                                              const std::string& rVariableUnits)
 {
     if (mIsUnlimitedDimensionSet)
     {

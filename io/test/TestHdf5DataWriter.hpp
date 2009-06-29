@@ -114,7 +114,7 @@ private:
         if (is_complete1)
         {
             DistributedVectorFactory factory(number_nodes1);
-            
+
             Vec data1 = factory.CreateVec();
             Vec data2 = factory.CreateVec();
 
@@ -464,8 +464,8 @@ public:
         {
             local_number_of_nodes = 1;
         }
-        
-        DistributedVectorFactory factory(number_nodes, local_number_of_nodes);        
+
+        DistributedVectorFactory factory(number_nodes, local_number_of_nodes);
 
         Hdf5DataWriter writer(factory, "hdf5", "hdf5_non_even_row_dist", false);
         writer.DefineFixedDimension(number_nodes);
@@ -525,7 +525,7 @@ public:
     void TestHdf5DataWriterFullFormatIncomplete() throw(Exception)
     {
         int number_nodes = 100;
-        
+
         DistributedVectorFactory factory(number_nodes);
 
         Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format_incomplete", false);
@@ -757,7 +757,7 @@ public:
     void TestHdf5DataWriterFullFormatStripedIncomplete() throw(Exception)
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factory(number_nodes);       
+        DistributedVectorFactory vec_factory(number_nodes);
 
         Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_test_full_format_striped_incomplete", false);
 
@@ -822,7 +822,7 @@ public:
     void TestNonImplementedFeatures()
     {
         int number_nodes = 100;
-        DistributedVectorFactory factory(number_nodes);        
+        DistributedVectorFactory factory(number_nodes);
 
         Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_non_implemented", false);
         writer.DefineFixedDimension(number_nodes);
@@ -875,7 +875,7 @@ public:
     void TestDefineThings()
     {
         DistributedVectorFactory vec_factory(100);
-        
+
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
@@ -926,8 +926,8 @@ public:
     void TestEndDefineMode()
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factory(number_nodes);        
-        
+        DistributedVectorFactory vec_factory(number_nodes);
+
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "testdefine"));
 
         // Ending define mode without having defined at least a variable and a fixed dimension should raise an exception
@@ -970,9 +970,9 @@ public:
 
     void TestCantAddUnlimitedAfterEndDefine()
     {
-        int number_nodes = 100;        
-        DistributedVectorFactory vec_factory(number_nodes);        
-        
+        int number_nodes = 100;
+        DistributedVectorFactory vec_factory(number_nodes);
+
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "testdefine"));
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -992,8 +992,8 @@ public:
     void TestAdvanceAlongUnlimitedDimension()
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factory(number_nodes);                
-        
+        DistributedVectorFactory vec_factory(number_nodes);
+
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "testdefine"));
 
         int ina_var_id;
@@ -1012,7 +1012,7 @@ public:
     void TestCantWriteDataWhileInDefineMode()
     {
         int number_nodes = 100;
-        DistributedVectorFactory vec_factory(number_nodes);                
+        DistributedVectorFactory vec_factory(number_nodes);
 
         Hdf5DataWriter writer(vec_factory, "", "testdefine", false);
 //        writer.DefineFixedDimension(number_nodes);

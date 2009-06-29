@@ -51,8 +51,8 @@ public:
      * @return The identifier of the variable
      */
     virtual int DefineFixedDimension(const std::string& rDimensionName,
-				     const std::string& rDimensionUnits,
-				     long dimensionSize)=0;
+                                     const std::string& rDimensionUnits,
+                                     long dimensionSize)=0;
 
     /**
      * Define the unlimited dimension, i.e. the dimension that increases as the simulation progresses.
@@ -64,7 +64,7 @@ public:
      * @return The identifier of the variable
      */
     virtual int  DefineUnlimitedDimension(const std::string& rDimensionName,
-					  const std::string& rDimensionUnits)=0;
+                                          const std::string& rDimensionUnits)=0;
 
     /**
      * Define a variable.
@@ -76,7 +76,7 @@ public:
      * @return The identifier of the variable
      */
     virtual int DefineVariable(const std::string& rVariableName,
-			       const std::string& rVariableUnits)=0;
+                               const std::string& rVariableUnits)=0;
 
     /**
      * End the define mode of the DataWriter.

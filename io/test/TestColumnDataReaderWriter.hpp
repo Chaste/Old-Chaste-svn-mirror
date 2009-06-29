@@ -108,7 +108,7 @@ public:
 
         delete mpTestReader;
     }
-    
+
 
     void TestDefineUnlimitedDimension()
     {
@@ -313,12 +313,12 @@ public:
             mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0, i);
             mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0, i);
         }
-        
+
         for (unsigned i=0; i<2; i++)
         {
             mpTestWriter->PutVariable(short_id, (double)(i), i);
         }
-        
+
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
@@ -335,11 +335,11 @@ public:
             std::vector<double> values_ik = mpTestReader->GetValues("I_K",  i);
             TS_ASSERT_DELTA(values_ik[0]/(7124.12355553*((double)(i+1))/12.0), 1.0, 1e-3);
         }
-        
+
         for (int i=0; i<4; i++)
         {
             std::vector<double> values_short = mpTestReader->GetValues("Short_column", i);
-            if (i<2) 
+            if (i<2)
             {
                 TS_ASSERT_DELTA(values_short[0], (double) i, 1e-3);
             }

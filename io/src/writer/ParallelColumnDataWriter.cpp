@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 
 ParallelColumnDataWriter::ParallelColumnDataWriter(const std::string& rDirectory,
-						   const std::string& rBaseName,
-						   bool cleanDirectory)
+                                                   const std::string& rBaseName,
+                                                   bool cleanDirectory)
     : ColumnDataWriter::ColumnDataWriter(rDirectory, rBaseName, cleanDirectory),
       mConcentrated(NULL)
 {

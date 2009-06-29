@@ -36,8 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DataWriterVariable.hpp"
 #include "OutputFileHandler.hpp"
 
-/** Also used by ColumnDataReader */
-const int FILE_SUFFIX_WIDTH = 6;
 
 /**
  * A concrete column data writer class.  Writes grid-formatted data in
@@ -130,8 +128,8 @@ public:
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
     ColumnDataWriter(const std::string& rDirectory,
-		     const std::string& rBaseName,
-		     bool cleanDirectory=true);
+                     const std::string& rBaseName,
+                     bool cleanDirectory=true);
 
     /**
      * Destructor. Closes any open files.
@@ -147,7 +145,7 @@ public:
      * @return The identifier of the variable
      */
     int DefineUnlimitedDimension(const std::string& rDimensionName,
-				 const std::string& rDimensionUnits);
+                                 const std::string& rDimensionUnits);
 
     /**
      * Define the fixed dimension.
@@ -159,8 +157,8 @@ public:
      * @return The identifier of the variable
      */
     int DefineFixedDimension(const std::string& rDimensionName,
-			     const std::string& rDimensionUnits,
-			     long dimensionSize);
+                             const std::string& rDimensionUnits,
+                             long dimensionSize);
 
     /**
      * Define a variable.
@@ -171,7 +169,7 @@ public:
      * @return The identifier of the variable
      */
     int DefineVariable(const std::string& rVariableName,
-		       const std::string& rVariableUnits);
+                       const std::string& rVariableUnits);
 
     /**
      * End the define mode of the DataWriter.

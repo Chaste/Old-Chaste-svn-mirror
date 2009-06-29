@@ -29,13 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define HDF5DATAREADER_HPP_
 
 #include <hdf5.h>
-#include <cassert>
+#include <petscvec.h>
+#include <string>
 #include <vector>
 #include <map>
-#include <petscvec.h>
-#include <iostream>
-#include "Exception.hpp"
-#include "OutputFileHandler.hpp"
 
 /**
  * A concrete HDF5 data reader class.
@@ -71,29 +68,32 @@ public:
     /**
      * Read data from the given files into memory.
      *
-     * @param directory  The directory the files are stored in
-     * @param baseName  The base name of the files to read (i.e. without the extensions)
+     * @param rDirectory  The directory the files are stored in
+     * @param rBaseName  The base name of the files to read (i.e. without the extensions)
      * @param makeAbsolute  Whether to convert directory to an absolute path using the
      *                      OutputFileHandler (defaults to true)
      */
-    Hdf5DataReader(std::string directory, std::string baseName, bool makeAbsolute=true);
+    Hdf5DataReader(const std::string& rDirectory,
+                   const std::string& rBaseName,
+                   bool makeAbsolute=true);
 
     /**
      * Get the values of a given variable at each time step at a given node.
      *
-     * @param variableName  name of a variable in the data file
+     * @param rVariableName  name of a variable in the data file
      * @param nodeIndex the index of the node for which the data is obtained
      */
-    std::vector<double> GetVariableOverTime(std::string variableName, unsigned nodeIndex);
+    std::vector<double> GetVariableOverTime(const std::string& rVariableName,
+                                            unsigned nodeIndex);
 
     /**
      * Get the values of a given variable at each node at a given time step.
      *
      * @param data  Petsc vec to hold the data
-     * @param variableName  name of a variable in the data file
+     * @param rVariableName  name of a variable in the data file
      * @param timestep the time step for which the data is obtained (defaults to 0)
      */
-    void GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep=0);
+    void GetVariableOverNodes(Vec data, const std::string& rVariableName, unsigned timestep=0);
 
     /**
      * Get the unlimited dimension values.
@@ -113,9 +113,9 @@ public:
     /**
      * Get the units in which a given variable is measured.
      *
-     * @param variableName  name of a variable in the data file
+     * @param rVariableName  name of a variable in the data file
      */
-    std::string GetUnit(std::string variableName);
+    std::string GetUnit(const std::string& rVariableName);
 
     /**
      * Get method for mIsDataComplete.

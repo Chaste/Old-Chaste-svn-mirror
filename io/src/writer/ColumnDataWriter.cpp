@@ -25,12 +25,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 /**
 * Implementation file for ColumnDataWriter class.
 *
 */
 
 #include "ColumnDataWriter.hpp"
+#include "ColumnDataConstants.hpp"
 #include "Exception.hpp"
 
 #include <ctype.h>
@@ -41,8 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include <sys/stat.h> // For chmod()
 
 ColumnDataWriter::ColumnDataWriter(const std::string& rDirectory,
-				   const std::string& rBaseName,
-				   bool cleanDirectory)
+                                   const std::string& rBaseName,
+                                   bool cleanDirectory)
     : mOutputFileHandler(rDirectory, cleanDirectory),
       mDirectory(rDirectory),
       mBaseName(rBaseName),
@@ -118,7 +120,7 @@ void ColumnDataWriter::CheckUnitsName(const std::string& rName)
 }
 
 int ColumnDataWriter::DefineUnlimitedDimension(const std::string& rDimensionName,
-					       const std::string& rDimensionUnits)
+                                               const std::string& rDimensionUnits)
 {
     if (mIsUnlimitedDimensionSet)
     {
@@ -146,8 +148,8 @@ int ColumnDataWriter::DefineUnlimitedDimension(const std::string& rDimensionName
 }
 
 int ColumnDataWriter::DefineFixedDimension(const std::string& rDimensionName,
-					   const std::string& rDimensionUnits,
-					   long dimensionSize)
+                                           const std::string& rDimensionUnits,
+                                           long dimensionSize)
 {
     if (!mIsInDefineMode)
     {
@@ -174,7 +176,7 @@ int ColumnDataWriter::DefineFixedDimension(const std::string& rDimensionName,
 }
 
 int ColumnDataWriter::DefineVariable(const std::string& rVariableName,
-				     const std::string& rVariableUnits)
+                                     const std::string& rVariableUnits)
 {
     if (!mIsInDefineMode)
     {

@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "PetscTools.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestHdf5ToMeshalyzerConverter : public CxxTest::TestSuite
 {

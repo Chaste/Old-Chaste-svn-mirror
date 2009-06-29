@@ -26,10 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "Hdf5DataReader.hpp"
+#include "Exception.hpp"
+#include "OutputFileHandler.hpp"
 
-Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool makeAbsolute)
-    : mDirectory(directory),
-      mBaseName(baseName),
+#include <cassert>
+
+
+Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
+                               const std::string& rBaseName,
+                               bool makeAbsolute)
+    : mDirectory(rDirectory),
+      mBaseName(rBaseName),
       mIsUnlimitedDimensionSet(false),
       mNumberTimesteps(1),
       mIsDataComplete(true)
@@ -39,15 +46,15 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     // Find out where files are really stored
     if (makeAbsolute)
     {
-        OutputFileHandler output_file_handler(directory, false);
+        OutputFileHandler output_file_handler(rDirectory, false);
         results_dir = output_file_handler.GetOutputDirectoryFullPath();
     }
     else
     {
         // Add a trailing slash if needed
-        if ( !(*(directory.end()-1) == '/'))
+        if ( !(*(rDirectory.end()-1) == '/'))
         {
-            results_dir = directory + "/";
+            results_dir = rDirectory + "/";
         }
     }
 
@@ -134,9 +141,9 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     attribute_id = H5Aopen_name(mVariablesDatasetId, "IsDataComplete");
     if (attribute_id < 0)
     {
-       // This is in the old format (before we added the IsDataComplete attribute).
-       // Just quit (leaving a nasty hdf5 error).
-       return;
+        // This is in the old format (before we added the IsDataComplete attribute).
+        // Just quit (leaving a nasty hdf5 error).
+        return;
     }
 
     attribute_type  = H5Aget_type(attribute_id);
@@ -174,7 +181,8 @@ Hdf5DataReader::Hdf5DataReader(std::string directory, std::string baseName, bool
     H5Aclose(attribute_id);
 }
 
-std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName, unsigned nodeIndex)
+std::vector<double> Hdf5DataReader::GetVariableOverTime(const std::string& rVariableName,
+                                                        unsigned nodeIndex)
 {
     if (!mIsUnlimitedDimensionSet)
     {
@@ -203,10 +211,10 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
         EXCEPTION("The file doesn't contain info of node " + nodeIndex);
     }
 
-    std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(variableName);
+    std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(rVariableName);
     if (col_iter == mVariableToColumnIndex.end())
     {
-        EXCEPTION("The file doesn't contain data for variable " + variableName);
+        EXCEPTION("The file doesn't contain data for variable " + rVariableName);
     }
     int column_index = (*col_iter).second;
 
@@ -231,7 +239,9 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(std::string variableName
     return ret;
 }
 
-void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, unsigned timestep)
+void Hdf5DataReader::GetVariableOverNodes(Vec data,
+                                          const std::string& rVariableName,
+                                          unsigned timestep)
 {
     if (!mIsDataComplete)
     {
@@ -242,10 +252,10 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data, std::string variableName, un
         EXCEPTION("The file does not contain time dependent data");
     }
 
-    std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(variableName);
+    std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(rVariableName);
     if (col_iter == mVariableToColumnIndex.end())
     {
-        EXCEPTION("The file does not contain data for variable " + variableName);
+        EXCEPTION("The file does not contain data for variable " + rVariableName);
     }
     int column_index = (*col_iter).second;
 
@@ -336,9 +346,9 @@ std::vector<std::string> Hdf5DataReader::GetVariableNames()
     return mVariableNames;
 }
 
-std::string Hdf5DataReader::GetUnit(std::string variableName)
+std::string Hdf5DataReader::GetUnit(const std::string& rVariableName)
 {
-    return mVariableToUnit[variableName];
+    return mVariableToUnit[rVariableName];
 }
 
 bool Hdf5DataReader::IsDataComplete()

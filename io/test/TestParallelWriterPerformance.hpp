@@ -47,7 +47,7 @@ public:
 
         // Create a distibuted vector
         DistributedVectorFactory factory(SIZE);
-        
+
         Vec petsc_vec = factory.CreateVec();
         DistributedVector distributed_vector = factory.CreateDistributedVector(petsc_vec);
         for (DistributedVector::Iterator index = distributed_vector.Begin();

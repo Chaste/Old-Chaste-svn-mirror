@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _COLUMNDATAREADER_HPP_
 
 #include "AbstractDataReader.hpp"
-#include "ColumnDataWriter.hpp"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -54,27 +54,27 @@ private:
     /**
      * Push back an entry from the data file into mValues.
      *
-     * @param line the line of the data file
+     * @param rLine the line of the data file
      * @param col  the column number
      */
-    void PushColumnEntryFromLine(std::string line, int col);
+    void PushColumnEntryFromLine(const std::string& rLine, int col);
 
     /**
      * Read in a given column from a data file into mValues.
      *
-     * @param filename the file name
+     * @param rFilename the file name
      * @param col  the column number
      */
-    void ReadColumnFromFile(std::string filename, int col);
+    void ReadColumnFromFile(const std::string& rFilename, int col);
 
     /**
      * Push back an entry from a file into mValues.
      *
-     * @param filename the file name
+     * @param rFilename the file name
      * @param col  the column number
      * @param row  the row number
      */
-    void ReadValueFromFile(std::string filename, int col, int row);
+    void ReadValueFromFile(const std::string& rFilename, int col, int row);
 
     static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
     static const int SPACING = 2;      /**< Space between columns (includes minus sign) */
@@ -84,40 +84,59 @@ public:
     /**
      * Read data from the given files into memory.
      *
-     * @param directory  The directory the files are stored in
-     * @param baseName  The base name of the files to read (i.e. without the extensions)
+     * @param rDirectory  The directory the files are stored in
+     * @param rBaseName  The base name of the files to read (i.e. without the extensions)
      * @param makeAbsolute  Whether to convert directory to an absolute path using the
      *                      OutputFileHandler (defaults to true)
      */
-    ColumnDataReader(std::string directory, std::string baseName, bool makeAbsolute=true);
+    ColumnDataReader(const std::string& rDirectory,
+                     const std::string& rBaseName,
+                     bool makeAbsolute=true);
 
     /**
      * Get the entries for a given variable.
      *
-     * @param variableName
+     * \todo This method returns a copy of #mValues; would it make
+     * more sense to change the semantics and return by reference?
+     * The only downside is that users would need to copy the result
+     * before calling GetValues again, if they wanted to keep the
+     * original results, which might cause head scratching!
+     *
+     * @param rVariableName
      */
-    std::vector<double> GetValues(std::string variableName);
+    std::vector<double> GetValues(const std::string& rVariableName);
 
     /**
      * Get the entries for a given variable with fixed dimension.
      *
-     * @param variableName
+     * \todo This method returns a copy of #mValues; would it make
+     * more sense to change the semantics and return by reference?
+     * The only downside is that users would need to copy the result
+     * before calling GetValues again, if they wanted to keep the
+     * original results, which might cause head scratching!
+     *
+     * @param rVariableName
      * @param fixedDimension
      */
-    std::vector<double> GetValues(std::string variableName, int fixedDimension);
+    std::vector<double> GetValues(const std::string& rVariableName, int fixedDimension);
 
     /**
      * Get the entries for a given variable with unlimited dimension.
+     *
+     * \todo This method returns a copy of #mValues; would it make
+     * more sense to change the semantics and return by reference?
+     * The only downside is that users would need to copy the result
+     * before calling GetValues again, if they wanted to keep the
+     * original results, which might cause head scratching!
      */
     std::vector<double> GetUnlimitedDimensionValues();
 
     /**
      * Get whether the data file has entries for a given variable.
      *
-     * @param variableName
+     * @param rVariableName
      */
-    bool HasValues(const std::string& variableName);
-    //std::vector<double> GetFixedDimensionValues();
+    bool HasValues(const std::string& rVariableName);
 
 };
 #endif //_COLUMNDATAREADER_HPP_

@@ -450,7 +450,7 @@ public:
         reader.GetVariableOverNodes(data, "Node", 0/*timestep*/);
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName")); //Wrong name
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/)); //Time step doesn't exist
-        
+
         DistributedVectorFactory factory2(NUMBER_NODES+1);
         Vec data_too_big = factory2.CreateVec();
         TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 0/*timestep*/)); //Data too big
@@ -464,7 +464,7 @@ public:
     void TestIncompleteData() throw (Exception)
     {
         DistributedVectorFactory factory(NUMBER_NODES);
-        
+
         Hdf5DataReader reader("io/test/data","hdf5_test_full_format_incomplete", false);
 
         std::vector<std::string> variable_names = reader.GetVariableNames();

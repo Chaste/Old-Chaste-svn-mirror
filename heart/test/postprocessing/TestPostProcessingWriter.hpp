@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PostProcessingWriter.hpp"
 #include "Hdf5DataReader.hpp"
-
+#include "OutputFileHandler.hpp"
 
 class TestPropagationPropertiesCalculator : public CxxTest::TestSuite
 {

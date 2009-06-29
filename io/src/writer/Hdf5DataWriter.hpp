@@ -102,9 +102,9 @@ public:
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
     Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
-		   const std::string& rDirectory,
-		   const std::string& rBaseName,
-		   bool cleanDirectory=true);
+                   const std::string& rDirectory,
+                   const std::string& rBaseName,
+                   bool cleanDirectory=true);
 
     /**
      * Destructor.
