@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "Timer.hpp"
 #include "DistributedVectorFactory.hpp"
+#include <cstring>
 
 
 class TestPCBlockDiagonal : public CxxTest::TestSuite
