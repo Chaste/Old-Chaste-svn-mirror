@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 
-class TestBidomainArchiveKSP : public CxxTest::TestSuite
+class TestBidomainArchiveLinearSystem : public CxxTest::TestSuite
 {
 public:
 
@@ -53,7 +53,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(1.4);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
         HeartConfig::Instance()->SetOutputDirectory("DumpBidomain3DPE");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomainPE3d");
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> bidomain_cell_factory(-600.0*1000);
 

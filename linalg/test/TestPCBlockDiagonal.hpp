@@ -52,7 +52,7 @@ public:
         ls.SetPcType("blockdiagonal");
         
         Mat& system_matrix = ls.rGetLhsMatrix();
-        PetscTools::ReadPetscObject(system_matrix, "notforrelease/test/data/matrices/cube_6000elems_half_activated.mat");
+        PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
                 
         // Set b = A * [1 0 1 0 ... 1 0]'        
         std::vector<double> values;        
@@ -115,10 +115,10 @@ public:
             ls.SetPcType("none");
             
             Mat& system_matrix = ls.rGetLhsMatrix();
-            PetscTools::ReadPetscObject(system_matrix, "notforrelease/test/data/matrices/cube_6000elems_half_activated.mat");
+            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
             
             Vec& system_rhs = ls.rGetRhsVector();
-            PetscTools::ReadPetscObject(system_rhs, "notforrelease/test/data/matrices/cube_6000elems_half_activated.vec");
+            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
             
             ls.Solve();
             
@@ -135,10 +135,10 @@ public:
             ls.SetPcType("blockdiagonal");
 
             Mat& system_matrix = ls.rGetLhsMatrix();
-            PetscTools::ReadPetscObject(system_matrix, "notforrelease/test/data/matrices/cube_6000elems_half_activated.mat");
+            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
             
             Vec& system_rhs = ls.rGetRhsVector();
-            PetscTools::ReadPetscObject(system_rhs, "notforrelease/test/data/matrices/cube_6000elems_half_activated.vec");
+            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
                         
             ls.Solve();
             
