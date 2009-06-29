@@ -519,6 +519,11 @@ void LinearSystem::SetPcType(const char *pcType)
     {
         if (mPcType == "blockdiagonal")
         {
+            if (mpBlockDiagonalPC)
+            {
+                // If the preconditioner has been set to "blockdiagonal" before, we need to free the pointer.
+                delete mpBlockDiagonalPC;
+            }
             mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
         }
         else

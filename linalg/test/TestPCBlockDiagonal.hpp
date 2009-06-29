@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "ReplicatableVector.hpp"
 #include "Timer.hpp"
+#include "DistributedVectorFactory.hpp"
 
 
 class TestPCBlockDiagonal : public CxxTest::TestSuite
@@ -42,40 +43,60 @@ public:
 
     void TestBasicFunctionality() throw (Exception)
     {
-        unsigned system_size = 10;
+        unsigned system_size = 2662;
         LinearSystem ls = LinearSystem(system_size);
         
-        ls.SetAbsoluteTolerance(1e-6);
+        ls.SetAbsoluteTolerance(1e-8);
         ls.SetKspType("cg");
         ls.SetPcType("blockdiagonal");
         
-        /// \todo: we want to load a mesh coming from a realistic problem instead
-        for (unsigned row=0; row<system_size; row++)
+        Mat& system_matrix = ls.rGetLhsMatrix();
+        PetscTools::ReadPetscObject(system_matrix, "notforrelease/test/data/matrices/cube_6000elems_half_activated.mat");
+                
+        // Set b = A * [1 0 1 0 ... 1 0]'        
+        std::vector<double> values;        
+        for (unsigned node_index=0; node_index<system_size/2; node_index++)
         {
-            ls.SetMatrixElement((PetscInt)row, (PetscInt)row, (double) row*1000 + row+1);
-
-            for (unsigned col=0; col<row; col++)
-            {
-                ls.SetMatrixElement((PetscInt)row, (PetscInt)col, (double) row*10 + col+1);
-                ls.SetMatrixElement((PetscInt)col, (PetscInt)row, (double) row*10 + col+1);
-            }
-        }
-        ls.AssembleFinalLinearSystem();
+            values.push_back(0.8);
+            values.push_back(-0.2);            
+        } 
         
-        /// \todo: this rhs might be inconsistent (if it has components in the kernel of A). A problem if we solve the singular problem. Get one from a realistic simulation.              
-        // Set b = A * [1 1 ... 1]'
-        Vec all_ones = PetscTools::CreateVec(system_size, 1.0);
+        Vec all_ones = PetscTools::CreateVec(values);
         MatMult(ls.GetLhsMatrix(), all_ones, ls.GetRhsVector());
+
+        ls.AssembleFinalLinearSystem();
         
         Vec solution = ls.Solve();
         
-        ReplicatableVector solution_replicated;
-        solution_replicated.ReplicatePetscVector(solution);
+        DistributedVectorFactory factory(system_size/2);
+        DistributedVector distributed_solution = factory.CreateDistributedVector(solution);
+        DistributedVector::Stripe phi_i(distributed_solution,0);
+        DistributedVector::Stripe phi_e(distributed_solution,1);
         
-        for (unsigned row=0; row<system_size; row++)
+        for (DistributedVector::Iterator index = distributed_solution.Begin();
+             index!= distributed_solution.End();
+             ++index)
         {
-            TS_ASSERT_DELTA(solution_replicated[row], 1.0, 1e-6)
-        }        
+            /*
+             * Although we're trying to enforce the solution to be [1 0 ... 1 0], the system is singular and
+             * therefore it has infinite solutions. I've (migb) found thatn the use of different preconditioners 
+             * lead to different solutions ([0.8 -0.2 ... 0.8 -0.2], [0.5 -0.5 ... 0.5 -0.5], ...)
+             * 
+             * If we were using PETSc null space, it would find the solution that satisfies x'*v=0,
+             * being v the null space of the system (v=[1 1 ... 1])
+             */            
+            TS_ASSERT_DELTA(phi_i[index] - phi_e[index], 1.0, 1e-6);
+        }
+
+        // Coverage (setting PC type after first solve)
+        ls.SetPcType("blockdiagonal");
+        PCType pc;
+        PC prec;
+        KSPGetPC(ls.mKspSolver, &prec);
+        PCGetType(prec, &pc);
+        // Although we call it "blockdiagonal", PETSc considers this PC a generic SHELL preconditioner
+        TS_ASSERT( strcmp(pc,"shell")==0 );
+        
     }
     
     void TestBetterThanNoPreconditioning()
@@ -85,7 +106,7 @@ public:
         
         Timer::Reset();        
         {
-            unsigned system_size = 100;
+            unsigned system_size = 2662;
             LinearSystem ls = LinearSystem(system_size);
             
             ls.SetAbsoluteTolerance(1e-6);
@@ -105,7 +126,7 @@ public:
         Timer::PrintAndReset("No preconditioning");
         
         {
-            unsigned system_size = 100;
+            unsigned system_size = 2662;
             LinearSystem ls = LinearSystem(system_size);
             
             ls.SetAbsoluteTolerance(1e-6);

@@ -57,6 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class LinearSystem
 {
     friend class TestLinearSystem;
+    friend class TestPCBlockDiagonal;
 
 private:
 
