@@ -72,13 +72,12 @@ public:
         {
             TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
         }
-        
-        
+
         c_matrix<double, 3, 3> jacob;
         double det;
-       
+
         element.CalculateJacobian(jacob, det);
-        
+
         TS_ASSERT_DELTA(det, 1.0, 1e-5);
         TS_ASSERT_DELTA(element.GetVolume(det), 1.0/6.0, 1e-5);
 
@@ -133,7 +132,7 @@ public:
 
         element.SetOwnership(true);
 
-        TS_ASSERT_EQUALS(element.GetOwnership(),true);
+        TS_ASSERT_EQUALS(element.GetOwnership(), true);
 
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {
@@ -277,7 +276,7 @@ public:
     void TestNodeToElementConversion()
     {
         ChastePoint<1> point1(1.0);
-        ChastePoint<2> point2(2.0,-1.0);
+        ChastePoint<2> point2(2.0, -1.0);
 
         Node<1> node1(0, point1);
         Node<2> node2(0, point2);
@@ -293,9 +292,9 @@ public:
 
     void TestGetNodeLocation() throw(Exception)
     {
-        ChastePoint<2> point1(0.0,1.0);
-        ChastePoint<2> point2(4.0,6.0);
-        ChastePoint<2> point3(2.0,3.0);
+        ChastePoint<2> point1(0.0, 1.0);
+        ChastePoint<2> point2(4.0, 6.0);
+        ChastePoint<2> point3(2.0, 3.0);
 
         std::vector<Node<2>*> element_nodes;
         element_nodes.push_back(new Node<2>(0, point1));
@@ -306,12 +305,12 @@ public:
 
         // Note that nodes 2 and 3 are swapped by the element constructor
         // to ensure that the jacobian determinant is positive
-        TS_ASSERT_EQUALS(element.GetNodeLocation(0,0),0.0);
-        TS_ASSERT_EQUALS(element.GetNodeLocation(0)(0),0.0);
-        TS_ASSERT_EQUALS(element.GetNodeLocation(1,0),2.0);
-        TS_ASSERT_EQUALS(element.GetNodeLocation(1)(0),2.0);
-        TS_ASSERT_EQUALS(element.GetNodeLocation(2,0),4.0);
-        TS_ASSERT_EQUALS(element.GetNodeLocation(2)(0),4.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(0,0), 0.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(0)(0), 0.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(1,0), 2.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(1)(0), 2.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(2,0), 4.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(2)(0), 4.0);
 
         delete element_nodes[0];
         delete element_nodes[1];
@@ -348,7 +347,6 @@ public:
         // Index of second node for incorrect orientation element should also be 1
         // because the element should have swapped the nodes around
         TS_ASSERT_EQUALS( e_1d_incorrect_orientation.GetNode(1)->GetIndex(), 1u);
-
 
         ////////////////////////////////////////////
         // 2D case
@@ -450,16 +448,16 @@ public:
         BoundaryElement<2,3> element(INDEX_IS_NOT_USED, nodes);
         c_vector<double, 3> weighted_direction;
         double det;
-        element.CalculateWeightedDirection(weighted_direction,det);
+        element.CalculateWeightedDirection(weighted_direction, det);
         TS_ASSERT_DELTA(det, 1.0, 1e-6);
 
         // Alter to be collinear (for coverage)
-        nodes[2]->rGetModifiableLocation()[1]=0.0;
-        TS_ASSERT_THROWS_ANYTHING(element.CalculateWeightedDirection(weighted_direction,det));
+        nodes[2]->rGetModifiableLocation()[1] = 0.0;
+        TS_ASSERT_THROWS_ANYTHING(element.CalculateWeightedDirection(weighted_direction, det));
 
         // Alter to be deleted (for coverage)
         element.MarkAsDeleted();
-        TS_ASSERT_THROWS_ANYTHING(element.CalculateWeightedDirection(weighted_direction,det));
+        TS_ASSERT_THROWS_ANYTHING(element.CalculateWeightedDirection(weighted_direction, det));
 
         Node<3>* p_fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
         TS_ASSERT_THROWS_ANYTHING(element.ReplaceNode(p_fake_node, p_fake_node));
@@ -508,7 +506,7 @@ public:
 
         c_matrix<double, 2, 2> jacobian, inverse_jacobian;
         double det;
-        
+
         equilateral_element.CalculateInverseJacobian(jacobian, det, inverse_jacobian);
         c_vector<double, 3> circum = equilateral_element.CalculateCircumsphere(jacobian, inverse_jacobian);
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
@@ -603,10 +601,10 @@ public:
         element_1d.CalculateWeightedDirection(direction,det);
 
         // 1D element in higher space is orientated by vector between endpoints
-        TS_ASSERT_EQUALS(direction[0],1.0);
-        TS_ASSERT_EQUALS(direction[1],0.0);
-        TS_ASSERT_EQUALS(direction[2],0.0);
-        TS_ASSERT_EQUALS(det,1.0);
+        TS_ASSERT_EQUALS(direction[0], 1.0);
+        TS_ASSERT_EQUALS(direction[1], 0.0);
+        TS_ASSERT_EQUALS(direction[2], 0.0);
+        TS_ASSERT_EQUALS(det, 1.0);
 
         centroid = element_1d.CalculateCentroid();
         TS_ASSERT_EQUALS(centroid[0], 0.5);
@@ -616,7 +614,7 @@ public:
         nodes.push_back(new Node<3>(3, false, 0.0, 1.0, 0.0));
         BoundaryElement<2,3> element_2d(0, nodes);
 
-        element_2d.CalculateWeightedDirection(direction,det);
+        element_2d.CalculateWeightedDirection(direction, det);
 
         // 2D element in higher space is orientated by a normal
         TS_ASSERT_EQUALS(direction[0], 0.0);
@@ -633,8 +631,8 @@ public:
 
         nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
         Element<3,3> element_3d(0, nodes);
-        //Weighted direction only makes sense in a subspace element
-        TS_ASSERT_THROWS_ANYTHING(element_3d.CalculateWeightedDirection(direction,det));
+        // Weighted direction only makes sense in a subspace element
+        TS_ASSERT_THROWS_ANYTHING(element_3d.CalculateWeightedDirection(direction, det));
 
         // 3D element in 3D space has no orientation (other than JacobianDeterminant)
         centroid = element_3d.CalculateCentroid();
@@ -717,7 +715,7 @@ public:
         TS_ASSERT_EQUALS(det, 0.1);
         p_last_element->CalculateJacobian(jacobian, det);
         TS_ASSERT_DELTA(det, 0.09, 1e-6);
-        
+
         mesh.RefreshMesh();
         // Test mesh length
         TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
@@ -894,6 +892,7 @@ public:
 
         TS_ASSERT_DELTA(mesh.GetVolume(), 1.0, 1e-6);
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
+
         // Refine an element in the top corner (1, 1, 1)
         Element<3,3>* p_corner_element = mesh.GetElement(64);
         c_matrix<double,3,3> jacobian;
@@ -920,13 +919,13 @@ public:
         unsigned indices_1[3];
 
         // Element 2 in the mesh has global node indices: 1,2,4
-        unsigned expected_indices_1[] = {1u,2u,4u};
+        unsigned expected_indices_1[] = {1u, 2u, 4u};
         p_element->GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, indices_1);
         TS_ASSERT_SAME_DATA(indices_1, expected_indices_1, 3*sizeof(unsigned));
 
         PROBLEM_DIM = 2;
         unsigned indices_2[6];
-        unsigned expected_indices_2[] = {2u,3u,4u,5u,8u,9u};
+        unsigned expected_indices_2[] = {2u, 3u, 4u, 5u, 8u, 9u};
 
         p_element->GetStiffnessMatrixGlobalIndices(PROBLEM_DIM, indices_2);
 
