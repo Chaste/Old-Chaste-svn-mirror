@@ -116,9 +116,15 @@ public:
         //This cell now returns a current density
         TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.2462, 1e-3);
 
+        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.SetState(ALL_VARS));
+        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.GetNumSlowValues());
+        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.IsFastOnly());
         std::vector<double> slows;
-        slows.push_back(100);
+        slows.push_back(100.0);
         TS_ASSERT_THROWS_ANYTHING(n98_ode_system.AdjustOutOfRangeSlowValues(slows));
+        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.GetSlowValues(slows));
+        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.SetSlowValues(slows));
+
      }
 
     void TestOdeSolveForOptimisedNoble98WithSimpleStimulus(void)
