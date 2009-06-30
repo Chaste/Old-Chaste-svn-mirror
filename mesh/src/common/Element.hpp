@@ -55,7 +55,7 @@ public:
      *
      * \todo this is rather dubious; a factory method might be better.
      *
-     * @param element  an element to copy
+     * @param rElement  an element to copy
      * @param index the index of the new element
      */
     Element(const Element& rElement, const unsigned index);
