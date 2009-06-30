@@ -36,6 +36,11 @@ PCBlockDiagonal::PCBlockDiagonal(KSP& ksp_object)
     
 PCBlockDiagonal::~PCBlockDiagonal()
 {
+    MatDestroy(mPCContext.A11_matrix_subblock);
+    MatDestroy(mPCContext.A22_matrix_subblock);
+    
+    PCDestroy(mPCContext.PC_amg_A11);
+    PCDestroy(mPCContext.PC_amg_A22);
 }
 
 void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& ksp_object)
@@ -51,9 +56,6 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& ksp_object)
     assert(num_rows==num_columns);  
     
     PCSetType(mPetscPCObject, PCSHELL);
-
-    // We are not using a pointer anymore...
-    //PetscNew(PCBlockDiagonalContext, &mpPCContext);
     
     // Register PC context so it gets passed to PCBlockDiagonalApply
     PCShellSetContext(mPetscPCObject, &mPCContext);
@@ -65,13 +67,20 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& ksp_object)
     
     MatGetSubMatrix(system_matrix, A11_rows, A11_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
 
+    ISDestroy(A11_rows);
+    ISDestroy(A11_columns);    
+
     // Get matrix sublock A22
     IS A22_rows, A22_columns;    
     ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 1, 2, &A22_rows);
     ISCreateStride(PETSC_COMM_WORLD, num_columns/2, 1, 2, &A22_columns);
     
     MatGetSubMatrix(system_matrix, A22_rows, A22_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
-    
+
+    ISDestroy(A22_rows);
+    ISDestroy(A22_columns);    
+
+    // Register call-back function
     PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply);
 }
 
@@ -166,9 +175,19 @@ PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y)
 #endif    
     
     ////////////////////
+
+    ISDestroy(A11_rows);
+    ISDestroy(A22_rows);
         
     VecScatterDestroy(A11_scatter_ctx);
     VecScatterDestroy(A22_scatter_ctx);    
+    
+    VecDestroy(x11);
+    VecDestroy(y11);
+
+    VecDestroy(x22);
+    VecDestroy(y22);
+
     
     return 0;
 }    

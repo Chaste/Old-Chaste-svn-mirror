@@ -45,25 +45,28 @@ public:
     void TestBasicFunctionality() throw (Exception)
     {
         unsigned system_size = 2662;
-        LinearSystem ls = LinearSystem(system_size);
         
-        ls.SetAbsoluteTolerance(1e-8);
-        ls.SetKspType("cg");
-        ls.SetPcType("blockdiagonal");
-        
-        Mat& system_matrix = ls.rGetLhsMatrix();
+        Mat system_matrix;
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
                 
         // Set b = A * [1 0 1 0 ... 1 0]'        
         std::vector<double> values;        
         for (unsigned node_index=0; node_index<system_size/2; node_index++)
         {
-            values.push_back(0.8);
-            values.push_back(-0.2);            
+            values.push_back(1.0);
+            values.push_back(0.0);            
         } 
         
-        Vec all_ones = PetscTools::CreateVec(values);
-        MatMult(ls.GetLhsMatrix(), all_ones, ls.GetRhsVector());
+        Vec one_zeros = PetscTools::CreateVec(values);
+        Vec rhs = PetscTools::CreateVec(system_size);
+        MatMult(system_matrix, one_zeros, rhs);
+        VecDestroy(one_zeros);        
+
+        LinearSystem ls = LinearSystem(rhs, system_matrix);
+        
+        ls.SetAbsoluteTolerance(1e-9);
+        ls.SetKspType("cg");
+        ls.SetPcType("blockdiagonal");
 
         ls.AssembleFinalLinearSystem();
         
@@ -89,6 +92,10 @@ public:
             TS_ASSERT_DELTA(phi_i[index] - phi_e[index], 1.0, 1e-6);
         }
 
+        MatDestroy(system_matrix);
+        VecDestroy(rhs);
+        VecDestroy(solution);
+
         // Coverage (setting PC type after first solve)
         ls.SetPcType("blockdiagonal");
         PCType pc;
@@ -107,42 +114,48 @@ public:
         
         Timer::Reset();        
         {
-            unsigned system_size = 2662;
-            LinearSystem ls = LinearSystem(system_size);
+            Mat system_matrix;
+            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
+            
+            Vec system_rhs;
+            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
+
+            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
             
             ls.SetAbsoluteTolerance(1e-6);
             ls.SetKspType("cg");
-            ls.SetPcType("none");
+            ls.SetPcType("none");            
             
-            Mat& system_matrix = ls.rGetLhsMatrix();
-            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
-            
-            Vec& system_rhs = ls.rGetRhsVector();
-            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
-            
-            ls.Solve();
-            
+            Vec solution = ls.Solve();
+
             point_jacobi_its = ls.GetNumIterations();
+            
+            MatDestroy(system_matrix);
+            VecDestroy(system_rhs);
+            VecDestroy(solution);            
         }        
         Timer::PrintAndReset("No preconditioning");
         
         {
-            unsigned system_size = 2662;
-            LinearSystem ls = LinearSystem(system_size);
+            Mat system_matrix;
+            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
+            
+            Vec system_rhs;
+            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
+
+            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
             
             ls.SetAbsoluteTolerance(1e-6);
             ls.SetKspType("cg");
             ls.SetPcType("blockdiagonal");
-
-            Mat& system_matrix = ls.rGetLhsMatrix();
-            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
-            
-            Vec& system_rhs = ls.rGetRhsVector();
-            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
                         
-            ls.Solve();
-            
+            Vec solution = ls.Solve();
+
             block_diag_its = ls.GetNumIterations();
+
+            MatDestroy(system_matrix);
+            VecDestroy(system_rhs);
+            VecDestroy(solution);                        
         }
         Timer::Print("Block diagonal preconditioner");
 

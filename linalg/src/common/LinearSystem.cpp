@@ -164,6 +164,11 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
 
 LinearSystem::~LinearSystem()
 {
+    if (mpBlockDiagonalPC)
+    {
+        delete mpBlockDiagonalPC;
+    }
+    
     if (mDestroyMatAndVec)
     {
         VecDestroy(mRhsVector);
@@ -184,11 +189,6 @@ LinearSystem::~LinearSystem()
     {
         ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
-    }
-    
-    if (mpBlockDiagonalPC)
-    {
-        delete mpBlockDiagonalPC;
     }
     
 #ifdef TRACE_KSP
