@@ -242,7 +242,7 @@ public:
     double GetBathConductivity() const; /**< @return conductivity for perfusing bath (mS/cm)*/
  
 
-    double GetSurfaceAreaToVolumeRatio() const; /**< @return surface area to volume ratio Am for PDE (1/cm)*/
+    double GetSurfaceAreaToVolumeRatio() const; /**< @return surface area to volume ratio chi a.k.a Am for PDE (1/cm)*/
     
     double GetCapacitance() const; /**< @return surface capacitance Cm for PDE (uF/cm^2)*/
 
