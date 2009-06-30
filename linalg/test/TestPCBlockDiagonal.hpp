@@ -44,6 +44,8 @@ public:
 
     void TestBasicFunctionality() throw (Exception)
     {
+        EXIT_IF_PARALLEL
+        
         unsigned system_size = 2662;
         
         Mat system_matrix;
@@ -109,6 +111,8 @@ public:
     
     void TestBetterThanNoPreconditioning()
     {
+        EXIT_IF_PARALLEL
+        
         unsigned point_jacobi_its;
         unsigned block_diag_its;
         
