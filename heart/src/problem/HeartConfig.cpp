@@ -1237,7 +1237,9 @@ void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_m
 
     for (unsigned i=0; i<apd_maps.size(); i++)
     {
-        apd_map_type  temp((::xml_schema::double_)apd_maps[i].first, (::xml_schema::string)"mV", (::xml_schema::double_)apd_maps[i].second);
+        XSD_CREATE_WITH_FIXED_ATTR2(apd_map_type, temp,
+                                    apd_maps[i].first, apd_maps[i].second,
+                                    "mV");
         apd_maps_sequence.push_back( temp);
     }
 }
@@ -1252,7 +1254,9 @@ void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
 
     for (unsigned i=0; i<upstroke_map_sequence.size(); i++)
     {
-        upstrokes_map_type  temp(upstroke_map_sequence[i].threshold(), (::xml_schema::string)"mV");
+        XSD_CREATE_WITH_FIXED_ATTR1(upstrokes_map_type, temp,
+                                    upstroke_map_sequence[i].threshold(),
+                                    "mV");
         upstroke_map_sequence.push_back(temp);
     }
 }

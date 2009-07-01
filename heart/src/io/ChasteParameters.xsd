@@ -92,9 +92,9 @@
   </xs:complexType>
   
   <xs:complexType name="apd_map_type">
+    <xs:attribute name="repolarisation_percentage" type="xs:double" use="required"/>
     <xs:attribute name="threshold" type="xs:double" use="required"/>
     <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
-    <xs:attribute name="repolarisation_percentage" type="xs:double" use="required"/>
   </xs:complexType>
   
   <xs:complexType name="upstrokes_map_type">
