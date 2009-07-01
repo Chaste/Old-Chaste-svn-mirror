@@ -561,8 +561,10 @@ public:
         PetscTools::Barrier();
 
         //Need to find pts, tri, transmembrane, xml
-        std::string test_file_names[4]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat", "monodomain2d_parameters.xml"};
-        for (unsigned i=0; i<4; i++)
+        unsigned num_files=5;
+        std::string test_file_names[5]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat", 
+              "ChasteParameters.xml", "ChasteDefaults.xml"};
+        for (unsigned i=0; i<num_files; i++)
         {
             std::string compare_command = "cmp -s ";
             compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
@@ -577,7 +579,7 @@ public:
 
         PetscTools::Barrier();
         //Need to find pts, tri, transmebrane, xml
-        for (unsigned i=0; i<3; i++)
+        for (unsigned i=0; i<num_files; i++)
         {
             std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
             compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
@@ -586,19 +588,6 @@ public:
             compare_command += test_file_names[i];
             TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
         }
-        // Compare parameters file (within numerical tolerance)
-        if (PetscTools::AmMaster())
-        {
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/Monodomain2d/monodomain2d_parameters.xml");
-            HeartConfig::Instance()->Write("Monodomain2d/ref", "monodomain2d_parameters.xml");
-        }
-        PetscTools::Barrier();
-        std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
-        compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/monodomain2d_parameters.xml";
-        compare_command += " ";
-        compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/ref")+"/monodomain2d_parameters.xml";
-        TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
-
     }
 
     void TestMonodomainProblemCreates1DGeometry()

@@ -13,7 +13,7 @@
   </Simulation>
 
   <Physiological>
-    <IntracellularConductivities longi="0.0005" normal="0.0" trans="0.0005" unit="mS/cm"/>
+    <IntracellularConductivities longi="0.0005" normal="0" trans="0.0005" unit="mS/cm"/>
     <ExtracellularConductivities longi="7" normal="7" trans="7" unit="mS/cm"/>
     <BathConductivity unit="mS/cm">7</BathConductivity>
     <SurfaceAreaToVolumeRatio unit="1/cm">1</SurfaceAreaToVolumeRatio>
@@ -30,4 +30,5 @@
   </Numerical>
 
   <PostProcessing/>
+
 </ChasteParameters>

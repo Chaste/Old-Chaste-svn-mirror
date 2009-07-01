@@ -88,7 +88,7 @@ private:
         std::string relative_directory = directory_name.substr( dist_from_start + 1 );
         /// \todo Refactor all of the above into a method that looks like this:
 //        mpInstance->Write(ArchiveLocationInfo::GetArchiveRelativeDirectory(), "ChasteParameters.xml");            
-        mpInstance->Write(relative_directory, "ChasteParameters.xml");
+        mpInstance->Write( true );
     }
     
     /**
@@ -125,13 +125,14 @@ public:
      */
     void SetParametersFile(std::string fileName);
     /**
-     * Write out the complete configuration set as an XML file 
+     * Write out the complete configuration set (ChasteParameters
+     * and ChasteDefaults) as an XML file. 
      * Note that the location of ChasteParameters.xsd (schema definition)
      * will be hard-coded in the XML file.
-     * @param dirName  Directory path
-     * @param fileName Name of file (ideally will have ".xml" suffix)
+     * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in /output subfolder
+     *                                if true, then use ArchiveLocationInfo  
      */
-    void Write(std::string dirName, std::string fileName);
+    void Write(bool useArchiveLocation=false);
     
     /**
      * Throw away the current instance by resetting auto_ptr #mpInstance to NULL.

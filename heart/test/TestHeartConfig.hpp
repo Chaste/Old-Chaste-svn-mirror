@@ -526,18 +526,19 @@ public :
      }
     void TestWrite() throw(Exception)
     {
-        OutputFileHandler output_file_handler("Xml", false);
+        OutputFileHandler output_file_handler("Xml/output", true);
         HeartConfig::Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(1.1,2.2,4.4);
-        HeartConfig::Instance()->Write("Xml","test.xml");
+        HeartConfig::Instance()->SetOutputDirectory("Xml");
+        HeartConfig::Instance()->Write();
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
         HeartConfig::Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
         //Reload the other XML
-        HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath("Xml")+"test.xml");
+        HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath("Xml/output")+"ChasteParameters.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
 
     }
@@ -557,6 +558,10 @@ public :
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"));
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml"));
         //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml"));
+        
+        //Can't open a directory/file for writing
+        HeartConfig::Instance()->SetOutputDirectory("../../../");
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->Write());
     }
     
     void TestArchiving()

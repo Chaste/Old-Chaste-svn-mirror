@@ -120,12 +120,28 @@ void HeartConfig::SetDefaultsFile(std::string fileName)
     CheckTimeSteps();
 }
 
-void HeartConfig::Write(std::string dirName, std::string fileName)
+void HeartConfig::Write(bool useArchiveLocationInfo)
 {
     //Output file
-    OutputFileHandler output_file_handler(dirName, false);
-    out_stream p_file = output_file_handler.OpenOutputFile(fileName);
+    std::string output_dirname;
+    if (useArchiveLocationInfo)
+    {
+        output_dirname = ArchiveLocationInfo::GetArchiveDirectory();
+    }
+    else
+    {
+        OutputFileHandler handler(GetOutputDirectory(), false);
+        output_dirname =  handler.GetOutputDirectoryFullPath() + "output/";
+    }
+    
+    out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) ); 
+    out_stream p_parameters_file( new std::ofstream( (output_dirname+"ChasteParameters.xml").c_str() ) );
 
+    if (!p_defaults_file->is_open() || !p_parameters_file->is_open())
+    {
+        EXCEPTION("Could not open XML file in HeartConfig");
+    }
+    
     //Schema map
     //Note - this location is relative to where we are storing the xml
     xml_schema::namespace_infomap map;
@@ -134,7 +150,8 @@ void HeartConfig::Write(std::string dirName, std::string fileName)
     absolute_path_to_xsd += "/heart/src/io/ChasteParameters.xsd";
     map[""].schema = absolute_path_to_xsd;
 
-    ChasteParameters(*p_file, *mpUserParameters, map);
+    ChasteParameters(*p_parameters_file, *mpUserParameters, map);
+    ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
 }
 chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
 {

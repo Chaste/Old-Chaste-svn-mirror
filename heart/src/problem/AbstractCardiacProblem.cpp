@@ -537,7 +537,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostPr
             }
 
             //Write the parameters out
-            HeartConfig::Instance()->Write(output_directory, mOutputFilenamePrefix+"_parameters.xml");
+            HeartConfig::Instance()->Write();
         }
     }
     HeartEventHandler::EndEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
