@@ -48,7 +48,7 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
     {
         //Note that we don't want the child processes to create
         //a fresh directory if it doesn't already exist
-        OutputFileHandler output_file_handler(mOutputDirectory, false);
+        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + type + ".dat");
     }
 
@@ -82,11 +82,9 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
 
 
 Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
-                          std::string outputDirectory,
                           std::string fileBaseName)
 {
     // store dir and filenames, and create a reader
-    mOutputDirectory = outputDirectory;
     mFileBaseName = fileBaseName;
     mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
 
@@ -127,7 +125,8 @@ Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
     {
         //Note that we don't want the child processes to create
         //a fresh directory if it doesn't already exist
-        OutputFileHandler output_file_handler(mOutputDirectory, false);
+        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+        
         out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_times.info");
         unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
         *p_file << "Number of timesteps "<<num_timesteps<<"\n";

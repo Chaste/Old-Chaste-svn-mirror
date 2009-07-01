@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
+#include "HeartConfig.hpp"
 
 class TestHdf5ToMeshalyzerConverter : public CxxTest::TestSuite
 {
@@ -65,14 +66,15 @@ public :
                                   "TestHdf5ToMeshalyzerConverter");
 
         // convert
-        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "TestHdf5ToMeshalyzerConverter/out", "MonodomainLR91_1d");
+        HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
+        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d");
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/MonodomainLR91_1d_V.dat "
+        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_V.dat "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/MonodomainLR91_1d_times.info "
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_times.info "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         }
@@ -88,21 +90,22 @@ public :
                                   "TestHdf5ToMeshalyzerConverter");
 
         // convert
-        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "TestHdf5ToMeshalyzerConverter/out", "bidomain");
+        HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
+        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter",  "bidomain");
 
         // compare the voltage file
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/bidomain_V.dat "
+        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_V.dat "
                                      + "heart/test/data/Bidomain1d/bidomain_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         // compare the Phi_e file
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/bidomain_Phi_e.dat "
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_Phi_e.dat "
                          + "heart/test/data/Bidomain1d/bidomain_Phi_e.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
        // compare the time information file
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/out/bidomain_times.info "
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_times.info "
                          + "heart/test/data/Bidomain1d/bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
@@ -114,17 +117,19 @@ public :
         CopyToTestOutputDirectory("io/test/data/hdf5_test_full_format.h5", // doesn't have one or two variables
                                   "TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format") );
+        HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
+        
+        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format") );
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
                                   "TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "TestHdf5ToMeshalyzerConverter", "bad_heart_data_1") );
+        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1") );
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
                                   "TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "TestHdf5ToMeshalyzerConverter", "bad_heart_data_2") );
+        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2") );
     }
 };
 #endif /*TESTHDF5TOMESHALYZERCONVERTER_HPP_*/

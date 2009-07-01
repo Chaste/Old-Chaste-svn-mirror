@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "OutputFileHandler.hpp"
 
-class TestPropagationPropertiesCalculator : public CxxTest::TestSuite
+class TestPostProcessingWriter : public CxxTest::TestSuite
 {
     
 public:
@@ -96,6 +96,24 @@ public:
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
+    
+    void xTestPostProcessWriting() throw (Exception)
+    {
+        //HeartConfig::Instance()->Set...
+        
+        //Constructor writes info based on what's in the config
+        Hdf5DataReader simulation_data("heart/test/data/Monodomain1d",
+                                       "MonodomainLR91_1d", false);
+        std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
+        PostProcessingWriter writer(&simulation_data);  
+        
+            std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd90Map.dat " 
+                                   + "heart/test/data/101_zeroes.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);                         
+                                       
+    }
+    
+    
 
 };
 

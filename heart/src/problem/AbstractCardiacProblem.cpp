@@ -513,12 +513,13 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostPr
     if (mCallChaste2Meshalyzer && mNodesToOutput.empty())
     {
         //Convert simulation data to Meshalyzer format
-        std::string output_directory =  mOutputDirectory + "/output";
-        Hdf5ToMeshalyzerConverter converter(mOutputDirectory, output_directory, mOutputFilenamePrefix);
+        assert(mOutputDirectory==HeartConfig::Instance()->GetOutputDirectory());///\todo mOutputDirectory is redundant
+        Hdf5ToMeshalyzerConverter converter(mOutputDirectory, mOutputFilenamePrefix);
 
         //Write mesh in a suitable form for meshalyzer
         if (PetscTools::AmMaster())
         {
+            std::string output_directory =  mOutputDirectory + "/output";
             //Write the mesh
             MeshalyzerMeshWriter<ELEM_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
 

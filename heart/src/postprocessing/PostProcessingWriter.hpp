@@ -40,11 +40,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class PostProcessingWriter
 {
-  private:
+    friend class TestPostProcessingWriter;
+  
+private:
     PropagationPropertiesCalculator* mpCalculator; /**< PropagationPropertiesCalculator based on HDF5 data reader*/
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
     
-  public:
+public:
     /** 
      * Constructor
      * @param pDataReader  an HDF5 reader from which to build the PropagationPropertiesCalculator
@@ -55,6 +57,8 @@ class PostProcessingWriter
      * Destructor
      */
     ~PostProcessingWriter();
+
+private:
     /**
      * Method for opening an APD map file and writing one row per node
      * line 1: <first APD for node 0> <second APD for node 0> ...

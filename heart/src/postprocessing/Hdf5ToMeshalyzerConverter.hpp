@@ -55,7 +55,6 @@ class Hdf5ToMeshalyzerConverter
 {
 private:
     Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
-    std::string mOutputDirectory; /**< Directory name where the Meshalyzer output is going*/
     std::string mFileBaseName; /**< Base name for the files [basename]_V.dat etc.*/
 
     /** A helper method which takes in a string, which must be 'V' or 'Phi_e'
@@ -69,11 +68,9 @@ private:
 public:
     /** Constructor, which does the conversion.
      *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
-     *  @param outputDirectory  The output directory, relative to CHASTE_TEST_OUTPUT, where the output will be placed
      *  @param fileBaseName The base name of the data file.
      */
     Hdf5ToMeshalyzerConverter(std::string inputDirectory,
-                              std::string outputDirectory,
                               std::string fileBaseName);
 
     ~Hdf5ToMeshalyzerConverter();
