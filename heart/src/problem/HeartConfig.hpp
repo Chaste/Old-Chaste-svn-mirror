@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * interface, providing methods to read and write all the settings, and round-trip
  * them to/from XML format.  It also deals with the complexities of supporting
  * multiple versions of CodeSynthesis XSD.
- * 
+ *
  * chaste_parameters_type is a convenience class created by CodeSynthesis XSD
  */
 class HeartConfig
@@ -83,7 +83,7 @@ private:
     {
         mpInstance->Write( true );
     }
-    
+
     /**
      * Un-archive the object.
      *
@@ -93,14 +93,14 @@ private:
     template<class Archive>
     void load(Archive & ar, const unsigned int version)
     {
-        std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";   
-        HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);       
-        
-        std::string parameters_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";   
-        HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);       
+        std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";
+        HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
+
+        std::string parameters_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";
+        HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-        
+
 
 
 public:
@@ -116,20 +116,20 @@ public:
      */
     void SetDefaultsFile(std::string fileName);
     /**
-     * #mpUserParameters  is set to a new context associated with a parameters file 
+     * #mpUserParameters  is set to a new context associated with a parameters file
      * @param fileName The name of the parameters file
      */
     void SetParametersFile(std::string fileName);
     /**
      * Write out the complete configuration set (ChasteParameters
-     * and ChasteDefaults) as an XML file. 
+     * and ChasteDefaults) as an XML file.
      * Note that the location of ChasteParameters.xsd (schema definition)
      * will be hard-coded in the XML file.
      * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in /output subfolder
-     *                                if true, then use ArchiveLocationInfo  
+     *                                if true, then use ArchiveLocationInfo
      */
     void Write(bool useArchiveLocation=false);
-    
+
     /**
      * Throw away the current instance by resetting auto_ptr #mpInstance to NULL.
      * "New" another #mpInstance
@@ -144,26 +144,26 @@ public:
     double GetSimulationDuration() const; /**< @return duration of the simulation (ms)*/
     /**
      * domain_type is an xsd convenience class type
-     * 
+     *
      * @return domain type of simulation bi- mono-domain
      */
     domain_type GetDomain() const;
    /**
-     * Default cardiac cell model to use at all mesh nodes 
-     * (unless otherwise specified by IonicModelRegions) 
+     * Default cardiac cell model to use at all mesh nodes
+     * (unless otherwise specified by IonicModelRegions)
      * ionic_models_available_type is an xsd convenience class type
-     * 
+     *
      * @return  type of model
      */
     ionic_models_available_type GetDefaultIonicModel() const;
-    
+
     /**
-     * Regions where we need to use a different cell model (think infarction) 
+     * Regions where we need to use a different cell model (think infarction)
      * ionic_models_available_type is an xsd convenience class type.
-     * 
+     *
      * \todo - do we assume the vectors are initially empty?
      * The standard vectors returned are of the same length (one entry per region)
-     *  
+     *
      * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
      * @param ionicModels vector of models (one per cellular heterogeneity)
      * \todo No set method
@@ -178,7 +178,7 @@ public:
     bool GetCreateSheet() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
     bool GetCreateFibre() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
     bool GetLoadMesh() const; /**< @return true if a mesh file name is given and we are expecting to load a mesh from file*/
-    ///\todo IsMeshProvided and GetLoadMesh are subtly different but very similar.  Can one of them go? 
+    ///\todo IsMeshProvided and GetLoadMesh are subtly different but very similar.  Can one of them go?
     /**
      * @param slabDimensions  return vector for the (cuboid) mesh dimensions (cm)
      */
@@ -194,7 +194,7 @@ public:
     double GetInterNodeSpace() const; /**< @return internode space of cuboid mesh (cm)*/
 
     std::string GetMeshName() const;/**< @return path/basename of mesh files*/
-    
+
     media_type GetConductivityMedia() const;/**< @return media (Orthotropic/Axisymmetric/NoFibreOrientation) so that we know whether to read a .ortho/.axi file*/
 
     /**
@@ -203,11 +203,11 @@ public:
      * The returned std::vectors are all of the same length
      * @param rStimuliApplied  rStimuliApplied[0] is stimulus for the first region
      * @param rStimulatedAreas  rStimulatedAreas[0] is the first region to be stimulated
-     * 
+     *
      * \todo There is no set method
      */
     void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid>& rStimulatedAreas) const;
-    
+
     /**
      * Return a number of heterogeneous regions (Axis-aligned boxes) for special gating variable changes
      * \todo - do we assume the vectors are initially empty?
@@ -235,13 +235,13 @@ public:
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities) const;
     std::string GetOutputDirectory() const; /**< @return output directory path name*/
-    
+
     /**
      * @return  Prefix for files
      * If set to "res" this produces
      * [path]/res.h5
      * [path]/output/res_mesh.pts
-     * [path]/output/res_mesh.tri  
+     * [path]/output/res_mesh.tri
      * [path]/output/res_parameters.xml  (a copy of this configuration at the end of the simulation)
      * [path]/output/res_times.info
      * [path]/output/res_V.dat
@@ -281,10 +281,10 @@ public:
     void GetExtracellularConductivities(c_vector<double, 1>& extraConductivities) const;
 
     double GetBathConductivity() const; /**< @return conductivity for perfusing bath (mS/cm)*/
- 
+
 
     double GetSurfaceAreaToVolumeRatio() const; /**< @return surface area to volume ratio chi a.k.a Am for PDE (1/cm)*/
-    
+
     double GetCapacitance() const; /**< @return surface capacitance Cm for PDE (uF/cm^2)*/
 
     // Numerical
@@ -304,48 +304,48 @@ public:
     // Post processing
     /**
      * @return true if there is a post-processing section
-     * \todo - no set method 
+     * \todo - no set method
      */
     bool IsPostProcessingRequested() const;
-    
+
     /**
      * @return true if APD maps have been requested
      */
     bool IsApdMapsRequested() const;
     /**
-     * @param apd_maps  each entry is a request for a map with 
+     * @param apd_maps  each entry is a request for a map with
      *  - a threshold (in mV)
-     *  - a percentage in the range [1, 100) 
+     *  - a percentage in the range [1, 100)
      */
     void GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const;
-    
+
     /**
      * @return true if upstroke time maps have been requested
      */
     bool IsUpstrokeTimeMapsRequested() const;
     /**
-     * @param upstroke_time_maps  each entry is a request for a map with 
+     * @param upstroke_time_maps  each entry is a request for a map with
      *  - a threshold (in mV)
-     * \todo - no set method 
+     * \todo - no set method
      */
     void GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const;
-    
+
     /**
      * @return true maximum upstroke velocity maps have been requested
-     * \todo - no set method 
+     * \todo - no set method
      * \todo - This method has "Is" in the name, others do not.
      */
     bool IsMaxUpstrokeVelocityMapRequested() const;
-    
+
     /**
      * @return true if conduction velocity maps have been requested
      */
     bool IsConductionVelocityMapsRequested() const;
-    
+
     /**
-     * @param conduction_velocity_maps  each entry is a request for a map with 
+     * @param conduction_velocity_maps  each entry is a request for a map with
      *  - an index to treat as ths source for wave propagation
-     * \todo - no set method 
+     * \todo - no set method
      */
     void GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const;
 
@@ -365,15 +365,15 @@ public:
     /**
      * Set the configuration to run mono or bidomain
      * domain_type is an xsd convenience class type
-     * 
+     *
      * @param domain type of simulation bi- mono-domain
      */
     void SetDomain(domain_type domain);
     /**
-     * Set the configuration to place the given cardiac cell models at all mesh nodes 
-     * (unless otherwise specified by IonicModelRegions) 
+     * Set the configuration to place the given cardiac cell models at all mesh nodes
+     * (unless otherwise specified by IonicModelRegions)
      * ionic_models_available_type is an xsd convenience class type
-     * 
+     *
      * @param ionicModel  type of model
      */
     void SetDefaultIonicModel(ionic_models_available_type ionicModel);
@@ -407,7 +407,7 @@ public:
      * \todo There is no Get method
      */
     void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
-    
+
     /**
      * Set a number of heterogeneous regions (Axis-aligned boxes)
      * It is assumed that the std::vectors are all of the same length
@@ -430,7 +430,7 @@ public:
      * If set to "res" this will produce
      * [path]/res.h5
      * [path]/output/res_mesh.pts
-     * [path]/output/res_mesh.tri  
+     * [path]/output/res_mesh.tri
      * [path]/output/res_parameters.xml  (a copy of this configuration at the end of the simulation)
      * [path]/output/res_times.info
      * [path]/output/res_V.dat
@@ -482,7 +482,7 @@ public:
      * @param ratio (1/cm)
      */
     void SetSurfaceAreaToVolumeRatio(double ratio);
-    
+
     /**
      * Set surface capacitance Cm (for PDE)
      * @param capacitance (uF/cm^2)
@@ -507,7 +507,7 @@ public:
      * @param pdeTimeStep  the value to use
      */
     void SetPdeTimeStep(double pdeTimeStep);
-    
+
     /** Set the configuration to use printing time of given value
      * Calls CheckTimeSteps via SetOdePdeAndPrintingTimeSteps
      * @param printingTimeStep  the value to use
@@ -531,22 +531,20 @@ public:
      * @param kspPreconditioner  a string from {"ilu", "jacobi", "bjacobi", "hypre", "none"}
      */
     void SetKSPPreconditioner(const char* kspPreconditioner);
-    
+
     /** Set the parameters of the apd map requested
-     * 
-     *  @param apd_maps  each entry is a request for a map with 
+     *
+     *  @param apd_maps  each entry is a request for a map with
      *  - a threshold (in mV)
-     *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation) 
+     *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation)
      */
-    // see cpp file
-    //void SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps);
-    
+    void SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps);
+
     /** Set the parameters of the conduction velocity map requested
-     * 
+     *
      *  @param upstroke_time_maps  is the maps of upstroke velocities to set
      */
-     //see cpp file  
-    //void SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps);
+    void SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps);
 
     ~HeartConfig(); /**< Destructor*/
 protected:
@@ -557,11 +555,11 @@ private:
     /*Constructor is private, since the class is only accessed by the singleton instance() method*/
     HeartConfig();
 
-    /** Pointer to parameters read from the user's input XML file 
+    /** Pointer to parameters read from the user's input XML file
      * (override those given by #mpDefaultParameters).
      */
     chaste_parameters_type* mpUserParameters;
-    /** Pointer to parameters read from the default input XML file (to be read before 
+    /** Pointer to parameters read from the default input XML file (to be read before
      * #mpUserParameters, but may be subsequently overridden).
      */
     chaste_parameters_type* mpDefaultParameters;
@@ -569,12 +567,12 @@ private:
     /** The single instance of the class */
     static std::auto_ptr<HeartConfig> mpInstance;
 
-    /** 
+    /**
      * DecideLocation is a convenience method used to get the correct parameter value
      * from the defaults/parameters files.  It checks if the first value  is present and (if not)
      * moves onto the second
-     * 
-     * @param params_ptr  Pointer to quantity within the parameters file (checked first, since it will override a default) 
+     *
+     * @param params_ptr  Pointer to quantity within the parameters file (checked first, since it will override a default)
      * @param defaults_ptr  Pointer to quantity within the defaults file (used if there was no override)
      * @param nameParameter Name of quatity within params_ptr/defaults_ptr (so we can throw a meaningful exception if it's not found)
      */
@@ -585,7 +583,7 @@ private:
      * get the parameters using the method 'ChasteParameters(filename)',
      * which returns a std::auto_ptr.
      * @param fileName  Name of XML file
-     */    
+     */
     chaste_parameters_type* ReadFile(std::string fileName);
 
 };

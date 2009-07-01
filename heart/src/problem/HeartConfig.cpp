@@ -133,15 +133,15 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
         OutputFileHandler handler(GetOutputDirectory(), false);
         output_dirname =  handler.GetOutputDirectoryFullPath() + "output/";
     }
-    
-    out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) ); 
+
+    out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) );
     out_stream p_parameters_file( new std::ofstream( (output_dirname+"ChasteParameters.xml").c_str() ) );
 
     if (!p_defaults_file->is_open() || !p_parameters_file->is_open())
     {
         EXCEPTION("Could not open XML file in HeartConfig");
     }
-    
+
     //Schema map
     //Note - this location is relative to where we are storing the xml
     xml_schema::namespace_infomap map;
@@ -783,7 +783,7 @@ bool HeartConfig::IsPostProcessingRequested() const
 {
     return DecideLocation( & mpUserParameters->PostProcessing(),
                            & mpDefaultParameters->PostProcessing(),
-                           "PostProcessing")->present(); 
+                           "PostProcessing")->present();
 }
 
 bool HeartConfig::IsApdMapsRequested() const
@@ -794,7 +794,7 @@ bool HeartConfig::IsApdMapsRequested() const
         apd_maps = DecideLocation( & mpUserParameters->PostProcessing(),
                                    & mpDefaultParameters->PostProcessing(),
                                    "ActionPotentialDurationMap")->get().ActionPotentialDurationMap();
-    return (apd_maps.begin() != apd_maps.end());                             
+    return (apd_maps.begin() != apd_maps.end());
 }
 
 void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const
@@ -812,9 +812,9 @@ void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) c
          ++i)
     {
         std::pair<double,double> map(i->threshold(), i->repolarisation_percentage());
-        
-        apd_maps.push_back(map);        
-    }               
+
+        apd_maps.push_back(map);
+    }
 }
 
 bool HeartConfig::IsUpstrokeTimeMapsRequested() const
@@ -825,7 +825,7 @@ bool HeartConfig::IsUpstrokeTimeMapsRequested() const
         upstroke_map = DecideLocation( & mpUserParameters->PostProcessing(),
                                    & mpDefaultParameters->PostProcessing(),
                                    "UpstrokeTimeMap")->get().UpstrokeTimeMap();
-    return (upstroke_map.begin() != upstroke_map.end());       
+    return (upstroke_map.begin() != upstroke_map.end());
 }
 void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const
 {
@@ -841,8 +841,8 @@ void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) 
          i != upstroke_maps_sequence.end();
          ++i)
     {
-        upstroke_time_maps.push_back(i->threshold());        
-    }   
+        upstroke_time_maps.push_back(i->threshold());
+    }
 }
 
 bool HeartConfig::IsMaxUpstrokeVelocityMapRequested() const
@@ -851,7 +851,7 @@ bool HeartConfig::IsMaxUpstrokeVelocityMapRequested() const
 
     return DecideLocation( & mpUserParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
                             & mpDefaultParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
-                            "MaxUpstrokeVelocityMap")->present();  
+                            "MaxUpstrokeVelocityMap")->present();
 }
 
 bool HeartConfig::IsConductionVelocityMapsRequested() const
@@ -862,7 +862,7 @@ bool HeartConfig::IsConductionVelocityMapsRequested() const
         cond_vel_maps = DecideLocation( & mpUserParameters->PostProcessing(),
                                    & mpDefaultParameters->PostProcessing(),
                                    "ConductionVelocityMap")->get().ConductionVelocityMap();
-    return (cond_vel_maps.begin() != cond_vel_maps.end());           
+    return (cond_vel_maps.begin() != cond_vel_maps.end());
 }
 
 void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const
@@ -879,8 +879,8 @@ void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_ve
          i != cond_vel_maps_sequence.end();
          ++i)
     {
-        conduction_velocity_maps.push_back(i->origin_node());        
-    }       
+        conduction_velocity_maps.push_back(i->origin_node());
+    }
 }
 
 
@@ -1228,32 +1228,32 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 
 ///\todo check these two implementations causing problems (as reported by alexF in ticket #1069)
 
-//void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
-//{
-//    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&   
-//    apd_maps_sequence= mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
-//    //Erase or create a sequence
-//    apd_maps_sequence.clear();
-//    
-//    for (unsigned i=0; i<apd_maps.size(); i++)
-//    {
-//        apd_map_type  temp(apd_maps[i].first,  apd_maps[i].second);
-//        apd_maps_sequence.push_back( temp);
-//    }    
-//}
-//
-//
-//void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
-//{
-//    XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&   
-//    upstroke_map_sequence= mpUserParameters->PostProcessing()->UpstrokeTimeMap();
-//    //Erase or create a sequence
-//    upstroke_map_sequence.clear();
-//    
-//    for (unsigned i=0; i<upstroke_map_sequence.size(); i++)
-//    {
-//        upstrokes_map_type  temp(upstroke_map_sequence[i]);
-//        upstroke_map_sequence.push_back(temp);
-//    }  
-//}
+void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
+{
+    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
+    apd_maps_sequence= mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
+    //Erase or create a sequence
+    apd_maps_sequence.clear();
+
+    for (unsigned i=0; i<apd_maps.size(); i++)
+    {
+        apd_map_type  temp(apd_maps[i].first, "mV", apd_maps[i].second);
+        apd_maps_sequence.push_back( temp);
+    }
+}
+
+
+void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
+{
+    XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
+    upstroke_map_sequence= mpUserParameters->PostProcessing()->UpstrokeTimeMap();
+    //Erase or create a sequence
+    upstroke_map_sequence.clear();
+
+    for (unsigned i=0; i<upstroke_map_sequence.size(); i++)
+    {
+        upstrokes_map_type  temp(upstroke_map_sequence[i].threshold(), "mV");
+        upstroke_map_sequence.push_back(temp);
+    }
+}
 
