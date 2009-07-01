@@ -73,16 +73,11 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the member variables.
+     * Archive the object.
      *
      * @param archive
      * @param version
      */
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        // No member variables to archive.
-//    }
     template<class Archive>
     void save(Archive & ar, const unsigned int version) const
     {
@@ -96,6 +91,12 @@ private:
         mpInstance->Write(relative_directory, "ChasteParameters.xml");
     }
     
+    /**
+     * Un-archive the object.
+     *
+     * @param archive
+     * @param version
+     */
     template<class Archive>
     void load(Archive & ar, const unsigned int version)
     {
