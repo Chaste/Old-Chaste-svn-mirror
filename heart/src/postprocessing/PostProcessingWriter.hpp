@@ -99,6 +99,21 @@ private:
      * @param threshold  - Vm used to signify the upstroke (mV) 
      */
     void WriteMaxUpstrokeVelocityMap(double threshold);
+
+    /**
+     * Write out conduction velocity map from the given node the rest of the mesh:
+     * 
+     * line 1: <conduction velocity for node 0 and AP 0> <conduction velocity for node 0 and AP 1> ...
+     * line 2: <conduction velocity for node 1 and AP 0> <conduction velocity for node 1 and AP 1> ...
+     * etc.
+     * 
+     * Note: the line corresponding to node number originNode will contain ...
+     * 
+     * @param originNode  - Node to compute the conduction velocity from 
+     * @param distancesFromOriginNode - Distance map from originNode to all the nodes in the simulation. Tipically calculated with DistanceMapCalculator
+     */
+    void WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode);
+
 };
 
 #endif /*POSTPROCESSINGWRITER_HPP_*/

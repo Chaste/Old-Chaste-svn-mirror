@@ -543,7 +543,7 @@ public:
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation) 
      */
-    void SetApdMaps(std::vector<std::pair<double,double> >& apd_maps);
+    void SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps);
 
     ~HeartConfig(); /**< Destructor*/
 protected:

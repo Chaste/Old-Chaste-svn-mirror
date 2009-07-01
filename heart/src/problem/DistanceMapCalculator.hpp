@@ -80,7 +80,7 @@ public:
      *  Generates a distance map of all the nodes of the mesh to the given surface
      *
      *  @param rOriginSurface set of node indexes defining the surface
-     *  @param rNodeDistances distance map computed
+     *  @param rNodeDistances distance map computed. The method will resize it if it's not big enough.
      */
     void ComputeDistanceMap(const std::vector<unsigned>& rOriginSurface,
                             std::vector<double>& rNodeDistances);

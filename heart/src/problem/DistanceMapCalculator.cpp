@@ -76,7 +76,7 @@ void DistanceMapCalculator<SPACE_DIM>::ComputeDistanceMap(
 {
     if (rNodeDistances.size() != mNumNodes)
     {
-        rNodeDistances.reserve(mNumNodes);
+        rNodeDistances.resize(mNumNodes);
     }
 
     /*
@@ -158,6 +158,6 @@ void DistanceMapCalculator<SPACE_DIM>::ComputeDistanceMap(
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-//template class DistanceMapCalculator<1>;
+template class DistanceMapCalculator<1>;
 template class DistanceMapCalculator<2>;
 template class DistanceMapCalculator<3>;

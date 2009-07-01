@@ -112,6 +112,9 @@ public:
        // Then we check some values (should be rather uniform over the cable)
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(5,50,0.45), 0.097, 0.003);
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(50,95,0.45), 0.097, 0.003);
+        
+        //cover the case of conduction calculated from and to the same node, it should return 0
+        TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(5,5,0.0), 0.0, 0.000001);
 
         //faking half euclidian distance, check that it gets twice slower
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(5,50,0.225), 0.048, 0.003);

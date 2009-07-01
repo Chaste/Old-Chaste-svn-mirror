@@ -120,3 +120,29 @@ void PostProcessingWriter::WriteMaxUpstrokeVelocityMap(double threshold)
          p_file->close();
     }
 }
+
+void PostProcessingWriter::WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode)
+{
+    if(PetscTools::AmMaster())
+    {
+        out_stream p_file=out_stream(NULL);
+        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+        
+        std::stringstream filename;
+        filename << "ConductionVelocityFromNode" << originNode << ".dat";               
+        p_file = output_file_handler.OpenOutputFile(filename.str());
+        for (unsigned dest_node = 0; dest_node < mNumberOfNodes; dest_node++)
+        { 
+            std::vector<double> conduction_velocities;
+            conduction_velocities = mpCalculator->CalculateAllConductionVelocities(originNode, dest_node, distancesFromOriginNode[dest_node]);
+            assert(conduction_velocities.size()!=0);
+            for (unsigned i = 0; i < conduction_velocities.size(); i++)
+            {
+                *p_file << conduction_velocities[i] << "\t";
+            }
+            *p_file << std::endl;
+         }
+         p_file->close();
+    }        
+}
+

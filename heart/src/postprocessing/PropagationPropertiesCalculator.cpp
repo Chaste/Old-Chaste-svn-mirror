@@ -154,16 +154,29 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
         t_far = far_cell_props.GetTimesAtMaxUpstrokeVelocity()[aps_near_node-1];
     }
 
-    return euclideanDistance / (t_far - t_near);
+    if ((globalNearNodeIndex == globalFarNodeIndex) || ( fabs(t_far - t_near) < 1e-8))
+    {
+        // globalNearNodeIndex and globalFarNodeIndex are the same node, preventing a 0/0
+        // or
+        // AP number i is happening at the same time at nodes globalNearNodeIndex and globalFarNodeIndex        
+        return 0.0;
+    }
+    else
+    {
+        return euclideanDistance / (t_far - t_near);
+    }
+
+    
 }
 
 std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVelocities(unsigned globalNearNodeIndex,
                                                                 unsigned globalFarNodeIndex,
                                                                 const double euclideanDistance)
 {
+    std::vector<double> conduction_velocities;
+
     std::vector<double> t_near;
     std::vector<double> t_far;
-    std::vector<double> conduction_velocities;
     unsigned number_of_aps = 0;
 
     std::vector<double> near_voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNearNodeIndex);
@@ -193,9 +206,30 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
        number_of_aps=t_near.size();
     }
     //now fill the vector
-    for (unsigned i = 0 ; i < number_of_aps;i++)
+    
+    if (globalNearNodeIndex == globalFarNodeIndex)
     {
-        conduction_velocities.push_back(euclideanDistance / (t_far[i] - t_near[i]));
+        // globalNearNodeIndex and globalFarNodeIndex are the same node, preventing a 0/0
+        for (unsigned i = 0 ; i < number_of_aps;i++)
+        {
+            conduction_velocities.push_back(0.0);
+        }        
     }
+    else
+    {
+        for (unsigned i = 0 ; i < number_of_aps;i++)
+        {
+            if ( fabs(t_far[i] - t_near[i]) < 1e-8)
+            {
+                // AP number i is happening at the same time at nodes globalNearNodeIndex and globalFarNodeIndex
+                conduction_velocities.push_back(0.0);
+            }
+            else
+            {
+                conduction_velocities.push_back(euclideanDistance / (t_far[i] - t_near[i]));
+            }
+        }
+    }
+    
     return conduction_velocities;
 }

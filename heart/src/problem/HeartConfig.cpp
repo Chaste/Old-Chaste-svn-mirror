@@ -1209,7 +1209,7 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     EXCEPTION("Unknown preconditioner type provided");
 }
 
-void HeartConfig::SetApdMaps(std::vector<std::pair<double,double> >& apd_maps)
+void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
 {
     XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&   
     apd_maps_sequence= mpUserParameters->PostProcessing()->ActionPotentialDurationMap();

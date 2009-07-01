@@ -73,3 +73,4 @@ void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBo
 /////////////////////////////////////////////////////////////////////////////////////
 
 template class NonCachedTetrahedralMesh<3,3>;
+template class NonCachedTetrahedralMesh<1,1>;
