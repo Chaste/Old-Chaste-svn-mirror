@@ -265,7 +265,7 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions
 }
 
 
-bool HeartConfig::GetIsMeshProvided() const
+bool HeartConfig::IsMeshProvided() const
 {
     try
     {
@@ -779,16 +779,16 @@ const char* HeartConfig::GetKSPPreconditioner() const
  * PostProcessing
  */
 
-bool HeartConfig::GetIsPostProcessingRequested() const
+bool HeartConfig::IsPostProcessingRequested() const
 {
     return DecideLocation( & mpUserParameters->PostProcessing(),
                            & mpDefaultParameters->PostProcessing(),
                            "PostProcessing")->present(); 
 }
 
-bool HeartConfig::GetIsApdMapsRequested() const
+bool HeartConfig::IsApdMapsRequested() const
 {
-    assert(GetIsPostProcessingRequested());
+    assert(IsPostProcessingRequested());
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
         apd_maps = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -799,7 +799,7 @@ bool HeartConfig::GetIsApdMapsRequested() const
 
 void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const
 {
-    assert(GetIsApdMapsRequested());
+    assert(IsApdMapsRequested());
     apd_maps.clear();
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
@@ -817,9 +817,9 @@ void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) c
     }               
 }
 
-bool HeartConfig::GetIsUpstrokeTimeMapsRequested() const
+bool HeartConfig::IsUpstrokeTimeMapsRequested() const
 {
-    assert(GetIsPostProcessingRequested());
+    assert(IsPostProcessingRequested());
 
     XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
         upstroke_map = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -829,7 +829,7 @@ bool HeartConfig::GetIsUpstrokeTimeMapsRequested() const
 }
 void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const
 {
-    assert(GetIsApdMapsRequested());
+    assert(IsApdMapsRequested());
     assert(upstroke_time_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
@@ -845,18 +845,18 @@ void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) 
     }   
 }
 
-bool HeartConfig::GetIsMaxUpstrokeVelocityMapRequested() const
+bool HeartConfig::IsMaxUpstrokeVelocityMapRequested() const
 {
-    assert(GetIsPostProcessingRequested());
+    assert(IsPostProcessingRequested());
 
     return DecideLocation( & mpUserParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
                             & mpDefaultParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
                             "MaxUpstrokeVelocityMap")->present();  
 }
 
-bool HeartConfig::GetIsConductionVelocityMapsRequested() const
+bool HeartConfig::IsConductionVelocityMapsRequested() const
 {
-    assert(GetIsPostProcessingRequested());
+    assert(IsPostProcessingRequested());
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&
         cond_vel_maps = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -867,7 +867,7 @@ bool HeartConfig::GetIsConductionVelocityMapsRequested() const
 
 void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const
 {
-    assert(GetIsApdMapsRequested());///\todo Is this a cut-n-paste error?
+    assert(IsApdMapsRequested());///\todo Is this a cut-n-paste error?
     assert(conduction_velocity_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&
@@ -1226,17 +1226,34 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     EXCEPTION("Unknown preconditioner type provided");
 }
 
-void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
-{
-    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&   
-    apd_maps_sequence= mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
-    //Erase or create a sequence
-    apd_maps_sequence.clear();
-    
-    for (unsigned i=0; i<apd_maps.size(); i++)
-    {
-        apd_map_type  temp(apd_maps[i].first,  apd_maps[i].second);
-        apd_maps_sequence.push_back( temp);
-    }    
-}
+///\todo check these two implementations causing problems (as reported by alexF in ticket #1069)
+
+//void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
+//{
+//    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&   
+//    apd_maps_sequence= mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
+//    //Erase or create a sequence
+//    apd_maps_sequence.clear();
+//    
+//    for (unsigned i=0; i<apd_maps.size(); i++)
+//    {
+//        apd_map_type  temp(apd_maps[i].first,  apd_maps[i].second);
+//        apd_maps_sequence.push_back( temp);
+//    }    
+//}
+//
+//
+//void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
+//{
+//    XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&   
+//    upstroke_map_sequence= mpUserParameters->PostProcessing()->UpstrokeTimeMap();
+//    //Erase or create a sequence
+//    upstroke_map_sequence.clear();
+//    
+//    for (unsigned i=0; i<upstroke_map_sequence.size(); i++)
+//    {
+//        upstrokes_map_type  temp(upstroke_map_sequence[i]);
+//        upstroke_map_sequence.push_back(temp);
+//    }  
+//}
 

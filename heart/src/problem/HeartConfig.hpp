@@ -172,13 +172,13 @@ public:
                               std::vector<ionic_models_available_type>& ionicModels) const;
 
 
-    bool GetIsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
+    bool IsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
     bool GetCreateMesh() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
     bool GetCreateSlab() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
     bool GetCreateSheet() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
     bool GetCreateFibre() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
     bool GetLoadMesh() const; /**< @return true if a mesh file name is given and we are expecting to load a mesh from file*/
-    ///\todo GetIsMeshProvided and GetLoadMesh are subtly different but very similar.  Can one of them go?
+    ///\todo IsMeshProvided and GetLoadMesh are subtly different but very similar.  Can one of them go? 
     /**
      * @param slabDimensions  return vector for the (cuboid) mesh dimensions (cm)
      */
@@ -306,12 +306,12 @@ public:
      * @return true if there is a post-processing section
      * \todo - no set method 
      */
-    bool GetIsPostProcessingRequested() const;
+    bool IsPostProcessingRequested() const;
     
     /**
      * @return true if APD maps have been requested
      */
-    bool GetIsApdMapsRequested() const;
+    bool IsApdMapsRequested() const;
     /**
      * @param apd_maps  each entry is a request for a map with 
      *  - a threshold (in mV)
@@ -321,9 +321,8 @@ public:
     
     /**
      * @return true if upstroke time maps have been requested
-     * \todo - no set method 
      */
-    bool GetIsUpstrokeTimeMapsRequested() const;
+    bool IsUpstrokeTimeMapsRequested() const;
     /**
      * @param upstroke_time_maps  each entry is a request for a map with 
      *  - a threshold (in mV)
@@ -336,13 +335,12 @@ public:
      * \todo - no set method 
      * \todo - This method has "Is" in the name, others do not.
      */
-    bool GetIsMaxUpstrokeVelocityMapRequested() const;
+    bool IsMaxUpstrokeVelocityMapRequested() const;
     
     /**
      * @return true if conduction velocity maps have been requested
-     * \todo - no set method 
      */
-    bool GetIsConductionVelocityMapsRequested() const;
+    bool IsConductionVelocityMapsRequested() const;
     
     /**
      * @param conduction_velocity_maps  each entry is a request for a map with 
@@ -540,7 +538,15 @@ public:
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation) 
      */
-    void SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps);
+    // see cpp file
+    //void SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps);
+    
+    /** Set the parameters of the conduction velocity map requested
+     * 
+     *  @param upstroke_time_maps  is the maps of upstroke velocities to set
+     */
+     //see cpp file  
+    //void SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps);
 
     ~HeartConfig(); /**< Destructor*/
 protected:
