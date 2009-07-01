@@ -52,7 +52,7 @@ private:
     std::vector<double> mValues;                          /**< Vector to hold values for a variable.*/
 
     /**
-     * Push back an entry from the data file into mValues.
+     * Push back an entry from the data file into #mValues.
      *
      * @param rLine the line of the data file
      * @param col  the column number
@@ -60,7 +60,7 @@ private:
     void PushColumnEntryFromLine(const std::string& rLine, int col);
 
     /**
-     * Read in a given column from a data file into mValues.
+     * Read in a given column from a data file into #mValues.
      *
      * @param rFilename the file name
      * @param col  the column number
@@ -68,7 +68,7 @@ private:
     void ReadColumnFromFile(const std::string& rFilename, int col);
 
     /**
-     * Push back an entry from a file into mValues.
+     * Push back an entry from a file into #mValues.
      *
      * @param rFilename the file name
      * @param col  the column number
@@ -96,10 +96,10 @@ public:
     /**
      * Get the entries for a given variable.
      *
-     * \todo This method returns a copy of #mValues; would it make
+     * \todo This method returns a copy of ColumnDataReader::mValues - would it make
      * more sense to change the semantics and return by reference?
      * The only downside is that users would need to copy the result
-     * before calling GetValues again, if they wanted to keep the
+     * before calling  ColumnDataReader::GetValues again, if they wanted to keep the
      * original results, which might cause head scratching!
      *
      * @param rVariableName
@@ -109,10 +109,10 @@ public:
     /**
      * Get the entries for a given variable with fixed dimension.
      *
-     * \todo This method returns a copy of #mValues; would it make
+     * \todo This method returns a copy of ColumnDataReader::mValues - would it make
      * more sense to change the semantics and return by reference?
      * The only downside is that users would need to copy the result
-     * before calling GetValues again, if they wanted to keep the
+     * before calling ColumnDataReader::GetValues again, if they wanted to keep the
      * original results, which might cause head scratching!
      *
      * @param rVariableName
@@ -123,16 +123,16 @@ public:
     /**
      * Get the entries for a given variable with unlimited dimension.
      *
-     * \todo This method returns a copy of #mValues; would it make
+     * \todo This method returns a copy of ColumnDataReader::mValues - would it make
      * more sense to change the semantics and return by reference?
      * The only downside is that users would need to copy the result
-     * before calling GetValues again, if they wanted to keep the
+     * before calling ColumnDataReader::GetValues again, if they wanted to keep the
      * original results, which might cause head scratching!
      */
     std::vector<double> GetUnlimitedDimensionValues();
 
     /**
-     * Get whether the data file has entries for a given variable.
+     * Determine whether the data file has entries for a given variable.
      *
      * @param rVariableName
      */
