@@ -84,7 +84,7 @@ if location == 'trunk':
     package_version = latest_release + '.' + rev
     message = 'Package revision %s of Chaste.' % rev
     # Write version number for benefit of SCons
-    os.open('ReleaseVersion.txt', 'w').write(package_version)
+    open('ReleaseVersion.txt', 'w').write(package_version)
 else:
     # location had better be tags/release_<version>
     assert location.startswith('tags/release_')

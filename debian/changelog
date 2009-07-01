@@ -1,3 +1,10 @@
+chaste-source (1.0.6417M) intrepid; urgency=low
+
+  * Package revision 6417M of Chaste.
+  * Add missing package dependency.
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Wed, 01 Jul 2009 17:07:43 +0000
+
 chaste-source (1.0.5981) intrepid; urgency=low
 
   * Initial packaging of Chaste for Ubuntu Intrepid

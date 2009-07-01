@@ -27,6 +27,7 @@ install-indep:
 	find . \( -path './debian' -o \
 		  -path './README.txt' -o \
 		  -path './docs' -o \
+		  -path './doxygen' -o \
 		  -path './.*' -o \
 		  -name '.svn' -o \
 		  -name 'notforrelease*' -o \
