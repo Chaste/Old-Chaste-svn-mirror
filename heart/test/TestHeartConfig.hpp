@@ -229,7 +229,7 @@ public :
         HeartConfig::Instance()->Reset();
     }
 
-    void TestGetIsMeshProvided()
+    void TestIsMeshProvided()
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMeshProvided(), false);

@@ -72,7 +72,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
 
     mpConfig = HeartConfig::Instance();
 
-    if (mpConfig->GetIsMeshProvided() && mpConfig->GetLoadMesh())
+    if (mpConfig->IsMeshProvided() && mpConfig->GetLoadMesh())
     {
         switch (mpConfig->GetConductivityMedia())
         {

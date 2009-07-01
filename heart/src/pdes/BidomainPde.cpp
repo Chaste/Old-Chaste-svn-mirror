@@ -42,7 +42,7 @@ BidomainPde<SPACE_DIM>::BidomainPde(
 {
     mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
 
-    if (this->mpConfig->GetIsMeshProvided() && this->mpConfig->GetLoadMesh())
+    if (this->mpConfig->IsMeshProvided() && this->mpConfig->GetLoadMesh())
     {
         switch (this->mpConfig->GetConductivityMedia())
         {
