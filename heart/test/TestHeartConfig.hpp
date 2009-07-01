@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTHEARTCONFIG_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include "HeartConfig.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
@@ -535,6 +538,41 @@ public :
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"));
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml"));
         //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml"));
+    }
+    
+    void TestArchiving()
+    {        
+        //Archive                           
+        OutputFileHandler handler("ArchiveHeartConfig");
+        std::string archive_filename;
+        handler.SetArchiveDirectory();
+        archive_filename = handler.GetOutputDirectoryFullPath() + "heart_config.arch";       
+
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
+        
+        ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
+        TS_ASSERT( user_ionic == ionic_models_available_type::FaberRudy2000 );
+        
+        std::ofstream ofs(archive_filename.c_str());
+        boost::archive::text_oarchive output_arch(ofs);
+        HeartConfig* const p_archive_heart_config = HeartConfig::Instance();
+        output_arch << static_cast<const HeartConfig&>(*p_archive_heart_config);
+        
+        ofs.close();  
+
+        HeartConfig::Instance()->Reset();
+        
+        TS_ASSERT( HeartConfig::Instance()->GetDefaultIonicModel() == ionic_models_available_type::LuoRudyI );
+
+        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+        boost::archive::text_iarchive input_arch(ifs); 
+        
+        HeartConfig *p_heart_config = HeartConfig::Instance();
+        input_arch >> (*p_heart_config);
+        
+        TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
+                
     }
 };
 

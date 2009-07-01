@@ -47,7 +47,7 @@ typedef std::auto_ptr<std::ofstream> out_stream;
 class OutputFileHandler
 {
 private:
-    std::string mDirectory; ///< The directory to store output files in
+    std::string mDirectory; ///< The directory to store output files in (always ends in "/")
     bool mAmMaster; ///< Are we the master process?
 
 public:

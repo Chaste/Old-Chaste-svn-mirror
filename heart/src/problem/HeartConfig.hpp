@@ -39,8 +39,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
 #include "OutputFileHandler.hpp"
+#include "ArchiveLocationInfo.hpp"
 
 #include <boost/shared_ptr.hpp>
+
+#include <boost/serialization/split_member.hpp>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
+
 
 /**
  * A singleton class containing configuration parameters for heart simulations.
@@ -62,6 +69,42 @@ private:
      * printing_step = n2 * pde_step (where n2 is a positive integer)
      */
     void CheckTimeSteps() const;
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+//    template<class Archive>
+//    void serialize(Archive & archive, const unsigned int version)
+//    {
+//        // No member variables to archive.
+//    }
+    template<class Archive>
+    void save(Archive & ar, const unsigned int version) const
+    {
+        // Extract relative path from absolute (for use in OutputFileHandler)
+        std::string directory_name = ArchiveLocationInfo::GetArchiveDirectory();
+        directory_name.erase( directory_name.size() - 1);
+        size_t dist_from_start = directory_name.find_last_of("/");
+        std::string relative_directory = directory_name.substr( dist_from_start + 1 );
+        /// \todo Refactor all of the above into a method that looks like this:
+//        mpInstance->Write(ArchiveLocationInfo::GetArchiveRelativeDirectory(), "ChasteParameters.xml");            
+        mpInstance->Write(relative_directory, "ChasteParameters.xml");
+    }
+    
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+        std::string archive_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";   
+        HeartConfig::Instance()->SetParametersFile(archive_filename_xml);       
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+        
+
 
 public:
     /**
@@ -536,5 +579,8 @@ private:
     chaste_parameters_type* ReadFile(std::string fileName);
 
 };
+
+// Declare identifier for the serializer
+BOOST_CLASS_EXPORT(HeartConfig);
 
 #endif /*HEARTCONFIG_HPP_*/
