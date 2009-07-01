@@ -191,14 +191,14 @@ public :
 
         TS_ASSERT(HeartConfig::Instance()->GetIsPostProcessingRequested());
         
-        TS_ASSERT(HeartConfig::Instance()->GetApdMapsRequested());
+        TS_ASSERT(HeartConfig::Instance()->GetIsApdMapsRequested());
         std::vector<std::pair<double,double> > apd_maps_requested;
         HeartConfig::Instance()->GetApdMaps(apd_maps_requested);
         TS_ASSERT_EQUALS(apd_maps_requested.size(), 1u);
         TS_ASSERT_EQUALS(apd_maps_requested[0].first, -30.0);
         TS_ASSERT_EQUALS(apd_maps_requested[0].second, 90.0);
 
-        TS_ASSERT(HeartConfig::Instance()->GetUpstrokeTimeMapsRequested());
+        TS_ASSERT(HeartConfig::Instance()->GetIsUpstrokeTimeMapsRequested());
         std::vector<double> upstroke_time_maps_requested;
         HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_maps_requested);
         TS_ASSERT_EQUALS(upstroke_time_maps_requested.size(), 1u);
@@ -206,7 +206,7 @@ public :
 
         TS_ASSERT(HeartConfig::Instance()->GetIsMaxUpstrokeVelocityMapRequested());
                 
-        TS_ASSERT(HeartConfig::Instance()->GetConductionVelocityMapsRequested());        
+        TS_ASSERT(HeartConfig::Instance()->GetIsConductionVelocityMapsRequested());        
         std::vector<unsigned> conduction_velocity_maps_requested;
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps_requested);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested.size(), 2u);
@@ -502,7 +502,26 @@ public :
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);
 
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
-
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsApdMapsRequested(), false);
+        std::vector<std::pair<double,double> > apds, apd_maps;
+        apds.push_back(std::pair<double, double>(-30,90));
+        HeartConfig::Instance()->SetApdMaps(apds);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsApdMapsRequested(), true);
+        HeartConfig::Instance()->GetApdMaps(apd_maps);
+        TS_ASSERT_EQUALS(apd_maps.size(),1u);
+        TS_ASSERT_EQUALS(apd_maps[0].first,-30);
+        TS_ASSERT_EQUALS(apd_maps[0].second,90);
+        
+        apds[0].first = -45;
+        apds[0].second = 80;
+        HeartConfig::Instance()->SetApdMaps(apds);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetIsApdMapsRequested(), true);
+        //Okay to here
+        HeartConfig::Instance()->GetApdMaps(apd_maps);
+        TS_ASSERT_EQUALS(apd_maps.size(),1u);
+        TS_ASSERT_EQUALS(apd_maps[0].first,-45);
+        TS_ASSERT_EQUALS(apd_maps[0].second,80);
 
      }
     void TestWrite() throw(Exception)

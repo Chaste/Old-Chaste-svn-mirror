@@ -769,7 +769,7 @@ bool HeartConfig::GetIsPostProcessingRequested() const
                            "PostProcessing")->present(); 
 }
 
-bool HeartConfig::GetApdMapsRequested() const
+bool HeartConfig::GetIsApdMapsRequested() const
 {
     assert(GetIsPostProcessingRequested());
 
@@ -782,8 +782,8 @@ bool HeartConfig::GetApdMapsRequested() const
 
 void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const
 {
-    assert(GetApdMapsRequested());
-    assert(apd_maps.size() == 0);
+    assert(GetIsApdMapsRequested());
+    apd_maps.clear();
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
         apd_maps_sequence = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -800,7 +800,7 @@ void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) c
     }               
 }
 
-bool HeartConfig::GetUpstrokeTimeMapsRequested() const
+bool HeartConfig::GetIsUpstrokeTimeMapsRequested() const
 {
     assert(GetIsPostProcessingRequested());
 
@@ -812,7 +812,7 @@ bool HeartConfig::GetUpstrokeTimeMapsRequested() const
 }
 void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const
 {
-    assert(GetApdMapsRequested());
+    assert(GetIsApdMapsRequested());
     assert(upstroke_time_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
@@ -837,7 +837,7 @@ bool HeartConfig::GetIsMaxUpstrokeVelocityMapRequested() const
                             "MaxUpstrokeVelocityMap")->present();  
 }
 
-bool HeartConfig::GetConductionVelocityMapsRequested() const
+bool HeartConfig::GetIsConductionVelocityMapsRequested() const
 {
     assert(GetIsPostProcessingRequested());
 
@@ -850,7 +850,7 @@ bool HeartConfig::GetConductionVelocityMapsRequested() const
 
 void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const
 {
-    assert(GetApdMapsRequested());
+    assert(GetIsApdMapsRequested());///\todo Is this a cut-n-paste error?
     assert(conduction_velocity_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&
@@ -1207,5 +1207,19 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     }
 
     EXCEPTION("Unknown preconditioner type provided");
+}
+
+void HeartConfig::SetApdMaps(std::vector<std::pair<double,double> >& apd_maps)
+{
+    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&   
+    apd_maps_sequence= mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
+    //Erase or create a sequence
+    apd_maps_sequence.clear();
+    
+    for (unsigned i=0; i<apd_maps.size(); i++)
+    {
+        apd_map_type  temp(apd_maps[i].first,  apd_maps[i].second);
+        apd_maps_sequence.push_back( temp);
+    }    
 }
 

@@ -313,14 +313,12 @@ public:
     
     /**
      * @return true if APD maps have been requested
-     * \todo - no set method 
      */
-    bool GetApdMapsRequested() const;
+    bool GetIsApdMapsRequested() const;
     /**
      * @param apd_maps  each entry is a request for a map with 
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100) 
-     * \todo - no set method 
      */
     void GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const;
     
@@ -328,7 +326,7 @@ public:
      * @return true if upstroke time maps have been requested
      * \todo - no set method 
      */
-    bool GetUpstrokeTimeMapsRequested() const;
+    bool GetIsUpstrokeTimeMapsRequested() const;
     /**
      * @param upstroke_time_maps  each entry is a request for a map with 
      *  - a threshold (in mV)
@@ -347,7 +345,7 @@ public:
      * @return true if conduction velocity maps have been requested
      * \todo - no set method 
      */
-    bool GetConductionVelocityMapsRequested() const;
+    bool GetIsConductionVelocityMapsRequested() const;
     
     /**
      * @param conduction_velocity_maps  each entry is a request for a map with 
@@ -538,6 +536,14 @@ public:
      * @param kspPreconditioner  a string from {"ilu", "jacobi", "bjacobi", "hypre", "none"}
      */
     void SetKSPPreconditioner(const char* kspPreconditioner);
+    
+    /** Set the parameters of the apd map requested
+     * 
+     *  @param apd_maps  each entry is a request for a map with 
+     *  - a threshold (in mV)
+     *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation) 
+     */
+    void SetApdMaps(std::vector<std::pair<double,double> >& apd_maps);
 
     ~HeartConfig(); /**< Destructor*/
 protected:
