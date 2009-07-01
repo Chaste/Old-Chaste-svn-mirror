@@ -28,8 +28,11 @@ install-indep:
 		  -path './README.txt' -o \
 		  -path './docs' -o \
 		  -path './doxygen' -o \
+		  -path './*lib/*' -o \
+		  -path './testoutput/*' -o \
 		  -path './.*' -o \
 		  -name '.svn' -o \
+                  -path './*/build/*' -o \
 		  -name 'notforrelease*' -o \
 		  -path './python/hostconfig/machines' -o \
 		  -path './infrastructure-scripts' \

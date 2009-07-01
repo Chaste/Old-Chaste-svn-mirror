@@ -93,6 +93,13 @@ else:
 
 print "Version is", package_version
 
+# Check if we're likely to package any projects
+projects = filter(lambda s: s[0] != '.',
+                  os.listdir('projects'))
+if projects:
+    print "Projects exist.  Do you really want to include them?"
+    print projects
+
 subst = {'package': package_name,
          'version': package_version,
          'distro': ubuntu_version,
