@@ -81,13 +81,6 @@ private:
     template<class Archive>
     void save(Archive & ar, const unsigned int version) const
     {
-        // Extract relative path from absolute (for use in OutputFileHandler)
-        std::string directory_name = ArchiveLocationInfo::GetArchiveDirectory();
-        directory_name.erase( directory_name.size() - 1);
-        size_t dist_from_start = directory_name.find_last_of("/");
-        std::string relative_directory = directory_name.substr( dist_from_start + 1 );
-        /// \todo Refactor all of the above into a method that looks like this:
-//        mpInstance->Write(ArchiveLocationInfo::GetArchiveRelativeDirectory(), "ChasteParameters.xml");            
         mpInstance->Write( true );
     }
     
@@ -100,8 +93,11 @@ private:
     template<class Archive>
     void load(Archive & ar, const unsigned int version)
     {
-        std::string archive_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";   
-        HeartConfig::Instance()->SetParametersFile(archive_filename_xml);       
+        std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";   
+        HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);       
+        
+        std::string parameters_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";   
+        HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);       
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
         
