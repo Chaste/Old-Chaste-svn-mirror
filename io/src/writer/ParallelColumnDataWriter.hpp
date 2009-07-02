@@ -67,6 +67,7 @@ public:
 
     /**
      * Get whether it is the master process or not.
+     * \todo Where is this implemented? (#991)
      */
     bool AmMaster() const;
 
