@@ -52,7 +52,7 @@ other_libraries = libs_for_petsc + \
 # Figure out which lapack/blas packages are actually installed!
 if os.path.exists('/usr/lib/liblapack-3.so'):
     blas_lapack = ['lapack-3', 'blas-3']
-else
+else:
     blas_lapack = ['lapack', 'blas']
 
 tools = {'xsd': '/usr/bin/xsdcxx',

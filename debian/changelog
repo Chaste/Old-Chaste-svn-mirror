@@ -1,3 +1,11 @@
+chaste-source (1.0.6432) intrepid; urgency=low
+
+  * Package revision 6432 of Chaste.
+    - Improvements to library detection.
+    - Don't compress licence files so the HTML index works.
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Thu, 02 Jul 2009 14:38:50 +0000
+
 chaste-source (1.0.6420M) intrepid; urgency=low
 
   * Package revision 6420M of Chaste.
