@@ -33,6 +33,7 @@ install-indep:
 		  -path './.*' -o \
 		  -name '.svn' -o \
                   -path './*/build/*' -o \
+		  -path './heart/src/io/ChasteParameters.?pp' -o \
 		  -name 'notforrelease*' -o \
 		  -path './python/hostconfig/machines' -o \
 		  -path './infrastructure-scripts' \
