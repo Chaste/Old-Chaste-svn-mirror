@@ -32,11 +32,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <iostream>
 
+#include "NonCachedTetrahedralMesh.hpp" //must be first, it gets UblasIncludes from the mesh classes (ChastePoint.hpp)
 #include "PostProcessingWriter.hpp"
 #include "Hdf5DataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "NonCachedTetrahedralMesh.hpp"
 #include "DistanceMapCalculator.hpp"
 
 class TestPostProcessingWriter : public CxxTest::TestSuite
