@@ -1226,6 +1226,7 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     EXCEPTION("Unknown preconditioner type provided");
 }
 
+#define COVERAGE_IGNORE //#1040
 ///\todo check these two implementations causing problems (as reported by alexF in ticket #1069)
 
 void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
@@ -1260,4 +1261,5 @@ void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
         upstroke_map_sequence.push_back(temp);
     }
 }
+#undef COVERAGE_IGNORE //#1040
 

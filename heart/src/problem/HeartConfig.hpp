@@ -79,7 +79,7 @@ private:
      * @param version
      */
     template<class Archive>
-    void save(Archive & ar, const unsigned int version) const
+    void save(Archive & archive, const unsigned int version) const
     {
         mpInstance->Write( true );
     }
@@ -91,7 +91,7 @@ private:
      * @param version
      */
     template<class Archive>
-    void load(Archive & ar, const unsigned int version)
+    void load(Archive & archive, const unsigned int version)
     {
         std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";
         HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
@@ -128,7 +128,7 @@ public:
      * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in /output subfolder
      *                                if true, then use ArchiveLocationInfo
      */
-    void Write(bool useArchiveLocation=false);
+    void Write(bool useArchiveLocationInfo=false);
 
     /**
      * Throw away the current instance by resetting auto_ptr #mpInstance to NULL.
