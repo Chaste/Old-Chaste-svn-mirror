@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "RandomNumberGenerator.hpp"
 
-//// unused
+/// \todo unused - remove?
 //#include <algorithm>
 //
 ////Jonathan Shewchuk's triangle
