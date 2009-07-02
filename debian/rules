@@ -38,7 +38,6 @@ install-indep:
 		  -path './infrastructure-scripts' \
 		\) -prune -o -print | \
 		cpio -pd --preserve-modification-time $(srcdir)
-	cp ./debian/default.py $(srcdir)/python/hostconfig/
 	(cd $(srcdir)/..; tar cf - $(srcpkg)) | bzip2 -9c > \
 		$(srcdir).tar.bz2
 	rm -rf $(srcdir)
@@ -53,13 +52,13 @@ binary-indep: install-indep
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs -i
-	dh_installdocs -i
+	dh_installdocs -i -XCopying.txt
 #	dh_python
 #	dh_installinfo
 #	dh_installman
 #	dh_link
 #	dh_strip
-	dh_compress -i
+	dh_compress -i -Xlicences
 	dh_fixperms -i
 #	dh_makeshlibs
 	dh_installdeb -i

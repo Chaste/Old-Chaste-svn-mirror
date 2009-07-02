@@ -29,16 +29,21 @@ import os
 import sys
 
 ############################################################
-# TO CONFIGURE YOUR MACHINE: please remove the following 
-# two lines and edit paths below:
+# TO CONFIGURE YOUR MACHINE: if you have followed the manual
+# installation instructions, edit the definition of
+# chaste_libs_path below to point to where you installed the
+# dependencies.
 ############################################################
-#print >>sys.stderr, "Unrecognised machine; please edit python/hostconfig/default.py"
-#sys.exit(1)
 
 #EDIT HERE
 #For a simple installation all paths will be below this directory
 chaste_libs_path = '/home/scratch/chaste-libs/'
 #EDIT HERE
+
+if not os.path.exists(chaste_libs_path) or not os.path.isdir(chaste_libs_path):
+    print >>sys.stderr, "Chaste dependencies folder", chaste_libs_path, \
+        "not found; please edit python/hostconfig/default.py"
+    sys.exit(1)
 
 petsc_2_2_path = ''
 petsc_2_3_path = chaste_libs_path+'petsc-2.3.3-p15/'

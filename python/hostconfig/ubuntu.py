@@ -25,6 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import os
+
 petsc_2_2_path = ''
 petsc_2_3_path = '/usr/lib/petscdir/2.3.3/'
 petsc_build_name = 'linux-gnu-c-debug'
@@ -36,7 +38,7 @@ intel_path = None
 icpc = 'icpc'
 
 other_includepaths = ['/usr/include/metis/']
-other_libpaths = ['/usr/lib/atlas']
+other_libpaths = []
 libs_for_petsc = ['petsccontrib', 'X11',
                   'HYPRE', 'spooles', 'superlu',
                   'umfpack', 'amd', # Both for Umfpack
@@ -46,7 +48,12 @@ other_libraries = libs_for_petsc + \
                   ['boost_serialization', 'xerces-c',
                    'hdf5', 'z',
                    'metis']
-blas_lapack = ['lapack', 'blas']
+
+# Figure out which lapack/blas packages are actually installed!
+if os.path.exists('/usr/lib/liblapack-3.so'):
+    blas_lapack = ['lapack-3', 'blas-3']
+else
+    blas_lapack = ['lapack', 'blas']
 
 tools = {'xsd': '/usr/bin/xsdcxx',
          'mpirun': '/usr/bin/mpirun.openmpi',

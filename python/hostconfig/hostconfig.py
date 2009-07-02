@@ -72,7 +72,14 @@ try:
     import machines
     conf = machines.config_module()
 except ImportError:
-    import default as conf
+    # How about distro-specific config?
+    try:
+        fp = open('/etc/issue')
+        distro = fp.read().split()[0].lower()
+        fp.close()
+        conf = __import__(distro)
+    except (ImportError, IOError):
+        import default as conf
 
 # For debugging
 #for name in dir(conf):
