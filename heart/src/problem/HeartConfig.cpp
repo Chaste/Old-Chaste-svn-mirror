@@ -811,7 +811,7 @@ void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) c
          i != apd_maps_sequence.end();
          ++i)
     {
-        std::pair<double,double> map(i->threshold(), i->repolarisation_percentage());
+        std::pair<double,double> map(i->repolarisation_percentage(),i->threshold());
 
         apd_maps.push_back(map);
     }
@@ -1226,9 +1226,6 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     EXCEPTION("Unknown preconditioner type provided");
 }
 
-#define COVERAGE_IGNORE //#1040
-///\todo check these two implementations causing problems (as reported by alexF in ticket #1069)
-
 void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
 {
     XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
@@ -1253,13 +1250,12 @@ void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
     //Erase or create a sequence
     upstroke_map_sequence.clear();
 
-    for (unsigned i=0; i<upstroke_map_sequence.size(); i++)
+    for (unsigned i=0; i<upstroke_time_maps.size(); i++)
     {
         XSD_CREATE_WITH_FIXED_ATTR1(upstrokes_map_type, temp,
-                                    upstroke_map_sequence[i].threshold(),
+                                    upstroke_time_maps[i],
                                     "mV");
         upstroke_map_sequence.push_back(temp);
     }
 }
-#undef COVERAGE_IGNORE //#1040
 

@@ -195,8 +195,8 @@ public :
         std::vector<std::pair<double,double> > apd_maps_requested;
         HeartConfig::Instance()->GetApdMaps(apd_maps_requested);
         TS_ASSERT_EQUALS(apd_maps_requested.size(), 1u);
-        TS_ASSERT_EQUALS(apd_maps_requested[0].first, -30.0);
-        TS_ASSERT_EQUALS(apd_maps_requested[0].second, 90.0);
+        TS_ASSERT_EQUALS(apd_maps_requested[0].first, 90.0);
+        TS_ASSERT_EQUALS(apd_maps_requested[0].second, -30.0);
 
         TS_ASSERT(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested());
         std::vector<double> upstroke_time_maps_requested;
@@ -503,39 +503,39 @@ public :
 
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
         
-        
-// these tests are not passing. see comments in the HeartConfig class. Tests themselves should be OK though.
+        // Tests for set functions of postprocessing
 
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
-//        std::vector<std::pair<double,double> > apds, apd_maps;
-//        apds.push_back(std::pair<double, double>(-30,90));
-//        HeartConfig::Instance()->SetApdMaps(apds);
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
-//        HeartConfig::Instance()->GetApdMaps(apd_maps);
-//        TS_ASSERT_EQUALS(apd_maps.size(),1u);
-//        TS_ASSERT_EQUALS(apd_maps[0].first,-30);
-//        TS_ASSERT_EQUALS(apd_maps[0].second,90);
-//        
-//        apds[0].first = -45;
-//        apds[0].second = 80;
-//        HeartConfig::Instance()->SetApdMaps(apds);
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
-//
-//        HeartConfig::Instance()->GetApdMaps(apd_maps);
-//        TS_ASSERT_EQUALS(apd_maps.size(),1u);
-//        TS_ASSERT_EQUALS(apd_maps[0].first,-45);
-//        TS_ASSERT_EQUALS(apd_maps[0].second,80);
-//        
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), false);
-//        std::vector<double> upstroke_time_map, upstroke_time_map_get;
-//        upstroke_time_map.push_back(25.0);
-//        upstroke_time_map.push_back(55.0);
-//        HeartConfig::Instance()->SetUpstrokeTimeMaps(upstroke_time_map);
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), true);
-//        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_map_get);
-//        TS_ASSERT_EQUALS(upstroke_time_map_get.size(),2u);
-//        TS_ASSERT_EQUALS(upstroke_time_map_get[0],-25);
-//        TS_ASSERT_EQUALS(upstroke_time_map_get[1],-55);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
+        std::vector<std::pair<double,double> > apds, apd_maps;
+        apds.push_back(std::pair<double, double>(90,-30));//reploarisation percentage first, as per schema
+        std::cout<<apds[0].first<<std::endl;
+        HeartConfig::Instance()->SetApdMaps(apds);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
+        HeartConfig::Instance()->GetApdMaps(apd_maps);
+        TS_ASSERT_EQUALS(apd_maps.size(),1u);
+        TS_ASSERT_EQUALS(apd_maps[0].first,90);
+        TS_ASSERT_EQUALS(apd_maps[0].second,-30);
+        
+        apds[0].first = 80;//reploarisation percentage first, as per schema
+        apds[0].second = -45;
+        HeartConfig::Instance()->SetApdMaps(apds);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
+
+        HeartConfig::Instance()->GetApdMaps(apd_maps);
+        TS_ASSERT_EQUALS(apd_maps.size(),1u);
+        TS_ASSERT_EQUALS(apd_maps[0].first,80);
+        TS_ASSERT_EQUALS(apd_maps[0].second,-45);
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), false);
+        std::vector<double> upstroke_time_map, upstroke_time_map_get;
+        upstroke_time_map.push_back(25.0);
+        upstroke_time_map.push_back(55.0);
+        HeartConfig::Instance()->SetUpstrokeTimeMaps(upstroke_time_map);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), true);
+        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_map_get);
+        TS_ASSERT_EQUALS(upstroke_time_map_get.size(),2u);
+        TS_ASSERT_EQUALS(upstroke_time_map_get[0],25);
+        TS_ASSERT_EQUALS(upstroke_time_map_get[1],55);
      }
     void TestWrite() throw(Exception)
     {
