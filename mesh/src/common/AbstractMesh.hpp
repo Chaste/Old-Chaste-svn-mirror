@@ -224,7 +224,7 @@ public:
     /**
      * Get the boundary element with a given index in the mesh.
      *
-     * @param indexthe global index of the boundary element
+     * @param index the global index of the boundary element
      * @return a pointer to the boundary element.
      */
     BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
