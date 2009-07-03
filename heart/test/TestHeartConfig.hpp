@@ -508,7 +508,6 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
         std::vector<std::pair<double,double> > apds, apd_maps;
         apds.push_back(std::pair<double, double>(90,-30));//reploarisation percentage first, as per schema
-        std::cout<<apds[0].first<<std::endl;
         HeartConfig::Instance()->SetApdMaps(apds);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
         HeartConfig::Instance()->GetApdMaps(apd_maps);
