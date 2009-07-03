@@ -236,6 +236,14 @@ protected:
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime);
 
+    /**
+     *  GenerateNullBasis
+     * 
+     *  Called by FinaliseAssembleSystem to get the null basis to use for the particular
+     *  formulation of the bidomain equations used. Parabolic-Elliptic in BidomainDg0Assembler.
+     */
+    virtual Vec GenerateNullBasis() const;
+
 public:
 
     /**

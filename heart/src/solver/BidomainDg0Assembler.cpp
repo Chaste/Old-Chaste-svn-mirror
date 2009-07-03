@@ -206,6 +206,30 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::PrepareForAssembleSystem(Vec c
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Vec BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::GenerateNullBasis() const
+{
+    double sqrt_num_nodes = sqrt((double) this->mpMesh->GetNumNodes());
+    
+    Vec nullbasis;
+    DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
+    nullbasis=p_factory->CreateVec(2);
+    DistributedVector dist_null_basis = p_factory->CreateDistributedVector(nullbasis);
+    DistributedVector::Stripe null_basis_stripe_0(dist_null_basis,0);
+    DistributedVector::Stripe null_basis_stripe_1(dist_null_basis,1);
+    for (DistributedVector::Iterator index = dist_null_basis.Begin();
+         index != dist_null_basis.End();
+         ++index)
+    {
+        null_basis_stripe_0[index] = 0.0;
+        null_basis_stripe_1[index] = 1.0/sqrt_num_nodes; // normalised vector        
+    }
+    dist_null_basis.Restore();
+    
+    return nullbasis;    
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec currentSolution, double currentTime)
 {
     if (!(this->mpBoundaryConditions->HasDirichletBoundaryConditions()))
@@ -216,24 +240,9 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
             // We're not using the 'Average phi_e = 0' method, hence use a null space
             if (!mNullSpaceCreated)
             {
-                double sqrt_num_nodes = sqrt((double) this->mpMesh->GetNumNodes());
-
-                // No null space set up, so create one and pass it to the linear system
-                Vec nullbasis[1];
-                DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
-                nullbasis[0]=p_factory->CreateVec(2);
-                DistributedVector dist_null_basis = p_factory->CreateDistributedVector(nullbasis[0]);
-                DistributedVector::Stripe null_basis_stripe_0(dist_null_basis,0);
-                DistributedVector::Stripe null_basis_stripe_1(dist_null_basis,1);
-                for (DistributedVector::Iterator index = dist_null_basis.Begin();
-                     index != dist_null_basis.End();
-                     ++index)
-                {
-                    null_basis_stripe_0[index] = 0.0;
-                    null_basis_stripe_1[index] = 1.0/sqrt_num_nodes; // normalised vector
-                }
-                dist_null_basis.Restore();
-
+                // No null space set up, so create one and pass it to the linear system                
+                Vec nullbasis[] = {GenerateNullBasis()};
+                
                 this->mpLinearSystem->SetNullBasis(nullbasis, 1);
 
                 VecDestroy(nullbasis[0]);
