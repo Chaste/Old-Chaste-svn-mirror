@@ -247,12 +247,14 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
     // Note that all elements of weights are now non-negative and so the l1-norm (sum of magnitudes) is equivalent to the sum of the elements of the vector
     double sum = norm_1 (weights);
 
-    assert(sum >= 1.0);
+    //l1-norm ought to be above 1 (because we scrubbed negative weights)
+    //However, if we scrubbed weights that were the size of the machine precision then we might be close to one (even less than 1).
+    assert( sum + DBL_EPSILON >= 1.0);
 
+    //We might skip this division when sum ~= 1
     weights = weights/sum;
 
     return weights;
-
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
