@@ -56,23 +56,23 @@ class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
 protected:
 
     /**
-     * Solve node mapping method.
+     * Overridden solve node mapping method.
      *
-     * @param index
+     * @param index the global index of the node
      */
     unsigned SolveNodeMapping(unsigned index) const;
 
     /**
-     * Solve element mapping method.
+     * Overridden solve element mapping method.
      *
-     * @param index
+     * @param index the global index of the element
      */
     unsigned SolveElementMapping(unsigned index) const;
 
     /**
-     * Solve boundary element mapping method.
+     * Overridden solve boundary element mapping method.
      *
-     * @param index
+     * @param index the global index of the boundary element
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
@@ -125,7 +125,7 @@ public:
     /**
      * Read in the number of nodes per processor from file.
      *
-     * @param rNodesPerProcessorFile
+     * @param rNodesPerProcessorFile the name of the file
      */
     void ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile);
 
@@ -277,14 +277,14 @@ public:
      * "Closest" means that the minimum interpolation weights for the testPoint are
      * maximised for this element.
      *
-     * @param testPoint
+     * @param testPoint the point
      */
     unsigned GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint);
 
     /**
      * Return all element indices for elements that are known to contain a test point.
      *
-     * @param testPoint
+     * @param testPoint the point
      */
     std::vector<unsigned> GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint);
 

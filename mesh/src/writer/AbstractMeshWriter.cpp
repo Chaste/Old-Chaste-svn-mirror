@@ -81,21 +81,21 @@ std::string AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetOutputDirectory()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double> nextNode)
 {
-    assert (nextNode.size() == SPACE_DIM);
+    assert(nextNode.size() == SPACE_DIM);
     mNodeData.push_back(nextNode);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<unsigned> nextElement)
 {
-    assert (nextElement.size() == ELEMENT_DIM+1);
+    assert(nextElement.size() == ELEMENT_DIM+1);
     mElementData.push_back(nextElement);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector<unsigned> nextFace)
 {
-    assert (nextFace.size() == ELEMENT_DIM);
+    assert(nextFace.size() == ELEMENT_DIM);
     mBoundaryFaceData.push_back(nextFace);
 }
 

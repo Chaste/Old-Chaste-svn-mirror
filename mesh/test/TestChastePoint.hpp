@@ -27,13 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _TESTPOINT_HPP_
-#define _TESTPOINT_HPP_
+#ifndef _TESTCHASTEPOINT_HPP_
+#define _TESTCHASTEPOINT_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "ChastePoint.hpp"
 
-class TestPoint : public CxxTest::TestSuite
+class TestChastePoint : public CxxTest::TestSuite
 {
 public:
 
@@ -93,13 +93,18 @@ public:
 
     void TestGetLocation()
     {
-        ChastePoint<3> point1(1.0, 2.0, 3.0);
+        ChastePoint<3> point(1.0, 2.0, 3.0);
 
-        c_vector<double, 3> &point_location = point1.rGetLocation();
-
+        c_vector<double, 3>& point_location = point.rGetLocation();
         TS_ASSERT_EQUALS(point_location(1), 2.0);
-
         point_location(0) = 0;
+
+        const c_vector<double, 3> const_point_location = point.rGetLocation();
+
+        for (int i=0; i<3; i++)
+        {
+        	TS_ASSERT_DELTA(const_point_location[i], point[i], 1e-7);
+        }
     }
 
     void TestZeroDimPoint()
@@ -114,7 +119,22 @@ public:
         location[0] = 34.0;
         ChastePoint<1> point(location);
         TS_ASSERT_EQUALS(point[0], 34.0);
+
+        TS_ASSERT_EQUALS(point[0], 34.0);
+    }
+
+    void TestCreateFromStdVector()
+    {
+        std::vector<double> location;
+        location.push_back(10.0);
+        location.push_back(20.0);
+        location.push_back(30.0);
+
+        ChastePoint<3> point(location);
+        TS_ASSERT_EQUALS(point[0], 10.0);
+        TS_ASSERT_EQUALS(point[1], 20.0);
+        TS_ASSERT_EQUALS(point[2], 30.0);
     }
 };
 
-#endif //_TESTPOINT_HPP_
+#endif //_TESTCHASTEPOINT_HPP_

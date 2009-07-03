@@ -7,7 +7,7 @@ TestMeshWriters.hpp
 TestTrianglesMeshReader.hpp
 TestElement.hpp
 TestNode.hpp
-TestPoint.hpp
+TestChastePoint.hpp
 TestTransformations.hpp
 TestRemesh.hpp
 TestVertexAndAngle.hpp

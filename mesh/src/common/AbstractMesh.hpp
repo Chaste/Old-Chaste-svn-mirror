@@ -48,26 +48,30 @@ class AbstractMesh
 private:
 
     /**
-     * Pure virtual solve node mapping method.
+     * Pure virtual solve node mapping method. For a node with a given global 
+     * index, get the local index used by this process.
+     * 
      * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
      *
-     * @param index
+     * @param index the global index of the node
      */
     virtual unsigned SolveNodeMapping(unsigned index) const = 0;
 
     /**
-     * Pure virtual solve element mapping method.
+     * Pure virtual solve element mapping method. For an element with a given 
+     * global index, get the local index used by this process.
      * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
      *
-     * @param index
+     * @param index the global index of the element
      */
     virtual unsigned SolveElementMapping(unsigned index) const = 0;
 
     /**
-     * Pure virtual solve boundary element mapping method.
+     * Pure virtual solve boundary element mapping method. For a boundary 
+     * element with a given global index, get the local index used by this process.
      * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
      *
-     * @param index
+     * @param index the global index of the boundary element
      */
     virtual unsigned SolveBoundaryElementMapping(unsigned index) const = 0;
 
@@ -204,7 +208,7 @@ public:
     /**
      * Get the node with a given index in the mesh.
      *
-     * @param index
+     * @param index the global index of the node
      * @return a pointer to the node.
      */
     Node<SPACE_DIM>* GetNode(unsigned index) const;
@@ -212,7 +216,7 @@ public:
     /**
      * Get the element with a given index in the mesh.
      *
-     * @param index
+     * @param index the global index of the element
      * @return a pointer to the element.
      */
     Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
@@ -220,7 +224,7 @@ public:
     /**
      * Get the boundary element with a given index in the mesh.
      *
-     * @param index
+     * @param indexthe global index of the boundary element
      * @return a pointer to the boundary element.
      */
     BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index) const;
@@ -249,9 +253,9 @@ public:
     /**
      * Read in the number of nodes per processor from file.
      *
-     * @param nodesPerProcessorFile
+     * @param rNodesPerProcessorFile the name of the file
      */
-    virtual void ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile);
+    virtual void ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile);
 
     /**
      * Get method for DistributedVectorFactory.

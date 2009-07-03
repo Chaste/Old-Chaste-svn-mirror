@@ -234,11 +234,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& nodesPerProcessorFile)
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile)
 {
     std::vector<unsigned> nodes_per_processor_vec;
 
-    std::ifstream file_stream(nodesPerProcessorFile.c_str());
+    std::ifstream file_stream(rNodesPerProcessorFile.c_str());
     if (file_stream.is_open())
     {
         while (file_stream)
@@ -254,7 +254,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     }
     else
     {
-        EXCEPTION("Unable to read nodes per processor file "+nodesPerProcessorFile);
+        EXCEPTION("Unable to read nodes per processor file " + rNodesPerProcessorFile);
     }
 
     unsigned sum = 0;
@@ -300,7 +300,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceArea()
 {
     //ELEMENT_DIM-1 is the dimension of the boundary element
-    assert (ELEMENT_DIM >= 1);
+    assert(ELEMENT_DIM >= 1);
     const unsigned bound_element_dim = ELEMENT_DIM-1;
     assert(bound_element_dim < 3);
     if ( bound_element_dim == 0)

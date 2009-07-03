@@ -105,7 +105,7 @@ public:
     virtual unsigned GetNumFaceAttributes() const;
 
     /** Returns the number of edges in the mesh (synonym of GetNumFaces()) */
-    unsigned GetNumEdges() const;
+    virtual unsigned GetNumEdges() const =0;
 
     /** Returns a vector of the coordinates of each node in turn */
     virtual std::vector<double> GetNextNode()=0;

@@ -163,7 +163,7 @@ protected:
      * Solve node mapping method. This overridden method is required 
      * as it is pure virtual in the base class.
      *
-     * @param index
+     * @param index the global index of the node
      */
     unsigned SolveNodeMapping(unsigned index) const;
 
@@ -171,7 +171,7 @@ protected:
      * Solve element mapping method. This overridden method is required 
      * as it is pure virtual in the base class.
      *
-     * @param index
+     * @param index the global index of the element
      */
     unsigned SolveElementMapping(unsigned index) const;
 
@@ -179,7 +179,7 @@ protected:
      * Solve boundary element mapping method. This overridden method is required 
      * as it is pure virtual in the base class.
      *
-     * @param index
+     * @param index the global index of the boundary element
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 

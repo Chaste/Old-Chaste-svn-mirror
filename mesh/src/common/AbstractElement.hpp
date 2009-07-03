@@ -190,7 +190,7 @@ public:
     /**
      * Set the index of this element in the mesh.
      *
-     * @param index
+     * @param index the new index
      */
     void SetIndex(unsigned index);
 
@@ -202,7 +202,7 @@ public:
     /**
      * Set whether the current process owns this element.
      *
-     * @param ownership
+     * @param ownership whether the current process now owns this element
      */
     void SetOwnership(bool ownership);
 
@@ -224,7 +224,7 @@ public:
     /**
      * Set the element's region ID.
      *
-     * @param region
+     * @param region the element's new region ID
      */
     void SetRegion(unsigned region);
 

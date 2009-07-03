@@ -37,12 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef VOID
 
 template<unsigned DIM>
-QuadraticMesh<DIM>::QuadraticMesh(const std::string& fileName, bool boundaryElemFileIsQuadratic)
+QuadraticMesh<DIM>::QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic)
 {
+    LoadFromFile(rFileName, boundaryElemFileIsQuadratic);
 
-    LoadFromFile(fileName, boundaryElemFileIsQuadratic);
-
-    // check each boundary element has a quadratic number of nodes    
+    // Check each boundary element has a quadratic number of nodes    
 #ifndef NDEBUG
     unsigned expected_num_nodes = DIM*(DIM+1)/2;
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
@@ -298,11 +297,11 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::LoadFromFile(const std::string& fileName, bool boundaryElemFileIsQuadratic)
+void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundaryElemFileIsQuadratic)
 {
     unsigned order_of_boundary_elements = boundaryElemFileIsQuadratic ? 2 : 1;
     
-    TrianglesMeshReader<DIM,DIM> mesh_reader(fileName, 2, order_of_boundary_elements); // 2=quadratic mesh
+    TrianglesMeshReader<DIM,DIM> mesh_reader(rFileName, 2, order_of_boundary_elements); // 2=quadratic mesh
 
     ConstructFromMeshReader(mesh_reader);
 

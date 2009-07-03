@@ -82,7 +82,7 @@ public:
     /**
      * Reset the index of this boundary element in the mesh.
      *
-     * @param index
+     * @param index the new index of the boundary element
      */
     void ResetIndex(unsigned index);
 
@@ -121,7 +121,7 @@ public:
     /**
      * Calculate the interpolation weights at a given point.
      *
-     * @param testPoint  the point
+     * @param testPoint the point
      */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint);
 
@@ -130,22 +130,22 @@ public:
      * the element (one or more negative weights), we project onto the
      * element, rather than extrapolating from it.
      *
-     * @param testPoint  the point
+     * @param testPoint the point
      */
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint);
 
     /**
      * Calculate psi at a given point.
      *
-     * @param testPoint
+     * @param testPoint the point
      */
     c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint);
 
     /**
      * Get whether a given point lies inside this element.
      *
-     * @param testPoint  the point
-     * @param strict  whether the point must not be too close to an edge/face (defaults to false)
+     * @param testPoint the point
+     * @param strict whether the point must not be too close to an edge/face (defaults to false)
      */
     bool IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict=false);
 

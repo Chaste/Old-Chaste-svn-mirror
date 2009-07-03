@@ -492,13 +492,13 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::CloseFiles()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine)
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifstream& fileStream, std::string& rRawLine)
 {
     bool line_is_blank;
 
     do
     {
-        getline(fileStream, rawLine);
+        getline(fileStream, rRawLine);
 
         if (fileStream.eof())
         {
@@ -507,9 +507,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifs
         }
 
         // Get rid of any comment
-        rawLine = rawLine.substr(0,rawLine.find('#',0));
+        rRawLine = rRawLine.substr(0, rRawLine.find('#',0));
 
-        line_is_blank = (rawLine.find_first_not_of(" \t",0) == std::string::npos);
+        line_is_blank = (rRawLine.find_first_not_of(" \t",0) == std::string::npos);
     }
     while (line_is_blank);
 }

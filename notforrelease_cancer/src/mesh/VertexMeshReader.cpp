@@ -78,6 +78,13 @@ ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumEdges() const
+{
+    /// \todo Implement this method
+    return 0;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 {
     CloseFiles();

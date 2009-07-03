@@ -528,7 +528,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         }
     }
 
-    assert (mDeletedElementIndices.size() == this->mElements.size()-live_elements.size());
+    assert(mDeletedElementIndices.size() == this->mElements.size()-live_elements.size());
     mDeletedElementIndices.clear();
     this->mElements = live_elements;
     unsigned num_elements = this->mElements.size();
@@ -561,7 +561,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         }
     }
 
-    assert (mDeletedNodeIndices.size() == this->mNodes.size()-live_nodes.size());
+    assert(mDeletedNodeIndices.size() == this->mNodes.size()-live_nodes.size());
     this->mNodes = live_nodes;
     mDeletedNodeIndices.clear();
 
@@ -581,7 +581,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         }
     }
 
-    assert (mDeletedBoundaryElementIndices.size() == this->mBoundaryElements.size()-live_boundary_elements.size());
+    assert(mDeletedBoundaryElementIndices.size() == this->mBoundaryElements.size()-live_boundary_elements.size());
     this->mBoundaryElements = live_boundary_elements;
     mDeletedBoundaryElementIndices.clear();
 

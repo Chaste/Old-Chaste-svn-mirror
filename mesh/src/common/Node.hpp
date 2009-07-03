@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _NODE_HPP_
 #define _NODE_HPP_
 
-//#include "TetrahedralMesh.hpp"
+
 #include "ChastePoint.hpp"
 #include <set>
 
@@ -128,21 +128,21 @@ public:
      * Note: setting the point in space is dangerous.
      * Jacobian and JacobianDeterminant of element need to be updated.
      *
-     * @param point
+     * @param point the new location of the node
      */
     void SetPoint(ChastePoint<SPACE_DIM> point);
 
     /**
      * Set the index of this node in the mesh.
      *
-     * @param index
+     * @param index the index of the node
      */
     void SetIndex(unsigned index);
 
     /**
      * Set whether this node is a boundary node.
      *
-     * @param value
+     * @param value whether the node is a boundary node
      */
     void SetAsBoundaryNode(bool value=true);
 
@@ -240,7 +240,7 @@ public:
     /**
      * Determine if a node lives within a flagged element.
      *
-     * @param rMesh
+     * @param rMesh the mesh containing the nodes and elements
      */
     template <unsigned ELEMENT_DIM>
     bool IsFlagged(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
@@ -262,7 +262,7 @@ public:
     /**
      * Set the node's region ID.
      *
-     * @param region
+     * @param region the new region ID
      */
     void SetRegion(unsigned region);
 

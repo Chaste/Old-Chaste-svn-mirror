@@ -54,12 +54,12 @@ private:
     /**
      * Load a quadratic mesh from a file.
      *
-     * @param fileName  the name of the file to load the mesh from.
+     * @param rFileName  the name of the file to load the mesh from.
      * @param boundaryElemFileIsQuadratic Whether the boundary element file has a quadratic number of nodes (eg 3 in 2d)
      *  or linear number. Note tetgen with '-o2' creates files with quadratic elements but linear boundary elements.
      *  QuadraticMesh will compute the extra info in boundaryElemFileIsQuadratic==false (slow).
      */
-    void LoadFromFile(const std::string& fileName, bool boundaryElemFileIsQuadratic);
+    void LoadFromFile(const std::string& rFileName, bool boundaryElemFileIsQuadratic);
     
     /**
      * Top level method for making 2D edges have 3 nodes not 2
@@ -105,6 +105,8 @@ private:
      * should then be applied before reverse to match the face nodes to the boundary
      * element nodes.
      *
+     * \todo document these parameters
+     * 
      * @param boundaryElemNode0
      * @param boundaryElemNode1
      * @param pElement
@@ -128,6 +130,8 @@ private:
      * the ordered internal nodes which should given to the boundary element.
      * It then calls AddNodeToBoundaryElement with each of the three internal nodes.
      *
+     * \todo document these parameters
+     * 
      * @param pBoundaryElement
      * @param pElement
      * @param internalNode0
@@ -145,9 +149,11 @@ private:
     /**
      * Helper method which runs triangle or tetgen and reads in the created mesh files.
      *
+     * \todo document these parameters (also shouldn't they be references?)
+     * 
      * @param binary
      * @param outputDir
-     * @param fileStem
+     * @param fileStem 
      */
     void RunMesherAndReadMesh(std::string binary, std::string outputDir, std::string fileStem);
 
@@ -156,12 +162,12 @@ public:
     /**
      * Constructs a new Quadratic Mesh
      *
-     * @param fileName The name of the quadratic mesh file to load
+     * @param rFileName The name of the quadratic mesh file to load
      * @param boundaryElemFileIsQuadratic Whether the boundary element file has a quadratic number of nodes (eg 3 in 2d)
      *  or linear number. Note tetgen with '-o2' creates files with quadratic elements but linear boundary elements.
      *  The AddExtraBoundaryNodes method will compute the extra info in boundaryElemFileIsQuadratic==false (slow).  
      */
-    QuadraticMesh(const std::string& fileName, bool boundaryElemFileIsQuadratic);
+    QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic);
 
     ///\todo: 1d constructor
 
@@ -169,11 +175,11 @@ public:
      * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)
      * with the given number of elements in each direction. This writes
      * a temporary node file and uses triangle to mesh this nodefile.
-     *
-     * @param xEnd
-     * @param yEnd
-     * @param numElemX
-     * @param numElemY
+     * 
+     * @param xEnd the width of the rectangle
+     * @param yEnd the breadth of the rectangle
+     * @param numElemX the number of elements in the x direction
+     * @param numElemY the number of elements in the y direction
      */
     QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY);
 
@@ -182,12 +188,12 @@ public:
      * with the given number of elements in each direction. This writes
      * a temporary node file and uses triangle to mesh this nodefile.
      *
-     * @param xEnd
-     * @param yEnd
-     * @param zEnd
-     * @param numElemX
-     * @param numElemY
-     * @param numElemZ
+     * @param xEnd the width of the cuboid
+     * @param yEnd the breadth of the cuboid
+     * @param zEnd the height of the cuboid
+     * @param numElemX the number of elements in the x direction
+     * @param numElemY the number of elements in the y direction
+     * @param numElemZ the number of elements in the z direction
      */
     QuadraticMesh(double xEnd, double yEnd, double zEnd,
                   unsigned numElemX, unsigned numElemY, unsigned numElemZ);

@@ -148,6 +148,9 @@ public:
      * Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()).
      */
     ElementData GetNextFaceData();
+
+    /** Returns the number of edges in the mesh (synonym of GetNumFaces()) */
+    unsigned GetNumEdges() const;
 #undef COVERAGE_IGNORE
 
     /**

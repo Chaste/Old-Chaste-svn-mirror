@@ -67,7 +67,7 @@ public:
     /**
      * Reset the index of this boundary element in the mesh.
      *
-     * @param index
+     * @param index the new index of the boundary element
      */
     void ResetIndex(unsigned index);
 

@@ -74,7 +74,7 @@ public:
       * "METIS_BINARY" via METIS file dump and a call to the Metis binary partdmesh.
       * "METIS_LIBRARY" is a call to the sequential METIS library 
       * */
-     typedef enum
+    typedef enum
     {
         DUMB=0,
         METIS_BINARY,
@@ -92,22 +92,22 @@ private:
     /** The total number of nodes in the mesh. */
     unsigned mTotalNumNodes;
 
-    /** Vector of pointer to halo nodes used by this process*/
+    /** Vector of pointer to halo nodes used by this process. */
     std::vector<Node<SPACE_DIM>* > mHaloNodes;
 
-    /** A map from global index to local index used by this process*/
+    /** A map from node global index to local index used by this process. */
     std::map<unsigned, unsigned> mNodesMapping;
 
-    /** A map from global index to local index used by this process*/
+    /** A map from halo node global index to local index used by this process. */
     std::map<unsigned, unsigned> mHaloNodesMapping;
 
-    /** A map from global index to local index used by this process*/
+    /** A map from element global index to local index used by this process. */
     std::map<unsigned, unsigned> mElementsMapping;
 
-    /** A map from global index to local index used by this process*/
+    /** A map from boundary element global index to local index used by this process. */
     std::map<unsigned, unsigned> mBoundaryElementsMapping;
 
-    /** Partition type (given by enum PartitionType)*/
+    /** Partition type (given by enum PartitionType). */
     PartitionType mMetisPartitioning;
 
 public:
@@ -203,30 +203,30 @@ private:
     void RegisterBoundaryElement(unsigned index);
 
     /**
-     * Solve node mapping method.
+     * Overridden solve node mapping method.
      *
-     * @param index
+     * @param index the global index of the node
      */
     unsigned SolveNodeMapping(unsigned index) const;
 
     /**
-     * Solve halo node mapping method.
+     * Overridden solve halo node mapping method.
      *
-     * @param index
+     * @param index the global index of the node
      */
     unsigned SolveHaloNodeMapping(unsigned index);
 
     /**
-     * Solve element mapping method.
+     * Overridden solve element mapping method.
      *
-     * @param index
+     * @param index the global index of the element
      */
     unsigned SolveElementMapping(unsigned index) const;
 
     /**
-     * Solve boundary element mapping method.
+     * Overridden solve boundary element mapping method.
      *
-     * @param index
+     * @param index the global index of the boundary element
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
@@ -295,7 +295,6 @@ private:
      * Reorder the node indices in this mesh by applying a given permutation
      * 
      * @param rNodePermutation the index permutation to apply
-     * 
      */
     void ReorderNodes(std::vector<unsigned>& rNodePermutation);
 };

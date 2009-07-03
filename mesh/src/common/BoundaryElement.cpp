@@ -45,7 +45,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement(unsigned index, Node<SPACE_DIM>* pNode)
     : AbstractTetrahedralElement<ELEMENT_DIM,SPACE_DIM>(index)
 {
-    assert (ELEMENT_DIM == 0);
+    assert(ELEMENT_DIM == 0);
 
     // Store Node pointer
     this->mNodes.push_back(pNode);

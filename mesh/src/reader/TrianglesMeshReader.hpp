@@ -146,9 +146,9 @@ private:
      * Read in the next line.
      *
      * @param fileStream
-     * @param rawLine
+     * @param rRawLine
      */
-    void GetNextLineFromStream(std::ifstream& fileStream, std::string& rawLine);
+    void GetNextLineFromStream(std::ifstream& fileStream, std::string& rRawLine);
 
     /** Get method for mFilesBaseName. */
     std::string GetMeshFileBaseName();

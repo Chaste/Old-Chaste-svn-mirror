@@ -85,6 +85,9 @@ public:
         {
             delete corner_nodes[i];
         }
+
+        element.SetIndex(27);
+        TS_ASSERT_EQUALS(element.GetIndex(), 27u)
     }
 
     void TestEquals()
