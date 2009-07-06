@@ -349,6 +349,9 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
     
     # Any user projects?
     for project in glob.glob('projects/[_a-zA-z]*'):
+	if not os.path.exists(os.path.join(project, 'SConscript')):
+            print >>sys.stderr, "Unexpected folder", project, "in projects folder."
+            continue
         bld_dir = os.path.join(project, 'build', build_dir)
         if not os.path.exists(bld_dir):
             os.mkdir(bld_dir)
