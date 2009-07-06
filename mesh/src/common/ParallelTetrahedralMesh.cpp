@@ -106,7 +106,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     bool cullInternalFaces)
 {
-
     if (ELEMENT_DIM==1)
     {
         cullInternalFaces = true;
@@ -255,8 +254,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                     nodes[j]->SetAsBoundaryNode();
                     this->mBoundaryNodes.push_back(nodes[j]);
                 }
-                //Register the index that this bounday element will have
-                //with the node
+                // Register the index that this bounday element will have with the node
                 nodes[j]->AddBoundaryElement(actual_face_index);
             }
 
@@ -290,7 +288,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             num_owned = mTotalNumNodes - proc_offsets[rank];
         }
         
-        this->mpDistributedVectorFactory=new DistributedVectorFactory(this->GetNumNodes(), num_owned);
+        this->mpDistributedVectorFactory = new DistributedVectorFactory(this->GetNumNodes(), num_owned);
     }
     else 
     {
@@ -464,14 +462,14 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
         out_stream metis_file=handler.OpenOutputFile(basename);
 
         // File header
-        (*metis_file)<<this->GetNumElements()<<"\t";
+        (*metis_file) << this->GetNumElements() << "\t";
         if (ELEMENT_DIM==2)
         {
-            (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
+            (*metis_file) << 1 << "\n"; //1 is Metis speak for triangles
         }
         else
         {
-            (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
+            (*metis_file) << 2 << "\n"; //2 is Metis speak for tetrahedra
         }
 
         // Graph representation of the mesh
@@ -481,17 +479,17 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
 
             for (unsigned i=0; i<ELEMENT_DIM+1; i++)
             {
-                    (*metis_file)<<element_data.NodeIndices[i] + 1<<"\t";
+                    (*metis_file) << element_data.NodeIndices[i] + 1 << "\t";
             }
-            (*metis_file)<<"\n";
+            (*metis_file) << "\n";
         }
         metis_file->close();
 
         rMeshReader.Reset();
 
         /*
-         *  Call METIS binary to perform the partitioning.
-         *  It will output a file called metis.mesh.npart.numProcs
+         * Call METIS binary to perform the partitioning.
+         * It will output a file called metis.mesh.npart.numProcs
          */
         std::stringstream permute_command;
         permute_command <<  "./bin/partdmesh "
@@ -577,7 +575,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     assert(PetscTools::GetNumProcs() > 1);
 
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
-
 
     int ne = rMeshReader.GetNumElements();
     int nn = rMeshReader.GetNumNodes();

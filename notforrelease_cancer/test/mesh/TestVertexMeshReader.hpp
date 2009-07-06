@@ -218,6 +218,7 @@ public:
         TS_ASSERT_EQUALS(face_data.AttributeValue, 0u);
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 0u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumEdges(), 0u);
     }
 
     void TestOtherExceptions() throw(Exception)

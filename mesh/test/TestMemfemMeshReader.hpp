@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MemfemMeshReader.hpp"
 
 typedef MemfemMeshReader<3,3> READER_3D;
+typedef MemfemMeshReader<2,2> READER_2D; // For exception coverage
 
 class TestMemfemMeshReaders : public CxxTest::TestSuite
 {
@@ -72,6 +73,9 @@ public:
     {
         // The file does not exist
         TS_ASSERT_THROWS_ANYTHING( READER_3D mesh_reader("no_file") );
+
+        // We are in the wrong dimension
+        TS_ASSERT_THROWS_ANYTHING( READER_2D reader("mesh/test/data/Memfem_slab") );
     }
 
 };

@@ -31,9 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 AbstractTwoBodyInteractionForce<DIM>::AbstractTwoBodyInteractionForce()
-   : AbstractForce<DIM>()
+   : AbstractForce<DIM>(),
+     mUseCutoffPoint(false)
 {
-    mUseCutoffPoint = false;
 }
 
 

@@ -116,6 +116,9 @@ public:
 
         TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumFaces(), 54u);
 
+        // Coverage of AbstractCachedMeshReader::GetNumEdges()
+        TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumEdges(), 54u);
+
         delete mpFemlabMeshReader;
     }
 

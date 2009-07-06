@@ -273,7 +273,7 @@ public:
                  iter != mesh.GetNodeIteratorEnd();
                  ++iter)
             {
-                unsigned node_index = (*iter).GetIndex();
+                unsigned node_index = iter->GetIndex();
                 nodes_owned[node_index] = 1;
 
                 total_nodes_this_process++;
@@ -299,6 +299,7 @@ public:
          * All elements have been assigned
          */
         {
+        	unsigned total_elements_this_process = 0;
             unsigned num_global_elements = mesh.GetNumElements();
             unsigned elements_owned[num_global_elements];
 
@@ -311,12 +312,16 @@ public:
                     TS_ASSERT_EQUALS(element_id, element_index);
 
                     elements_owned[element_index] = 1;
+
+                    total_elements_this_process++;
                 }
                 catch(Exception& e)
                 {
                     elements_owned[element_id] = 0;
                 }
             }
+
+            TS_ASSERT_EQUALS(mesh.GetNumLocalElements(), total_elements_this_process);
 
             // Combine all the local maps by adding them up in the master process
             unsigned elements_reduction[num_global_elements];
@@ -559,7 +564,7 @@ public:
     }
 
     /*
-     *  This test creates a ParallelTetrahedralMesh, dumps it to disc (permuted), opens the newly
+     * This test creates a ParallelTetrahedralMesh, dumps it to disc (permuted), opens the newly
      * created file, and checks if it is consistent with the object in memory.
      */
     void TestWritingPermutedMesh()

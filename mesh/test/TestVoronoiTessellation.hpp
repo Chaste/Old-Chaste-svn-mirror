@@ -197,6 +197,9 @@ public:
                 TS_ASSERT_DELTA(cell.rGetVoronoiCellCentre()[2], 0.5, 1e-5);
             }
         }
+
+        // Coverage of GetNumCells()
+        TS_ASSERT_EQUALS(tessellation.GetNumCells(), mesh.GetNumNodes());
     }
 
     void TestTessellation2d() throw (Exception)
