@@ -106,10 +106,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     bool cullInternalFaces)
 {
-    if (ELEMENT_DIM==1)
-    {
-        cullInternalFaces = true;
-    }
+    // ticket #922: Commented as it will break coverage until 
+    // face culling is supported in parallel and dontTestConstructFromMeshReader1D 
+    // becomes a test
+//    if (ELEMENT_DIM==1)
+//    {
+//        cullInternalFaces = true;
+//    }
 
     // ticket #922: Face culling is not supported in parallel yet
     assert(!cullInternalFaces);
@@ -439,8 +442,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
                                                                                   std::vector<unsigned>& rNodePermutation)
 {
     assert(PetscTools::GetNumProcs() > 1);
-
+    #define COVERAGE_IGNORE
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
+    #undef COVERAGE_IGNORE
 
     unsigned num_procs = PetscTools::GetNumProcs();
 
@@ -574,7 +578,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
 {
     assert(PetscTools::GetNumProcs() > 1);
 
+    #define COVERAGE_IGNORE
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
+    #undef COVERAGE_IGNORE
 
     int ne = rMeshReader.GetNumElements();
     int nn = rMeshReader.GetNumNodes();

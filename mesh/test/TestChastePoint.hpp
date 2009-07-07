@@ -99,7 +99,7 @@ public:
         TS_ASSERT_EQUALS(point_location(1), 2.0);
         point_location(0) = 0;
 
-        const c_vector<double, 3> const_point_location = point.rGetLocation();
+        const c_vector<double, 3>& const_point_location = point.rGetLocation();
 
         for (int i=0; i<3; i++)
         {
