@@ -59,7 +59,7 @@ public:
      */
     bool GiveUpConvergence()
     {
-        return this->OdeTimeStep<=1e-8;
+        return this->OdeTimeStep<=1e-5;
     }
     /**
      * @return the #OdeTimeStep as abcissa

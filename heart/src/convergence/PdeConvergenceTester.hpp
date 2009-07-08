@@ -46,6 +46,7 @@ public:
     {
         this->PdeTimeStep = 0.04;
         this->OdeTimeStep = 0.0025;
+        //For extreme convergence tests this->OdeTimeStep = 7.8125e-5;
     }
     /**
      * Each new run has the #PdeTimeStep halved.
@@ -55,13 +56,12 @@ public:
         this->PdeTimeStep *= 0.5;
     }
     /**
-     * @return true to give up convergence when either the Pde time-step is unreasonably small
-     * or the PdeTimeStep>=OdeTimeStep requirement is violated.  This gives us the
-     * option to run with various OdeTimeStep parameters.
+     * @return true to give up convergence when the PdeTimeStep>=OdeTimeStep requirement is violated.
+     * This gives us the option to run with various (reasonable) OdeTimeStep parameters.
      */
     bool GiveUpConvergence()
     {
-        return (this->PdeTimeStep<=1e-8 || this->PdeTimeStep<this->OdeTimeStep);
+        return (this->PdeTimeStep<this->OdeTimeStep);
     }
     /**
      * @return the #PdeTimeStep as abcissa

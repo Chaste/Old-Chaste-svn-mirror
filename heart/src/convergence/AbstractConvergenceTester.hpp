@@ -250,9 +250,15 @@ public:
         do
         {
             CuboidMeshConstructor<DIM> constructor;
-
             
-            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, this->PdeTimeStep);
+            //If the printing time step is too fine, then simulations become I/O bound without much improvement in accuracy
+            double printing_step = this->PdeTimeStep;
+            while (printing_step < 1.0e-4)
+            {
+                printing_step *= 2.0;
+                std::cout<<"Warning: PrintingTimeStep increased\n";
+            }
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, printing_step);
 #define COVERAGE_IGNORE
             if (SimulateFullActionPotential)
             {

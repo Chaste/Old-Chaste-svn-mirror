@@ -62,7 +62,7 @@ public:
     {
         assert( this->PdeTimeStep == this->OdeTimeStep);
 
-        return this->OdeTimeStep<=1e-8;
+        return this->OdeTimeStep<=1e-5;
     }
 
     /**
