@@ -48,8 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestLinearSystem : public CxxTest::TestSuite
 {
 public:
-
-    void TestLinearSystem1()
+   void TestLinearSystem1()
     {
         LinearSystem ls(3);
         ls.SetMatrixIsConstant(true);
@@ -65,9 +64,9 @@ public:
         }
         ls.AssembleFinalLinearSystem();
 
-        ls.SetRhsVectorElement(0, 14.0);
-        ls.SetRhsVectorElement(1, 32.0);
-        ls.SetRhsVectorElement(2, 50.0);
+        ls.SetRhsVectorElement(0, 1400000.0);
+        ls.SetRhsVectorElement(1, 3200000.0);
+        ls.SetRhsVectorElement(2, 5000000.0);
 
         // for coverage
         ls.DisplayMatrix();
@@ -86,7 +85,7 @@ public:
             int local_index = global_index-lo;
             if (lo<=global_index && global_index<hi)
             {
-                TS_ASSERT_DELTA(p_solution_elements_array[local_index], global_index+1.0, 1e-8);
+                TS_ASSERT_DELTA(p_solution_elements_array[local_index], 100000.0*(global_index+1), 1e-8);
             }
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
@@ -95,6 +94,13 @@ public:
         //SetRelativeTolerance
         ls.SetRelativeTolerance(1e-2);
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+        
+        KSPConvergedReason reason;
+        KSPGetConvergedReason(ls.mKspSolver, &reason);
+        TS_ASSERT_EQUALS(reason, KSP_CONVERGED_RTOL); 
+        
+        
+        
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         VecGetArray(solution_vector, &p_solution_elements_array);
 
@@ -103,15 +109,20 @@ public:
             int local_index = global_index-lo;
             if (lo<=global_index && global_index<hi)
             {
-                TS_ASSERT_DELTA(p_solution_elements_array[local_index], global_index+1.0, 2e-1);
+                TS_ASSERT_DELTA(p_solution_elements_array[local_index], 100000.0*(global_index+1), 2e4);
             }
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         VecDestroy(solution_vector);
 
         //SetAbsoluteTolerance
-        ls.SetAbsoluteTolerance(1e-5);
-        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
+        ls.SetAbsoluteTolerance(1e-10);
+        solution_vector = ls.Solve();
+        KSPGetConvergedReason(ls.mKspSolver, &reason);
+        TS_ASSERT_EQUALS(reason, KSP_CONVERGED_ATOL); 
+        
+        //Check that it converged for the right reason
+        
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         VecGetArray(solution_vector, &p_solution_elements_array);
 
@@ -120,7 +131,7 @@ public:
             int local_index = global_index-lo;
             if (lo<=global_index && global_index<hi)
             {
-                TS_ASSERT_DELTA(p_solution_elements_array[local_index], global_index+1.0, 1e-8);
+                TS_ASSERT_DELTA(p_solution_elements_array[local_index], 100000.0*(global_index+1), 1e-8);
             }
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
@@ -616,7 +627,7 @@ public:
         int maxits;
         KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
         TS_ASSERT_EQUALS(rtol, 1e-3);
-        // others should be their petsc defaults
+        // others should be their PETSc defaults (unless we've done different)
         TS_ASSERT_EQUALS(atol, 1e-50);
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
