@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 #include <fstream>
-#include <cassert>
 #include "AbstractMeshReader.hpp"
 
 /**

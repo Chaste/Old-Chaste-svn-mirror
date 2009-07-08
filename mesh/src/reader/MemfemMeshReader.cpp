@@ -27,17 +27,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MemfemMeshReader.hpp"
+#include "Exception.hpp"
+
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseName)
+MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(const std::string& rPathBaseName)
 {
     // Open node file and store the lines as a vector of strings (minus the comments)
-    std::string nodeFileName = pathBaseName + ".pts";
-    this->mNodeRawData = this->GetRawDataFromFile(nodeFileName);
+    std::string node_file_name = rPathBaseName + ".pts";
+    this->mNodeRawData = this->GetRawDataFromFile(node_file_name);
 
     // Read single line header which is the number of nodes */
     std::stringstream node_header_stream(this->mNodeRawData[0]);
@@ -67,8 +70,8 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
     }
 
     // Open element file and store the lines as a vector of strings (minus the comments)
-    std::string elementFileName = pathBaseName + ".tetras";
-    this->mElementRawData = this->GetRawDataFromFile(elementFileName);
+    std::string element_file_name = rPathBaseName + ".tetras";
+    this->mElementRawData = this->GetRawDataFromFile(element_file_name);
 
     // Read single line header which is the number of elements
     std::stringstream element_header_stream(this->mElementRawData[0]);
@@ -90,8 +93,8 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
     }
 
     // Open boundary face file and store the lines as a vector of strings (minus the comments)
-    std::string faceFileName = pathBaseName + ".tri";
-    this->mFaceRawData = this->GetRawDataFromFile(faceFileName);
+    std::string face_file_name = rPathBaseName + ".tri";
+    this->mFaceRawData = this->GetRawDataFromFile(face_file_name);
 
     // There is no header
 
@@ -106,18 +109,18 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::~MemfemMeshReader()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(
-    std::vector<std::string> rawData)
+    const std::vector<std::string>& rRawData)
 {
     std::vector<std::vector<double> > tokenized_data; // Output
 
     // Iterate over the lines of input
-    std::vector<std::string>::iterator the_iterator;
-    for (the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
+    std::vector<std::string>::const_iterator the_iterator;
+    for (the_iterator = rRawData.begin(); the_iterator != rRawData.end(); the_iterator++ )
     {
-        std::string line_of_data = *the_iterator;
+        const std::string& line_of_data = *the_iterator;
         std::stringstream line_stream(line_of_data);
 
-        if (the_iterator != rawData.begin()) // Ignore the header string
+        if (the_iterator != rRawData.begin()) // Ignore the header string
         {
             std::vector<double> current_coords;
 
@@ -139,19 +142,19 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<unsigned> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
-    std::vector<std::string> rawData,
+    const std::vector<std::string>& rRawData,
     unsigned dimensionOfObject,
     bool readHeader)
 {
     std::vector<std::vector<unsigned> > tokenized_data;
 
-    std::vector<std::string>::iterator the_iterator;
-    for (the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
+    std::vector<std::string>::const_iterator the_iterator;
+    for (the_iterator = rRawData.begin(); the_iterator != rRawData.end(); the_iterator++ )
     {
-        std::string line_of_data = *the_iterator;
+        const std::string& line_of_data = *the_iterator;
         std::stringstream line_stream(line_of_data);
 
-        if ( readHeader == false || the_iterator!=rawData.begin() )
+        if ( readHeader == false || the_iterator != rRawData.begin() )
         {
             std::vector<unsigned> current_indices;
 

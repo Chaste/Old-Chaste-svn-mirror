@@ -27,6 +27,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCachedMeshReader.hpp"
+#include "Exception.hpp"
+
+#include <fstream>
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -45,48 +48,49 @@ AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::AbstractCachedMeshReader()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataFromFile(std::string fileName)
+std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataFromFile(
+        const std::string& rFileName)
 {
     // Open raw data file
 
-    std::vector<std::string> RawDataFromFile;
-    std::ifstream dataFile(fileName.c_str());
+    std::vector<std::string> raw_data;
+    std::ifstream data_file(rFileName.c_str());
 
     // Checks that input file has been opened correctly. If not throws an
     // exception that should be caught by the user.
-    if (!dataFile.is_open())
+    if (!data_file.is_open())
     {
-        EXCEPTION("Could not open data file " + fileName + " .");
+        EXCEPTION("Could not open data file " + rFileName + " .");
     }
 
     // Read each line in turn
-    std::string RawLineFromFile;
-    getline(dataFile, RawLineFromFile);
+    std::string raw_line;
+    getline(data_file, raw_line);
 
-    while (dataFile)
+    while (data_file)
     {
         // Remove comments (everything from a hash to the end of the line)
         // If there is no hash, then hashLocation = string::npos = -1 = 4294967295 = UINT_MAX
         // (so it works with unsigneds but is a little nasty)
-        long hash_location=RawLineFromFile.find('#',0);
+        long hash_location = raw_line.find('#', 0);
         if (hash_location >= 0)
         {
-            RawLineFromFile=RawLineFromFile.substr(0,hash_location);
+            raw_line = raw_line.substr(0, hash_location);
         }
         // Remove blank lines.  This is unnecessary, since the tokenizer will
         // ignore blank lines anyway.
-        long not_blank_location=RawLineFromFile.find_first_not_of(" \t",0);
+        long not_blank_location = raw_line.find_first_not_of(" \t", 0);
         if (not_blank_location >= 0)
         {
-            RawDataFromFile.push_back(RawLineFromFile);
+            raw_data.push_back(raw_line);
         }
 
         // Move onto next line
-        getline(dataFile, RawLineFromFile);
+        getline(data_file, raw_line);
     }
 
-    dataFile.close(); // Closes the data file
-    return(RawDataFromFile);
+    data_file.close(); // Closes the data file
+    return raw_data;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

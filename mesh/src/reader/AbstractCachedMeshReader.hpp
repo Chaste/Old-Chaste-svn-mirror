@@ -31,10 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <string>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include "Exception.hpp"
+
 #include "AbstractMeshReader.hpp"
 
 /**
@@ -75,13 +72,13 @@ protected:
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 
     /**
-     * Reads an input file fileName, removes comments (indicated by a #) and blank
+     * Reads an input file rFileName, removes comments (indicated by a #) and blank
      * lines and returns a vector of strings. Each string corresponds to one line
      * of the input file.
      *
-     * @param fileName  the name of the file to read from, relative to the output directory
+     * @param rFileName  the name of the file to read from, relative to the output directory
      */
-    std::vector<std::string> GetRawDataFromFile(std::string fileName); 
+    std::vector<std::string> GetRawDataFromFile(const std::string& rFileName); 
 
 public:
 

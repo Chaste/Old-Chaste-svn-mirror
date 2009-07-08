@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _MEMFEMMESHREADER_HPP_
 
 #include "AbstractCachedMeshReader.hpp"
-#include "Exception.hpp"
 
 /**
  * Concrete version of the AbstractCachedMeshReader class.
@@ -52,9 +51,9 @@ private:
      * Return value is a vector where each item is a vector of doubles which represents
      * position.  Indices are implicit in the vector.
      *
-     * @param rawData  the node data to be read
+     * @param rRawData  the node data to be read
      */
-    std::vector<std::vector<double> > TokenizeStringsToDoubles(std::vector<std::string> rawData);
+    std::vector<std::vector<double> > TokenizeStringsToDoubles(const std::vector<std::string>& rRawData);
 
     /**
      * TokenizeStringsToInts is for reading element or boundary face data which came from
@@ -67,11 +66,11 @@ private:
      * Return value is a vector where each item is a vector of ints which represents
      * indices of nodes.
      *
-     * @param rawData  the element or boundary face data to be read
+     * @param rRawData  the element or boundary face data to be read
      * @param dimensionOfObject  the number of lines of data to be read
      * @param readHeader  whether to read the header
      */
-    std::vector<std::vector<unsigned> > TokenizeStringsToInts(std::vector<std::string> rawData,
+    std::vector<std::vector<unsigned> > TokenizeStringsToInts(const std::vector<std::string>& rRawData,
                                                               unsigned dimensionOfObject,
                                                               bool readHeader);
 
@@ -85,9 +84,9 @@ public:
      * Typical use:
      *    AbstractMeshReader *pMeshReader = new MemfemMeshReader("pdes/tests/meshdata/Memfem_slab");
      *
-     * @param pathBaseName  the base name of the files from which to read the mesh data \todo make this a reference?
+     * @param rPathBaseName  the base name of the files from which to read the mesh data \todo make this a reference?
      */
-    MemfemMeshReader(std::string pathBaseName);
+    MemfemMeshReader(const std::string& rPathBaseName);
 
     /**
      * Destructor.

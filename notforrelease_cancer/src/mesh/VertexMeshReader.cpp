@@ -26,6 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "VertexMeshReader.hpp"
+#include "Exception.hpp"
+
+#include <sstream>
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

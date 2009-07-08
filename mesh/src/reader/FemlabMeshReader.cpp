@@ -27,21 +27,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FemlabMeshReader.hpp"
+#include "Exception.hpp"
+
+#include <sstream>
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader(std::string pathBaseName,
-                                                           std::string nodeFileName,
-                                                           std::string elementFileName,
-                                                           std::string edgeFileName)
+FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader(const std::string& rPathBaseName,
+                                                           const std::string& rNodeFileName,
+                                                           const std::string& rElementFileName,
+                                                           const std::string& rEdgeFileName)
 {
 
     // Open node file and store the lines as a vector of strings (minus the comments)
-    nodeFileName = pathBaseName + nodeFileName;
-    this->mNodeRawData = this->GetRawDataFromFile(nodeFileName);
+    std::string node_file_name = rPathBaseName + rNodeFileName;
+    this->mNodeRawData = this->GetRawDataFromFile(node_file_name);
 
     // Read the node data using TokenizeStringsToDoubles method
     this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
@@ -51,8 +54,8 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader(std::string pathBaseN
 
 
     // Open element file and store the lines as a vector of strings (minus the comments)
-    elementFileName = pathBaseName + elementFileName;
-    this->mElementRawData = this->GetRawDataFromFile (elementFileName);
+    std::string element_file_name = rPathBaseName + rElementFileName;
+    this->mElementRawData = this->GetRawDataFromFile(element_file_name);
 
     // Read the rest of the element data using TokenizeStringsToInts method
     this->mElementData = TokenizeStringsToInts(this->mElementRawData, SPACE_DIM + 1);
@@ -64,8 +67,8 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader(std::string pathBaseN
      * provides a GetNextEdgeData method which queries this data.
      */
 
-    edgeFileName = pathBaseName + edgeFileName;
-    this->mFaceRawData = this->GetRawDataFromFile (edgeFileName);
+    std::string edge_file_name = rPathBaseName + rEdgeFileName;
+    this->mFaceRawData = this->GetRawDataFromFile(edge_file_name);
 
     // Read the rest of the face/edge data using TokenizeStringsToInts method
     this->mFaceData = TokenizeStringsToInts(this->mFaceRawData, SPACE_DIM);
@@ -78,17 +81,17 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::~FemlabMeshReader()
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector < std::vector<double> >
-    FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(std::vector<std::string> rawData)
+    FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(const std::vector<std::string>& rRawData)
 {
     std::vector < std::vector < double > >tokenized_data; // Output
 
     // Iterate over the lines of input
     unsigned dimension_count = 0;
-    std::vector < std::string >::iterator the_iterator;
-    for (the_iterator = rawData.begin(); the_iterator != rawData.end();
+    std::vector < std::string >::const_iterator the_iterator;
+    for (the_iterator = rRawData.begin(); the_iterator != rRawData.end();
          the_iterator++)
     {
-        std::string line_of_data = *the_iterator;
+        const std::string& line_of_data = *the_iterator;
         std::stringstream line_stream (line_of_data);
 
         if (dimension_count == 0)
@@ -130,14 +133,14 @@ std::vector < std::vector<double> >
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector < std::vector < unsigned > >
-    FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(std::vector<std::string> rawData, unsigned dimensionOfObject)
+    FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(const std::vector<std::string>& rRawData, unsigned dimensionOfObject)
 {
     std::vector < std::vector < unsigned > >tokenized_data;
 
     // There are dimensionOfObject lines to be read
     for (unsigned i = 0; i < dimensionOfObject; i++)
     {
-        std::string line_of_data = rawData[i];
+        const std::string& line_of_data = rRawData[i];
         std::stringstream line_stream (line_of_data);
 
         if (i == 0)

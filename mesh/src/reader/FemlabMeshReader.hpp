@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _FEMLABMESHREADER_H_
 
 #include "AbstractCachedMeshReader.hpp"
-#include "Exception.hpp"
 
 /**
  * Concrete version of the AbstractCachedMeshReader class.
@@ -52,9 +51,9 @@ private:
      * Return value is a vector where each item is a vector of double which represents
      * position.  Indices are implicit in the vector.
      *
-     * @param rawData the node data to be read
+     * @param rRawData the node data to be read
      */
-    std::vector<std::vector<double> > TokenizeStringsToDoubles(std::vector<std::string> rawData);
+    std::vector<std::vector<double> > TokenizeStringsToDoubles(const std::vector<std::string>& rRawData);
 
     /**
      * TokenizeStringsToInts is for reading element, face or edge data which came from
@@ -70,7 +69,7 @@ private:
      * @param rawData  the element, face or edge data to be read
      * @param dimensionOfObject  the number of lines of data to be read
      */
-    std::vector<std::vector<unsigned> > TokenizeStringsToInts(std::vector<std::string> rawData, 
+    std::vector<std::vector<unsigned> > TokenizeStringsToInts(const std::vector<std::string>& rRawData, 
                                                               unsigned dimensionOfObject);
 
 public:
@@ -85,12 +84,15 @@ public:
      *                                                           "femlab_lshape_elements.dat",
      *                                                           "femlab_lshape_edges.dat",);
      *
-     * @param pathBaseName  the base name of the files from which to read the mesh data
-     * @param nodeFileName  the name of the nodes file
-     * @param elementFileName  the name of the elements file
-     * @param edgeFileName  the name of the edges file
+     * @param rPathBaseName  the base name of the files from which to read the mesh data
+     * @param rNodeFileName  the name of the nodes file
+     * @param rElementFileName  the name of the elements file
+     * @param rEdgeFileName  the name of the edges file
      */
-    FemlabMeshReader(std::string pathBaseName, std::string nodeFileName, std::string elementFileName, std::string edgeFileName);
+    FemlabMeshReader(const std::string& rPathBaseName,
+                     const std::string& rNodeFileName,
+                     const std::string& rElementFileName,
+                     const std::string& rEdgeFileName);
 
     /**
      * Destructor

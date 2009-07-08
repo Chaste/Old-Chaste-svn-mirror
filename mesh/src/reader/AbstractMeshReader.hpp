@@ -30,13 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTMESHREADER_HPP_
 #define _ABSTRACTMESHREADER_HPP_
 
-
 #include <vector>
 #include <string>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include "Exception.hpp"
 
 /**
  * Helper structure that stores the nodes and any attribute value

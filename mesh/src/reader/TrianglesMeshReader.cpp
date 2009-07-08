@@ -27,6 +27,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "TrianglesMeshReader.hpp"
+#include "Exception.hpp"
+#include <cassert>
+#include <sstream>
 
 const static char* NODES_FILE_EXTENSION = ".node";
 const static char* ELEMENTS_FILE_EXTENSION = ".ele";
