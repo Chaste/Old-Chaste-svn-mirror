@@ -110,15 +110,6 @@ public:
     void SetNextBoundaryFace(std::vector<unsigned> nextFace);
 
     /**
-     * Add an entry to mBoundaryFaceData.
-     * 
-     * \todo Why have this method? It's not called anywhere and just duplicates SetNextBoundaryFace()
-     * 
-     * @param nextEdge array of the nodes on the boundary face to add
-     */
-    void SetNextBoundaryEdge(std::vector<unsigned> nextEdge);
-
-    /**
      * Write mesh data to files.
      * This method must be overridden in concrete classes.
      */

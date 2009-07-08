@@ -38,29 +38,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 
 
-
 #define CHECK_SYSTEM(cmd) EXPECT0(system, cmd)
 
 
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool rCleanOutputDirectory)
 {
-    // Are we the master process?  Only the master should do any writing to disk
+    // Are we the master process?  Only the master should make any new directories
     mAmMaster = PetscTools::AmMaster();
     mDirectory = GetOutputDirectoryFullPath(rDirectory);
-
-    // Clean the output dir?
-    if (rCleanOutputDirectory && mAmMaster &&
-        rDirectory != "" && rDirectory.find("..") == std::string::npos)
+    //Is it a valid request for a directory?
+    if (rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
-        std::string directory_to_move_to = GetOutputDirectoryFullPath("last_cleaned_directory");
-        IGNORE_RET(system, "rm -rf " + directory_to_move_to);
-        // Re-create the special directory
-        mkdir(directory_to_move_to.c_str(), 0775);
-        CHECK_SYSTEM("mv " + mDirectory + " " + directory_to_move_to);
-        //system(("rm -rf " + mDirectory).c_str());
-        // Re-create the output directory
-        mkdir(mDirectory.c_str(), 0775);
+        // Are we the master process?  Only the master should make any new directories
+        if (rCleanOutputDirectory && mAmMaster)
+        {
+            std::string directory_to_move_to = GetOutputDirectoryFullPath("last_cleaned_directory");
+            IGNORE_RET(system, "rm -rf " + directory_to_move_to);
+            // Re-create the special directory
+            mkdir(directory_to_move_to.c_str(), 0775);
+            CHECK_SYSTEM("mv " + mDirectory + " " + directory_to_move_to);
+            //system(("rm -rf " + mDirectory).c_str());
+            // Re-create the output directory
+            mkdir(mDirectory.c_str(), 0775);
+        }
+//This not always collective so we can't have a barrier       PetscTools::Barrier();
+        struct stat st;
+        while (stat(mDirectory.c_str(), &st) != 0)
+        {
+            //Wait until directory becomes available
+        }
     }
 }
 

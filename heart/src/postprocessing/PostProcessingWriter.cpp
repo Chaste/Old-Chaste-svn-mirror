@@ -47,10 +47,10 @@ PostProcessingWriter::~PostProcessingWriter()
 
 void PostProcessingWriter::WriteApdMapFile(double threshold, double repolarisationPercentage)
 {
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         std::stringstream stream;
         stream << repolarisationPercentage;
         p_file = output_file_handler.OpenOutputFile("Apd" + stream.str() + "Map.dat");

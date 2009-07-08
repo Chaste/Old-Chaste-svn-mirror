@@ -71,12 +71,6 @@ c_vector<double, DIM>& ChastePoint<DIM>::rGetLocation()
 }
 
 template<unsigned DIM>
-const c_vector<double, DIM>& ChastePoint<DIM>::rGetLocation() const
-{
-    return mLocation;
-}
-
-template<unsigned DIM>
 double ChastePoint<DIM>::operator[] (unsigned i) const
 {
     assert(i<DIM);

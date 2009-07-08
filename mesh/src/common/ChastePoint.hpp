@@ -87,11 +87,6 @@ public:
     c_vector<double, DIM>& rGetLocation();
 
     /**
-     * Get the location of the Point.
-     */
-    const c_vector<double, DIM>& rGetLocation() const;
-
-    /**
      * Access the vector mLocation.
      *
      * @param i the index of the vector to return

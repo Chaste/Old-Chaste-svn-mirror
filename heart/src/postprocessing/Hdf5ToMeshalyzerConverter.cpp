@@ -44,11 +44,9 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
     assert(type=="V" || type=="Phi_e");
 
     out_stream p_file=out_stream(NULL);
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if (PetscTools::AmMaster())
     {
-        //Note that we don't want the child processes to create
-        //a fresh directory if it doesn't already exist
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + type + ".dat");
     }
 
