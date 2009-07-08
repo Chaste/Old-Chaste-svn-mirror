@@ -488,7 +488,7 @@ void LinearSystem::SetRelativeTolerance(double relativeTolerance)
     mUseAbsoluteTolerance=false;
     if (mKspIsSetup)
     {
-        KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+        KSPSetTolerances(mKspSolver, mTolerance, DBL_MIN, PETSC_DEFAULT, PETSC_DEFAULT);
     }
 }
 
@@ -498,7 +498,7 @@ void LinearSystem::SetAbsoluteTolerance(double absoluteTolerance)
     mUseAbsoluteTolerance=true;
     if (mKspIsSetup)
     {
-        KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+        KSPSetTolerances(mKspSolver, DBL_MIN, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
     }
 }
 
@@ -571,11 +571,11 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         // The default is to use relative tolerance (1e-6)
         if (mUseAbsoluteTolerance)
         {
-            KSPSetTolerances(mKspSolver, DBL_EPSILON, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
+            KSPSetTolerances(mKspSolver, DBL_MIN, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT);
         }
         else
         {
-            KSPSetTolerances(mKspSolver, mTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+            KSPSetTolerances(mKspSolver, mTolerance, DBL_MIN, PETSC_DEFAULT, PETSC_DEFAULT);
         }
 
         // set ksp and pc types

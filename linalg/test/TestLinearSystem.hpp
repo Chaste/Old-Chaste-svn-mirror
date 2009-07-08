@@ -116,7 +116,7 @@ public:
         VecDestroy(solution_vector);
 
         //SetAbsoluteTolerance
-        ls.SetAbsoluteTolerance(1e-10);
+        ls.SetAbsoluteTolerance(1e-9);
         solution_vector = ls.Solve();
         KSPGetConvergedReason(ls.mKspSolver, &reason);
         TS_ASSERT_EQUALS(reason, KSP_CONVERGED_ATOL); 
@@ -136,7 +136,6 @@ public:
         }
         VecRestoreArray(solution_vector, &p_solution_elements_array);
         VecDestroy(solution_vector);
-
     }
 
     void TestZeroingLinearSystem()
@@ -628,7 +627,7 @@ public:
         KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
         TS_ASSERT_EQUALS(rtol, 1e-3);
         // others should be their PETSc defaults (unless we've done different)
-        TS_ASSERT_EQUALS(atol, 1e-50);
+        TS_ASSERT_EQUALS(atol, DBL_MIN);
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
 
@@ -655,7 +654,7 @@ public:
         ls.SetRelativeTolerance(1e-4);
         KSPGetTolerances(ls.mKspSolver, &rtol, &atol, &dtol, &maxits);
         TS_ASSERT_EQUALS(rtol, 1e-4);
-        TS_ASSERT_EQUALS(atol, 1e-50);
+        TS_ASSERT_EQUALS(atol, DBL_MIN);
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
 
@@ -669,7 +668,7 @@ public:
         solution_vector2 = ls2.Solve();
         VecDestroy(solution_vector2);
         KSPGetTolerances(ls2.mKspSolver, &rtol, &atol, &dtol, &maxits);
-        TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
+        TS_ASSERT_EQUALS(rtol, DBL_MIN);
         TS_ASSERT_EQUALS(atol, 1e-3);
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
@@ -682,7 +681,7 @@ public:
         solution_vector3 = ls2.Solve();
         VecDestroy(solution_vector3);
         KSPGetTolerances(ls2.mKspSolver, &rtol, &atol, &dtol, &maxits);
-        TS_ASSERT_EQUALS(rtol, DBL_EPSILON);
+        TS_ASSERT_EQUALS(rtol, DBL_MIN);
         TS_ASSERT_EQUALS(atol, 1e-2);
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
