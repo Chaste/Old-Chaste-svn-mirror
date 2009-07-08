@@ -36,3 +36,5 @@ output:(uname)
 #Filter out revision and build details
 output:from revision number
 results_h5:HDF5
+#Filter out timestamped absolute paths
+errors:texttesttmp/console.

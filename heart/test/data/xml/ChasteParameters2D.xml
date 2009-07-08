@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="../../src/io/ChasteParameters.xsd">
+<ChasteParameters>
        
 	<Simulation>
 		<!-- 
 			Problem definition 
 		-->
-		<SpaceDimension>3</SpaceDimension>
+		<SpaceDimension>2</SpaceDimension>
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    
@@ -15,7 +13,7 @@
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
+			<Sheet x="4.0" y="0.1" inter_node_space="0.1"/>    
 	  	</Mesh>
 	
 		<!--
@@ -158,13 +156,5 @@
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>ilu</KSPPreconditioner>
 	</Numerical>
-	
-	<PostProcessing>
-	        <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
-	        <UpstrokeTimeMap threshold="-30.0" threshold_unit="mV"/>
-	        <MaxUpstrokeVelocityMap/>
-	        <ConductionVelocityMap origin_node="10"/>
-	        <ConductionVelocityMap origin_node="20"/>
-	</PostProcessing>
 
 </ChasteParameters>

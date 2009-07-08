@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="src/io/ChasteParameters.xsd">
+       xsi:noNamespaceSchemaLocation="ChasteParametersRelease1.xsd">
 
 	<Simulation>
 		<!-- 
@@ -104,7 +104,5 @@
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
-	
-	<PostProcessing>
-    </PostProcessing>  
+
 </ChasteParameters>

@@ -26,7 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "UblasCustomFunctions.hpp"
 #include "HeartConfig.hpp"
+
+#include <cassert>
+//#include <iostream>
+
+#include "OutputFileHandler.hpp"
+#include "Exception.hpp"
+#include "ChastePoint.hpp"
+#include "Version.hpp"
+
 
 // Coping with changes to XSD interface
 #if (XSD_INT_VERSION >= 3000000L)
@@ -88,8 +98,8 @@ HeartConfig::HeartConfig()
     assert(mpInstance.get() == NULL);
     mpDefaultParameters = NULL;
     mpUserParameters = NULL;
+    mUseFixedSchemaLocation = true;
 
-//    mpDefaultParameters = ReadFile("ChasteDefaults.xml");
     SetDefaultsFile("ChasteDefaults.xml");
 
     mpUserParameters = mpDefaultParameters;
@@ -106,12 +116,12 @@ HeartConfig::~HeartConfig()
     delete mpDefaultParameters;
 }
 
-void HeartConfig::SetDefaultsFile(std::string fileName)
+void HeartConfig::SetDefaultsFile(const std::string& rFileName)
 {
     bool same_target = (mpUserParameters == mpDefaultParameters);
 
     delete mpDefaultParameters;
-    mpDefaultParameters = ReadFile(fileName);
+    mpDefaultParameters = ReadFile(rFileName);
 
     if (same_target)
     {
@@ -153,15 +163,24 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
     ChasteParameters(*p_parameters_file, *mpUserParameters, map);
     ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
 }
-chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
+
+chaste_parameters_type* HeartConfig::ReadFile(const std::string& rFileName)
 {
-    // get the parameters using the method 'ChasteParameters(filename)',
+    // Determine whether to use the schema path given in the input XML, or our own schema
+    ::xml_schema::properties p;
+    if (mUseFixedSchemaLocation)
+    {
+        std::string chaste_root = GetChasteRoot();
+        p.no_namespace_schema_location(chaste_root + "/heart/src/io/ChasteParameters.xsd");
+    }
+    
+    // get the parameters using the method 'ChasteParameters(rFileName)',
     // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
     // it will delete memory when out of scope, or no longer point when it is copied,
     // so we reallocate memory using a normal pointer and copy the data to there
     try
     {
-        std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(fileName));
+        std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(rFileName, 0, p));
         return new chaste_parameters_type(*p_default);
     }
     catch (const xml_schema::exception& e)
@@ -170,18 +189,20 @@ chaste_parameters_type* HeartConfig::ReadFile(std::string fileName)
          //More clunky memory management
          mpUserParameters = NULL;
          mpDefaultParameters = NULL;
-         EXCEPTION("XML parsing error in configuration file: " + fileName);
+         EXCEPTION("XML parsing error in configuration file: " + rFileName);
     }
 }
 
-void HeartConfig::SetParametersFile(std::string fileName)
+void HeartConfig::SetParametersFile(const std::string& rFileName)
 {
     // handles multiple calls to the method in the same context
     if (mpUserParameters != mpDefaultParameters)
     {
         delete mpUserParameters;
     }
-    mpUserParameters = ReadFile(fileName);
+    mpUserParameters = ReadFile(rFileName);
+    
+    CheckTimeSteps(); // For consistency with SetDefaultsFile
 }
 
 
@@ -1007,14 +1028,14 @@ void HeartConfig::SetConductivityHeterogeneities(
 }
 
 
-void HeartConfig::SetOutputDirectory(std::string outputDirectory)
+void HeartConfig::SetOutputDirectory(const std::string& rOutputDirectory)
 {
-    mpUserParameters->Simulation().OutputDirectory().set(outputDirectory);
+    mpUserParameters->Simulation().OutputDirectory().set(rOutputDirectory);
 }
 
-void HeartConfig::SetOutputFilenamePrefix(std::string outputFilenamePrefix)
+void HeartConfig::SetOutputFilenamePrefix(const std::string& rOutputFilenamePrefix)
 {
-    mpUserParameters->Simulation().OutputFilenamePrefix().set(outputFilenamePrefix);
+    mpUserParameters->Simulation().OutputFilenamePrefix().set(rOutputFilenamePrefix);
 }
 
 
@@ -1259,3 +1280,7 @@ void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
     }
 }
 
+void HeartConfig::SetUseFixedSchemaLocation(bool useFixedSchemaLocation)
+{
+    mUseFixedSchemaLocation = useFixedSchemaLocation;
+}

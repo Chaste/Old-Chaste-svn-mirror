@@ -30,11 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTHEARTCONFIG_HPP_
 #define TESTHEARTCONFIG_HPP_
 
+#include "UblasCustomFunctions.hpp"
+
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
 #include "HeartConfig.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
@@ -44,7 +47,7 @@ public :
         double chi = HeartConfig::Instance()->mpDefaultParameters->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
 
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
         chi = HeartConfig::Instance()->mpUserParameters->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
@@ -61,7 +64,7 @@ public :
 
     void TestUserProvidedDifferentFromDefault()
     {
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
         ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().IonicModels().get().Default();
         TS_ASSERT_EQUALS(default_ionic_model, ionic_models_available_type::LuoRudyI);
@@ -76,7 +79,7 @@ public :
 
     void TestGetFunctions()
     {
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSpaceDimension(),
                          3u);
@@ -215,7 +218,7 @@ public :
         
 
         /// \todo: refactor from here until the end of the test into a different test
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
 
         TS_ASSERT(!HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
@@ -223,20 +226,20 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetConductivityMedia(), media_type::NoFibreOrientation);
 
         //Try reading through an empty parameters file into a fully-populated default
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
-        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteParametersFullFormat.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         HeartConfig::Instance()->Reset();
     }
 
     void TestIsMeshProvided()
     {
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteEmpty.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMeshProvided(), false);
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetLoadMesh())
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateMesh())
 
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersLoadMesh.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMeshProvided(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetLoadMesh(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateMesh(), false);
@@ -244,7 +247,7 @@ public :
 
     void Test2dProblems()
     {
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParameters2D.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParameters2D.xml");
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSpaceDimension(),
                          2u);
@@ -290,7 +293,7 @@ public :
 
     void Test1dProblems()
     {
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParameters1D.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParameters1D.xml");
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSpaceDimension(),
                          1u);
@@ -535,7 +538,8 @@ public :
         TS_ASSERT_EQUALS(upstroke_time_map_get.size(),2u);
         TS_ASSERT_EQUALS(upstroke_time_map_get[0],25);
         TS_ASSERT_EQUALS(upstroke_time_map_get[1],55);
-     }
+    }
+
     void TestWrite() throw(Exception)
     {
         OutputFileHandler output_file_handler("Xml/output", true);
@@ -554,27 +558,6 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
 
     }
-    /**
-     *  The following test is aimed at checking that the ChasteParameters.xml file,
-     *  which is distributed with the executable, remains valid.
-     */
-    void TestChasteParametersFile() throw (Exception)
-    {
-        HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
-    }
-    void TestExceptions() throw (Exception)
-    {
-        //We might want to remove SetDefaultsFile()
-        HeartConfig::Instance()->Reset();
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"));
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/ChasteInconsistent.xml"));
-        //TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteInconsistent.xml"));
-        
-        //Can't open a directory/file for writing
-        HeartConfig::Instance()->SetOutputDirectory("../../../");
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->Write());
-    }
     
     void TestArchiving()
     {        
@@ -585,7 +568,7 @@ public :
         archive_filename = handler.GetOutputDirectoryFullPath() + "heart_config.arch";       
 
         HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/ChasteParametersFullFormat.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         
         ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
         TS_ASSERT( user_ionic == ionic_models_available_type::FaberRudy2000 );
@@ -608,7 +591,52 @@ public :
         input_arch >> (*p_heart_config);
         
         TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
-                
+    }
+    
+    /**
+     *  The following test is aimed at checking that the ChasteParameters.xml file,
+     *  which is distributed with the executable, remains valid.
+     */
+    void TestChasteParametersFile() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+    }
+    
+    void TestExceptions() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"));
+        HeartConfig::Instance()->Reset();
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteInconsistent.xml"));
+        HeartConfig::Instance()->Reset();
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"));
+        
+        //Can't open a directory/file for writing
+        HeartConfig::Instance()->SetOutputDirectory("../../../");
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->Write());
+    }
+    
+    /**
+     * And here we try to check that using old XML or XSD files does The Right Thing.
+     */
+    void TestVersioning()
+    {
+        // Broken schema should throw
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"));
+        
+        // Check that release 1 xml can be loaded with latest schema
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
+        
+        // Can release 1 xml be loaded with release 1 schema?
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
     }
 };
 

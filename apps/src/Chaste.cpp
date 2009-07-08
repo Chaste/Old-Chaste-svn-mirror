@@ -26,34 +26,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "TetrahedralMesh.hpp"
+#include <petscvec.h>
+
+#include <vector>
+#include <ctime>
+#include <memory>
+
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
 #include "PetscTools.hpp"
-#include <petscvec.h>
-#include <vector>
 #include "AbstractCardiacCellFactory.hpp"
 #include "TimeStepper.hpp"
-#include "MeshalyzerMeshWriter.hpp"
-#include "TrianglesMeshWriter.hpp"
-#include "MultiStimulus.hpp"
-#include <ctime>
 
+#include "HeartConfig.hpp"
 #include "ChasteParameters.hpp"
-#include <memory>
 
 #include "AbstractStimulusFunction.hpp"
+#include "MultiStimulus.hpp"
+#include "SimpleStimulus.hpp"
+
+#include "TetrahedralMesh.hpp"
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
+#include "MeshalyzerMeshWriter.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-
 #include "FoxModel2002Modified.hpp"
 #include "FaberRudy2000Version3.hpp"
 #include "FaberRudy2000Version3Optimised.hpp"
-
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 #include "Mahajan2008OdeSystem.hpp"
 #include "TenTusscher2006OdeSystem.hpp"
@@ -216,7 +219,22 @@ public:
 
 void ReadParametersFromFile()
 {
-    HeartConfig::Instance()->SetParametersFile(parameter_file);
+    try
+    {
+        // Try using the schema location given in the XML first
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        HeartConfig::Instance()->SetParametersFile(parameter_file);
+    }
+    catch (Exception& e)
+    {
+        // Use the fixed location, but warn the user
+        std::cerr << "Failed to load parameters file using schema specified in file"
+                  << " (error was: " << e.GetMessage() << ");"
+                  << " using built-in default schema location." << std::endl << std::flush;
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetParametersFile(parameter_file);
+    }
 
     output_directory = HeartConfig::Instance()->GetOutputDirectory();
 

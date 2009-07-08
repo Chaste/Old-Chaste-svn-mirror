@@ -44,7 +44,7 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/ChasteParametersFullFormat.xml"));
+            auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/xml/ChasteParametersFullFormat.xml"));
 
             simulation_type simulation_params = params->Simulation();
 
@@ -87,7 +87,7 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/ChasteParametersLoadMesh.xml"));
+            auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/xml/ChasteParametersLoadMesh.xml"));
 
             simulation_type simulation_params = params->Simulation();
 
@@ -126,7 +126,7 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/ChasteParametersLoadMesh.xml"));
+            auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/xml/ChasteParametersLoadMesh.xml"));
             physiological_type physiological_params = params->Physiological();
 
             physiological_params.ExtracellularConductivities().get().longi() = 9.0;

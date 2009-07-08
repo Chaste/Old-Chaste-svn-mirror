@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "PostProcessingWriter.hpp"
 #include "PetscTools.hpp"
+#include "OutputFileHandler.hpp"
 #include <iostream>
 
 PostProcessingWriter::PostProcessingWriter(Hdf5DataReader* pDataReader)

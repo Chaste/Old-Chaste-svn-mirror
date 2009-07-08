@@ -30,19 +30,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef HEARTCONFIG_HPP_
 #define HEARTCONFIG_HPP_
 
-#include "UblasCustomFunctions.hpp"
-#include "ChasteParameters.hpp"
-#include <iostream>
-#include "Exception.hpp"
+#include <string>
 #include <vector>
-#include "AbstractStimulusFunction.hpp"
+
+#include "UblasIncludes.hpp"
+
+#include "ArchiveLocationInfo.hpp"
+#include "ChasteParameters.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
-#include "OutputFileHandler.hpp"
-#include "ArchiveLocationInfo.hpp"
 
 #include <boost/shared_ptr.hpp>
 
+#include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
 
 // Needs to be included last
@@ -112,14 +112,21 @@ public:
     static HeartConfig* Instance();
 
     /**
-     * @param fileName The name of the default file - set by default to "ChasteDefaults.xml" on construction
+     * @param useFixedSchemaLocation  whether to read the schema location from the XML
+     *    file (false) or use the schema located at heart/src/io/ChasteParameters.xsd
+     *    in the Chaste source tree (true).
      */
-    void SetDefaultsFile(std::string fileName);
+    void SetUseFixedSchemaLocation(bool useFixedSchemaLocation);
+
+    /**
+     * @param rFileName The name of the default file - set by default to "ChasteDefaults.xml" on construction
+     */
+    void SetDefaultsFile(const std::string& rFileName);
     /**
      * #mpUserParameters  is set to a new context associated with a parameters file
-     * @param fileName The name of the parameters file
+     * @param rFileName The name of the parameters file
      */
-    void SetParametersFile(std::string fileName);
+    void SetParametersFile(const std::string& rFileName);
     /**
      * Write out the complete configuration set (ChasteParameters
      * and ChasteDefaults) as an XML file.
@@ -148,7 +155,7 @@ public:
      * @return domain type of simulation bi- mono-domain
      */
     domain_type GetDomain() const;
-   /**
+    /**
      * Default cardiac cell model to use at all mesh nodes
      * (unless otherwise specified by IonicModelRegions)
      * ionic_models_available_type is an xsd convenience class type
@@ -169,7 +176,7 @@ public:
      * \todo No set method
      */
      void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
-                              std::vector<ionic_models_available_type>& ionicModels) const;
+                               std::vector<ionic_models_available_type>& ionicModels) const;
 
 
     bool IsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
@@ -422,11 +429,11 @@ public:
                                         std::vector< c_vector<double,3> >& extraConductivities);
 
     /**
-     * @param outputDirectory  Full path to output directory (will be created if necessary)
+     * @param rOutputDirectory  Full path to output directory (will be created if necessary)
      */
-    void SetOutputDirectory(std::string outputDirectory);
+    void SetOutputDirectory(const std::string& rOutputDirectory);
     /**
-     * @param outputFilenamePrefix  Prefix for files
+     * @param rOutputFilenamePrefix  Prefix for files
      * If set to "res" this will produce
      * [path]/res.h5
      * [path]/output/res_mesh.pts
@@ -435,7 +442,7 @@ public:
      * [path]/output/res_times.info
      * [path]/output/res_V.dat
      */
-    void SetOutputFilenamePrefix(std::string outputFilenamePrefix);
+    void SetOutputFilenamePrefix(const std::string& rOutputFilenamePrefix);
 
     // Physiological
     /**
@@ -566,6 +573,12 @@ private:
 
     /** The single instance of the class */
     static std::auto_ptr<HeartConfig> mpInstance;
+    
+    /**
+     * Whether to read the schema location from the XML file (false) or use the schema
+     * located at heart/src/io/ChasteParameters.xsd in the Chaste source tree (true).
+     */
+    bool mUseFixedSchemaLocation;
 
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
@@ -582,9 +595,9 @@ private:
     /** Utility method to parse an XML parameters file
      * get the parameters using the method 'ChasteParameters(filename)',
      * which returns a std::auto_ptr.
-     * @param fileName  Name of XML file
+     * @param rFileName  Name of XML file
      */
-    chaste_parameters_type* ReadFile(std::string fileName);
+    chaste_parameters_type* ReadFile(const std::string& rFileName);
 
 };
 

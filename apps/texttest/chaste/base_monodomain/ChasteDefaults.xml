@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="ChasteParameters.xsd">
+<ChasteParameters>
 
 	<Simulation>
 		<SpaceDimension>3</SpaceDimension>
