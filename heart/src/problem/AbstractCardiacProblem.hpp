@@ -60,11 +60,6 @@ protected:
     /** If this is set, the nodes for each processor are read */
     std::string mNodesPerProcessorFilename;
 
-    /** Data is not written if output directory is not set */
-    std::string mOutputDirectory;
-    /** Data is not written if output file prefix is not set */
-    std::string mOutputFilenamePrefix;
-
     /**
      *  Whether to use matrix-based assembly of the RHS vector (much more efficient).
      *  True by default
@@ -283,7 +278,7 @@ public:
 
     /**
      * It creates and initialises the hdf writer from the Hdf5DataWriter class.
-     * It passes the output directory (mOutputDirectory) and file name (mOutputFilenamePrefix) to it.
+     * It passes the output directory and file name to it.
      * It is called by Solve(), if the output needs to be generated.
      */
     void InitialiseWriter();

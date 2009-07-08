@@ -253,11 +253,13 @@ public:
             
             //If the printing time step is too fine, then simulations become I/O bound without much improvement in accuracy
             double printing_step = this->PdeTimeStep;
+#define COVERAGE_IGNORE
             while (printing_step < 1.0e-4)
             {
                 printing_step *= 2.0;
                 std::cout<<"Warning: PrintingTimeStep increased\n";
             }
+#undef COVERAGE_IGNORE
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(this->OdeTimeStep, this->PdeTimeStep, printing_step);
 #define COVERAGE_IGNORE
             if (SimulateFullActionPotential)

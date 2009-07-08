@@ -66,7 +66,7 @@ private:
      * Return value is a vector where each item is a vector of ints which represents
      * indices of nodes.
      *
-     * @param rawData  the element, face or edge data to be read
+     * @param rRawData  the element, face or edge data to be read
      * @param dimensionOfObject  the number of lines of data to be read
      */
     std::vector<std::vector<unsigned> > TokenizeStringsToInts(const std::vector<std::string>& rRawData, 

@@ -50,8 +50,6 @@ AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
             AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory)
     : mMeshFilename(""),               // i.e. undefined
       mNodesPerProcessorFilename(""),  // i.e. undefined
-      mOutputDirectory(""),            // i.e. undefined
-      mOutputFilenamePrefix(""),       // i.e. undefined
       mUseMatrixBasedRhsAssembly(true),
       mpBoundaryConditionsContainer(NULL),
       mpDefaultBoundaryConditionsContainer(NULL),
@@ -95,9 +93,6 @@ AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem(
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
 {
-    mOutputDirectory = HeartConfig::Instance()->GetOutputDirectory();
-    mOutputFilenamePrefix = HeartConfig::Instance()->GetOutputFilenamePrefix();
-
     HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
     if (mpMesh==NULL)
     {
@@ -251,7 +246,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
     }
     if (mPrintOutput==true)
     {
-        if( (mOutputDirectory=="") || (mOutputFilenamePrefix==""))
+        if( (HeartConfig::Instance()->GetOutputDirectory()=="") || (HeartConfig::Instance()->GetOutputFilenamePrefix()==""))
         {
             EXCEPTION("Either explicitly specify not to print output (call PrintOutput(false)) or specify the output directory and filename prefix");
         }
@@ -389,7 +384,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         WriteOneStep(stepper.GetTime(), initial_condition);
         HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
 
-        progress_reporter_dir = mOutputDirectory;
+        progress_reporter_dir = HeartConfig::Instance()->GetOutputDirectory();
     }
     else
     {
@@ -456,7 +451,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
                 HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
             }
 
-            // Writing data out to the file <mOutputFilenamePrefix>.dat
+            // Writing data out to the file <FilenamePrefix>.dat
             HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
             mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
             WriteOneStep(stepper.GetTime(), mSolution);
@@ -471,11 +466,12 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     // We need to do this before the assembler is destroyed
     if (mArchiveKSP)
     {
-        OutputFileHandler handler(mOutputDirectory, false);
+        ///\todo This should go in a location set in ArchiveLocationInfo (see LinearSystem::load_construct_data(...))
+        OutputFileHandler handler(HeartConfig::Instance()->GetOutputDirectory(), false);
         handler.SetArchiveDirectory();
         
         std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + mOutputFilenamePrefix +"_ls.arch";       
+        archive_filename = handler.GetOutputDirectoryFullPath() + HeartConfig::Instance()->GetOutputFilenamePrefix() +"_ls.arch";       
         
         std::ofstream ofs(archive_filename.c_str());
         boost::archive::text_oarchive output_arch(ofs);
@@ -513,15 +509,14 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostPr
     if (mCallChaste2Meshalyzer && mNodesToOutput.empty())
     {
         //Convert simulation data to Meshalyzer format
-        assert(mOutputDirectory==HeartConfig::Instance()->GetOutputDirectory());///\todo mOutputDirectory is redundant
-        Hdf5ToMeshalyzerConverter converter(mOutputDirectory, mOutputFilenamePrefix);
+        Hdf5ToMeshalyzerConverter converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
 
         //Write mesh in a suitable form for meshalyzer
         if (PetscTools::AmMaster())
         {
-            std::string output_directory =  mOutputDirectory + "/output";
+            std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
             //Write the mesh
-            MeshalyzerMeshWriter<ELEM_DIM,SPACE_DIM> mesh_writer(output_directory, mOutputFilenamePrefix+"_mesh", false);
+            MeshalyzerMeshWriter<ELEM_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
 
             try
             {
@@ -575,7 +570,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::WriteOneStep(double
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
-    mpWriter = new Hdf5DataWriter(*mpCellFactory->GetMesh()->GetDistributedVectorFactory(), mOutputDirectory,mOutputFilenamePrefix);
+    mpWriter = new Hdf5DataWriter(*mpCellFactory->GetMesh()->GetDistributedVectorFactory(), HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
     DefineWriterColumns();
     mpWriter->EndDefineMode();
 }
@@ -589,11 +584,11 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::SetOutputNodes(std:
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Hdf5DataReader AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::GetDataReader()
 {
-    if( (mOutputDirectory=="") || (mOutputFilenamePrefix==""))
+    if( (HeartConfig::Instance()->GetOutputDirectory()=="") || (HeartConfig::Instance()->GetOutputFilenamePrefix()==""))
     {
         EXCEPTION("Data reader invalid as data writer cannot be initialised");
     }
-    return Hdf5DataReader(mOutputDirectory, mOutputFilenamePrefix);
+    return Hdf5DataReader(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

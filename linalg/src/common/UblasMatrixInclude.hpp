@@ -29,7 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define UBLASMATRIXINCLUDE_HPP_
 
 /**
- * @file Convenience header for including ublas matrix in default namespace
+ * @file 
+ * Convenience header for including ublas matrix in default namespace
  */
 
 #include <boost/numeric/ublas/matrix.hpp>

@@ -283,6 +283,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
             //Standard transmembrane potentials are within +-100 mV
             if (fabs(max) > 500)
             {
+                NEVER_REACHED;
 #define COVERAGE_IGNORE
                 // std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
                 //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
