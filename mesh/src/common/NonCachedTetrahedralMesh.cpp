@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "NonCachedTetrahedralMesh.hpp"
+#include "Exception.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()

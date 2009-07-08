@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 
-// used
 #include <iostream>
 #include <cassert>
 #include <sstream>
@@ -41,17 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 #include "RandomNumberGenerator.hpp"
-
-/// \todo unused - remove?
-//#include <algorithm>
-//
-////Jonathan Shewchuk's triangle
-//#define REAL double
-//#define VOID void
-//#include "triangle.h"
-//#undef REAL
-//
-//#include "TrianglesMeshReader.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION

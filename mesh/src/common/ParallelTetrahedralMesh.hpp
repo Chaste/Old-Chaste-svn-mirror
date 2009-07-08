@@ -30,16 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define PARALLELTETRAHEDRALMESH_HPP_
 
 #include <map>
+#include <vector>
+#include <set>
 
 #include "AbstractMesh.hpp"
-#include "AbstractMeshReader.hpp"
-#include "Element.hpp"
-#include "BoundaryElement.hpp"
 #include "Node.hpp"
-#include "DistributedVector.hpp"
-#include "DistributedVectorFactory.hpp"
-#include "PetscTools.hpp"
-#include "OutputFileHandler.hpp"
+#include "AbstractMeshReader.hpp"
 
 /*
  *  The following definition fixes an odd incompatibility of METIS 4.0 and Chaste. Since
@@ -245,11 +241,11 @@ private:
      *  
      */
     void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                               std::set<unsigned>& rNodesOwned,
-                               std::set<unsigned>& rHaloNodesOwned,
-                               std::set<unsigned>& rElementsOwned,
-                               std::vector<unsigned>& rProcessorsOffset,
-                               std::vector<unsigned>& rNodePermutation);
+                                 std::set<unsigned>& rNodesOwned,
+                                 std::set<unsigned>& rHaloNodesOwned,
+                                 std::set<unsigned>& rElementsOwned,
+                                 std::vector<unsigned>& rProcessorsOffset,
+                                 std::vector<unsigned>& rNodePermutation);
 
     /**
      * Specialised method to compute a parallel partitioning of a given mesh
@@ -287,9 +283,9 @@ private:
      * 
      */
     void MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                     std::set<unsigned>& rNodesOwned, 
-                                     std::vector<unsigned>& rProcessorsOffset,
-                                     std::vector<unsigned>& rNodePermutation);
+                                      std::set<unsigned>& rNodesOwned, 
+                                      std::vector<unsigned>& rProcessorsOffset,
+                                      std::vector<unsigned>& rNodePermutation);
 
     /**
      * Reorder the node indices in this mesh by applying a given permutation

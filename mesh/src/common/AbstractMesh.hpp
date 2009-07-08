@@ -32,6 +32,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
 
+#include <vector>
+#include <string>
+#include <cassert>
+
 #include "Node.hpp"
 #include "BoundaryElement.hpp"
 #include "Element.hpp"

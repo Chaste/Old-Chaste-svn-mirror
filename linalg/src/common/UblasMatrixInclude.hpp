@@ -25,20 +25,15 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef UBLASINCLUDES_HPP_
-#define UBLASINCLUDES_HPP_
+#ifndef UBLASMATRIXINCLUDE_HPP_
+#define UBLASMATRIXINCLUDE_HPP_
 
 /**
- * @file Convenience header for including ublas types in default namespace
+ * @file Convenience header for including ublas matrix in default namespace
  */
- 
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
 
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/matrix_expression.hpp>
-#include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 
 using namespace boost::numeric::ublas;
 
-#endif /*UBLASINCLUDES_HPP_*/
+#endif /*UBLASMATRIXINCLUDE_HPP_*/

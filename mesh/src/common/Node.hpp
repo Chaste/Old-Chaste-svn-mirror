@@ -26,13 +26,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _NODE_HPP_
 #define _NODE_HPP_
 
+#include "UblasVectorInclude.hpp"
+
+#include <set>
+#include <vector>
 
 #include "ChastePoint.hpp"
-#include <set>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TetrahedralMesh;

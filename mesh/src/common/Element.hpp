@@ -30,8 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ELEMENT_HPP_
 #define _ELEMENT_HPP_
 
+#include "UblasMatrixInclude.hpp"
+#include "UblasVectorInclude.hpp"
+
+#include <vector>
+
 #include "AbstractTetrahedralElement.hpp"
-#include <set>
+#include "Node.hpp"
+#include "ChastePoint.hpp"
 
 /**
  * A concrete element class which inherits from AbstractTetrahedralElement.

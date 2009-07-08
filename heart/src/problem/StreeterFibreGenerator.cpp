@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "UblasCustomFunctions.hpp"
+
 #include "StreeterFibreGenerator.hpp"
 
 #include <cmath>

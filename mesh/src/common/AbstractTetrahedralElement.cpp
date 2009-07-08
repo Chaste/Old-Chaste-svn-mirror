@@ -26,8 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "UblasCustomFunctions.hpp"
+
 #include "AbstractTetrahedralElement.hpp"
 
+#include "Exception.hpp"
+
+#include <cassert>
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation

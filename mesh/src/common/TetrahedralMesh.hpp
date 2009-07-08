@@ -29,11 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TETRAHEDRALMESH_HPP_
 #define _TETRAHEDRALMESH_HPP_
 
+#include "UblasVectorInclude.hpp"
+#include "UblasMatrixInclude.hpp"
+
 #include <vector>
 #include <string>
 #include <set>
-
-#include "UblasIncludes.hpp" // must be 'first'
 
 #include "AbstractMesh.hpp"
 #include "AbstractMeshReader.hpp"

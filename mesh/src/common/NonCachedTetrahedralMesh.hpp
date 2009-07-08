@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define NONCACHEDTETRAHEDRALMESH_HPP_
 
 #include "TetrahedralMesh.hpp"
-#include <ctime>
 
 /**
  * A drop-in replacement for TetrahedralMesh that doesn't cache any

@@ -30,11 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _CHASTEPOINT_HPP_
 #define _CHASTEPOINT_HPP_
 
-#include "UblasIncludes.hpp"
-#include <cassert>
+#include "UblasVectorInclude.hpp"
+
 #include <vector>
+
 #include "Exception.hpp"
-using namespace boost::numeric::ublas;
 
 /**
  * A ChastePoint class, templated over spatial dimension.

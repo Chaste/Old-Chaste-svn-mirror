@@ -26,8 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "Node.hpp"
+#include <cassert>
 
+#include "Node.hpp"
+#include "Exception.hpp"
 
 //////////////////////////////////////////////////////////////////////////
 // Constructors

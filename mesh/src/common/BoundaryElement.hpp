@@ -30,7 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _BOUNDARYELEMENT_HPP_
 #define _BOUNDARYELEMENT_HPP_
 
+#include <vector>
+
 #include "AbstractTetrahedralElement.hpp"
+#include "Node.hpp"
 
 /**
  * Concrete boundary element class which inherits from AbstractTetrahedralElement.

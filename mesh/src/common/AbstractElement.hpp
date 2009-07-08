@@ -29,14 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTELEMENT_HPP_
 #define ABSTRACTELEMENT_HPP_
 
-#include "Node.hpp"
-#include "ChastePoint.hpp"
-#include "UblasCustomFunctions.hpp"
-
-#include "Exception.hpp"
-
 #include <vector>
-#include <cmath>
+
+#include "UblasVectorInclude.hpp"
+#include "Node.hpp"
 
 /*
  * When creating an element within a mesh one needs to specify its global index.

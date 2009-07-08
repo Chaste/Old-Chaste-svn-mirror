@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "QuadraticMesh.hpp"
 #include "OutputFileHandler.hpp"
+#include "TrianglesMeshReader.hpp"
 
 //Jonathan Shewchuk's triangle
 #define REAL double

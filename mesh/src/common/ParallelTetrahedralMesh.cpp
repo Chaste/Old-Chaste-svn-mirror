@@ -28,6 +28,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ParallelTetrahedralMesh.hpp"
 
+#include <cassert>
+#include <sstream>
+#include <string>
+
+#include "Exception.hpp"
+#include "Element.hpp"
+#include "BoundaryElement.hpp"
+
+#include "PetscTools.hpp"
+#include "DistributedVectorFactory.hpp"
+#include "OutputFileHandler.hpp"
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
@@ -578,9 +590,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
 {
     assert(PetscTools::GetNumProcs() > 1);
 
-    #define COVERAGE_IGNORE
-    assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
-    #undef COVERAGE_IGNORE
+    assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
 
     int ne = rMeshReader.GetNumElements();
     int nn = rMeshReader.GetNumNodes();

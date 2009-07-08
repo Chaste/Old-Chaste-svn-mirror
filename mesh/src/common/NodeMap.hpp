@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define NODEMAP_HPP_
 
 #include <vector>
-#include "Exception.hpp"
 
 /**
  * Nodemap class used when remeshing. The map associates the indices of nodes

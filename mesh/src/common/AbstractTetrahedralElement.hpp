@@ -30,7 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTTETRAHEDRALELEMENT_HPP_
 #define _ABSTRACTTETRAHEDRALELEMENT_HPP_
 
+#include <vector>
+
+#include "UblasMatrixInclude.hpp"
+#include "UblasVectorInclude.hpp"
+
 #include "AbstractElement.hpp"
+#include "Node.hpp"
 
 /**
  * This abstract class defines a tetrahedral element for use in the Finite Element Method.
@@ -184,6 +190,8 @@ public:
      */
     void GetStiffnessMatrixGlobalIndices(unsigned problemDim, unsigned* pIndices) const;
 };
+
+#include <cassert>
 
 template<unsigned SPACE_DIM>
 AbstractTetrahedralElement<0, SPACE_DIM>::AbstractTetrahedralElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
