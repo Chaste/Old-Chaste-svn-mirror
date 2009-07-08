@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include <cmath>
 
-#include <iostream>
 
 enum APPhases { BELOWTHRESHOLD , ABOVETHRESHOLD };
 
@@ -64,7 +63,7 @@ void CellProperties::CalculateProperties()
         double upstroke_vel = (v - prev_v) / (t - prev_t);
 
         //Look for the upstroke velocity and when it happens (could be below or above threshold).
-        if(upstroke_vel>=current_upstroke_velocity)
+        if (upstroke_vel >= current_upstroke_velocity)
         {
             current_upstroke_velocity = upstroke_vel;
             current_time_of_upstroke_velocity = t;
@@ -75,14 +74,14 @@ void CellProperties::CalculateProperties()
             case BELOWTHRESHOLD:
                 //while below threshold, find the resting value by checking where the velocity is minimal
                 //i.e. when it is flattest
-                if(fabs(upstroke_vel)<=current_minimum_velocity)
+                if (fabs(upstroke_vel)<=current_minimum_velocity)
                 {
                     current_minimum_velocity=fabs(upstroke_vel);
                     current_resting_value = prev_v;
                 }
 
                 // If we cross the threshold, this counts as an AP
-                if( v>mThreshold && prev_v <= mThreshold )
+                if ( v>mThreshold && prev_v <= mThreshold )
                 {
                     //register the resting value and re-initialise the minimum velocity
                     mRestingValues.push_back(current_resting_value);
@@ -98,8 +97,12 @@ void CellProperties::CalculateProperties()
                     }
 
                     ap_phase = ABOVETHRESHOLD;
+                    // no break here - deliberate fall through to next case
                 }
-                break;
+                else
+                {
+                    break;
+                }
 
             case ABOVETHRESHOLD:
                 //While above threshold, look for the peak potential for the current AP
@@ -110,7 +113,7 @@ void CellProperties::CalculateProperties()
 
                 // If we cross the threshold again, the AP is over
                 // and we register all the parameters.
-                if( v<mThreshold && prev_v >= mThreshold )
+                if ( v<mThreshold && prev_v >= mThreshold )
                 {
                     //register peak value for this AP
                     mPeakValues.push_back(current_peak);
@@ -161,7 +164,7 @@ void CellProperties::CalculateProperties()
 
 std::vector<double> CellProperties::CalculateActionPotentialDurations(const double percentage)
 {
-   if (mOnsets.size() == 0)
+    if (mOnsets.size() == 0)
     {
         // possible false error here if the simulation started at time < 0
         EXCEPTION("No upstroke occurred");
@@ -172,7 +175,7 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
     bool apd_is_calculated=true;//this will ensure we hit the target only once per AP.
     std::vector<double> apds;
     double target = DBL_MAX;
-
+    
     for (unsigned i=0; i<mrTime.size(); i++)
     {
         double t = mrTime[i];
@@ -182,20 +185,20 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
         if (APcounter<mPeakValues.size())
         {
             //Set the target potential
-            target  = mRestingValues[APcounter]+0.01*(100-percentage)*(mPeakValues[APcounter]-mRestingValues[APcounter]);
+            target = mRestingValues[APcounter]+0.01*(100-percentage)*(mPeakValues[APcounter]-mRestingValues[APcounter]);
 
             //if we reach the peak, we need to start to calculate an APD
             if (fabs(v-mPeakValues[APcounter])<=1e-6)
             {
-               apd_is_calculated=false;
+                apd_is_calculated = false;
             }
             //if we hit the target while repolarising
             //and we are told this apd is not calculated yet.
             if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
             {
-                apds.push_back (t - mOnsets[APcounter]);
+                apds.push_back (t - mOnsets[APcounter]); ///\todo linear interpolation here too?
                 APcounter++;
-                apd_is_calculated=true;
+                apd_is_calculated = true;
             }
         }
         prev_v = v;

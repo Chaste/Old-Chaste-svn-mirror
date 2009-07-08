@@ -847,6 +847,13 @@ class IntelProduction(IntelP4):
         self._cc_flags.append('-DNDEBUG')
         self.is_production = True
 
+class Vtune(IntelProduction):
+    """Production build with debug symbols for vtune analyser."""
+    def __init__(self, *args, **kwargs):
+        super(Vtune, self).__init__(*args, **kwargs)
+        self.build_dir = 'intel_vtune'
+        self._cc_flags.append('-g')
+
 class IntelProductionParallel4(IntelProduction):
     """Intel production build, run tests in parallel on 4 nodes"""
     def __init__(self, *args, **kwargs):
