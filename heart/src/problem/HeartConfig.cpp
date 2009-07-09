@@ -27,16 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "UblasCustomFunctions.hpp"
+
 #include "HeartConfig.hpp"
-
-#include <cassert>
-//#include <iostream>
-
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 #include "ChastePoint.hpp"
 #include "Version.hpp"
 
+#include <cassert>
 
 // Coping with changes to XSD interface
 #if (XSD_INT_VERSION >= 3000000L)
@@ -82,7 +80,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace xsd::cxx::tree;
 
+//
+// Definition of static member variables
+//
 std::auto_ptr<HeartConfig> HeartConfig::mpInstance;
+
+//
+// Methods
+//
 
 HeartConfig* HeartConfig::Instance()
 {
@@ -96,8 +101,6 @@ HeartConfig* HeartConfig::Instance()
 HeartConfig::HeartConfig()
 {
     assert(mpInstance.get() == NULL);
-    mpDefaultParameters = NULL;
-    mpUserParameters = NULL;
     mUseFixedSchemaLocation = true;
 
     SetDefaultsFile("ChasteDefaults.xml");
@@ -108,19 +111,12 @@ HeartConfig::HeartConfig()
 
 HeartConfig::~HeartConfig()
 {
-    if (mpUserParameters != mpDefaultParameters)
-    {
-        delete mpUserParameters;
-    }
-
-    delete mpDefaultParameters;
 }
 
 void HeartConfig::SetDefaultsFile(const std::string& rFileName)
 {
     bool same_target = (mpUserParameters == mpDefaultParameters);
 
-    delete mpDefaultParameters;
     mpDefaultParameters = ReadFile(rFileName);
 
     if (same_target)
@@ -164,7 +160,7 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
     ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
 }
 
-chaste_parameters_type* HeartConfig::ReadFile(const std::string& rFileName)
+boost::shared_ptr<chaste_parameters_type> HeartConfig::ReadFile(const std::string& rFileName)
 {
     // Determine whether to use the schema path given in the input XML, or our own schema
     ::xml_schema::properties p;
@@ -175,31 +171,24 @@ chaste_parameters_type* HeartConfig::ReadFile(const std::string& rFileName)
     }
     
     // get the parameters using the method 'ChasteParameters(rFileName)',
-    // which returns a std::auto_ptr. We don't want to use a std::auto_ptr because
-    // it will delete memory when out of scope, or no longer point when it is copied,
-    // so we reallocate memory using a normal pointer and copy the data to there
+    // which returns a std::auto_ptr. We convert to a shared_ptr for easier semantics.
     try
     {
         std::auto_ptr<chaste_parameters_type> p_default(ChasteParameters(rFileName, 0, p));
-        return new chaste_parameters_type(*p_default);
+        return boost::shared_ptr<chaste_parameters_type>(p_default);
     }
     catch (const xml_schema::exception& e)
     {
          std::cerr << e << std::endl;
-         //More clunky memory management
-         mpUserParameters = NULL;
-         mpDefaultParameters = NULL;
+         // Make sure we don't store invalid parameters
+         mpUserParameters.reset();
+         mpDefaultParameters.reset();
          EXCEPTION("XML parsing error in configuration file: " + rFileName);
     }
 }
 
 void HeartConfig::SetParametersFile(const std::string& rFileName)
 {
-    // handles multiple calls to the method in the same context
-    if (mpUserParameters != mpDefaultParameters)
-    {
-        delete mpUserParameters;
-    }
     mpUserParameters = ReadFile(rFileName);
     
     CheckTimeSteps(); // For consistency with SetDefaultsFile
@@ -208,9 +197,9 @@ void HeartConfig::SetParametersFile(const std::string& rFileName)
 
 void HeartConfig::Reset()
 {
-    //Throw it away
-    mpInstance.reset(0);
-    //Make a new one
+    // Throw it away first, so that mpInstance is NULL when we...
+    mpInstance.reset();
+    // ...make a new one
     mpInstance.reset(new HeartConfig);
 }
 

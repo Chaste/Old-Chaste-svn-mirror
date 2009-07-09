@@ -565,11 +565,11 @@ private:
     /** Pointer to parameters read from the user's input XML file
      * (override those given by #mpDefaultParameters).
      */
-    chaste_parameters_type* mpUserParameters;
+    boost::shared_ptr<chaste_parameters_type> mpUserParameters;
     /** Pointer to parameters read from the default input XML file (to be read before
      * #mpUserParameters, but may be subsequently overridden).
      */
-    chaste_parameters_type* mpDefaultParameters;
+    boost::shared_ptr<chaste_parameters_type> mpDefaultParameters;
 
     /** The single instance of the class */
     static std::auto_ptr<HeartConfig> mpInstance;
@@ -592,12 +592,11 @@ private:
     template<class TYPE>
     TYPE* DecideLocation(TYPE* params_ptr, TYPE* defaults_ptr, const std::string& nameParameter) const;
 
-    /** Utility method to parse an XML parameters file
-     * get the parameters using the method 'ChasteParameters(filename)',
-     * which returns a std::auto_ptr.
+    /**
+     * Utility method to parse an XML parameters file.
      * @param rFileName  Name of XML file
      */
-    chaste_parameters_type* ReadFile(const std::string& rFileName);
+    boost::shared_ptr<chaste_parameters_type> ReadFile(const std::string& rFileName);
 
 };
 
