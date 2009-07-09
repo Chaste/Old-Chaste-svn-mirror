@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonCachedTetrahedralMesh.hpp"
 #include "OutputFileHandler.hpp"
 
+#include <ctime>
 
 class TestNonCachedTetrahedralMesh : public CxxTest::TestSuite
 {
