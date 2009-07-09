@@ -97,11 +97,6 @@ protected:
 
     /** Used when intialising null-space solver to resolve singularity*/ 
     bool mNullSpaceCreated;
-
-    /** Used when finding drift of phi_e from origin
-     * \todo Is this needed after #1059 r6273 ?
-     */
-    Vec mExternalVoltageMask;
     
     /** Used when pinning nodes to resolve singularity.
      * This vector indicates the global indices of the nodes to be pinned

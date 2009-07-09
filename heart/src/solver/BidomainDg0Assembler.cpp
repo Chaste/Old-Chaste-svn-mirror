@@ -247,53 +247,6 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec cur
 
                 VecDestroy(nullbasis[0]);
                 mNullSpaceCreated = true;
-
-                //Make a mask to use if we need to shift the external voltage
-                VecDuplicate(currentSolution, &mExternalVoltageMask);
-                DistributedVector mask = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(mExternalVoltageMask);
-                DistributedVector::Stripe v_m(mask,0);
-                DistributedVector::Stripe phi_e(mask,1);
-                for (DistributedVector::Iterator index = mask.Begin();
-                     index != mask.End();
-                     ++index)
-                {
-                    v_m[index] = 0.0;
-                    phi_e[index] = 1.0;
-                }
-                mask.Restore();
-            }
-
-            //Try to fudge the solution vector with respect to the external voltage
-            //Find the largest absolute value
-            double min, max;
-
-#if (PETSC_VERSION_MINOR == 2) //Old API
-            PetscInt position;
-            VecMax(currentSolution, &position, &max);
-            VecMin(currentSolution, &position, &min);
-#else
-            VecMax(currentSolution, PETSC_NULL, &max);
-            VecMin(currentSolution, PETSC_NULL, &min);
-#endif
-            if ( -min > max )
-            {
-                //Largest value is negative
-                max=min;
-            }
-            //Standard transmembrane potentials are within +-100 mV
-            if (fabs(max) > 500)
-            {
-                NEVER_REACHED;
-#define COVERAGE_IGNORE
-                // std::cout<<"warning: shifting phi_e by "<<-max<<"\n";
-                //Use mask currentSolution=currentSolution - max*mExternalVoltageMask
-#if (PETSC_VERSION_MINOR == 2) //Old API
-                max *= -1;
-                VecAXPY(&max, mExternalVoltageMask, currentSolution);
-#else
-                VecAXPY(currentSolution, -max, mExternalVoltageMask);
-#endif
-#undef COVERAGE_IGNORE
             }
         }
         else
@@ -392,10 +345,6 @@ BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::BidomainDg0Assembler(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::~BidomainDg0Assembler()
 {
-    if (mNullSpaceCreated)
-    {
-        VecDestroy(mExternalVoltageMask);
-    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
