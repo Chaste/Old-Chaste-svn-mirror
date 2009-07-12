@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MUTABLEMESH_HPP_
 #define MUTABLEMESH_HPP_
 
-#include <cstring>
 #include "TetrahedralMesh.hpp"
 #include "NodeMap.hpp"
 
