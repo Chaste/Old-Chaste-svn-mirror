@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractCardiacCell.hpp"
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
@@ -56,7 +56,7 @@ class AbstractCardiacCellFactory
 private:
     /** The mesh is automatically set in MonodomainProblem and BidomainProblem.
      *  This member variable should be accessed through GetMesh(), which will check if it has been set before.*/
-    AbstractMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
 
 protected:
     /** For use at un-stimulated cells. */
@@ -116,12 +116,12 @@ public:
     /**
      * @param pMesh  the mesh for which to create cardiac cells.
      */
-    void SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+    void SetMesh(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
      * @return  the mesh used to create the cells.
      */
-    AbstractMesh<ELEM_DIM,SPACE_DIM>* GetMesh();
+    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* GetMesh();
 
 };
 

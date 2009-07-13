@@ -121,8 +121,8 @@ private:
         TS_ASSERT_EQUALS(pMesh1->GetNumBoundaryElements(), pMesh2->GetNumBoundaryElements());
         TS_ASSERT_EQUALS(pMesh1->GetNumAllBoundaryElements(), pMesh2->GetNumAllBoundaryElements());
 
-        typename AbstractMesh<DIM,DIM>::ElementIterator iter2 = pMesh2->GetElementIteratorBegin();
-        for (typename AbstractMesh<DIM,DIM>::ElementIterator iter = pMesh1->GetElementIteratorBegin();
+        typename AbstractTetrahedralMesh<DIM,DIM>::ElementIterator iter2 = pMesh2->GetElementIteratorBegin();
+        for (typename AbstractTetrahedralMesh<DIM,DIM>::ElementIterator iter = pMesh1->GetElementIteratorBegin();
              iter != pMesh1->GetElementIteratorEnd();
              ++iter, ++iter2)
         {

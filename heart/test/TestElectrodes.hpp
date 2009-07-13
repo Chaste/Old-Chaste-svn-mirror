@@ -68,7 +68,7 @@ public:
 
         unsigned num_grounded_nodes = 0u;
         
-        for (AbstractMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {       

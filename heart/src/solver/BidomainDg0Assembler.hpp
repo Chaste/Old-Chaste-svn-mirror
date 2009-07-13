@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Element.hpp"
 #include "BoundaryElement.hpp"
 #include "ChastePoint.hpp"
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 
 /**
@@ -249,7 +249,7 @@ public:
      * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    BidomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainDg0Assembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
                          BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                          unsigned numQuadPoints = 2);

@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Electrodes.hpp"
 
 template<unsigned DIM>
-Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
+Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                        bool groundSecondElectrode,
                        unsigned index,
                        double lowerValue,
@@ -49,7 +49,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
     double local_min = DBL_MAX;
     double local_max = -DBL_MAX;
     
-    for (typename AbstractMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
+    for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
          iter != rMesh.GetNodeIteratorEnd();
          ++iter)
     {
@@ -88,7 +88,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
 
     // loop over boundary elements and add a non-zero phi_e boundary condition (ie extracellular
     // stimulus) if (assuming index=0, etc) x=lowerValue (where x is the x-value of the centroid)
-    for (typename AbstractMesh<DIM,DIM>::BoundaryElementIterator iter
+    for (typename AbstractTetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
             = rMesh.GetBoundaryElementIteratorBegin();
        iter != rMesh.GetBoundaryElementIteratorEnd();
        iter++)
@@ -113,7 +113,7 @@ Electrodes<DIM>::Electrodes(AbstractMesh<DIM,DIM>& rMesh,
     {
         ConstBoundaryCondition<DIM>* p_zero_bc = new ConstBoundaryCondition<DIM>(0.0);
 
-        for (typename AbstractMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
+        for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
              iter != rMesh.GetNodeIteratorEnd();
              ++iter)
         {

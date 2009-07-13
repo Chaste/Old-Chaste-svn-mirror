@@ -663,9 +663,9 @@ public:
             TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(), p_mesh2->GetNumBoundaryElements());
             TS_ASSERT_EQUALS(p_mesh->GetNumAllBoundaryElements(), p_mesh2->GetNumAllBoundaryElements());
 
-            AbstractMesh<2,2>::ElementIterator iter2 = p_mesh2->GetElementIteratorBegin();
+            AbstractTetrahedralMesh<2,2>::ElementIterator iter2 = p_mesh2->GetElementIteratorBegin();
 
-            for (AbstractMesh<2,2>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
+            for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
                  iter != p_mesh->GetElementIteratorEnd();
                  ++iter, ++iter2)
             {

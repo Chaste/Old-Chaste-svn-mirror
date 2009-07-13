@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 
 #include "BoundaryConditionsContainer.hpp"
 #include "Hdf5DataReader.hpp"
@@ -96,7 +96,7 @@ protected:
     /** The cell factory creates the cells for each node */
     AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* mpCellFactory;
     /** The mesh. Can either by passed in, or the mesh filename can be set */
-    AbstractMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
 
     /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and
      *  [V_0 phi_0 .. V_N phi_N] for bidomain */
@@ -193,7 +193,7 @@ public:
      * 
      * @param pMesh  the mesh object to use
      */
-    void SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+    void SetMesh(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
      *  Set whether the simulation will generate results files.
@@ -231,7 +231,7 @@ public:
     /**
      * @return the mesh used
      */
-    AbstractMesh<ELEM_DIM,SPACE_DIM> & rGetMesh();
+    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM> & rGetMesh();
 
     /**
      * @return the cardiac PDE used

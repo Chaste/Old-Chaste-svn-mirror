@@ -112,7 +112,7 @@ public:
      * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    BidomainWithBathAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainWithBathAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                               BidomainPde<SPACE_DIM>* pPde,
                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                               unsigned numQuadPoints = 2);

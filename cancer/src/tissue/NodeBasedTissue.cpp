@@ -55,7 +55,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool
 
 
 template<unsigned DIM>
-NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
+NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                                       const std::vector<TissueCell>& rCells)
     : AbstractCellCentreBasedTissue<DIM>(rCells),
       mAddedNodes(false),

@@ -120,7 +120,7 @@ public:
      * 
      * @param pMesh Pointer to a mesh
      */
-    BidomainWithBathRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
+    BidomainWithBathRhsMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh);
 
     /**
      * Destructor.
@@ -154,7 +154,7 @@ public:
      * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    BidomainWithBathMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainWithBathMatrixBasedAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                  BidomainPde<SPACE_DIM>* pPde,
                                  BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                                  unsigned numQuadPoints = 2);

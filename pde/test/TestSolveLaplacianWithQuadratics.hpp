@@ -179,7 +179,7 @@ private:
         // loop over elements
         ////////////////////////////////////////////////////////
 
-        for (typename AbstractMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
+        for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
              iter != mpQuadMesh->GetElementIteratorEnd();
              ++iter)
         {

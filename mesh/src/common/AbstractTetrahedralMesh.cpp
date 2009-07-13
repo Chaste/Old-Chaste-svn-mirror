@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
     assert(hi >= lo);
     for (unsigned element_index=0; element_index<mElements.size(); element_index++)
@@ -54,14 +54,14 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, uns
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
+AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMesh()
     : mpDistributedVectorFactory(NULL),
       mMeshFileBaseName("")
 {
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()
+AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMesh()
 {
     // Iterate over nodes and free the memory
     for (unsigned i=0; i<mNodes.size(); i++)
@@ -85,76 +85,76 @@ AbstractMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractMesh()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
 {
     return mBoundaryNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
 {
     return mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 {
     return mElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
 {
     return mBoundaryElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 {
     return mBoundaryElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
+Node<SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
 {
     unsigned local_index = SolveNodeMapping(index);
     return mNodes[local_index];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
+Element<ELEMENT_DIM, SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
 {
     unsigned local_index = SolveElementMapping(index);
     return mElements[local_index];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
+BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElement(unsigned index) const
 {
     unsigned local_index = SolveBoundaryElementMapping(index);
     return mBoundaryElements[local_index];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile)
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile)
 {
     NEVER_REACHED;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
+DistributedVectorFactory* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
 {
     if (mpDistributedVectorFactory == NULL)
     {
@@ -164,37 +164,37 @@ DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVe
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
     NEVER_REACHED;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorBegin() const
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorBegin() const
 {
     return mBoundaryElements.begin();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorEnd() const
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorEnd() const
 {
     return mBoundaryElements.end();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorBegin() const
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorBegin() const
 {
     return mBoundaryNodes.begin();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorEnd() const
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorEnd() const
 {
     return mBoundaryNodes.end();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(
         unsigned elementIndex,
         c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
         double& rJacobianDeterminant,
@@ -204,7 +204,7 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElement(
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElement(
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElement(
         unsigned elementIndex,
         c_vector<double, SPACE_DIM>& rWeightedDirection,
         double& rJacobianDeterminant) const
@@ -213,7 +213,7 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBoundaryElemen
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::string AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
+std::string AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
 {
     if (mMeshFileBaseName == "")
     {
@@ -224,13 +224,13 @@ std::string AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation()
+std::vector<unsigned>& AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation()
 {
     return mNodesPermutation;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(
+c_vector<double, SPACE_DIM> AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(
     const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB)
 {
     c_vector<double, SPACE_DIM> vector = rLocationB - rLocationA;
@@ -238,7 +238,7 @@ c_vector<double, SPACE_DIM> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromA
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
+double AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
 {
     c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(mNodes[indexA]->rGetLocation(),
                                                            mNodes[indexB]->rGetLocation());
@@ -247,7 +247,7 @@ double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned in
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
+double AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
     c_vector<double,2> extremes = GetWidthExtremes(rDimension);
@@ -255,7 +255,7 @@ double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
+c_vector<double,2> AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
 
@@ -285,7 +285,7 @@ c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const 
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
 {
     unsigned num_nodes = GetNumAllNodes();
 
@@ -307,7 +307,7 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const doub
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 {
 }
 
@@ -315,9 +315,9 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
-template class AbstractMesh<1,1>;
-template class AbstractMesh<1,2>;
-template class AbstractMesh<1,3>;
-template class AbstractMesh<2,2>;
-template class AbstractMesh<2,3>;
-template class AbstractMesh<3,3>;
+template class AbstractTetrahedralMesh<1,1>;
+template class AbstractTetrahedralMesh<1,2>;
+template class AbstractTetrahedralMesh<1,3>;
+template class AbstractTetrahedralMesh<2,2>;
+template class AbstractTetrahedralMesh<2,3>;
+template class AbstractTetrahedralMesh<3,3>;

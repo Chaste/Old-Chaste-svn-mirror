@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractNonlinearAssembler.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 
 
 /**
@@ -137,7 +137,7 @@ public :
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    SimpleNonlinearEllipticAssembler(AbstractMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+    SimpleNonlinearEllipticAssembler(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                      AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                      unsigned numQuadPoints = 2);

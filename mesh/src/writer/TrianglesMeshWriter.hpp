@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TRIANGLESMESHWRITER_HPP_
 #define _TRIANGLESMESHWRITER_HPP_
 
-#include "AbstractMeshWriter.hpp"
+#include "AbstractTetrahedralMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 
 
@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A concrete mesh writer class that writes Triangle output files.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class TrianglesMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
+class TrianglesMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 public:
 

@@ -306,7 +306,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToMesh
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh)
+void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::SetMesh(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 {
     // If this fails the mesh has already been set. We assert rather throw an exception
     // to avoid a memory leak when checking it throws correctly
@@ -341,7 +341,7 @@ DistributedVector AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::GetSol
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractMesh<ELEM_DIM,SPACE_DIM> & AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::rGetMesh()
+AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM> & AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::rGetMesh()
 {
     assert (mpMesh);
     return *mpMesh;

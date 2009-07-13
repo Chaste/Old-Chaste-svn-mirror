@@ -55,7 +55,7 @@ public:
     
         unsigned counter = 0; 
 
-        for (AbstractMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
@@ -68,7 +68,7 @@ public:
         TetrahedralMesh<2,2> empty_mesh;
 
         // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
-        AbstractMesh<2,2>::NodeIterator iter = empty_mesh.GetNodeIteratorBegin();
+        AbstractTetrahedralMesh<2,2>::NodeIterator iter = empty_mesh.GetNodeIteratorBegin();
 
         // We only have a NOT-equals operator defined on the iterator
         TS_ASSERT( !(iter != empty_mesh.GetNodeIteratorEnd()) );
@@ -82,7 +82,7 @@ public:
     
         unsigned counter = 0; 
 
-        for (AbstractMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
@@ -95,7 +95,7 @@ public:
         TetrahedralMesh<2,2> empty_mesh;
 
         // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
-        AbstractMesh<2,2>::ElementIterator iter = empty_mesh.GetElementIteratorBegin();
+        AbstractTetrahedralMesh<2,2>::ElementIterator iter = empty_mesh.GetElementIteratorBegin();
 
         // We only have a NOT-equals operator defined on the iterator
         TS_ASSERT( !(iter != empty_mesh.GetElementIteratorEnd()) );
@@ -871,7 +871,7 @@ public:
         mesh.Translate(-2,-2,-2);
 
         // Flag elements in the positive octant
-        for (AbstractMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        for (AbstractTetrahedralMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
@@ -888,7 +888,7 @@ public:
 
         // Determine correct boundary
         std::set<unsigned> correct_boundary;
-        for (AbstractMesh<3,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+        for (AbstractTetrahedralMesh<3,3>::NodeIterator iter=mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {

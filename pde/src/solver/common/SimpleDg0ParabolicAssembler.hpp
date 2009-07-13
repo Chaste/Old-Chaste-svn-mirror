@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "UblasCustomFunctions.hpp"
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 //#include "LinearSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractLinearAssembler.hpp"
@@ -132,7 +132,7 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    SimpleDg0ParabolicAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    SimpleDg0ParabolicAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 AbstractLinearParabolicPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                 unsigned numQuadPoints = 2);

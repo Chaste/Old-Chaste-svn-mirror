@@ -96,7 +96,7 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::MonodomainDg0Assembler(
-            AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             MonodomainPde<ELEMENT_DIM, SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
             unsigned numQuadPoints)

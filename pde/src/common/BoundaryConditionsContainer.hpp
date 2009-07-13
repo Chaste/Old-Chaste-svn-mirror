@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractBoundaryConditionsContainer.hpp"
 #include "AbstractBoundaryCondition.hpp"
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "BoundaryElement.hpp"
 #include "Node.hpp"
 #include "LinearSystem.hpp"
@@ -140,7 +140,7 @@ public:
      * @param pMesh Pointer to a mesh object, from which we extract the boundary
      * @param indexOfUnknown defaults to 0
      */
-    void DefineZeroDirichletOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineZeroDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                            unsigned indexOfUnknown = 0);
 
     /**
@@ -151,7 +151,7 @@ public:
      * @param value the value of the constant Dirichlet boundary condition
      * @param indexOfUnknown defaults to 0
      */
-    void DefineConstantDirichletOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineConstantDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                                double value,
                                                unsigned indexOfUnknown = 0);
 
@@ -162,7 +162,7 @@ public:
      * @param pMesh Pointer to a mesh object, from which we extract the boundary
      * @param indexOfUnknown defaults to 0
      */
-    void DefineZeroNeumannOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineZeroNeumannOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                          unsigned indexOfUnknown = 0);
 
     /**
@@ -221,7 +221,7 @@ public:
      * @param pMesh Pointer to the mesh to check for validity.
      * @return true iff all boundaries have boundary conditions defined.
      */
-    bool Validate(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+    bool Validate(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Obtain value of Neumann boundary condition at a specified point in a given surface element

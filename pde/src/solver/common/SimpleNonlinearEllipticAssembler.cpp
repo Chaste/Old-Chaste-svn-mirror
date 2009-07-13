@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::SimpleNonlinearEllipticAssembler(
-            AbstractMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
             AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
             unsigned numQuadPoints)

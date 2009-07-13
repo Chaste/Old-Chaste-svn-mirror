@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELECTRODES_HPP_
 #define ELECTRODES_HPP_
 
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "DistributedVector.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
@@ -73,7 +73,7 @@ public:
      *  @param magnitude Magnitude of the stimulus
      *  @param duration Duration of the stimulus. Note, start time currently assumed to be zero.
      */
-    Electrodes(AbstractMesh<DIM,DIM>& rMesh,
+    Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                bool groundSecondElectrode,
                unsigned index, double lowerValue, double upperValue,
                double magnitude, double duration); // implemented in cpp

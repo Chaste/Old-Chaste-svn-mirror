@@ -164,7 +164,7 @@ c_vector<double,3> PapillaryFibreCalculator::GetRadiusVectorForOneElement(unsign
 void PapillaryFibreCalculator::GetRadiusVectors()
 {
     // Loops over all elements finding radius vector
-    for (AbstractMesh<3,3>::ElementIterator iter = mrMesh.GetElementIteratorBegin();
+    for (AbstractTetrahedralMesh<3,3>::ElementIterator iter = mrMesh.GetElementIteratorBegin();
          iter != mrMesh.GetElementIteratorEnd();
          ++iter)
     {
@@ -188,7 +188,7 @@ void PapillaryFibreCalculator::SmoothStructureTensors()
     double g_factor_sum = 0;
     double g_factor = 0;
 
-    for (AbstractMesh<3,3>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
+    for (AbstractTetrahedralMesh<3,3>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
          elem_iter != mrMesh.GetElementIteratorEnd();
          ++elem_iter)
     {
@@ -197,7 +197,7 @@ void PapillaryFibreCalculator::SmoothStructureTensors()
         c_vector<double, 3> centroid = elem_iter->CalculateCentroid();
         g_factor_sum = 0;
 
-        for (AbstractMesh<3,3>::ElementIterator iter_2 = mrMesh.GetElementIteratorBegin();
+        for (AbstractTetrahedralMesh<3,3>::ElementIterator iter_2 = mrMesh.GetElementIteratorBegin();
              iter_2 != mrMesh.GetElementIteratorEnd();
              ++iter_2)
         {

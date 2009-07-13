@@ -126,7 +126,7 @@ public:
      * Constructor takes in a mesh and calls AssembleSystem to construct the matrix
      * @param pMesh pointer to mesh
      */
-    BidomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh);
+    BidomainRhsMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh);
 
     /**
      * Destructor.
@@ -208,7 +208,7 @@ public:
      * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    BidomainMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainMatrixBasedAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                  BidomainPde<SPACE_DIM>* pPde,
                                  BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                                  unsigned numQuadPoints = 2);

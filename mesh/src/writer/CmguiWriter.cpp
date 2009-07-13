@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 CmguiWriter::CmguiWriter(const std::string &rDirectory,
                          const std::string &rBaseName,
                          const bool &rCleanDirectory)
-        : AbstractMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
+        : AbstractTetrahedralMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero = false;
 }

@@ -114,7 +114,7 @@ public:
 
         unsigned counter = 0; 
 
-        for (AbstractMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+        for (AbstractTetrahedralMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
@@ -131,7 +131,7 @@ public:
 
         unsigned another_counter = 0; 
 
-        for (AbstractMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+        for (AbstractTetrahedralMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
@@ -151,7 +151,7 @@ public:
 
         unsigned counter = 0; 
 
-        for (AbstractMesh<2,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        for (AbstractTetrahedralMesh<2,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {

@@ -54,7 +54,7 @@ TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::TetrahedralMesh()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
-    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+    AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     bool cullInternalFaces)
 {
     if (ELEMENT_DIM==1)
@@ -274,7 +274,7 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVolume()
 {
     double mesh_volume = 0.0;
 
-    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
     {
@@ -1118,7 +1118,7 @@ std::set<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundaryOfF
     std::map<FaceNodes,bool> face_on_boundary;
 
     // Loop over all elements
-    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
     {
@@ -1205,7 +1205,7 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAngleBetweenNodes(unsigned in
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::UnflagAllElements()
 {
-    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
     {
@@ -1216,7 +1216,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::UnflagAllElements()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FlagElementsNotContainingNodes(std::set<unsigned> nodesList)
 {
-    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
     {
@@ -1402,7 +1402,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
     this->mBoundaryElementJacobianDeterminants.resize(this->GetNumAllBoundaryElements());
 
     // Update caches
-    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
     {
@@ -1412,7 +1412,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
         
     if (ELEMENT_DIM < SPACE_DIM)
     {
-        for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
              iter != this->GetElementIteratorEnd();
              ++iter)
         {

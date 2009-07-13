@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <set>
 
-#include "AbstractMesh.hpp"
-#include "AbstractMeshReader.hpp"
+#include "AbstractTetrahedralMesh.hpp"
+#include "AbstractTetrahedralMeshReader.hpp"
 #include "ChastePoint.hpp"
 
 
@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A concrete tetrahedral mesh class.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class TetrahedralMesh : public AbstractMesh< ELEMENT_DIM, SPACE_DIM>
+class TetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestTetrahedralMesh; // to give access to private methods (not variables)
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
@@ -120,7 +120,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
+    void ConstructFromMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
                                  bool cullInternalFaces=false);
 
     /**

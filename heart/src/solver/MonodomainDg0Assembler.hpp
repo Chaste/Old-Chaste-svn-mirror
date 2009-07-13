@@ -132,7 +132,7 @@ public:
      * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    MonodomainDg0Assembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    MonodomainDg0Assembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                            BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
                            unsigned numQuadPoints = 2);

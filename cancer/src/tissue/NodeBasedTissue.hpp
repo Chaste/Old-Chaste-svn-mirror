@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define NODEBASEDTISSUE_HPP_
 
 #include "AbstractCellCentreBasedTissue.hpp"
-#include "AbstractMesh.hpp" // for constructor which takes in a mesh
+#include "AbstractTetrahedralMesh.hpp" // for constructor which takes in a mesh
 #include "NodeBoxCollection.hpp"
 
 #include <boost/serialization/access.hpp>
@@ -168,7 +168,7 @@ public:
      * @param rCells a vector of TissueCells
      *
      */
-    NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
+    NodeBasedTissue(const AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                     const std::vector<TissueCell>& rCells);
 
     /**

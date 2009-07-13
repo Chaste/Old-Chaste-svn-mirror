@@ -74,9 +74,9 @@ public:
         ConstBoundaryCondition<1> *p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
 
         // get mesh
-        AbstractMesh<1,1> &mesh = monodomain_problem.rGetMesh();
+        AbstractTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
         // loop over boundary elements
-        AbstractMesh<1, 1>::BoundaryElementIterator iter;
+        AbstractTetrahedralMesh<1, 1>::BoundaryElementIterator iter;
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
@@ -127,9 +127,9 @@ public:
         StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
 
         // get mesh
-        AbstractMesh<1,1> &mesh = monodomain_problem.rGetMesh();
+        AbstractTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
         // loop over boundary elements
-        AbstractMesh<1, 1>::BoundaryElementIterator iter;
+        AbstractTetrahedralMesh<1, 1>::BoundaryElementIterator iter;
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
@@ -181,9 +181,9 @@ public:
         ConstBoundaryCondition<1> *p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
 
         // get mesh
-        AbstractMesh<1,1> &mesh = monodomain_problem.rGetMesh();
+        AbstractTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
         // loop over boundary elements
-        AbstractMesh<1, 1>::BoundaryElementIterator iter;
+        AbstractTetrahedralMesh<1, 1>::BoundaryElementIterator iter;
         iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {

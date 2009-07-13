@@ -99,7 +99,7 @@ c_vector<double, 2*DIM> BidomainRhsMatrixAssembler<DIM>::ComputeVectorSurfaceTer
 
 
 template<unsigned DIM>
-BidomainRhsMatrixAssembler<DIM>::BidomainRhsMatrixAssembler(AbstractMesh<DIM,DIM>* pMesh)
+BidomainRhsMatrixAssembler<DIM>::BidomainRhsMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
     : AbstractLinearAssembler<DIM,DIM,2,false,BidomainRhsMatrixAssembler<DIM> >()
 {
     this->mpMesh = pMesh;
@@ -138,7 +138,7 @@ Mat* BidomainRhsMatrixAssembler<DIM>::GetMatrix()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainMatrixBasedAssembler(
-            AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)

@@ -40,7 +40,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 {
 public:
 
-    AbstractMeshReader<2,2>* mpFemlabMeshReader;
+    AbstractTetrahedralMeshReader<2,2>* mpFemlabMeshReader;
 
     /**
      * Check that input files are opened correctly.
@@ -56,7 +56,7 @@ public:
 
         // Coverage test
 
-        AbstractMeshReader<1,1>* pWrongFemlabMeshReader;
+        AbstractTetrahedralMeshReader<1,1>* pWrongFemlabMeshReader;
 
         TS_ASSERT_THROWS_ANYTHING(pWrongFemlabMeshReader = new READER_1D("mesh/test/data/",
                                                                          "femlab_lshape_nodes.dat",

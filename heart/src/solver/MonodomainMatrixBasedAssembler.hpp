@@ -117,7 +117,7 @@ public:
      * 
      * @param pMesh Pointer to a mesh
      */
-    MonodomainRhsMatrixAssembler(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+    MonodomainRhsMatrixAssembler(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Destructor.
@@ -182,7 +182,7 @@ public:
      * @param pBcc pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    MonodomainMatrixBasedAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    MonodomainMatrixBasedAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                    MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                                    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
                                    unsigned numQuadPoints = 2);

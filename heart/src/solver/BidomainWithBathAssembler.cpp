@@ -127,7 +127,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
         is_node_bath[i] = 0;
     }
     
-    for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
          iter != this->mpMesh->GetNodeIteratorEnd();
          ++iter)
     {        
@@ -178,7 +178,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathAssembler(
-            AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)

@@ -89,7 +89,7 @@ public:
         // For coverage purposes
         mesh.SetElementOwnerships(0,1); // see comment in ParallelTetrahedralMesh
 
-        for (AbstractMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
@@ -149,7 +149,7 @@ public:
         TetrahedralMesh<2,2> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (AbstractMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
@@ -209,7 +209,7 @@ public:
         TetrahedralMesh<3,3> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
 
-        for (AbstractMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        for (AbstractTetrahedralMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
@@ -269,7 +269,7 @@ public:
             unsigned num_global_nodes = mesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
 
-            for (AbstractMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+            for (AbstractTetrahedralMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
                  iter != mesh.GetNodeIteratorEnd();
                  ++iter)
             {
@@ -393,7 +393,7 @@ public:
             unsigned nodes_owned[num_global_nodes];
             
             // Create a local map of the nodes this processor owns
-            for (AbstractMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+            for (AbstractTetrahedralMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
                  iter != mesh.GetNodeIteratorEnd();
                  ++iter)
             {  

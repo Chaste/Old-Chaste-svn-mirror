@@ -174,7 +174,7 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
 
     double result = 0;
 
-    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
          iter != rMesh.GetElementIteratorEnd();
          ++iter)
     {

@@ -76,13 +76,13 @@ AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::~AbstractCardiacCellFactory()
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::SetMesh(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh)
+void AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::SetMesh(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 {
     mpMesh = pMesh;
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractMesh<ELEM_DIM,SPACE_DIM>* AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::GetMesh()
+AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::GetMesh()
 {
     assert(mpMesh != NULL);
     return mpMesh;

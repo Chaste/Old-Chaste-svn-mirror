@@ -26,14 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractMeshReader.hpp"
+#include "AbstractTetrahedralMeshReader.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() const
+unsigned AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() const
 {
     // By default returns 0.  If a concrete class does read attributes
     // it needs to overload this method.
@@ -41,7 +41,7 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() c
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() const
+unsigned AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() const
 {
     // By default returns 0.  If a concrete class does read attributes
     // it needs to overload this method.
@@ -49,13 +49,13 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() cons
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
+ElementData AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
 {
     return GetNextFaceData();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::string AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
+std::string AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
 {
     return "";
 }
@@ -64,10 +64,10 @@ std::string AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
-template class AbstractMeshReader<0,1>;
-template class AbstractMeshReader<1,1>;
-template class AbstractMeshReader<1,2>;
-template class AbstractMeshReader<1,3>;
-template class AbstractMeshReader<2,2>;
-template class AbstractMeshReader<2,3>;
-template class AbstractMeshReader<3,3>;
+template class AbstractTetrahedralMeshReader<0,1>;
+template class AbstractTetrahedralMeshReader<1,1>;
+template class AbstractTetrahedralMeshReader<1,2>;
+template class AbstractTetrahedralMeshReader<1,3>;
+template class AbstractTetrahedralMeshReader<2,2>;
+template class AbstractTetrahedralMeshReader<2,3>;
+template class AbstractTetrahedralMeshReader<3,3>;

@@ -152,7 +152,7 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    SimpleLinearEllipticAssembler(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    SimpleLinearEllipticAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   unsigned numQuadPoints = 2)

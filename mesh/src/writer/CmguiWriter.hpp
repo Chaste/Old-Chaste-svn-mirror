@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CMGUIWRITER_HPP_
 #define CMGUIWRITER_HPP_
 
-#include "AbstractMeshWriter.hpp"
+#include "AbstractTetrahedralMeshWriter.hpp"
 
 
 static const char CmguiNodeFileHeader[] = " #Fields=1\n\
@@ -98,7 +98,7 @@ static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*
  *  gfx read elem base_file generate_faces_and_lines
  *  gfx cr win
  */
-class CmguiWriter : public AbstractMeshWriter<3,3>
+class CmguiWriter : public AbstractTetrahedralMeshWriter<3,3>
 {
 public:
 

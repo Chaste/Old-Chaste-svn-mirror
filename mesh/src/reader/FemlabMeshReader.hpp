@@ -79,7 +79,7 @@ public:
      * (ie. the nodes, elements and faces files (in that order) and allows the data to
      * be queried.
      * Typical use:
-     *    AbstractMeshReader* pMeshReader = new FemlabMeshReader("pdes/tests/meshdata/",
+     *    AbstractTetrahedralMeshReader* pMeshReader = new FemlabMeshReader("pdes/tests/meshdata/",
      *                                                           "femlab_lshape_nodes.dat",
      *                                                           "femlab_lshape_elements.dat",
      *                                                           "femlab_lshape_edges.dat",);

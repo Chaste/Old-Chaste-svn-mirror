@@ -30,13 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _MESHALYZERMESHWRITER_HPP_
 #define _MESHALYZERMESHWRITER_HPP_
 
-#include "AbstractMeshWriter.hpp"
+#include "AbstractTetrahedralMeshWriter.hpp"
 
 /**
  * A concrete Meshalyzer mesh writer class.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class MeshalyzerMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
+class MeshalyzerMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 public:
 

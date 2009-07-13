@@ -128,14 +128,14 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannBoun
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroDirichletOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                            unsigned indexOfUnknown)
 {
     this->DefineConstantDirichletOnMeshBoundary(pMesh, 0.0, indexOfUnknown);
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineConstantDirichletOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineConstantDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                                double value,
                                                unsigned indexOfUnknown)
 {
@@ -146,7 +146,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineConstant
     ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition =
         new ConstBoundaryCondition<SPACE_DIM>( value );
 
-    typename AbstractMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
+    typename AbstractTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
     iter = pMesh->GetBoundaryNodeIteratorBegin();
     while (iter != pMesh->GetBoundaryNodeIteratorEnd())
     {
@@ -156,7 +156,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineConstant
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeumannOnMeshBoundary(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeumannOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                                          unsigned indexOfUnknown)
 {
     assert(indexOfUnknown < PROBLEM_DIM);
@@ -165,7 +165,7 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeum
     ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
         new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
 
-    typename AbstractMesh<ELEM_DIM, SPACE_DIM>::BoundaryElementIterator iter;
+    typename AbstractTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryElementIterator iter;
     iter = pMesh->GetBoundaryElementIteratorBegin();
     while (iter != pMesh->GetBoundaryElementIteratorEnd())
     {
@@ -355,14 +355,14 @@ void BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichlet
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-bool BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh)
+bool BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 {
     bool valid = true;
 
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
         // Iterate over surface elements
-        typename AbstractMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
+        typename AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
         = pMesh->GetBoundaryElementIteratorBegin();
         while (valid && elt_iter != pMesh->GetBoundaryElementIteratorEnd())
         {

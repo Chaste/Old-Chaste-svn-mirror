@@ -290,8 +290,8 @@ public:
         need_initialisation = true;
 
         // Test the RHS of the mesh
-        AbstractMesh<2,2>& r_mesh=monodomain_problem.rGetMesh();
-        for (AbstractMesh<2,2>::NodeIterator iter=r_mesh.GetNodeIteratorBegin();
+        AbstractTetrahedralMesh<2,2>& r_mesh=monodomain_problem.rGetMesh();
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=r_mesh.GetNodeIteratorBegin();
              iter != r_mesh.GetNodeIteratorEnd();
              ++iter)
         {       

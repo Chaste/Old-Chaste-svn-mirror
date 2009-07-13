@@ -44,7 +44,7 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
     if (mHasBath)
     {
         // Initialize all nodes to be bath nodes
-        for (typename AbstractMesh<DIM,DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
+        for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
              iter != this->mpMesh->GetNodeIteratorEnd();
             ++iter)
         {
@@ -55,7 +55,7 @@ void BidomainProblem<DIM>::AnalyseMeshForBath()
 
         // Set nodes that are part of a heart element to be heart nodes
         //for (unsigned i=0; i<this->mpMesh->GetNumElements(); i++)
-        for (typename AbstractMesh<DIM,DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
+        for (typename AbstractTetrahedralMesh<DIM,DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
              it != this->mpMesh->GetElementIteratorEnd();
              ++it)
         {

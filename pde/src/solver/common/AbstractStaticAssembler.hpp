@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractAssembler.hpp"
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "LinearSystem.hpp"
 #include "GaussianQuadratureRule.hpp"
@@ -106,7 +106,7 @@ class AbstractStaticAssembler : virtual public AbstractAssembler<ELEMENT_DIM,SPA
 protected:
 
     /** Mesh to be solved on */
-    AbstractMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
 
     /** Quadrature rule for use on normal elements */
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
@@ -272,7 +272,7 @@ public:
      * 
      * @param pMesh Pointer to a mesh
      */
-    void SetMesh(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
+    void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Delete any memory allocated by this class.
@@ -552,7 +552,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     ////////////////////////////////////////////////////////
     // loop over elements
     ////////////////////////////////////////////////////////
-    for (typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->mpMesh->GetElementIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->mpMesh->GetElementIteratorBegin();
          iter != this->mpMesh->GetElementIteratorEnd();
          ++iter)
     {
@@ -578,7 +578,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     }
 
     // add the integrals associated with Neumann boundary conditions to the linear system
-    typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
+    typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
         surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
 
     ////////////////////////////////////////////////////////
@@ -690,7 +690,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
-void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::SetMesh(AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
 {
     mpMesh = pMesh;
 }

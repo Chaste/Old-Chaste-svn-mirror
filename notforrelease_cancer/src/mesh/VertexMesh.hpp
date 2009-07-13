@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "VertexMeshReader.hpp"
 #include "VertexElement.hpp"
 #include "VertexElementMap.hpp"
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A vertex-based mesh class, for use in vertex-based tissue simulations.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class VertexMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
+class VertexMesh : public AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestVertexMesh;
 
@@ -198,7 +198,7 @@ protected:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
         archive & mCellRearrangementThreshold;
         archive & mEdgeDivisionThreshold;
     }
@@ -452,7 +452,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
+    void ConstructFromMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
                                  bool cullInternalFaces=false);
 
     /**

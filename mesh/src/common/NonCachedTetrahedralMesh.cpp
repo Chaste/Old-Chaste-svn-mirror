@@ -55,7 +55,7 @@ void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetInverseJacobianForElem
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void NonCachedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant) const
 {
-    // See comment in AbstractMesh::GetWeightedDirectionForBoundaryElement()
+    // See comment in AbstractTetrahedralMesh::GetWeightedDirectionForBoundaryElement()
     EXCEPTION("Probably redundant method.");
 }
 

@@ -316,7 +316,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::BidomainDg0Assembler(
-            AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)

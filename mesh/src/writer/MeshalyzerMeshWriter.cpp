@@ -37,7 +37,7 @@ MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::st
         const std::string &rBaseName,
         const bool &rCleanDirectory,
         const bool &rSetCoolGraphics)
-        : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
+        : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
 {
    /* if (ELEMENT_DIM != SPACE_DIM)
     {

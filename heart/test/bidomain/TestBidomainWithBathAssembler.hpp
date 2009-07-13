@@ -127,7 +127,7 @@ public:
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
         bidomain_problem.Initialise();
 
-        AbstractMesh<1,1>* p_mesh = &(bidomain_problem.rGetMesh());
+        AbstractTetrahedralMesh<1,1>* p_mesh = &(bidomain_problem.rGetMesh());
         BidomainPde<1>* p_pde = bidomain_problem.GetBidomainPde();
         BoundaryConditionsContainer<1,1,2> bcc;
 
@@ -345,7 +345,7 @@ public:
         ReplicatableVector sol_repl(sol);
 
         // test V = 0 for all bath nodes
-        for (AbstractMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd(); ++iter)
         {
             if ((*iter).GetRegion()==HeartRegionCode::BATH) // bath

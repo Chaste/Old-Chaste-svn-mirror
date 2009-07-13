@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef ABSTRACTMESH_HPP_
-#define ABSTRACTMESH_HPP_
+#ifndef ABSTRACTTETRAHEDRALMESH_HPP_
+#define ABSTRACTTETRAHEDRALMESH_HPP_
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/is_abstract.hpp>
@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Node.hpp"
 #include "BoundaryElement.hpp"
 #include "Element.hpp"
-#include "AbstractMeshReader.hpp"
+#include "AbstractTetrahedralMeshReader.hpp"
 #include "DistributedVectorFactory.hpp"
 
 
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Abstract base class for all meshes.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class AbstractMesh
+class AbstractTetrahedralMesh
 {
 private:
 
@@ -167,12 +167,12 @@ public:
     /**
      * Constructor.
      */
-    AbstractMesh();
+    AbstractTetrahedralMesh();
 
     /**
      * Virtual destructor, since this class has virtual methods.
      */
-    virtual ~AbstractMesh();
+    virtual ~AbstractTetrahedralMesh();
 
     /**
      * Get the number of nodes that are actually in use.
@@ -251,7 +251,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+    virtual void ConstructFromMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                          bool cullInternalFaces=false)=0;
 
     /**
@@ -415,7 +415,7 @@ public:
          *
          * @param other iterator with which comparison is made
          */
-        inline bool operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other);
+        inline bool operator!=(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other);
 
         /**
          * Prefix increment operator.
@@ -426,18 +426,18 @@ public:
          * Constructor for a new iterator.
          * 
          * This should not be called directly by user code; use the mesh methods
-         * AbstractMesh::GetNodeIteratorBegin and AbstractMesh::GetNodeIteratorEnd instead.
+         * AbstractTetrahedralMesh::GetNodeIteratorBegin and AbstractTetrahedralMesh::GetNodeIteratorEnd instead.
          * 
          * @param rMesh the mesh to iterator over
          * @param nodeIter where to start iterating
          * @param skipDeletedNodes whether to include deleted nodes
          */
-        NodeIterator(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+        NodeIterator(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
                      typename std::vector<Node<SPACE_DIM> *>::iterator nodeIter,
                      bool skipDeletedNodes=true);
     private:
         /** The mesh we're iterating over. */
-        AbstractMesh& mrMesh;
+        AbstractTetrahedralMesh& mrMesh;
 
         /** The actual node iterator. */
         typename std::vector<Node<SPACE_DIM> *>::iterator mNodeIter;
@@ -479,7 +479,7 @@ public:
          *
          * @param other iterator with which comparison is made
          */
-        inline bool operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& other);
+        inline bool operator!=(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& other);
 
         /**
          * Prefix increment operator.
@@ -490,19 +490,19 @@ public:
          * Constructor for a new iterator.
          * 
          * This should not be called directly by user code; use the mesh methods
-         * AbstractMesh::GetElementIteratorBegin and AbstractMesh::GetElementIteratorEnd instead.
+         * AbstractTetrahedralMesh::GetElementIteratorBegin and AbstractTetrahedralMesh::GetElementIteratorEnd instead.
          * 
          * @param rMesh the mesh to iterator over
          * @param elementIter where to start iterating
          * @param skipDeletedElements whether to include deleted elements
          */
-        ElementIterator(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+        ElementIterator(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
                         typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::iterator elementIter,
                         bool skipDeletedElements=true);
 
     private:
         /** The mesh we're iterating over. */
-        AbstractMesh& mrMesh;
+        AbstractTetrahedralMesh& mrMesh;
 
         /** The actual element iterator. */
         typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::iterator mElementIter;
@@ -532,7 +532,7 @@ namespace serialization
  * must drop down to the underlying source code.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-struct is_abstract<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >
+struct is_abstract<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >
 {
     /** The type that is an abstract class. */
     typedef mpl::bool_<true> type;
@@ -547,40 +547,40 @@ struct is_abstract<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIteratorBegin(
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIteratorBegin(
         bool skipDeletedNodes)
 {
     return NodeIterator(*this, mNodes.begin(), skipDeletedNodes);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIteratorEnd()
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeIteratorEnd()
 {
     return NodeIterator(*this, mNodes.end());
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator*()
+Node<SPACE_DIM>& AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator*()
 {
     assert(!IsAtEnd());
     return **mNodeIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator->()
+Node<SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator->()
 {
     assert(!IsAtEnd());
     return *mNodeIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other)
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator!=(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other)
 {
     return mNodeIter != other.mNodeIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator++()
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator++()
 {
     do
     {
@@ -592,8 +592,8 @@ typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& AbstractMesh<ELEMEN
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::NodeIterator(
-        AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::NodeIterator(
+        AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
         typename std::vector<Node<SPACE_DIM> *>::iterator nodeIter,
         bool skipDeletedNodes)
     : mrMesh(rMesh),
@@ -616,13 +616,13 @@ AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::NodeIterator(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::IsAtEnd()
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::IsAtEnd()
 {
     return mNodeIter == mrMesh.mNodes.end();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::IsAllowedNode()
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::IsAllowedNode()
 {
     return !(mSkipDeletedNodes && (*this)->IsDeleted());
 }
@@ -633,40 +633,40 @@ bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::IsAllowedNode()
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorBegin(
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorBegin(
         bool skipDeletedElements)
 {
     return ElementIterator(*this, mElements.begin(), skipDeletedElements);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorEnd()
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorEnd()
 {
     return ElementIterator(*this, mElements.end());
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Element<ELEMENT_DIM, SPACE_DIM>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator*()
+Element<ELEMENT_DIM, SPACE_DIM>& AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator*()
 {
     assert(!IsAtEnd());
     return **mElementIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Element<ELEMENT_DIM, SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator->()
+Element<ELEMENT_DIM, SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator->()
 {
     assert(!IsAtEnd());
     return *mElementIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& other)
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator!=(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& other)
 {
     return mElementIter != other.mElementIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator++()
+typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::operator++()
 {
     do
     {
@@ -678,8 +678,8 @@ typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& AbstractMesh<ELE
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::ElementIterator(
-        AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::ElementIterator(
+        AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
         typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::iterator elementIter,
         bool skipDeletedElements)
     : mrMesh(rMesh),
@@ -702,16 +702,16 @@ AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::ElementIterator(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::IsAtEnd()
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::IsAtEnd()
 {
     return mElementIter == mrMesh.mElements.end();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::IsAllowedElement()
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator::IsAllowedElement()
 {
     return !(mSkipDeletedElements && (*this)->IsDeleted());
 }
 
 
-#endif /*ABSTRACTMESH_HPP_*/
+#endif /*ABSTRACTTETRAHEDRALMESH_HPP_*/

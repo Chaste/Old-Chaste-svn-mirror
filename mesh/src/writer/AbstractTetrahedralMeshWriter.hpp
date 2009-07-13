@@ -27,10 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _ABSTRACTMESHWRITER_HPP_
-#define _ABSTRACTMESHWRITER_HPP_
+#ifndef _ABSTRACTTETRAHEDRALMESHWRITER_HPP_
+#define _ABSTRACTTETRAHEDRALMESHWRITER_HPP_
 
-#include "AbstractMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -40,14 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
-#include "AbstractMeshReader.hpp"
+#include "AbstractTetrahedralMeshReader.hpp"
 #include "NodeMap.hpp"
 
 /**
  * An abstract mesh writer class.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class AbstractMeshWriter
+class AbstractTetrahedralMeshWriter
 {
 protected:
 
@@ -74,14 +74,14 @@ public:
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param clearOutputDir  whether to clean the directory (defaults to true)
      */
-    AbstractMeshWriter(const std::string& rDirectory,
+    AbstractTetrahedralMeshWriter(const std::string& rDirectory,
                        const std::string& rBaseName,
                        const bool clearOutputDir=true);
 
     /**
      * Destructor.
      */
-    virtual ~AbstractMeshWriter();
+    virtual ~AbstractTetrahedralMeshWriter();
 
     /**
      * Return the full path to the directory where meshes will be written.
@@ -140,14 +140,14 @@ public:
      * 
      * @param rMesh the mesh
      */
-    void WriteFilesUsingMesh(AbstractMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
     /**
      * Read in a mesh and write it to file.
      * 
      * @param rMeshReader the mesh reader
      */
-    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
+    void WriteFilesUsingMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
 
     /**
      * Read in a mesh and a given permutation of the node indices, and write the permuted mesh to file.
@@ -155,8 +155,8 @@ public:
      * @param rMeshReader the mesh reader
      * @param rNodePermutation the node permutation
      */
-    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+    void WriteFilesUsingMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                    std::vector<unsigned>& rNodePermutation);
 };
 
-#endif //_ABSTRACTMESHWRITER_HPP_
+#endif //_ABSTRACTTETRAHEDRALMESHWRITER_HPP_

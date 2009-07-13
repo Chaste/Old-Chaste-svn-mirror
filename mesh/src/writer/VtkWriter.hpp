@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vtkXMLUnstructuredGridWriter.h>
 
 #include <vtkDataCompressor.h>
-#include "AbstractMeshWriter.hpp"
+#include "AbstractTetrahedralMeshWriter.hpp"
 
 /**
  *  VtkWriter
@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Writes a mesh in VTK .vtu format (that's an XML-based, data compressed unstructured mesh)
  *
  */
-class VtkWriter : public AbstractMeshWriter<3,3>
+class VtkWriter : public AbstractTetrahedralMeshWriter<3,3>
 {
 
 #ifdef CHASTE_VTK
@@ -93,7 +93,7 @@ public:
 VtkWriter::VtkWriter(const std::string& rDirectory,
                      const std::string& rBaseName,
                      const bool& rCleanDirectory)
-    : AbstractMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
+    : AbstractTetrahedralMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero = true;
 

@@ -89,7 +89,7 @@ c_vector<double, ELEM_DIM> MonodomainRhsMatrixAssembler<ELEM_DIM, SPACE_DIM>::Co
 
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::MonodomainRhsMatrixAssembler(AbstractMesh<ELEM_DIM,SPACE_DIM>* pMesh)
+MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::MonodomainRhsMatrixAssembler(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
     : AbstractLinearAssembler<ELEM_DIM,SPACE_DIM,1,false,MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM> >()
 {
     this->mpMesh = pMesh;
@@ -127,7 +127,7 @@ Mat* MonodomainRhsMatrixAssembler<ELEM_DIM,SPACE_DIM>::GetMatrix()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainMatrixBasedAssembler(
-            AbstractMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
             unsigned numQuadPoints)
