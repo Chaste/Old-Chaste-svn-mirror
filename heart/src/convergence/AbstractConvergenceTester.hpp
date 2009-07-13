@@ -231,8 +231,8 @@ public:
         {
             p_conv_info_file = conv_info_handler.OpenOutputFile(nameOfTest+"_info.csv");
             (*p_conv_info_file) << "#Abcisa\t"
-                                << "(l2-norm)^2\t"
-                                << "l2-norm\t"
+                                << "l2-norm-full\t"
+                                << "l2-norm-onset\t"
                                 << "Max absolute err\t"
                                 << "APD90_1st_quad\t"
                                 << "APD90_3rd_quad\t"
@@ -523,6 +523,8 @@ public:
                 double max_abs_error = 0;
                 double sum_sq_abs_error =0;
                 double sum_sq_prev_voltage = 0;
+                double sum_sq_abs_error_full =0;
+                double sum_sq_prev_voltage_full = 0;
                 if (this->PopulatedResult)
                 {
                     //If the PDE step is varying then we'll have twice as much data now as we use to have
@@ -538,8 +540,11 @@ public:
                         double abs_error = fabs(transmembrane_potential[this_data_point]-prev_voltage[data_point]);
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
                         //Only do resolve the upstroke...
+                        sum_sq_abs_error_full += abs_error*abs_error;
+                        sum_sq_prev_voltage_full += prev_voltage[data_point] * prev_voltage[data_point];
                         if (time_series[this_data_point] <= 8.0)
                         {   
+                            //In most regular cases we always do this, since the simulation stops at ms
                             sum_sq_abs_error += abs_error*abs_error;
                             sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
                         }
@@ -555,14 +560,11 @@ public:
                 if (this->PopulatedResult)
                 {
 
-//                    std::cout << "max_abs_error = " << max_abs_error << " log10 = " << log10(max_abs_error) << "\n";
-//                    std::cout << "l2 error = " << sum_sq_abs_error/sum_sq_prev_voltage << " log10 = " << log10(sum_sq_abs_error/sum_sq_prev_voltage) << "\n";
-
                     if (conv_info_handler.IsMaster())
                     {
                         (*p_conv_info_file) << std::setprecision(8)
                                             << Abscissa() << "\t"
-                                            << sum_sq_abs_error/sum_sq_prev_voltage << "\t"
+                                            << sqrt(sum_sq_abs_error_full/sum_sq_prev_voltage_full) << "\t"
                                             << sqrt(sum_sq_abs_error/sum_sq_prev_voltage) << "\t"
                                             << max_abs_error << "\t"
                                             << Apd90FirstQn <<" "<< apd90_first_qn_error <<""<< "\t"
