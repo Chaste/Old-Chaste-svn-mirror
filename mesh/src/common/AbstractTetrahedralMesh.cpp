@@ -55,19 +55,12 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsig
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMesh()
-    : mpDistributedVectorFactory(NULL),
-      mMeshFileBaseName("")
 {
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMesh()
 {
-    // Iterate over nodes and free the memory
-    for (unsigned i=0; i<mNodes.size(); i++)
-    {
-        delete mNodes[i];
-    }
     // Iterate over elements and free the memory
     for (unsigned i=0; i<mElements.size(); i++)
     {
@@ -78,34 +71,12 @@ AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMesh()
     {
         delete mBoundaryElements[i];
     }
-    if (mpDistributedVectorFactory)
-    {
-        delete mpDistributedVectorFactory;
-    }
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
-{
-    return mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mElements.size();
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
-{
-    return mBoundaryNodes.size();
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
-{
-    return mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -126,12 +97,6 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements
     return mBoundaryElements.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) const
-{
-    unsigned local_index = SolveNodeMapping(index);
-    return mNodes[local_index];
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Element<ELEMENT_DIM, SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
@@ -147,28 +112,6 @@ BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* AbstractTetrahedralMesh<ELEMENT_DIM, 
     return mBoundaryElements[local_index];
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile)
-{
-    NEVER_REACHED;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-DistributedVectorFactory* AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVectorFactory()
-{
-    if (mpDistributedVectorFactory == NULL)
-    {
-        mpDistributedVectorFactory=new DistributedVectorFactory(GetNumNodes());
-    }
-    return mpDistributedVectorFactory;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
-{
-    NEVER_REACHED;
-}
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorBegin() const
 {
@@ -179,18 +122,6 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryElementIteratorEnd() const
 {
     return mBoundaryElements.end();
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorBegin() const
-{
-    return mBoundaryNodes.begin();
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetBoundaryNodeIteratorEnd() const
-{
-    return mBoundaryNodes.end();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -210,105 +141,6 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBou
         double& rJacobianDeterminant) const
 {
     mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection, rJacobianDeterminant );
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::string AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
-{
-    if (mMeshFileBaseName == "")
-    {
-        EXCEPTION("This mesh was not constructed from a file.");
-    }
-
-    return mMeshFileBaseName;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned>& AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation()
-{
-    return mNodesPermutation;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(
-    const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB)
-{
-    c_vector<double, SPACE_DIM> vector = rLocationB - rLocationA;
-    return vector;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenNodes(unsigned indexA, unsigned indexB)
-{
-    c_vector<double, SPACE_DIM> vector = GetVectorFromAtoB(mNodes[indexA]->rGetLocation(),
-                                                           mNodes[indexB]->rGetLocation());
-    return norm_2(vector);
-}
-
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
-{
-    assert(rDimension < SPACE_DIM);
-    c_vector<double,2> extremes = GetWidthExtremes(rDimension);
-    return extremes[1] - extremes[0];
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2> AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
-{
-    assert(rDimension < SPACE_DIM);
-
-    double max = -1e200;
-    double min = 1e200;
-
-    assert(GetNumAllNodes() > 0u);
-    for (unsigned i=0; i<GetNumAllNodes(); i++)
-    {
-        if (!mNodes[i]->IsDeleted())
-        {
-            double this_node_value = mNodes[i]->rGetLocation()[rDimension];
-            if (this_node_value>max)
-            {
-                max = this_node_value;
-            }
-            if (this_node_value < min)
-            {
-                min = this_node_value;
-            }
-        }
-    }
-    c_vector<double,2> extremes;
-    extremes[0] = min;
-    extremes[1] = max;
-    return extremes;
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
-{
-    unsigned num_nodes = GetNumAllNodes();
-
-    for (unsigned i=0; i<num_nodes; i++)
-    {
-        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
-        if (SPACE_DIM>=3)
-        {
-            r_location[2] *= zScale;
-        }
-        if (SPACE_DIM>=2)
-        {
-            r_location[1] *= yScale;
-        }
-        r_location[0] *= xScale;
-    }
-
-    RefreshMesh();
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
-{
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

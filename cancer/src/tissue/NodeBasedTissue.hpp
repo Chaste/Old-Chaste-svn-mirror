@@ -164,11 +164,10 @@ public:
      * This constructor is a helper constructor: it is generally easier for the user to
      * create a mesh than a set of nodes.
      *
-     * @param rMesh a mesh
-     * @param rCells a vector of TissueCells
-     *
+     * @param rMesh any mesh.
+     * @param rCells a vector of TissueCells.
      */
-    NodeBasedTissue(const AbstractTetrahedralMesh<DIM,DIM>& rMesh,
+    NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
                     const std::vector<TissueCell>& rCells);
 
     /**

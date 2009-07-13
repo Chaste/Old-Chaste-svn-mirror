@@ -55,7 +55,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool
 
 
 template<unsigned DIM>
-NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractTetrahedralMesh<DIM,DIM>& rMesh,
+NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
                                       const std::vector<TissueCell>& rCells)
     : AbstractCellCentreBasedTissue<DIM>(rCells),
       mAddedNodes(false),
@@ -63,7 +63,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractTetrahedralMesh<DIM,DIM>& rM
       mDeleteNodes(true)
 {
     mNodes.reserve(rMesh.GetNumNodes());
-    // Copy the actual node objects
+    // Copy the actual node objects from mesh to this (mesh-less) tissue.
     for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
         Node<DIM>* p_node = new Node<DIM>(*(rMesh.GetNode(i)));
