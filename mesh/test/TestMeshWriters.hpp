@@ -313,7 +313,7 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter writer("TestVtkWriter", "cube_2mm_12_elements");
+        VtkWriter<3> writer("TestVtkWriter", "cube_2mm_12_elements");
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
@@ -321,6 +321,41 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
+
+    void TestVtkWriter2D() throw(Exception)
+    {
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
+        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_200_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        VtkWriter<2> writer("TestVtkWriter", "2D_0_to_1mm_200_elements", false);
+
+        // Add distance from origin into the node "point" data
+        std::vector<double> distance;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            distance.push_back(norm_2(mesh.GetNode(i)->rGetLocation()));
+        }
+        writer.AddPointData("Distance from origin", distance);
+        
+        // Add element quality into the element "cell" data
+        std::vector<double> quality;
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            quality.push_back(mesh.GetElement(i)->CalculateQuality());
+        }
+        writer.AddCellData("Quality", quality);
+
+
+        writer.WriteFilesUsingMesh(mesh);
+
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/2D_0_to_1mm_200_elements.vtu mesh/test/data/TestVtkWriter/2D_0_to_1mm_200_elements.vtu").c_str()), 0);
+#endif //CHASTE_VTK
+    }
+
 
     void TestVtkWriterWithData() throw(Exception)
     {
@@ -330,7 +365,7 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter writer("TestVtkWriter", "heart_decimation", false);
+        VtkWriter<3> writer("TestVtkWriter", "heart_decimation", false);
 
         // Add element quality into the element "cell" data
         std::vector<double> quality;
