@@ -1121,21 +1121,119 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
         }
         else if (all_indices.size()==3) // nodes are contained in three elments
         {
-           /*
-            * Looks like
-            *
-            *     A  B             A  B
-            *   \                       /
-            *    \  (1)           (1)  /
-            * (3) o--o---   or  ---o--o (3)    Element number in brackets
-            *    /  (2)           (2)  \
-            *   /                       \
-            *
-            * Perform a PartialT1Swap
-            */
-#define COVERAGE_IGNORE ///\todo Fix coverage         
-            PerformNodeMerge(pNodeA, pNodeB);
-#undef  COVERAGE_IGNORE ///\todo Fix coverage         
+           if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
+           {
+       	       /*
+           	    * 
+	           	*     A  B                  A  B
+	            *   \ empty/              \      /
+	            *    \    /                \(1) /
+	            * (3) o--o (1)  or      (2) o--o (3)    Element number in brackets
+	            *    / (2)\                /    \
+	            *   /      \              /empty \
+                * Perform a T1Swap
+                */
+                PerformT1Swap(pNodeA, pNodeB, all_indices);
+           }
+           else
+           {
+                Node<SPACE_DIM>* pNodeAlpha;
+                Node<SPACE_DIM>* pNodeBeta;
+                if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
+                {
+                    pNodeAlpha = pNodeA;
+                    pNodeBeta = pNodeB;
+                }
+                else if (nodeA_elem_indices.size()==3 && nodeB_elem_indices.size()==2)
+                {
+                    pNodeAlpha = pNodeB;
+                    pNodeBeta = pNodeA;
+                }
+                else
+                {
+     #define COVERAGE_IGNORE       
+                    EXCEPTION("At least one of nodes should have 3 elements and the other 2");
+     #undef  COVERAGE_IGNORE
+                }
+                
+                std::set<unsigned> nodeAlpha_elem_indices = pNodeAlpha->rGetContainingElementIndices();
+                assert(nodeAlpha_elem_indices.size() == 2u);
+                
+                unsigned nodeAlpha_local_index = mElements[*nodeAlpha_elem_indices.begin()]
+                                                ->GetNodeLocalIndex(pNodeAlpha->GetIndex());
+                assert(nodeAlpha_local_index < UINT_MAX); // this element should contain node Alpha
+                
+                unsigned nodeAlpha_local_index_before = (nodeAlpha_local_index+1)%mElements[*nodeAlpha_elem_indices.begin()]->GetNumNodes();
+                unsigned nodeAlpha_local_index_after = (nodeAlpha_local_index-1)%mElements[*nodeAlpha_elem_indices.begin()]->GetNumNodes();
+                
+                Node<SPACE_DIM>* pNodeGamma;
+                if (mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_before)
+                           == pNodeBeta)
+                {
+                    pNodeGamma = mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_after);
+                }
+                else if (mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_after)
+                           == pNodeBeta)
+                {
+                    pNodeGamma = mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_before);
+                }
+                else
+                {
+     #define COVERAGE_IGNORE       
+                    EXCEPTION("At least one of nodeAlpha_local_index_before or .._after should be pNodeBeta");
+     #undef  COVERAGE_IGNORE
+                }
+                
+                std::set<unsigned> nodeBeta_elem_indices = pNodeBeta->rGetContainingElementIndices();
+                std::set<unsigned> nodeGamma_elem_indices = pNodeGamma->rGetContainingElementIndices();
+                
+                // Form the set intersection between gamma and beta
+			    std::set<unsigned> intersection_indices, temp_set2;
+			    std::set_intersection(nodeBeta_elem_indices.begin(), nodeBeta_elem_indices.end(),
+			                   nodeGamma_elem_indices.begin(), nodeGamma_elem_indices.end(),
+			                   std::inserter(temp_set2, temp_set2.begin()));
+			    intersection_indices.swap(temp_set2); // temp_set2 will be deleted
+                
+                if (intersection_indices.size() == 2)
+                {
+                   /* Looks like
+                    *
+	                *     A  B             A  B
+	                *   \                       /
+	                *    \  (1)           (1)  /
+	                * (3) o--o---   or  ---o--o (3)    Element number in brackets
+	                *    /  (2)           (2)  \
+	                *   /                       \
+	                *
+                    * Perform node merge
+                    */
+                    
+		#define COVERAGE_IGNORE ///\todo Fix coverage         
+	                PerformNodeMerge(pNodeA, pNodeB);
+		#undef  COVERAGE_IGNORE ///\todo Fix coverage
+                }
+                else if (intersection_indices.size() == 1)
+                {
+                   /*
+	                * 
+	                *     A  B                      A  B
+	                *   \      /                  \      /
+	                *    \ (1)/                    \(1) /
+	                * (3) o--o (empty)  or  (empty) o--o (3)    Element number in brackets
+	                *    / (2)\                    /(2) \
+	                *   /      \                  /      \
+	                * 
+	                * Perform a T1Swap
+	                */
+	                PerformT1Swap(pNodeA, pNodeB, all_indices);
+                }
+                else
+                {
+        #define COVERAGE_IGNORE       
+                    EXCEPTION("The intersection should be of length 1 or 2");
+        #undef  COVERAGE_IGNORE
+                }
+           }
         }
         else if (all_indices.size()==4) // Correct set up for T1Swap
         {
