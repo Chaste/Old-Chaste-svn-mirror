@@ -120,7 +120,7 @@ public:
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0u)->IsDeleted(), false);
    
-        AbstractTetrahedralMesh<2,2> *p_abs_mesh=&basic_vertex_mesh;
+        AbstractMesh<2,2> *p_abs_mesh=&basic_vertex_mesh;
         TS_ASSERT_EQUALS(p_abs_mesh->GetNumElements(), 2u);
         
         //The next line segfaults since VertexMesh and AbstractTetrahedralMesh
