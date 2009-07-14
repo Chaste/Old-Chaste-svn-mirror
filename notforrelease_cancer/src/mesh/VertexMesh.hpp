@@ -205,6 +205,29 @@ protected:
 
 public:
 
+    //////////////////////////////////////////////////////////////////////
+    //                            Iterators                             //
+    //////////////////////////////////////////////////////////////////////
+
+    /** Forward declaration */
+    class VertexElementIterator;
+
+    /**
+     * Get an iterator to the first element in the mesh.
+     * 
+     * @param skipDeletedElements whether to include deleted element
+     */
+    inline VertexElementIterator GetElementIteratorBegin(bool skipDeletedElements=true);
+
+    /**
+     * Get an iterator to one past the last element in the mesh.
+     */
+    inline VertexElementIterator GetElementIteratorEnd();
+
+    //////////////////////////////////////////////////////////////////////
+    //                             Methods                              //
+    //////////////////////////////////////////////////////////////////////
+    
     /**
      * Default constructor.
      *
@@ -551,7 +574,75 @@ public:
      * Note: inherited classes should overload ReMesh(VertexElementMap&).
      */
     void ReMesh();
+	
+	//////////////////////////////////////////////////////////////////////
+    //                         Nested classes                           //
+    //////////////////////////////////////////////////////////////////////
+   
+    /**
+     * A smart iterator over the elements in the mesh.\todo This is the same as in AbstractTetrahedralMesh
+     */
+    class VertexElementIterator
+    {
+    public:
+        /**
+         * Dereference the iterator giving you a *reference* to the current element.
+         * 
+         * Make sure to use a reference for the result to avoid copying elements unnecessarily.
+         */
+        inline VertexElement<ELEMENT_DIM, SPACE_DIM>& operator*();
 
+        /**
+         * Member access from a pointer.
+         */
+        inline VertexElement<ELEMENT_DIM, SPACE_DIM>* operator->();
+
+        /**
+         * Comparison not-equal-to.
+         *
+         * @param other iterator with which comparison is made
+         */
+        inline bool operator!=(const VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& other);
+
+        /**
+         * Prefix increment operator.
+         */
+        inline VertexElementIterator& operator++();
+
+        /**
+         * Constructor for a new iterator.
+         * 
+         * This should not be called directly by user code; use the mesh methods
+         * AbstractTetrahedralMesh::GetElementIteratorBegin and AbstractTetrahedralMesh::GetElementIteratorEnd instead.
+         * 
+         * @param rMesh the mesh to iterator over
+         * @param elementIter where to start iterating
+         * @param skipDeletedElements whether to include deleted elements
+         */
+        VertexElementIterator(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+                        typename std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM> *>::iterator elementIter,
+                        bool skipDeletedElements=true);
+
+    private:
+        /** The mesh we're iterating over. */
+        VertexMesh& mrMesh;
+
+        /** The actual element iterator. */
+        typename std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM> *>::iterator mElementIter;
+
+        /** Whether to skip deleted elements. */
+        bool mSkipDeletedElements;
+
+        /**
+         * Helper method to say when we're at the end.
+         */
+        inline bool IsAtEnd();
+
+        /**
+         * Helper method to say if we're allowed to point at this element.
+         */
+        inline bool IsAllowedElement();
+    };
 };
 
 #include "TemplatedExport.hpp"
@@ -599,5 +690,91 @@ inline void load_construct_data(
 }
 }
 } // namespace ...
+
+//////////////////////////////////////////////////////////////////////////////
+// VertexElementIterator class implementation - most methods are inlined    //
+//////////////////////////////////////////////////////////////////////////////
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorBegin(
+        bool skipDeletedElements)
+{
+    return VertexElementIterator(*this, mElements.begin(), skipDeletedElements);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetElementIteratorEnd()
+{
+    return VertexElementIterator(*this, mElements.end());
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM, SPACE_DIM>& VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::operator*()
+{
+    assert(!IsAtEnd());
+    return **mElementIter;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM, SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::operator->()
+{
+    assert(!IsAtEnd());
+    return *mElementIter;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::operator!=(const VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& other)
+{
+    return mElementIter != other.mElementIter;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::operator++()
+{
+    do
+    {
+        ++mElementIter;
+    }
+    while (!IsAtEnd() && !IsAllowedElement());
+    
+    return (*this);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::VertexElementIterator(
+        VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+        typename std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM> *>::iterator elementIter,
+        bool skipDeletedElements)
+    : mrMesh(rMesh),
+      mElementIter(elementIter),
+      mSkipDeletedElements(skipDeletedElements)
+{
+    if (mrMesh.mElements.size() == 0)
+    {
+        // Cope with empty meshes
+        mElementIter = mrMesh.mElements.end();
+    }
+    else
+    {
+        // Make sure we start at an allowed element
+        if (mElementIter == mrMesh.mElements.begin() && !IsAllowedElement())
+        {
+            ++(*this);
+        }
+    }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::IsAtEnd()
+{
+    return mElementIter == mrMesh.mElements.end();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::IsAllowedElement()
+{
+    return !(mSkipDeletedElements && (*this)->IsDeleted());
+}
+
 
 #endif /*VERTEXMESH_HPP_*/

@@ -50,7 +50,7 @@ private:
      * Pure virtual solve node mapping method. For a node with a given global 
      * index, get the local index used by this process.
      * 
-     * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
+     * Overridden in TetrahedralMesh ParallelTetrahedralMesh and Vertex Mesh classes.
      *
      * @param index the global index of the node
      */
