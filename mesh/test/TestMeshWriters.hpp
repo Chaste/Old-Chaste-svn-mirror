@@ -315,7 +315,8 @@ public:
 
         VtkWriter writer("TestVtkWriter", "cube_2mm_12_elements");
 
-        TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
+        std::cout<<"TestMeshWriters.hpp .... \n";
+         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);

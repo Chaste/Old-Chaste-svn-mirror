@@ -356,7 +356,6 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
    fun:_ZN9VtkWriter10WriteFilesEv
-   fun:_ZN18AbstractMeshWriterILj3ELj3EE19WriteFilesUsingMeshER12AbstractMeshILj3ELj3EE
 }
 {
    VTK compressed data problem
@@ -382,7 +381,6 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
    fun:_ZN9VtkWriter10WriteFilesEv
-   fun:_ZN18AbstractMeshWriterILj3ELj3EE19WriteFilesUsingMeshER12AbstractMeshILj3ELj3EE
 }
 
  {
@@ -411,7 +409,6 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
    fun:_ZN9VtkWriter10WriteFilesEv
-   fun:_ZN18AbstractMeshWriterILj3ELj3EE19WriteFilesUsingMeshER12AbstractMeshILj3ELj3EE
 }
 {
    VTK compressed data problem
@@ -434,7 +431,6 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
    fun:_ZN9VtkWriter10WriteFilesEv
-   fun:_ZN18AbstractMeshWriterILj3ELj3EE19WriteFilesUsingMeshER12AbstractMeshILj3ELj3EE
 }
 {
    VTK compressed data problem
@@ -457,6 +453,5 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
    fun:_ZN9VtkWriter10WriteFilesEv
-   fun:_ZN18AbstractMeshWriterILj3ELj3EE19WriteFilesUsingMeshER12AbstractMeshILj3ELj3EE
 }
  
