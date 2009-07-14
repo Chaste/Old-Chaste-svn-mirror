@@ -87,6 +87,8 @@ public:
 
     void TestVtkVertexMeshWriter() throw(Exception)
     {
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
         std::vector<Node<2>*> basic_nodes;
         basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
@@ -129,7 +131,7 @@ public:
         // Create a vertex mesh writer
         //VtkWriter<2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
         //vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
-
+#endif //CHASTE_VTK
     }
 };
 
