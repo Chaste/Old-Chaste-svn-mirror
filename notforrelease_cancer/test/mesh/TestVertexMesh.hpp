@@ -1307,26 +1307,30 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(3)->GetIndex(), 1u);
     }
     
-    void TestReMesh1() throw(Exception)
+    void TestReMeshIdentifySwapTypeForMeshAll() throw(Exception)
     {
         // Create mesh
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh1");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh_all");
         VertexMesh<2,2> vertex_mesh;
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
         vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
 
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Call remesh
-        vertex_mesh.ReMesh();
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 22u);
         
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        // Identify a T1 swap on all listed nodes and perform them
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(12), vertex_mesh.GetNode(13));
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(14), vertex_mesh.GetNode(15));
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(16), vertex_mesh.GetNode(17));
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(18), vertex_mesh.GetNode(19));
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(20), vertex_mesh.GetNode(21));
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 22u);
         
         std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh1";
+        std::string mesh_filename = "vertex_mesh_all";
         
         // Save the mesh data using mesh writers
         VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
@@ -1336,224 +1340,113 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 20u);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 21u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 20u);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 21u);
         
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 20u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 21u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(1)->GetIndex(), 13u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 1u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(1)->GetIndex(), 14u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(2)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(3)->GetIndex(), 2u);
+    
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(1)->GetIndex(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(2)->GetIndex(), 3u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(1)->GetIndex(), 19u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(2)->GetIndex(), 18u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(3)->GetIndex(), 0u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(1)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(2)->GetIndex(), 12u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(3)->GetIndex(), 13u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(1)->GetIndex(), 13u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(2)->GetIndex(), 12u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(3)->GetIndex(), 5u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(2)->GetIndex(), 14u);
+    
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(1)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(2)->GetIndex(), 7u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(1)->GetIndex(), 8u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(2)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(3)->GetIndex(), 16u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(1)->GetIndex(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(2)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(3)->GetIndex(), 9u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(1)->GetIndex(), 10u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(2)->GetIndex(), 19u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(1)->GetIndex(), 18u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(2)->GetIndex(), 11u);
+        
     }
     
-    void TestReMesh2() throw(Exception)
-    {
-        // Create mesh - with no element 3
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh2");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Call remesh
-        vertex_mesh.ReMesh();
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh2";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
-        
-    }
-    void TestReMesh3() throw(Exception)
-    {
-        // Create mesh - with no element 2
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh3");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Call remesh
-        vertex_mesh.ReMesh();
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh3";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-    void TestReMesh4() throw(Exception)
-    {
-        // Create mesh - with no element 1
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh4");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Call remesh
-        vertex_mesh.ReMesh();
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh4";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-    void TestReMesh5() throw(Exception)
-    {
-        // Create mesh - with no element 0
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh5");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Call remesh
-        vertex_mesh.ReMesh();
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh5";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-	void TestReMeshT1SwapForMesh1() throw(Exception)
+    void TestReMeshForMeshAll() throw(Exception)
     {
         // Create mesh
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh1");
+        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh_all");
         VertexMesh<2,2> vertex_mesh;
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
         vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
 
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-		
-		// Perform a T1 swap on nodes 4 and 5
-        std::set<unsigned> containing_element_indices;
-        containing_element_indices.insert(0);
-        containing_element_indices.insert(1);
-        containing_element_indices.insert(2);
-        containing_element_indices.insert(3);
-
-        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 22u);
         
+        // Identify a T1 swap on all listed nodes and perform them
+        vertex_mesh.ReMesh();
         
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 22u);
         
         std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh6";
+        std::string mesh_filename = "vertex_mesh_all";
         
         // Save the mesh data using mesh writers
         VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
@@ -1563,444 +1456,91 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 20u);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 21u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 20u);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 21u);
         
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 5u);
-    }
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 20u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 21u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(1)->GetIndex(), 13u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 1u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(1)->GetIndex(), 14u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(2)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(3)->GetIndex(), 2u);
     
-    void TestReMeshT1SwapForMesh2() throw(Exception)
-    {
-        // Create mesh - with no element 3
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh2");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Perform a T1 swap on nodes 4 and 5
-        std::set<unsigned> containing_element_indices;
-        containing_element_indices.insert(0);
-        containing_element_indices.insert(1);
-        containing_element_indices.insert(2);
-
-        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(1)->GetIndex(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(2)->GetIndex(), 3u);
         
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(1)->GetIndex(), 19u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(2)->GetIndex(), 18u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(3)->GetIndex(), 0u);
         
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh7";
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(1)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(2)->GetIndex(), 12u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(3)->GetIndex(), 13u);
         
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(1)->GetIndex(), 13u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(2)->GetIndex(), 12u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(3)->GetIndex(), 5u);
         
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
-        
-    }
-    void TestReMeshT1SwapForMesh3() throw(Exception)
-    {
-        // Create mesh - with no element 2
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh3");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Perform a T1 swap on nodes 4 and 5
-        std::set<unsigned> containing_element_indices;
-        containing_element_indices.insert(0);
-        containing_element_indices.insert(1);
-        containing_element_indices.insert(2);
-
-        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
-        
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh8";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-    void TestReMeshT1SwapForMesh4() throw(Exception)
-    {
-        // Create mesh - with no element 1
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh4");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Perform a T1 swap on nodes 4 and 5
-        std::set<unsigned> containing_element_indices;
-        containing_element_indices.insert(0);
-        containing_element_indices.insert(1);
-        containing_element_indices.insert(2);
-
-        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
-        
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh9";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-    void TestReMeshT1SwapForMesh5() throw(Exception)
-    {
-        // Create mesh - with no element 0
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh5");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Perform a T1 swap on nodes 4 and 5
-        std::set<unsigned> containing_element_indices;
-        containing_element_indices.insert(0);
-        containing_element_indices.insert(1);
-        containing_element_indices.insert(2);
-
-        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
-        
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh10";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-    void TestReMeshIdentifySwapTypeForMesh1() throw(Exception)
-    {
-        // Create mesh
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh1");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-		
-		// Identify a T1 swap on nodes 4 and 5 and perform it
-		// (all_indices.size()==4)
-        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
-        
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh11";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 5u);
-    }
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(2)->GetIndex(), 14u);
     
-    void TestReMeshIdentifySwapTypeForMesh2() throw(Exception)
-    {
-        // Create mesh - with no element 3
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh2");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Identify a T1 swap on nodes 4 and 5 and perform it
-        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(1)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(2)->GetIndex(), 7u);
         
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(1)->GetIndex(), 8u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(2)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(3)->GetIndex(), 16u);
         
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh12";
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(1)->GetIndex(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(2)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(3)->GetIndex(), 9u);
         
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(1)->GetIndex(), 10u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(2)->GetIndex(), 19u);
         
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(1)->GetIndex(), 18u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(2)->GetIndex(), 11u);
         
-    }
-    void TestReMeshIdentifySwapTypeForMesh3() throw(Exception)
-    {
-        // Create mesh - with no element 2
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh3");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Identify a T1 swap on nodes 4 and 5 and perform it
-        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
-        
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh13";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-    void TestReMeshIdentifySwapTypeForMesh4() throw(Exception)
-    {
-        // Create mesh - with no element 1
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh4");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Identify a T1 swap on nodes 4 and 5 and perform it
-        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
-        
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh14";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
-    }
-    void TestReMeshIdentifySwapTypeForMesh5() throw(Exception)
-    {
-        // Create mesh - with no element 0
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh5");
-        VertexMesh<2,2> vertex_mesh;
-        vertex_mesh.ConstructFromMeshReader(mesh_reader);
-        vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Identify a T1 swap on nodes 4 and 5 and perform it
-        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
-        
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-        
-        std::string dirname = "vertex_Remeshing_mesh";
-        std::string mesh_filename = "vertex_mesh15";
-        
-        // Save the mesh data using mesh writers
-        VertexMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-        mesh_writer.WriteFilesUsingMesh(vertex_mesh);
-        
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 4u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-        
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 5u);
     }
     
     void TestMergeMeshAll() throw(Exception)
