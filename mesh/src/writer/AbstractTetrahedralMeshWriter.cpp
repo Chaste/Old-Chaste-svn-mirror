@@ -167,7 +167,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
-    AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
+    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
     for (unsigned i=0; i<rMeshReader.GetNumNodes(); i++)
     {
@@ -186,7 +186,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshR
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
-    AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     std::vector<unsigned>& rNodePermutation)
 {
     if (rNodePermutation.size() == 0)

@@ -82,7 +82,7 @@ public:
      * and allows the data to be queried.
      * 
      * Typical use:
-     *    AbstractTetrahedralMeshReader *pMeshReader = new MemfemMeshReader("pdes/tests/meshdata/Memfem_slab");
+     *    AbstractMeshReader *pMeshReader = new MemfemMeshReader("pdes/tests/meshdata/Memfem_slab");
      *
      * @param rPathBaseName  the base name of the files from which to read the mesh data \todo make this a reference?
      */

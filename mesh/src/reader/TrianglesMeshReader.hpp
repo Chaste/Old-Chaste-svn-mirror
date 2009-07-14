@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 #include <fstream>
-#include "AbstractTetrahedralMeshReader.hpp"
+#include "AbstractMeshReader.hpp"
 
 /**
  * Concrete version of the AbstractCachedMeshReader class.
@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * data.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class TrianglesMeshReader : public AbstractTetrahedralMeshReader<ELEMENT_DIM,SPACE_DIM>
+class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>
 {
 private:
 

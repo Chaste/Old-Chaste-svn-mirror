@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 
 #include "AbstractTetrahedralMesh.hpp"
-#include "AbstractTetrahedralMeshReader.hpp"
+#include "AbstractMeshReader.hpp"
 #include "ChastePoint.hpp"
 
 
@@ -120,7 +120,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
                                  bool cullInternalFaces=false);
 
     /**

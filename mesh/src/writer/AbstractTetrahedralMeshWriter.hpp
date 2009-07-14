@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
-#include "AbstractTetrahedralMeshReader.hpp"
+#include "AbstractMeshReader.hpp"
 #include "NodeMap.hpp"
 
 /**
@@ -147,7 +147,7 @@ public:
      * 
      * @param rMeshReader the mesh reader
      */
-    void WriteFilesUsingMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
+    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
 
     /**
      * Read in a mesh and a given permutation of the node indices, and write the permuted mesh to file.
@@ -155,7 +155,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param rNodePermutation the node permutation
      */
-    void WriteFilesUsingMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                    std::vector<unsigned>& rNodePermutation);
 };
 

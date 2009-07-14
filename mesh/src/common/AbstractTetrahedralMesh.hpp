@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMesh.hpp"
 #include "BoundaryElement.hpp"
 #include "Element.hpp"
-#include "AbstractTetrahedralMeshReader.hpp"
+#include "AbstractMeshReader.hpp"
 
 /**
  * Abstract base class for all tetrahedral meshes (inherits from AbstractMesh).
@@ -184,7 +184,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    virtual void ConstructFromMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                          bool cullInternalFaces=false)=0;
 
     /**

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "AbstractTetrahedralMesh.hpp"
+#include "AbstractMesh.hpp"
 #include "VertexMeshReader.hpp"
 #include "VertexElement.hpp"
 #include "VertexElementMap.hpp"
@@ -452,7 +452,7 @@ public:
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(AbstractTetrahedralMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
                                  bool cullInternalFaces=false);
 
     /**

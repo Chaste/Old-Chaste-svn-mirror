@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _ABSTRACTTETRAHEDRALMESHREADER_HPP_
-#define _ABSTRACTTETRAHEDRALMESHREADER_HPP_
+#ifndef _ABSTRACTMESHREADER_HPP_
+#define _ABSTRACTMESHREADER_HPP_
 
 #include <vector>
 #include <string>
@@ -56,7 +56,7 @@ struct ElementData
  * A derived class FemlabMeshReader reads 2D data from Femlab or Matlab PDEToolbox
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class AbstractTetrahedralMeshReader
+class AbstractMeshReader
 {
 protected:
 //    unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
@@ -69,7 +69,7 @@ protected:
 //    bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 
 public:
-//    AbstractTetrahedralMeshReader() /**< Constructor */
+//    AbstractMeshReader() /**< Constructor */
 //    {
 //        mNumNodeAttributes = 0;
 //        mMaxNodeBdyMarker = 0;
@@ -81,7 +81,7 @@ public:
 //
 //        mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
 //    }
-    virtual ~AbstractTetrahedralMeshReader()
+    virtual ~AbstractMeshReader()
     {}
 
     /** Returns the number of elements in the mesh */
@@ -124,4 +124,4 @@ public:
 
 };
 
-#endif //_ABSTRACTTETRAHEDRALMESHREADER_HPP_
+#endif //_ABSTRACTMESHREADER_HPP_
