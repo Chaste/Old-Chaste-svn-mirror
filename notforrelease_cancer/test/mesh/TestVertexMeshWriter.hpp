@@ -115,12 +115,22 @@ public:
 
         // Make a vertex mesh
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
-
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0u)->IsDeleted(), false);
+   
+        AbstractTetrahedralMesh<2,2> *p_abs_mesh=&basic_vertex_mesh;
+        TS_ASSERT_EQUALS(p_abs_mesh->GetNumElements(), 2u);
+        
+        //The next line segfaults since VertexMesh and AbstractTetrahedralMesh
+        //both have a vector called mElements
+        
+        //***** TS_ASSERT_EQUALS(p_abs_mesh->GetElement(0u)->IsDeleted(), false);
+   
         // Create a vertex mesh writer
-        VtkWriter<2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
-        vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
+        //VtkWriter<2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
+        //vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
 
-       }
+    }
 };
 
 
