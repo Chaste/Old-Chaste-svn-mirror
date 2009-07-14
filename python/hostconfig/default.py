@@ -58,7 +58,7 @@ icpc = 'icpc'
 other_includepaths = [chaste_libs_path+'hdf5/include',
                       chaste_libs_path+'xerces/include',
                       chaste_libs_path+'boost/include/boost-1_34_1',
-                      chaste_libs_path+'xsd-2.3.1-i686-linux-gnu/libxsd',
+                      chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/libxsd',
                       os.path.join(metis_path, 'Lib')]
 
 other_libpaths = [chaste_libs_path+'lib',
@@ -77,5 +77,5 @@ other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'metis']
 
 tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
          'mpicxx': chaste_libs_path+'mpi/bin/mpicxx',
-         'xsd': chaste_libs_path+'bin/xsd'}
+         'xsd': chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/bin/xsd'}
 
