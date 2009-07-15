@@ -870,12 +870,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
             recheck_mesh = false;
 
             // Loop over elements
-            /// \todo USE AN ITERATOR to avoid deleted elements!! See #987 for this.
-            for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
-            {
+	        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
+	             iter != GetElementIteratorEnd();
+	             ++iter)
+	        {
                 if (!recheck_mesh)
                 {
-                    unsigned num_nodes = mElements[elem_index]->GetNumNodes();
+                    unsigned num_nodes = iter->GetNumNodes();
                     assert(num_nodes > 0); // if not element should be deleted
 
                     unsigned new_num_nodes = num_nodes;
@@ -884,9 +885,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                     for (unsigned local_index=0; local_index<num_nodes; local_index++)
                     {
                         // Find locations of current node and anticlockwise node
-                        Node<SPACE_DIM>* p_current_node = mElements[elem_index]->GetNode(local_index);
+                        Node<SPACE_DIM>* p_current_node = iter->GetNode(local_index);
                         unsigned local_index_plus_one = (local_index+1)%new_num_nodes; /// \todo Should use iterators to tidy this up
-                        Node<SPACE_DIM>* p_anticlockwise_node = mElements[elem_index]->GetNode(local_index_plus_one);
+                        Node<SPACE_DIM>* p_anticlockwise_node = iter->GetNode(local_index_plus_one);
 
                         // Find distance between nodes
                         double distance_between_nodes = this->GetDistanceBetweenNodes(p_current_node->GetIndex(), p_anticlockwise_node->GetIndex());
@@ -917,10 +918,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
         }
 
         // Loop over elements, performing T2 swaps where necesary
-        for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
+        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
+             iter != GetElementIteratorEnd();
+             ++iter)
         {
-            ///\todo This code will be re-implemented once mesh inheritance is sorted (see #1001)
-            //PerformT2SwapIfNecessary(mElements[elem_index]);
+            PerformT2SwapIfNecessary(&(*iter));
         }
 
         // ... end of element rearrangement code
