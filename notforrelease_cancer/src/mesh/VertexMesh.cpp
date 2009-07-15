@@ -1073,9 +1073,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
          *  /
          * 
          */
-#define COVERAGE_IGNORE ///\todo Fix coverage
-        PerformNodeMerge(pNodeA, pNodeB);
-#undef  COVERAGE_IGNORE ///\todo Fix coverage
+        EXCEPTION("A vertex is contained in more than three elements; this currently isn't considered in this code.");
+        //PerformNodeMerge(pNodeA, pNodeB);
     } 
     else // less than 4 elements per node
     {
@@ -1087,7 +1086,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
              *    A   B
              * ---o---o---
              *
-             * on the boundray of the tissue
+             * on the boundary of the tissue
              */
             PerformNodeMerge(pNodeA, pNodeB);
         }
@@ -1207,12 +1206,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 	                *
                     * Perform node merge
                     */
-                    
-		#define COVERAGE_IGNORE ///\todo Fix coverage         
-	                PerformNodeMerge(pNodeA, pNodeB);
-		#undef  COVERAGE_IGNORE ///\todo Fix coverage
-                }
-                else if (intersection_indices.size() == 1)
+                    PerformNodeMerge(pNodeA, pNodeB);
+		        }
+                else if (intersection_indices.size() == 1) // Correct set up for T1Swap
                 {
                    /*
 	                * 
@@ -1250,12 +1246,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
              *
              */
             PerformT1Swap(pNodeA, pNodeB, all_indices);
-            ///\todo Delete the following line?
-            //PerformNodeMerge(pNodeA, pNodeB);
         }
         else
         {
             #define COVERAGE_IGNORE
+            // Should never reach here 
             EXCEPTION("Nodes are in more than 4 elements, so a remesh cannot be performed");
             #undef COVERAGE_IGNORE
         }
