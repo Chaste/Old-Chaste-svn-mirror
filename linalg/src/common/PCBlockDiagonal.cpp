@@ -28,9 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PCBlockDiagonal.hpp"
 
-PCBlockDiagonal::PCBlockDiagonal(KSP& ksp_object)
+PCBlockDiagonal::PCBlockDiagonal(KSP& rKspObject)
 {    
-    PCBlockDiagonalCreate(ksp_object);    
+    PCBlockDiagonalCreate(rKspObject);    
     PCBlockDiagonalSetUp();
 }
     
@@ -43,13 +43,13 @@ PCBlockDiagonal::~PCBlockDiagonal()
     PCDestroy(mPCContext.PC_amg_A22);
 }
 
-void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& ksp_object)
+void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
 {
-    KSPGetPC(ksp_object, &mPetscPCObject);        
+    KSPGetPC(rKspObject, &mPetscPCObject);        
     
     Mat system_matrix, dummy;
     MatStructure flag;    
-    KSPGetOperators(ksp_object, &system_matrix, &dummy, &flag); 
+    KSPGetOperators(rKspObject, &system_matrix, &dummy, &flag); 
     
     PetscInt num_rows, num_columns;
     MatGetSize(system_matrix, &num_rows, &num_columns);

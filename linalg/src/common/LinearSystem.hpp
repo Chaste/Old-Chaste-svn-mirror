@@ -128,8 +128,8 @@ public:
     /**
      * Constructor.
      *
-     * @param lhsVectorSize
-     * @param matType defaults to MATMPIAIJ
+     * @param lhsVectorSize  the size of the LHS vector
+     * @param matType  the type of matrix (defaults to MATMPIAIJ)
      */
     LinearSystem(PetscInt lhsVectorSize, MatType matType=(MatType) MATMPIAIJ);
 
@@ -143,7 +143,7 @@ public:
      * settings.  This should avoid problems with using VecScatter on
      * bidomain simulation results.
      *
-     * @param templateVector
+     * @param templateVector  a PETSc vec
      */
     LinearSystem(Vec templateVector);
 
@@ -156,18 +156,18 @@ public:
      *
      * Useful for storing residuals and jacobians when solving nonlinear PDEs.
      *
-     * @param residualVector
-     * @param jacobianMatrix
+     * @param residualVector  the residual vector
+     * @param jacobianMatrix  the Jacobian matrix
      */
     LinearSystem(Vec residualVector, Mat jacobianMatrix);
-    
+
     /**
      * Alternative constructor for archiving.
      * 
-     * @param lhsVectorSize
-     * @param lhsMatrix
-     * @param rhsVector
-     * @param matType defaults to MATMPIAIJ
+     * @param lhsVectorSize  the size of the LHS vector
+     * @param lhsMatrix  the RHS matrix
+     * @param rhsVector  the RHS vector
+     * @param matType  the type of matrix (defaults to MATMPIAIJ)
      */
     LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ);
 
@@ -175,28 +175,32 @@ public:
      * Destructor.
      */
     ~LinearSystem();
-    
+
     /**
      * Helper method for the constructor. Initializes the LHS matrix and RHS vector.
      * 
-     * @param matType
+     * @param matType  the type of matrix 
      */
     void SetupVectorAndMatrix(MatType matType);
 
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
+
     /**
      * Change one of the entires of the matrix to the specified value.
-     * @param row
-     * @param col
-     * @param value
+     * 
+     * @param row  the row index
+     * @param col  the column index
+     * @param value  the value for this entry
      */
     void SetMatrixElement(PetscInt row, PetscInt col, double value);
+
     /**
      * Add the specified value to an entry of the matrix.
-     * @param row
-     * @param col
-     * @param value
+     * 
+     * @param row  the row index
+     * @param col  the column index
+     * @param value  the value for this entry
      */
     void AddToMatrixElement(PetscInt row, PetscInt col, double value);
 
@@ -206,20 +210,24 @@ public:
      * This calls AssembleFinalLhsMatrix() and AssembleRhsVector().
      */
     void AssembleFinalLinearSystem();
+
     /**
      * Should be called before AddToMatrixElement.
      *
      * This calls AssembleIntermediateLhsMatrix() and AssembleRhsVector().
      */
     void AssembleIntermediateLinearSystem();
+
     /**
      * Sets up the PETSc matrix left-hand-side mLhsMatrix
      */
     void AssembleFinalLhsMatrix();
+
     /**
      * Sets up the PETSc matrix left-hand-side mLhsMatrix
      */
     void AssembleIntermediateLhsMatrix();
+
     /**
      * Sets up the PETSc vector right-hand-side mRhsVector
      */
@@ -227,42 +235,45 @@ public:
 
     /**
      * Force PETSc to treat the matrix in this linear system as symmetric from now on.
-     * @param isSymmetric Whether the matrix is symmetric or not
+     * 
+     * @param isSymmetric  whether the matrix is symmetric or not (defaults to true)
      */
     void SetMatrixIsSymmetric(bool isSymmetric=true);
 
     /**
      * Set mMatrixIsConstant.
      *
-     * @param matrixIsConstant
+     * @param matrixIsConstant  whether the matrix is constant
      */
     void SetMatrixIsConstant(bool matrixIsConstant);
 
     /**
      * Set the relative tolerance.
      *
-     * @param relativeTolerance
+     * @param relativeTolerance  the relative tolerance
      */
     void SetRelativeTolerance(double relativeTolerance);
 
     /**
      * Set the absolute tolerance.
      *
-     * @param absoluteTolerance
+     * @param absoluteTolerance  the absolute tolerance
      */
     void SetAbsoluteTolerance(double absoluteTolerance);
 
     /**
-     * Set the KSP solver type (see PETSc KSPSetType() for valid arguments)
-     * @param kspType
+     * Set the KSP solver type (see PETSc KSPSetType() for valid arguments).
+     * 
+     * @param kspType  the KSP solver type
      */
-    void SetKspType(const char*);
+    void SetKspType(const char* kspType);
 
     /**
-     * Set the preconditioner type  (see PETSc PCSetType() for valid arguments)
-     * @param pcType
+     * Set the preconditioner type  (see PETSc PCSetType() for valid arguments).
+     * 
+     * @param pcType  the preconditioner type
      */
-    void SetPcType(const char*);
+    void SetPcType(const char* pcType);
 
     /**
      * Display the left-hand side matrix.
@@ -279,8 +290,8 @@ public:
      * This must be called by the process who owns the row, (but other
      * processors will treat it as a null-op
      *
-     * @param row
-     * @param value
+     * @param row  the row index
+     * @param value  the value to set each entry in this row
      */
     void SetMatrixRow(PetscInt row, double value);
 
@@ -290,7 +301,7 @@ public:
      * If processes call it with different arguments then its results may 
      * not be predictable.
      * 
-     * @param row
+     * @param row  the row index
      */
     void ZeroMatrixRow(PetscInt row);
 
@@ -301,7 +312,7 @@ public:
      * done carefully to ensure that the sparsity structure of the matrix
      * is not broken. Only owned entries which are non-zero are zeroed.
      *
-     * @param col
+     * @param col  the column index
      */
     void ZeroMatrixColumn(PetscInt col);
 
@@ -330,16 +341,16 @@ public:
     /**
      * Set an element of the right-hand side vector to a given value.
      *
-     * @param row
-     * @param value
+     * @param row  the row index
+     * @param value  the value to set this entry
      */
     void SetRhsVectorElement(PetscInt row, double value);
 
     /**
      * Add a value to an element of the right-hand side vector.
      *
-     * @param row
-     * @param value
+     * @param row  the row index
+     * @param value  the value to set this entry
      */
     void AddToRhsVectorElement(PetscInt row, double value);
 
@@ -349,34 +360,35 @@ public:
     unsigned GetSize() const;
 
     /**
-     *
+     * \todo Document this method and its parameters!
+     * 
      * @param nullbasis
      * @param numberOfBases
      */
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
 
     /**
-     * Get access to the rhs vector directly. Shouldn't generally need to be called.
+     * Get access to the RHS vector directly. Shouldn't generally need to be called.
      */
     Vec& rGetRhsVector();
     
     /**
-     * Get access to the rhs vector for archiving
+     * Get access to the RHS vector for archiving
      */
     Vec GetRhsVector() const;
     
     /**
-     * Get access to the lhs matrix directly. Shouldn't generally need to be called.
+     * Get access to the LHS matrix directly. Shouldn't generally need to be called.
      */
     Mat& rGetLhsMatrix();
     
     /**
-     * Get access to the lhs matrix for archiving
+     * Get access to the LHS matrix for archiving
      */
     Mat GetLhsMatrix() const;
 
     /**
-     * Gets access to the dirichlet boundary conditions vector.
+     * Get access to the dirichlet boundary conditions vector.
      *
      * Should only be used by the BoundaryConditionsContainer.
      */
@@ -386,8 +398,8 @@ public:
     /**
      * Get this process's ownership range of the contents of the system.
      *
-     * @param lo
-     * @param hi
+     * @param lo  lowest index owned by this process
+     * @param hi  highest index owned by this process
      */
     void GetOwnershipRange(PetscInt& lo, PetscInt& hi);
 
@@ -395,8 +407,8 @@ public:
      * Return an element of the matrix.
      * May only be called for elements you own.
      *
-     * @param row
-     * @param col
+     * @param row  the row index
+     * @param col  the column index
      */
     double GetMatrixElement(PetscInt row, PetscInt col);
 
@@ -404,27 +416,26 @@ public:
      * Return an element of the RHS vector.
      * May only be called for elements you own.
      *
-     * @param row
+     * @param row  the row index
      */
     double GetRhsVectorElement(PetscInt row);
-
 
     /**
      * Return the number of iterations taken by the last Solve()     
      */
     unsigned GetNumIterations() const;
-    
+
     /**
      * Add multiple values to the matrix of linear system.
      *
      * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
      *  to index of the Petsc matrix of this linear system
-     * @param smallMatrix Ublas matrix containing the values to be added
+     * @param rSmallMatrix Ublas matrix containing the values to be added
      *
      * N.B. Values which are not local (ie the row is not owned) will be skipped.
      */
     template<size_t MATRIX_SIZE>
-    void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& smallMatrix)
+    void AddLhsMultipleValues(unsigned* matrixRowAndColIndices, c_matrix<double, MATRIX_SIZE, MATRIX_SIZE>& rSmallMatrix)
     {
         PetscInt matrix_row_indices[MATRIX_SIZE];
         PetscInt num_rows_owned = 0;
@@ -446,7 +457,7 @@ public:
                          matrix_row_indices,
                          MATRIX_SIZE,
                          (PetscInt*) matrixRowAndColIndices,
-                         smallMatrix.data(),
+                         rSmallMatrix.data(),
                          ADD_VALUES);
         }
         else
@@ -462,7 +473,7 @@ public:
                 {
                     for (unsigned col=0; col<MATRIX_SIZE; col++)
                     {
-                        values[num_values_owned++] = smallMatrix(row,col);
+                        values[num_values_owned++] = rSmallMatrix(row, col);
                     }
                 }
             }

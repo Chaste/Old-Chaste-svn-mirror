@@ -41,7 +41,8 @@ class TestHdf5DataWriter : public CxxTest::TestSuite
 {
 private:
 
-    Hdf5DataWriter *mpTestWriter;
+    Hdf5DataWriter* mpTestWriter;
+
     bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
         std::string pathname2, std::string filename2, bool makeAbsolute2)
     {

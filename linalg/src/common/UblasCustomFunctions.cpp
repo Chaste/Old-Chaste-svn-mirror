@@ -54,11 +54,11 @@ c_vector<double, 3> Create_c_vector(double x, double y, double z)
     return v;
 }
 
-c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<double,3,3> &A)
+c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<double, 3, 3>& rA)
 {
     int info;
-    c_vector<double, 3 > eigenvalues_real_part;
-    c_vector<double, 3 > eigenvalues_imaginary_part;
+    c_vector<double, 3> eigenvalues_real_part;
+    c_vector<double, 3> eigenvalues_imaginary_part;
     c_vector<double, 4*3 > workspace;
     c_matrix<double, 3, 3> right_eigenvalues;
 
@@ -70,7 +70,7 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
     int workspace_size = 4*matrix_size;
 
     c_matrix<double, 3, 3> a_transpose;
-    noalias(a_transpose) = trans(A);
+    noalias(a_transpose) = trans(rA);
 
     //PETSc alias for dgeev or dgeev_
     LAPACKgeev_(&dont_compute_left_evectors, &compute_right_evectors,
@@ -108,10 +108,9 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
     assert (min_eigenvalue >= DBL_EPSILON);
 
     c_vector<double, 3> output;
-    output(0) = right_eigenvalues(index_of_smallest,0);
-    output(1) = right_eigenvalues(index_of_smallest,1);
-    output(2) = right_eigenvalues(index_of_smallest,2);
+    output(0) = right_eigenvalues(index_of_smallest, 0);
+    output(1) = right_eigenvalues(index_of_smallest, 1);
+    output(2) = right_eigenvalues(index_of_smallest, 2);
 
     return output;
-
 }

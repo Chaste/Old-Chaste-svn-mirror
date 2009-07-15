@@ -65,8 +65,8 @@ public:
     /**
      *  Set to be the inner product of another fourth order tensor and a matrix
      *
-     *  @param tensor A fourth order tensor
-     *  @param matrix A matrix
+     *  @param rTensor A fourth order tensor
+     *  @param rMatrix A matrix
      *  @param component  The component in the fourth order tensor with which to sum
      *    (indexed from ZERO)
      *
@@ -74,7 +74,7 @@ public:
      *  ie. if component=2, X_{RQ} T_{MNPQ} is returned
      *
      */
-    void SetAsProduct(FourthOrderTensor<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component);
+    void SetAsProduct(FourthOrderTensor<DIM>& rTensor, const c_matrix<double,DIM,DIM>& rMatrix, unsigned component);
 
     /**
      * Access the MNPQ-component of the tensor.

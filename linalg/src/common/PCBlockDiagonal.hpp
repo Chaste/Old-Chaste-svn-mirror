@@ -94,9 +94,9 @@ public:
     /**
      *  Constructor
      * 
-     *  @param ksp_object KSP object where we want to install the block diagonal preconditioner.
+     *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
      */    
-    PCBlockDiagonal(KSP& ksp_object);
+    PCBlockDiagonal(KSP& rKspObject);
     
     ~PCBlockDiagonal();
 
@@ -104,9 +104,9 @@ private:
     /**
      *  Creates all the state data required by the preconditioner
      * 
-     *  @param ksp_object KSP object where we want to install the block diagonal preconditioner.
+     *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
      */ 
-    void PCBlockDiagonalCreate(KSP& ksp_object);
+    void PCBlockDiagonalCreate(KSP& rKspObject);
     
     /**
      *  Setups preconditioner

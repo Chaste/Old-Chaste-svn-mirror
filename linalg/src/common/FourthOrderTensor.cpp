@@ -49,7 +49,7 @@ FourthOrderTensor<DIM>::FourthOrderTensor()
 }
 
 template<unsigned DIM>
-void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const c_matrix<double,DIM,DIM>& matrix, unsigned component)
+void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& rTensor, const c_matrix<double,DIM,DIM>& rMatrix, unsigned component)
 {
     Zero();
 
@@ -69,7 +69,7 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                             for (unsigned s=0; s<DIM; s++)
                             {
-                                mData[index] += matrix(M,s) * tensor(s,N,P,Q);
+                                mData[index] += rMatrix(M,s) * rTensor(s,N,P,Q);
                             }
                         }
                     }
@@ -90,7 +90,7 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                             for (unsigned s=0; s<DIM; s++)
                             {
-                                mData[index] += matrix(N,s) * tensor(M,s,P,Q);
+                                mData[index] += rMatrix(N,s) * rTensor(M,s,P,Q);
                             }
                         }
                     }
@@ -111,7 +111,7 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                             for (unsigned s=0; s<DIM; s++)
                             {
-                                mData[index] += matrix(P,s) * tensor(M,N,s,Q);
+                                mData[index] += rMatrix(P,s) * rTensor(M,N,s,Q);
                             }
                         }
                     }
@@ -132,7 +132,7 @@ void FourthOrderTensor<DIM>::SetAsProduct(FourthOrderTensor<DIM>& tensor, const 
                             unsigned index = M*mDimCubed + N*mDimSqd + P*DIM + Q;
                             for (unsigned s=0; s<DIM; s++)
                             {
-                                mData[index] += matrix(Q,s) * tensor(M,N,P,s);
+                                mData[index] += rMatrix(Q,s) * rTensor(M,N,P,s);
                             }
                         }
                     }
