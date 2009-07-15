@@ -153,10 +153,19 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
 
             if(assembleMatrix)
             {
-                // zero the row corresponding to V for this bath node
-                (*(this->GetLinearSystem()))->ZeroMatrixRow(2*i);
-                // zero the column corresponding to V for this bath node.
-                (*(this->GetLinearSystem()))->ZeroMatrixColumn(2*i);
+                /*
+                 *  Before revision 6516, we used to zero out i-th row and column here. It seems to be redundant because they are already zero after assembly.
+                 *  When assembling a bath element you get a matrix subblock that looks like (2D example):
+                 * 
+                 *     Vm   0 0 0 0 0 0 
+                 *     Vm   0 0 0 0 0 0 
+                 *     Vm   0 0 0 0 0 0 
+                 *     Phie 0 0 0 x x x
+                 *     Phie 0 0 0 x x x  -> the x subblock is assembled from div(grad_phi) = 0
+                 *     Phie 0 0 0 x x x
+                 *
+                 *  Therefore, all the Vm entries of this node are already 0.  
+                 */
 
                 // put 1.0 on the diagonal
                 Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
