@@ -785,6 +785,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
 }
 
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 {
@@ -1616,7 +1617,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     unsigned element_index = pElement->GetIndex();
     c_vector<double, SPACE_DIM> centroid = GetCentroidOfElement(element_index);
     c_vector<double, SPACE_DIM> short_axis = AxisOfDivision; 
-    
+        
     // Find long axis
     c_vector<double, SPACE_DIM> long_axis; // this is perpendicular to the short axis
     long_axis(0) = -short_axis(1);
@@ -1646,7 +1647,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     std::vector<unsigned> division_node_global_indices;
     int nodes_added = 0;
 
-//    // Divide intersecting edges in half
+    // Divide intersecting edges in half puting new nodes away from the existing ones
 //    for (unsigned i=0; i<intersecting_nodes.size(); i++)
 //    {
 //        // Get pointers to the nodes forming the edge into which one new node will be inserted
@@ -1661,7 +1662,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 //        c_vector<double, SPACE_DIM> position_a = p_node_A->rGetLocation();
 //        c_vector<double, SPACE_DIM> position_b = p_node_B->rGetLocation();
 //
-//        c_vector<double, SPACE_DIM> midpoint = 0.5*(position_a + position_b);
+//        c_vector<double, SPACE_DIM> midpoint = position_a + 0.5*GetVectorFromAtoB(position_a,position_b);
 //
 //        //\todo this should use divide edge
 //        // Add new node to the mesh
@@ -1827,7 +1828,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     // Find short axis
     c_vector<double, SPACE_DIM> short_axis = GetShortAxisOfElement(pElement->GetIndex());
     
-    unsigned new_element_index = DivideElement(pElement, short_axis);
+    unsigned new_element_index = DivideElement(pElement,short_axis);
     return new_element_index;
 }
 

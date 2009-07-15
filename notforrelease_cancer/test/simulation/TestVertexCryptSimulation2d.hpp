@@ -263,7 +263,7 @@ public:
     void noTestCryptSimulationLong() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 8, 0.01, 2.0, true);
+        Cylindrical2dVertexMesh mesh(6, 8, 0.01, DBL_MAX, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -276,7 +276,7 @@ public:
             CellType cell_type;
 
             // Cells 0 1 2 and 3 are stem cells
-            if (elem_index<4)
+            if (elem_index<6)
             {
                 birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
@@ -302,18 +302,20 @@ public:
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
         simulator.SetSamplingTimestepMultiple(2);
-        simulator.SetEndTime(100);
+        simulator.SetEndTime(50);
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
         // Modified parameters to make cells equilibriate 
-        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(1.0);
-        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);
-        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);
+        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0005);//0.1
+        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);//1.0
+        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);//0.1
+        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);//0.1
+        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);//0.1
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
         
 
         // Make crypt shorter for sloughing 
-        TissueConfig::Instance()->SetCryptLength(10.0);
+        TissueConfig::Instance()->SetCryptLength(8.0);
                 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
