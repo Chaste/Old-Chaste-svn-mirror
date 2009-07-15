@@ -60,7 +60,7 @@ public:
 
         // Proper test again
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
@@ -93,11 +93,11 @@ public:
 
     void TestCellDivision()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
 
         // We are going to start at t=0 and jump up in steps of 6.0
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -168,9 +168,9 @@ public:
 
     void TestCellDivisionStops()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
 
         // If the value of GetStemCellG1Duration() changes in p_params the simulation time
         // step and end time will need to be changed accordingly so that
@@ -284,7 +284,7 @@ public:
      */
     void TestUpdateCellTypes() throw (Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
 
         TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -335,7 +335,7 @@ public:
         double end_time=61.0;
         int time_steps=61;
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
         TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -407,9 +407,9 @@ public:
     {
         // Simulation time is 6000 because we want to test that differentiated cells never divide.
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(6000.0, 1000);
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -473,9 +473,9 @@ public:
     void TestStochasticCycleModel() throw(Exception)
     {
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -525,7 +525,7 @@ public:
 
     void Test0DBucketStochastic()
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
 
         // This test needs particular cell cycle times
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -548,7 +548,7 @@ public:
         for (unsigned simulation_number=0; simulation_number<number_of_simulations; simulation_number++)
         {
             SimulationTime::Destroy();
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
 
@@ -621,7 +621,7 @@ public:
      */
     void TestInitialise0DBucket()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
 
         std::vector<TissueCell> cells;
@@ -726,8 +726,8 @@ public:
      */
     void TestWithWntCellCycleModel() throw(Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        TissueConfig* p_parameters = TissueConfig::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        TissueConfig *p_parameters = TissueConfig::Instance();
 
         double SG2MDuration = p_parameters->GetSG2MDuration();
 
@@ -803,7 +803,7 @@ public:
      */
     void TestWithStochasticWntCellCycleModel() throw(Exception)
     {
-        TissueConfig* p_parameters = TissueConfig::Instance();
+        TissueConfig *p_parameters = TissueConfig::Instance();
 
         // These are the first three normal random with mean 10, s.d. 1 and this seed (0)
         double SG2MDuration1 = p_parameters->GetSDuration() + 3.16084 + p_parameters->GetMDuration();
@@ -811,7 +811,7 @@ public:
         double SG2MDuration3 = p_parameters->GetSDuration() + 3.34408 + p_parameters->GetMDuration();
         double g1_duration = 5.971;
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
@@ -885,7 +885,7 @@ public:
     {
         double standard_tyson_duration = 1.242;
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
 
@@ -943,7 +943,7 @@ public:
     void TestTysonNovakSteadyState()
     {
         // Keep dividing until we reach steady-state
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         unsigned num_steps=100000;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20000.0/60.0, num_steps+1);
 
@@ -972,11 +972,11 @@ public:
     void TestApoptosisAndDeath()
     {
         // We are going to start at t=0 and jump up in steps of 0.2
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.6, 3);
 
         // This test needs particular apoptosis time
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
 
         TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -1016,7 +1016,7 @@ public:
     void TestCantDivideIfUndergoingApoptosis()
     {
         // We are going to start at t=0 and jump up to t=25
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
 
         TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -1034,7 +1034,7 @@ public:
         double end_time = 92.0;
         int time_steps = 92;
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
         TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -1131,7 +1131,7 @@ public:
 
         // Archive a cell
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
             TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -1155,13 +1155,13 @@ public:
         // Restore TissueCell
         {
             // Need to set up time to initialise a cell
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(1.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 1); // will be restored
 
             // Initialise a cell
 
-            TissueCell* p_stem_cell;
+            TissueCell *p_stem_cell;
 
             // Restore the cell
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -1178,7 +1178,7 @@ public:
             TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_stem_cell->GetCellCycleModel())->GetGeneration(), 0u);
             TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
 
-            AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();
+            AbstractCellCycleModel *p_model = p_stem_cell->GetCellCycleModel();
 
             TS_ASSERT_EQUALS(p_model->GetCell(), p_stem_cell);
 
@@ -1198,7 +1198,7 @@ public:
      */
     void TestWntMutantVariantsAndLabelling() throw(Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
 
         unsigned num_steps = 10;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
@@ -1228,7 +1228,7 @@ public:
 
     void TestIsLogged()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
 
         TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -1256,7 +1256,7 @@ public:
 
     void TestAncestors() throw (Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 2);
 
         TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -1279,7 +1279,7 @@ public:
         // Resetting the Maximum cell Id to zero (to account for previous tests)
         TissueCell::ResetMaxCellId();
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 2);
 
         TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());

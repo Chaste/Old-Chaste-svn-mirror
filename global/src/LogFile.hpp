@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Usage (in test):
  *
  *  // begining of test
- *  LogFile* p_log = LogFile::Instance();
+ *  LogFile *p_log = LogFile::Instance();
  *  p_log->Set(level, "dir","file");
  *  p_log->WriteHeader("type_of_sim"); // optional
  *
@@ -70,7 +70,7 @@ class LogFile
 private:
 
     /** The static single instance. */
-    static LogFile* mpInstance;
+    static LogFile *mpInstance;
 
     /** Whether a directory and filename has been set. */
     bool mFileSet;

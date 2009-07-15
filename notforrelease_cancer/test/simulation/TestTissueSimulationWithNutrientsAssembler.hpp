@@ -59,7 +59,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
-        ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(0.0);
+        ConstBoundaryCondition<2> *p_boundary_condition = new ConstBoundaryCondition<2>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(2), p_boundary_condition);

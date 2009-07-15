@@ -62,14 +62,14 @@ template<unsigned DIM>
 TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
     // Create a new node
-    Node<DIM>* p_new_node = new Node<DIM>(this->GetNumNodes(), newLocation, false);   // never on boundary
+    Node<DIM> *p_new_node = new Node<DIM>(this->GetNumNodes(), newLocation, false);   // never on boundary
     unsigned new_node_index = AddNode(p_new_node); // use copy constructor so it doesn't matter that new_node goes out of scope
 
     // Update cells vector
     this->mCells.push_back(rNewCell);
 
     // Update mappings between cells and location indices
-    TissueCell* p_created_cell = &(this->mCells.back());
+    TissueCell *p_created_cell = &(this->mCells.back());
     this->mLocationCellMap[new_node_index] = p_created_cell;
     this->mCellLocationMap[p_created_cell] = new_node_index;
 

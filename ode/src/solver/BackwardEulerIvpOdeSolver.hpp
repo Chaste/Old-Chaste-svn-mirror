@@ -52,8 +52,8 @@ private:
     /**
      * Archive the abstract IVP Solver, never used directly - boost uses this.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -134,10 +134,10 @@ private:
      * Compute the infinity/maximum norm of a vector.
      * Used by the method CalculateNextYValue.
      *
-     * @param vector  a pointer to a vector
+     * @param pVector  a pointer to a vector
      * @return the vector's norm.
      */
-    double ComputeNorm(double* vector);
+    double ComputeNorm(double* pVector);
 
     /**
      * Compute the Jacobian of the ODE system numerically.

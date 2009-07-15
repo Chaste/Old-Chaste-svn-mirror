@@ -65,7 +65,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                 {
                     if (i%3 != 2)
                     {
-                        Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), 0.0);
+                        Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), 0.0);
                         mNodes.push_back(p_node);
                         node_index++;
                     }
@@ -82,7 +82,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                     {
                         if (i%3 != 2)
                         {
-                            Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                            Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
                             mNodes.push_back(p_node);
                             node_index++;
                         }
@@ -97,7 +97,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                     {
                         if (i%3 != 2)
                         {
-                            Node<2>* p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                            Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
                             mNodes.push_back(p_node);
                             node_index++;
                         }
@@ -148,7 +148,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
             {
                element_nodes.push_back(mNodes[node_indices[i]]);
             }
-            VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index, element_nodes);
+            VertexElement<2,2> *p_element = new VertexElement<2,2>(element_index, element_nodes);
             mElements.push_back(p_element);
         }
     }
@@ -262,7 +262,7 @@ unsigned Cylindrical2dVertexMesh::AddNode(Node<2>* pNewNode)
 
 double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
 {
-    VertexElement<2, 2>* p_element = GetElement(index);
+    VertexElement<2, 2> *p_element = GetElement(index);
 
     c_vector<double, 2> first_node = p_element->GetNodeLocation(0);
     c_vector<double, 2> current_node;
@@ -298,7 +298,7 @@ double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
 
 c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index)
 {
-    VertexElement<2, 2>* p_element = GetElement(index);
+    VertexElement<2, 2> *p_element = GetElement(index);
 
     c_vector<double, 2> centroid;
     c_vector<double, 2> transformed_centroid = zero_vector<double>(2);

@@ -63,8 +63,8 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractBoundaryConditionsContainer
 {
 protected:
-    std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >
-    *mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
+    std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >*
+    mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
 
     typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
     mDirichIterator; /**< Internal iterator over Dirichlet boundary conditions */

@@ -535,7 +535,7 @@ public:
 
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
 
-        TissueSimulation<2>* p_simulator
+        TissueSimulation<2> *p_simulator
             = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithVertexBasedTissueSaveAndLoad", 0.5);
 
         p_simulator->SetEndTime(1.0);

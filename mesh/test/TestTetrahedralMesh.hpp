@@ -283,7 +283,7 @@ public:
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        Node<1>* p_node = mesh.GetNode(0);
+        Node<1> *p_node = mesh.GetNode(0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 1u);
         Node<1>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
@@ -294,7 +294,7 @@ public:
         // There is only one boundary element at this end
         TS_ASSERT_EQUALS(++b_elt_iter, p_node->ContainingBoundaryElementsEnd());
 
-        Element<1,1>* p_element = mesh.GetElement(*elt_iter);
+        Element<1,1> *p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 0u);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 1u);
 
@@ -310,7 +310,7 @@ public:
         TS_ASSERT_EQUALS(cached_det, det);
         TS_ASSERT_EQUALS(jacobian(0,0), cached_jacobian(0,0));
 
-        Node<1>* p_node2 = mesh.GetNode(1);
+        Node<1> *p_node2 = mesh.GetNode(1);
         TS_ASSERT_EQUALS(p_node2->GetNumContainingElements(), 2u);
         TS_ASSERT_EQUALS(p_node2->GetNumBoundaryElements(), 0u);
 
@@ -342,12 +342,12 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        Node<2>* p_node = mesh.GetNode(234);
+        Node<2> *p_node = mesh.GetNode(234);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 5u);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 0u);
 
         Node<2>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
-        Element<2,2>* p_element;
+        Element<2,2> *p_element;
 
         p_element = mesh.GetElement(*elt_iter);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 474u);
@@ -378,7 +378,7 @@ public:
         p_node = mesh.GetNode(99);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 3u);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 2u);
-        const BoundaryElement<1,2>* p_boundary_element;
+        const BoundaryElement<1,2> *p_boundary_element;
         Node<2>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
 
         p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
@@ -395,10 +395,10 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        Node<3>* p_node = mesh.GetNode(34);
+        Node<3> *p_node = mesh.GetNode(34);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 10u);
 
-        Element<3,3>* p_element;
+        Element<3,3> *p_element;
         Node<3>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
 
         p_element = mesh.GetElement(*elt_iter);
@@ -415,7 +415,7 @@ public:
 
         // Now look at a boundary node
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 4u);
-        const BoundaryElement<2,3>* p_boundary_element;
+        const BoundaryElement<2,3> *p_boundary_element;
         Node<3>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
         p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0), 6u);
@@ -443,10 +443,10 @@ public:
         double volume = mesh.GetVolume();
         double surface = mesh.GetSurfaceArea();
 
-        Node<3>* p_node0 = mesh.GetNode(0);
-        Node<3>* p_node121 = mesh.GetNode(121);
-        Node<3>* p_node125 = mesh.GetNode(125);
-        Node<3>* p_node273 = mesh.GetNode(273);
+        Node<3> *p_node0 = mesh.GetNode(0);
+        Node<3> *p_node121 = mesh.GetNode(121);
+        Node<3> *p_node125 = mesh.GetNode(125);
+        Node<3> *p_node273 = mesh.GetNode(273);
 
         RandomNumberGenerator::Instance();
         mesh.PermuteNodes();
@@ -572,7 +572,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {
-            BoundaryElement<2,3>* p_b_element = mesh.GetBoundaryElement(i);
+            BoundaryElement<2,3> *p_b_element = mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal;
             double det;
             p_b_element->CalculateWeightedDirection(normal, det);
@@ -608,7 +608,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {
-            BoundaryElement<2,3>* p_b_element = mesh.GetBoundaryElement(i);
+            BoundaryElement<2,3> *p_b_element = mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal;
             double det;
             p_b_element->CalculateWeightedDirection(normal, det);
@@ -1294,7 +1294,7 @@ public:
         }
 
         {
-            TetrahedralMesh<2,2>* p_mesh2;
+            TetrahedralMesh<2,2> *p_mesh2;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);

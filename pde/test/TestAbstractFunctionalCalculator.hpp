@@ -42,9 +42,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class VolumeCalculator : public AbstractFunctionalCalculator<DIM,DIM,1>
 {
-    double GetIntegrand(ChastePoint<DIM> &rX,
-                        c_vector<double,1> &rU,
-                        c_matrix<double,1,DIM> &rGradU)
+    double GetIntegrand(ChastePoint<DIM>& rX,
+                        c_vector<double,1>& rU,
+                        c_matrix<double,1,DIM>& rGradU)
     {
         return 1.0;
     }
@@ -53,9 +53,9 @@ class VolumeCalculator : public AbstractFunctionalCalculator<DIM,DIM,1>
 // Check x and u are interpolated correctly
 class ExampleFunctionalOne : public AbstractFunctionalCalculator<2,2,2>
 {
-    double GetIntegrand(ChastePoint<2> &rX,
-                        c_vector<double,2> &rU,
-                        c_matrix<double,2,2> &rGradU)
+    double GetIntegrand(ChastePoint<2>& rX,
+                        c_vector<double,2>& rU,
+                        c_matrix<double,2,2>& rGradU)
     {
         return rX[0]*rU[0] + rX[1]*rU[1];
     }
@@ -64,9 +64,9 @@ class ExampleFunctionalOne : public AbstractFunctionalCalculator<2,2,2>
 // Check grad_u is interpolated correctly
 class ExampleFunctionalTwo : public AbstractFunctionalCalculator<2,2,2>
 {
-    double GetIntegrand(ChastePoint<2> &rX,
-                        c_vector<double,2> &rU,
-                        c_matrix<double,2,2> &rGradU)
+    double GetIntegrand(ChastePoint<2>& rX,
+                        c_vector<double,2>& rU,
+                        c_matrix<double,2,2>& rGradU)
     {
         return rX[0]*rU[0] + rX[1]*rU[1] + 0.5*(rGradU(0,0)+rGradU(0,1)+rGradU(1,0)+rGradU(1,1));
     }
@@ -106,7 +106,7 @@ public:
         // = 4/3
         ExampleFunctionalOne calculator;
 
-        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
+        DistributedVectorFactory *p_factory = mesh.GetDistributedVectorFactory();
         Vec petsc_vec = p_factory->CreateVec(2);
         DistributedVector vec1 = p_factory->CreateDistributedVector(petsc_vec);
         DistributedVector::Stripe u1(vec1, 0);
@@ -115,7 +115,7 @@ public:
              index != vec1.End();
              ++index)
         {
-            Node<2>* p_node = mesh.GetNode(index.Global);
+            Node<2> *p_node = mesh.GetNode(index.Global);
             u1[index] = p_node->rGetLocation()[0];
             v1[index] = 2.0;
         }
@@ -136,7 +136,7 @@ public:
              index != vec2.End();
              ++index)
         {
-            Node<2>* p_node = mesh.GetNode(index.Global);
+            Node<2> *p_node = mesh.GetNode(index.Global);
             u2[index] = p_node->rGetLocation()[0];
             v2[index] = p_node->rGetLocation()[1];
         }

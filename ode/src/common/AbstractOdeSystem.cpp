@@ -39,16 +39,16 @@ AbstractOdeSystem::AbstractOdeSystem(unsigned numberOfStateVariables)
 AbstractOdeSystem::~AbstractOdeSystem()
 {}
 
-bool AbstractOdeSystem::CalculateStoppingEvent(double time, const std::vector<double> &rY)
+bool AbstractOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
 {
     return false;
 }
 
-std::string AbstractOdeSystem::DumpState(const std::string& message,
+std::string AbstractOdeSystem::DumpState(const std::string& rMessage,
                                          std::vector<double> Y)
 {
     std::stringstream res;
-    res << message << "\nState:\n";
+    res << rMessage << "\nState:\n";
     if (Y.empty())
     {
         Y = rGetStateVariables();
@@ -164,7 +164,7 @@ boost::shared_ptr<const AbstractOdeSystemInformation> AbstractOdeSystem::GetSyst
     return mpSystemInfo;
 }
 
-double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double> &rY)
+double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
     bool stop = CalculateStoppingEvent(time, rY);
     return stop ? 0.0 : 1.0;

@@ -107,7 +107,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     unsigned new_index = 0;
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
     {
-        Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
+        Node<SPACE_DIM> *p_node = rMesh.GetNode(i);
 
         if (p_node->IsDeleted() == false)
         {

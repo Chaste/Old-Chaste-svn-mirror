@@ -126,7 +126,7 @@ inline void load_construct_data(
     Archive & ar, OxygenBasedCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<DIM>* p_tissue;
+    AbstractTissue<DIM> *p_tissue;
     ar >> p_tissue;
     double conc;
     ar >> conc;

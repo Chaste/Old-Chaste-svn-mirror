@@ -93,7 +93,7 @@ private:
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see AbstractBoundaryConditionsContainer */
 
     /** Stores a pointer to a purpose-build preconditioner*/
-    PCBlockDiagonal* mpBlockDiagonalPC;
+    PCBlockDiagonal *mpBlockDiagonalPC;
 
 #ifdef TRACE_KSP
     unsigned mNumSolves;

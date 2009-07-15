@@ -63,7 +63,7 @@ public:
         MeshBasedTissue<2> tissue(mesh,cells);
 
         // Set up data: C(x,y) = x^2
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);
 
@@ -104,7 +104,7 @@ public:
         //////////////////////////////////
         // C(x,y) = const
         //////////////////////////////////
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);
 
@@ -197,7 +197,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells, cell_location_indices);
 
         // Create an instance of CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);
 

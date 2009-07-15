@@ -128,7 +128,7 @@ public:
      * @param rY  the current values of the state variables
      * @param rDY  storage for the derivatives of the system; will be filled in on return
      */
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
 };
 
 

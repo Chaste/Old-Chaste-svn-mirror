@@ -107,7 +107,7 @@ public:
          * and below the mesh, since it is periodic).
          */
         HoneycombMeshGenerator generator(6, 9, 2, true); // params are: cells across, cells up, thickness of ghost layer, whether to be cylindrical
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
@@ -199,7 +199,7 @@ public:
 
         /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
         HoneycombMeshGenerator generator(6, 9, 2, true);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Create the cells, using the same method as before. Here, though, we pass

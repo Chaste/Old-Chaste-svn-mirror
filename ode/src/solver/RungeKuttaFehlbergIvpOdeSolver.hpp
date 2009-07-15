@@ -59,8 +59,8 @@ private:
     /**
      * Archive, never used directly - boost uses this.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -123,15 +123,15 @@ protected:
      * @param outputSolution whether to output into rSolution (or save time by not doing)
      */
     void InternalSolve(OdeSolution& rSolution,
-                               AbstractOdeSystem* pAbstractOdeSystem,
-                               std::vector<double>& rCurrentYValues,
-                               std::vector<double>& rWorkingMemory,
-                               double startTime,
-                               double endTime,
-                               double maxTimeStep,
-                               double minTimeStep,
-                               double tolerance,
-                               bool outputSolution);
+                       AbstractOdeSystem* pAbstractOdeSystem,
+                       std::vector<double>& rCurrentYValues,
+                       std::vector<double>& rWorkingMemory,
+                       double startTime,
+                       double endTime,
+                       double maxTimeStep,
+                       double minTimeStep,
+                       double tolerance,
+                       bool outputSolution);
 
     /**
      * Calculate the solution to the ODE system at the next timestep.
@@ -144,10 +144,10 @@ protected:
      * @param rNextYValues  the state at the next timestep
      */
     void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-                                     double timeStep,
-                                     double time,
-                                     std::vector<double>& rCurrentYValues,
-                                     std::vector<double>& rNextYValues);
+                             double timeStep,
+                             double time,
+                             std::vector<double>& rCurrentYValues,
+                             std::vector<double>& rNextYValues);
 
     /**
      * Use the error approximation of the last call to the CalculateNextYValue()
@@ -193,11 +193,11 @@ public:
      * system at those times.
      */
     OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
-                              std::vector<double>& rYValues,
-                              double startTime,
-                              double endTime,
-                              double timeStep,
-                              double ignoredSamplingTime);
+                      std::vector<double>& rYValues,
+                      double startTime,
+                      double endTime,
+                      double timeStep,
+                      double ignoredSamplingTime);
 
     /**
      * Second version of Solve. Solves a system of ODEs using a specified one-step
@@ -215,10 +215,10 @@ public:
      * @param timeStep  the time interval to be used by the solver
      */
     void Solve(AbstractOdeSystem* pAbstractOdeSystem,
-                       std::vector<double>& rYValues,
-                       double startTime,
-                       double endTime,
-                       double timeStep);
+               std::vector<double>& rYValues,
+               double startTime,
+               double endTime,
+               double timeStep);
 
 };
 

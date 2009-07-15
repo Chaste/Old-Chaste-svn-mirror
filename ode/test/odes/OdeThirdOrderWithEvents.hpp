@@ -45,16 +45,16 @@ public :
         mpSystemInfo = OdeSystemInformation<OdeThirdOrderWithEvents>::Instance();
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
-        rDY[0]=rY[0]-rY[1]+rY[2];
-        rDY[1]=rY[1]-rY[2];
-        rDY[2]=2*rY[1]-rY[2];
+        rDY[0] = rY[0]-rY[1]+rY[2];
+        rDY[1] = rY[1]-rY[2];
+        rDY[2] = 2*rY[1]-rY[2];
     }
 
-    bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
+    bool CalculateStoppingEvent(double time, const std::vector<double>& rY)
     {
-        return (rY[0]<-0.5);
+        return (rY[0] < -0.5);
     }
 };
 

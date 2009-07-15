@@ -70,7 +70,7 @@ private:
     }
 
     /** Helper member that is a static cast of the tissue. */
-    MeshBasedTissue<1>* mpStaticCastTissue;
+    MeshBasedTissue<1> *mpStaticCastTissue;
 
     /**
      * Calculates the new locations of a dividing cell's cell centres.
@@ -127,7 +127,7 @@ inline void save_construct_data(
     Archive & ar, const CryptSimulation1d * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<1> * p_tissue = &(t->rGetTissue());
+    const AbstractTissue<1>  *p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     const std::vector<AbstractForce<1>*> force_collection = t->rGetForceCollection();
     ar & force_collection;
@@ -141,7 +141,7 @@ inline void load_construct_data(
     Archive & ar, CryptSimulation1d * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<1>* p_tissue;
+    AbstractTissue<1> *p_tissue;
     ar >> p_tissue;
     std::vector<AbstractForce<1>*> force_collection;
     ar >> force_collection;

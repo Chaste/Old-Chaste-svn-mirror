@@ -76,7 +76,7 @@ protected:
     bool mUseMatrixBasedRhsAssembly;
 
     /** If doing matrix-based assembly for the RHS b, the matrix B in Bz=b */
-    Mat* mpMatrixForMatrixBasedRhsAssembly;
+    Mat *mpMatrixForMatrixBasedRhsAssembly;
 
     /** If doing matrix-based assembly for the RHS b, the vector z in Bz=b */
     Vec mVectorForMatrixBasedRhsAssembly;

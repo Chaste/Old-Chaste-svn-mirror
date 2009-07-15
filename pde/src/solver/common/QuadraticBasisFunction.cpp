@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *     within a canonical element.
  * @return The value of the basis function.
  */
-double QuadraticBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0> &rPoint, unsigned basisIndex)
+double QuadraticBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0>& rPoint, unsigned basisIndex)
 {
     assert(basisIndex == 0);
     return 1.0;
@@ -52,7 +52,7 @@ double QuadraticBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0> &rPo
  *     are undefined if this is not within the canonical element.
  * @param rReturnValue Filled in with the values of the basis functions.
  */
-void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint,
+void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0>& rPoint,
                                                       c_vector<double, 1>& rReturnValue)
 {
     rReturnValue(0) = ComputeBasisFunction(rPoint, 0);
@@ -68,7 +68,7 @@ void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoi
  * @return The value of the basis function.
  */
 template <unsigned ELEM_DIM>
-double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex)
+double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
     double x, y, z;
@@ -180,7 +180,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
  *     instance) giving the derivative along each axis.
  */
 template <unsigned ELEM_DIM>
-c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex)
+c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex)
 {
     c_vector<double, ELEM_DIM> gradN;
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -312,7 +312,7 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
  * @param rReturnValue The values of the basis functions, in local index order.
  */
 template <unsigned ELEM_DIM>
-void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint,
+void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM>& rPoint,
                                                              c_vector<double, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
@@ -333,7 +333,7 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<E
  *     each axis.
  */
 template <unsigned ELEM_DIM>
-void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
+void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
                                                                     c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);

@@ -85,7 +85,7 @@ public:
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
 
-            ConstBoundaryCondition<2>* p_dirichlet_boundary_condition =
+            ConstBoundaryCondition<2> *p_dirichlet_boundary_condition =
                 new ConstBoundaryCondition<2>(x);
 
             if (fabs(y) < 0.01)
@@ -107,7 +107,7 @@ public:
         }
 
         TetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2>* p_neumann_boundary_condition =
+        ConstBoundaryCondition<2> *p_neumann_boundary_condition =
             new ConstBoundaryCondition<2>(1.0);
 
         while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
@@ -246,7 +246,7 @@ public:
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
             double z = (*iter)->GetPoint()[2];
-            ConstBoundaryCondition<3>* p_dirichlet_boundary_condition =
+            ConstBoundaryCondition<3> *p_dirichlet_boundary_condition =
                 new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
             bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             iter++;
@@ -258,7 +258,7 @@ public:
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
 
-        double* p_initial_condition;
+        double *p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition);
 
         int lo, hi;
@@ -334,7 +334,7 @@ public:
                 (fabs(x) < 0.01) ||
                 (fabs(z) < 0.01) || (fabs(z - 1.0) < 0.01) )
             {
-                ConstBoundaryCondition<3>* p_dirichlet_boundary_condition =
+                ConstBoundaryCondition<3> *p_dirichlet_boundary_condition =
                     new ConstBoundaryCondition<3>(x);
                 bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             }
@@ -343,7 +343,7 @@ public:
         }
 
         TetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<3>* p_neumann_boundary_condition =
+        ConstBoundaryCondition<3> *p_neumann_boundary_condition =
             new ConstBoundaryCondition<3>(1.0);
 
         while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
@@ -365,7 +365,7 @@ public:
         // initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
 
-        double* p_initial_condition;
+        double *p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition);
 
         int lo, hi;

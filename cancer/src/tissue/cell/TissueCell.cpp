@@ -95,7 +95,7 @@ TissueCell::TissueCell(const TissueCell& rOtherCell)
 TissueCell& TissueCell::operator=(const TissueCell& rOtherCell)
 {
     // In case this is self-assignment, don't delete the cell cycle model
-    AbstractCellCycleModel* p_temp_model = mpCellCycleModel;
+    AbstractCellCycleModel *p_temp_model = mpCellCycleModel;
     CommonCopy(rOtherCell);
     // ...until after we've copied it.
     delete p_temp_model;

@@ -52,7 +52,7 @@ class TestElement : public CxxTest::TestSuite
         c_vector<double,3> zero_point;
         zero_point.clear();
 
-        Node<3>* p_node = new Node<3>(index, zero_point, false);
+        Node<3> *p_node = new Node<3>(index, zero_point, false);
         return p_node;
     }
 
@@ -462,7 +462,7 @@ public:
         element.MarkAsDeleted();
         TS_ASSERT_THROWS_ANYTHING(element.CalculateWeightedDirection(weighted_direction, det));
 
-        Node<3>* p_fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
+        Node<3> *p_fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
         TS_ASSERT_THROWS_ANYTHING(element.ReplaceNode(p_fake_node, p_fake_node));
         delete p_fake_node;
 
@@ -679,7 +679,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ChastePoint<1> new_point(0.01);
-        Element<1,1>* p_first_element = mesh.GetElement(0);
+        Element<1,1> *p_first_element = mesh.GetElement(0);
 
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_first_element, new_point));
 
@@ -687,14 +687,14 @@ public:
         // there should be an element with nodes at 0 and 0.01 and
         // an element with nodes at 0.01 and 0.1. Other elements should stay the same
 
-        const Node<1>* p_first_node = p_first_element->GetNode(0);
-        const Node<1>* p_second_node = p_first_element->GetNode(1);
+        const Node<1> *p_first_node = p_first_element->GetNode(0);
+        const Node<1> *p_second_node = p_first_element->GetNode(1);
 
         TS_ASSERT_EQUALS(p_first_node->GetPoint().rGetLocation()(0), 0);
         TS_ASSERT_EQUALS(p_second_node->GetPoint().rGetLocation()(0), 0.01);
 
         // Test second element
-        Element<1,1>* p_second_element = mesh.GetElement(1);
+        Element<1,1> *p_second_element = mesh.GetElement(1);
         p_first_node = p_second_element->GetNode(0);
         p_second_node = p_second_element->GetNode(1);
 
@@ -702,7 +702,7 @@ public:
         TS_ASSERT_EQUALS(p_second_node->GetPoint().rGetLocation()(0), 0.2);
 
         // Test last element
-        Element<1,1>* p_last_element = mesh.GetElement(10);
+        Element<1,1> *p_last_element = mesh.GetElement(10);
         p_first_node = p_last_element->GetNode(0);
         p_second_node = p_last_element->GetNode(1);
 
@@ -731,7 +731,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ChastePoint<1> new_point(0.11);
-        Element<1,1>* p_first_element = mesh.GetElement(0);
+        Element<1,1> *p_first_element = mesh.GetElement(0);
 
         // Trying to add Point(0.11) to Element(0)
         // This point is contained in Element(1)
@@ -745,7 +745,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ChastePoint<1> new_point(-0.1);
-        Element<1,1>* p_first_element = mesh.GetElement(0);
+        Element<1,1> *p_first_element = mesh.GetElement(0);
 
         // Trying to add Point(-0.1) to Element(0)
         // This point is to the left of Element(0)
@@ -758,7 +758,7 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        Element<1,1>* p_first_element = mesh.GetElement(0);
+        Element<1,1> *p_first_element = mesh.GetElement(0);
 
         // There's space on the node vector for 10 new points
         // but more than 10 should still work
@@ -779,7 +779,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 0.4,1e-6);
 
         // Refine an element in the bottom right corner
-        Element<2,2>* p_corner_element = mesh.GetElement(18);
+        Element<2,2> *p_corner_element = mesh.GetElement(18);
 
         c_matrix<double,2,2> jacobian;
         double det;
@@ -801,7 +801,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 0.4, 1e-6);
 
         // Refine an element in the middle of the mesh
-        Element<2,2>* p_middle_element = mesh.GetElement(108);
+        Element<2,2> *p_middle_element = mesh.GetElement(108);
 
         p_middle_element->CalculateJacobian(jacobian, det);
         TS_ASSERT_DELTA(det, 0.0001, 1e-6);
@@ -828,7 +828,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Refine an element in the bottom right corner
-        Element<2,2>* p_corner_element = mesh.GetElement(18);
+        Element<2,2> *p_corner_element = mesh.GetElement(18);
 
         // Point to be inserted on the edge of the element
         ChastePoint<2> new_point(0.095, 0.005);
@@ -847,7 +847,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
 
         // Refine an element in the top corner (1, 1, 1)
-        Element<3,3>* p_corner_element = mesh.GetElement(64);
+        Element<3,3> *p_corner_element = mesh.GetElement(64);
         c_matrix<double,3,3> jacobian;
         double det;
         p_corner_element->CalculateJacobian(jacobian, det);
@@ -868,7 +868,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
 
         // Refine an element which includes the middle node
-        Element<3,3>* p_middle_element = mesh.GetElement(49);
+        Element<3,3> *p_middle_element = mesh.GetElement(49);
         p_middle_element->CalculateJacobian(jacobian, det);
         TS_ASSERT_DELTA(det, 0.0625, 1e-6);
 
@@ -897,7 +897,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 6.0, 1e-6);
 
         // Refine an element in the top corner (1, 1, 1)
-        Element<3,3>* p_corner_element = mesh.GetElement(64);
+        Element<3,3> *p_corner_element = mesh.GetElement(64);
         c_matrix<double,3,3> jacobian;
         double det;
         p_corner_element->CalculateJacobian(jacobian, det);
@@ -917,7 +917,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        Element<2,2>* p_element = mesh.GetElement(2);
+        Element<2,2> *p_element = mesh.GetElement(2);
 
         unsigned indices_1[3];
 

@@ -189,7 +189,7 @@ public:
      */
     void TestOrder2ElementsFail() throw(Exception)
     {
-        TrianglesMeshReader<2,2>* p_mesh_reader;
+        TrianglesMeshReader<2,2> *p_mesh_reader;
         TS_ASSERT_THROWS_ANYTHING(p_mesh_reader = new READER_2D("mesh/test/data/baddata/disk_522_order_2_elements"));
     }
 
@@ -282,7 +282,7 @@ public:
 
     void Test0DMeshIn1DSpaceFails() throw(Exception)
     {
-        TrianglesMeshReader<0,1>* p_mesh_reader;
+        TrianglesMeshReader<0,1> *p_mesh_reader;
         TS_ASSERT_THROWS_ANYTHING(p_mesh_reader = new READER_0D_IN_1D("mesh/test/data/trivial_1d_mesh"));
     }
 

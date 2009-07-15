@@ -53,7 +53,7 @@ class HoneycombMeshGenerator
 private:
 
     /** A pointer to the mesh this class creates */
-    MutableMesh<2,2>* mpMesh;
+    MutableMesh<2,2> *mpMesh;
 
     /** The indices of the nodes in this mesh which are 'ghost nodes'  */
     std::set<unsigned> mGhostNodeIndices;
@@ -83,7 +83,8 @@ private:
     bool mCylindrical;
 
     /**
-     * Periodic honeycomb mesh maker
+     * Make a periodic honeycomb mesh.
+     * 
      * @param width  The periodic length scale to base this mesh around
      * @param ghosts  The number of rows of ghost nodes to add on at the top and bottom
      */

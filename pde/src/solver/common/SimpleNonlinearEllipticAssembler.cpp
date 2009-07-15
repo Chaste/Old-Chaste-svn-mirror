@@ -52,11 +52,11 @@ SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::SimpleNonlinearEllipti
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeMatrixTerm(
-            c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-            ChastePoint<SPACE_DIM> &rX,
+            c_vector<double, ELEMENT_DIM+1>& rPhi,
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            ChastePoint<SPACE_DIM>& rX,
             c_vector<double,1>& rU,
-            c_matrix<double,1,SPACE_DIM> &rGradU,
+            c_matrix<double,1,SPACE_DIM>& rGradU,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
@@ -120,7 +120,7 @@ c_vector<double,1*(ELEMENT_DIM+1)>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, 1*ELEMENT_DIM>
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeVectorSurfaceTerm(
-            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
             c_vector<double, ELEMENT_DIM>& rPhi,
             ChastePoint<SPACE_DIM>& rX)
 {

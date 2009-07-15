@@ -52,7 +52,7 @@ public :
     {
     }
 
-    double CalculateRootFunction(double time, const std::vector<double> &rY)
+    double CalculateRootFunction(double time, const std::vector<double>& rY)
     {
         return rY[0];
     }
@@ -75,7 +75,7 @@ public :
         mNice = true;
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] =  rY[1];
         rDY[1] = -rY[0];
@@ -85,7 +85,7 @@ public :
         }
     }
 
-    double CalculateRootFunction(double time, const std::vector<double> &rY)
+    double CalculateRootFunction(double time, const std::vector<double>& rY)
     {
         EXCEPTION("I'm feeling nasty!");
         return rY[0];
@@ -360,7 +360,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
 
             // Create a pointer
-            AbstractIvpOdeSolver* p_cvode_solver;
+            AbstractIvpOdeSolver *p_cvode_solver;
             input_arch >> p_cvode_solver;
 
             delete p_cvode_solver;

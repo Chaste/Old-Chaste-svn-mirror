@@ -37,32 +37,32 @@ class TestHoneycombMeshGenerator : public CxxTest::TestSuite
 {
 private:
 
-    void Output2DNodesToFile(MutableMesh<2,2>* p_mesh, std::string fileName)
+    void Output2DNodesToFile(MutableMesh<2,2>* pMesh, std::string fileName)
     {
         OutputFileHandler handler("");
         out_stream file = handler.OpenOutputFile(fileName);
 
-        unsigned num_nodes = p_mesh->GetNumNodes();
+        unsigned num_nodes = pMesh->GetNumNodes();
 
         for (unsigned i=0; i<num_nodes; i++)
         {
-            c_vector<double, 2> location = p_mesh->GetNode(i)->rGetLocation();
+            c_vector<double, 2> location = pMesh->GetNode(i)->rGetLocation();
             (*file) << location[0] << "\t" << location[1] << "\n" << std::flush;
         }
 
         file->close();
     }
 
-    void Output2DNodesToFileCylindrical(Cylindrical2dMesh* p_mesh, std::string fileName)
+    void Output2DNodesToFileCylindrical(Cylindrical2dMesh* pMesh, std::string fileName)
     {
         OutputFileHandler handler("");
         out_stream file = handler.OpenOutputFile(fileName);
 
-        unsigned num_nodes = p_mesh->GetNumNodes();
+        unsigned num_nodes = pMesh->GetNumNodes();
 
         for (unsigned i=0; i<num_nodes; i++)
         {
-            c_vector<double, 2> location = p_mesh->GetNode(i)->rGetLocation();
+            c_vector<double, 2> location = pMesh->GetNode(i)->rGetLocation();
             (*file) << location[0] << "\t" << location[1] << "\n" << std::flush;
         }
 
@@ -81,7 +81,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
 
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
 
@@ -96,10 +96,10 @@ public:
         unsigned ghosts = 2;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
 
         // Check the mesh
-        MutableMesh<2,2>* p_mesh2;
+        MutableMesh<2,2> *p_mesh2;
         TS_ASSERT_THROWS_ANYTHING(p_mesh2 = generator.GetMesh());
 
         Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
@@ -159,7 +159,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), sqrt(3)*num_cells_depth/2.0, 1e-7);
     }
@@ -174,10 +174,10 @@ public:
         double x_factor = width/(double)num_cells_width;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true, width/num_cells_width);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
 
         // Check the mesh
-        MutableMesh<2,2>* p_mesh2;
+        MutableMesh<2,2> *p_mesh2;
         TS_ASSERT_THROWS_ANYTHING(p_mesh2 = generator.GetMesh());
 
         Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
@@ -237,7 +237,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), x_factor*(double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), x_factor*sqrt(3)*num_cells_depth/2.0, 1e-7);
 
@@ -254,7 +254,7 @@ public:
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
         // Check the mesh
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
@@ -317,7 +317,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
     }
@@ -333,7 +333,7 @@ public:
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
 
         // Check the mesh
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         TS_ASSERT_THROWS_ANYTHING(p_mesh = generator.GetCylindricalMesh());
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(), (num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
@@ -397,7 +397,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
     }
@@ -412,7 +412,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, cylindrical, crypt_width/cells_across);
 
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
 
@@ -435,7 +435,7 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
 
-        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(radius);
+        MutableMesh<2,2> *p_mesh = generator.GetCircularMesh(radius);
 
         double epsilon = 1e-5;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -448,7 +448,7 @@ public:
     void TestCircularMeshIsJacobian() throw(Exception)
     {
         HoneycombMeshGenerator generator(20, 20, 0u, false);
-        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(10);
+        MutableMesh<2,2> *p_mesh = generator.GetCircularMesh(10);
 
         NodeMap map(p_mesh->GetNumAllNodes());
 

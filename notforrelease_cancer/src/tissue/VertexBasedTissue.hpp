@@ -365,7 +365,7 @@ inline void save_construct_data(
     Archive & ar, const VertexBasedTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const VertexMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
+    const VertexMesh<DIM,DIM> *p_mesh = &(t->rGetMesh());
     ar & p_mesh;
 }
 
@@ -379,7 +379,7 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     assert(ArchiveLocationInfo::GetMeshPathname().length() > 0);
-    VertexMesh<DIM,DIM>* p_mesh;
+    VertexMesh<DIM,DIM> *p_mesh;
     ar >> p_mesh;
 
     // Re-initialise the mesh

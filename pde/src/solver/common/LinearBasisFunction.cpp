@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template <>
 double LinearBasisFunction<3>::ComputeBasisFunction(
-    const ChastePoint<3> &rPoint,
+    const ChastePoint<3>& rPoint,
     unsigned basisIndex)
 {
     assert(basisIndex <= 3);
@@ -78,7 +78,7 @@ double LinearBasisFunction<3>::ComputeBasisFunction(
  */
 template <>
 double LinearBasisFunction<2>::ComputeBasisFunction(
-    const ChastePoint<2> &rPoint,
+    const ChastePoint<2>& rPoint,
     unsigned basisIndex)
 {
     assert(basisIndex <= 2);
@@ -111,7 +111,7 @@ double LinearBasisFunction<2>::ComputeBasisFunction(
  */
 template <>
 double LinearBasisFunction<1>::ComputeBasisFunction(
-    const ChastePoint<1> &rPoint,
+    const ChastePoint<1>& rPoint,
     unsigned basisIndex)
 {
     assert(basisIndex <= 1);
@@ -139,7 +139,7 @@ double LinearBasisFunction<1>::ComputeBasisFunction(
  *     within a canonical element.
  * @return The value of the basis function.
  */
-double LinearBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0> &rPoint, unsigned basisIndex)
+double LinearBasisFunction<0>::ComputeBasisFunction(const ChastePoint<0>& rPoint, unsigned basisIndex)
 {
     assert(basisIndex == 0);
     return 1.0;
@@ -276,7 +276,7 @@ c_vector<double,1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
  * @param rReturnValue A reference to a vector, to be filled in
  */
 template <unsigned ELEM_DIM>
-void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint,
+void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM>& rPoint,
                                                           c_vector<double, ELEM_DIM+1>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -294,7 +294,7 @@ void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM
  * @param rReturnValue A reference to a vector, to be filled in
  *
  */
-void LinearBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint,
+void LinearBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0>& rPoint,
                                                    c_vector<double,1>& rReturnValue)
 {
     rReturnValue(0) = ComputeBasisFunction(rPoint, 0);
@@ -310,7 +310,7 @@ void LinearBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0> &rPoint,
  *     a matrix in local index order.
  */
 template <unsigned ELEM_DIM>
-void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
+void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
                                                                     c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -337,8 +337,8 @@ void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Chaste
  *     derivative along each axis.
  */
 template <unsigned ELEM_DIM>
-void LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
-                                                                               const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
+void LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
+                                                                               const c_matrix<double, ELEM_DIM, ELEM_DIM>& rInverseJacobian,
                                                                                c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);

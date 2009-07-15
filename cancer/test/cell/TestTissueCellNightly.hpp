@@ -53,7 +53,7 @@ public:
         // one division = 1.26 hours.
         int time_steps = 1000;
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
         TissueCell stem_cell(STEM, HEALTHY, new TysonNovakCellCycleModel());
@@ -82,7 +82,7 @@ public:
         // (75 mins) because Tyson Novaks is for yeast
         int time_steps = 100;
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
 
         TissueCell stem_cell(STEM, HEALTHY, new TysonNovakCellCycleModel());
@@ -161,9 +161,9 @@ public:
      */
     void TestWithWntCellCycleModelAndMutationAPCONEHIT() throw(Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
 
-        TissueConfig* p_parameters = TissueConfig::Instance();
+        TissueConfig *p_parameters = TissueConfig::Instance();
         double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
@@ -231,9 +231,9 @@ public:
      */
     void TestWithWntCellCycleModelAndMutationBetaCat() throw(Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
 
-        TissueConfig* p_parameters = TissueConfig::Instance();
+        TissueConfig *p_parameters = TissueConfig::Instance();
         double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
@@ -302,8 +302,8 @@ public:
      */
     void TestWithWntCellCycleModelAndMutationAPC2() throw(Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        TissueConfig* p_parameters = TissueConfig::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        TissueConfig *p_parameters = TissueConfig::Instance();
 
         double s_g2_duration = p_parameters->GetSG2MDuration();
 

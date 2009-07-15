@@ -57,8 +57,8 @@ private:
 
         for (unsigned i=0; i<pMesh1->GetNumNodes(); i++)
         {
-            Node<DIM>* p_node1 = pMesh1->GetNode(i);
-            Node<DIM>* p_node2 = pMesh2->GetNode(i);
+            Node<DIM> *p_node1 = pMesh1->GetNode(i);
+            Node<DIM> *p_node2 = pMesh2->GetNode(i);
 
             TS_ASSERT_EQUALS(p_node1->IsDeleted(), p_node2->IsDeleted());
             TS_ASSERT_EQUALS(p_node1->GetIndex(), p_node2->GetIndex());
@@ -77,7 +77,7 @@ private:
              ++iter)
 		{
             unsigned elem_index = iter->GetIndex();
-            VertexElement<DIM,DIM>* p_elt2 = pMesh2->GetElement(elem_index);
+            VertexElement<DIM,DIM> *p_elt2 = pMesh2->GetElement(elem_index);
             TS_ASSERT_EQUALS(iter->GetNumNodes(), p_elt2->GetNumNodes());
 
             for (unsigned j=0; j<iter->GetNumNodes(); j++)
@@ -365,7 +365,7 @@ public:
         TissueSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
 
         // Load
-        VertexCryptSimulation2d* p_simulator;
+        VertexCryptSimulation2d *p_simulator;
         p_simulator = TissueSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DMeshArchive", 0.0);
 
         // Create an identical mesh for comparison purposes

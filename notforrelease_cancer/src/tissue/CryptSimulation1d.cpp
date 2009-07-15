@@ -117,7 +117,7 @@ void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
         unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
 
         // Get pointer to this node
-        Node<1>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
+        Node<1> *p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
 
         if (!is_wnt_included)
         {

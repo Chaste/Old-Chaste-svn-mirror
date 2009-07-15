@@ -69,11 +69,11 @@ private:
     friend class AbstractStaticAssembler<DIM,DIM,2,true,SelfType>;
 
     double mLambda;
-    virtual c_matrix<double,2*(DIM+1),2*(DIM+1) > ComputeMatrixTerm(c_vector<double, DIM+1> &rPhi,
-            c_matrix<double, DIM, DIM+1> &rGradPhi,
-            ChastePoint<DIM> &rX,
-            c_vector<double,2> &u,
-            c_matrix<double,2,DIM> &rGradU,
+    virtual c_matrix<double,2*(DIM+1),2*(DIM+1) > ComputeMatrixTerm(c_vector<double, DIM+1>& rPhi,
+            c_matrix<double, DIM, DIM+1>& rGradPhi,
+            ChastePoint<DIM>& rX,
+            c_vector<double,2>& rU,
+            c_matrix<double,2,DIM>& rGradU,
             Element<DIM,DIM>* pElement)
     {
         c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1), 2*(DIM+1));
@@ -87,8 +87,8 @@ private:
                 matrix_row<c_matrix<double,2,DIM> > gradU0(rGradU, 0);
                 matrix_row<c_matrix<double,2,DIM> > gradU1(rGradU, 1);
 
-                ret(2*i,  2*j)   = + rPhi(j)*inner_prod(gradU0,grad_phi_i) + u(0)*inner_prod(grad_phi_j,grad_phi_i);
-                ret(2*i+1,2*j+1) = + rPhi(j)*inner_prod(gradU1,grad_phi_i) + u(1)*inner_prod(grad_phi_j,grad_phi_i);
+                ret(2*i,  2*j)   = + rPhi(j)*inner_prod(gradU0,grad_phi_i) + rU(0)*inner_prod(grad_phi_j,grad_phi_i);
+                ret(2*i+1,2*j+1) = + rPhi(j)*inner_prod(gradU1,grad_phi_i) + rU(1)*inner_prod(grad_phi_j,grad_phi_i);
             }
         }
         return ret;
@@ -98,33 +98,31 @@ private:
     //  - todo - make rGradPhi, rGradU easier to understand and easier to access the vectors
     //         - make default jacobian analytic
 
-    virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1> &rPhi,
-                                                         c_matrix<double, DIM, DIM+1> &rGradPhi,
-                                                         ChastePoint<DIM> &rX,
-                                                         c_vector<double,2> &u,
-                                                         c_matrix<double,2,DIM> &rGradU,
+    virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1>& rPhi,
+                                                         c_matrix<double, DIM, DIM+1>& rGradPhi,
+                                                         ChastePoint<DIM>& rX,
+                                                         c_vector<double,2>& rU,
+                                                         c_matrix<double,2,DIM>& rGradU,
                                                          Element<DIM,DIM>* pElement)
     {
         c_vector<double,2*(DIM+1)> ret;
 
         for (unsigned i=0; i<DIM+1; i++)
         {
-            matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_i(rGradPhi,i);
+            matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_i(rGradPhi, i);
             matrix_row<c_matrix<double,2,DIM> > gradU0(rGradU, 0);
             matrix_row<c_matrix<double,2,DIM> > gradU1(rGradU, 1);
 
-            ret(2*i)   = u(0)*inner_prod(gradU0,grad_phi_i) - rPhi(i);
-            ret(2*i+1) = u(1)*inner_prod(gradU1,grad_phi_i) - mLambda*rPhi(i);
+            ret(2*i)   = rU(0)*inner_prod(gradU0,grad_phi_i) - rPhi(i);
+            ret(2*i+1) = rU(1)*inner_prod(gradU1,grad_phi_i) - mLambda*rPhi(i);
         }
         return ret;
     }
 
 
-
-
-    virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
-                                                             c_vector<double,DIM> &rPhi,
-                                                             ChastePoint<DIM> &rX )
+    virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(const BoundaryElement<DIM-1,DIM>& rSurfaceElement,
+                                                             c_vector<double,DIM>& rPhi,
+                                                             ChastePoint<DIM>& rX)
     {
         c_vector<double,2*DIM> ret;
 
@@ -184,11 +182,11 @@ private:
     }
 
 
-    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
-                                                               c_matrix<double, 2, 2+1> &rGradPhi,
-                                                               ChastePoint<2> &rX,
-                                                               c_vector<double,2> &u,
-                                                               c_matrix<double,2,2> &rGradU,
+    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1>& rPhi,
+                                                               c_matrix<double, 2, 2+1>& rGradPhi,
+                                                               ChastePoint<2>& rX,
+                                                               c_vector<double,2>& rU,
+                                                               c_matrix<double,2,2>& rGradU,
                                                                Element<2,2>* pElement)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret;
@@ -197,27 +195,26 @@ private:
         {
             for (unsigned j=0; j<2+1; j++)
             {
-                matrix_column<c_matrix<double,2,2+1> > grad_phi_i(rGradPhi,i);
-                matrix_column<c_matrix<double,2,2+1> > grad_phi_j(rGradPhi,j);
+                matrix_column<c_matrix<double,2,2+1> > grad_phi_i(rGradPhi, i);
+                matrix_column<c_matrix<double,2,2+1> > grad_phi_j(rGradPhi, j);
                 matrix_row<c_matrix<double,2,2> > gradU0(rGradU, 0);
                 matrix_row<c_matrix<double,2,2> > gradU1(rGradU, 1);
 
-                ret(2*i,  2*j)   = u(1)*inner_prod(grad_phi_j,grad_phi_i);
-                ret(2*i,  2*j+1) = rPhi(j)*inner_prod(gradU0,grad_phi_i);
-                ret(2*i+1,2*j)   = rPhi(j)*inner_prod(gradU1,grad_phi_i);
-                ret(2*i+1,2*j+1) = u(0)*inner_prod(grad_phi_j,grad_phi_i);
+                ret(2*i,  2*j)   = rU(1)*inner_prod(grad_phi_j, grad_phi_i);
+                ret(2*i,  2*j+1) = rPhi(j)*inner_prod(gradU0, grad_phi_i);
+                ret(2*i+1,2*j)   = rPhi(j)*inner_prod(gradU1, grad_phi_i);
+                ret(2*i+1,2*j+1) = rU(0)*inner_prod(grad_phi_j, grad_phi_i);
             }
         }
         return ret;
     }
 
 
-
-    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
-                                                       c_matrix<double, 2, 2+1> &rGradPhi,
-                                                       ChastePoint<2> &rX,
-                                                       c_vector<double,2> &u,
-                                                       c_matrix<double,2,2> &rGradU,
+    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1>& rPhi,
+                                                       c_matrix<double, 2, 2+1>& rGradPhi,
+                                                       ChastePoint<2>& rX,
+                                                       c_vector<double,2>& rU,
+                                                       c_matrix<double,2,2>& rGradU,
                                                        Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
@@ -228,15 +225,15 @@ private:
             matrix_row<c_matrix<double,2,2> > gradU0(rGradU, 0);
             matrix_row<c_matrix<double,2,2> > gradU1(rGradU, 1);
 
-            ret(2*i)   = u(1)*inner_prod(gradU0,grad_phi_i) + f(rX[0], rX[1])*rPhi(i);
-            ret(2*i+1) = u(0)*inner_prod(gradU1,grad_phi_i) + g(rX[0], rX[1])*rPhi(i);
+            ret(2*i)   = rU(1)*inner_prod(gradU0,grad_phi_i) + f(rX[0], rX[1])*rPhi(i);
+            ret(2*i+1) = rU(0)*inner_prod(gradU1,grad_phi_i) + g(rX[0], rX[1])*rPhi(i);
         }
         return ret;
     }
 
 
     // not used
-    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement, c_vector<double,2> &rPhi, ChastePoint<2> &rX)
+    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2>& rSurfaceElement, c_vector<double,2>& rPhi, ChastePoint<2>& rX)
     {
         NEVER_REACHED;
         return zero_vector<double>(2*2);
@@ -420,8 +417,8 @@ public:
 
         // du/dn = -0.5 on r=1
         TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
-        ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2> *p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2> *p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition,0);
@@ -513,11 +510,11 @@ public:
             double y = (*iter)->GetPoint()[1];
 
             // apply bc u=x^2
-            ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(x*x);
+            ConstBoundaryCondition<2> *p_boundary_condition = new ConstBoundaryCondition<2>(x*x);
             bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition, 0);
 
             // apply bc v=x^2
-            ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(y);
+            ConstBoundaryCondition<2> *p_boundary_condition1 = new ConstBoundaryCondition<2>(y);
             bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition1, 1);
             iter++;
         }

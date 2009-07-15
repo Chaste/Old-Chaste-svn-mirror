@@ -46,10 +46,10 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
                                                        AbstractTissue<DIM>& rTissue)
 {   
     // Helper instance of TissueConfig
-    TissueConfig* p_params = TissueConfig::Instance();
+    TissueConfig *p_params = TissueConfig::Instance();
 
     // Helper variable that is a static cast of the tissue
-    VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
+    VertexBasedTissue<DIM> *p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
 
     // Iterate over vertices in the tissue
     for (unsigned node_index=0; node_index<p_tissue->GetNumNodes(); node_index++)
@@ -83,7 +83,7 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
              ++iter)
         {
             // Get this element and its index
-            VertexElement<DIM, DIM>* p_element = p_tissue->GetElement(*iter);
+            VertexElement<DIM, DIM> *p_element = p_tissue->GetElement(*iter);
             unsigned element_index = p_element->GetIndex();
 
             // Find the local index of this node in this element
@@ -120,13 +120,13 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
             /******** Start of adhesion force calculation ***********/
 
             // Get the current, previous and next nodes in this element
-            Node<DIM>* p_current_node = p_element->GetNode(local_index);
+            Node<DIM> *p_current_node = p_element->GetNode(local_index);
 
             unsigned previous_node_local_index = (p_element->GetNumNodes()+local_index-1)%(p_element->GetNumNodes());
-            Node<DIM>* p_previous_node = p_element->GetNode(previous_node_local_index);
+            Node<DIM> *p_previous_node = p_element->GetNode(previous_node_local_index);
 
             unsigned next_node_local_index = (local_index+1)%(p_element->GetNumNodes());
-            Node<DIM>* p_next_node = p_element->GetNode(next_node_local_index);
+            Node<DIM> *p_next_node = p_element->GetNode(next_node_local_index);
 
             // Compute the adhesion parameter for each of these edges
             double previous_edge_adhesion_parameter = p_tissue->GetAdhesionParameter(p_previous_node, p_current_node);

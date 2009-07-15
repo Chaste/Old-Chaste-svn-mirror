@@ -40,7 +40,7 @@ class TestLogFile : public CxxTest::TestSuite
 public:
     void TestLogFileCreate()
     {
-        LogFile* p_log_file = LogFile::Instance();
+        LogFile *p_log_file = LogFile::Instance();
 
         // no file set yet
         TS_ASSERT_EQUALS(p_log_file->IsFileSet(), false);
@@ -50,13 +50,13 @@ public:
         TS_ASSERT_EQUALS(p_log_file->IsFileSet(), true);
 
         // check a new instance works correctly
-        LogFile* p_same_log = LogFile::Instance();
+        LogFile *p_same_log = LogFile::Instance();
         TS_ASSERT_EQUALS(p_same_log->IsFileSet(), true);
     }
 
     void TestLogStillExists()
     {
-        LogFile* p_log = LogFile::Instance();
+        LogFile *p_log = LogFile::Instance();
         TS_ASSERT_EQUALS(p_log->IsFileSet(), true);
     }
 
@@ -65,13 +65,13 @@ public:
         LogFile::Close();
 
         // check file not set on a new instance
-        LogFile* p_log = LogFile::Instance();
+        LogFile *p_log = LogFile::Instance();
         TS_ASSERT_EQUALS(p_log->IsFileSet(), false);
     }
 
     void TestWritingToFile1()
     {
-        LogFile* p_log_file = LogFile::Instance();
+        LogFile *p_log_file = LogFile::Instance();
         p_log_file->Set(1, "TestLogFile", "log2.txt");
 
         (*p_log_file) << "Some stuff\n" << "Some more\n";
@@ -80,7 +80,7 @@ public:
 
     void TestWritingToFile2()
     {
-        LogFile* p_log_file = LogFile::Instance();
+        LogFile *p_log_file = LogFile::Instance();
 
         (*p_log_file) << ".. and another bit\n";
 
@@ -104,7 +104,7 @@ public:
 
     void TestWritingToNewFiles()
     {
-        LogFile* p_log_file = LogFile::Instance();
+        LogFile *p_log_file = LogFile::Instance();
         p_log_file->Set(1, "TestLogFile");
         (*p_log_file) << "data";
 
@@ -122,7 +122,7 @@ public:
 
     void TestUsingMacroAndLevels()
     {
-        LogFile* p_log_file = LogFile::Instance();
+        LogFile *p_log_file = LogFile::Instance();
 
         // bad level
         TS_ASSERT_THROWS_ANYTHING(p_log_file->Set( LogFile::MaxLoggingLevel()+1, "TestLogFile") );
@@ -144,7 +144,7 @@ public:
 
     void TestHeaderAndElapsedTime()
     {
-        LogFile* p_log_file = LogFile::Instance();
+        LogFile *p_log_file = LogFile::Instance();
         p_log_file->Set(1, "TestLogFile", "log5.txt");
 
         p_log_file->WriteHeader("Complete human");

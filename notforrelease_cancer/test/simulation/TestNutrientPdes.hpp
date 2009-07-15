@@ -46,7 +46,7 @@ public:
     {
         // Set up mesh
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up PDE
         SimpleNutrientPde<2> pde(1.0);
@@ -64,7 +64,7 @@ public:
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
@@ -83,8 +83,8 @@ public:
 
         TS_ASSERT_DELTA(constant_in_u_source_term, 0.0, 1e-6);
 
-        Node<2>* p_node_0 = tissue.GetNodeCorrespondingToCell(&(tissue.rGetCellUsingLocationIndex(0)));
-        Node<2>* p_node_1 = tissue.GetNodeCorrespondingToCell(&(tissue.rGetCellUsingLocationIndex(1)));
+        Node<2> *p_node_0 = tissue.GetNodeCorrespondingToCell(&(tissue.rGetCellUsingLocationIndex(0)));
+        Node<2> *p_node_1 = tissue.GetNodeCorrespondingToCell(&(tissue.rGetCellUsingLocationIndex(1)));
 
         double source_term_at_node_0 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*p_node_0);
         double source_term_at_node_1 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*p_node_1);
@@ -100,7 +100,7 @@ public:
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0u, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());

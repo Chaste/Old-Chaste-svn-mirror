@@ -79,7 +79,7 @@ protected:  // Give access of these variables to subclasses
     std::vector<Node<SPACE_DIM> *> mBoundaryNodes;
 
     /** DistributedVectorFactory capable of reproducing the given number of nodes owned by each processor. */
-    DistributedVectorFactory* mpDistributedVectorFactory;
+    DistributedVectorFactory *mpDistributedVectorFactory;
 
     /** Vector containing node permutation information. */
     std::vector<unsigned> mNodesPermutation;

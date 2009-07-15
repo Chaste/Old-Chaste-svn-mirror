@@ -132,23 +132,23 @@ protected:
      * Currently the method is coded 'strictly', such that points lying on
      * an edge or at a vertex are considered to lie outside the element.
      *
-     * @param testPoint the point to test
+     * @param rTestPoint the point to test
      * @param elementIndex global index of the element in the mesh
      *
      * @return if the point is included in the element.
      */
-    bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex);
+    bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
 
     /**
      * Get the local index of a given element which is the start vertex of the edge
-     * of the element that the overlapping point testPoint is closest to.
+     * of the element that the overlapping point rTestPoint is closest to.
      *
-     * @param testPoint the point to test
+     * @param rTestPoint the point to test
      * @param elementIndex global index of the element in the mesh
      *
      * @return the local index
      */
-    unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& testPoint, unsigned elementIndex);
+    unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
 
     /**
      * Called by ReMesh(). Moves a node, which has been found to overlap an element,

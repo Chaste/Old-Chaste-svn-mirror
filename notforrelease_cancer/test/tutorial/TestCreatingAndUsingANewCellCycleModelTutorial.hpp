@@ -131,7 +131,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractSimpleGenerationBasedCellCycleModel>(*this);
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
     }
@@ -234,7 +234,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            MyCellCycleModel* p_cell_cycle_model = new MyCellCycleModel;
+            MyCellCycleModel *p_cell_cycle_model = new MyCellCycleModel;
             TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
             cell.InitialiseCellCycleModel();
             cells.push_back(cell);
@@ -253,7 +253,7 @@ public:
         TS_ASSERT_DELTA(sample_mean_g1_duration, expected_mean_g1_duration, 0.1);
 
         /* Now construct another {{{MyCellCycleModel}}} and associated cell. */
-        MyCellCycleModel* p_my_model = new MyCellCycleModel;
+        MyCellCycleModel *p_my_model = new MyCellCycleModel;
         TissueCell my_cell(TRANSIT, HEALTHY, p_my_model);
         my_cell.InitialiseCellCycleModel();
 
@@ -287,11 +287,11 @@ public:
              * Set the start time, end time and number of time steps. */
             SimulationTime::Destroy();
             SimulationTime::Instance()->SetStartTime(0.0);
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
 
             /* Create a cell with associated cell cycle model. */
-            MyCellCycleModel* p_model = new MyCellCycleModel;
+            MyCellCycleModel *p_model = new MyCellCycleModel;
             TissueCell cell(TRANSIT, HEALTHY, p_model);
             cell.InitialiseCellCycleModel();
 
@@ -318,12 +318,12 @@ public:
          * the start time, end time and number of time steps. */
         {
             SimulationTime::Destroy();
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
             /* Create a pointer to a cell. */
-            TissueCell* p_cell;
+            TissueCell *p_cell;
 
             /* Create an input archive and restore the cell from the archive. */
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -332,7 +332,7 @@ public:
             input_arch >> p_cell;
 
             /* Test that the private data has been restored correctly. */
-            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
 
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
@@ -372,7 +372,7 @@ public:
          */
         HoneycombMeshGenerator generator(10, 10, 0, false);
         /* Get the mesh using the {{{GetCircularMesh()}}} method. */
-        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
+        MutableMesh<2,2> *p_mesh = generator.GetCircularMesh(5);
 
         /* Next, we create some cells. First, define the cells vector. */
         std::vector<TissueCell> cells;

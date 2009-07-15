@@ -57,7 +57,7 @@ public:
 
         // Create a simple mesh
         HoneycombMeshGenerator generator(5, 5, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(3.5);
+        MutableMesh<2,2> *p_mesh = generator.GetCircularMesh(3.5);
 
         // Set parameters
         TissueConfig::Instance()->SetMaxTransitGenerations(UINT_MAX);

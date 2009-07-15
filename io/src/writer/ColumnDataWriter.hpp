@@ -57,8 +57,8 @@ protected:
     long mFixedDimensionSize; /**< The size of the fixed dimension */
     out_stream mpCurrentOutputFile; /**< Filestream currently being addressed */
     out_stream mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) eg. time file*/
-    DataWriterVariable* mpUnlimitedDimensionVariable; /**< The variable corresponding to the unlimited dimension */
-    DataWriterVariable* mpFixedDimensionVariable; /**< The variable corresponding to the fixed dimension */
+    DataWriterVariable *mpUnlimitedDimensionVariable; /**< The variable corresponding to the unlimited dimension */
+    DataWriterVariable *mpFixedDimensionVariable; /**< The variable corresponding to the fixed dimension */
 
     std::string mUnlimitedDimensionName; /**< The name of the unlimited dimension. */
     std::string mUnlimitedDimensionUnits; /**< The physical units of the unlimited dimension. */

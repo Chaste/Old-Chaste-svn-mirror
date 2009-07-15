@@ -53,7 +53,7 @@ public:
 
         mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
-        TrianglesMeshReader<3,3>* p_new_mesh_reader;
+        TrianglesMeshReader<3,3> *p_new_mesh_reader;
         p_new_mesh_reader = new TrianglesMeshReader<3,3>(output_dir + "MeshFromMemfem");
 
         delete p_new_mesh_reader;
@@ -71,7 +71,7 @@ public:
         mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
-        TrianglesMeshReader<2,2>* p_new_mesh_reader;
+        TrianglesMeshReader<2,2> *p_new_mesh_reader;
         p_new_mesh_reader = new TrianglesMeshReader<2,2>(output_dir + "MeshFromFemlab");
 
         delete p_new_mesh_reader;
@@ -135,7 +135,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
-        TrianglesMeshReader<2,2>* p_new_mesh_reader;
+        TrianglesMeshReader<2,2> *p_new_mesh_reader;
         p_new_mesh_reader = new TrianglesMeshReader<2,2>(output_dir + "MeshFromFemlabViaMesh");
 
         delete p_new_mesh_reader;

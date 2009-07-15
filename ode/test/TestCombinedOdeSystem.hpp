@@ -50,7 +50,7 @@ public:
         mParameters.resize(1);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = mParameters[0];
     }
@@ -83,7 +83,7 @@ public:
         mParameters.resize(1);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = -mParameters[0];
     }
@@ -124,7 +124,7 @@ public:
         mParameters.resize(2);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = rY[0] - mParameters[0] + mParameters[1];
     }
@@ -153,7 +153,7 @@ public:
         mParameters.resize(1);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = rY[0] - mParameters[0];
     }
@@ -183,7 +183,7 @@ public:
         mParameters.resize(1);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = 2.0*mParameters[0] - rY[0];
     }
@@ -214,7 +214,7 @@ public:
         SetStateVariables(GetInitialConditions());
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = rY[0] - rY[1];        //y'=y-z
         rDY[1] = 2.0*rY[0] - rY[1];    //z'=2y-z

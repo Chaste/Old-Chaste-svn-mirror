@@ -79,7 +79,7 @@ void CombinedOdeSystem::Configure(
 
 void CombinedOdeSystem::EvaluateYDerivatives(
         double time,
-        const std::vector<double> &rY,
+        const std::vector<double>& rY,
         std::vector<double>& rDY)
 {
     // Copy rY to subsystems

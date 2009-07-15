@@ -94,7 +94,7 @@ public:
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
@@ -145,7 +145,7 @@ public:
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
@@ -197,7 +197,7 @@ public:
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
@@ -216,7 +216,7 @@ public:
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
@@ -239,7 +239,7 @@ public:
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
@@ -263,7 +263,7 @@ public:
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = mesh_generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = mesh_generator.GetMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();

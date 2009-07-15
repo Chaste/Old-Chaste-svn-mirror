@@ -143,7 +143,7 @@ MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
             // Jiggle the data
             c_vector<double,2>& r_location = mpMesh->GetNode(i)->rGetModifiableLocation();
             c_vector<double,2> shift;
-            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
             double max_jiggle = radius*5e-6;
             shift[0] = max_jiggle*(p_gen->ranf()-0.5);
             shift[1] = max_jiggle*(p_gen->ranf()-0.5);

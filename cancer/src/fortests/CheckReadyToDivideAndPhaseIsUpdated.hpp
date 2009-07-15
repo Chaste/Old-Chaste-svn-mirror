@@ -51,7 +51,7 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
 {
     // A number of cancer tissue parameters are called in this method,
     // so for convenience we create a pointer to the instance
-    TissueConfig* p_params = TissueConfig::Instance();
+    TissueConfig *p_params = TissueConfig::Instance();
 
     double age = pModel->GetAge();
 

@@ -158,7 +158,7 @@ public:
             std::set<unsigned> actual_node_indices;
             unsigned elem_index = iter->GetIndex();
             TissueCell& r_cell = tissue.rGetCellUsingLocationIndex(elem_index);
-            VertexElement<2,2>* p_actual_element = tissue.GetElementCorrespondingToCell(&r_cell);
+            VertexElement<2,2> *p_actual_element = tissue.GetElementCorrespondingToCell(&r_cell);
             unsigned actual_index = p_actual_element->GetIndex();
 
             for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
@@ -176,7 +176,7 @@ public:
     {
         double apoptosis_time = TissueConfig::Instance()->GetApoptosisTime();
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(apoptosis_time, 2);
 
         // Create mesh
@@ -330,7 +330,7 @@ public:
 
     void TestUpdateWithoutBirthOrDeath() throw (Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
@@ -415,7 +415,7 @@ public:
         TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(-1);
 
-        TissueCell* p_new_cell = tissue.AddCell(new_cell, new_cell_location, &cell0);
+        TissueCell *p_new_cell = tissue.AddCell(new_cell, new_cell_location, &cell0);
 
         // Check that the new cell was successfully added to the tissue
         TS_ASSERT_EQUALS(tissue.GetNumNodes(), old_num_nodes+2);
@@ -597,7 +597,7 @@ public:
 
     void TestRemoveDeadCellsAndUpdate() throw (Exception)
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
@@ -714,7 +714,7 @@ public:
         {
             // Need to set up time
             unsigned num_steps = 10;
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
             // Create mesh
@@ -754,7 +754,7 @@ public:
         {
             // Need to set up time
             unsigned num_steps=10;
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
@@ -764,7 +764,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
 
-            VertexBasedTissue<2>* p_tissue;
+            VertexBasedTissue<2> *p_tissue;
 
             // The following line is required because the loading of a tissue
             // is usually called by the method TissueSimulation::Load()
@@ -883,7 +883,7 @@ public:
         TissueConfig::Instance()->SetCryptLength(4.0);
 
         // Set up an instance of the WntConcentration singleton object
-        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
+        WntConcentration<2> *p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
 
         // Check that the singleton can be set up

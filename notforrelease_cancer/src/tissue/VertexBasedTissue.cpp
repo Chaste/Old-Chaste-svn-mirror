@@ -206,7 +206,7 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
     /// \todo newLocation is redundant for vertex-based tissues (#852)
 
     // Get the element associated with this cell
-    VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pParentCell);
+    VertexElement<DIM, DIM> *p_element = GetElementCorrespondingToCell(pParentCell);
 
     // Divide the element
     unsigned new_element_index; 
@@ -229,7 +229,7 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
     this->mCells.push_back(rNewCell);
 
     // Update location cell map
-    TissueCell* p_created_cell = &(this->mCells.back());
+    TissueCell *p_created_cell = &(this->mCells.back());
     this->mLocationCellMap[new_element_index] = p_created_cell;
     this->mCellLocationMap[p_created_cell] = new_element_index;
 

@@ -298,7 +298,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     }
     else
     {
-        TissueCell* p_cell = mLocationCellMap[locationIndex];
+        TissueCell *p_cell = mLocationCellMap[locationIndex];
 
         // Cell cycle phase
         if (outputCellCyclePhases)
@@ -532,7 +532,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
                                                          std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     // Write current simulation time
-    SimulationTime* p_simulation_time = SimulationTime::Instance();
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
     double time = p_simulation_time->GetTime();
 
     *mpVizNodesFile << time << "\t";

@@ -79,7 +79,7 @@ class AbstractAssembler
 protected:
 
     /** Boundary conditions to be applied */
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *mpBoundaryConditions;
 
     #define COVERAGE_IGNORE
     /**

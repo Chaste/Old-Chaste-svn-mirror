@@ -61,7 +61,7 @@ void BackwardEulerIvpOdeSolver::ComputeJacobian(AbstractOdeSystem* pAbstractOdeS
     if (pAbstractOdeSystem->GetUseAnalyticJacobian() && !mForceUseOfNumericalJacobian)
     {
         // The ODE system has an analytic jacobian, so use that
-        AbstractOdeSystemWithAnalyticJacobian* p_ode_system
+        AbstractOdeSystemWithAnalyticJacobian *p_ode_system
             = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
         p_ode_system->AnalyticJacobian(rCurrentGuess, mJacobian, time, timeStep);
     }
@@ -102,14 +102,14 @@ void BackwardEulerIvpOdeSolver::SolveLinearSystem()
     }
 }
 
-double BackwardEulerIvpOdeSolver::ComputeNorm(double* vector)
+double BackwardEulerIvpOdeSolver::ComputeNorm(double* pVector)
 {
     double norm = 0.0;
     for (unsigned i=0; i<mSizeOfOdeSystem; i++)
     {
-        if (fabs(vector[i]) > norm)
+        if (fabs(pVector[i]) > norm)
         {
-            norm = fabs(vector[i]);
+            norm = fabs(pVector[i]);
         }
     }
     return norm;

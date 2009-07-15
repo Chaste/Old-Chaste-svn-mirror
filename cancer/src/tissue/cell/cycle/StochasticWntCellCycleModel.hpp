@@ -66,7 +66,7 @@ private:
     {
         archive & boost::serialization::base_object<WntCellCycleModel>(*this);
 
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
 

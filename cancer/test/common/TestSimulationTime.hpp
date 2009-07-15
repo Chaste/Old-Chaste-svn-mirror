@@ -45,7 +45,7 @@ public:
     {
         // create the simulation time object
         // set the simulation length and number of time steps
-        SimulationTime* p_simulation_time = SimulationTime :: Instance();
+        SimulationTime *p_simulation_time = SimulationTime :: Instance();
 
         TS_ASSERT_EQUALS(p_simulation_time->IsStartTimeSetUp(), false);
 
@@ -59,7 +59,7 @@ public:
 
         // get a second instance
         // check that the time step is set correctly
-        SimulationTime* p_simulation_time2 = SimulationTime :: Instance();
+        SimulationTime *p_simulation_time2 = SimulationTime :: Instance();
         TS_ASSERT_DELTA(p_simulation_time2->GetTimeStep(), 3.33333333, 1e-6);
 
 
@@ -103,7 +103,7 @@ public:
     {
         // create the simulation time object
         // set the simulation length and number of time steps
-        SimulationTime* p_simulation_time = SimulationTime :: Instance();
+        SimulationTime *p_simulation_time = SimulationTime :: Instance();
         p_simulation_time->SetStartTime(0.0);
         unsigned num_steps = 4;
         double first_end = 10.0;
@@ -141,7 +141,7 @@ public:
 
         // Create and archive simulation time
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
             p_simulation_time->IncrementTimeOneStep();
@@ -164,7 +164,7 @@ public:
 
         // Restore
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(-100.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(5.0, 5);
             TS_ASSERT_DELTA(p_simulation_time->GetTime(), -100.0, 1e-9);

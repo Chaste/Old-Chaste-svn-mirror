@@ -47,7 +47,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
 
-        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
 
         archive & mDividedSymmetrically;

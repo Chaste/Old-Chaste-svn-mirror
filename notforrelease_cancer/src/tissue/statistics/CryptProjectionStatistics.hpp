@@ -41,11 +41,10 @@ protected:
      * CellIsInSection method.
      *
      * @param angle  The angle between the crypt section and the x axis in the projection
-     * @param cellPosition  The vector of a cell's position
+     * @param rCellPosition  The vector of a cell's position
      * @param widthOfSection The width of the section
      */
-    bool CellIsInSection(double angle, const c_vector<double,2>& cellPosition, double widthOfSection=0.6);
-
+    bool CellIsInSection(double angle, const c_vector<double,2>& rCellPosition, double widthOfSection=0.6);
 
 public:
 
@@ -63,7 +62,6 @@ public:
      * interval (-pi, pi].
      *
      * @param angle  The angle between the crypt section and the x axis in the projection
-     *
      */
     std::vector<TissueCell*> GetCryptSection(double angle = DBL_MAX);
 

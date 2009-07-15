@@ -135,8 +135,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         assert(rTissue.HasMesh());
         // If using beta-cat dependent springs, both cell-cycle models has better be IngeWntSwatCellCycleModel
-        IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
-        IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
+        IngeWntSwatCellCycleModel *p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
+        IngeWntSwatCellCycleModel *p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
 
         assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
         double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();

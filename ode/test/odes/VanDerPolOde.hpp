@@ -43,7 +43,7 @@ public :
         SetStateVariables(GetInitialConditions());
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         double mu = 1;
         rDY[0]= rY[1] + mu*(rY[0] - rY[0]*rY[0]*rY[0]);

@@ -120,7 +120,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Node<2>* p_node = new Node<2>(*(mesh.GetNode(i)));
+            Node<2> *p_node = new Node<2>(*(mesh.GetNode(i)));
             nodes.push_back(p_node);
         }
 
@@ -154,7 +154,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
-            AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+            AbstractCellCycleModel *p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -166,14 +166,14 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Node<2>* p_node = new Node<2>(*(mesh.GetNode(i)));
+            Node<2> *p_node = new Node<2>(*(mesh.GetNode(i)));
             nodes.push_back(p_node);
         }
         // Fails as no cell corresponding to node 0
         TS_ASSERT_THROWS_ANYTHING(NodeBasedTissue<2> tissue(nodes, cells));
 
         // Add another cell
-        AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+        AbstractCellCycleModel *p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
         double birth_time = -4.0;
         cell.SetBirthTime(birth_time);
@@ -200,12 +200,12 @@ public:
         ChastePoint<2> point0;
         point0.rGetLocation()[0] = 0.0;
         point0.rGetLocation()[1] = 0.0;
-        Node<2>* p_node0 = new Node<2>(0, point0, false);
+        Node<2> *p_node0 = new Node<2>(0, point0, false);
 
         ChastePoint<2> point1;
         point1.rGetLocation()[0] = 1.0;
         point1.rGetLocation()[1] = 1.0;
-        Node<2>* p_node1 = new Node<2>(1, point1, false);
+        Node<2> *p_node1 = new Node<2>(1, point1, false);
 
         std::vector<Node<2>* > nodes;
         nodes.push_back(p_node0);
@@ -270,7 +270,7 @@ public:
 
         unsigned num_nodes = node_based_tissue.GetNumNodes();
 
-        Node<2>* p_node = new Node<2>(num_nodes, new_point, false);
+        Node<2> *p_node = new Node<2>(num_nodes, new_point, false);
         unsigned new_node_index = node_based_tissue.AddNode(p_node);
 
         TS_ASSERT_EQUALS(new_node_index, num_nodes);
@@ -292,7 +292,7 @@ public:
         new_point2.rGetLocation()[1] = 0.52;
 
         num_nodes = node_based_tissue.GetNumNodes();
-        Node<2>* p_node2 = new Node<2>(num_nodes, new_point2, false);
+        Node<2> *p_node2 = new Node<2>(num_nodes, new_point2, false);
         new_node_index = node_based_tissue.AddNode(p_node2);
 
         TS_ASSERT_EQUALS(new_node_index, 0u);
@@ -330,7 +330,7 @@ public:
 
     void TestRemoveDeadCellsAndUpdate()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple mesh
@@ -378,7 +378,7 @@ public:
 
     void TestAddAndRemoveAndAddWithOutRemovingDeletedNodes()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple mesh
@@ -642,7 +642,7 @@ public:
         {
             // Need to set up time
             unsigned num_steps = 10;
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
             // Create a simple mesh
@@ -682,12 +682,12 @@ public:
             // Need to set up time
             unsigned num_steps = 10;
 
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            SimulationTime *p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
 
-            NodeBasedTissue<2>* p_tissue;
+            NodeBasedTissue<2> *p_tissue;
 
             // Restore the tissue
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);

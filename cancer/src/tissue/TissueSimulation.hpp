@@ -119,10 +119,10 @@ protected:
     out_stream mpSetupFile;
 
     /** The cancer tissue configuration */
-    TissueConfig* mpConfig;
+    TissueConfig *mpConfig;
 
     /** The singleton RandomNumberGenerator */
-    RandomNumberGenerator* mpRandomGenerator;
+    RandomNumberGenerator *mpRandomGenerator;
 
     /** Counts the number of births during the simulation */
     unsigned mNumBirths;
@@ -497,7 +497,7 @@ inline void save_construct_data(
     Archive & ar, const TissueSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<DIM> * p_tissue = &(t->rGetTissue());
+    const AbstractTissue<DIM> *p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     const std::vector<AbstractForce<DIM>*> force_collection = t->rGetForceCollection();
     ar & force_collection;
@@ -511,7 +511,7 @@ inline void load_construct_data(
     Archive & ar, TissueSimulation<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<DIM>* p_tissue;
+    AbstractTissue<DIM> *p_tissue;
     ar >> p_tissue;
     std::vector<AbstractForce<DIM>*> force_collection;
     ar >> force_collection;

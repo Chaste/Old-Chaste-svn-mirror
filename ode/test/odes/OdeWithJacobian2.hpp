@@ -45,10 +45,10 @@ public :
         mpSystemInfo = OdeSystemInformation<OdeWithJacobian2>::Instance();
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
-        rDY[0]=rY[0]*rY[0] + rY[1]*rY[1];
-        rDY[1]=rY[0]*rY[0] + 2*rY[1]*rY[1];
+        rDY[0] = rY[0]*rY[0] + rY[1]*rY[1];
+        rDY[1] = rY[0]*rY[0] + 2*rY[1]*rY[1];
     }
 
     void AnalyticJacobian(const std::vector<double>& rSolutionGuess, double** jacobian, double time, double timeStep)

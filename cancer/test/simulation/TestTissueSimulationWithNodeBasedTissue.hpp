@@ -88,7 +88,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
@@ -133,7 +133,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
@@ -183,7 +183,7 @@ public:
 //        int num_cells_depth = 100;
 //        int num_cells_width = 100;
 //        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-//        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+//        TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 //
 //        // Set up cells, one for each node. Give each a random birth time.
 //        std::vector<TissueCell> cells = SetUpCells(p_mesh);
@@ -211,7 +211,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
@@ -255,7 +255,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
@@ -294,7 +294,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
+        TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
         std::vector<TissueCell> cells = SetUpCells(p_mesh);
@@ -324,7 +324,7 @@ public:
     {
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 1.0
-        TissueSimulation<2>* p_simulator1;
+        TissueSimulation<2> *p_simulator1;
         p_simulator1 = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 0.1);
         p_simulator1->SetEndTime(1.0);
         p_simulator1->Solve();
@@ -332,7 +332,7 @@ public:
         // Save, then reload and run from 1.0 to 2.5
 
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(p_simulator1);
-        TissueSimulation<2>* p_simulator2
+        TissueSimulation<2> *p_simulator2
             = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithNodeBasedTissueSaveAndLoad", 1.0);
 
         p_simulator2->SetEndTime(2.5);

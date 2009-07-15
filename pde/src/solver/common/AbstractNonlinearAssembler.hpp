@@ -88,7 +88,7 @@ private:
 protected:
 
     /** The nonlinear solver. */
-    AbstractNonlinearSolver* mpSolver;
+    AbstractNonlinearSolver *mpSolver;
 
     /** Whether memory has been allocated for the solver. */
     bool mWeAllocatedSolverMemory;
@@ -97,10 +97,10 @@ protected:
     bool mUseAnalyticalJacobian;
 
     /**
-     * Apply Dirichlet boundary conditions to either the residual or jacobian.
+     * Apply Dirichlet boundary conditions to either the residual or Jacobian.
      * 
-     * @param currentGuess
-     * @param applyToMatrix
+     * @param currentGuess  the solution guess for the current iteration
+     * @param applyToMatrix  whether to apply the boundary conditions to the Jacobian matrix
      */
     void ApplyDirichletConditions(Vec currentGuess, bool applyToMatrix);
 

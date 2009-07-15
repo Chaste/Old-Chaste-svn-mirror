@@ -44,7 +44,7 @@ public :
         mpSystemInfo = OdeSystemInformation<FieldNoyesReactionSystem>::Instance();
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         const double epsilon = 0.05;
         const double p = 6.7;

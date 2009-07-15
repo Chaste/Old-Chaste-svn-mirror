@@ -118,7 +118,7 @@ public:
         // Set up
         TissueConfig::Instance()->SetHepaOneParameters();
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;
         unsigned num_timesteps = 100*(unsigned)end_time; // ensure the time step is not too small
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
@@ -180,7 +180,7 @@ public:
         {
             if (!cell_iter->IsDead())
             {
-                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+                Node<2> *p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
@@ -196,7 +196,7 @@ public:
              ++cell_iter)
         {
             TS_ASSERT(!cell_iter->IsDead());
-            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+            Node<2> *p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }
@@ -244,7 +244,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            RadialSloughingCellKiller* p_cell_killer;
+            RadialSloughingCellKiller *p_cell_killer;
 
             // Restore from the archive
             input_arch >> p_cell_killer;
@@ -288,7 +288,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            OxygenBasedCellKiller<2>* p_cell_killer;
+            OxygenBasedCellKiller<2> *p_cell_killer;
 
             // Restore from the archive
             input_arch >> p_cell_killer;

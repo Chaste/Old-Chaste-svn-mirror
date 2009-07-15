@@ -41,7 +41,7 @@ class TestHdf5DataWriter : public CxxTest::TestSuite
 {
 private:
 
-    Hdf5DataWriter* mpTestWriter;
+    Hdf5DataWriter *mpTestWriter;
 
     bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
         std::string pathname2, std::string filename2, bool makeAbsolute2)
@@ -285,7 +285,7 @@ public:
     {
         // Initialise a PETSc vector
         Vec a_vec = PetscTools::CreateVec(data_size);
-        double* p_a_vec;
+        double *p_a_vec;
         VecGetArray(a_vec, &p_a_vec);
         int lo, hi;
         VecGetOwnershipRange(a_vec, &lo, &hi);

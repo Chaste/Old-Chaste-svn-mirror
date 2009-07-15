@@ -70,20 +70,20 @@ public :
      *
      *  dT/dE is a fourth-order tensor, where dT/dE[M][N][P][Q] = dT^{MN}/dE_{PQ}
      *
-     *  @param C The Lagrangian deformation tensor (F^T F)
-     *  @param invC The inverse of C. Should be computed by the user. (Change this?)
+     *  @param rC The Lagrangian deformation tensor (F^T F)
+     *  @param rInvC The inverse of C. Should be computed by the user. (Change this?)
      *  @param pressure the current pressure
-     *  @param T the stress will be returned in this parameter
-     *  @param dTdE the stress derivative will be returned in this parameter, assuming
+     *  @param rT the stress will be returned in this parameter
+     *  @param rDTdE the stress derivative will be returned in this parameter, assuming
      *    the final parameter is true
      *  @param computeDTdE a boolean flag saying whether the stress derivative is
      *    required or not.
      */
-    void ComputeStressAndStressDerivative(c_matrix<double,2,2>&  C,
-                                          c_matrix<double,2,2>&  invC,
+    void ComputeStressAndStressDerivative(c_matrix<double,2,2>&  rC,
+                                          c_matrix<double,2,2>&  rInvC,
                                           double                 pressure,
-                                          c_matrix<double,2,2>&  T,
-                                          FourthOrderTensor<2>&  dTdE,
+                                          c_matrix<double,2,2>&  rT,
+                                          FourthOrderTensor<2>&  rDTdE,
                                           bool                   computeDTdE);
 
     /**

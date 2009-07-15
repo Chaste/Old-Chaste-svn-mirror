@@ -116,7 +116,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
         VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->size(), &mDistributed);
     }
 
-    double* p_distributed;
+    double *p_distributed;
     VecGetArray(mDistributed, &p_distributed);
     for (unsigned global_index=lo; global_index<hi; global_index++)
     {

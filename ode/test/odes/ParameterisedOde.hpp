@@ -45,7 +45,7 @@ public:
         mParameters.push_back(0);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = mParameters[0];
     }

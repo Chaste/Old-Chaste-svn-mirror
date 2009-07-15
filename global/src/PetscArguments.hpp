@@ -40,7 +40,7 @@ class PetscArguments
 public:
 
     /** The number of command line arguments. */
-    int* p_argc;
+    int *p_argc;
 
     /** The arguments themselves. */
     char*** p_argv;
@@ -60,7 +60,7 @@ private:
     PetscArguments& operator= (const PetscArguments&);
 
     /** The single instance of the class. */
-    static PetscArguments* mpInstance;
+    static PetscArguments *mpInstance;
 };
 
 #endif // PETSCARGUMENTS_HPP_

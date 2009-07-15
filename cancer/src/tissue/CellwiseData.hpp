@@ -48,10 +48,10 @@ class CellwiseData
 private:
 
     /** The single instance of the singleton object */
-    static CellwiseData* mpInstance;
+    static CellwiseData *mpInstance;
 
     /** A pointer to a Tissue so a cell's node can be found */
-    MeshBasedTissue<DIM>* mpTissue;
+    MeshBasedTissue<DIM> *mpTissue;
 
     /** Allocated memory for mData object */
     bool mAllocatedMemory;

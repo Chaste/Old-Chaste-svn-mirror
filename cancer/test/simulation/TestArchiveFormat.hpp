@@ -93,12 +93,12 @@ public:
         TS_ASSERT_EQUALS(return_value, 0);
 
         // Load and run crypt simulation
-        CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
+        CryptSimulation2d *p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load(test_to_profile,t);
         p_simulator->SetEndTime(t + 1);
         delete p_simulator;
 
         // Check that archiving of cancer parameters has not been affected
-        TissueConfig* p_inst = TissueConfig::Instance();
+        TissueConfig *p_inst = TissueConfig::Instance();
         TS_ASSERT_DELTA(p_inst->GetSG2MDuration(), 10.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetSDuration(), 5.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetG2Duration(), 4.0, 1e-12);

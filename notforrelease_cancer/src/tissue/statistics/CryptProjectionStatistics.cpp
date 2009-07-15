@@ -28,41 +28,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptProjectionStatistics.hpp"
 #include "RandomNumberGenerator.hpp"
 
-/** This global function is to allow the list of cells in to be compared in
- *  terms of their y-value and std::list.sort() to be called
+/**
+ * This global function is to allow the list of cells in to be compared in
+ * terms of their y-value and std::list.sort() to be called
  */
 bool CellsRadiusComparison(const std::pair<TissueCell*, double> lhs, const std::pair<TissueCell*, double> rhs)
 {
     return lhs.second < rhs.second;
 }
 
-/**
- * Overridden CellIsInSection method.
- *
- * @param angle  The angle between the crypt section and the x axis in the projection
- * @param cellPosition  The vector of a cell's position
- * @param widthOfSection The width of the section
- */
-bool CryptProjectionStatistics::CellIsInSection(double angle, const c_vector<double,2>& cellPosition, double widthOfSection)
+bool CryptProjectionStatistics::CellIsInSection(double angle, const c_vector<double,2>& rCellPosition, double widthOfSection)
 {
     // Get corresponding 3D position of closest point on line
     c_vector<double,2> line_position;
-    line_position[0] = norm_2(cellPosition)*cos(angle);
-    line_position[1] = norm_2(cellPosition)*sin(angle);
+    line_position[0] = norm_2(rCellPosition)*cos(angle);
+    line_position[1] = norm_2(rCellPosition)*sin(angle);
 
-    double distance_between_cell_and_line = norm_2(cellPosition - line_position);
+    double distance_between_cell_and_line = norm_2(rCellPosition - line_position);
 
-    return ( distance_between_cell_and_line <= widthOfSection);
+    return (distance_between_cell_and_line <= widthOfSection);
 }
 
-
-/**
- * Overridden GetCryptSection method. Takes in an angle from the
- * interval (-pi, pi].
- *
- * @param angle  The angle between the crypt section and the x axis in the projection
- *
- */
 std::vector<TissueCell*> CryptProjectionStatistics::GetCryptSection(double angle)
 {
     if (angle == DBL_MAX)
@@ -104,4 +90,3 @@ std::vector<TissueCell*> CryptProjectionStatistics::GetCryptSection(double angle
 
     return ordered_cells;
 }
-

@@ -58,7 +58,7 @@ class VtkWriter : public AbstractTetrahedralMeshWriter<DIM, DIM>
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 
 private:
-    vtkUnstructuredGrid* mpVtkUnstructedMesh;
+    vtkUnstructuredGrid *mpVtkUnstructedMesh;
 
     void MakeVtkMesh();
 #endif //CHASTE_VTK
@@ -134,7 +134,7 @@ void VtkWriter<DIM>::MakeVtkMesh()
     {
         std::vector<unsigned> current_element = this->mElementData[item_num];
         assert(current_element.size() == DIM + 1);
-        vtkCell * p_cell;
+        vtkCell *p_cell;
         if (DIM == 3)
         {
             p_cell = vtkTetra::New();
@@ -143,7 +143,7 @@ void VtkWriter<DIM>::MakeVtkMesh()
         {
             p_cell = vtkTriangle::New();
         }
-        vtkIdList * p_cell_id_list = p_cell->GetPointIds();
+        vtkIdList *p_cell_id_list = p_cell->GetPointIds();
         for (unsigned j = 0; j < DIM+1; ++j)
         {
             p_cell_id_list->SetId(j, current_element[j]);

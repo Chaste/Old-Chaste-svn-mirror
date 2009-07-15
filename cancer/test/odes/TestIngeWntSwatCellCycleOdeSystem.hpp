@@ -597,7 +597,7 @@ public:
      */
     void TestIngeWntOdeSolutionDoesNotGoNegative() throw (Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         p_params->Reset();
 
         double time_of_each_run = 0.01; // for each run
@@ -608,10 +608,10 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
         // Set up cells

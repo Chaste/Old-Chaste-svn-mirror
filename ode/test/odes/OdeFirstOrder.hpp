@@ -44,7 +44,7 @@ public :
         mpSystemInfo = OdeSystemInformation<OdeFirstOrder>::Instance();
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY[0] = rY[0];
     }

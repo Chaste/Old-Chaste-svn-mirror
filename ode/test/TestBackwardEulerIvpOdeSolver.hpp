@@ -252,7 +252,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);            
             
             // Create a pointer
-            AbstractIvpOdeSolver* p_backward_euler;
+            AbstractIvpOdeSolver *p_backward_euler;
             input_arch >> p_backward_euler;
             OdeSolution solutions;
 

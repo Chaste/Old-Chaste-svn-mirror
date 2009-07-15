@@ -52,7 +52,7 @@ public:
     void TestGetSection() throw (Exception)
     {
         // Set up tissue
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         p_params->SetWntStemThreshold(0.95);
 
         double a = 0.2;
@@ -65,7 +65,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);

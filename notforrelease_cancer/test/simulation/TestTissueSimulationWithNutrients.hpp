@@ -128,7 +128,7 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
         p_data->SetTissue(tissue);
 
@@ -172,8 +172,8 @@ public:
             double analytic_solution = 1 - 0.25*(1 - pow(radius,2.0));
 
             // Get cell model
-            AbstractCellCycleModel* p_abstract_model = cell_iter->GetCellCycleModel();
-            SimpleOxygenBasedCellCycleModel* p_oxygen_model = static_cast<SimpleOxygenBasedCellCycleModel*> (p_abstract_model);
+            AbstractCellCycleModel *p_abstract_model = cell_iter->GetCellCycleModel();
+            SimpleOxygenBasedCellCycleModel *p_oxygen_model = static_cast<SimpleOxygenBasedCellCycleModel*> (p_abstract_model);
 
             // First part of test - check that PDE solver is working correctly
             TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), analytic_solution, 1e-2);
@@ -204,7 +204,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -224,7 +224,7 @@ public:
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
 
@@ -304,7 +304,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -334,7 +334,7 @@ public:
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
 
@@ -370,7 +370,7 @@ public:
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
         TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
-        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(5));
+        TissueCell *p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(5));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9702, 1e-4);
 
         // Tidy up
@@ -388,7 +388,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -410,7 +410,7 @@ public:
         tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
 
@@ -492,7 +492,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -510,7 +510,7 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
 
@@ -611,7 +611,7 @@ public:
             ++cell_iter)
         {
             unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(&(*cell_iter)));
-            Element<2,2>* p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
+            Element<2,2> *p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
 
 
             double max = std::max(nutrient_conc[p_element->GetNodeGlobalIndex(0)],
@@ -644,7 +644,7 @@ public:
 
         // Create a cigar-shaped mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        MutableMesh<2,2>* p_mesh = new MutableMesh<2,2>;
+        MutableMesh<2,2> *p_mesh = new MutableMesh<2,2>;
         p_mesh->ConstructFromMeshReader(mesh_reader);
         p_mesh->Scale(5.0,1.0);
 
@@ -665,7 +665,7 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
         p_data->SetTissue(tissue);
 
@@ -721,7 +721,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -740,7 +740,7 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
         p_data->SetTissue(tissue);
 
@@ -774,7 +774,7 @@ public:
         // Save tissue simulation
         TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Save(&simulator);
 
-        TissueSimulationWithNutrients<2>* p_simulator
+        TissueSimulationWithNutrients<2> *p_simulator
             = TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Load("TissueSimulationWithNutrientsSaveAndLoad", 0.2);
         p_simulator->SetPde(&pde);
 
@@ -794,7 +794,7 @@ public:
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(),true);
 
         // Test the CellwiseData result
-        TissueCell* p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(5));
+        TissueCell *p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(5));
         TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
 
         p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(15));
@@ -827,7 +827,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -846,7 +846,7 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
         p_data->SetTissue(tissue);
 
@@ -877,7 +877,7 @@ public:
         TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Save(&simulator);
 
         // Load simulation
-        TissueSimulationWithNutrients<2>* p_simulator
+        TissueSimulationWithNutrients<2> *p_simulator
             = TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Load(output_directory, end_time);
 
         /**
@@ -887,7 +887,7 @@ public:
          * consumption rate as before. We then pass this PDE into the tissue
          * simulation.
          */
-        MeshBasedTissue<2>* p_tissue = static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue()));
+        MeshBasedTissue<2> *p_tissue = static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue()));
         CellwiseNutrientSinkPde<2> pde2(*p_tissue, 0.03);
         p_simulator->SetPde(&pde2);
         p_simulator->SetEndTime(2.0*end_time);
@@ -923,7 +923,7 @@ public:
         MeshBasedTissue<3> tissue(mesh, cells);
 
         // Set up CellwiseData and associate it with the tissue
-        CellwiseData<3>* p_data = CellwiseData<3>::Instance();
+        CellwiseData<3> *p_data = CellwiseData<3>::Instance();
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
         p_data->SetTissue(tissue);
 
@@ -949,7 +949,7 @@ public:
         simulator.SetEndTime(0.5);
 
         // Set up cell killer and pass into simulation
-        AbstractCellKiller<3>* p_killer = new OxygenBasedCellKiller<3>(&tissue);
+        AbstractCellKiller<3> *p_killer = new OxygenBasedCellKiller<3>(&tissue);
         simulator.AddCellKiller(p_killer);
 
         // Coverage

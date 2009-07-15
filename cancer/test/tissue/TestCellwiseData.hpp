@@ -67,7 +67,7 @@ public:
 
         // One variable tests
 
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
         TS_ASSERT_THROWS_ANYTHING(p_data->SetTissue(tissue));
@@ -169,7 +169,7 @@ public:
 
         {
             // Set up the data store
-            CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+            CellwiseData<2> *p_data = CellwiseData<2>::Instance();
             p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
             p_data->SetTissue(tissue);
 
@@ -196,7 +196,7 @@ public:
         }
 
         {
-            CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+            CellwiseData<2> *p_data = CellwiseData<2>::Instance();
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);

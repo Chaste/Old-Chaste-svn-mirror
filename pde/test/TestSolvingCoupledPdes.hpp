@@ -92,11 +92,11 @@ public:
 private:
     double mLambda;
 
-    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
-                                                               c_matrix<double, 2, 2+1> &rGradPhi,
-                                                               ChastePoint<2> &rX,
-                                                               c_vector<double,2> &u,
-                                                               c_matrix<double,2,2> &rGradU,
+    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1>& rPhi,
+                                                               c_matrix<double, 2, 2+1>& rGradPhi,
+                                                               ChastePoint<2>& rX,
+                                                               c_vector<double,2>& rU,
+                                                               c_matrix<double,2,2>& rGradU,
                                                                Element<2,2>* pElement)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
@@ -119,11 +119,11 @@ private:
     }
 
 
-    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
-                                                       c_matrix<double, 2, 2+1> &rGradPhi,
-                                                       ChastePoint<2> &rX,
-                                                       c_vector<double,2> &u,
-                                                       c_matrix<double,2,2> &rGradU,
+    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1>& rPhi,
+                                                       c_matrix<double, 2, 2+1>& rGradPhi,
+                                                       ChastePoint<2>& rX,
+                                                       c_vector<double,2>& rU,
+                                                       c_matrix<double,2,2>& rGradU,
                                                        Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
@@ -137,9 +137,9 @@ private:
     }
 
 
-    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement,
-                                                           c_vector<double,2> &rPhi,
-                                                           ChastePoint<2> &rX )
+    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2>& rSurfaceElement,
+                                                           c_vector<double,2>& rPhi,
+                                                           ChastePoint<2>& rX )
     {
         // D_times_grad_u_dot_n  = (D gradu) \dot n
         double D_times_grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
@@ -219,19 +219,19 @@ private:
         return -8*M_PI*M_PI*sin(2*M_PI*x)*sin(2*M_PI*y) + sin(M_PI*x)*sin(M_PI*y);
     }
 
-    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
-                                                       c_matrix<double, 2, 2+1> &rGradPhi,
-                                                       ChastePoint<2> &rX,
-                                                       c_vector<double,2> &u,
-                                                       c_matrix<double,2,2> &rGradU,
+    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1>& rPhi,
+                                                       c_matrix<double, 2, 2+1>& rGradPhi,
+                                                       ChastePoint<2>& rX,
+                                                       c_vector<double,2>& rU,
+                                                       c_matrix<double,2,2>& rGradU,
                                                        Element<2,2>* pElement)
     {
         c_vector<double,2*(2+1)> ret;
 
         for (unsigned i=0; i<3; i++)
         {
-            ret(2*i)   = ( u(1) - f(rX[0],rX[1]) )*rPhi(i);   // = (v-f(x,y))*phi_i
-            ret(2*i+1) = ( u(0) - g(rX[0],rX[1]) )*rPhi(i);   // = (u-g(x,y))*phi_i
+            ret(2*i)   = ( rU(1) - f(rX[0],rX[1]) )*rPhi(i);   // = (v-f(x,y))*phi_i
+            ret(2*i+1) = ( rU(0) - g(rX[0],rX[1]) )*rPhi(i);   // = (u-g(x,y))*phi_i
         }
         return ret;
     }
@@ -346,8 +346,8 @@ public:
 
         // du/dn = -0.5 on r=1
         TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
-        ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2> *p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2> *p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc_2unknowns.AddNeumannBoundaryCondition(*iter, p_boundary_condition,0);

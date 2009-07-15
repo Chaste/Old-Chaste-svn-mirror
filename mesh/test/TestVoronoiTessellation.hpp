@@ -60,7 +60,7 @@ public:
         // Note that the Voronois tessellation is not unique for this
         // mesh since 4 points are co-spherical.  We need to check
         // how the mesher is breaking ties.
-        Element<3,3>* p_element = mesh.GetElement(0);
+        Element<3,3> *p_element = mesh.GetElement(0);
         //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 3u);//Older tetgen
         //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 0u);//Older tetgen
         //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 2u);//Older tetgen
@@ -295,9 +295,9 @@ public:
         VoronoiTessellation<2> tessellation(mesh);
 
         Face<2> original_face = tessellation.rGetFace(0);
-        Face<2>* p_reordered_face = tessellation.mFaces[0];
+        Face<2> *p_reordered_face = tessellation.mFaces[0];
 
-        c_vector<double,2>* p_temp = &(p_reordered_face->rGetVertex(0));
+        c_vector<double,2> *p_temp = &(p_reordered_face->rGetVertex(0));
 
         //std::cout<< "\n Before " << *(p_reordered_face->mVertices[0]);
         //std::cout<< "\n"<< *(original_face.mVertices[0]);

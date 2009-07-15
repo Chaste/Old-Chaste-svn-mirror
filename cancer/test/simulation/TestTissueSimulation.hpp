@@ -98,7 +98,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
@@ -165,7 +165,7 @@ public:
         int num_cells_depth = 5;
         int num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;
@@ -217,7 +217,7 @@ public:
     void TestTissueSimulationWithStoppingEvent() throw (Exception)
     {
         HoneycombMeshGenerator generator(2, 2, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells, one for each node. Give each cell a random birth time.
@@ -259,10 +259,10 @@ public:
         double crypt_width = num_cells_width-0.0;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
 

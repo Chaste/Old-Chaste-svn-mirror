@@ -121,7 +121,7 @@ std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(uns
 {
     TetrahedralMesh<2,2>& r_mesh = mrTissue.rGetMesh();
 
-    Node<2>* p_node = r_mesh.GetNode(index);
+    Node<2> *p_node = r_mesh.GetNode(index);
 
     std::set<unsigned> neighbouring_node_indices;
 
@@ -129,7 +129,7 @@ std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(uns
          it != p_node->ContainingElementsEnd();
          ++it)
     {
-        Element<2,2>* p_element = r_mesh.GetElement(*it);
+        Element<2,2> *p_element = r_mesh.GetElement(*it);
         for (unsigned i=0; i<p_element->GetNumNodes(); i++)
         {
             unsigned node_index = p_element->GetNodeGlobalIndex(i);

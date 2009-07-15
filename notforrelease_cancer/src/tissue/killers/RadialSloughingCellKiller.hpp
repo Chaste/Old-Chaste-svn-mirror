@@ -119,7 +119,7 @@ inline void load_construct_data(
     Archive & ar, RadialSloughingCellKiller * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<2>* p_tissue;
+    AbstractTissue<2> *p_tissue;
     ar >> p_tissue;
     c_vector<double,2> centre;
     ar >> centre[0];

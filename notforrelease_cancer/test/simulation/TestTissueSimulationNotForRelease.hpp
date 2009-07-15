@@ -78,7 +78,7 @@ public:
      */
     void TestTissueSimulationWithCryptProjectionSpringSystem() throw (Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         p_params->SetWntStemThreshold(0.95);
 
         double a = 0.2;
@@ -92,7 +92,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -158,7 +158,7 @@ public:
         TS_ASSERT_DELTA(norm_2(distance_between), 0.6145, 1e-3);
 
         // Test the Wnt concentration result
-        TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(329));
+        TissueCell *p_cell = &(crypt.rGetCellUsingLocationIndex(329));
         TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.8753, 1e-3);
 
         p_cell = &(crypt.rGetCellUsingLocationIndex(494));

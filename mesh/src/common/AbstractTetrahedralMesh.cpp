@@ -39,7 +39,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsig
     assert(hi >= lo);
     for (unsigned element_index=0; element_index<mElements.size(); element_index++)
     {
-        Element<ELEMENT_DIM, SPACE_DIM>* p_element=mElements[element_index];
+        Element<ELEMENT_DIM, SPACE_DIM> *p_element = mElements[element_index];
         p_element->SetOwnership(false);
         for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
         {

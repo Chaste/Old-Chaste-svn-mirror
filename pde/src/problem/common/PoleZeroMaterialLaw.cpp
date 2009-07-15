@@ -83,16 +83,16 @@ PoleZeroMaterialLaw<DIM>::PoleZeroMaterialLaw(std::vector<std::vector<double> > 
 }
 
 template<unsigned DIM>
-void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& C,
-                                          c_matrix<double,DIM,DIM>& invC,
+void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& rC,
+                                          c_matrix<double,DIM,DIM>& rInvC,
                                           double                    pressure,
-                                          c_matrix<double,DIM,DIM>& T,
-                                          FourthOrderTensor<DIM>&   dTdE,
+                                          c_matrix<double,DIM,DIM>& rT,
+                                          FourthOrderTensor<DIM>&   rDTdE,
                                           bool                      computeDTdE)
 {
-    assert(fabs(C(0,1)-C(1,0)) < 1e-6);
+    assert(fabs(rC(0,1) - rC(1,0)) < 1e-6);
 
-    c_matrix<double,DIM,DIM> E = 0.5*(C-mIdentity);
+    c_matrix<double,DIM,DIM> E = 0.5*(rC - mIdentity);
 
     for (unsigned M=0; M<DIM; M++)
     {
@@ -108,11 +108,11 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                 //if this fails one of the strain values got too large for the law
                 assert(e < a);
 
-                T(M,N) =   k
+                rT(M,N) =   k
                           * e
                           * (2*(a-e) + b*e)
                           * pow(a-e,-b-1)
-                          - pressure*invC(M,N);
+                          - pressure*rInvC(M,N);
             }
 //                else
 //                {
@@ -131,7 +131,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                 {
                     for (unsigned Q=0; Q<DIM; Q++)
                     {
-                        dTdE(M,N,P,Q) = 2 * pressure * invC(M,P) * invC(Q,N);
+                        rDTdE(M,N,P,Q) = 2 * pressure * rInvC(M,P) * rInvC(Q,N);
                     }
                 }
 
@@ -142,7 +142,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                     double a = mA[M][N];
                     double k = mK[M][N];
 
-                    dTdE(M,N,M,N) +=   k
+                    rDTdE(M,N,M,N) +=   k
                                      * pow(a-e, -b-2)
                                      * (
                                           2*(a-e)*(a-e)

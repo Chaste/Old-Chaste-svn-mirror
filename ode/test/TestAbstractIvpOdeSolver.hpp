@@ -536,9 +536,9 @@ public:
             boost::archive::text_iarchive input_arch(ifs);            
             
             // Create a pointer
-            AbstractIvpOdeSolver* p_euler;
-            AbstractIvpOdeSolver* p_rk2;
-            AbstractIvpOdeSolver* p_rk4;
+            AbstractIvpOdeSolver *p_euler;
+            AbstractIvpOdeSolver *p_rk2;
+            AbstractIvpOdeSolver *p_rk4;
             input_arch >> p_euler;
             input_arch >> p_rk2;
             input_arch >> p_rk4;

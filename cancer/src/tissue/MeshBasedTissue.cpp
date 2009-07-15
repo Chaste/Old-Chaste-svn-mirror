@@ -207,7 +207,7 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
                      it2 != r_pair.end();
                      ++it2)
                 {
-                    TissueCell* p_cell = *it2;
+                    TissueCell *p_cell = *it2;
                     if (p_cell == &(*it))
                     {
                         // Remember to purge this spring
@@ -284,10 +284,10 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     {
         const std::set<TissueCell*>& r_pair = *spring_it;
         assert(r_pair.size() == 2);
-        TissueCell* p_cell_1 = *(r_pair.begin());
-        TissueCell* p_cell_2 = *(++r_pair.begin());
-        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(p_cell_1);
-        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(p_cell_2);
+        TissueCell *p_cell_1 = *(r_pair.begin());
+        TissueCell *p_cell_2 = *(++r_pair.begin());
+        Node<DIM> *p_node_1 = this->GetNodeCorrespondingToCell(p_cell_1);
+        Node<DIM> *p_node_2 = this->GetNodeCorrespondingToCell(p_cell_2);
 
         bool joined = false;
 
@@ -387,7 +387,7 @@ template<unsigned DIM>
 TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
     // Add new cell to tissue
-    TissueCell* p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(rNewCell, newLocation, pParentCell);
+    TissueCell *p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(rNewCell, newLocation, pParentCell);
 
     // Mark spring between parent cell and new cell
     MarkSpring(*pParentCell, *p_created_cell);
@@ -766,9 +766,9 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
          it!=this->mCells.end();
          ++it)
     {
-        TissueCell* p_cell=&(*it);
+        TissueCell *p_cell = &(*it);
         assert(p_cell);
-        AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+        AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
         assert(p_model);
 
         // Check cell exists in tissue
@@ -803,9 +803,9 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
              it2 != r_pair.end();
              ++it2)
         {
-            TissueCell* p_cell = *it2;
+            TissueCell *p_cell = *it2;
             assert(p_cell);
-            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
             assert(p_model);
             unsigned node_index = this->mCellLocationMap[p_cell];
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;

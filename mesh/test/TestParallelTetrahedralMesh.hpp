@@ -155,7 +155,7 @@ public:
         {
             unsigned element_index = iter->GetIndex();
 
-            Element<2,2>* p_sequ_element = seq_mesh.GetElement(element_index);
+            Element<2,2> *p_sequ_element = seq_mesh.GetElement(element_index);
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
 
             for (unsigned node_local_index=0; node_local_index < iter->GetNumNodes(); node_local_index++)
@@ -172,10 +172,10 @@ public:
              it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
-            BoundaryElement<1,2>* p_para_boundary_element = *it;
+            BoundaryElement<1,2> *p_para_boundary_element = *it;
             unsigned boundary_element_index = p_para_boundary_element->GetIndex();
 
-            BoundaryElement<1,2>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
+            BoundaryElement<1,2> *p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
             TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
 
             for (unsigned node_local_index=0; node_local_index < p_para_boundary_element->GetNumNodes(); node_local_index++)
@@ -215,7 +215,7 @@ public:
         {
             unsigned element_index = iter->GetIndex();
 
-            Element<3,3>* p_sequ_element = seq_mesh.GetElement(element_index);
+            Element<3,3> *p_sequ_element = seq_mesh.GetElement(element_index);
 
             // The elements have the same index and the nodes are located in the same position.
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
@@ -233,10 +233,10 @@ public:
              it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
-            BoundaryElement<2,3>* p_para_boundary_element = *it;
+            BoundaryElement<2,3> *p_para_boundary_element = *it;
             unsigned boundary_element_index = p_para_boundary_element->GetIndex();
 
-            BoundaryElement<2,3>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
+            BoundaryElement<2,3> *p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
 
             // The boundary elements have the same index and the nodes are located in the same position.
             TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
@@ -627,7 +627,7 @@ public:
             try
             {
                 ElementData file_nodes = permuted_mesh_reader.GetNextElementData();
-                Element<3,3>* p_mem_element = mesh.GetElement(element_index);
+                Element<3,3> *p_mem_element = mesh.GetElement(element_index);
 
                 for (unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
                 {
@@ -644,7 +644,7 @@ public:
             try
             {
                 ElementData file_nodes = permuted_mesh_reader.GetNextFaceData();
-                BoundaryElement<2,3>* p_mem_face = mesh.GetBoundaryElement(face_index);
+                BoundaryElement<2,3> *p_mem_face = mesh.GetBoundaryElement(face_index);
 
                 for (unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
                 {

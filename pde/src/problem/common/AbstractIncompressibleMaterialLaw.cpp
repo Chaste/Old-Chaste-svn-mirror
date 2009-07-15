@@ -34,62 +34,68 @@ AbstractIncompressibleMaterialLaw<DIM>::~AbstractIncompressibleMaterialLaw()
 }
 
 template<unsigned DIM>
-void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& sigma)
+void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF,
+		                                                         double pressure,
+		                                                         c_matrix<double,DIM,DIM>& rSigma)
 {
-    double detF = Determinant(F);
+    double detF = Determinant(rF);
 
-    c_matrix<double,DIM,DIM> C = prod(trans(F),F);
+    c_matrix<double,DIM,DIM> C = prod(trans(rF), rF);
     c_matrix<double,DIM,DIM> invC = Inverse(C);
 
     c_matrix<double,DIM,DIM> T;
 
     static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
 
-    ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
+    ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, false);
 
-    // looping it probably more eficient then doing sigma = (1/detF)F*T*transpose(F)
-    // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
+    // looping it probably more eficient then doing rSigma = (1/detF)*rF*T*transpose(rF)
+    // which doesn't seem to compile anyway, as rF is a Tensor<2,DIM> and T is a
     // SymmetricTensor<2,DIM>
     for (unsigned i=0; i<DIM; i++)
     {
         for (unsigned j=0; j<DIM; j++)
         {
-            sigma(i,j) = 0.0;
+            rSigma(i,j) = 0.0;
             for (unsigned M=0; M<DIM; M++)
             {
                 for (unsigned N=0; N<DIM; N++)
                 {
-                    sigma(i,j) += F(i,M)*T(M,N)*F(j,N);
+                	rSigma(i,j) += rF(i,M)*T(M,N)*rF(j,N);
                 }
             }
-            sigma(i,j) /= detF;
+            rSigma(i,j) /= detF;
         }
     }
 }
 
 template<unsigned DIM>
-void AbstractIncompressibleMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& S)
+void AbstractIncompressibleMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rF,
+		                                                                   double pressure,
+		                                                                   c_matrix<double,DIM,DIM>& rS)
 {
-    c_matrix<double,DIM,DIM> C = prod(trans(F),F);
+    c_matrix<double,DIM,DIM> C = prod(trans(rF), rF);
     c_matrix<double,DIM,DIM> invC = Inverse(C);
 
     c_matrix<double,DIM,DIM> T;
 
     static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
 
-    ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
+    ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, false);
 
-    S = prod(T,trans(F));
+    rS = prod(T, trans(rF));
 }
 
 template<unsigned DIM>
-void AbstractIncompressibleMaterialLaw<DIM>::Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& C, double pressure, c_matrix<double,DIM,DIM>& T)
+void AbstractIncompressibleMaterialLaw<DIM>::Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rC,
+		                                                                   double pressure,
+		                                                                   c_matrix<double,DIM,DIM>& rT)
 {
-    c_matrix<double,DIM,DIM> invC = Inverse(C);
+    c_matrix<double,DIM,DIM> invC = Inverse(rC);
 
     static FourthOrderTensor<DIM> dTdE; // not filled in, made static for efficiency
 
-    ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
+    ComputeStressAndStressDerivative(rC, invC, pressure, rT, dTdE, false);
 }
 
 template<unsigned DIM>

@@ -48,9 +48,9 @@ public :
         mAlpha = 100;
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
-        rDY[0]=mAlpha*rY[0]*(1-rY[0]);
+        rDY[0] = mAlpha*rY[0]*(1-rY[0]);
     }
 
     void AnalyticJacobian(const std::vector<double>& rSolutionGuess, double** jacobian, double time, double timeStep)

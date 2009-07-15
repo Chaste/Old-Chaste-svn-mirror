@@ -85,8 +85,8 @@ public:
  * y values (in this case, of size 1), and a reference to a {{{std::vector}}} in which the
  * derivative(s) should be filled in by the method..
  */
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY,
-                              std::vector<double> &rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY,
+                              std::vector<double>& rDY)
     {
         /*..so we set {{{rDY[0]}}} to be y^2^ + t^2^. */
         rDY[0] = rY[0]*rY[0] + time*time;
@@ -122,7 +122,7 @@ public:
      * the base class ({{{AbstractOdeSystem}}}), where it always returns false, and here we override it
      * to return true if y>=2.5
      */
-    bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
+    bool CalculateStoppingEvent(double time, const std::vector<double>& rY)
     {
         return (rY[0]>=2.5);
     }
@@ -141,8 +141,8 @@ public:
         mStateVariables.push_back(1.0);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY,
-                              std::vector<double> &rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY,
+                              std::vector<double>& rDY)
     {
         rDY[0] = rY[0]*rY[0] + time*time;
     }
@@ -171,8 +171,8 @@ public:
         mpSystemInfo = OdeSystemInformation<My2dOde>::Instance();
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY,
-                              std::vector<double> &rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY,
+                              std::vector<double>& rDY)
     {
         rDY[0] = rY[1];
         rDY[1] = rY[0]*rY[0];

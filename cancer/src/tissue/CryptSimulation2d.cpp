@@ -141,7 +141,7 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
         y = mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
 
         // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
-        IngeWntSwatCellCycleModel* p_model = static_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
+        IngeWntSwatCellCycleModel *p_model = static_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
 
         b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
         b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
@@ -168,7 +168,7 @@ void CryptSimulation2d::SetupSolve()
 
 void CryptSimulation2d::PostSolve()
 {
-    SimulationTime* p_time = SimulationTime::Instance();
+    SimulationTime *p_time = SimulationTime::Instance();
 
     if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
     {
@@ -216,7 +216,7 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
         unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
 
         // Get pointer to this node
-        Node<2>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
+        Node<2> *p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
 
         if (!is_wnt_included)
         {

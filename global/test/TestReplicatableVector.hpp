@@ -98,7 +98,7 @@ public:
         VecSetFromOptions(petsc_vec);
         VecGetOwnershipRange(petsc_vec,&lo,&hi);
 
-        double* p_petsc_vec;
+        double *p_petsc_vec;
 
         VecGetArray(petsc_vec, &p_petsc_vec);
         for (int global_index=lo; global_index<hi; global_index++)
@@ -137,7 +137,7 @@ public:
         VecSetFromOptions(petsc_vec);
         VecGetOwnershipRange(petsc_vec,&lo,&hi);
 
-        double* p_petsc_vec;
+        double *p_petsc_vec;
 
         VecGetArray(petsc_vec, &p_petsc_vec);
         for (int global_index=lo; global_index<hi; global_index++)

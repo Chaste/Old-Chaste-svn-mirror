@@ -168,8 +168,8 @@ public:
         OutputFileHandler handler("DumpPetscObjects");
         std::string output_dir = handler.GetOutputDirectoryFullPath();
 
-        PetscTools::DumpPetscObject(matrix, output_dir+"ten_times_ten.mat");
-        PetscTools::DumpPetscObject(vector, output_dir+"ten_times_ten.vec");
+        PetscTools::DumpPetscObject(matrix, output_dir + "ten_times_ten.mat");
+        PetscTools::DumpPetscObject(vector, output_dir + "ten_times_ten.vec");
 
         MatDestroy(matrix);
         VecDestroy(vector);
@@ -177,10 +177,10 @@ public:
         Mat matrix_read;
         Vec vector_read;
 
-        PetscTools::ReadPetscObject(matrix_read, output_dir+"ten_times_ten.mat");
-        PetscTools::ReadPetscObject(vector_read, output_dir+"ten_times_ten.vec");
+        PetscTools::ReadPetscObject(matrix_read, output_dir + "ten_times_ten.mat");
+        PetscTools::ReadPetscObject(vector_read, output_dir + "ten_times_ten.vec");
 
-        double* p_vector_read;
+        double *p_vector_read;
         VecGetArray(vector_read, &p_vector_read);
 
         for (PetscInt row=0; row<10; row++)

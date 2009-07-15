@@ -48,7 +48,7 @@ public:
 
     void TestGeneralisedLinearSpringForceMethods() throw (Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
 
         unsigned cells_across = 7;
         unsigned cells_up = 5;
@@ -57,7 +57,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
@@ -150,7 +150,7 @@ public:
         new_point2.rGetLocation()[1] = new_point[1] + 0.01;
 
         unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2, false);
-        Element<2,2>* p_element = p_mesh->GetElement(elem_index);
+        Element<2,2> *p_element = p_mesh->GetElement(elem_index);
 
         force_on_spring = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),
                                                                    p_element->GetNodeGlobalIndex(0),
@@ -193,7 +193,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, false, crypt_width/cells_across);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
@@ -270,7 +270,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
@@ -366,7 +366,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(6, 12, 0, true, 1.1);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
@@ -405,7 +405,7 @@ public:
     {
         // Set up stretched tissue
         HoneycombMeshGenerator generator(4, 4, 0, false, 2.0);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
@@ -434,7 +434,7 @@ public:
 
         // Now do similar tests for a squashed tissue
         HoneycombMeshGenerator generator2(4, 4, 0, false, 0.5);
-        MutableMesh<2,2>* p_mesh2 = generator2.GetMesh();
+        MutableMesh<2,2> *p_mesh2 = generator2.GetMesh();
         std::vector<unsigned> location_indices2 = generator2.GetCellLocationIndices();
 
         std::vector<TissueCell> cells2;
@@ -511,7 +511,7 @@ public:
         // as previously each node had zero net force on it)
         linear_force.AddForceContribution(node_forces, tissue);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         for (unsigned node_index=0; node_index<tissue.GetNumNodes(); node_index++)
         {
             if (node_index == 0)
@@ -585,7 +585,7 @@ public:
 
         // Test forces on springs
         unsigned nodeA = 0, nodeB = 1;
-        Element<3,3>* p_element = mesh.GetElement(0);
+        Element<3,3> *p_element = mesh.GetElement(0);
         c_vector<double, 3> force = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),
                                                                             p_element->GetNodeGlobalIndex(nodeB),
                                                                             tissue);
@@ -614,7 +614,7 @@ public:
         }
 
         // Scale entire mesh and check that forces are correctly calculated
-        TissueConfig* p_params = TissueConfig::Instance();
+        TissueConfig *p_params = TissueConfig::Instance();
         double scale_factor = 1.5;
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -654,7 +654,7 @@ public:
         mesh2.SetNode(0, new_point, false);
 
         unsigned nodeA2 = 0, nodeB2 = 1;
-        Element<3,3>* p_element2 = mesh2.GetElement(0);
+        Element<3,3> *p_element2 = mesh2.GetElement(0);
         c_vector<double,3> force2 = linear_force2.CalculateForceBetweenNodes(p_element2->GetNodeGlobalIndex(nodeA2),
                                                                              p_element2->GetNodeGlobalIndex(nodeB2),
                                                                              tissue2);
@@ -731,7 +731,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            LinearSpringWithVariableSpringConstantsForce<2>* p_linear_force;
+            LinearSpringWithVariableSpringConstantsForce<2> *p_linear_force;
 
             // Restore from the archive
             input_arch >> p_linear_force;

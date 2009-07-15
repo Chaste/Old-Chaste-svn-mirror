@@ -55,14 +55,14 @@ SchmidCostaExponentialLaw2d::SchmidCostaExponentialLaw2d()
     }
 }
 
-void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<double,2,2>&  C,
-                                          c_matrix<double,2,2>&  invC,
-                                          double                 pressure,
-                                          c_matrix<double,2,2>&  T,
-                                          FourthOrderTensor<2>&  dTdE,
-                                          bool                   computeDTdE)
+void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<double,2,2>& rC,
+						                                           c_matrix<double,2,2>& rInvC,
+						                                           double                pressure,
+						                                           c_matrix<double,2,2>& rT,
+						                                           FourthOrderTensor<2>& rDTdE,
+						                                           bool                  computeDTdE)
 {
-    c_matrix<double,2,2> E = 0.5*(C-mIdentity);
+    c_matrix<double,2,2> E = 0.5*(rC - mIdentity);
 
     double Q = 0;
     for (unsigned M=0; M<2; M++)
@@ -74,13 +74,13 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
     }
 
     double multiplier = mA*exp(Q-1);
-    dTdE.Zero();
+    rDTdE.Zero();
 
     for (unsigned M=0; M<2; M++)
     {
         for (unsigned N=0; N<2; N++)
         {
-            T(M,N) = multiplier*mB[M][N]*E(M,N) - pressure*invC(M,N);
+            rT(M,N) = multiplier*mB[M][N]*E(M,N) - pressure*rInvC(M,N);
 
             if (computeDTdE)
             {
@@ -89,9 +89,9 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
                 {
                     for (unsigned Q=0; Q<2; Q++)
                     {
-                        dTdE(M,N,P,Q) =    multiplier * mB[M][N] * (M==P)*(N==Q)
+                        rDTdE(M,N,P,Q) =   multiplier * mB[M][N] * (M==P)*(N==Q)
                                         +  2*multiplier*mB[M][N]*mB[P][Q]*E(M,N)*E(P,Q)
-                                        +  2*pressure*invC(M,P)*invC(Q,N);
+                                        +  2*pressure*rInvC(M,P)*rInvC(Q,N);
                     }
                 }
             }

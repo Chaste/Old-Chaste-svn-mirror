@@ -418,7 +418,7 @@ void TissueSimulation<DIM>::Solve()
     CancerEventHandler::BeginEvent(CancerEventHandler::SETUP);
 
     // Set up the simulation time
-    SimulationTime* p_simulation_time = SimulationTime::Instance();
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
     double current_time = p_simulation_time->GetTime();
 
     unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);

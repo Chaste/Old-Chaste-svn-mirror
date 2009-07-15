@@ -425,7 +425,7 @@ public:
         {
             if (fabs((*iter)->CalculateCentroid()[0] - 1.0)<1e-4)
             {
-                BoundaryElement<1,2>* p_element = *iter;
+                BoundaryElement<1,2> *p_element = *iter;
                 boundary_elems.push_back(p_element);
                 tractions.push_back(traction);
             }
@@ -514,7 +514,7 @@ public:
             // get all boundary elems except those on X=0
             if (fabs((*iter)->CalculateCentroid()[0])>1e-6)
             {
-                BoundaryElement<1,2>* p_element = *iter;
+                BoundaryElement<1,2> *p_element = *iter;
                 boundary_elems.push_back(p_element);
             }
         }

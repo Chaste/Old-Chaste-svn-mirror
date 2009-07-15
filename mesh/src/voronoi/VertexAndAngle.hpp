@@ -45,7 +45,7 @@ class VertexAndAngle
 private:
 
     /** Pointer to a vertex. */
-    c_vector<double, DIM>* mpVertex;
+    c_vector<double, DIM> *mpVertex;
 
     /** Polar angle. */
     double mAngle;

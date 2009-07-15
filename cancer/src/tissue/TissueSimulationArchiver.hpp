@@ -123,7 +123,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
 
     // Load any data that isn't the simulation itself, mainly singletons
     // - simulation time
-    SimulationTime* p_simulation_time = SimulationTime::Instance();
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
     assert(p_simulation_time->IsStartTimeSetUp());
     input_arch & *p_simulation_time;
     // - Wnt concentration (if used)
@@ -131,7 +131,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     input_arch & archive_wnt;
     if (archive_wnt)
     {
-        WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
+        WntConcentration<DIM> *p_wnt = WntConcentration<DIM>::Instance();
         input_arch & *p_wnt;
     }
     // - CellwiseData (if used)
@@ -139,12 +139,12 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     input_arch & archive_cellwise_data;
     if (archive_cellwise_data)
     {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
+        CellwiseData<DIM> *p_cellwise_data = CellwiseData<DIM>::Instance();
         input_arch & *p_cellwise_data;
     }
 
     // Load the simulation
-    SIM* p_sim;
+    SIM *p_sim;
     input_arch >> p_sim;
 
     return p_sim;
@@ -154,7 +154,7 @@ template<unsigned DIM, class SIM>
 void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
 {
     // Get the simulation time as a string
-    const SimulationTime* p_sim_time = SimulationTime::Instance();
+    const SimulationTime *p_sim_time = SimulationTime::Instance();
     assert(p_sim_time->IsStartTimeSetUp());
     std::ostringstream time_stamp;
     time_stamp << p_sim_time->GetTime();
@@ -188,7 +188,7 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     output_arch & archive_wnt;
     if (archive_wnt)
     {
-        WntConcentration<DIM>* p_wnt = WntConcentration<DIM>::Instance();
+        WntConcentration<DIM> *p_wnt = WntConcentration<DIM>::Instance();
         output_arch & *p_wnt;
     }
 
@@ -197,7 +197,7 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     output_arch & archive_cellwise_data;
     if (archive_cellwise_data)
     {
-        CellwiseData<DIM>* p_cellwise_data = CellwiseData<DIM>::Instance();
+        CellwiseData<DIM> *p_cellwise_data = CellwiseData<DIM>::Instance();
         output_arch & *p_cellwise_data;
     }
 

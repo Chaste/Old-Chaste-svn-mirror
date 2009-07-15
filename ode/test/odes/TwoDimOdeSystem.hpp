@@ -43,7 +43,7 @@ public :
         mStateVariables.push_back(4);
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         rDY.assign(rY.begin(), rY.end());
     }

@@ -35,11 +35,11 @@ AbstractIsotropicIncompressibleMaterialLaw<DIM>::~AbstractIsotropicIncompressibl
 
 template<unsigned DIM>
 void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDerivative(
-        c_matrix<double,DIM,DIM>& C,
-        c_matrix<double,DIM,DIM>& invC,
+        c_matrix<double,DIM,DIM>& rC,
+        c_matrix<double,DIM,DIM>& rInvC,
         double                    pressure,
-        c_matrix<double,DIM,DIM>& T,
-        FourthOrderTensor<DIM>&   dTdE,
+        c_matrix<double,DIM,DIM>& rT,
+        FourthOrderTensor<DIM>&   rDTdE,
         bool                      computeDTdE)
 {
     // this is covered, but gcov doesn't see this as being covered
@@ -50,10 +50,10 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
 
     static c_matrix<double,DIM,DIM> identity = identity_matrix<double>(DIM);
 
-    double I1 = Trace(C);
-    double I2 = SecondInvariant(C);
+    double I1 = Trace(rC);
+    double I2 = SecondInvariant(rC);
 
-    double  dW_dI1 = Get_dW_dI1(I1,I2);
+    double  dW_dI1 = Get_dW_dI1(I1, I2);
     double  dW_dI2; // only computed if DIM==3
 
     double  d2W_dI1;
@@ -66,13 +66,12 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
     //    = 2 * dI1_dC_MN * dI1_dC_MN   +   2 * dI1_dC_MN * dI1_dC_MN  -  p * invC
     //    = 2 * dI1_dC_MN * delta_MN    +   2 * dI1_dC_MN * (I1 delta_MN - C_MN)  -  p * invC
 
-    T = 2*dW_dI1*identity - pressure*invC;
+    rT = 2*dW_dI1*identity - pressure*rInvC;
     if (DIM==3)
     {
-        dW_dI2 = Get_dW_dI2(I1,I2);
-        T += 2*dW_dI2*(I1*identity - C);
+        dW_dI2 = Get_dW_dI2(I1, I2);
+        rT += 2*dW_dI2*(I1*identity - rC);
     }
-
 
     // Compute stress derivative if required:
     //
@@ -101,26 +100,26 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
 
         if (DIM==3)
         {
-            d2W_dI2   = Get_d2W_dI2(I1,I2);
-            d2W_dI1I2 = Get_d2W_dI1I2(I1,I2);
+            d2W_dI2   = Get_d2W_dI2(I1, I2);
+            d2W_dI1I2 = Get_d2W_dI1I2(I1, I2);
         }
 
-        for (unsigned M=0;M<DIM;M++)
+        for (unsigned M=0; M<DIM; M++)
         {
-            for (unsigned N=0;N<DIM;N++)
+            for (unsigned N=0; N<DIM; N++)
             {
-                for (unsigned P=0;P<DIM;P++)
+                for (unsigned P=0; P<DIM; P++)
                 {
-                    for (unsigned Q=0;Q<DIM;Q++)
+                    for (unsigned Q=0; Q<DIM; Q++)
                     {
-                        dTdE(M,N,P,Q)  =    4 * d2W_dI1  * (M==N) * (P==Q)
-                                          + 2 * pressure * invC(M,P) * invC(Q,N);
+                        rDTdE(M,N,P,Q) =   4 * d2W_dI1  * (M==N) * (P==Q)
+                                         + 2 * pressure * rInvC(M,P) * rInvC(Q,N);
 
                         if (DIM==3)
                         {
-                            dTdE(M,N,P,Q) +=    4 * d2W_dI2   * (I1*(M==N)-C(M,N)) * (I1*(P==Q)-C(P,Q))
-                                              + 4 * dW_dI2    * ((M==N)*(P==Q)-(M==P)*(N==Q))
-                                              + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q)-C(P,Q)) + (P==Q)*(I1*(M==N)-C(M,N)));
+                            rDTdE(M,N,P,Q) +=   4 * d2W_dI2   * (I1*(M==N) - rC(M,N)) * (I1*(P==Q) - rC(P,Q))
+                                              + 4 * dW_dI2    * ((M==N)*(P==Q) - (M==P)*(N==Q))
+                                              + 4 * d2W_dI1I2 * ((M==N)*(I1*(P==Q) - rC(P,Q)) + (P==Q)*(I1*(M==N) - rC(M,N)));
                         }
                     }
                 }

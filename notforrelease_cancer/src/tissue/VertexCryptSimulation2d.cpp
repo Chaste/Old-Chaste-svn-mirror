@@ -56,7 +56,7 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
     }
 
     // Update node positions according to any tissue boundary conditions
-    VertexBasedTissue<2>* p_static_cast_tissue = static_cast<VertexBasedTissue<2>*>(&mrTissue);
+    VertexBasedTissue<2> *p_static_cast_tissue = static_cast<VertexBasedTissue<2>*>(&mrTissue);
 
     for (AbstractTetrahedralMesh<2,2>::NodeIterator iter = p_static_cast_tissue->rGetMesh().GetNodeIteratorBegin();
          iter != p_static_cast_tissue->rGetMesh().GetNodeIteratorEnd();

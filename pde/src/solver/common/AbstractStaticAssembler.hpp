@@ -106,7 +106,7 @@ class AbstractStaticAssembler : virtual public AbstractAssembler<ELEMENT_DIM,SPA
 protected:
 
     /** Mesh to be solved on */
-    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh;
 
     /** Quadrature rule for use on normal elements */
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
@@ -150,8 +150,8 @@ protected:
      *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the
      *     derivative along each axis.
      */
-    void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM> &rPoint,
-                                                    const c_matrix<double, ELEMENT_DIM, SPACE_DIM> &rInverseJacobian,
+    void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM>& rPoint,
+                                                    const c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian,
                                                     c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rReturnValue);
     /**
      *  Calculate the contribution of a single element to the linear system.
@@ -289,8 +289,8 @@ public:
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
 void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::ComputeTransformedBasisFunctionDerivatives(
-        const ChastePoint<ELEMENT_DIM> &rPoint,
-        const c_matrix<double, ELEMENT_DIM, SPACE_DIM> &rInverseJacobian,
+        const ChastePoint<ELEMENT_DIM>& rPoint,
+        const c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian,
         c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rReturnValue)
 {
     assert(ELEMENT_DIM < 4 && ELEMENT_DIM > 0);
@@ -308,7 +308,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
                                 bool assembleVector,
                                 bool assembleMatrix)
 {
-    GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
+    GaussianQuadratureRule<ELEMENT_DIM>& quad_rule =
         *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>::mpQuadRule);
 
     /**
@@ -373,7 +373,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         /////////////////////////////////////////////////////////////
         for (unsigned i=0; i<num_nodes; i++)
         {
-            const Node<SPACE_DIM>* p_node = rElement.GetNode(i);
+            const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
 
             if (NON_HEART)
             {
@@ -438,7 +438,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool N
 void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
                                       c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem)
 {
-    GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
+    GaussianQuadratureRule<ELEMENT_DIM-1>& quad_rule =
         *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>::mpSurfaceQuadRule);
 
     c_vector<double, SPACE_DIM> weighted_direction;

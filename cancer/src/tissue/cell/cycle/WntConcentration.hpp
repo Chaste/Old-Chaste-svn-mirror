@@ -61,10 +61,10 @@ class WntConcentration
 private:
 
     /** Pointer to the singleton instance of WntConcentration */
-    static WntConcentration* mpInstance;
+    static WntConcentration *mpInstance;
 
     /** The cancer parameters */
-    TissueConfig* mpTissueConfig;
+    TissueConfig *mpTissueConfig;
 
     /**
      * The type of WntConcentration current options are
@@ -77,7 +77,7 @@ private:
     /**
      *  The tissue in which the WntConcentration occurs.
      */
-    AbstractTissue<DIM>* mpTissue;
+    AbstractTissue<DIM> *mpTissue;
 
     /**
      *  Whether this WntConcentration object has had its type set.

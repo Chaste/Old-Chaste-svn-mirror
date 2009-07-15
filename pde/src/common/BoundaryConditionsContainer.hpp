@@ -78,7 +78,7 @@ private:
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
 
     /** A zero boundary condition, used for other unknowns in ApplyNeumannBoundaryCondition */
-    ConstBoundaryCondition<SPACE_DIM>* mpZeroBoundaryCondition;
+    ConstBoundaryCondition<SPACE_DIM> *mpZeroBoundaryCondition;
 
 public:
 

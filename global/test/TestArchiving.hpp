@@ -51,7 +51,7 @@ class ChildClass
 {
 public:
     unsigned mTag;
-    ParentClass* mpParent;
+    ParentClass *mpParent;
     ChildClass() : mTag(1)
     {
     }
@@ -73,7 +73,7 @@ class ParentClass
 {
 public:
     unsigned mTag;
-    ChildClass* mpChild;
+    ChildClass *mpChild;
     ParentClass(ChildClass* pChild) : mTag(0), mpChild(pChild)
     {
         mpChild->SetParent(this);
@@ -117,7 +117,7 @@ inline void load_construct_data(
     // state loaded later from the archive will overwrite their effect in
     // this case.
     // Invoke inplace constructor to initialize instance of ParentClass.
-    ChildClass* p_child;
+    ChildClass *p_child;
     ar >> p_child;
     ::new(t)ParentClass(p_child);
 }
@@ -258,8 +258,8 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            ChildClass* p_child = new ChildClass;
-            ParentClass* p_parent = new ParentClass(p_child);
+            ChildClass *p_child = new ChildClass;
+            ParentClass *p_parent = new ParentClass(p_child);
 
             p_child->mTag = 11;
             p_parent->mTag = 10;
@@ -280,8 +280,8 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            //ChildClass* p_child;
-            ParentClass* p_parent;
+            //ChildClass *p_child;
+            ParentClass *p_parent;
 
             input_arch >> p_parent;
 
@@ -350,13 +350,13 @@ public:
             const std::set<ClassOfSimpleVariables*>& a_set = *(wrapper_set.begin());
             TS_ASSERT_EQUALS(a_set.size(), 2u);
 
-            ClassOfSimpleVariables* p_one_in_set = NULL;
-            ClassOfSimpleVariables* p_two_in_set = NULL;
+            ClassOfSimpleVariables *p_one_in_set = NULL;
+            ClassOfSimpleVariables *p_two_in_set = NULL;
             for (std::set<ClassOfSimpleVariables*>::iterator it = a_set.begin();
                  it!=a_set.end();
                  ++it)
             {
-                   ClassOfSimpleVariables* p_class = *(it);
+                   ClassOfSimpleVariables *p_class = *(it);
                    if (p_class->GetNumber()==42)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
@@ -371,13 +371,13 @@ public:
                    }
             }
 
-            ClassOfSimpleVariables* p_one_in_list = NULL;
-            ClassOfSimpleVariables* p_two_in_list = NULL;
+            ClassOfSimpleVariables *p_one_in_list = NULL;
+            ClassOfSimpleVariables *p_two_in_list = NULL;
             for (std::list<ClassOfSimpleVariables>::iterator it = a_list.begin();
                  it!=a_list.end();
                  ++it)
             {
-                   ClassOfSimpleVariables* p_class = &(*it);
+                   ClassOfSimpleVariables *p_class = &(*it);
                    if (p_class->GetNumber()==42)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 42);

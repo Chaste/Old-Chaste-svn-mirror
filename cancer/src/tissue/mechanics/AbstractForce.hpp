@@ -50,7 +50,7 @@ class AbstractForce
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        TissueConfig* p_config = TissueConfig::Instance();
+        TissueConfig *p_config = TissueConfig::Instance();
         archive & *p_config;
         archive & p_config;
     }

@@ -62,9 +62,9 @@ private:
      * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      */
-    virtual double GetIntegrand(ChastePoint<SPACE_DIM> &rX,
-                                c_vector<double,PROBLEM_DIM> &rU,
-                                c_matrix<double,PROBLEM_DIM,SPACE_DIM> &rGradU)=0;
+    virtual double GetIntegrand(ChastePoint<SPACE_DIM>& rX,
+                                c_vector<double,PROBLEM_DIM>& rU,
+                                c_matrix<double,PROBLEM_DIM,SPACE_DIM>& rGradU)=0;
 
     /**
      * Compute the contribution to the integral from one element.

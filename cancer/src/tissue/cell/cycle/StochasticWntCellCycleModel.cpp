@@ -44,8 +44,8 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(const std::vector<doubl
 
 void StochasticWntCellCycleModel::SetG2Duration()
 {
-    TissueConfig* p_config = TissueConfig::Instance();
-    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    TissueConfig *p_config = TissueConfig::Instance();
+    RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
 
     double mean = p_config->GetG2Duration();
     double standard_deviation = 0.9;

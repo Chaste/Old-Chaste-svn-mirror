@@ -112,7 +112,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
 
             // Create a pointer
-            AbstractIvpOdeSolver* p_mock_euler;
+            AbstractIvpOdeSolver *p_mock_euler;
             input_arch >> p_mock_euler;
 
             Ode1 ode_system;

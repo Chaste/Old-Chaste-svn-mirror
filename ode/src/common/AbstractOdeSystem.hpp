@@ -84,8 +84,8 @@ private:
     /**
      * Archive the member variables.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -142,8 +142,8 @@ public:
      * @param rY  the current values of the state variables
      * @param rDY  storage for the derivatives of the system; will be filled in on return
      */
-    virtual void EvaluateYDerivatives(double time, const std::vector<double> &rY,
-                                      std::vector<double> &rDY)=0;
+    virtual void EvaluateYDerivatives(double time, const std::vector<double>& rY,
+                                      std::vector<double>& rDY)=0;
 
     /**
      * Get the number of state variables in the ODE system.
@@ -245,7 +245,7 @@ public:
      * @param time  the current time
      * @param rY  the current values of the state variables
      */
-    virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY);
+    virtual bool CalculateStoppingEvent(double time, const std::vector<double>& rY);
 
     /**
      * An alternative approach to stopping events; currently only useful with CVODE.
@@ -257,7 +257,7 @@ public:
      * @param time  the current time
      * @param rY  the current values of the state variables
      */
-    virtual double CalculateRootFunction(double time, const std::vector<double> &rY);
+    virtual double CalculateRootFunction(double time, const std::vector<double>& rY);
 
     /**
      * Get whether an analytic Jacobian is used.
@@ -310,10 +310,10 @@ protected:
      * For example,
      *      EXCEPTION(DumpState("Gating variable out of range"));
      *
-     * @param message  the exception message
+     * @param rMessage  the exception message
      * @param Y  the values of the state variables (optional input argument)
      */
-    std::string DumpState(const std::string& message,
+    std::string DumpState(const std::string& rMessage,
                           std::vector<double> Y = std::vector<double>());
 };
 

@@ -71,7 +71,7 @@ private:
         archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
 
         // Make sure the random number generator is archived
-        RandomNumberGenerator* p_random_generator = RandomNumberGenerator::Instance();
+        RandomNumberGenerator *p_random_generator = RandomNumberGenerator::Instance();
         archive & *p_random_generator;
         archive & p_random_generator;
     }
@@ -135,7 +135,7 @@ inline void load_construct_data(
     Archive & ar, RandomCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<DIM>* p_tissue;
+    AbstractTissue<DIM> *p_tissue;
     ar >> p_tissue;
     double prob;
     ar >> prob;

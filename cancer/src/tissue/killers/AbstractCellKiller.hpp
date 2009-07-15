@@ -71,7 +71,7 @@ public:
 protected:
 
     /** The tissue. */
-    AbstractTissue<SPACE_DIM>* mpTissue;
+    AbstractTissue<SPACE_DIM> *mpTissue;
 
 private:
 

@@ -63,7 +63,7 @@ public:
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
-            AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+            AbstractCellCycleModel *p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -109,7 +109,7 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
 
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
@@ -183,7 +183,7 @@ public:
 
         double scale_factor = 1.2;
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, scale_factor);
-        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
@@ -215,7 +215,7 @@ public:
 
     void TestRemoveDeadCellsAndReMeshWithGhostNodes()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple mesh
@@ -305,7 +305,7 @@ public:
 
     void TestAddAndRemoveAndAddWithOutUpdate()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple mesh
@@ -370,7 +370,7 @@ public:
     void TestUpdateNodeLocations() throw(Exception)
     {
         HoneycombMeshGenerator generator(3, 3, 1, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells2;
@@ -436,7 +436,7 @@ public:
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghosts, false);
 
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
@@ -519,7 +519,7 @@ public:
         std::set< std::set<unsigned> > expected_node_pairs;
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
-            Element<3,3>* p_element = mesh.GetElement(i);
+            Element<3,3> *p_element = mesh.GetElement(i);
             for (unsigned j=0; j<4; j++)
             {
                 for (unsigned k=0; k<4; k++)

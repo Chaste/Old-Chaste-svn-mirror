@@ -111,7 +111,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
         if (triangle_output.pointmarkerlist[node_index] == 1)
         {
             // Boundary node
-            Node<DIM>* p_node = new Node<DIM>(node_index, true,
+            Node<DIM> *p_node = new Node<DIM>(node_index, true,
               triangle_output.pointlist[node_index * 2],
               triangle_output.pointlist[node_index * 2+1]);
             this->mNodes.push_back(p_node);
@@ -422,7 +422,7 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements()
             // loop over elements
             for (unsigned i=0; i<this->GetNumElements(); i++)
             {
-                Element<DIM,DIM>* p_element = this->GetElement(i);
+                Element<DIM,DIM> *p_element = this->GetElement(i);
 
                 // for each element, loop over faces (the opposites to a node)
                 for (unsigned face=0; face<DIM+1; face++)
@@ -475,7 +475,7 @@ void QuadraticMesh<DIM>::AddNodeToBoundaryElement(BoundaryElement<DIM-1,DIM>* pB
     assert(DIM>1);
     assert(internalNode >= DIM+1);
     assert(internalNode < (DIM+1)*(DIM+2)/2);
-    Node<DIM>* p_internal_node = pElement->GetNode(internalNode);
+    Node<DIM> *p_internal_node = pElement->GetNode(internalNode);
 
     // add node to the boundary node list
     if (!p_internal_node->IsBoundaryNode())

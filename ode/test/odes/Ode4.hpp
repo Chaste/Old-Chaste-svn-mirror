@@ -44,10 +44,10 @@ public :
         mpSystemInfo = OdeSystemInformation<Ode4>::Instance();
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         double alpha = 100;
-        rDY[0]=alpha*rY[0]*(1-rY[0])*time;
+        rDY[0] = alpha*rY[0]*(1-rY[0])*time;
     }
 };
 

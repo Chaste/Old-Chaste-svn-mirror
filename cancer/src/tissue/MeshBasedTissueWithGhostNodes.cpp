@@ -186,7 +186,7 @@ template<unsigned DIM>
 TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
 {
     // Add new cell to tissue
-    TissueCell* p_created_cell = MeshBasedTissue<DIM>::AddCell(rNewCell, newLocation, pParentCell);
+    TissueCell *p_created_cell = MeshBasedTissue<DIM>::AddCell(rNewCell, newLocation, pParentCell);
 
     // Update size of mIsGhostNode if necessary
     unsigned new_node_index = this->mCellLocationMap[p_created_cell];

@@ -42,15 +42,15 @@ class QuadraticBasisFunction
 {
 public:
 
-    static double ComputeBasisFunction(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
-    static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
+    static double ComputeBasisFunction(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex);
+    static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex);
 
-    static void ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint, c_vector<double, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue);
-    static void ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
+    static void ComputeBasisFunctions(const ChastePoint<ELEM_DIM>& rPoint, c_vector<double, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue);
+    static void ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
                                                 c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue);
 
-    static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
-                                                           const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
+    static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
+                                                           const c_matrix<double, ELEM_DIM, ELEM_DIM>& rInverseJacobian,
                                                            c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue);
 
 
@@ -63,8 +63,8 @@ template<>
 class QuadraticBasisFunction<0>
 {
 public:
-    static double ComputeBasisFunction(const ChastePoint<0> &rPoint, unsigned basisIndex);
-    static void ComputeBasisFunctions(const ChastePoint<0> &rPoint, c_vector<double, 1>& rReturnValue);
+    static double ComputeBasisFunction(const ChastePoint<0>& rPoint, unsigned basisIndex);
+    static void ComputeBasisFunctions(const ChastePoint<0>& rPoint, c_vector<double, 1>& rReturnValue);
 };
 
 #endif //_QUADRATICBASISFUNCTION_HPP_

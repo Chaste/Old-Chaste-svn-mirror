@@ -58,20 +58,20 @@ public :
      *
      *  dT/dE is a fourth-order tensor, where dT/dE[M][N][P][Q] = dT^{MN}/dE_{PQ}
      *
-     *  @param C The Lagrangian deformation tensor (F^T F)
-     *  @param invC The inverse of C. Should be computed by the user. (Change this?)
+     *  @param rC The Lagrangian deformation tensor (F^T F)
+     *  @param rInvC The inverse of C. Should be computed by the user. (Change this?)
      *  @param pressure the current pressure
-     *  @param T the stress will be returned in this parameter
-     *  @param dTdE the stress derivative will be returned in this parameter, assuming
+     *  @param rT the stress will be returned in this parameter
+     *  @param rDTdE the stress derivative will be returned in this parameter, assuming
      *    the final parameter is true
      *  @param computeDTdE a boolean flag saying whether the stress derivative is
      *    required or not.
      */
-    virtual void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& C,
-                                                  c_matrix<double,DIM,DIM>& invC,
+    virtual void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& rC,
+                                                  c_matrix<double,DIM,DIM>& rInvC,
                                                   double                    pressure,
-                                                  c_matrix<double,DIM,DIM>& T,
-                                                  FourthOrderTensor<DIM>&   dTdE,
+                                                  c_matrix<double,DIM,DIM>& rT,
+                                                  FourthOrderTensor<DIM>&   rDTdE,
                                                   bool                      computeDTdE)=0;
 
     /**
@@ -82,14 +82,14 @@ public :
      *
      *  where T is the 2nd Piola Kirchoff stress, dW/dE
      *
-     *  @param F the deformation gradient
+     *  @param rF the deformation gradient
      *  @param pressure the pressure
-     *  @param sigma an empty matrix, which will be filled in with the Cauchy stress
+     *  @param rSigma an empty matrix, which will be filled in with the Cauchy stress
      *
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void ComputeCauchyStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& sigma);
+    void ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF, double pressure, c_matrix<double,DIM,DIM>& rSigma);
 
     /**
      *  Compute the 1st Piola Kirchoff stress, given the deformation gradient F
@@ -102,14 +102,14 @@ public :
      *  Note that this stress is not symmetric and the least useful of the three
      *  stresses.
      *
-     *  @param F the deformation gradient
+     *  @param rF the deformation gradient
      *  @param pressure the pressure
-     *  @param S an empty matrix, which will be filled in with the stress
+     *  @param rS an empty matrix, which will be filled in with the stress
      *
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& F, double pressure, c_matrix<double,DIM,DIM>& S);
+    void Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rF, double pressure, c_matrix<double,DIM,DIM>& rS);
 
     /**
      *  Compute the 2nd Piola Kirchoff stress, given the deformation tensor C
@@ -117,14 +117,14 @@ public :
      *
      *  T^{MN} = dW/dE_{MN} = 2dW/dC_{MN}
      *
-     *  @param C the Lagrange deformation tensor (C=F^T F), *not* F, and *not* E
+     *  @param rC the Lagrange deformation tensor (C=F^T F), *not* F, and *not* E
      *  @param pressure the pressure
-     *  @param T an empty matrix, which will be filled in with the stress
+     *  @param rT an empty matrix, which will be filled in with the stress
      *
      *  Note: to compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
      */
-    void Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& C, double pressure, c_matrix<double,DIM,DIM>& T);
+    void Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rC, double pressure, c_matrix<double,DIM,DIM>& rT);
 
     /**
      *  Get the pressure corresponding to E=0, ie C=identity

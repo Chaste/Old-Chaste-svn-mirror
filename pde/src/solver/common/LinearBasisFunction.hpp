@@ -49,7 +49,7 @@ public:
      *     within a canonical element.
      * @return The value of the basis function.
      */
-    static double ComputeBasisFunction(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
+    static double ComputeBasisFunction(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex);
 
     /**
      * Compute the derivative of a basis function at a point within a
@@ -63,14 +63,14 @@ public:
      *     (c_vector<double, ELEM_DIM> instance) giving the derivative
      *     along each axis.
      */
-    static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM> &rPoint, unsigned basisIndex);
+    static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex);
 
-    static void ComputeBasisFunctions(const ChastePoint<ELEM_DIM> &rPoint, c_vector<double, ELEM_DIM+1>& rReturnValue);
-    static void ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
+    static void ComputeBasisFunctions(const ChastePoint<ELEM_DIM>& rPoint, c_vector<double, ELEM_DIM+1>& rReturnValue);
+    static void ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
                                                 c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue);
 
-    static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM> &rPoint,
-                                                           const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
+    static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
+                                                           const c_matrix<double, ELEM_DIM, ELEM_DIM>& rInverseJacobian,
                                                            c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue);
 };
 
@@ -81,8 +81,8 @@ template <>
 class LinearBasisFunction<0>
 {
 public:
-    static double ComputeBasisFunction(const ChastePoint<0> &rPoint, unsigned basisIndex);
-    static void ComputeBasisFunctions(const ChastePoint<0> &rPoint,c_vector<double,1>& rReturnValue);
+    static double ComputeBasisFunction(const ChastePoint<0>& rPoint, unsigned basisIndex);
+    static void ComputeBasisFunctions(const ChastePoint<0>& rPoint,c_vector<double,1>& rReturnValue);
 };
 
 

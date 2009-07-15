@@ -57,17 +57,17 @@ private:
     double mCoeffOfU;
     double mConstant;
 
-    LinearSystem* mpLinearSystem;
-    QuadraticMesh<DIM>* mpQuadMesh;
-    BoundaryConditionsContainer<DIM,DIM,1>* mpBoundaryConditions;
-    GaussianQuadratureRule<DIM>* mpQuadRule;
+    LinearSystem *mpLinearSystem;
+    QuadraticMesh<DIM> *mpQuadMesh;
+    BoundaryConditionsContainer<DIM,DIM,1> *mpBoundaryConditions;
+    GaussianQuadratureRule<DIM> *mpQuadRule;
 
     static const unsigned NUM_BASES_PER_ELEMENT = (DIM+1)*(DIM+2)/2;
     static const unsigned STENCIL_SIZE = NUM_BASES_PER_ELEMENT; // multiplied by PROBLEM_DIM
 
-    virtual void AssembleOnElement( Element<DIM, DIM> &rElement,
-                                    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE > &rAElem,
-                                    c_vector<double, STENCIL_SIZE> &rBElem,
+    virtual void AssembleOnElement( Element<DIM, DIM>& rElement,
+                                    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
+                                    c_vector<double, STENCIL_SIZE>& rBElem,
                                     bool assembleVector,
                                     bool assembleMatrix)
     {
@@ -131,30 +131,27 @@ private:
     }
 
     virtual c_matrix<double,STENCIL_SIZE,STENCIL_SIZE> ComputeMatrixTerm(
-        c_vector<double, NUM_BASES_PER_ELEMENT> &rPhi,
-        c_matrix<double, DIM, NUM_BASES_PER_ELEMENT> &rGradPhi,
-        ChastePoint<DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double,1,DIM> &rGradU,
+        c_vector<double, NUM_BASES_PER_ELEMENT>& rPhi,
+        c_matrix<double, DIM, NUM_BASES_PER_ELEMENT>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double,1,DIM>& rGradU,
         Element<DIM,DIM>* pElement)
     {
             return   prod( trans(rGradPhi), rGradPhi )
-                   - mCoeffOfU*outer_prod(rPhi,rPhi);
+                   - mCoeffOfU*outer_prod(rPhi, rPhi);
     }
 
-
     virtual c_vector<double,STENCIL_SIZE> ComputeVectorTerm(
-        c_vector<double, NUM_BASES_PER_ELEMENT> &rPhi,
-        c_matrix<double, DIM, NUM_BASES_PER_ELEMENT> &rGradPhi,
-        ChastePoint<DIM> &rX,
-        c_vector<double,1> &u,
-        c_matrix<double,1,DIM> &rGradU,
+        c_vector<double, NUM_BASES_PER_ELEMENT>& rPhi,
+        c_matrix<double, DIM, NUM_BASES_PER_ELEMENT>& rGradPhi,
+        ChastePoint<DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double,1,DIM>& rGradU,
         Element<DIM,DIM>* pElement)
     {
         return mConstant * rPhi;
     }
-
-
 
     virtual void AssembleSystem(bool assembleVector, bool assembleMatrix
                                 /*Vec currentSolutionOrGuess=NULL, double currentTime=0.0*/)

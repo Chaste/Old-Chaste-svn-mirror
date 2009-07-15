@@ -45,9 +45,9 @@ public :
         mpSystemInfo = OdeSystemInformation<Ode2>::Instance();
     }
 
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
-        rDY[0]=rY[0]*time;
+        rDY[0] = rY[0]*time;
     }
 };
 

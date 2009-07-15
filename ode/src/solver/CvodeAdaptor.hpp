@@ -135,8 +135,8 @@ private:
     /**
      * Archive, never used directly - boost uses this.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -149,7 +149,7 @@ private:
     }
 
     /** Pointer to the CVODE memory block. */
-    void* mpCvodeMem;
+    void *mpCvodeMem;
 
     /** Initial conditions for the ODE solver. */
     N_Vector mInitialValues;

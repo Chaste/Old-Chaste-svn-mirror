@@ -138,7 +138,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
                     {
 
                         // Calculate the contribution of gradient from this node
-                        Node<DIM> & adjacent_node= *(r_mesh.GetNode(adjacent_node_global_index));
+                        Node<DIM>& adjacent_node = *(r_mesh.GetNode(adjacent_node_global_index));
 
                         double this_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter),0);
                         TissueCell& adjacent_cell = r_tissue.rGetCellUsingLocationIndex(adjacent_node_global_index);
