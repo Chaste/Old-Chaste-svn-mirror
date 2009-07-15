@@ -40,32 +40,32 @@ bool CellsHeightComparison(const std::pair<TissueCell*, double> lhs, const std::
  * PRIVATE FUNCTIONS -----------------------------------------------------------------
  */
 
-bool CryptStatistics::CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection)
+bool CryptStatistics::CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection)
 {
     c_vector<double,2> intercept;
 
     if (xBottom==xTop)
     {
         intercept[0] = xTop;
-        intercept[1] = cellPosition[1];
+        intercept[1] = rCellPosition[1];
     }
     else
     {
         double m = (yTop)/(xTop-xBottom); // gradient of line
 
-        intercept[0] = (m*m*xBottom + cellPosition[0] + m*cellPosition[1])/(1+m*m);
+        intercept[0] = (m*m*xBottom + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
         intercept[1] = m*(intercept[0] - xBottom);
     }
 
-    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
+    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
     double dist = norm_2(vec_from_A_to_B);
 
     return (dist <= widthOfSection);
 }
 
-bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection)
+bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection)
 {
-    bool is_in_section=false;
+    bool is_in_section = false;
 
     c_vector<double,2> intercept;
     double crypt_width = TissueConfig::Instance()->GetCryptWidth();
@@ -85,10 +85,10 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     m = (yTop)/(xTop-xBottom+offset); // gradient of line
 
     // 1st Line
-    intercept[0] = (m*m*xBottom + cellPosition[0] + m*cellPosition[1])/(1+m*m);
+    intercept[0] = (m*m*xBottom + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
     intercept[1] = m*(intercept[0] - xBottom);
 
-    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
+    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
     double dist = norm_2(vec_from_A_to_B);
 
     if (dist < widthOfSection)
@@ -97,15 +97,15 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     }
 
     // 2nd Line
-    intercept[0] = (m*m*(xBottom-offset) + cellPosition[0] + m*cellPosition[1])/(1+m*m);
+    intercept[0] = (m*m*(xBottom-offset) + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
     intercept[1] = m*(intercept[0] - (xBottom-offset));
 
-    vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, cellPosition);
+    vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
     dist = norm_2(vec_from_A_to_B);
 
     if (dist < widthOfSection)
     {
-        is_in_section=true;
+        is_in_section = true;
     }
 
     return is_in_section;

@@ -46,12 +46,12 @@ protected:
      * @param xBottom the x coordinate of the bottom of the line
      * @param xTop the x coordinate of the top of the line
      * @param yTop the y coordinate of the top of the line
-     * @param cellPosition the location of the cell centre
+     * @param rCellPosition the location of the cell centre
      * @param widthOfSection the width of the line
      *
      * @return whether the cell is in the section
      */
-    bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=0.5);
+    bool CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection=0.5);
 
     /**
      * Method computing the perpendicular distance from the cell to the line from (xBottom, 0) to
@@ -62,12 +62,12 @@ protected:
      * @param xBottom the x coordinate of the bottom of the line
      * @param xTop the x coordinate of the top of the line
      * @param yTop the y coordinate of the top of the line
-     * @param cellPosition the location of the cell centre
+     * @param rCellPosition the location of the cell centre
      * @param widthOfSection the width of the line
      *
      * @return whether the cell is in the section
      */
-    bool CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& cellPosition, double widthOfSection=1.0);
+    bool CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection=1.0);
 
 
 public :
