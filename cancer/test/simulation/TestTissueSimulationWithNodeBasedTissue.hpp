@@ -85,8 +85,8 @@ public:
     void TestSimpleMonolayer() throw (Exception)
     {
         // Create a simple mesh
-        int num_cells_depth = 5;
-        int num_cells_width = 5;
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
