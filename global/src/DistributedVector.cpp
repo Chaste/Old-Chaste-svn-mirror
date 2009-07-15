@@ -84,9 +84,9 @@ void DistributedVector::Restore()
 //
 
 
-bool DistributedVector::Iterator::operator!=(const Iterator& other)
+bool DistributedVector::Iterator::operator!=(const Iterator& rOther)
 {
-   return(Global != other.Global);
+   return(Global != rOther.Global);
 }
 
 DistributedVector::Iterator& DistributedVector::Iterator::operator++()

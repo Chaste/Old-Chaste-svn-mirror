@@ -149,9 +149,9 @@ public:
         /**
          * Compare two indices for inequality.
          *
-         * @param other
+         * @param rOther
          */
-        bool operator!=(const Iterator& other);
+        bool operator!=(const Iterator& rOther);
 
         /** Increment the iterator to the next index. */
         Iterator& operator++();

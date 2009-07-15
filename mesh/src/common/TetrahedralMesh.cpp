@@ -1263,11 +1263,11 @@ Node<SPACE_DIM>* TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::GetNodeB
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator!=(const TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& other)
+bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator!=(const TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& rOther)
 {
-    return (mElemIndex != other.mElemIndex ||
-            mNodeALocalIndex != other.mNodeALocalIndex ||
-            mNodeBLocalIndex != other.mNodeBLocalIndex);
+    return (mElemIndex != rOther.mElemIndex ||
+            mNodeALocalIndex != rOther.mNodeALocalIndex ||
+            mNodeBLocalIndex != rOther.mNodeBLocalIndex);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

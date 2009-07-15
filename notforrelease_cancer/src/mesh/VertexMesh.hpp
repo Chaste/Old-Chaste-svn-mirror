@@ -600,7 +600,7 @@ public:
         /**
          * Comparison not-equal-to.
          *
-         * @param other iterator with which comparison is made
+         * @param rOther iterator with which comparison is made
          */
         inline bool operator!=(const VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& rOther);
 

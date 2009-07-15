@@ -387,8 +387,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
         current_node = p_element->GetNodeLocation(local_index);
         anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
 
-        element_area += 0.5*(current_node[0]*anticlockwise_node[1]
-                           - anticlockwise_node[0]*current_node[1]);
+        element_area += 0.5*(current_node[0]*anticlockwise_node[1] - anticlockwise_node[0]*current_node[1]);
     }
 
     return element_area;
@@ -934,25 +933,29 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
         /// \todo Only need to check this next bit if the element/node is on the boundary (see #933 and #943)
 
         // Loop over elements
-        for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
+        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
+             iter != GetElementIteratorEnd();
+             ++iter)
         {
-            unsigned num_nodes = mElements[elem_index]->GetNumNodes();
+            unsigned num_nodes = iter->GetNumNodes();
 
             // Loop over element vertices
             for (unsigned local_index=0; local_index<num_nodes; local_index++)
             {
                 // Find locations of current node and anticlockwise node
-                Node<SPACE_DIM>* p_current_node = mElements[elem_index]->GetNode(local_index);
+                Node<SPACE_DIM>* p_current_node = iter->GetNode(local_index);
 
                 if (p_current_node->IsBoundaryNode())
                 {
-                    for (unsigned other_elem_index=0; other_elem_index<mElements.size(); other_elem_index++)
+                    for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator other_iter = GetElementIteratorBegin();
+                         other_iter != GetElementIteratorEnd();
+                         ++other_iter)
                     {
-                        if (other_elem_index != elem_index)
+                        if (other_iter != iter)
                         {
-                            if (ElementIncludesPoint(p_current_node->rGetLocation(), other_elem_index))
+                            if (ElementIncludesPoint(p_current_node->rGetLocation(), other_iter->GetIndex()))
                             {
-                                MoveOverlappingNodeOntoEdgeOfElement(p_current_node, other_elem_index);
+                                MoveOverlappingNodeOntoEdgeOfElement(p_current_node, other_iter->GetIndex());
                             }
                         }
                     }
@@ -1048,7 +1051,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
-    assert(SPACE_DIM == 2); // only works in 2D at present
+    assert(SPACE_DIM == 2); // this method only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
 
@@ -1075,153 +1078,159 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
          *  /
          * 
          */
-        EXCEPTION("A vertex is contained in more than three elements; this currently isn't considered in this code.");
+        EXCEPTION("A node is contained in more than three elements"); // the code can't handle this case
         //PerformNodeMerge(pNodeA, pNodeB);
     } 
-    else // less than 4 elements per node
+    else // each node is contained in at most three elements
     {
-        if (all_indices.size()==1) // nodes are only in one element hence on boundary so merge nodes
+        if (all_indices.size()==1)
         {
             /*
-             * Looks like
+             * In this case, each node is contained in a single element, so the nodes
+             * lie on the boundary of the tissue:
              *
              *    A   B
              * ---o---o---
              *
-             * on the boundary of the tissue
+             * We merge the nodes.
              */
             PerformNodeMerge(pNodeA, pNodeB);
         }
-        else if (all_indices.size()==2) // nodes are in two elments hence on and interior boundary so merge nodes
+        else if (all_indices.size()==2)
         {
             if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
             {
                 /*
-                 * Looks like
+                 * In this case, each node is contained in two elements, so the nodes
+                 * lie on an internal edge:
                  *
                  *    A   B
                  * ---o---o---
                  *
-                 * on an internal edge
+                 * We merge the nodes in this case.
                  */
                  PerformNodeMerge(pNodeA, pNodeB);
             }
             else
             {
                 /*
-                 * Looks like
+                 * In this case, the node configuration looks like:
                  *
                  * Outside
                  *         /
                  *   --o--o (2)
                  *     (1) \
                  *
+                 * We merge the nodes in this case.
                  */
                  PerformNodeMerge(pNodeA, pNodeB);
             }
         }
-        else if (all_indices.size()==3) // nodes are contained in three elments
+        else if (all_indices.size()==3)
         {
+           /* In this case, each node is contained in three elements. */
+
            if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
            {
        	       /*
-           	    * 
+           	    * In this case, the node configuration looks like:
+                * 
 	           	*     A  B                  A  B
 	            *   \ empty/              \      /
 	            *    \    /                \(1) /
-	            * (3) o--o (1)  or      (2) o--o (3)    Element number in brackets
+	            * (3) o--o (1)  or      (2) o--o (3)    (element number in brackets)
 	            *    / (2)\                /    \
 	            *   /      \              /empty \
-                * Perform a T1Swap
+                * 
+                * We perform a Type 1 swap in this case.
                 */
                 PerformT1Swap(pNodeA, pNodeB, all_indices);
            }
            else
            {
-                Node<SPACE_DIM>* pNodeAlpha;
-                Node<SPACE_DIM>* pNodeBeta;
+                Node<SPACE_DIM>* p_node_alpha;
+                Node<SPACE_DIM>* p_node_beta;
                 if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
                 {
-                    pNodeAlpha = pNodeA;
-                    pNodeBeta = pNodeB;
+                    p_node_alpha = pNodeA;
+                    p_node_beta = pNodeB;
                 }
                 else if (nodeA_elem_indices.size()==3 && nodeB_elem_indices.size()==2)
                 {
-                    pNodeAlpha = pNodeB;
-                    pNodeBeta = pNodeA;
+                    p_node_alpha = pNodeB;
+                    p_node_beta = pNodeA;
                 }
                 else
                 {
-     #define COVERAGE_IGNORE       
-                    EXCEPTION("At least one of nodes should have 3 elements and the other 2");
-     #undef  COVERAGE_IGNORE
+                    #define COVERAGE_IGNORE       
+                    EXCEPTION("One of the nodes must be contained in three elements and the other must be contained in two elements");
+                    #undef  COVERAGE_IGNORE
                 }
-                
-                std::set<unsigned> nodeAlpha_elem_indices = pNodeAlpha->rGetContainingElementIndices();
-                assert(nodeAlpha_elem_indices.size() == 2u);
-                
-                unsigned nodeAlpha_local_index = mElements[*nodeAlpha_elem_indices.begin()]
-                                                ->GetNodeLocalIndex(pNodeAlpha->GetIndex());
-                assert(nodeAlpha_local_index < UINT_MAX); // this element should contain node Alpha
-                
-                unsigned nodeAlpha_local_index_before = (nodeAlpha_local_index+1)%mElements[*nodeAlpha_elem_indices.begin()]->GetNumNodes();
-                unsigned nodeAlpha_local_index_after = (nodeAlpha_local_index-1)%mElements[*nodeAlpha_elem_indices.begin()]->GetNumNodes();
-                
-                Node<SPACE_DIM>* pNodeGamma;
-                if (mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_before)
-                           == pNodeBeta)
+
+                std::set<unsigned> node_alpha_elem_indices = p_node_alpha->rGetContainingElementIndices();
+                assert(node_alpha_elem_indices.size() == 2u);
+
+                unsigned node_alpha_local_index = mElements[*node_alpha_elem_indices.begin()]->GetNodeLocalIndex(p_node_alpha->GetIndex());
+                assert(node_alpha_local_index < UINT_MAX); // this element should contain node alpha
+
+                unsigned node_alpha_local_index_before = (node_alpha_local_index+1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
+                unsigned node_alpha_local_index_after = (node_alpha_local_index-1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
+
+                Node<SPACE_DIM>* p_node_gamma;
+                if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before) == p_node_beta)
                 {
-                    pNodeGamma = mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_after);
+                    p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after);
                 }
-                else if (mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_after)
-                           == pNodeBeta)
+                else if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after) == p_node_beta)
                 {
-                    pNodeGamma = mElements[*nodeAlpha_elem_indices.begin()]->GetNode(nodeAlpha_local_index_before);
+                    p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before);
                 }
                 else
                 {
-     #define COVERAGE_IGNORE       
-                    EXCEPTION("At least one of nodeAlpha_local_index_before or .._after should be pNodeBeta");
-     #undef  COVERAGE_IGNORE
+                    #define COVERAGE_IGNORE       
+                    EXCEPTION("At least one of node_alpha_local_index_before or .._after should be p_node_beta");
+                    #undef  COVERAGE_IGNORE
                 }
-                
-                std::set<unsigned> nodeBeta_elem_indices = pNodeBeta->rGetContainingElementIndices();
-                std::set<unsigned> nodeGamma_elem_indices = pNodeGamma->rGetContainingElementIndices();
-                
+
+                std::set<unsigned> node_beta_elem_indices = p_node_beta->rGetContainingElementIndices();
+                std::set<unsigned> node_gamma_elem_indices = p_node_gamma->rGetContainingElementIndices();
+
                 // Form the set intersection between gamma and beta
 			    std::set<unsigned> intersection_indices, temp_set2;
-			    std::set_intersection(nodeBeta_elem_indices.begin(), nodeBeta_elem_indices.end(),
-			                   nodeGamma_elem_indices.begin(), nodeGamma_elem_indices.end(),
+			    std::set_intersection(node_beta_elem_indices.begin(), node_beta_elem_indices.end(),
+			                   node_gamma_elem_indices.begin(), node_gamma_elem_indices.end(),
 			                   std::inserter(temp_set2, temp_set2.begin()));
 			    intersection_indices.swap(temp_set2); // temp_set2 will be deleted
-                
+
                 if (intersection_indices.size() == 2)
                 {
-                   /* Looks like
+                   /*
+                    * In this case, the node configuration looks like:
                     *
 	                *     A  B             A  B
 	                *   \                       /
 	                *    \  (1)           (1)  /
-	                * (3) o--o---   or  ---o--o (3)    Element number in brackets
+	                * (3) o--o---   or  ---o--o (3)    (element number in brackets)
 	                *    /  (2)           (2)  \
 	                *   /                       \
 	                *
-                    * Perform node merge
+                    * We perform a node merge in this case.
                     */
                     PerformNodeMerge(pNodeA, pNodeB);
 		        }
                 else if (intersection_indices.size() == 1) // Correct set up for T1Swap
                 {
                    /*
-	                * 
+	                * In this case, the node configuration looks like:
+                    * 
 	                *     A  B                      A  B
 	                *   \      /                  \      /
 	                *    \ (1)/                    \(1) /
-	                * (3) o--o (empty)  or  (empty) o--o (3)    Element number in brackets
+	                * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
 	                *    / (2)\                    /(2) \
 	                *   /      \                  /      \
 	                * 
-	                * Perform a T1Swap
+	                * We perform a Type 1 swap in this case.
 	                */
 	                PerformT1Swap(pNodeA, pNodeB, all_indices);
                 }
@@ -1233,35 +1242,33 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 }
            }
         }
-        else if (all_indices.size()==4) // Correct set up for T1Swap
+        else if (all_indices.size()==4)
         {
             /*
-             * Looks like this
+             * In this case, the node configuration looks like:
              *
              *   \(1)/
              *    \ / Node A
-             * (2) |   (4)     elements in Brackets
+             * (2) |   (4)      (element number in brackets)
              *    / \ Node B
              *   /(3)\
              *
-             * Perform a T1Swap
-             *
+             * We perform a Type 1 swap in this case.
              */
             PerformT1Swap(pNodeA, pNodeB, all_indices);
         }
         else
         {
             #define COVERAGE_IGNORE
-            // Should never reach here 
-            EXCEPTION("Nodes are in more than 4 elements, so a remesh cannot be performed");
+            /// \todo don't think this is needed?
+            EXCEPTION("Each node is contained in more than four elements, so a remesh cannot be performed");
             #undef COVERAGE_IGNORE
         }
     }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA,
-                                                          Node<SPACE_DIM>* pNodeB)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
 {
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();

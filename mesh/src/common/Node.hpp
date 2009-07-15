@@ -297,20 +297,20 @@ public:
         /**
          * Comparison not-equal-to.
          *
-         * @param other ContainingElementIterator with which comparison is made
+         * @param rOther ContainingElementIterator with which comparison is made
          */
-        bool operator!=(const ContainingElementIterator& other) const
+        bool operator!=(const ContainingElementIterator& rOther) const
         {
-            return mIndexIterator != other.mIndexIterator;
+            return mIndexIterator != rOther.mIndexIterator;
         }
         /**
          * Comparison equal-to.
          *
          * @param other ContainingElementIterator with which comparison is made
          */
-        bool operator==(const ContainingElementIterator& other) const
+        bool operator==(const ContainingElementIterator& rOther) const
         {
-            return !operator!=(other);
+            return !operator!=(rOther);
         }
         /**
          * Prefix increment operator.
@@ -366,18 +366,18 @@ public:
          *
          * @param other ContainingBoundaryElementIterator with which comparison is made
          */
-        bool operator!=(const ContainingBoundaryElementIterator& other) const
+        bool operator!=(const ContainingBoundaryElementIterator& rOther) const
         {
-            return mIndexIterator != other.mIndexIterator;
+            return mIndexIterator != rOther.mIndexIterator;
         }
         /**
          * Comparison equal-to.
          *
          * @param other ContainingBoundaryElementIterator with which comparison is made
          */
-        bool operator==(const ContainingBoundaryElementIterator& other) const
+        bool operator==(const ContainingBoundaryElementIterator& rOther) const
         {
-            return !operator!=(other);
+            return !operator!=(rOther);
         }
         /**
          * Prefix increment operator.

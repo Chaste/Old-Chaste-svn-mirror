@@ -276,9 +276,9 @@ public:
         /**
          * Comparison not-equal-to.
          *
-         * @param other iterator with which comparison is made
+         * @param rOther iterator with which comparison is made
          */
-        inline bool operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other);
+        inline bool operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& rOther);
 
         /**
          * Prefix increment operator.
@@ -374,9 +374,9 @@ Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator->(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& other)
+bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator::operator!=(const AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& rOther)
 {
-    return mNodeIter != other.mNodeIter;
+    return mNodeIter != rOther.mNodeIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

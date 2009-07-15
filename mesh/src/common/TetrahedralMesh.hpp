@@ -391,9 +391,9 @@ public:
         /**
          * Comparison not-equal-to.
          *
-         * @param other edge iterator with which comparison is made
+         * @param rOther edge iterator with which comparison is made
          */
-        bool operator!=(const TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& other);
+        bool operator!=(const TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& rOther);
 
         /**
          * Prefix increment operator.
