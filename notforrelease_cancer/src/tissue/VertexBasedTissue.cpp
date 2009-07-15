@@ -417,28 +417,32 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
 
     // Write element data to file
     *mpElementFile << SimulationTime::Instance()->GetTime() << "\t";
-    for (unsigned elem_index=0; elem_index<GetNumElements(); elem_index++)
+    for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
+             iter != mrMesh.GetElementIteratorEnd();
+             ++iter)
     {
-        if ( !(mrMesh.GetElement(elem_index)->IsDeleted()) )
+        if ( !(iter->IsDeleted()) )
         {
             // First write the number of Nodes belonging to this VertexElement
-            *mpElementFile << mrMesh.GetElement(elem_index)->GetNumNodes() << " ";
+            *mpElementFile << iter->GetNumNodes() << " ";
 
             // Then write the global index of each Node in this element
-            unsigned num_nodes_in_this_element = mrMesh.GetElement(elem_index)->GetNumNodes();
+            unsigned num_nodes_in_this_element = iter->GetNumNodes();
             for (unsigned i=0; i<num_nodes_in_this_element; i++)
             {
-                *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i) << " ";
+                *mpElementFile << iter->GetNodeGlobalIndex(i) << " ";
             }
         }
     }
     *mpElementFile << "\n";
 
-    for (unsigned elem_index=0; elem_index<GetNumElements(); elem_index++)
+    for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
+             iter != mrMesh.GetElementIteratorEnd();
+             ++iter)
     {
-        if (!(mrMesh.GetElement(elem_index)->IsDeleted()))
+        if (!(iter->IsDeleted()))
         {
-            this->GenerateCellResults(elem_index,
+            this->GenerateCellResults(iter->GetIndex(),
                                       outputCellMutationStates,
                                       outputCellTypes,
                                       outputCellVariables,

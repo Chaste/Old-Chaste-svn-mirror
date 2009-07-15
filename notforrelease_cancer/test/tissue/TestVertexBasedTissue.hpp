@@ -143,18 +143,20 @@ public:
 
         // Check correspondence between elements and cells
 
-        for (unsigned elem_index=0; elem_index<tissue.GetNumElements(); elem_index++)
-        {
+        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
+        {  
             std::set<unsigned> expected_node_indices;
-            VertexElement<2,2>* p_expected_element = tissue.GetElement(elem_index);
-            unsigned expected_index = p_expected_element->GetIndex();
+            unsigned expected_index = iter->GetIndex();
 
-            for (unsigned i=0; i<p_expected_element->GetNumNodes(); i++)
+            for (unsigned i=0; i<iter->GetNumNodes(); i++)
             {
-                expected_node_indices.insert(p_expected_element->GetNodeGlobalIndex(i));
+                expected_node_indices.insert(iter->GetNodeGlobalIndex(i));
             }
 
             std::set<unsigned> actual_node_indices;
+            unsigned elem_index = iter->GetIndex();
             TissueCell& r_cell = tissue.rGetCellUsingLocationIndex(elem_index);
             VertexElement<2,2>* p_actual_element = tissue.GetElementCorrespondingToCell(&r_cell);
             unsigned actual_index = p_actual_element->GetIndex();
@@ -206,8 +208,11 @@ public:
         tissue.InitialiseCells(); // this method must be called explicitly as there is no simulation
 
         // Check GetTargetAreaOfCell()
-        for (unsigned elem_index=0; elem_index<tissue.GetNumElements(); elem_index++)
-        {
+        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
+        {  
+        	unsigned elem_index = iter->GetIndex();
             TissueCell cell = tissue.rGetCellUsingLocationIndex(elem_index);
             double expected_area = TissueConfig::Instance()->GetMatureCellTargetArea();
 

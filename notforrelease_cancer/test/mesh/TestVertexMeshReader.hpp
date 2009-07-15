@@ -118,7 +118,6 @@ public:
 
         // Reads element 2 from file when expecting number 1
         TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextElementData());
-
     }
 
 

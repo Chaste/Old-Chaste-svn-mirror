@@ -602,7 +602,7 @@ public:
          *
          * @param other iterator with which comparison is made
          */
-        inline bool operator!=(const VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& other);
+        inline bool operator!=(const VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& rOther);
 
         /**
          * Prefix increment operator.
@@ -723,9 +723,9 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::Verte
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::operator!=(const VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& other)
+bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::operator!=(const VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& rOther)
 {
-    return mElementIter != other.mElementIter;
+    return mElementIter != rOther.mElementIter;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

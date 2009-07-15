@@ -1515,8 +1515,6 @@ public:
         TS_ASSERT_THROWS_ANYTHING(vertex_mesh.ReMesh());
     }
 
-    
-    
     void TestDivideEdgeIfTooBig() throw(Exception)
     {
         // Create some nodes
@@ -1628,7 +1626,6 @@ public:
         nodes_in_element2.push_back(p_node2);
         nodes_in_element2.push_back(p_node3);
 
-        
         std::vector<Node<2>*> nodes;
         nodes.push_back(p_node0);
         nodes.push_back(p_node1);
@@ -1636,7 +1633,6 @@ public:
         nodes.push_back(p_node3);
         nodes.push_back(p_node4);
         nodes.push_back(p_node5);
-        
 
         /*
          *  Create three elements, elements0 and 2 share nodes 0 and 3, 
@@ -1897,7 +1893,6 @@ public:
     }
 
 
-
     void TestDivideVertexElementAlongShortAxis() throw(Exception)
     {
         // Make five nodes
@@ -2030,7 +2025,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(3)->GetIndex(), 6u);
-        
 
         // Test locations of new nodes
         TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[0], 2.3735, 1e-4);
@@ -2082,8 +2076,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 5u);
-        
-        
+
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
@@ -2120,18 +2113,20 @@ public:
         TS_ASSERT_DELTA(moments(0), 5.0/90.0, 1e-6);    // Ixx
         TS_ASSERT_DELTA(moments(1), 2.0/9.0, 1e-6);    // Iyy
         TS_ASSERT_DELTA(moments(2), -5.0/90.0, 1e-6);    // Ixy
-        
-                        
+              
         // Hexagonal mesh from mesh generator.
         VertexMesh<2,2> mesh(4, 4, 0.01, 2.0);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 48u);
 
         // Test area and perimeter calculations for  all  elements
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
         {
-            TS_ASSERT_DELTA(mesh.GetAreaOfElement(i), 0.8660, 1e-4);
-            TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(i), 3.4641, 1e-4);
+        	unsigned elem_index = iter->GetIndex();
+            TS_ASSERT_DELTA(mesh.GetAreaOfElement(elem_index), 0.8660, 1e-4);
+            TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(elem_index), 3.4641, 1e-4);
         }
 
         // Test centroid calculations for random elements
@@ -2142,8 +2137,7 @@ public:
         centroid = mesh.GetCentroidOfElement(7);
         TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
         TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
-        
-        
+
         // Test CalculateMomentOfElement() for all elements
         // all elements are regular hexagons with edge 1/sqrt(3) 
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
@@ -2181,7 +2175,7 @@ public:
         c_vector<double, 2> short_axis = mesh1.GetShortAxisOfElement(0);
         TS_ASSERT_DELTA(short_axis(0), 0.0, 1e-6);
         TS_ASSERT_DELTA(short_axis(1), 1.0, 1e-6);
-        
+
 
         // Second test
         

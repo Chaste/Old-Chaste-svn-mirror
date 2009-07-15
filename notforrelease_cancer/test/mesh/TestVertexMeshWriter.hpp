@@ -40,7 +40,6 @@ class TestVertexMeshWriter : public CxxTest::TestSuite
 {
 public:
 
-
     void TestMeshWriter() throw(Exception)
     {
         std::vector<Node<2>*> basic_nodes;
@@ -134,7 +133,6 @@ public:
 #endif //CHASTE_VTK
     }
 };
-
 
 
 #endif /*TESTVERTEXMESHWRITER_HPP_*/

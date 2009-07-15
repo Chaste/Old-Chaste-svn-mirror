@@ -72,15 +72,17 @@ private:
 
         TS_ASSERT_EQUALS(pMesh1->GetNumElements(), pMesh2->GetNumElements());
 
-        for (unsigned i=0; i<pMesh1->GetNumElements(); i++)
-        {
-            VertexElement<DIM,DIM>* p_elt1 = pMesh1->GetElement(i);
-            VertexElement<DIM,DIM>* p_elt2 = pMesh2->GetElement(i);
-            TS_ASSERT_EQUALS(p_elt1->GetNumNodes(), p_elt2->GetNumNodes());
+		for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = pMesh1->GetElementIteratorBegin();
+             iter != pMesh1->GetElementIteratorEnd();
+             ++iter)
+		{
+            unsigned elem_index = iter->GetIndex();
+            VertexElement<DIM,DIM>* p_elt2 = pMesh2->GetElement(elem_index);
+            TS_ASSERT_EQUALS(iter->GetNumNodes(), p_elt2->GetNumNodes());
 
-            for (unsigned j=0; j<p_elt1->GetNumNodes(); j++)
+            for (unsigned j=0; j<iter->GetNumNodes(); j++)
             {
-                TS_ASSERT_EQUALS(p_elt1->GetNodeGlobalIndex(j), p_elt2->GetNodeGlobalIndex(j));
+                TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(j), p_elt2->GetNodeGlobalIndex(j));
             }
         }
     }
