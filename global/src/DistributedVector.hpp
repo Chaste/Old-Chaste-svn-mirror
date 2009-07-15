@@ -67,7 +67,7 @@ private:
     /** The underlying PETSc vector. */
     Vec mVec;
     /** The local part of the underlying PETSc vector. */
-    double *mpVec;
+    double* mpVec;
     
     /** 
      * Pointer to the factory that created this DistributedVector. 
@@ -168,7 +168,7 @@ public:
     {
         unsigned mStride; /**< Number of types of information in the vector. */
         unsigned mStripe; /**< The number of this stripe within the vector starting from 0. */
-        double *mpVec;    /**< The local part of the underlying PETSc vector. */
+        double* mpVec;    /**< The local part of the underlying PETSc vector. */
         unsigned mLo;     /**< The first entry owned by the current processor. */
         unsigned mHi;     /**< One above the last entry owned by the current processor. */
         DistributedVectorFactory* mpFactory; /**< The factory that created our parent vector. */
@@ -237,7 +237,7 @@ public:
     class Chunk
     {
         unsigned mOffset; /**< The start of this chunk within the locally-owned part of the vector. */
-        double *mpVec;    /**< The local part of the underlying PETSc vector. */
+        double* mpVec;    /**< The local part of the underlying PETSc vector. */
         unsigned mLo;     /**< The first entry owned by the current processor. */
         unsigned mHi;     /**< One above the last entry owned by the current processor. */
 
