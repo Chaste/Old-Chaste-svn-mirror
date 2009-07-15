@@ -376,7 +376,7 @@ protected:
 private:
 
     /** The single instance of the class */
-    static TissueConfig *mpInstance;
+    static TissueConfig* mpInstance;
 
     /**
      * Duration of G1 phase for stem cells.
