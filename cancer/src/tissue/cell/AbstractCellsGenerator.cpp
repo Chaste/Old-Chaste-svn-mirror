@@ -154,6 +154,23 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
     }
 }
 
+template<unsigned DIM>
+void AbstractCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
+                                                           const unsigned numCells)
+{
+    rCells.clear();
+    rCells.reserve(numCells);
+
+    for (unsigned i=0; i<numCells; i++)
+    {
+        AbstractCellCycleModel *p_cell_cycle_model = CreateCellCycleModel();
+        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+        double birth_time = 0.0 - i;
+        cell.SetBirthTime(birth_time);
+        rCells.push_back(cell);
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

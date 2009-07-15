@@ -59,24 +59,6 @@ bool FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::CellsCanDiff
 
 
 template<unsigned DIM>
-void FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
-                                                           const unsigned numCells)
-{
-    rCells.clear();
-    rCells.reserve(numCells);
-
-    for (unsigned i=0; i<numCells; i++)
-    {
-        AbstractCellCycleModel *p_cell_cycle_model = CreateCellCycleModel();
-        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
-        double birth_time = 0.0 - i;
-        cell.SetBirthTime(birth_time);
-        rCells.push_back(cell);
-    }
-}
-
-
-template<unsigned DIM>
 void FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
                                                                           const std::vector<unsigned> locationIndices)
 {

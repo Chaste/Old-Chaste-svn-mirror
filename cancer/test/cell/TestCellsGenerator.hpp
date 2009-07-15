@@ -89,7 +89,6 @@ public:
         }
     }
 
-
     void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateForCrypt() throw(Exception)
     {
         // Create mesh
@@ -257,7 +256,6 @@ public:
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
     }
-
 
     void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
     {
