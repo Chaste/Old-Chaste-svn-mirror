@@ -149,7 +149,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
         if(is_node_bath_reduced[i] > 0) // ie is a bath node
         {
             PetscInt index[1];
-            index[0] = 2*i;
+            index[0] = 2*i; /// \todo: assumes Vm and Phie are interleaved
 
             if(assembleMatrix)
             {
@@ -164,9 +164,36 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
                  *     Phie 0 0 0 x x x  -> the x subblock is assembled from div(grad_phi) = 0
                  *     Phie 0 0 0 x x x
                  *
-                 *  Therefore, all the Vm entries of this node are already 0.  
+                 *  Therefore, all the Vm entries of this node are already 0.
+                 * 
+                 *  Explicitely checking it in non-production builds.  
                  */
+#ifndef NDEBUG
+                int num_equation = 2*i; /// \todo: assumes Vm and Phie are interleaved
 
+                // Matrix need to be assembled in order to use GetMatrixElement()
+                MatAssemblyBegin((*this->GetLinearSystem())->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
+                MatAssemblyEnd((*this->GetLinearSystem())->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
+    
+                PetscInt local_lo, local_hi;
+                (*this->GetLinearSystem())->GetOwnershipRange(local_lo, local_hi);
+                
+                if ((local_lo <= (int)num_equation) && ((int)num_equation < local_hi))
+                {
+                    // This processor owns i-th row. Check it.
+                    for (unsigned column=0; column < (*this->GetLinearSystem())->GetSize(); column++)
+                    {
+                        //std::cout << column << " " << (*this->GetLinearSystem())->GetMatrixElement(num_equation, column) << std::endl;
+                        assert((*this->GetLinearSystem())->GetMatrixElement(num_equation, column)==0.0);                                        
+                    }
+                }
+                
+                // Check the local entries of the i-th column
+                for (int row=local_lo; row<local_hi; row++)
+                {
+                    assert((*this->GetLinearSystem())->GetMatrixElement(row, num_equation)==0);                                                        
+                }
+#endif
                 // put 1.0 on the diagonal
                 Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
                 MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
