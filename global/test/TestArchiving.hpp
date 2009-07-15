@@ -47,11 +47,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // see http://www.boost.org/libs/serialization/doc/index.html
 class ParentClass;
 
-class ChildClass    // this is an abstract of an AbstractCellCycleModel!
+class ChildClass
 {
 public:
     unsigned mTag;
-    ParentClass *mpParent;
+    ParentClass* mpParent;
     ChildClass() : mTag(1)
     {
     }
@@ -65,17 +65,15 @@ public:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        //std::cout << "Child archiving\n" << std::flush;
         archive & mTag;
     }
 };
-//BOOST_CLASS_EXPORT(ChildClass)
 
-class ParentClass   // this is an abstract of a TissueCell.
+class ParentClass
 {
 public:
     unsigned mTag;
-    ChildClass *mpChild;
+    ChildClass* mpChild;
     ParentClass(ChildClass* pChild) : mTag(0), mpChild(pChild)
     {
         mpChild->SetParent(this);
@@ -86,7 +84,6 @@ public:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        //std::cout << "Parent archiving\n" << std::flush;
         archive & mTag;
     }
 };
@@ -98,19 +95,18 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate an instance of ParentClass.
  */
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const ParentClass * t, const unsigned int file_version)
 {
-    //std::cout << "Parent save construct\n" << std::flush;
     ar << t->mpChild;
 }
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate a ParentClass instance.
  */
 template<class Archive>
 inline void load_construct_data(
@@ -120,8 +116,7 @@ inline void load_construct_data(
     // constructor, provided they are valid parameter values, since the
     // state loaded later from the archive will overwrite their effect in
     // this case.
-    // Invoke inplace constructor to initialize instance of my_class
-    //std::cout << "Parent load construct\n" << std::flush;
+    // Invoke inplace constructor to initialize instance of ParentClass.
     ChildClass* p_child;
     ar >> p_child;
     ::new(t)ParentClass(p_child);
@@ -320,9 +315,9 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            ClassOfSimpleVariables one(42,"hello", doubles,bools);
-            ClassOfSimpleVariables two(256,"goodbye", doubles,bools);
-            ClassOfSimpleVariables three(1,"not used in set", doubles,bools);
+            ClassOfSimpleVariables one(42, "hello", doubles,bools);
+            ClassOfSimpleVariables two(256, "goodbye", doubles,bools);
+            ClassOfSimpleVariables three(1, "not used in set", doubles,bools);
 
             std::list<ClassOfSimpleVariables> a_list;
             std::set<ClassOfSimpleVariables*> a_set;
@@ -332,14 +327,13 @@ public:
             a_set.insert( &(a_list.back()) );
             a_list.push_back(three);
 
-
             std::set<std::set<ClassOfSimpleVariables*> > wrapper_set;
             wrapper_set.insert(a_set);
 
             output_arch << static_cast<const std::list<ClassOfSimpleVariables>&>(a_list);
             output_arch << static_cast<const std::set<std::set<ClassOfSimpleVariables*> >&>(wrapper_set);
-
         }
+
         //Load
         {
             std::set<std::set<ClassOfSimpleVariables*> > wrapper_set;
@@ -359,45 +353,47 @@ public:
             ClassOfSimpleVariables* p_one_in_set = NULL;
             ClassOfSimpleVariables* p_two_in_set = NULL;
             for (std::set<ClassOfSimpleVariables*>::iterator it = a_set.begin();
-                it!=a_set.end(); ++it)
+                 it!=a_set.end();
+                 ++it)
             {
                    ClassOfSimpleVariables* p_class = *(it);
                    if (p_class->GetNumber()==42)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
-                        TS_ASSERT_EQUALS(p_class->GetString(),"hello");
-                        p_one_in_set=p_class;
+                        TS_ASSERT_EQUALS(p_class->GetString(), "hello");
+                        p_one_in_set = p_class;
                    }
                    else
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 256);
-                        TS_ASSERT_EQUALS(p_class->GetString(),"goodbye");
-                        p_two_in_set=p_class;
+                        TS_ASSERT_EQUALS(p_class->GetString(), "goodbye");
+                        p_two_in_set = p_class;
                    }
             }
 
             ClassOfSimpleVariables* p_one_in_list = NULL;
             ClassOfSimpleVariables* p_two_in_list = NULL;
             for (std::list<ClassOfSimpleVariables>::iterator it = a_list.begin();
-                it!=a_list.end(); ++it)
+                 it!=a_list.end();
+                 ++it)
             {
-                   ClassOfSimpleVariables* p_class = &(*(it));
+                   ClassOfSimpleVariables* p_class = &(*it);
                    if (p_class->GetNumber()==42)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 42);
-                        TS_ASSERT_EQUALS(p_class->GetString(),"hello");
+                        TS_ASSERT_EQUALS(p_class->GetString(), "hello");
                         p_one_in_list=p_class;
                    }
                    else if (p_class->GetNumber()==256)
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 256);
-                        TS_ASSERT_EQUALS(p_class->GetString(),"goodbye");
+                        TS_ASSERT_EQUALS(p_class->GetString(), "goodbye");
                         p_two_in_list=p_class;
                    }
                    else
                    {
                         TS_ASSERT_EQUALS(p_class->GetNumber(), 1);
-                        TS_ASSERT_EQUALS(p_class->GetString(),"not used in set");
+                        TS_ASSERT_EQUALS(p_class->GetString(), "not used in set");
                    }
             }
             TS_ASSERT_DIFFERS(p_one_in_list, (void*)NULL);

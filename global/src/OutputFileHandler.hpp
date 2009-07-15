@@ -62,7 +62,7 @@ public:
      * @param rDirectory  the directory to put output files in.
      * @param rCleanOutputDirectory  whether to remove any existing files in the output directory
      */
-    OutputFileHandler(const std::string &rDirectory,
+    OutputFileHandler(const std::string& rDirectory,
                       bool rCleanOutputDirectory = true);
 
     /**

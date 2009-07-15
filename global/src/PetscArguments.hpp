@@ -60,7 +60,7 @@ private:
     PetscArguments& operator= (const PetscArguments&);
 
     /** The single instance of the class. */
-    static PetscArguments *mpInstance;
+    static PetscArguments* mpInstance;
 };
 
 #endif // PETSCARGUMENTS_HPP_

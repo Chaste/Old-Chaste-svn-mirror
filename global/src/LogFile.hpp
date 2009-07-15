@@ -119,8 +119,8 @@ public:
      *
      *  The directory is never cleaned.
      *
-     *  @param level
-     *  @param directory
+     *  @param level  the logging level
+     *  @param directory  the directory in which to write the data to file \todo make this argument a reference?
      *  @param fileName  the name of the file to write to, relative to the output directory
      */
     void Set(unsigned level, std::string directory, std::string fileName="log.txt");
@@ -134,7 +134,7 @@ public:
      *  Set the precision to write data (the 'decimal precision', look up
      *  documentation for std::setprecision()).
      *
-     *  @param precision
+     *  @param precision  the precision
      */
     void SetPrecision(unsigned precision);
 

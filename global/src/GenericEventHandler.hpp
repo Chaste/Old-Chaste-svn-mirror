@@ -67,7 +67,7 @@ private:
     /**
      * Convert a CPU clock tick count to milliseconds.
      *
-     * @param clockTicks
+     * @param clockTicks  the CPU clock tick
      */
     inline static double ConvertTicksToMilliseconds(double clockTicks)
     {
@@ -77,14 +77,14 @@ private:
     /**
      * Convert a CPU clock tick count to seconds.
      *
-     * @param clockTicks
+     * @param clockTicks  the CPU clock tick
      */
     inline static double ConvertTicksToSeconds(double clockTicks)
     {
         return clockTicks/(CLOCKS_PER_SEC);
     }
 
-    /** Make sure the vectors are the right length */
+    /** Make sure the vectors are the right length. */
     inline static void CheckVectorSizes()
     {
         if (!mInitialised)
@@ -115,7 +115,7 @@ public:
     /**
      * Record the start of an event.
      *
-     * @param event
+     * @param event  the index of an event (this must be less than NUM_EVENTS)
      */
     static void BeginEvent(unsigned event) throw (Exception)
     {
@@ -123,7 +123,7 @@ public:
         {
             return;
         }
-        mInUse=true;
+        mInUse = true;
         assert(event<NUM_EVENTS);
         CheckVectorSizes();
         //Check that we are recording the total
@@ -153,7 +153,7 @@ public:
     /**
      * Record the ending of an event.
      *
-     * @param event
+     * @param event  the index of an event (this must be less than NUM_EVENTS)
      */
     static void EndEvent(unsigned event)
     {
@@ -181,7 +181,7 @@ public:
      *
      * Will automatically determine if the event is currently ongoing or not.
      *
-     * @param event
+     * @param event  the index of an event (this must be less than NUM_EVENTS)
      */
     static double GetElapsedTime(unsigned event)
     {

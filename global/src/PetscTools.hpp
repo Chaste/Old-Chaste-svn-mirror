@@ -113,7 +113,7 @@ public:
     /**
      * Create a vector of the specified size. SetFromOptions is called.
      *
-     * @param size
+     * @param size  the size of the vector
      */
     static Vec CreateVec(int size);
 
@@ -121,15 +121,15 @@ public:
      * Create a vector of the specified size with all values set to be the given
      * constant. SetFromOptions is called.
      *
-     * @param size
-     * @param value
+     * @param size  the size of the vector
+     * @param value  the value to set each entry
      */
     static Vec CreateVec(int size, double value);
 
     /**
      * Create a Vec from the given data.
      *
-     * @param data
+     * @param data  some data
      */
     static Vec CreateVec(std::vector<double> data);
 
@@ -220,11 +220,8 @@ public:
      */
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
 
-
 #endif //SPECIAL_SERIAL
 
 };
-
-
 
 #endif /*PETSCTOOLS_HPP_*/

@@ -81,8 +81,8 @@ private:
     /**
      * Archive the member variables.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -102,11 +102,10 @@ public:
     /**
      * Set the problem size specifying distribution over local processor.
      *
-     * @param size
-     * @param local - default to PETSc's default
+     * @param size  the problem size
+     * @param local defaults to PETSc's default
      */
     DistributedVectorFactory(unsigned size, PetscInt local=PETSC_DECIDE);
-
 
     /**
      * Create a PETSc vector of the problem size
@@ -121,8 +120,7 @@ public:
      * @param stride
      */
     Vec CreateVec(unsigned stride);
-    
-    
+
     /**
      * Create a distributed vector which wraps a given petsc vector
      * 
@@ -130,14 +128,14 @@ public:
      * @return the distributed vector 
      */
     DistributedVector CreateDistributedVector(Vec vec);
-    
+
     /**
      * Test if the given global index is owned by the current process, i.e. is local to it.
      *
-     * @param globalIndex
+     * @param globalIndex a global index
      */
     bool IsGlobalIndexLocal(unsigned globalIndex);
-    
+
     /**
      * @return The number of elements in the vector owned by the local process
      */
@@ -145,7 +143,7 @@ public:
     {
         return mHi - mLo;
     }
-    
+
     /**
      * @return #mHi - The next index above the top one owned by the process.
      */
@@ -153,7 +151,7 @@ public:
     {
         return mHi;
     }
-    
+
     /**
      * @return #mLo - The lowest index owned by the process.
      */

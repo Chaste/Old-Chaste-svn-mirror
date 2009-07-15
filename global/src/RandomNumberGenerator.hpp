@@ -76,8 +76,8 @@ public:
      * The shuffled values are returned in rValues, which doesn't need to
      * be correctly-sized when passed in.
      *
-     * @param num
-     * @param rValues
+     * @param num  the number of integers to shuffle
+     * @param rValues  the shuffled values
      */
     void Shuffle(unsigned num, std::vector<unsigned>& rValues);
 
@@ -130,8 +130,8 @@ private:
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
@@ -148,8 +148,8 @@ private:
      * serialized directly, or an assertion will trip when a second
      * instance of the class is created on de-serialization.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void load(Archive & archive, const unsigned int version)

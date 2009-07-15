@@ -76,7 +76,7 @@ public:
      * @param rDirectory  the directory to write to.
      * @param rFilename  the base name (minus extension) for the mesh files.
      */
-    static void SetMeshPathname(const std::string &rDirectory, const std::string &rFilename)
+    static void SetMeshPathname(const std::string& rDirectory, const std::string& rFilename)
     {
         SetArchiveDirectory(rDirectory);
         mMeshFilename = rFilename;
@@ -113,9 +113,10 @@ public:
       
     /**
      * Set the directory that archives are being written to.
+     * 
      * @param rDirectory  the directory in question.
      */
-    static void SetArchiveDirectory(const std::string &rDirectory)
+    static void SetArchiveDirectory(const std::string& rDirectory)
     {
         mDirPath = rDirectory;
         if (! ( *(mDirPath.end()-1) == '/'))
