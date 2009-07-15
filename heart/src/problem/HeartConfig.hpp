@@ -535,7 +535,7 @@ public:
      */
     void SetKSPSolver(const char* kspSolver);
     /** Set the type of preconditioner as with the flag "-pc_type"
-     * @param kspPreconditioner  a string from {"ilu", "jacobi", "bjacobi", "hypre", "none"}
+     * @param kspPreconditioner  a string from {"ilu", "jacobi", "bjacobi", "hypre", "blockdiagonal", "none"}
      */
     void SetKSPPreconditioner(const char* kspPreconditioner);
 
