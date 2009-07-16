@@ -28,6 +28,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERTEXMESHWRITER_HPP_
 #define VERTEXMESHWRITER_HPP_
 
+#ifdef CHASTE_VTK
+//Requires  "sudo aptitude install libvtk5-dev" or similar
+#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#include <vtkDoubleArray.h>
+#include <vtkCellData.h>
+#include <vtkPointData.h>
+#include <vtkConvexPointSet.h>
+#include <vtkPolygon.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkUnstructuredGridWriter.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkDataCompressor.h>
+#endif //CHASTE_VTK
+
 #include "VertexMesh.hpp"
 #include "OutputFileHandler.hpp"
 #include <iomanip>
@@ -45,6 +59,15 @@ private:
 
     /** Base name for results files. */
     std::string mBaseName;
+
+
+#ifdef CHASTE_VTK
+//Requires  "sudo aptitude install libvtk5-dev" or similar
+///\todo Merge into VtkWriter
+    vtkUnstructuredGrid *mpVtkUnstructedMesh;
+
+#endif //CHASTE_VTK
+
 
 public:
 
@@ -70,6 +93,31 @@ public:
      * @param rMesh reference to the vertex-based mesh
      */
     void WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+
+    /**
+     * Write VTK file using a mesh.
+     *
+     * @param rMesh reference to the vertex-based mesh
+     * @parma stamp is an optional stamp (like a time-stamp) to put into the name of the file
+     */
+    void WriteVtkUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string stamp="");
+
+    /**
+     * Add data to a future VTK file.
+     *
+     * @param dataName a tag to go into the VTK file
+     * @parma dataPayload a pay-load of length (number of elements)
+     */
+    void AddCellData(std::string dataName, std::vector<double> dataPayload);
+    /**
+     * Add data to a future VTK file.
+     *
+     * @param dataName a tag to go into the VTK file
+     * @parma dataPayload a pay-load of length (number of nodes)
+     */
+    void AddPointData(std::string dataName, std::vector<double> dataPayload);
+
+
 };
 
 #endif /*VERTEXMESHWRITER_HPP_*/

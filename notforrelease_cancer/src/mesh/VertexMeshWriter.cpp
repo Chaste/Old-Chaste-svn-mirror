@@ -35,6 +35,10 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rD
     : mBaseName(rBaseName)
 {
      mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
+#ifdef CHASTE_VTK
+     // Dubious, since we shouldn't yet know what any details of the mesh are.
+     mpVtkUnstructedMesh = vtkUnstructuredGrid::New();
+#endif //CHASTE_VTK
 }
 
 
@@ -42,7 +46,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 {
     delete mpOutputFileHandler;
-}
+ #ifdef CHASTE_VTK
+     // Dubious, since we shouldn't yet know what any details of the mesh are.
+     mpVtkUnstructedMesh->Delete(); // Reference counted
+#endif //CHASTE_VTK
+}    
+
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -112,6 +121,105 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<EL
     }
     *p_element_file << comment << "\n";
     p_element_file->close();
+}
+
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string stamp)
+{
+#ifdef CHASTE_VTK
+    //Make the Vtk mesh
+    assert(SPACE_DIM==3 || SPACE_DIM == 2);
+    vtkPoints *p_pts = vtkPoints::New(VTK_DOUBLE);
+    p_pts->GetData()->SetName("Vertex positions");
+    for (unsigned node_num=0; node_num<rMesh.GetNumNodes(); node_num++)
+    {
+        c_vector<double, SPACE_DIM> position = rMesh.GetNode(node_num)->rGetLocation();
+        if (SPACE_DIM==2)
+        {
+            p_pts->InsertPoint(node_num, position[0], position[1], 0.0);
+        } 
+        else 
+        {
+            p_pts->InsertPoint(node_num, position[0], position[1], position[2]);
+        }
+    }
+
+    mpVtkUnstructedMesh->SetPoints(p_pts);
+    p_pts->Delete(); //Reference counted
+    for (typename VertexMesh<ELEMENT_DIM,SPACE_DIM>::VertexElementIterator iter = rMesh.GetElementIteratorBegin();
+             iter != rMesh.GetElementIteratorEnd();
+             ++iter)
+    {
+        vtkCell *p_cell;
+        if (SPACE_DIM == 2)
+        {
+            p_cell = vtkPolygon::New();
+        }
+        else
+        {
+            p_cell = vtkConvexPointSet::New();
+        }
+        vtkIdList *p_cell_id_list = p_cell->GetPointIds();
+        p_cell_id_list->SetNumberOfIds(iter->GetNumNodes());
+        for (unsigned j = 0; j < iter->GetNumNodes(); ++j)
+        {
+            p_cell_id_list->SetId(j, iter->GetNodeGlobalIndex(j));
+        }
+        mpVtkUnstructedMesh->InsertNextCell(p_cell->GetCellType(), p_cell_id_list);
+        p_cell->Delete(); //Reference counted
+    }
+    
+    //Vtk mesh is now made
+    assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
+    vtkXMLUnstructuredGridWriter *p_writer = vtkXMLUnstructuredGridWriter::New();
+    p_writer->SetInput(mpVtkUnstructedMesh);
+    p_writer->SetDataMode(vtkXMLWriter::Appended);
+    p_writer->SetDataMode(vtkXMLWriter::Ascii);//For testing
+    //Not sure how the uninitialised stuff arises, but you can remove
+    //valgrind problems by removing compression:
+    //p_writer->SetCompressor(NULL);
+    std::string vtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName+".vtu";
+    p_writer->SetFileName(vtk_file_name.c_str());
+    //p_writer->PrintSelf(std::cout, vtkIndent());
+    p_writer->Write();
+    p_writer->Delete(); //Reference counted  
+#endif //CHASTE_VTK
+}    
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
+{
+#ifdef CHASTE_VTK
+    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    p_scalars->SetName(dataName.c_str());
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        p_scalars->InsertNextValue(dataPayload[i]);
+    }
+
+    vtkCellData *p_cell_data = mpVtkUnstructedMesh->GetCellData();
+    p_cell_data->AddArray(p_scalars);
+    p_scalars->Delete(); //Reference counted
+#endif //CHASTE_VTK
+}
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
+{
+#ifdef CHASTE_VTK
+    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    p_scalars->SetName(dataName.c_str());
+    for (unsigned i=0; i<dataPayload.size(); i++)
+    {
+        p_scalars->InsertNextValue(dataPayload[i]);
+    }
+
+    vtkPointData *p_point_data = mpVtkUnstructedMesh->GetPointData();
+    p_point_data->AddArray(p_scalars);
+    p_scalars->Delete(); //Reference counted
+#endif //CHASTE_VTK
 }
 
 

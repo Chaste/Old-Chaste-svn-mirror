@@ -54,14 +54,12 @@ template <unsigned DIM>
 class VtkWriter : public AbstractTetrahedralMeshWriter<DIM, DIM>
 {
 
-#ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 
 private:
     vtkUnstructuredGrid *mpVtkUnstructedMesh;
 
     void MakeVtkMesh();
-#endif //CHASTE_VTK
 public:
 
     /**

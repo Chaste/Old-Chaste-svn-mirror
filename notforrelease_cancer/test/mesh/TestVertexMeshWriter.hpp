@@ -53,7 +53,7 @@ public:
 
         std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
 
-        // Make two triangular elements out of these nodes
+        // Make two elements out of these nodes
         nodes_elem_0.push_back(basic_nodes[0]);
         nodes_elem_0.push_back(basic_nodes[1]);
         nodes_elem_0.push_back(basic_nodes[2]);
@@ -81,57 +81,61 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
-    }
 
-
-    void TestVtkVertexMeshWriter() throw(Exception)
-    {
 #ifdef CHASTE_VTK
-// Requires  "sudo aptitude install libvtk5-dev" or similar
-        std::vector<Node<2>*> basic_nodes;
-        basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-        basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-        basic_nodes.push_back(new Node<2>(2, false, 1.5, 1.0));
-        basic_nodes.push_back(new Node<2>(3, false, 1.0, 2.0));
-        basic_nodes.push_back(new Node<2>(4, false, 0.0, 1.0));
-        basic_nodes.push_back(new Node<2>(5, false, 2.0, 0.0));
-        basic_nodes.push_back(new Node<2>(6, false, 2.0, 3.0));
-
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
-
-        // Make two triangular elements out of these nodes
-        nodes_elem_0.push_back(basic_nodes[0]);
-        nodes_elem_0.push_back(basic_nodes[1]);
-        nodes_elem_0.push_back(basic_nodes[2]);
-        nodes_elem_0.push_back(basic_nodes[3]);
-        nodes_elem_0.push_back(basic_nodes[4]);
-
-        nodes_elem_1.push_back(basic_nodes[2]);
-        nodes_elem_1.push_back(basic_nodes[5]);
-        nodes_elem_1.push_back(basic_nodes[6]);
-
-        std::vector<VertexElement<2,2>*> basic_vertex_elements;
-        basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-        basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-
-        // Make a vertex mesh
-        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0u)->IsDeleted(), false);
-   
-        //AbstractMesh<2,2> *p_abs_mesh = &basic_vertex_mesh;
-        //TS_ASSERT_EQUALS(p_abs_mesh->GetNumElements(), 2u);
-        
-        //The next line segfaults since VertexMesh and AbstractTetrahedralMesh
-        //both have a vector called mElements
-        
-        //***** TS_ASSERT_EQUALS(p_abs_mesh->GetElement(0u)->IsDeleted(), false);
-   
-        // Create a vertex mesh writer
-        //VtkWriter<2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
-        //vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
+        std::vector<double> cell_ids;
+        cell_ids.push_back(0.0);
+        cell_ids.push_back(1.0);
+        vertex_mesh_writer.AddCellData("Cell IDs", cell_ids);
+        // Add distance from origin into the node "point" data
+        std::vector<double> distance;
+        for (unsigned i=0; i<basic_vertex_mesh.GetNumNodes(); i++)
+        {
+            distance.push_back(norm_2(basic_vertex_mesh.GetNode(i)->rGetLocation()));
+        }
+        vertex_mesh_writer.AddPointData("Distance from origin", distance);
+       
+        vertex_mesh_writer.WriteVtkUsingMesh(basic_vertex_mesh);
 #endif //CHASTE_VTK
     }
+    
+void TestMeshVtkWriter3D() throw(Exception)
+    {           // Create 3D mesh
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 1.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 0.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(4, false, 0.0, 2.0, 3.0));
+        nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 3.0));
+        nodes.push_back(new Node<3>(6, false, 1.0, 2.0, 3.0));
+        nodes.push_back(new Node<3>(7, false, 0.0, 2.0, 3.0));
+
+        std::vector<VertexElement<3,3>*> elements;
+        elements.push_back(new VertexElement<3,3>(0, nodes));
+
+        VertexMesh<3,3> mesh3d(nodes, elements);
+        TS_ASSERT_DELTA(mesh3d.GetWidth(0), 1.0, 1e-4);
+        TS_ASSERT_DELTA(mesh3d.GetWidth(1), 2.0, 1e-4);
+        TS_ASSERT_DELTA(mesh3d.GetWidth(2), 3.0, 1e-4);
+        VertexMeshWriter<3,3> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh_3d", false);
+        
+#ifdef CHASTE_VTK
+        std::vector<double> cell_ids;
+        cell_ids.push_back(0.0);
+        vertex_mesh_writer.AddCellData("Cell IDs", cell_ids);
+         // Add distance from origin into the node "point" data
+        std::vector<double> distance;
+        for (unsigned i=0; i<mesh3d.GetNumNodes(); i++)
+        {
+            distance.push_back(norm_2(mesh3d.GetNode(i)->rGetLocation()));
+        }
+        vertex_mesh_writer.AddPointData("Distance from origin", distance);
+       
+        vertex_mesh_writer.WriteVtkUsingMesh(mesh3d);
+#endif //CHASTE_VTK   
+    }     
+    
 };
 
 
