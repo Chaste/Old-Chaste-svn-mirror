@@ -1647,7 +1647,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     std::vector<unsigned> division_node_global_indices;
     int nodes_added = 0;
 
-    // Divide intersecting edges in half puting new nodes away from the existing ones
+//    // Divide intersecting edges in half puting new nodes away from the existing ones
 //    for (unsigned i=0; i<intersecting_nodes.size(); i++)
 //    {
 //        // Get pointers to the nodes forming the edge into which one new node will be inserted
@@ -1656,8 +1656,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 //         * we change the local index of the second entry of intersecting_nodes in
 //         * pElement, so must account for this by moving one entry further on.
 //         */
-//        Node<SPACE_DIM> *p_node_A = pElement->GetNode((intersecting_nodes[i]+nodes_added)%pElement->GetNumNodes());
-//        Node<SPACE_DIM> *p_node_B = pElement->GetNode((intersecting_nodes[i]+nodes_added+1)%pElement->GetNumNodes());
+//        Node<SPACE_DIM>* p_node_A = pElement->GetNode((intersecting_nodes[i]+nodes_added)%pElement->GetNumNodes());
+//        Node<SPACE_DIM>* p_node_B = pElement->GetNode((intersecting_nodes[i]+nodes_added+1)%pElement->GetNumNodes());
 //
 //        c_vector<double, SPACE_DIM> position_a = p_node_A->rGetLocation();
 //        c_vector<double, SPACE_DIM> position_b = p_node_B->rGetLocation();
@@ -1889,20 +1889,25 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     
     // find lowest element \todo this could be more efficient
     double height_midpoint_1 = 0.0, height_midpoint_2 = 0.0; 
+    unsigned counter_1=0, counter_2=0;
         
     for (unsigned i=0; i<num_nodes; i++)
     {
         if (i>=node1Index || i<=node2Index)
         {
             height_midpoint_1 += pElement->GetNode(i)->rGetLocation()[1];
+            counter_1++;
         }
         if (i<=node1Index || i>=node2Index)
         {
             height_midpoint_2 += pElement->GetNode(i)->rGetLocation()[1];
+            counter_2++;
         }
     }
-    height_midpoint_1 /= node2Index-node1Index+1;
-    height_midpoint_2 /= num_nodes - node2Index + node1Index+1;
+    height_midpoint_1 /= (double)counter_1;
+    height_midpoint_2 /= (double)counter_2;
+
+//PRINT_VARIABLES(height_midpoint_1,height_midpoint_2);
 
     if  (height_midpoint_1 < height_midpoint_2)
     {
@@ -1941,6 +1946,26 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
             }
         }
     }
+
+    
+    /// Check New element is above Old Element
+    double new_height_midpoint = 0.0, old_height_midpoint = 0.0;
+ 
+    for (unsigned i=0; i<pElement->GetNumNodes(); i++)
+    {
+        old_height_midpoint += pElement->GetNode(i)->rGetLocation()[1];
+    }
+    old_height_midpoint /= (double)pElement->GetNumNodes();
+    for (unsigned i=0; i<mElements[new_element_index]->GetNumNodes(); i++)
+    {
+        new_height_midpoint += mElements[new_element_index]->GetNode(i)->rGetLocation()[1];
+    }
+    new_height_midpoint /= (double)mElements[new_element_index]->GetNumNodes();
+
+//PRINT_VARIABLES(old_height_midpoint,new_height_midpoint);
+    
+    //assert(old_height_midpoint<=new_height_midpoint);
+    
     return new_element_index;
 }
 
