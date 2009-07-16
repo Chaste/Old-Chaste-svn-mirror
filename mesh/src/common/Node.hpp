@@ -306,7 +306,7 @@ public:
         /**
          * Comparison equal-to.
          *
-         * @param other ContainingElementIterator with which comparison is made
+         * @param rOther ContainingElementIterator with which comparison is made
          */
         bool operator==(const ContainingElementIterator& rOther) const
         {
@@ -364,7 +364,7 @@ public:
         /**
          * Comparison not-equal-to.
          *
-         * @param other ContainingBoundaryElementIterator with which comparison is made
+         * @param rOther ContainingBoundaryElementIterator with which comparison is made
          */
         bool operator!=(const ContainingBoundaryElementIterator& rOther) const
         {
@@ -373,7 +373,7 @@ public:
         /**
          * Comparison equal-to.
          *
-         * @param other ContainingBoundaryElementIterator with which comparison is made
+         * @param rOther ContainingBoundaryElementIterator with which comparison is made
          */
         bool operator==(const ContainingBoundaryElementIterator& rOther) const
         {
