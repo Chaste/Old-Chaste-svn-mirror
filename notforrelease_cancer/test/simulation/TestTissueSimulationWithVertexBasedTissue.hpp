@@ -315,8 +315,8 @@ public:
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 5, 0.1, 2.0);
 
-        //mesh.SetCellRearrangementThreshold(0.1);
-        //mesh.SetT2Threshold(0.001);
+        mesh.SetCellRearrangementThreshold(0.2);
+        mesh.SetT2Threshold(0.001); //\todo this stops the T2swap
 
         // Set up cells, one for each VertexElement. Give each cell
         // a random birth time of -elem_index, so its age is elem_index

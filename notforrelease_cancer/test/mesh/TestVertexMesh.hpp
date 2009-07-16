@@ -743,7 +743,34 @@ public:
         }
     }
 
+    void TestVertexElementMap()
+    {
+        VertexElementMap map(10);
+        TS_ASSERT_EQUALS(map.Size(), 10u);
 
+        map.ResetToIdentity();
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
+
+        map.SetNewIndex(0,1);
+        map.SetNewIndex(1,0);
+
+        TS_ASSERT_EQUALS(map.GetNewIndex(0), 1u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(1), 0u);
+        TS_ASSERT_EQUALS(map.GetNewIndex(2), 2u);
+
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+
+        map.ResetToIdentity();
+        map.SetDeleted(4);
+        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(4));
+        TS_ASSERT_EQUALS(map.IsDeleted(4), true);
+        TS_ASSERT_EQUALS(map.IsDeleted(5), false);
+        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+    }
+
+    /*
+     * ReMeshing Tests
+     */
     void TestNodesMergingOnEdge() throw(Exception)
     {
         // Make nodes to assign to 2 elements
@@ -824,7 +851,6 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(1), 0.5,1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 2.0+sqrt(2), 1e-6);
     }
-    
     
     // This tests both PerformNodeMerge and IdentifySwapType
     void TestPerformNodeMerge() throw(Exception)
@@ -954,7 +980,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1*2.0/1.1); // threshold distance is 0.1 to ease calculations
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
@@ -1027,6 +1053,99 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(3), 0.2, 1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(3), 1.0+0.2*sqrt(41.0), 1e-6);
     }
+	
+	/* 
+	 * This tests that T1Swaps rearange to form a Triangular element for a T2 Swap
+	 */
+    void TestPrepareForT2Swap() throw(Exception)
+    {
+        // Make 8 nodes to assign to four elements
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, -1.0, -1.0));
+        nodes.push_back(new Node<2>(1, false,  1.0, -1.0));
+        nodes.push_back(new Node<2>(2, false,  1.0,  1.0));
+        nodes.push_back(new Node<2>(3, false, -1.0,  1.0));
+        nodes.push_back(new Node<2>(4, false, -0.1, -0.1));
+        nodes.push_back(new Node<2>(5, false,  0.1, -0.1));
+        nodes.push_back(new Node<2>(6, false,  0.1,  0.1));
+        nodes.push_back(new Node<2>(7, false, -0.1,  0.1));
+        
+                
+        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3, nodes_elem_4;
+
+        /*
+         *  Make Four trapezium elements with a central square element out of these nodes
+         * 
+         *  _____
+         * |\ 2 /|
+         * | \_/ |
+         * |3|4|1|
+         * | /-\ |
+         * |/_0_\|
+         *  
+         */
+ 
+        // Trapezium element
+        nodes_elem_0.push_back(nodes[0]);
+        nodes_elem_0.push_back(nodes[1]);
+        nodes_elem_0.push_back(nodes[5]);
+        nodes_elem_0.push_back(nodes[4]);
+
+        // Trapezium element
+        nodes_elem_1.push_back(nodes[1]);
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[6]);
+        nodes_elem_1.push_back(nodes[5]);
+
+        // Trapezium element
+        nodes_elem_2.push_back(nodes[2]);
+        nodes_elem_2.push_back(nodes[3]);
+        nodes_elem_2.push_back(nodes[7]);
+        nodes_elem_2.push_back(nodes[6]);
+
+        // Trapezium element
+        nodes_elem_3.push_back(nodes[0]);
+        nodes_elem_3.push_back(nodes[4]);
+        nodes_elem_3.push_back(nodes[7]);
+        nodes_elem_3.push_back(nodes[3]);
+
+        // Central Square element
+        nodes_elem_4.push_back(nodes[4]);
+        nodes_elem_4.push_back(nodes[5]);
+        nodes_elem_4.push_back(nodes[6]);
+        nodes_elem_4.push_back(nodes[7]);
+
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+        vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
+        vertex_elements.push_back(new VertexElement<2,2>(4, nodes_elem_4));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+         
+        vertex_mesh.SetCellRearrangementThreshold(0.25);// T1 threshold distance is 0.25 so inner edges are too short
+        vertex_mesh.SetT2Threshold(0.0001); //T2 threshold small so doesnt occur
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
+        
+        vertex_mesh.ReMesh();
+        
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(0)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 7u);
+        
+       	vertex_mesh.SetT2Threshold(0.1); //T2 threshold larger so does occur
+       	vertex_mesh.ReMesh();
+       	TS_ASSERT(vertex_mesh.GetElement(4)->IsDeleted());
+       	
+		// \todo more tests        
+    }
+
 
 
     void TestPerformT2Swap() throw(Exception)
@@ -1089,6 +1208,7 @@ public:
         
         TS_ASSERT_EQUALS(vertex_mesh.GetNumAllElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumAllNodes(), 6u);
+        
         // probably need functionality below,
         //TS_ASSERT_EQUALS(vertex_mesh.GetNumAllNodes(), 6u);
         // ************ Need to do more tests on here to check nodes of elements are correct
@@ -1157,7 +1277,7 @@ public:
     }
 
 
-    void TestPerformT2SwapIfNecessary() throw(Exception)
+    void TestRemeshForT2Swap() throw(Exception)
     {
         // Make 6 nodes to assign to four elements
         std::vector<Node<2>*> nodes;
@@ -1202,15 +1322,17 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        
+        vertex_mesh.SetT2Threshold(0.01);
+        vertex_mesh.SetCellRearrangementThreshold(0.00001); //So T1Swaps dont happen
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
         
-        for (unsigned i=0; i<4; i++)
-        {
-            vertex_mesh.PerformT2SwapIfNecessary(vertex_elements[i]);
-        }
+        
+        vertex_mesh.ReMesh(); // Elements too big so nothing happens
+        
         
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
@@ -1228,38 +1350,33 @@ public:
         new_location_2(1) = 0.251;
 
         // T2 swaps should now happen
-        for (unsigned i=0; i<4; i++)
-        {
-            vertex_mesh.PerformT2SwapIfNecessary(vertex_elements[i]);
-        }
+        vertex_mesh.ReMesh();
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
-    }
+        
+        // Test merged node is in the correct place
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[0], 0.4999, 1e-4);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[1], 0.2496, 1e-4);
+        
+        
+        // Test elements have correct nodes
+        TS_ASSERT(vertex_mesh.GetElement(0)->IsDeleted());
+                
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
 
-
-    void TestVertexElementMap()
-    {
-        VertexElementMap map(10);
-        TS_ASSERT_EQUALS(map.Size(), 10u);
-
-        map.ResetToIdentity();
-        TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
-
-        map.SetNewIndex(0,1);
-        map.SetNewIndex(1,0);
-
-        TS_ASSERT_EQUALS(map.GetNewIndex(0), 1u);
-        TS_ASSERT_EQUALS(map.GetNewIndex(1), 0u);
-        TS_ASSERT_EQUALS(map.GetNewIndex(2), 2u);
-
-        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
-
-        map.ResetToIdentity();
-        map.SetDeleted(4);
-        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(4));
-        TS_ASSERT_EQUALS(map.IsDeleted(4), true);
-        TS_ASSERT_EQUALS(map.IsDeleted(5), false);
-        TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 3u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 3u);
+        
     }
 
     void TestReMeshForT1Swaps() throw(Exception)
@@ -1515,7 +1632,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(vertex_mesh.ReMesh());
     }
 
-    void TestDivideEdgeIfTooBig() throw(Exception)
+    void TestReMeshDivideEdgeIfTooBig() throw(Exception)
     {
         // Create some nodes
         Node<2> *p_node0 = new Node<2>(0, false, 0.0, 0.0);

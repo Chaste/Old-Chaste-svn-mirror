@@ -498,14 +498,6 @@ public:
     void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);          
 
     /**
-     * Perform a T2 swap on an apoptotic cell. Checks that it is both a triangle
-     * and small enough first.
-     * 
-     * @param pElement Pointer to the element to be checked
-     */
-    void PerformT2SwapIfNecessary(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-    /**
      * Mark an element as deleted. Note that it DOES NOT deal with the associated
      * nodes and therefore should only be called immediately prior to a ReMesh()
      * being called.
