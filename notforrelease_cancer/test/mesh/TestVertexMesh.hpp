@@ -2034,7 +2034,7 @@ public:
     }
     
     
-    void TestDivideVertexElementWhereNewNodesAreMerged() throw(Exception)
+    void TestDivideVertexElementWhereNewNodesAreCloseToOldNodes() throw(Exception)
     {
         // Make 6 nodes
         std::vector<Node<2>*> nodes;
@@ -2068,25 +2068,28 @@ public:
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
 
         // Test elements have correct nodes
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 7u);
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 5u);
 
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(4)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(3)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(4)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(5)->GetIndex(), 7u);
 
-        // Test locations of new node
-        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 0.0, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 1.0, 1e-4);
+        // Test locations of new nodes
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], -0.02, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[1], 1.0, 1e-4);
     }
     
 

@@ -1744,26 +1744,20 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
         c_vector<double, SPACE_DIM> intersection = moved_centroid + alpha*short_axis;
 
-        // if intersection is close to existing node use the existing node to divide element
+        // If new node is too close to old node reposition 2*mCellRearrangementThreshold away.
         c_vector<double, SPACE_DIM> a_to_intersection = this->GetVectorFromAtoB(position_a, intersection);
         c_vector<double, SPACE_DIM> b_to_intersection = this->GetVectorFromAtoB(position_b, intersection);
-
+		
+        
         if (norm_2(a_to_intersection) < mCellRearrangementThreshold)
         {
-#define COVERAGE_IGNORE ///\todo Fix coverage
-            // Use node a to divide element
-            division_node_global_indices.push_back(p_node_A->GetIndex());
-#undef  COVERAGE_IGNORE ///\todo Fix coverage
-        }
-        else if (norm_2(b_to_intersection) < mCellRearrangementThreshold)
-        {
-#define COVERAGE_IGNORE ///\todo Fix coverage
-            // Use node b to divide element
-            division_node_global_indices.push_back(p_node_B->GetIndex());
-#undef  COVERAGE_IGNORE ///\todo Fix coverage
-        }
-        else
-        {
+    		intersection = position_a + 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b); 
+	    }
+        if (norm_2(b_to_intersection) < mCellRearrangementThreshold)
+    	{
+    		intersection = position_b - 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b); 
+	    }  
+          
             // Add new node to the mesh
             unsigned new_node_global_index = this->AddNode(new Node<SPACE_DIM>(0, false, intersection[0], intersection[1]));
             nodes_added++;
@@ -1808,7 +1802,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
             }
             // Store index of new node
             division_node_global_indices.push_back(new_node_global_index);
-        }
+//        }
     }
 
     // Now call DivideElement() to divide the element using the new nodes

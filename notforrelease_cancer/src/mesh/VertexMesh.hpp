@@ -526,8 +526,12 @@ public:
     unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     * Method to divide an element in half using a specific axis
-     *
+     * Method to divide an element in half using a specific axis.
+     * 
+     * If the new nodes (intersections of axis with element) are within 
+     * mCellRearrangementThreshold of existing nodes then they are 
+     * moved 2*mCellRearrangementThreshold away.
+     * 
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
      * @param pElement the element to divide
