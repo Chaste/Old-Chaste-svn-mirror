@@ -441,6 +441,34 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
     this->WriteCellResultsToFiles(cell_type_counter,
                                   cell_mutation_state_counter,
                                   cell_cycle_phase_counter);
+    
+ #ifdef CHASTE_VTK
+    VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);
+    std::stringstream time;
+    time << SimulationTime::Instance()->GetTimeStepsElapsed();
+    
+    std::vector<double> cell_types;
+    for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
+             iter != mrMesh.GetElementIteratorEnd();
+             ++iter)
+    {
+        if (!(iter->IsDeleted()))
+        {
+            cell_types.push_back( this->mLocationCellMap[iter->GetIndex()]->GetCellType() );
+        }
+        else
+        {
+            cell_types.push_back(-1.0);
+        }
+    }
+    mesh_writer.AddCellData("Cell types", cell_types);
+    mesh_writer.WriteVtkUsingMesh(mrMesh, time.str());
+    *mpVtkMetaFile<<"        <DataSet timestep=\"";
+    *mpVtkMetaFile<<SimulationTime::Instance()->GetTimeStepsElapsed();                       
+    *mpVtkMetaFile<<"\" group=\"\" part=\"0\" file=\"results_";
+    *mpVtkMetaFile<<SimulationTime::Instance()->GetTimeStepsElapsed();                       
+    *mpVtkMetaFile<<".vtu\"/>\n";
+#endif //CHASTE_VTK
 }
 
 
@@ -461,6 +489,13 @@ void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bo
 
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
+    mDirPath=rDirectory;
+#ifdef CHASTE_VTK
+    mpVtkMetaFile = output_file_handler.OpenOutputFile("results.pvd");
+    *mpVtkMetaFile<<"<?xml version=\"1.0\"?>\n";
+    *mpVtkMetaFile<<"<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
+    *mpVtkMetaFile<<"    <Collection>\n";
+#endif //CHASTE_VTK
 }
 
 
@@ -469,6 +504,13 @@ void VertexBasedTissue<DIM>::CloseOutputFiles()
 {
     AbstractTissue<DIM>::CloseOutputFiles();
     mpElementFile->close();
+ #ifdef CHASTE_VTK
+    *mpVtkMetaFile<<"    </Collection>\n";
+    *mpVtkMetaFile<<"</VTKFile>\n";
+    
+    mpVtkMetaFile->close();
+#endif //CHASTE_VTK
+    
 }
 
 

@@ -54,6 +54,11 @@ private:
 
     /** Vertex-based mesh associated with the tissue. */
     VertexMesh<DIM, DIM>& mrMesh;
+    
+    /** A cache of where the results are going (used for VTK writer). */
+    std::string mDirPath;
+    /** Meta results file for VTK. */
+    out_stream mpVtkMetaFile;
 
     /**
      * Whether to delete the mesh when we are destroyed.
