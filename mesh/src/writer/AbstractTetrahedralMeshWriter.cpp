@@ -131,17 +131,14 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
          iter != rMesh.GetElementIteratorEnd();
          ++iter)
     {
-        if (iter->IsDeleted() == false)
-        {
-            std::vector<unsigned> indices(iter->GetNumNodes());
+        std::vector<unsigned> indices(iter->GetNumNodes());
 
-            for (unsigned j=0; j<indices.size(); j++)
-            {
-                unsigned old_index = iter->GetNodeGlobalIndex(j);
-                indices[j] = node_map.GetNewIndex(old_index);
-            }
-            this->SetNextElement(indices);
+        for (unsigned j=0; j<indices.size(); j++)
+        {
+            unsigned old_index = iter->GetNodeGlobalIndex(j);
+            indices[j] = node_map.GetNewIndex(old_index);
         }
+        this->SetNextElement(indices);
     }
 
     // Get a iterator over the boundary elements of the mesh

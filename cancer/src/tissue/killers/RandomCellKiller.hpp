@@ -43,9 +43,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Note this does take into account timesteps - the input probability is the 
  * probability that in an hour's worth of trying, the cell killer will have 
- * successfully killed a given cell. In the constructor this probability is 
- * used to calculate the probability that the cell is killed at a given time 
- * step.
+ * successfully killed a given cell. In the method TestAndLabelSingleCellForApoptosis() 
+ * this probability is used to calculate the probability that the cell is killed 
+ * at a given time step.
  */
 template<unsigned DIM>
 class RandomCellKiller : public AbstractCellKiller<DIM>

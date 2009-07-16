@@ -138,6 +138,10 @@ void AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles()
                                          cell_mutation_state_counter,
                                          cell_cycle_phase_counter);
 
+	/*
+	 * Note that we cannot use a mesh iterator below, as the child class
+	 * NodeBasedTissue does not contain a mesh.
+	 */
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         if ( !(this->GetNode(node_index)->IsDeleted()) )
