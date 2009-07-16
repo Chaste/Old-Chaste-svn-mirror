@@ -1768,11 +1768,11 @@ public:
 
         std::vector<Node<2>*> nodes_elem;
 
-        // Make one rectangular element out of these nodes
-        nodes_elem.push_back(basic_nodes[0]);
-        nodes_elem.push_back(basic_nodes[1]);
+        // Make one rectangular element out of these nodes. Ordering for coverage.
         nodes_elem.push_back(basic_nodes[2]);
         nodes_elem.push_back(basic_nodes[3]);
+        nodes_elem.push_back(basic_nodes[0]);
+        nodes_elem.push_back(basic_nodes[1]);
 
         std::vector<VertexElement<2,2>*> basic_vertex_elements;
         basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem));
@@ -1791,14 +1791,14 @@ public:
 
         // Test elements have correct nodes
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 0u);
 
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 1u);
 
         // For coverage, divide an element when mDeletedElementIndices is not empty
         basic_vertex_mesh.DeleteElementPriorToReMesh(0);
