@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptSimulation2d.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
 #include "NagaiHondaForce.hpp"
+#include "BoundaryForce.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
@@ -378,6 +379,79 @@ public:
         // Tidy up
         delete p_simulator;
     }
+    
+    
+    void TestCryptSimulationWithBoundaryForce() throw (Exception)
+    {
+        // Create mesh
+        Cylindrical2dVertexMesh mesh(6, 8, 0.01, DBL_MAX, true);
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            double birth_time = - RandomNumberGenerator::Instance()->ranf()*
+                                 ( TissueConfig::Instance()->GetTransitCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
+
+            CellType cell_type;
+
+            // Cells 0 1 2 and 3 are stem cells
+            if (elem_index<6)
+            {
+                birth_time = - 2.0*(double)elem_index;
+                cell_type = STEM;
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+            }
+
+            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> crypt(mesh, cells);
+
+        // Create boundary force law
+        BoundaryForce<2> boundary_force_law;
+        
+        // Create force law
+        NagaiHondaForce<2> force_law;
+        std::vector<AbstractForce<2>*> force_collection;
+        
+        force_collection.push_back(&boundary_force_law);
+        force_collection.push_back(&force_law);
+
+        // Create crypt simulation from tissue and force law
+        VertexCryptSimulation2d simulator(crypt, force_collection);
+        simulator.SetSamplingTimestepMultiple(2);
+        simulator.SetEndTime(10);
+        simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
+
+        // Modified parameters to make cells equilibriate 
+        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0005);//0.1
+        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);//1.0
+        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);//0.1
+        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);//0.1
+        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);//0.1
+        TissueConfig::Instance()->SetMaxTransitGenerations(2);
+        
+
+        // Make crypt shorter for sloughing 
+        TissueConfig::Instance()->SetCryptLength(8.0);
+                
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Run simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+    }
+    
+    
+    
 
     /// \todo Add more tests (see #923)
 

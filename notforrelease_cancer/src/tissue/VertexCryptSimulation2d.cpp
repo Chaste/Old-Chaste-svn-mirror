@@ -62,12 +62,12 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
          iter != p_static_cast_tissue->rGetMesh().GetNodeIteratorEnd();
          ++iter)
     {
-        // Any cell that has moved below the bottom of the crypt must be moved back up
-        if (iter->rGetLocation()[1] < 0.0)
-        {
-            iter->rGetModifiableLocation()[1] = 0.0;
-        }
-        // \todo this will fail until deleted nodes are removed
-        //assert(p_node->rGetLocation()[1] >= 0.0);
+//        // Any cell that has moved below the bottom of the crypt must be moved back up
+//        if (iter->rGetLocation()[1] < 0.0)
+//        {
+//            iter->rGetModifiableLocation()[1] = 0.0;
+//        }
+//        // \todo this will fail until deleted nodes are removed
+//        //assert(p_node->rGetLocation()[1] >= 0.0);
     }
 }
