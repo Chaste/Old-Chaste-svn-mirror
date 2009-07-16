@@ -263,7 +263,7 @@ public:
     void noTestCryptSimulationLong() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 8, 0.01, DBL_MAX, true);
+        Cylindrical2dVertexMesh mesh(8, 8, 0.01, DBL_MAX, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -275,10 +275,10 @@ public:
 
             CellType cell_type;
 
-            // Cells 0 1 2 and 3 are stem cells
-            if (elem_index<6)
+            // Cells 0 1 2 3 4 and 5 are stem cells
+            if (elem_index<8)
             {
-                birth_time = - 2.0*(double)elem_index;
+                //birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
             }
             else
@@ -301,14 +301,14 @@ public:
 
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
-        simulator.SetSamplingTimestepMultiple(2);
-        simulator.SetEndTime(50);
+        simulator.SetSamplingTimestepMultiple(10);
+        simulator.SetEndTime(500);
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
         // Modified parameters to make cells equilibriate 
-        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0005);//0.1
+        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0001);//0.1
         TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);//1.0
-        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);//0.1
+        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(10.0);//0.1
         TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);//0.1
         TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);//0.1
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
