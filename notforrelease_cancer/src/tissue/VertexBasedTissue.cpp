@@ -396,22 +396,11 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
 }
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
-                                                 bool outputCellTypes,
-                                                 bool outputCellVariables,
-                                                 bool outputCellCyclePhases,
-                                                 bool outputCellAncestors,
-                                                 bool outputCellAges)
+void VertexBasedTissue<DIM>::WriteResultsToFiles()
 {
     std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
 
-    this->WriteTimeAndNodeResultsToFiles(outputCellMutationStates,
-                                         outputCellTypes,
-                                         outputCellVariables,
-                                         outputCellCyclePhases,
-                                         outputCellAncestors,
-                                         outputCellAges,
-                                         cell_type_counter,
+    this->WriteTimeAndNodeResultsToFiles(cell_type_counter,
                                          cell_mutation_state_counter,
                                          cell_cycle_phase_counter);
 
@@ -443,25 +432,13 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
         if (!(iter->IsDeleted()))
         {
             this->GenerateCellResults(iter->GetIndex(),
-                                      outputCellMutationStates,
-                                      outputCellTypes,
-                                      outputCellVariables,
-                                      outputCellCyclePhases,
-                                      outputCellAncestors,
-                                      outputCellAges,
-                                      cell_type_counter,
+            						  cell_type_counter,
                                       cell_mutation_state_counter,
                                       cell_cycle_phase_counter);
         }
     }
 
-    this->WriteCellResultsToFiles(outputCellMutationStates,
-                                  outputCellTypes,
-                                  outputCellVariables,
-                                  outputCellCyclePhases,
-                                  outputCellAncestors,
-                                  outputCellAges,
-                                  cell_type_counter,
+    this->WriteCellResultsToFiles(cell_type_counter,
                                   cell_mutation_state_counter,
                                   cell_cycle_phase_counter);
 }
@@ -478,43 +455,19 @@ void VertexBasedTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirector
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory,
-                                               bool rCleanOutputDirectory,
-                                               bool outputCellMutationStates,
-                                               bool outputCellTypes,
-                                               bool outputCellVariables,
-                                               bool outputCellCyclePhases,
-                                               bool outputCellAncestors,
-                                               bool outputCellAges)
+void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
 {
-    AbstractTissue<DIM>::CreateOutputFiles(rDirectory,
-                                           rCleanOutputDirectory,
-                                           outputCellMutationStates,
-                                           outputCellTypes,
-                                           outputCellVariables,
-                                           outputCellCyclePhases,
-                                           outputCellAncestors,
-                                           outputCellAges);
+    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);
 
-    OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
+    OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
 }
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
-                                              bool outputCellTypes,
-                                              bool outputCellVariables,
-                                              bool outputCellCyclePhases,
-                                              bool outputCellAncestors,
-                                              bool outputCellAges)
+void VertexBasedTissue<DIM>::CloseOutputFiles()
 {
-    AbstractTissue<DIM>::CloseOutputFiles(outputCellMutationStates,
-                                          outputCellTypes,
-                                          outputCellVariables,
-                                          outputCellCyclePhases,
-                                          outputCellAncestors,
-                                          outputCellAges);
+    AbstractTissue<DIM>::CloseOutputFiles();
     mpElementFile->close();
 }
 

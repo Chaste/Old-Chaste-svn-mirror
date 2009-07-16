@@ -221,7 +221,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
+        tissue.SetOutputTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2> *p_data = CellwiseData<2>::Instance();
@@ -331,7 +331,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
+        tissue.SetOutputTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2> *p_data = CellwiseData<2>::Instance();
@@ -407,7 +407,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
+        tissue.SetOutputTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2> *p_data = CellwiseData<2>::Instance();

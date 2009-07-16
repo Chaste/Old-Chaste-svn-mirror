@@ -134,20 +134,8 @@ public:
 
     /**
      * Write results from the current tissue state to output files.
-     *
-     * @param outputCellMutationStates  whether to output cell mutation state results
-     * @param outputCellTypes  whether to output cell type results
-     * @param outputCellVariables  whether to output cell-cycle variable results
-     * @param outputCellCyclePhases  whether to output cell-cycle phase results
-     * @param outputCellAncestors  whether to output cell ancestor results
-     * @param outputCellAges  whether to output cell age results
      */
-    virtual void WriteResultsToFiles(bool outputCellMutationStates,
-                                     bool outputCellTypes,
-                                     bool outputCellVariables,
-                                     bool outputCellCyclePhases,
-                                     bool outputCellAncestors,
-                                     bool outputCellAges);
+    virtual void WriteResultsToFiles();
 
 };
 

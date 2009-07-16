@@ -537,11 +537,17 @@ public:
         std::string output_directory = "TestNodeBasedTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CreateOutputFiles(output_directory, false, true, true, false, true, true, true));
+		TissueConfig::Instance()->SetOutputCellMutationStates(true);
+		TissueConfig::Instance()->SetOutputCellTypes(true);
+		TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+		TissueConfig::Instance()->SetOutputCellAncestors(true);
+		TissueConfig::Instance()->SetOutputCellAges(true);
 
-        node_based_tissue.WriteResultsToFiles(true, true, false, true, true, true);
+        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CreateOutputFiles(output_directory, false));
 
-        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CloseOutputFiles(true, true, false, true, true, true));
+        node_based_tissue.WriteResultsToFiles();
+
+        TS_ASSERT_THROWS_NOTHING(node_based_tissue.CloseOutputFiles());
 
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -567,7 +573,7 @@ public:
         TS_ASSERT_EQUALS(cell_types[3], 1u);
 
         // For coverage
-        TS_ASSERT_THROWS_NOTHING(node_based_tissue.WriteResultsToFiles(true, false, false, true, false, false));
+        TS_ASSERT_THROWS_NOTHING(node_based_tissue.WriteResultsToFiles());
     }
 
     void TestWritingCellCyclePhases()
@@ -618,10 +624,12 @@ public:
 
         std::string output_directory = "TestWritingCellCyclePhases";
         OutputFileHandler output_file_handler(output_directory, false);
-
-        node_based_tissue.CreateOutputFiles(output_directory, false, false, false, false, true, false, false);
-        node_based_tissue.WriteResultsToFiles(false, false, false, true, false, false);
-        node_based_tissue.CloseOutputFiles(false, false, false, true, false, false);
+		
+		TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+		
+        node_based_tissue.CreateOutputFiles(output_directory, false);
+        node_based_tissue.WriteResultsToFiles();
+        node_based_tissue.CloseOutputFiles();
 
         // Test the GetCellCyclePhaseCount function
         c_vector<unsigned,5> cell_cycle_phases = node_based_tissue.GetCellCyclePhaseCount();

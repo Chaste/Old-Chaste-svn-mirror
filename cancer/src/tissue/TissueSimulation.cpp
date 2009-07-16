@@ -49,12 +49,6 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
       mInitialiseCells(initialiseCells),
       mNoBirth(false),
       mUpdateTissue(true),
-      mOutputCellMutationStates(false),
-      mOutputCellAncestors(false),
-      mOutputCellTypes(false),
-      mOutputCellVariables(false),
-      mOutputCellCyclePhases(false),
-      mOutputCellAges(false),
       mOutputDirectory(""),
       mSimulationOutputDirectory(mOutputDirectory),
       mNumBirths(0),
@@ -351,48 +345,6 @@ void TissueSimulation<DIM>::SetNoBirth(bool noBirth)
 
 
 template<unsigned DIM>
-void TissueSimulation<DIM>::SetOutputCellMutationStates(bool outputCellMutationStates)
-{
-    mOutputCellMutationStates = outputCellMutationStates;
-}
-
-
-template<unsigned DIM>
-void TissueSimulation<DIM>::SetOutputCellTypes(bool outputCellTypes)
-{
-    mOutputCellTypes = outputCellTypes;
-}
-
-
-template<unsigned DIM>
-void TissueSimulation<DIM>::SetOutputCellAncestors(bool outputCellAncestors)
-{
-    mOutputCellAncestors = outputCellAncestors;
-}
-
-
-template<unsigned DIM>
-void TissueSimulation<DIM>::SetOutputCellVariables(bool outputCellVariables)
-{
-    mOutputCellVariables = outputCellVariables;
-}
-
-
-template<unsigned DIM>
-void TissueSimulation<DIM>::SetOutputCellCyclePhases(bool outputCellCyclePhases)
-{
-    mOutputCellCyclePhases = outputCellCyclePhases;
-}
-
-
-template<unsigned DIM>
-void TissueSimulation<DIM>::SetOutputCellAges(bool outputCellAges)
-{
-    mOutputCellAges = outputCellAges;
-}
-
-
-template<unsigned DIM>
 void TissueSimulation<DIM>::AddCellKiller(AbstractCellKiller<DIM>* pCellKiller)
 {
     mCellKillers.push_back(pCellKiller);
@@ -451,14 +403,7 @@ void TissueSimulation<DIM>::Solve()
     // Create output files for the visualizer
     OutputFileHandler output_file_handler(results_directory+"/", true);
 
-    mrTissue.CreateOutputFiles(results_directory+"/",
-                               false,
-                               mOutputCellMutationStates,
-                               mOutputCellTypes,
-                               mOutputCellVariables,
-                               mOutputCellCyclePhases,
-                               mOutputCellAncestors,
-                               mOutputCellAges);
+    mrTissue.CreateOutputFiles(results_directory+"/", false);
 
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
@@ -484,12 +429,7 @@ void TissueSimulation<DIM>::Solve()
     }
     *mpSetupFile << std::flush;
 
-    mrTissue.WriteResultsToFiles(mOutputCellMutationStates,
-                                 mOutputCellTypes,
-                                 mOutputCellVariables,
-                                 mOutputCellCyclePhases,
-                                 mOutputCellAncestors,
-                                 mOutputCellAges);
+    mrTissue.WriteResultsToFiles();
 
     CancerEventHandler::EndEvent(CancerEventHandler::SETUP);
 
@@ -563,12 +503,7 @@ void TissueSimulation<DIM>::Solve()
         // Write results to file
         if (p_simulation_time->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
-            mrTissue.WriteResultsToFiles(mOutputCellMutationStates,
-                                         mOutputCellTypes,
-                                         mOutputCellVariables,
-                                         mOutputCellCyclePhases,
-                                         mOutputCellAncestors,
-                                         mOutputCellAges);
+            mrTissue.WriteResultsToFiles();
         }
 
         CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
@@ -582,12 +517,7 @@ void TissueSimulation<DIM>::Solve()
     AfterSolve();
 
     CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
-    mrTissue.CloseOutputFiles(mOutputCellMutationStates,
-                              mOutputCellTypes,
-                              mOutputCellVariables,
-                              mOutputCellCyclePhases,
-                              mOutputCellAncestors,
-                              mOutputCellAges);
+    mrTissue.CloseOutputFiles();
 
     *mpSetupFile << "Complete\n";
     mpSetupFile->close();
@@ -607,9 +537,9 @@ bool TissueSimulation<DIM>::StoppingEventHasOccurred()
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutationStateCount()
 {
-    if (!mOutputCellMutationStates)
+    if (TissueConfig::Instance()->GetOutputCellMutationStates()==false)
     {
-        EXCEPTION("Call simulator.SetOutputCellMutationStates before using this function");
+        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
     }
     return mrTissue.GetCellMutationStateCount();
 }
@@ -618,9 +548,9 @@ c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutat
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
 {
-    if (!mOutputCellTypes)
+    if (TissueConfig::Instance()->GetOutputCellTypes()==false)
     {
-        EXCEPTION("Call simulator.SetOutputCellTypes() before using this function");
+        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellTypes(true) before using this function");
     }
     return mrTissue.GetCellTypeCount();
 }
@@ -629,9 +559,9 @@ c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
 template<unsigned DIM>
 c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
 {
-    if (!mOutputCellCyclePhases)
+    if (TissueConfig::Instance()->GetOutputCellCyclePhases()==false)
     {
-        EXCEPTION("Call simulator.SetOutputCellCyclePhases() before using this function");
+        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
     }
     return mrTissue.GetCellCyclePhaseCount();
 }

@@ -91,24 +91,6 @@ protected:
     /** Whether to update the topology of the tissue at each time step (defaults to true).*/
     bool mUpdateTissue;
 
-    /** Whether to count the number of each cell mutation state and output to file*/
-    bool mOutputCellMutationStates;
-
-    /** Whether to output the ancestor of each cell to a visualizer file*/
-    bool mOutputCellAncestors;
-
-    /** Whether to count the number of each cell type and output to file*/
-    bool mOutputCellTypes;
-
-    /** Whether to write the cell variables to a file */
-    bool mOutputCellVariables;
-
-    /** Whether to write the cell cycle phases to a file */
-    bool mOutputCellCyclePhases;
-
-    /** Whether to write the cell ages to a file */
-    bool mOutputCellAges;
-
     /** Output directory (a subfolder of tmp/[USERNAME]/testoutput) */
     std::string mOutputDirectory;
 
@@ -176,12 +158,6 @@ protected:
         archive & mNumBirths;
         archive & mNumDeaths;
         archive & mCellKillers;
-        archive & mOutputCellMutationStates;
-        archive & mOutputCellAncestors;
-        archive & mOutputCellTypes;
-        archive & mOutputCellVariables;
-        archive & mOutputCellCyclePhases;
-        archive & mOutputCellAges;
         archive & mSamplingTimestepMultiple;
         archive & mForceCollection;
     }
@@ -396,50 +372,6 @@ public:
      * @param noBirth whether to run with no birth
      */
     void SetNoBirth(bool noBirth);
-
-    /**
-     * Set the simulation to count and store the number of each cell mutation state.
-     *
-     * @param outputCellMutationStates whether to output cell mutation states
-     */
-    void SetOutputCellMutationStates(bool outputCellMutationStates);
-
-    /**
-     * Set the simulation to output the cell ancestors if they are set.
-     *
-     * @param outputCellAncestors whether to output cell ancestors
-     */
-    void SetOutputCellAncestors(bool outputCellAncestors);
-
-    /**
-     * Set the simulation to count and store the number of each cell type.
-     *
-     * @param outputCellTypes whether to output cell types
-     */
-    void SetOutputCellTypes(bool outputCellTypes);
-
-    /**
-     * Set the simulation to output the cell-cycle variables.
-     *
-     * @param outputCellVariables whether to output cell-cycle variables
-     */
-    void SetOutputCellVariables(bool outputCellVariables);
-
-    /**
-     * Set the simulation to output the cell cycle phases.
-     *
-     * The test for this method is in TestCryptSimulation2d::TestStandardResultForArchivingTestsBelow().
-     *
-     * @param outputCellCyclePhases whether to output cell-cycle phases
-     */
-    void SetOutputCellCyclePhases(bool outputCellCyclePhases);
-
-    /**
-     * Set the simulation to output the cell ages.
-     * 
-     * @param outputCellAges whether to output cell ages
-     */
-    void SetOutputCellAges(bool outputCellAges);
 
     /**
      * Set whether to update the topology of the tissue at each time step.

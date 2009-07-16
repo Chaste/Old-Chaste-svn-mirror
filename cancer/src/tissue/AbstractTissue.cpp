@@ -34,8 +34,7 @@ template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
-      mTissueContainsMesh(false),
-      mWriteCellIdData(false)
+      mTissueContainsMesh(false)
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
@@ -124,12 +123,6 @@ void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::SetWriteCellIdData(bool writeCellIdData)
-{
-    mWriteCellIdData = writeCellIdData;
-}
-
-template<unsigned DIM>
 std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
 {
     std::set<unsigned> remaining_ancestors;
@@ -194,86 +187,74 @@ void AbstractTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory, 
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory,
-                                            bool rCleanOutputDirectory,
-                                            bool outputCellMutationStates,
-                                            bool outputCellTypes,
-                                            bool outputCellVariables,
-                                            bool outputCellCyclePhases,
-                                            bool outputCellAncestors,
-                                            bool outputCellAges)
+void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool rCleanOutputDirectory)
 {
     OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
     mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpVizCellTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
 
-    if (outputCellAncestors)
+    if (TissueConfig::Instance()->GetOutputCellAncestors())
     {
         mpCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizancestors");
     }
-    if (outputCellMutationStates)
+    if (TissueConfig::Instance()->GetOutputCellMutationStates())
     {
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
         *mpCellMutationStatesFile << "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
-    if (outputCellTypes)
+    if (TissueConfig::Instance()->GetOutputCellTypes())
     {
         mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
     }
-    if (outputCellVariables)
+    if (TissueConfig::Instance()->GetOutputCellVariables())
     {
         mpCellVariablesFile = output_file_handler.OpenOutputFile("cellvariables.dat");
     }
-    if (outputCellCyclePhases)
+    if (TissueConfig::Instance()->GetOutputCellCyclePhases())
     {
         mpCellCyclePhasesFile = output_file_handler.OpenOutputFile("cellcyclephases.dat");
     }
-    if (outputCellAges)
+    if (TissueConfig::Instance()->GetOutputCellAges())
     {
         mpCellAgesFile = output_file_handler.OpenOutputFile("cellages.dat");
     }
-    if (mWriteCellIdData)
+    if (TissueConfig::Instance()->GetOutputCellIdData())
     {
         mpCellIdFile = output_file_handler.OpenOutputFile("loggedcell.dat");
     }
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
-                                           bool outputCellTypes,
-                                           bool outputCellVariables,
-                                           bool outputCellCyclePhases,
-                                           bool outputCellAncestors,
-                                           bool outputCellAges)
+void AbstractTissue<DIM>::CloseOutputFiles()
 {
     mpVizNodesFile->close();
     mpVizCellTypesFile->close();
 
-    if (outputCellMutationStates)
+    if (TissueConfig::Instance()->GetOutputCellMutationStates())
     {
         mpCellMutationStatesFile->close();
     }
-    if (outputCellTypes)
+    if (TissueConfig::Instance()->GetOutputCellTypes())
     {
         mpCellTypesFile->close();
     }
-    if (outputCellVariables)
+    if (TissueConfig::Instance()->GetOutputCellVariables())
     {
         mpCellVariablesFile->close();
     }
-    if (outputCellCyclePhases)
+    if (TissueConfig::Instance()->GetOutputCellCyclePhases())
     {
         mpCellCyclePhasesFile->close();
     }
-    if (outputCellAncestors)
+    if (TissueConfig::Instance()->GetOutputCellAncestors())
     {
         mpCellAncestorsFile->close();
     }
-    if (outputCellAges)
+    if (TissueConfig::Instance()->GetOutputCellAges())
     {
         mpCellAgesFile->close();
     }
-    if (mWriteCellIdData)
+    if (TissueConfig::Instance()->GetOutputCellIdData())
     {
         mpCellIdFile->close();
     }
@@ -281,12 +262,6 @@ void AbstractTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
 
 template<unsigned DIM>
 void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
-                                              bool outputCellMutationStates,
-                                              bool outputCellTypes,
-                                              bool outputCellVariables,
-                                              bool outputCellCyclePhases,
-                                              bool outputCellAncestors,
-                                              bool outputCellAges,
                                               std::vector<unsigned>& rCellTypeCounter,
                                               std::vector<unsigned>& rCellMutationStateCounter,
                                               std::vector<unsigned>& rCellCyclePhaseCounter)
@@ -301,7 +276,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         TissueCell *p_cell = mLocationCellMap[locationIndex];
 
         // Cell cycle phase
-        if (outputCellCyclePhases)
+        if (TissueConfig::Instance()->GetOutputCellCyclePhases())
         {
             switch (p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase())
             {
@@ -326,7 +301,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         }
 
         // Cell ancestors
-        if (outputCellAncestors)
+        if (TissueConfig::Instance()->GetOutputCellAncestors())
         {
             colour = p_cell->GetAncestor();
             if (colour == UNSIGNED_UNSET)
@@ -343,28 +318,28 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         {
             case STEM:
                 colour = STEM_COLOUR;
-                if (outputCellTypes)
+                if (TissueConfig::Instance()->GetOutputCellTypes())
                 {
                     rCellTypeCounter[0]++;
                 }
                 break;
             case TRANSIT:
                 colour = TRANSIT_COLOUR;
-                if (outputCellTypes)
+                if (TissueConfig::Instance()->GetOutputCellTypes())
                 {
                     rCellTypeCounter[1]++;
                 }
                 break;
             case DIFFERENTIATED:
                 colour = DIFFERENTIATED_COLOUR;
-                if (outputCellTypes)
+                if (TissueConfig::Instance()->GetOutputCellTypes())
                 {
                     rCellTypeCounter[2]++;
                 }
                 break;
             case APOPTOTIC:
                 colour = APOPTOSIS_COLOUR;
-                if (outputCellTypes)
+                if (TissueConfig::Instance()->GetOutputCellTypes())
                 {
                     rCellTypeCounter[3]++;
                 }
@@ -378,35 +353,35 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         switch (mutation)
         {
             case HEALTHY:
-                if (outputCellMutationStates)
+                if (TissueConfig::Instance()->GetOutputCellMutationStates())
                 {
                     rCellMutationStateCounter[0]++;
                 }
                 break;
             case APC_ONE_HIT:
                 colour = EARLY_CANCER_COLOUR;
-                if (outputCellMutationStates)
+                if (TissueConfig::Instance()->GetOutputCellMutationStates())
                 {
                     rCellMutationStateCounter[2]++;
                 }
                 break;
             case APC_TWO_HIT:
                 colour = LATE_CANCER_COLOUR;
-                if (outputCellMutationStates)
+                if (TissueConfig::Instance()->GetOutputCellMutationStates())
                 {
                     rCellMutationStateCounter[3]++;
                 }
                 break;
             case BETA_CATENIN_ONE_HIT:
                 colour = LATE_CANCER_COLOUR;
-                if (outputCellMutationStates)
+                if (TissueConfig::Instance()->GetOutputCellMutationStates())
                 {
                     rCellMutationStateCounter[4]++;
                 }
                 break;
             case LABELLED:
                 colour = LABELLED_COLOUR;
-                if (outputCellMutationStates)
+                if (TissueConfig::Instance()->GetOutputCellMutationStates())
                 {
                     rCellMutationStateCounter[1]++;
                 }
@@ -422,7 +397,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         }
 
         // Write cell variable data to file if required
-        if ( outputCellVariables && dynamic_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()) )
+        if ( TissueConfig::Instance()->GetOutputCellVariables() && dynamic_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()) )
         {
             // Write location index corresponding to cell
             *mpCellVariablesFile << locationIndex << " ";
@@ -436,7 +411,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         }
 
         // Write cell age data to file if required
-        if (outputCellAges)
+        if (TissueConfig::Instance()->GetOutputCellAges())
         {
             // Write location index corresponding to cell
             *mpCellAgesFile << locationIndex << " ";
@@ -458,25 +433,19 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::WriteCellResultsToFiles(bool outputCellMutationStates,
-                                                  bool outputCellTypes,
-                                                  bool outputCellVariables,
-                                                  bool outputCellCyclePhases,
-                                                  bool outputCellAncestors,
-                                                  bool outputCellAges,
-                                                  std::vector<unsigned>& rCellTypeCounter,
+void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
                                                   std::vector<unsigned>& rCellMutationStateCounter,
                                                   std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     *mpVizCellTypesFile << "\n";
 
-    if (outputCellAncestors)
+    if (TissueConfig::Instance()->GetOutputCellAncestors())
     {
         *mpCellAncestorsFile << "\n";
     }
 
     // Write cell mutation state data to file if required
-    if (outputCellMutationStates)
+    if (TissueConfig::Instance()->GetOutputCellMutationStates())
     {
         for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
         {
@@ -487,7 +456,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(bool outputCellMutationStates,
     }
 
     // Write cell type data to file if required
-    if (outputCellTypes)
+    if (TissueConfig::Instance()->GetOutputCellTypes())
     {
         for (unsigned i=0; i<NUM_CELL_TYPES; i++)
         {
@@ -497,13 +466,13 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(bool outputCellMutationStates,
         *mpCellTypesFile << "\n";
     }
 
-    if (outputCellVariables)
+    if (TissueConfig::Instance()->GetOutputCellVariables())
     {
         *mpCellVariablesFile << "\n";
     }
 
     // Write cell cycle phase data to file if required
-    if (outputCellCyclePhases)
+    if (TissueConfig::Instance()->GetOutputCellCyclePhases())
     {
         for (unsigned i=0; i<5; i++)
         {
@@ -514,20 +483,14 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(bool outputCellMutationStates,
     }
 
     // Write cell age data to file if required
-    if (outputCellAges)
+    if (TissueConfig::Instance()->GetOutputCellAges())
     {
         *mpCellAgesFile << "\n";
     }
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutationStates,
-                                                         bool outputCellTypes,
-                                                         bool outputCellVariables,
-                                                         bool outputCellCyclePhases,
-                                                         bool outputCellAncestors,
-                                                         bool outputCellAges,
-                                                         std::vector<unsigned>& rCellTypeCounter,
+void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
                                                          std::vector<unsigned>& rCellMutationStateCounter,
                                                          std::vector<unsigned>& rCellCyclePhaseCounter)
 {
@@ -538,27 +501,27 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
     *mpVizNodesFile << time << "\t";
     *mpVizCellTypesFile << time << "\t";
 
-    if (outputCellAncestors)
+    if (TissueConfig::Instance()->GetOutputCellAncestors())
     {
         *mpCellAncestorsFile << time << "\t";
     }
-    if (outputCellMutationStates)
+    if (TissueConfig::Instance()->GetOutputCellMutationStates())
     {
         *mpCellMutationStatesFile << time << "\t";
     }
-    if (outputCellTypes)
+    if (TissueConfig::Instance()->GetOutputCellTypes())
     {
         *mpCellTypesFile << time << "\t";
     }
-    if (outputCellVariables)
+    if (TissueConfig::Instance()->GetOutputCellVariables())
     {
         *mpCellVariablesFile << time << "\t";
     }
-    if (outputCellCyclePhases)
+    if (TissueConfig::Instance()->GetOutputCellCyclePhases())
     {
         *mpCellCyclePhasesFile << time << "\t";
     }
-    if (outputCellAges)
+    if (TissueConfig::Instance()->GetOutputCellAges())
     {
         *mpCellAgesFile << time << "\t";
     }
@@ -610,15 +573,10 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(bool outputCellMutation
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
-                                              bool outputCellTypes,
-                                              bool outputCellVariables,
-                                              bool outputCellCyclePhases,
-                                              bool outputCellAncestors,
-                                              bool outputCellAges)
+void AbstractTissue<DIM>::WriteResultsToFiles()
 {
     // Write logged cell data if required
-    if (mWriteCellIdData)
+    if (TissueConfig::Instance()->GetOutputCellIdData())
     {
         WriteCellIdDataToFile();
     }

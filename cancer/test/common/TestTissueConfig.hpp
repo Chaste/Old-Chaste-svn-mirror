@@ -87,6 +87,14 @@ private:
         TS_ASSERT_DELTA(p_inst->GetMembraneSurfaceEnergyParameter(), 0.1, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCellCellAdhesionEnergyParameter(), 0.01, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCellBoundaryAdhesionEnergyParameter(), 0.01, 1e-12);
+        TS_ASSERT_EQUALS(p_inst->GetOutputCellIdData(), false);
+		TS_ASSERT_EQUALS(p_inst->GetOutputCellMutationStates(), false);
+		TS_ASSERT_EQUALS(p_inst->GetOutputCellAncestors(), false);
+	    TS_ASSERT_EQUALS(p_inst->GetOutputCellTypes(), false);
+	    TS_ASSERT_EQUALS(p_inst->GetOutputCellVariables(), false);
+	    TS_ASSERT_EQUALS(p_inst->GetOutputCellCyclePhases(), false);
+	    TS_ASSERT_EQUALS(p_inst->GetOutputCellAges(), false);
+	    TS_ASSERT_EQUALS(p_inst->GetOutputCellAreas(), false);
     }
 
 public:
@@ -131,6 +139,14 @@ public:
         p_inst->SetMembraneSurfaceEnergyParameter(17.9);
         p_inst->SetCellCellAdhesionEnergyParameter(0.5);
         p_inst->SetCellBoundaryAdhesionEnergyParameter(0.6);
+        p_inst->SetOutputCellIdData(true);
+        p_inst->SetOutputCellMutationStates(true);
+		p_inst->SetOutputCellAncestors(true);
+	    p_inst->SetOutputCellTypes(true);
+	    p_inst->SetOutputCellVariables(true);
+	    p_inst->SetOutputCellCyclePhases(true);
+	    p_inst->SetOutputCellAges(true);
+	    p_inst->SetOutputCellAreas(true);
         p_inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -174,6 +190,14 @@ public:
         p_inst1->SetMembraneSurfaceEnergyParameter(17.9);
         p_inst1->SetCellCellAdhesionEnergyParameter(0.5);
         p_inst1->SetCellBoundaryAdhesionEnergyParameter(0.6);
+		p_inst1->SetOutputCellIdData(true);
+		p_inst1->SetOutputCellMutationStates(true);
+		p_inst1->SetOutputCellAncestors(true);
+	    p_inst1->SetOutputCellTypes(true);
+	    p_inst1->SetOutputCellVariables(true);
+	    p_inst1->SetOutputCellCyclePhases(true);
+	    p_inst1->SetOutputCellAges(true);
+		p_inst1->SetOutputCellAreas(true);
 
         TissueConfig *p_inst2 = TissueConfig::Instance();
 
@@ -210,6 +234,14 @@ public:
         TS_ASSERT_DELTA(p_inst2->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellIdData(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellMutationStates(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellAncestors(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellTypes(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellVariables(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellCyclePhases(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellAges(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellAreas(), true);
     }
 
     void TestArchiveTissueConfig()
@@ -256,6 +288,14 @@ public:
             p_inst1->SetMembraneSurfaceEnergyParameter(17.9);
             p_inst1->SetCellCellAdhesionEnergyParameter(0.5);
             p_inst1->SetCellBoundaryAdhesionEnergyParameter(0.6);
+			p_inst1->SetOutputCellIdData(true);
+			p_inst1->SetOutputCellMutationStates(true);
+			p_inst1->SetOutputCellAncestors(true);
+		    p_inst1->SetOutputCellTypes(true);
+		    p_inst1->SetOutputCellVariables(true);
+		    p_inst1->SetOutputCellCyclePhases(true);
+		    p_inst1->SetOutputCellAges(true);
+		    p_inst1->SetOutputCellAreas(true);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -302,6 +342,14 @@ public:
             p_inst1->SetMembraneSurfaceEnergyParameter(1.0);
             p_inst1->SetCellCellAdhesionEnergyParameter(0.01);
             p_inst1->SetCellBoundaryAdhesionEnergyParameter(0.01);
+			p_inst1->SetOutputCellIdData(false);
+			p_inst1->SetOutputCellMutationStates(false);
+			p_inst1->SetOutputCellAncestors(false);
+		    p_inst1->SetOutputCellTypes(false);
+		    p_inst1->SetOutputCellVariables(false);
+		    p_inst1->SetOutputCellCyclePhases(false);
+		    p_inst1->SetOutputCellAges(false);
+		    p_inst1->SetOutputCellAreas(false);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -344,6 +392,14 @@ public:
             TS_ASSERT_DELTA(p_inst1->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
+			TS_ASSERT_EQUALS(p_inst1->GetOutputCellIdData(), true);
+			TS_ASSERT_EQUALS(p_inst1->GetOutputCellMutationStates(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellAncestors(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellTypes(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellVariables(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellCyclePhases(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellAges(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellAreas(), true);
         }
     }
 };

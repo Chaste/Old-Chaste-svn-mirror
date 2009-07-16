@@ -96,7 +96,7 @@ public:
         simulator.SetOutputDirectory(output_directory);
 
         // Set simulation to output cell types
-        simulator.SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);

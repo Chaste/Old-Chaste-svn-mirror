@@ -108,7 +108,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetWriteTissueAreas(true); // record the spheroid radius and apoptotic radius
+        tissue.SetOutputTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up Wnt Gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
@@ -123,9 +123,9 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TissueSimulationWritingProteins");
         simulator.SetEndTime(0.5);
-        simulator.SetOutputCellVariables(true);
-        simulator.SetOutputCellCyclePhases(true);
-        simulator.SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellVariables(true);
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
 
         // Run tissue simulation
         TS_ASSERT_EQUALS(simulator.GetOutputDirectory(), "TissueSimulationWritingProteins");

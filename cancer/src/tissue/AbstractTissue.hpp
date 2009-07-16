@@ -99,9 +99,6 @@ protected:
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
 
-    /** Whether to write cell ID data to file. */
-    bool mWriteCellIdData;
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -117,7 +114,6 @@ protected:
         archive & mLocationCellMap;
         archive & mCellLocationMap;
         archive & mTissueContainsMesh;
-        archive & mWriteCellIdData;
     }
 
     /**
@@ -342,13 +338,6 @@ public:
     void SetCellAncestorsToNodeIndices();
 
     /**
-     * Set method for mWriteCellIdData.
-     *
-     * @param writeCellIdData  whether to write cell ID data to file.
-     */
-    void SetWriteCellIdData(bool writeCellIdData);
-
-    /**
      * Write cell ID data to mpCellIdFile.
      */
     void WriteCellIdDataToFile();
@@ -408,13 +397,7 @@ public:
      * @param outputCellAges whether to output cell age results
      */
     virtual void CreateOutputFiles(const std::string& rDirectory,
-                                   bool rCleanOutputDirectory,
-                                   bool outputCellMutationStates,
-                                   bool outputCellTypes,
-                                   bool outputCellVariables,
-                                   bool outputCellCyclePhases,
-                                   bool outputCellAncestors,
-                                   bool outputCellAges);
+                                   bool rCleanOutputDirectory);
 
     /**
      * Write results from the current tissue state to output files.
@@ -426,12 +409,7 @@ public:
      * @param outputCellAncestors  whether to output cell ancestor results
      * @param outputCellAges whether to output cell age results
      */
-    virtual void WriteResultsToFiles(bool outputCellMutationStates,
-                                     bool outputCellTypes,
-                                     bool outputCellVariables,
-                                     bool outputCellCyclePhases,
-                                     bool outputCellAncestors,
-                                     bool outputCellAges);
+    virtual void WriteResultsToFiles();
 
     /**
      * Write the current time and node results to output files.
@@ -446,13 +424,7 @@ public:
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
-    void WriteTimeAndNodeResultsToFiles(bool outputCellMutationStates,
-                                        bool outputCellTypes,
-                                        bool outputCellVariables,
-                                        bool outputCellCyclePhases,
-                                        bool outputCellAncestors,
-                                        bool outputCellAges,
-                                        std::vector<unsigned>& rCellTypeCounter,
+    void WriteTimeAndNodeResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
                                         std::vector<unsigned>& rCellMutationStateCounter,
                                         std::vector<unsigned>& rCellCyclePhaseCounter);
 
@@ -471,13 +443,7 @@ public:
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
     void GenerateCellResults(unsigned locationIndex,
-                             bool outputCellMutationStates,
-                             bool outputCellTypes,
-                             bool outputCellVariables,
-                             bool outputCellCyclePhases,
-                             bool outputCellAncestors,
-                             bool outputCellAges,
-                             std::vector<unsigned>& rCellTypeCounter,
+    						 std::vector<unsigned>& rCellTypeCounter,
                              std::vector<unsigned>& rCellMutationStateCounter,
                              std::vector<unsigned>& rCellCyclePhaseCounter);
 
@@ -494,13 +460,7 @@ public:
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
-    void WriteCellResultsToFiles(bool outputCellMutationStates,
-                                 bool outputCellTypes,
-                                 bool outputCellVariables,
-                                 bool outputCellCyclePhases,
-                                 bool outputCellAncestors,
-                                 bool outputCellAges,
-                                 std::vector<unsigned>& rCellTypeCounter,
+    void WriteCellResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
                                  std::vector<unsigned>& rCellMutationStateCounter,
                                  std::vector<unsigned>& rCellCyclePhaseCounter);
 
@@ -514,12 +474,7 @@ public:
      * @param outputCellAncestors  whether a cell ancestor results file is open
      * @param outputCellAges whether to output cell age results
      */
-    virtual void CloseOutputFiles(bool outputCellMutationStates,
-                                  bool outputCellTypes,
-                                  bool outputCellVariables,
-                                  bool outputCellCyclePhases,
-                                  bool outputCellAncestors,
-                                  bool outputCellAges);
+    virtual void CloseOutputFiles();
 
     /**
      * Iterator class allows one to iterate over cells in the tissue.

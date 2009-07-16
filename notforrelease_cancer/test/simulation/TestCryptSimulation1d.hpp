@@ -547,7 +547,7 @@ public:
         // Set up crypt simulation
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
-        simulator.SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellTypes(true);
         simulator.SetEndTime(40);
 
         // Add sloughing cell killer to simulation
@@ -651,8 +651,8 @@ public:
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1DWntMatureCells");
         simulator.SetEndTime(0.01);
-        simulator.SetOutputCellMutationStates(true);
-        simulator.SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellTypes(true);
 
         // Run simulation
         simulator.Solve();

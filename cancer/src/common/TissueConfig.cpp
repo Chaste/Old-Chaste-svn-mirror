@@ -128,6 +128,15 @@ void TissueConfig::Reset()
     mMembraneSurfaceEnergyParameter = 0.1;
     mCellCellAdhesionEnergyParameter = 0.01;
     mCellBoundaryAdhesionEnergyParameter = 0.01;
+
+	mOutputCellIdData = false;
+	mOutputCellMutationStates = false;
+    mOutputCellAncestors = false;
+    mOutputCellTypes = false;
+    mOutputCellVariables = false;
+    mOutputCellCyclePhases = false;
+    mOutputCellAges = false;
+    mOutputCellAreas = false;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -281,6 +290,38 @@ double TissueConfig::GetCellCellAdhesionEnergyParameter()
 double TissueConfig::GetCellBoundaryAdhesionEnergyParameter()
 {
     return mCellBoundaryAdhesionEnergyParameter;
+}
+bool TissueConfig::GetOutputCellIdData()
+{
+    return mOutputCellIdData;
+}
+bool TissueConfig::GetOutputCellMutationStates()
+{
+	return mOutputCellMutationStates;
+}
+bool TissueConfig::GetOutputCellAncestors()
+{
+	return mOutputCellAncestors;
+}
+bool TissueConfig::GetOutputCellTypes()
+{
+	return mOutputCellTypes;
+}
+bool TissueConfig::GetOutputCellVariables()
+{
+	return mOutputCellVariables;
+}
+bool TissueConfig::GetOutputCellCyclePhases()
+{
+	return mOutputCellCyclePhases;
+}
+bool TissueConfig::GetOutputCellAges()
+{
+	return mOutputCellAges;
+}
+bool TissueConfig::GetOutputCellAreas()
+{
+	return mOutputCellAreas;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -475,4 +516,36 @@ void TissueConfig::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEne
 void TissueConfig::SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
 {
     mCellBoundaryAdhesionEnergyParameter = cellBoundaryAdhesionEnergyParameter;
+}
+void TissueConfig::SetOutputCellIdData(bool writeCellIdData)
+{
+	mOutputCellIdData = writeCellIdData;
+}
+void TissueConfig::SetOutputCellMutationStates(bool outputCellMutationStates)
+{
+	mOutputCellMutationStates = outputCellMutationStates;
+}
+void TissueConfig::SetOutputCellAncestors(bool outputCellAncestors)
+{
+	mOutputCellAncestors = outputCellAncestors;
+}
+void TissueConfig::SetOutputCellTypes(bool outputCellTypes)
+{
+	mOutputCellTypes = outputCellTypes;
+}
+void TissueConfig::SetOutputCellVariables(bool outputCellVariables)
+{
+	mOutputCellVariables = outputCellVariables;
+}
+void TissueConfig::SetOutputCellCyclePhases(bool outputCellCyclePhases)
+{
+	mOutputCellCyclePhases = outputCellCyclePhases;
+}
+void TissueConfig::SetOutputCellAges(bool outputCellAges)
+{
+	mOutputCellAges = outputCellAges;
+}
+void TissueConfig::SetOutputCellAreas(bool outputCellAreas)
+{
+	mOutputCellAreas = outputCellAreas;
 }

@@ -41,7 +41,6 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
       mDeleteMesh(deleteMesh),
       mWriteVoronoiData(false),
       mWriteTissueAreas(false),
-      mWriteCellAreas(false),
       mUseAreaBasedDampingConstant(false)
 {
     // This must always be true
@@ -326,7 +325,7 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     if (DIM==2)
     {
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() || GetWriteCellAreas() )
+        if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
         {
             CreateVoronoiTessellation();
         }
@@ -360,22 +359,16 @@ void MeshBasedTissue<DIM>::SetBottomCellAncestors()
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetWriteVoronoiData(bool writeVoronoiData)
+void MeshBasedTissue<DIM>::SetOutputVoronoiData(bool writeVoronoiData)
 {
     assert(DIM == 2);
     mWriteVoronoiData = writeVoronoiData;
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetWriteTissueAreas(bool writeTissueAreas)
+void MeshBasedTissue<DIM>::SetOutputTissueAreas(bool writeTissueAreas)
 {
     mWriteTissueAreas = writeTissueAreas;
-}
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetWriteCellAreas(bool writeCellAreas)
-{
-    mWriteCellAreas = writeCellAreas;
 }
 
 template<unsigned DIM>
@@ -411,25 +404,11 @@ void MeshBasedTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory,
 
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory,
-                                             bool rCleanOutputDirectory,
-                                             bool outputCellMutationStates,
-                                             bool outputCellTypes,
-                                             bool outputCellVariables,
-                                             bool outputCellCyclePhases,
-                                             bool outputCellAncestors,
-                                             bool outputCellAges)
+void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
 {
-    AbstractTissue<DIM>::CreateOutputFiles(rDirectory,
-                                           rCleanOutputDirectory,
-                                           outputCellMutationStates,
-                                           outputCellTypes,
-                                           outputCellVariables,
-                                           outputCellCyclePhases,
-                                           outputCellAncestors,
-                                           outputCellAges);
+    AbstractTissue<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);
 
-    OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
+    OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
 
     if (mWriteVoronoiData)
@@ -440,26 +419,17 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory,
     {
         mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
     }
-    if (mWriteCellAreas)
+    if (TissueConfig::Instance()->GetOutputCellAreas())
     {
         mpCellAreasFile = output_file_handler.OpenOutputFile("cellareas.dat");
     }
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
-                                            bool outputCellTypes,
-                                            bool outputCellVariables,
-                                            bool outputCellCyclePhases,
-                                            bool outputCellAncestors,
-                                            bool outputCellAges)
+void MeshBasedTissue<DIM>::CloseOutputFiles()
 {
-    AbstractTissue<DIM>::CloseOutputFiles(outputCellMutationStates,
-                                          outputCellTypes,
-                                          outputCellVariables,
-                                          outputCellCyclePhases,
-                                          outputCellAncestors,
-                                          outputCellAges);
+    AbstractTissue<DIM>::CloseOutputFiles();
+    
     mpElementFile->close();
 
     if (mWriteVoronoiData)
@@ -470,7 +440,7 @@ void MeshBasedTissue<DIM>::CloseOutputFiles(bool outputCellMutationStates,
     {
         mpTissueAreasFile->close();
     }
-    if (mWriteCellAreas)
+    if (TissueConfig::Instance()->GetOutputCellAreas())
     {
         mpCellAreasFile->close();
     }
@@ -489,25 +459,9 @@ bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
 }
 
 template<unsigned DIM>
-bool MeshBasedTissue<DIM>::GetWriteCellAreas()
+void MeshBasedTissue<DIM>::WriteResultsToFiles()
 {
-    return mWriteCellAreas;
-}
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
-                                               bool outputCellTypes,
-                                               bool outputCellVariables,
-                                               bool outputCellCyclePhases,
-                                               bool outputCellAncestors,
-                                               bool outputCellAges)
-{
-    AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles(outputCellMutationStates,
-                                                            outputCellTypes,
-                                                            outputCellVariables,
-                                                            outputCellCyclePhases,
-                                                            outputCellAncestors,
-                                                            outputCellAges);
+    AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles();
 
     // Write element data to file
 
@@ -543,7 +497,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles(bool outputCellMutationStates,
             }
 
             // Write cell area data to file if required
-            if (mWriteCellAreas)
+            if (TissueConfig::Instance()->GetOutputCellAreas())
             {
                 WriteCellAreaResultsToFile();
             }

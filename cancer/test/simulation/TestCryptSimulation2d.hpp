@@ -406,7 +406,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetEndTime(0.1);
-        simulator.SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
@@ -735,7 +735,7 @@ public:
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
-        simulator.SetOutputCellCyclePhases(true); // for coverage
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true); // for coverage
 
         // Run simulation
         simulator.Solve();
@@ -914,7 +914,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover the write Voronoi data method
-        crypt.SetWriteVoronoiData(true);
+        crypt.SetOutputVoronoiData(true);
 
         AbstractTissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
@@ -947,10 +947,10 @@ public:
 
         // Cover exceptions
         TS_ASSERT_THROWS_ANYTHING(simulator.GetCellMutationStateCount());
-        simulator.SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         TS_ASSERT_THROWS_ANYTHING(simulator.GetCellTypeCount());
-        simulator.SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellTypes(true);
 
         TS_ASSERT_THROWS_ANYTHING(simulator.GetCellCyclePhaseCount());
 
@@ -1035,7 +1035,7 @@ public:
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Cover writing logged cell
-        crypt.SetWriteCellIdData(true);
+        TissueConfig::Instance()->SetOutputCellIdData(true);
 
         simulator.Solve();
 
@@ -1091,7 +1091,7 @@ public:
         simulator.rGetTissue().rGetCellUsingLocationIndex(56).SetMutationState(APC_ONE_HIT);
         simulator.rGetTissue().rGetCellUsingLocationIndex(51).SetMutationState(APC_TWO_HIT);
         simulator.rGetTissue().rGetCellUsingLocationIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
-        simulator.SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Run simulation
         simulator.Solve();
@@ -1596,10 +1596,10 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
         simulator.SetOutputDirectory(output_directory);
-        simulator.SetOutputCellAncestors(true);
+        TissueConfig::Instance()->SetOutputCellAncestors(true);
 
         // Set simulation to output cell types
-        simulator.SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Set length of simulation here
         double time_of_each_run = 10.0*simulator.GetDt(); // for each run

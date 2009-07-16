@@ -284,7 +284,6 @@ public:
      */
     double GetTargetAreaOfCell(const TissueCell& rCell);
     
-
     /**
      * Overridden WriteMeshToFile() method. For use by
      * the TissueSimulationArchiver.
@@ -298,55 +297,18 @@ public:
      * Overridden CreateOutputFiles() method.
      *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
-     * @param rCleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
-     * @param outputCellMutationStates  whether to create a cell mutation state results file
-     * @param outputCellTypes  whether to create a cell type results file
-     * @param outputCellVariables  whether to create a cell-cycle variable results file
-     * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
-     * @param outputCellAncestors  whether to create a cell ancestor results file
-     * @param outputCellAges  whether to output cell age results
+     * @param cleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
      */
-    void CreateOutputFiles(const std::string& rDirectory,
-                           bool rCleanOutputDirectory,
-                           bool outputCellMutationStates,
-                           bool outputCellTypes,
-                           bool outputCellVariables,
-                           bool outputCellCyclePhases,
-                           bool outputCellAncestors,
-                           bool outputCellAges);
+    void CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory);
     /**
      * Overridden CloseOutputFiles() method.
-     *
-     * @param outputCellMutationStates  whether a cell mutation state results file is open
-     * @param outputCellTypes  whether a cell type results file is open
-     * @param outputCellVariables  whether a cell-cycle variable results file is open
-     * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
-     * @param outputCellAncestors  whether a cell ancestor results file is open
-     * @param outputCellAges  whether to output cell age results
      */
-    void CloseOutputFiles(bool outputCellMutationStates,
-                          bool outputCellTypes,
-                          bool outputCellVariables,
-                          bool outputCellCyclePhases,
-                          bool outputCellAncestors,
-                          bool outputCellAges);
+    void CloseOutputFiles();
 
     /**
      * Overridden WriteResultsToFiles() method.
-     *
-     * @param outputCellMutationStates  whether to output cell mutation state results
-     * @param outputCellTypes  whether to output cell type results
-     * @param outputCellVariables  whether to output cell-cycle variable results
-     * @param outputCellCyclePhases  whether to output cell-cycle phase results
-     * @param outputCellAncestors  whether to output cell ancestor results
-     * @param outputCellAges  whether to output cell age results
      */
-    void WriteResultsToFiles(bool outputCellMutationStates,
-                             bool outputCellTypes,
-                             bool outputCellVariables,
-                             bool outputCellCyclePhases,
-                             bool outputCellAncestors,
-                             bool outputCellAges);
+    void WriteResultsToFiles();
 
 };
 

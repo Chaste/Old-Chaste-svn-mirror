@@ -201,6 +201,38 @@ public:
      * @return mCellBoundaryAdhesionEnergyParameter
      */
     double GetCellBoundaryAdhesionEnergyParameter();
+	/**
+	 * @return mOutputCellIdData
+	 */
+	bool GetOutputCellIdData();
+	/**
+	 * @return mOutputCellMutationStates
+	 */
+	bool GetOutputCellMutationStates();
+	/**
+	 * @return mOutputCellAncestors
+	 */
+    bool GetOutputCellAncestors();
+    /**
+     * @return mOutputCellTypes
+     */
+    bool GetOutputCellTypes();
+    /**
+     * @return mOutputCellVariables
+     */
+    bool GetOutputCellVariables();
+    /**
+     * @return mOutputCellCyclePhases
+     */
+    bool GetOutputCellCyclePhases();
+    /**
+     * @return mOutputCellAges
+     */
+    bool GetOutputCellAges();
+    /**
+     * @return mOutputCellAreas
+     */
+    bool GetOutputCellAreas();
 
     /**
      * Set mStemCellG1Duration.
@@ -350,6 +382,38 @@ public:
      * Set mCellBoundaryAdhesionEnergyParameter.
      */
     void SetCellBoundaryAdhesionEnergyParameter(double);
+	/**
+	 * Set mOutputCellIdData.
+	 */
+	void SetOutputCellIdData(bool);
+	/**
+	 * Set mOutputCellMutationStates.
+	 */
+    void SetOutputCellMutationStates(bool);
+	/**
+	 * Set mOutputCellAncestors.
+	 */
+    void SetOutputCellAncestors(bool);
+	/**
+	 * Set mOutputCellTypes.
+	 */
+    void SetOutputCellTypes(bool);
+	/**
+	 * Set mOutputCellVariables.
+	 */
+    void SetOutputCellVariables(bool);
+	/**
+	 * Set mOutputCellCyclePhases.
+	 */
+    void SetOutputCellCyclePhases(bool);
+	/**
+	 * Set mOutputCellAges.
+	 */
+    void SetOutputCellAges(bool);
+	/**
+	 * Set mOutputCellAreas.
+	 */
+    void SetOutputCellAreas(bool);
 
     /**
      *  Reset all parameters to their defaults
@@ -588,6 +652,41 @@ private:
      */
     double mCellBoundaryAdhesionEnergyParameter;
 
+    /** Whether to write cell ID data to file. */
+    bool mOutputCellIdData;
+
+    /**
+     * Whether to count the number of each cell mutation 
+     * state and output to file.
+     */
+    bool mOutputCellMutationStates;
+
+    /**
+     * Whether to output the ancestor of each cell to a 
+     * visualizer file.
+     */
+    bool mOutputCellAncestors;
+
+    /**
+     * Whether to count the number of each cell type and output 
+     * to file.
+     */
+    bool mOutputCellTypes;
+
+    /**
+     * Whether to write the cell variables to a file.
+     */
+    bool mOutputCellVariables;
+
+    /** Whether to write the cell cycle phases to a file. */
+    bool mOutputCellCyclePhases;
+
+    /** Whether to write the cell ages to a file. */
+    bool mOutputCellAges;
+
+	/** Whether to write the cell areas to a file. */
+    bool mOutputCellAreas;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -635,6 +734,14 @@ private:
         archive & mMembraneSurfaceEnergyParameter;
         archive & mCellCellAdhesionEnergyParameter;
         archive & mCellBoundaryAdhesionEnergyParameter;
+        archive & mOutputCellIdData;
+        archive & mOutputCellMutationStates;
+        archive & mOutputCellAncestors;
+        archive & mOutputCellTypes;
+        archive & mOutputCellVariables;
+        archive & mOutputCellCyclePhases;
+        archive & mOutputCellAges;
+        archive & mOutputCellAreas;
     }
 };
 

@@ -681,11 +681,17 @@ public:
         std::string output_directory = "TestVertexBasedTissueOutputWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, true, true, false, true, true, true));
+		TissueConfig::Instance()->SetOutputCellMutationStates(true);
+		TissueConfig::Instance()->SetOutputCellTypes(true);
+		TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+		TissueConfig::Instance()->SetOutputCellAncestors(true);
+		TissueConfig::Instance()->SetOutputCellAges(true);
 
-        tissue.WriteResultsToFiles(true, true, false, true, true, true);
+        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles(true, true, false, true, true, true));
+        tissue.WriteResultsToFiles();
+
+        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
 
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -698,7 +704,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/cellages.dat").c_str()), 0);
 
         // For coverage
-        TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles(true, false, false, true, false, false));
+        TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles());
     }
 
 

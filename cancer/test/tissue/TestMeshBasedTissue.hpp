@@ -398,15 +398,13 @@ public:
         // Test set methods
         TS_ASSERT_EQUALS(tissue.GetWriteVoronoiData(), false);
         TS_ASSERT_EQUALS(tissue.GetWriteTissueAreas(), false);
-        TS_ASSERT_EQUALS(tissue.GetWriteCellAreas(), false);
 
-        tissue.SetWriteVoronoiData(true);
-        tissue.SetWriteTissueAreas(true);
-        tissue.SetWriteCellAreas(true);
+        tissue.SetOutputVoronoiData(true);
+        tissue.SetOutputTissueAreas(true);
+        TissueConfig::Instance()->SetOutputCellAreas(true);
 
         TS_ASSERT_EQUALS(tissue.GetWriteVoronoiData(), true);
         TS_ASSERT_EQUALS(tissue.GetWriteTissueAreas(), true);
-        TS_ASSERT_EQUALS(tissue.GetWriteCellAreas(), true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();
@@ -414,11 +412,15 @@ public:
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false, true, true, false, false, false, true));
+		TissueConfig::Instance()->SetOutputCellMutationStates(true);
+		TissueConfig::Instance()->SetOutputCellTypes(true);
+		TissueConfig::Instance()->SetOutputCellAges(true);
 
-        tissue.WriteResultsToFiles(true, true, false, false, false, true);
+        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles(true, true, false, false, false, true));
+        tissue.WriteResultsToFiles();
+
+        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
 
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
