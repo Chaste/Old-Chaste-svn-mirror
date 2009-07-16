@@ -293,7 +293,7 @@ public:
      */
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
 
-     /**
+    /**
      * Find out how many cells of each type there are
      *
      * @return The number of cells of each type (evaluated at each visualizer output)
@@ -388,38 +388,19 @@ public:
      * Use an output file handler to create output files for visualizer and post-processing.
      *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
-     * @param rCleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
-     * @param outputCellMutationStates  whether to create a cell mutation state results file
-     * @param outputCellTypes  whether to create a cell type results file
-     * @param outputCellVariables  whether to create a cell-cycle variable results file
-     * @param outputCellCyclePhases  whether to create a cell-cycle phase results file
-     * @param outputCellAncestors  whether to create a cell ancestor results file
-     * @param outputCellAges whether to output cell age results
+     * @param cleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation 
      */
     virtual void CreateOutputFiles(const std::string& rDirectory,
-                                   bool rCleanOutputDirectory);
+                                   bool cleanOutputDirectory);
 
     /**
      * Write results from the current tissue state to output files.
-     *
-     * @param outputCellMutationStates  whether to output cell mutation state results
-     * @param outputCellTypes  whether to output cell type results
-     * @param outputCellVariables  whether to output cell-cycle variable results
-     * @param outputCellCyclePhases  whether to output cell-cycle phase results
-     * @param outputCellAncestors  whether to output cell ancestor results
-     * @param outputCellAges whether to output cell age results
      */
     virtual void WriteResultsToFiles();
 
     /**
      * Write the current time and node results to output files.
-     *
-     * @param outputCellMutationStates  whether to output cell mutation state results
-     * @param outputCellTypes  whether to output cell type results
-     * @param outputCellVariables  whether to output cell-cycle variable results
-     * @param outputCellCyclePhases  whether to output cell-cycle phase results
-     * @param outputCellAncestors  whether to output cell ancestor results
-     * @param outputCellAges whether to output cell age results
+     * 
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
@@ -432,12 +413,6 @@ public:
      * Generate results for a given cell in the current tissue state to output files.
      *
      * @param locationIndex location index of the cell
-     * @param outputCellMutationStates  whether to output cell mutation state results
-     * @param outputCellTypes  whether to output cell type results
-     * @param outputCellVariables  whether to output cell-cycle variable results
-     * @param outputCellCyclePhases  whether to output cell-cycle phase results
-     * @param outputCellAncestors  whether to output cell ancestor results
-     * @param outputCellAges whether to output cell age results
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
@@ -449,13 +424,7 @@ public:
 
     /**
      * Write the current state of each cell to output files.
-     *
-     * @param outputCellMutationStates  whether to output cell mutation state results
-     * @param outputCellTypes  whether to output cell type results
-     * @param outputCellVariables  whether to output cell-cycle variable results
-     * @param outputCellCyclePhases  whether to output cell-cycle phase results
-     * @param outputCellAncestors  whether to output cell ancestor results
-     * @param outputCellAges whether to output cell age results
+
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
@@ -466,13 +435,6 @@ public:
 
     /**
      * Close any output files.
-     *
-     * @param outputCellMutationStates  whether a cell mutation state results file is open
-     * @param outputCellTypes  whether a cell type results file is open
-     * @param outputCellVariables  whether a cell-cycle variable results file is open
-     * @param outputCellCyclePhases  whether a cell-cycle phase results file is open
-     * @param outputCellAncestors  whether a cell ancestor results file is open
-     * @param outputCellAges whether to output cell age results
      */
     virtual void CloseOutputFiles();
 

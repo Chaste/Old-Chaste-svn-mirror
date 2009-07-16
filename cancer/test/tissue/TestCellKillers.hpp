@@ -53,6 +53,7 @@ public:
         // Set up singleton classes
         TissueConfig *p_params = TissueConfig::Instance();
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(32.0, 32);
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
@@ -92,7 +93,7 @@ public:
 
         std::set< double > old_locations;
 
-        bool apoptosis_cell_found=false;
+        bool apoptosis_cell_found = false;
         std::list<TissueCell>::iterator cell_it = r_cells.begin();
         ++cell_it;
         while (cell_it != r_cells.end() && !apoptosis_cell_found)
@@ -108,7 +109,8 @@ public:
 
         // Increment time to a time after cell death
         double death_time = p_simulation_time->GetTime() + p_params->GetApoptosisTime();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
+        p_simulation_time->IncrementTimeOneStep();
+        p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
         p_simulation_time->IncrementTimeOneStep();
 
         // Store 'locations' of cells which are not dead
@@ -366,7 +368,7 @@ public:
             RandomCellKiller<2>* const p_cell_killer = &cell_killer;
             output_arch << p_cell_killer;
 
-            TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetDeathProbabilityInAnHour(), 0.134, 1e-9);
        }
 
        {
@@ -380,7 +382,7 @@ public:
             input_arch >> p_cell_killer;
 
             // Test we have restored the probability correctly
-            TS_ASSERT_DELTA(p_cell_killer->GetDeathProbability(), 0.134, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetDeathProbabilityInAnHour(), 0.134, 1e-9);
 
             delete p_cell_killer;
         }

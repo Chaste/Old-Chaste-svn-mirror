@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
-                                     bool rCleanOutputDirectory)
+                                     bool cleanOutputDirectory)
 {
     // Are we the master process?  Only the master should make any new directories
     mAmMaster = PetscTools::AmMaster();
@@ -51,7 +51,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     if (rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
         // Are we the master process?  Only the master should make any new directories
-        if (rCleanOutputDirectory && mAmMaster)
+        if (cleanOutputDirectory && mAmMaster)
         {
             std::string directory_to_move_to = GetOutputDirectoryFullPath("last_cleaned_directory");
             IGNORE_RET(system, "rm -rf " + directory_to_move_to);

@@ -36,22 +36,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  A cell killer that randomly kills cells based on the user set probability.
+ * A cell killer that randomly kills cells based on the user set probability.
  *
- *  The probability passed into the constructor will be the probability
- *  of any cell dying whenever TestAndLabelCellsForApoptosis() is called.
+ * The probability passed into the constructor will be the probability
+ * of any cell dying whenever TestAndLabelCellsForApoptosis() is called.
  *
- *  Note this does NOT take into account current times or timesteps, so if
- *  more timesteps are used, and TestAndLabelCellsForApoptosis() is called
- *  at each timestep, more cells will die.
+ * Note this does take into account timesteps - the input probability is the 
+ * probability that in an hour's worth of trying, the cell killer will have 
+ * successfully killed a given cell. In the constructor this probability is 
+ * used to calculate the probability that the cell is killed at a given time 
+ * step.
  */
 template<unsigned DIM>
 class RandomCellKiller : public AbstractCellKiller<DIM>
 {
 private:
 
-    /** Probability that a tested cell is labelled for apoptosis */
-    double mProbabilityOfDeath;
+	/**
+	 * Probability that in an hour's worth of trying, the cell killer 
+	 * will have successfully killed a given cell.
+ 	 */
+ 	double mProbabilityOfDeathInAnHour;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -82,14 +87,14 @@ public:
      * Default constructor.
      *
      * @param pTissue pointer to the tissue
-     * @param probabilityOfDeath probability that a cell is labelled for apoptosis
+     * @param probabilityOfDeathInAnHour probability that a cell is labelled for apoptosis in one hour's worth of trying
      */
-    RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeath);
+    RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeathInAnHour);
 
     /**
-     * @return mProbabilityOfDeath.
+     * @return mProbabilityOfDeathInAnHour.
      */
-    double GetDeathProbability() const;
+	double GetDeathProbabilityInAnHour() const;
 
     /**
      * Overridden method to test a given cell for apoptosis.
@@ -123,7 +128,7 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
-    double prob = t->GetDeathProbability();
+    double prob = t->GetDeathProbabilityInAnHour();
     ar << prob;
 }
 

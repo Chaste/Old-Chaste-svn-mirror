@@ -233,6 +233,14 @@ public:
      * @return mOutputCellAreas
      */
     bool GetOutputCellAreas();
+    /**
+     * @return mOutputVoronoiData
+     */
+    bool GetOutputVoronoiData();
+    /**
+     * @return mOutputTissueAreas
+     */
+    bool GetOutputTissueAreas();
 
     /**
      * Set mStemCellG1Duration.
@@ -414,6 +422,14 @@ public:
 	 * Set mOutputCellAreas.
 	 */
     void SetOutputCellAreas(bool);
+	/**
+	 * Set mOutputVoronoiData.
+	 */
+    void SetOutputVoronoiData(bool);
+  	/**
+	 * Set mOutputTissueAreas.
+	 */
+    void SetOutputTissueAreas(bool);
 
     /**
      *  Reset all parameters to their defaults
@@ -687,6 +703,12 @@ private:
 	/** Whether to write the cell areas to a file. */
     bool mOutputCellAreas;
 
+    /** Whether to write cell area and perimeter information to file. */
+    bool mOutputVoronoiData;
+
+    /** Whether to write the tissue areas to file. */
+    bool mOutputTissueAreas;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -742,6 +764,8 @@ private:
         archive & mOutputCellCyclePhases;
         archive & mOutputCellAges;
         archive & mOutputCellAreas;
+        archive & mOutputVoronoiData;
+        archive & mOutputTissueAreas;
     }
 };
 

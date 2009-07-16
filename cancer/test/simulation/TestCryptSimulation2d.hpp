@@ -914,7 +914,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover the write Voronoi data method
-        crypt.SetOutputVoronoiData(true);
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
 
         AbstractTissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
@@ -1441,7 +1441,7 @@ public:
         simulator.SetEndTime(0.5);
 
         // Create cell killer and pass in to crypt simulation
-        RandomCellKiller<2> random_cell_killer(&crypt, 0.1);
+        RandomCellKiller<2> random_cell_killer(&crypt, 0.999996771);
         simulator.AddCellKiller(&random_cell_killer);
 
         // Run simulation

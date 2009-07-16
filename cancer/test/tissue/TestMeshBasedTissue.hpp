@@ -396,15 +396,10 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Test set methods
-        TS_ASSERT_EQUALS(tissue.GetWriteVoronoiData(), false);
-        TS_ASSERT_EQUALS(tissue.GetWriteTissueAreas(), false);
 
-        tissue.SetOutputVoronoiData(true);
-        tissue.SetOutputTissueAreas(true);
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
+        TissueConfig::Instance()->SetOutputTissueAreas(true);
         TissueConfig::Instance()->SetOutputCellAreas(true);
-
-        TS_ASSERT_EQUALS(tissue.GetWriteVoronoiData(), true);
-        TS_ASSERT_EQUALS(tissue.GetWriteTissueAreas(), true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();

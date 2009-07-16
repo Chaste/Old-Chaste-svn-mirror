@@ -137,6 +137,8 @@ void TissueConfig::Reset()
     mOutputCellCyclePhases = false;
     mOutputCellAges = false;
     mOutputCellAreas = false;
+    mOutputVoronoiData = false;
+    mOutputTissueAreas = false;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -323,7 +325,14 @@ bool TissueConfig::GetOutputCellAreas()
 {
 	return mOutputCellAreas;
 }
-
+bool TissueConfig::GetOutputVoronoiData()
+{
+	return mOutputVoronoiData;
+}
+bool TissueConfig::GetOutputTissueAreas()
+{
+	return mOutputTissueAreas;
+}
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
@@ -548,4 +557,12 @@ void TissueConfig::SetOutputCellAges(bool outputCellAges)
 void TissueConfig::SetOutputCellAreas(bool outputCellAreas)
 {
 	mOutputCellAreas = outputCellAreas;
+}
+void TissueConfig::SetOutputVoronoiData(bool outputVoronoiData)
+{
+	mOutputVoronoiData = outputVoronoiData;
+}
+void TissueConfig::SetOutputTissueAreas(bool outputTissueAreas)
+{
+	mOutputTissueAreas = outputTissueAreas;
 }

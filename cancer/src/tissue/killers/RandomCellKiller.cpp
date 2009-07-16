@@ -29,29 +29,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-RandomCellKiller<DIM>::RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeath)
+RandomCellKiller<DIM>::RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeathInAnHour)
         : AbstractCellKiller<DIM>(pTissue),
-          mProbabilityOfDeath(probabilityOfDeath)
+          mProbabilityOfDeathInAnHour(probabilityOfDeathInAnHour)
 {
-    if ((mProbabilityOfDeath<0) || (mProbabilityOfDeath>1))
+    if ((mProbabilityOfDeathInAnHour<0) || (mProbabilityOfDeathInAnHour>1))
     {
         EXCEPTION("Probability of death must be between zero and one");
     }
 }
 
-
 template<unsigned DIM>
-double RandomCellKiller<DIM>::GetDeathProbability() const
+double RandomCellKiller<DIM>::GetDeathProbabilityInAnHour() const
 {
-    return mProbabilityOfDeath;
+    return mProbabilityOfDeathInAnHour;
 }
-
 
 template<unsigned DIM>
 void RandomCellKiller<DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
 {
+	// We assume a constant time step
+	double death_prob_this_timestep = 1.0 - pow((1.0 - mProbabilityOfDeathInAnHour), SimulationTime::Instance()->GetTimeStep());
+	
     if (!rCell.HasApoptosisBegun() &&
-        RandomNumberGenerator::Instance()->ranf() < mProbabilityOfDeath)
+        RandomNumberGenerator::Instance()->ranf() < death_prob_this_timestep)
     {
         rCell.StartApoptosis();
     }

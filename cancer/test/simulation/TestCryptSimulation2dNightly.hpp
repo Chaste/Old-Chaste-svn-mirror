@@ -163,7 +163,7 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
-        crypt.SetOutputVoronoiData(true);
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
 
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();

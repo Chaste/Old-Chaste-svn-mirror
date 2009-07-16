@@ -95,6 +95,8 @@ private:
 	    TS_ASSERT_EQUALS(p_inst->GetOutputCellCyclePhases(), false);
 	    TS_ASSERT_EQUALS(p_inst->GetOutputCellAges(), false);
 	    TS_ASSERT_EQUALS(p_inst->GetOutputCellAreas(), false);
+	    TS_ASSERT_EQUALS(p_inst->GetOutputVoronoiData(), false);
+	    TS_ASSERT_EQUALS(p_inst->GetOutputTissueAreas(), false);
     }
 
 public:
@@ -147,6 +149,8 @@ public:
 	    p_inst->SetOutputCellCyclePhases(true);
 	    p_inst->SetOutputCellAges(true);
 	    p_inst->SetOutputCellAreas(true);
+	    p_inst->SetOutputVoronoiData(true);
+	    p_inst->SetOutputTissueAreas(true);
         p_inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -198,6 +202,8 @@ public:
 	    p_inst1->SetOutputCellCyclePhases(true);
 	    p_inst1->SetOutputCellAges(true);
 		p_inst1->SetOutputCellAreas(true);
+		p_inst1->SetOutputVoronoiData(true);
+		p_inst1->SetOutputTissueAreas(true);
 
         TissueConfig *p_inst2 = TissueConfig::Instance();
 
@@ -242,6 +248,8 @@ public:
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellCyclePhases(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAges(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAreas(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputVoronoiData(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputTissueAreas(), true);
     }
 
     void TestArchiveTissueConfig()
@@ -296,6 +304,8 @@ public:
 		    p_inst1->SetOutputCellCyclePhases(true);
 		    p_inst1->SetOutputCellAges(true);
 		    p_inst1->SetOutputCellAreas(true);
+		    p_inst1->SetOutputVoronoiData(true);
+		    p_inst1->SetOutputTissueAreas(true);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -350,6 +360,8 @@ public:
 		    p_inst1->SetOutputCellCyclePhases(false);
 		    p_inst1->SetOutputCellAges(false);
 		    p_inst1->SetOutputCellAreas(false);
+		    p_inst1->SetOutputVoronoiData(false);
+		    p_inst1->SetOutputTissueAreas(false);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -400,6 +412,8 @@ public:
 	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellCyclePhases(), true);
 	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellAges(), true);
 	        TS_ASSERT_EQUALS(p_inst1->GetOutputCellAreas(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputVoronoiData(), true);
+	        TS_ASSERT_EQUALS(p_inst1->GetOutputTissueAreas(), true);
         }
     }
 };

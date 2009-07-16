@@ -231,7 +231,7 @@ public:
         simulator.SetEndTime(0.5);
 
         // Add cell killer
-        RandomCellKiller<2> random_cell_killer(&node_based_tissue, 0.05);
+        RandomCellKiller<2> random_cell_killer(&node_based_tissue, 0.997877574);
         simulator.AddCellKiller(&random_cell_killer);
 
         // Solve

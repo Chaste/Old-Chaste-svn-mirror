@@ -187,9 +187,9 @@ void AbstractTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory, 
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool rCleanOutputDirectory)
+void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
 {
-    OutputFileHandler output_file_handler(rDirectory, rCleanOutputDirectory);
+    OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpVizCellTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
 

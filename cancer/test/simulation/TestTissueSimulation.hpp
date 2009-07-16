@@ -108,7 +108,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        tissue.SetOutputTissueAreas(true); // record the spheroid radius and apoptotic radius
+        TissueConfig::Instance()->SetOutputTissueAreas(true); // record the spheroid radius and apoptotic radius
 
         // Set up Wnt Gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
@@ -151,13 +151,11 @@ public:
 
 
     /**
-     *  Test a tissue simulation with a cell killer.
+     * Test a tissue simulation with a cell killer.
      *
-     *  In this test, we solve a tissue simulation without ghost nodes and
-     *  check that the numbers of nodes and cells match at the end of the
-     *  simulation.
-     *
-     *  This test currently fails so is commented out.
+     * In this test, we solve a tissue simulation without ghost nodes and
+     * check that the numbers of nodes and cells match at the end of the
+     * simulation.
      */
     void TestTissueSimulationWithCellDeath() throw (Exception)
     {
@@ -194,7 +192,7 @@ public:
         simulator.SetEndTime(0.5);
 
         // Add cell killer
-        RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
+        RandomCellKiller<2> random_cell_killer(&tissue, 0.997877574);
         simulator.AddCellKiller(&random_cell_killer);
 
         // For coverage of an exception.

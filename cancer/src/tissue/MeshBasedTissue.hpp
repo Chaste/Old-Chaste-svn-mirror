@@ -77,12 +77,6 @@ protected:
      */
     std::set<std::set<TissueCell*> > mMarkedSprings;
 
-    /** Whether to write cell area and perimeter information to file. */
-    bool mWriteVoronoiData;
-
-    /** Whether to print out tissue areas. */
-    bool mWriteTissueAreas;
-
     /** Results file for elements. */
     out_stream mpElementFile;
 
@@ -126,8 +120,6 @@ protected:
         mpVoronoiTessellation = NULL;
 
         archive & mMarkedSprings;
-        archive & mWriteVoronoiData;
-        archive & mWriteTissueAreas;
         archive & mUseAreaBasedDampingConstant;
 
         // In its present form, a call to MeshBasedTissue::Validate() here

@@ -39,8 +39,6 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
       mrMesh(rMesh),
       mpVoronoiTessellation(NULL),
       mDeleteMesh(deleteMesh),
-      mWriteVoronoiData(false),
-      mWriteTissueAreas(false),
       mUseAreaBasedDampingConstant(false)
 {
     // This must always be true
@@ -325,7 +323,7 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     if (DIM==2)
     {
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        if ( GetWriteVoronoiData() || UseAreaBasedDampingConstant() || GetWriteTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
+        if ( TissueConfig::Instance()->GetOutputVoronoiData() || UseAreaBasedDampingConstant() || TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
         {
             CreateVoronoiTessellation();
         }
@@ -356,19 +354,6 @@ void MeshBasedTissue<DIM>::SetBottomCellAncestors()
             cell_iter->SetAncestor(index++);
         }
     }
-}
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetOutputVoronoiData(bool writeVoronoiData)
-{
-    assert(DIM == 2);
-    mWriteVoronoiData = writeVoronoiData;
-}
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetOutputTissueAreas(bool writeTissueAreas)
-{
-    mWriteTissueAreas = writeTissueAreas;
 }
 
 template<unsigned DIM>
@@ -411,11 +396,11 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
 
-    if (mWriteVoronoiData)
+    if (TissueConfig::Instance()->GetOutputVoronoiData())
     {
         mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
     }
-    if (mWriteTissueAreas)
+    if (TissueConfig::Instance()->GetOutputTissueAreas())
     {
         mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
     }
@@ -432,11 +417,11 @@ void MeshBasedTissue<DIM>::CloseOutputFiles()
     
     mpElementFile->close();
 
-    if (mWriteVoronoiData)
+    if (TissueConfig::Instance()->GetOutputVoronoiData())
     {
         mpVoronoiFile->close();
     }
-    if (mWriteTissueAreas)
+    if (TissueConfig::Instance()->GetOutputTissueAreas())
     {
         mpTissueAreasFile->close();
     }
@@ -444,18 +429,6 @@ void MeshBasedTissue<DIM>::CloseOutputFiles()
     {
         mpCellAreasFile->close();
     }
-}
-
-template<unsigned DIM>
-bool MeshBasedTissue<DIM>::GetWriteVoronoiData()
-{
-    return mWriteVoronoiData;
-}
-
-template<unsigned DIM>
-bool MeshBasedTissue<DIM>::GetWriteTissueAreas()
-{
-    return mWriteTissueAreas;
 }
 
 template<unsigned DIM>
@@ -485,13 +458,13 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
         if (mpVoronoiTessellation!=NULL)
         {
             // Write Voronoi data to file if required
-            if (mWriteVoronoiData)
+            if (TissueConfig::Instance()->GetOutputVoronoiData())
             {
                 WriteVoronoiResultsToFile();
             }
 
             // Write tissue area data to file if required
-            if (mWriteTissueAreas)
+            if (TissueConfig::Instance()->GetOutputTissueAreas())
             {
                 WriteTissueAreaResultsToFile();
             }
@@ -506,7 +479,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
     else if (DIM==3)
     {
         // Write tissue area data to file if required
-        if (mWriteTissueAreas)
+        if (TissueConfig::Instance()->GetOutputTissueAreas())
         {
             WriteTissueAreaResultsToFile();
         }

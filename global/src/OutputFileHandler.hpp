@@ -60,10 +60,10 @@ public:
      * Will check that the directory exists and create it if needed.
      *
      * @param rDirectory  the directory to put output files in.
-     * @param rCleanOutputDirectory  whether to remove any existing files in the output directory
+     * @param cleanOutputDirectory  whether to remove any existing files in the output directory
      */
     OutputFileHandler(const std::string& rDirectory,
-                      bool rCleanOutputDirectory = true);
+                      bool cleanOutputDirectory = true);
 
     /**
      *  Static method for getting the test output directory (the directory where
