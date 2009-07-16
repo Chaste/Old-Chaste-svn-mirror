@@ -96,6 +96,11 @@ public:
         vertex_mesh_writer.AddPointData("Distance from origin", distance);
        
         vertex_mesh_writer.WriteVtkUsingMesh(basic_vertex_mesh);
+
+        std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.vtu";
+        //? Only compare the first 531 bytes for now (the offsets and stuff seem to be changing)
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh.vtu").c_str()), 0);
+        
 #endif //CHASTE_VTK
     }
     
@@ -132,7 +137,12 @@ void TestMeshVtkWriter3D() throw(Exception)
         }
         vertex_mesh_writer.AddPointData("Distance from origin", distance);
        
-        vertex_mesh_writer.WriteVtkUsingMesh(mesh3d);
+        vertex_mesh_writer.WriteVtkUsingMesh(mesh3d, "42");
+        
+        OutputFileHandler handler("TestVertexMeshWriter", false);
+        std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_42.vtu";
+        //? Only compare the first 531 bytes for now (the offsets and stuff seem to be changing)
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_3d.vtu").c_str()), 0);
 #endif //CHASTE_VTK   
     }     
     
