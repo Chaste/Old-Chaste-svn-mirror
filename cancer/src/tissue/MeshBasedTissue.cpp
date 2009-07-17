@@ -531,7 +531,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
             if (cell_iter->GetCellType() == APOPTOTIC)
             {
                 unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-                double cell_area = rGetVoronoiTessellation().rGetFace(node_index).GetArea();
+                double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
                 apoptotic_area += cell_area;
             }
         }
@@ -564,7 +564,7 @@ void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
 
             // Write cell area
             unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-            double cell_area = rGetVoronoiTessellation().rGetFace(node_index).GetArea();
+            double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
             *mpCellAreasFile << cell_area << " ";
         }
     }
