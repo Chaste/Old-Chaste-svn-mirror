@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractTetrahedralMeshWriter.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -184,7 +185,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshR
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-    std::vector<unsigned>& rNodePermutation)
+    const std::vector<unsigned>& rNodePermutation)
 {
     if (rNodePermutation.size() == 0)
     {

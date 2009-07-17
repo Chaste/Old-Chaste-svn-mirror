@@ -125,7 +125,7 @@ std::string AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName() const
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation()
+const std::vector<unsigned>& AbstractMesh<ELEMENT_DIM, SPACE_DIM>::rGetNodePermutation() const
 {
     return mNodesPermutation;
 }

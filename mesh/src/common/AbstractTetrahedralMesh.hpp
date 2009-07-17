@@ -41,6 +41,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BoundaryElement.hpp"
 #include "Element.hpp"
 #include "AbstractMeshReader.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
+#include "ArchiveLocationInfo.hpp"
+#include "HeartConfig.hpp"
+
+#include <boost/serialization/split_member.hpp>
 
 /**
  * Abstract base class for all tetrahedral meshes (inherits from AbstractMesh).
@@ -70,18 +76,55 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
+
     /**
-     * Serialize the mesh.
+     * Archive the object.
      *
-     * @param archive the archive
-     * @param version the current version of this class
+     * @param archive
+     * @param version
      */
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    void save(Archive & archive, const unsigned int version) const
     {
-        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
-       // Don't do anything - this is just so subclasses can archive member variables.
+        std::string output_directory =  ArchiveLocationInfo::GetArchiveRelativePath();
+        //Write the mesh
+        TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, "mesh", false);        
+        
+        try
+        {
+            // If this mesh object has been constructed from a mesh reader we can get reference to it
+            TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
+            mesh_writer.WriteFilesUsingMeshReader(mesh_reader, this->rGetNodePermutation());
+        }
+        catch(Exception& e)
+        {
+            // Caching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
+            // That may mean it is a mesh constructed from a geometric description rather that read from file.
+
+            ///\todo: WriteFilesUsingMesh cannot handle ParallelTetrahedralMesh objects.            
+            ///\todo: #98 "this" seems to point to a const object and therefore is not compatible with the signature of WriteFilesUsingMesh(). Modifying the signature to get a const reference doesn't work either, since the implementation uses ElementIterator which cannot be instantiated from a const reference.             
+            //mesh_writer.WriteFilesUsingMesh(*this);
+            NEVER_REACHED;            
+        }
     }
+
+    /**
+     * Un-archive the object.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        std::string output_directory =  ArchiveLocationInfo::GetArchiveDirectory();       
+        TrianglesMeshReader<2,2> mesh_reader(output_directory + "mesh");
+    
+        this->ConstructFromMeshReader(mesh_reader);
+        
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 
 protected:  // Give access of these variables to subclasses
 

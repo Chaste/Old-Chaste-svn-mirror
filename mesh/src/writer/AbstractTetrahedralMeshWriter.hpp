@@ -30,7 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTTETRAHEDRALMESHWRITER_HPP_
 #define _ABSTRACTTETRAHEDRALMESHWRITER_HPP_
 
-#include "AbstractTetrahedralMesh.hpp"
+// Forward declaration prevents circular include chain
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class AbstractTetrahedralMesh;
+
 #include <vector>
 #include <string>
 #include <fstream>
@@ -156,7 +159,7 @@ public:
      * @param rNodePermutation the node permutation
      */
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                   std::vector<unsigned>& rNodePermutation);
+                                   const std::vector<unsigned>& rNodePermutation);
 };
 
 #endif //_ABSTRACTTETRAHEDRALMESHWRITER_HPP_

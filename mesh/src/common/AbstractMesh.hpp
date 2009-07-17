@@ -190,7 +190,7 @@ public:
     /**
      * Get method for mNodesPermutation.
      */
-    std::vector<unsigned>& rGetNodePermutation();
+    const std::vector<unsigned>& rGetNodePermutation() const;
 
     /**
      * Return a vector between two points in space.

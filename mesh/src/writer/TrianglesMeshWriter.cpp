@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "TrianglesMeshWriter.hpp"
+#include <cassert>
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation

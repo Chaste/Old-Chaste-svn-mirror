@@ -1265,52 +1265,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge6), 142u);
     }
 
-    /*
-     * This tests that a 'dummy' archive function does not throw any errors
-     * (a mesh writer stores the mesh in a nice format anyway, we only
-     * need this so that subclasses can archive their own member variables
-     */
-    void TestArchiveTetrahedralMesh()
-    {
-        EXIT_IF_PARALLEL;
-        OutputFileHandler handler("archive", false);    // do not clean folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "conf_mesh.arch";
-
-        // Create an output archive
-        {
-            TetrahedralMesh<2,2>* const p_mesh = new TetrahedralMesh<2,2>;
-            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-            TetrahedralMesh<2,2> mesh;
-            p_mesh->ConstructFromMeshReader(mesh_reader);
-            TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 4u);
-            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 2u);
-
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-
-            output_arch << p_mesh;
-            delete p_mesh;
-        }
-
-        {
-            TetrahedralMesh<2,2> *p_mesh2;
-
-            // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-
-            // restore from the archive
-            input_arch >> p_mesh2;
-
-            // \TODO:ticket:412 These lines will test proper mesh archiving.
-//            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(),4u);
-//            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(),2u);
-
-            delete p_mesh2;
-        }
-    }
-
     void TestGetAngleBetweenNodes()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
@@ -1463,6 +1417,58 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(cuboid_mesh.GetMeshFileBaseName());
     }
+    
+    void TestArchiving()
+    {
+        OutputFileHandler handler("ArchiveTetrahedralMesh");
+        std::string archive_filename;
+        handler.SetArchiveDirectory();
+        archive_filename = handler.GetOutputDirectoryFullPath() + "tetrahedral_mesh.arch";               
+        
+        {
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+    
+            TetrahedralMesh<2,2>* const p_mesh = new TetrahedralMesh<2,2>;
+            p_mesh->ConstructFromMeshReader(mesh_reader);
+                
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+    
+            output_arch << p_mesh;
+            delete p_mesh;
+        }
+
+        {
+            TetrahedralMesh<2,2>* p_mesh2;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // restore from the archive
+            input_arch >> p_mesh2;
+    
+            // Check we have the right number of nodes & elements
+            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), 543u);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), 984u);
+    
+            // Check some node co-ordinates
+            TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
+            TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
+            TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[0], 1.0, 1e-6);
+            TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[1], 0.0, 1e-6);
+    
+            // Check first element has the right nodes
+            TetrahedralMesh<2,2>::ElementIterator iter = p_mesh2->GetElementIteratorBegin();
+            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(0), 309u);
+            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(1), 144u);
+            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(2), 310u);
+            TS_ASSERT_EQUALS(iter->GetNode(1), p_mesh2->GetNode(144));
+            
+            delete p_mesh2;
+        }
+    }
+    
 
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_
