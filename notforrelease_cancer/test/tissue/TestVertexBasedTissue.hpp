@@ -657,6 +657,9 @@ public:
 
     void TestVertexBasedTissueOutputWriters() throw (Exception)
     {
+        // Set up SimulationTime (needed if VTK is used)
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
         // Create a simple vertex-based mesh
         VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
 
