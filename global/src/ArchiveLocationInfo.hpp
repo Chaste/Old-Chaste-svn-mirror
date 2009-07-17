@@ -30,9 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <sstream>
+#include <cassert>
 
 #include "Exception.hpp"
 #include "PetscTools.hpp"
+#include "OutputFileHandler.hpp"
 
 /**
  * Mini-class to help with 'archiving' various classes that don't write their
@@ -85,6 +87,7 @@ public:
     /**
      * Get the directory that archives are being written to.
      * Will always end in a '/'.
+     * @return full path to directory
      */
     static std::string GetArchiveDirectory()
     {
@@ -124,7 +127,27 @@ public:
             mDirPath = mDirPath + "/";
         }
     }
-    
+
+    /**
+     * Get the directory to which the archives are being written.
+     * Remove CHASTE_TEST_OUTPUT prefix (assuming it exists)
+     * Will always end in a '/'.
+     * @return relative path to directory
+     */
+     
+    static std::string GetArchiveRelativePath()
+    {
+        std::string chaste_output=OutputFileHandler::GetChasteTestOutputDirectory();
+        //Find occurance of CHASTE_TEST_OUTPUT in string
+        std::string::size_type pos=mDirPath.find(chaste_output, 0);
+        if (pos == std::string::npos)
+        {
+            EXCEPTION("Full path doesn't give a directory relative to CHASTE_TEST_OUTPUT");
+        }
+        assert(pos == 0); //Expect this as a prefix, not in the middle of the string
+        
+        return mDirPath.substr(chaste_output.length());
+    }    
 };
 
 #endif /*ARCHIVELOCATIONINFO_HPP_*/

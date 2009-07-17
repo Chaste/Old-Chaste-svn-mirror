@@ -48,6 +48,12 @@ public:
         ArchiveLocationInfo::SetArchiveDirectory("new_archive_dir");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "new_archive_dir/mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "new_archive_dir/");
+
+        //Throws because the full path isn't relative to test output
+        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveRelativePath());
+        ArchiveLocationInfo::SetArchiveDirectory(OutputFileHandler::GetChasteTestOutputDirectory() + "relative_archive_dir");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveRelativePath(), "relative_archive_dir/");
+        
     }
 
     void TestProcessUniqueNaming()
