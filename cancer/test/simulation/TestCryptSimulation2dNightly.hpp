@@ -112,7 +112,7 @@ public:
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         TissueConfig::Instance()->SetOutputCellTypes(true);
-        TissueConfig::Instance()->SetEndTime(12.0);
+        simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
@@ -176,7 +176,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Monolayer");
-        simulator.SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellTypes(true);
         simulator.SetEndTime(1);
 
         // Run simulation
