@@ -356,7 +356,7 @@ public:
             }
         }
 
-        std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
+        const std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
 
         unsigned node_50;
         unsigned node_70;

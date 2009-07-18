@@ -44,7 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "ArchiveLocationInfo.hpp"
-#include "HeartConfig.hpp"
 
 #include <boost/serialization/split_member.hpp>
 
@@ -118,7 +117,7 @@ private:
     void load(Archive & archive, const unsigned int version)
     {
         std::string output_directory =  ArchiveLocationInfo::GetArchiveDirectory();       
-        TrianglesMeshReader<2,2> mesh_reader(output_directory + "mesh");
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(output_directory + "mesh");
     
         this->ConstructFromMeshReader(mesh_reader);
         

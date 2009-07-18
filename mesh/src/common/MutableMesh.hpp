@@ -38,6 +38,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MutableMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+
+    /**
+     * Serialize the mesh.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       // Overriden serialisation code in AbstractTetrahedralMesh since cancer doesn't need to store the mesh explicitly. Is this OK AlexF?
+    }    
+    
 protected:
 
     /**
