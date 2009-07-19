@@ -127,7 +127,7 @@ public :
      *    required or not.
      */
     void ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& rC,
-                                          c_matrix<double,DIM,DIM>& invC,
+                                          c_matrix<double,DIM,DIM>& rInvC,
                                           double                    pressure,
                                           c_matrix<double,DIM,DIM>& rT,
                                           FourthOrderTensor<DIM>&   rDTdE,

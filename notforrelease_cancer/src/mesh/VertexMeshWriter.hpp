@@ -98,7 +98,7 @@ public:
      * Write VTK file using a mesh.
      *
      * @param rMesh reference to the vertex-based mesh
-     * @parma stamp is an optional stamp (like a time-stamp) to put into the name of the file
+     * @param stamp is an optional stamp (like a time-stamp) to put into the name of the file
      */
     void WriteVtkUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string stamp="");
 
@@ -106,17 +106,16 @@ public:
      * Add data to a future VTK file.
      *
      * @param dataName a tag to go into the VTK file
-     * @parma dataPayload a pay-load of length (number of elements)
+     * @param dataPayload a pay-load of length (number of elements)
      */
     void AddCellData(std::string dataName, std::vector<double> dataPayload);
     /**
      * Add data to a future VTK file.
      *
      * @param dataName a tag to go into the VTK file
-     * @parma dataPayload a pay-load of length (number of nodes)
+     * @param dataPayload a pay-load of length (number of nodes)
      */
     void AddPointData(std::string dataName, std::vector<double> dataPayload);
-
 
 };
 
