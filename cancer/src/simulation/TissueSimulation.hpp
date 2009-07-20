@@ -283,41 +283,6 @@ public:
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
 
     /**
-     * Find out how many cells of each mutation state there are
-     *
-     * @return The number of cells of each mutation state (evaluated at each visualizer output)
-     * [0] = healthy count
-     * [1] = labelled cells
-     * [2] = APC one hit
-     * [3] = APC two hit
-     * [4] = beta catenin one hit
-     */
-    c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
-
-    /**
-     * Find out how many cells of each type there are
-     *
-     * @return The number of cells of each type (evaluated at each visualizer output)
-     * [0] = STEM
-     * [1] = TRANSIT
-     * [2] = DIFFERENTIATED
-     * [3] = APOPTOTIC
-     */
-    c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
-
-    /**
-     * Find out how many cells in each cell cycle phase there are
-     *
-     * @return The number of cells of each phase (evaluated at each visualizer output)
-     * [0] = G_ZERO_PHASE
-     * [1] = G_ONE_PHASE
-     * [2] = S_PHASE
-     * [3] = G_TWO_PHASE
-     * [4] = M_PHASE
-     */
-    c_vector<unsigned, 5> GetCellCyclePhaseCount();
-
-    /**
      * @return the timestep of the simulation
      */
     double GetDt();

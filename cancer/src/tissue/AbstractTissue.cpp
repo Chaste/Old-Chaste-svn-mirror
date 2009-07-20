@@ -136,18 +136,30 @@ std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_MUTATION_STATES> AbstractTissue<DIM>::GetCellMutationStateCount()
 {
+    if (TissueConfig::Instance()->GetOutputCellMutationStates()==false)
+    {
+        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
+    }
     return mCellMutationStateCount;
 }
 
 template<unsigned DIM>
 c_vector<unsigned, NUM_CELL_TYPES> AbstractTissue<DIM>::GetCellTypeCount()
 {
+    if (TissueConfig::Instance()->GetOutputCellTypes()==false)
+    {
+        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellTypes(true) before using this function");
+    }
     return mCellTypeCount;
 }
 
 template<unsigned DIM>
 c_vector<unsigned, 5> AbstractTissue<DIM>::GetCellCyclePhaseCount()
 {
+    if (TissueConfig::Instance()->GetOutputCellCyclePhases()==false)
+    {
+        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
+    }
     return mCellCyclePhaseCount;
 }
 
@@ -275,9 +287,9 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     {
         TissueCell *p_cell = mLocationCellMap[locationIndex];
 
-        // Cell cycle phase
         if (TissueConfig::Instance()->GetOutputCellCyclePhases())
         {
+            // Update rCellCyclePhaseCounter
             switch (p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase())
             {
                 case G_ZERO_PHASE:
@@ -300,9 +312,9 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
             }
         }
 
-        // Cell ancestors
         if (TissueConfig::Instance()->GetOutputCellAncestors())
         {
+            // Set colour dependent on cell ancestor and write to file
             colour = p_cell->GetAncestor();
             if (colour == UNSIGNED_UNSET)
             {
@@ -348,46 +360,34 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
                 NEVER_REACHED;
         }
 
-        // Override colours for mutant or labelled cells
-        CellMutationState mutation = p_cell->GetMutationState();
-        switch (mutation)
+        if (TissueConfig::Instance()->GetOutputCellMutationStates())
         {
-            case HEALTHY:
-                if (TissueConfig::Instance()->GetOutputCellMutationStates())
-                {
+            // Set colour dependent on cell mutation state and update rCellMutationStateCounter
+            CellMutationState mutation = p_cell->GetMutationState();
+            switch (mutation)
+            {
+                case HEALTHY:
                     rCellMutationStateCounter[0]++;
-                }
-                break;
-            case APC_ONE_HIT:
-                colour = EARLY_CANCER_COLOUR;
-                if (TissueConfig::Instance()->GetOutputCellMutationStates())
-                {
+                    break;
+                case APC_ONE_HIT:
+                    colour = EARLY_CANCER_COLOUR;
                     rCellMutationStateCounter[2]++;
-                }
-                break;
-            case APC_TWO_HIT:
-                colour = LATE_CANCER_COLOUR;
-                if (TissueConfig::Instance()->GetOutputCellMutationStates())
-                {
+                    break;
+                case APC_TWO_HIT:
+                    colour = LATE_CANCER_COLOUR;
                     rCellMutationStateCounter[3]++;
-                }
-                break;
-            case BETA_CATENIN_ONE_HIT:
-                colour = LATE_CANCER_COLOUR;
-                if (TissueConfig::Instance()->GetOutputCellMutationStates())
-                {
+                    break;
+                case BETA_CATENIN_ONE_HIT:
+                    colour = LATE_CANCER_COLOUR;
                     rCellMutationStateCounter[4]++;
-                }
-                break;
-            case LABELLED:
-                colour = LABELLED_COLOUR;
-                if (TissueConfig::Instance()->GetOutputCellMutationStates())
-                {
+                    break;
+                case LABELLED:
+                    colour = LABELLED_COLOUR;
                     rCellMutationStateCounter[1]++;
-                }
-                break;
-            default:
-                NEVER_REACHED;
+                    break;
+                default:
+                    NEVER_REACHED;
+            }
         }
 
         if (p_cell->HasApoptosisBegun())

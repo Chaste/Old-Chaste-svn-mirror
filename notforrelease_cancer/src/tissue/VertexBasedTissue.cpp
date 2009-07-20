@@ -410,17 +410,14 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
              iter != mrMesh.GetElementIteratorEnd();
              ++iter)
     {
-        if ( !(iter->IsDeleted()) )
-        {
-            // First write the number of Nodes belonging to this VertexElement
-            *mpElementFile << iter->GetNumNodes() << " ";
+        // First write the number of Nodes belonging to this VertexElement
+        *mpElementFile << iter->GetNumNodes() << " ";
 
-            // Then write the global index of each Node in this element
-            unsigned num_nodes_in_this_element = iter->GetNumNodes();
-            for (unsigned i=0; i<num_nodes_in_this_element; i++)
-            {
-                *mpElementFile << iter->GetNodeGlobalIndex(i) << " ";
-            }
+        // Then write the global index of each Node in this element
+        unsigned num_nodes_in_this_element = iter->GetNumNodes();
+        for (unsigned i=0; i<num_nodes_in_this_element; i++)
+        {
+            *mpElementFile << iter->GetNodeGlobalIndex(i) << " ";
         }
     }
     *mpElementFile << "\n";
@@ -429,13 +426,10 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
              iter != mrMesh.GetElementIteratorEnd();
              ++iter)
     {
-        if (!(iter->IsDeleted()))
-        {
-            this->GenerateCellResults(iter->GetIndex(),
-            						  cell_type_counter,
-                                      cell_mutation_state_counter,
-                                      cell_cycle_phase_counter);
-        }
+        this->GenerateCellResults(iter->GetIndex(),
+                                  cell_type_counter,
+                                  cell_mutation_state_counter,
+                                  cell_cycle_phase_counter);
     }
 
     this->WriteCellResultsToFiles(cell_type_counter,

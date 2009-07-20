@@ -527,44 +527,13 @@ void TissueSimulation<DIM>::Solve()
     CancerEventHandler::EndEvent(CancerEventHandler::EVERYTHING);
 }
 
+
 template<unsigned DIM>
 bool TissueSimulation<DIM>::StoppingEventHasOccurred()
 {
     return false;
 }
 
-
-template<unsigned DIM>
-c_vector<unsigned, NUM_CELL_MUTATION_STATES> TissueSimulation<DIM>::GetCellMutationStateCount()
-{
-    if (TissueConfig::Instance()->GetOutputCellMutationStates()==false)
-    {
-        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
-    }
-    return mrTissue.GetCellMutationStateCount();
-}
-
-
-template<unsigned DIM>
-c_vector<unsigned, NUM_CELL_TYPES> TissueSimulation<DIM>::GetCellTypeCount()
-{
-    if (TissueConfig::Instance()->GetOutputCellTypes()==false)
-    {
-        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellTypes(true) before using this function");
-    }
-    return mrTissue.GetCellTypeCount();
-}
-
-
-template<unsigned DIM>
-c_vector<unsigned, 5> TissueSimulation<DIM>::GetCellCyclePhaseCount()
-{
-    if (TissueConfig::Instance()->GetOutputCellCyclePhases()==false)
-    {
-        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
-    }
-    return mrTissue.GetCellCyclePhaseCount();
-}
 
 template<unsigned DIM>
 void TissueSimulation<DIM>::UpdateTissue()

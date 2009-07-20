@@ -163,46 +163,44 @@ public:
         unsigned checksum_for_node_12 = 0;
         unsigned checksum_for_node_18 = 0;
 
-        for (unsigned elem_index=0; elem_index<p_mesh->GetNumAllElements(); elem_index++)
+        for (Cylindrical2dMesh::ElementIterator elem_iter = p_mesh->GetElementIteratorBegin();
+             elem_iter != p_mesh->GetElementIteratorEnd();
+             ++elem_iter)
         {
-            Element<2,2> *p_element = p_mesh->GetElement(elem_index);
-            if (!p_element->IsDeleted())
+            for (unsigned i=0; i<3; i++)
             {
-                for (unsigned i=0; i<3; i++)
-                {
-                    unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                unsigned this_node_index = elem_iter->GetNodeGlobalIndex(i);
 
-                    if (this_node_index==0)
+                if (this_node_index==0)
+                {
+                    elements_for_node_0++;
+                    for (unsigned j=0; j<3; j++)
                     {
-                        elements_for_node_0++;
-                        for (unsigned j=0; j<3; j++)
-                        {
-                            checksum_for_node_0 += p_element->GetNodeGlobalIndex(j);
-                        }
+                        checksum_for_node_0 += elem_iter->GetNodeGlobalIndex(j);
                     }
-                    if (this_node_index==11)
+                }
+                if (this_node_index==11)
+                {
+                    elements_for_node_11++;
+                    for (unsigned j=0; j<3; j++)
                     {
-                        elements_for_node_11++;
-                        for (unsigned j=0; j<3; j++)
-                        {
-                            checksum_for_node_11 += p_element->GetNodeGlobalIndex(j);
-                        }
+                        checksum_for_node_11 += elem_iter->GetNodeGlobalIndex(j);
                     }
-                    if (this_node_index==12)
+                }
+                if (this_node_index==12)
+                {
+                    elements_for_node_12++;
+                    for (unsigned j=0; j<3; j++)
                     {
-                        elements_for_node_12++;
-                        for (unsigned j=0; j<3; j++)
-                        {
-                            checksum_for_node_12 += p_element->GetNodeGlobalIndex(j);
-                        }
+                        checksum_for_node_12 += elem_iter->GetNodeGlobalIndex(j);
                     }
-                    if (this_node_index==18)
+                }
+                if (this_node_index==18)
+                {
+                    elements_for_node_18++;
+                    for (unsigned j=0; j<3; j++)
                     {
-                        elements_for_node_18++;
-                        for (unsigned j=0; j<3; j++)
-                        {
-                            checksum_for_node_18 += p_element->GetNodeGlobalIndex(j);
-                        }
+                        checksum_for_node_18 += elem_iter->GetNodeGlobalIndex(j);
                     }
                 }
             }

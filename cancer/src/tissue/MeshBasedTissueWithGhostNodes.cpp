@@ -152,12 +152,15 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
         }
     }
 
-    for (unsigned index = 0; index<this->GetNumNodes(); index++)
+    for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = this->mrMesh.GetNodeIteratorBegin();
+         node_iter != this->mrMesh.GetNodeIteratorEnd();
+         ++node_iter)
     {
-        if ((!this->GetNode(index)->IsDeleted()) && this->mIsGhostNode[index])
+        unsigned node_index = node_iter->GetIndex();
+        if (this->mIsGhostNode[node_index])
         {
-            ChastePoint<DIM> new_point(this->GetNode(index)->rGetLocation() + dt*drdt[index]);
-            this->mrMesh.SetNode(index, new_point, false);
+            ChastePoint<DIM> new_point(node_iter->rGetLocation() + dt*drdt[node_index]);
+            this->mrMesh.SetNode(node_index, new_point, false);
         }
     }
 }

@@ -132,7 +132,7 @@ public:
         std::set<unsigned> ghost_indices = crypt.GetGhostNodeIndices();
         TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
 
-        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.GetCellTypeCount();
+        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.rGetTissue().GetCellTypeCount();
         TS_ASSERT_EQUALS(cell_type_count[0], 6u);   // Stem
         TS_ASSERT_EQUALS(cell_type_count[1], 21u);  // Transit
         TS_ASSERT_EQUALS(cell_type_count[2], 35u);  // Differentiated
@@ -190,7 +190,7 @@ public:
         std::set<unsigned> ghost_indices = crypt.GetGhostNodeIndices();
         TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
 
-        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.GetCellTypeCount();
+        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.rGetTissue().GetCellTypeCount();
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);   // Stem
         TS_ASSERT_EQUALS(cell_type_count[1], 32u);  // Transit
         TS_ASSERT_EQUALS(cell_type_count[2], 36u);  // Differentiated

@@ -68,8 +68,7 @@ void Cylindrical2dMesh::UpdateTopAndBottom()
 
 void Cylindrical2dMesh::CreateMirrorNodes()
 {
-    unsigned num_nodes = GetNumAllNodes();
-    double half_way = (mWidth)/2.0;
+    double half_way = mWidth/2.0;
 
     mLeftOriginals.clear();
     mLeftImages.clear();
@@ -80,27 +79,26 @@ void Cylindrical2dMesh::CreateMirrorNodes()
     mLeftPeriodicBoundaryElementIndices.clear();
     mRightPeriodicBoundaryElementIndices.clear();
 
-    for (unsigned i=0; i<num_nodes; i++)
+    for (AbstractMesh<2,2>::NodeIterator node_iter = GetNodeIteratorBegin();
+         node_iter != GetNodeIteratorEnd();
+         ++node_iter)
     {
-        if (!mNodes[i]->IsDeleted())
+        c_vector<double, 2> location = node_iter->rGetLocation();
+        unsigned this_node_index = node_iter->GetIndex();
+        double this_node_x_location = location[0];
+
+        // Check the mesh currently conforms to the dimensions given
+        assert(0.0 <= location[0]);
+        assert(location[0] <= mWidth);
+
+        // Put the nodes which are to be mirrored in the relevant vectors
+        if (this_node_x_location < half_way)
         {
-            c_vector<double, 2> location = mNodes[i]->rGetLocation();
-            unsigned this_node_index = mNodes[i]->GetIndex();
-            double this_node_x_location = location[0];
-
-            // Check the mesh currently conforms to the dimensions given
-            assert(0.0<=location[0]);
-            assert(location[0]<=mWidth);
-
-            // Put the nodes which are to be mirrored in the relevant vectors
-            if (this_node_x_location<half_way)
-            {
-                mLeftOriginals.push_back(this_node_index);
-            }
-            else
-            {
-                mRightOriginals.push_back(this_node_index);
-            }
+            mLeftOriginals.push_back(this_node_index);
+        }
+        else
+        {
+            mRightOriginals.push_back(this_node_index);
         }
     }
 
@@ -291,58 +289,54 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
 {
     // Figure out which elements have real nodes and image nodes in them
     // and replace image nodes with corresponding real ones.
-    for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
+    for (MutableMesh<2,2>::ElementIterator elem_iter = GetElementIteratorBegin();
+         elem_iter != GetElementIteratorEnd();
+         ++elem_iter)
     {
-        Element<2,2> *p_element = GetElement(elem_index);
-        if (!p_element->IsDeleted())
+        // Left images are on the right of the mesh
+        unsigned number_of_left_image_nodes = 0u;
+        unsigned number_of_right_image_nodes = 0u;
+        for (unsigned i=0; i<3; i++)
         {
-            // Left images are on the right of the mesh
-            unsigned number_of_left_image_nodes = 0u;
-            unsigned number_of_right_image_nodes = 0u;
+            unsigned this_node_index = elem_iter->GetNodeGlobalIndex(i);
+
+            if (mImageToLeftOriginalNodeMap.find(this_node_index) != mImageToLeftOriginalNodeMap.end())
+            {
+                number_of_left_image_nodes++;
+            }
+            else if (mImageToRightOriginalNodeMap.find(this_node_index) != mImageToRightOriginalNodeMap.end())
+            {
+                number_of_right_image_nodes++;
+            }
+        }
+
+        // Delete all the elements on the left hand side (images of right)...
+        if (number_of_right_image_nodes >= 1u)
+        {
+            elem_iter->MarkAsDeleted();
+            mDeletedElementIndices.push_back(elem_iter->GetIndex());
+        }
+
+        // Delete only purely imaginary elements on the right (images of left nodes)
+        if (number_of_left_image_nodes == 3u)
+        {
+            elem_iter->MarkAsDeleted();
+            mDeletedElementIndices.push_back(elem_iter->GetIndex());
+        }
+
+        // If some are images then replace them with the real nodes.
+        // There can be elements with either two image nodes on the
+        // right (and one real) or one image node on the right
+        // (and two real).
+        if (number_of_left_image_nodes==1u || number_of_left_image_nodes==2u )
+        {
             for (unsigned i=0; i<3; i++)
             {
-                unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-
-                if (mImageToLeftOriginalNodeMap.find(this_node_index)
-                       != mImageToLeftOriginalNodeMap.end())
+                unsigned this_node_index = elem_iter->GetNodeGlobalIndex(i);
+                std::map<unsigned, unsigned>::iterator it = mImageToLeftOriginalNodeMap.find(this_node_index);
+                if (it != mImageToLeftOriginalNodeMap.end())
                 {
-                    number_of_left_image_nodes++;
-                }
-                else if (mImageToRightOriginalNodeMap.find(this_node_index)
-                    != mImageToRightOriginalNodeMap.end())
-                {
-                    number_of_right_image_nodes++;
-                }
-            }
-
-            // Delete all the elements on the left hand side (images of right)...
-            if (number_of_right_image_nodes>=1u)
-            {
-                p_element->MarkAsDeleted();
-                mDeletedElementIndices.push_back(p_element->GetIndex());
-            }
-
-            // Delete only purely imaginary elements on the right (images of left nodes)
-            if (number_of_left_image_nodes==3u)
-            {
-                p_element->MarkAsDeleted();
-                mDeletedElementIndices.push_back(p_element->GetIndex());
-            }
-
-            // If some are images then replace them with the real nodes.
-            // There can be elements with either two image nodes on the
-            // right (and one real) or one image node on the right
-            // (and two real).
-            if (number_of_left_image_nodes==1u || number_of_left_image_nodes==2u )
-            {
-                for (unsigned i=0; i<3; i++)
-                {
-                    unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                    std::map<unsigned, unsigned>::iterator it = mImageToLeftOriginalNodeMap.find(this_node_index);
-                    if (it != mImageToLeftOriginalNodeMap.end())
-                    {
-                        p_element->ReplaceNode(mNodes[this_node_index], mNodes[it->second]);
-                    }
+                    elem_iter->ReplaceNode(mNodes[this_node_index], mNodes[it->second]);
                 }
             }
         }
@@ -408,7 +402,6 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
                 }
             }
         }
-
     }
 
     // Delete all image nodes unless they have already gone (halo nodes)
@@ -649,20 +642,18 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
     std::vector<unsigned> corresponding_elements;
 
     // Loop over all elements
-    for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
+    for (MutableMesh<2,2>::ElementIterator elem_iter = GetElementIteratorBegin();
+         elem_iter != GetElementIteratorEnd();
+         ++elem_iter)
     {
-        Element<2,2> *p_element = GetElement(elem_index);
-        if (!p_element->IsDeleted())
+        // Loop over the nodes of the element
+        if (!(other_four_nodes.find(elem_iter->GetNodeGlobalIndex(0))==other_four_nodes.end()) &&
+            !(other_four_nodes.find(elem_iter->GetNodeGlobalIndex(1))==other_four_nodes.end()) &&
+            !(other_four_nodes.find(elem_iter->GetNodeGlobalIndex(2))==other_four_nodes.end()) )
         {
-            // Loop over the nodes of the element
-            if (!(other_four_nodes.find(p_element->GetNodeGlobalIndex(0))==other_four_nodes.end()) &&
-                !(other_four_nodes.find(p_element->GetNodeGlobalIndex(1))==other_four_nodes.end()) &&
-                !(other_four_nodes.find(p_element->GetNodeGlobalIndex(2))==other_four_nodes.end()) )
-            {
-                corresponding_elements.push_back(elem_index);
-                p_element->MarkAsDeleted();
-                mDeletedElementIndices.push_back(p_element->GetIndex());
-            }
+            corresponding_elements.push_back(elem_iter->GetIndex());
+            elem_iter->MarkAsDeleted();
+            mDeletedElementIndices.push_back(elem_iter->GetIndex());
         }
     }
     assert(corresponding_elements.size()==2u);
@@ -701,41 +692,37 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
     mLeftPeriodicBoundaryElementIndices.clear();
     mRightPeriodicBoundaryElementIndices.clear();
 
-    for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
+    for (MutableMesh<2,2>::ElementIterator elem_iter = GetElementIteratorBegin();
+         elem_iter != GetElementIteratorEnd();
+         ++elem_iter)
     {
-        Element<2,2> *p_element = GetElement(elem_index);
-        if (!p_element->IsDeleted())
+        // Left images are on the right of the mesh
+        unsigned number_of_left_image_nodes = 0u;
+        unsigned number_of_right_image_nodes = 0u;
+        for (unsigned i=0; i<3; i++)
         {
-            // Left images are on the right of the mesh
-            unsigned number_of_left_image_nodes = 0u;
-            unsigned number_of_right_image_nodes = 0u;
-            for (unsigned i=0; i<3; i++)
-            {
-                unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+            unsigned this_node_index = elem_iter->GetNodeGlobalIndex(i);
 
-                if (mImageToLeftOriginalNodeMap.find(this_node_index)
-                    != mImageToLeftOriginalNodeMap.end())
-                {
-                    number_of_left_image_nodes++;
-                }
-                else if (mImageToRightOriginalNodeMap.find(this_node_index)
-                        != mImageToRightOriginalNodeMap.end())
-                {
-                    number_of_right_image_nodes++;
-                }
-            }
-
-            // Elements on the left hand side (images of right)...
-            if (number_of_right_image_nodes==1u || number_of_right_image_nodes==2u)
+            if (mImageToLeftOriginalNodeMap.find(this_node_index) != mImageToLeftOriginalNodeMap.end())
             {
-                mLeftPeriodicBoundaryElementIndices.insert(elem_index);
+                number_of_left_image_nodes++;
             }
-
-            // Elements on the right (images of left nodes)
-            if (number_of_left_image_nodes==1u|| number_of_left_image_nodes==2u)
+            else if (mImageToRightOriginalNodeMap.find(this_node_index) != mImageToRightOriginalNodeMap.end())
             {
-                mRightPeriodicBoundaryElementIndices.insert(elem_index);
+                number_of_right_image_nodes++;
             }
+        }
+
+        // Elements on the left hand side (images of right)...
+        if (number_of_right_image_nodes==1u || number_of_right_image_nodes==2u)
+        {
+            mLeftPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
+        }
+
+        // Elements on the right (images of left nodes)
+        if (number_of_left_image_nodes==1u|| number_of_left_image_nodes==2u)
+        {
+            mRightPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
         }
     }
 }

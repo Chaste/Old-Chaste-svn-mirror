@@ -665,14 +665,14 @@ public:
             TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(&(*cell_iter))[0]);
         }
 
-        c_vector<unsigned,5> cell_mutation_state_count = simulator.GetCellMutationStateCount();
+        c_vector<unsigned,5> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u);  // No APC two hit, one of all the rest.
         TS_ASSERT_EQUALS(cell_mutation_state_count[4], 1u);
 
-        c_vector<unsigned,5> cell_type_count = simulator.GetCellTypeCount();
+        c_vector<unsigned,5> cell_type_count = simulator.rGetTissue().GetCellTypeCount();
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);
         TS_ASSERT_EQUALS(cell_type_count[1], 4u);
         TS_ASSERT_EQUALS(cell_type_count[2], 0u);

@@ -440,14 +440,13 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
 
     *mpElementFile <<  SimulationTime::Instance()->GetTime() << "\t";
 
-    for (unsigned elem_index=0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+    for (typename MutableMesh<DIM,DIM>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
+         elem_iter != mrMesh.GetElementIteratorEnd();
+         ++elem_iter)
     {
-        if (!mrMesh.GetElement(elem_index)->IsDeleted())
+        for (unsigned i=0; i<DIM+1; i++)
         {
-            for (unsigned i=0; i<DIM+1; i++)
-            {
-                *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i) << " ";
-            }
+            *mpElementFile << elem_iter->GetNodeGlobalIndex(i) << " ";
         }
     }
 
@@ -457,19 +456,14 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
     {
         if (mpVoronoiTessellation!=NULL)
         {
-            // Write Voronoi data to file if required
             if (TissueConfig::Instance()->GetOutputVoronoiData())
             {
                 WriteVoronoiResultsToFile();
             }
-
-            // Write tissue area data to file if required
             if (TissueConfig::Instance()->GetOutputTissueAreas())
             {
                 WriteTissueAreaResultsToFile();
             }
-
-            // Write cell area data to file if required
             if (TissueConfig::Instance()->GetOutputCellAreas())
             {
                 WriteCellAreaResultsToFile();
@@ -478,7 +472,6 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
     }
     else if (DIM==3)
     {
-        // Write tissue area data to file if required
         if (TissueConfig::Instance()->GetOutputTissueAreas())
         {
             WriteTissueAreaResultsToFile();
