@@ -550,7 +550,7 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create cell killer and pass in to crypt simulation
-        RandomCellKiller<2> random_cell_killer(&crypt, 0.01);
+        RandomCellKiller<2> random_cell_killer(&crypt, 0.700619609);
         simulator.AddCellKiller(&random_cell_killer);
 
         // Run simulation
