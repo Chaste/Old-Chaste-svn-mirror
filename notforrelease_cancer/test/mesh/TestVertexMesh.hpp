@@ -58,14 +58,14 @@ public:
             TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give nodes 0,1..,N in that order
             counter++;
         }
-		TS_ASSERT_EQUALS(mesh.GetNumNodes(),counter);
+		TS_ASSERT_EQUALS(mesh.GetNumNodes(), counter);
 
     	// Check that the node iterator correctly handles deleted nodes
     	mesh.GetNode(0)->MarkAsDeleted();
 
         counter = 0;
-        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
-             iter != mesh.GetElementIteratorEnd();
+        for (VertexMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
+             iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
             unsigned node_index = iter->GetIndex();
@@ -73,8 +73,7 @@ public:
             counter++;
         }
 
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), counter);
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), counter+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), counter+1);
 
         // For coverage, test with an empty mesh
         VertexMesh<2,2> empty_mesh;
