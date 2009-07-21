@@ -82,9 +82,21 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                     {
                         if (i%3 != 2)
                         {
-                            Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
-                            mNodes.push_back(p_node);
-                            node_index++;
+                            /*
+                             * If the mesh has an imposed flat bottom mve all nodes down by 0.3 (Magic number).
+                             */  
+                            if (isFlatBottom &&(j!=0))
+                            { 
+                                Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0 - 0.3);
+                                mNodes.push_back(p_node);
+                                node_index++;
+                            }
+                            else
+                            { 
+                                Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                                mNodes.push_back(p_node);
+                                node_index++;
+                            }
                         }
                     }
                 }
@@ -97,9 +109,21 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                     {
                         if (i%3 != 2)
                         {
-                            Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
-                            mNodes.push_back(p_node);
-                            node_index++;
+                            /*
+                             * If the mesh has an imposed flat bottom mve all nodes down by 0.3 (Magic number).
+                             */  
+                            if (isFlatBottom)
+                            { 
+                                Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0 - 0.3);
+                                mNodes.push_back(p_node);
+                                node_index++;
+                            }
+                            else
+                            { 
+                                Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
+                                mNodes.push_back(p_node);
+                                node_index++;
+                            }
                         }
                     }
                 }

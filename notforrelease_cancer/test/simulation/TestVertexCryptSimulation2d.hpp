@@ -273,21 +273,41 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-
+            
+            StochasticDurationGenerationBasedCellCycleModel *p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
             CellType cell_type;
+            unsigned generation;
 
             // Cells 0 1 2 3 4 and 5 are stem cells
             if (elem_index<8)
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
+                generation=0; 
+            }
+               // Cells 0 1 2 3 4 and 5 are stem cells
+            else if (elem_index<24)
+            {
+                //birth_time = - 2.0*(double)elem_index;
+                cell_type = TRANSIT;
+                generation=1; 
+            }
+            else if (elem_index<40)
+            {
+                //birth_time = - 2.0*(double)elem_index;
+                cell_type = TRANSIT;
+                generation=2; 
             }
             else
             {
                 cell_type = DIFFERENTIATED;
+                generation=3; 
             }
+            
+            p_cell_cycle_model->SetGeneration(generation);
 
-            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
+            TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
+            
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -303,7 +323,7 @@ public:
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
         simulator.SetSamplingTimestepMultiple(10);
-        simulator.SetEndTime(500);
+        simulator.SetEndTime(200);
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
         // Modified parameters to make cells equilibriate 
