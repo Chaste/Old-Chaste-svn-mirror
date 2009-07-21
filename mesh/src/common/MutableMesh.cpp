@@ -1008,6 +1008,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 {
     // Looping through all the elements in the mesh
+    /// \todo use ElementIterator here?
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
         // Check if the element is not deleted
