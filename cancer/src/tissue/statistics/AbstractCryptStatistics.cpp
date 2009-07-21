@@ -35,7 +35,7 @@ void AbstractCryptStatistics::LabelSPhaseCells()
     {
         if (cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
         {   // This should only be done for healthy or labelled populations, not mutants (at the moment anyway)
-            assert((*cell_iter).GetMutationState() == HEALTHY || (*cell_iter).GetMutationState() == LABELLED);
+            assert(cell_iter->GetMutationState() == HEALTHY || cell_iter->GetMutationState() == LABELLED);
             cell_iter->SetMutationState(LABELLED);
         }
     }

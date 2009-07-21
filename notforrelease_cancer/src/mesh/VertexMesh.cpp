@@ -167,7 +167,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                     }
                     else    // not on the bottom row
                     {
-                         if (i%2 == 0) // even
+                        if (i%2 == 0) // even
                         {
                             node_indices[0] = (2*numAcross+1)+2*(j-1)*(numAcross+1)+i;
                         }
@@ -235,7 +235,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
 {
-    assert(index < this->mNodes.size() );
+    assert(index < this->mNodes.size());
     return index;
 }
 
@@ -243,7 +243,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) co
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
 {
-    assert(index < this->mElements.size() );
+    assert(index < this->mElements.size());
     return index;
 }
 
@@ -619,7 +619,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     discriminant = sqrt((moments(0) - moments(1))*(moments(0) - moments(1)) + 4.0*moments(2)*moments(2));
     // This is always the largest eigenvalue as both eigenvalues are real as it is a
     // symmetric matrix
-    largest_eigenvalue = ((moments(0) + moments(1)) + discriminant)*0.5;
+    largest_eigenvalue = (moments(0) + moments(1) + discriminant)*0.5;
     if (fabs(discriminant) < 1e-10)
     {
         // Return a random unit vector
@@ -630,16 +630,8 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     {
         if (moments(2) == 0.0)
         {
-            if (moments(0)<moments(1))
-            {
-                short_axis(0) = 0.0;
-                short_axis(1) = 1.0;
-            }
-            else
-            {
-                short_axis(0) = 1.0;
-                short_axis(1) = 0.0;
-            }
+        	short_axis(0) = (moments(0) < moments(1)) ? 0.0 : 1.0;
+        	short_axis(1) = (moments(0) < moments(1)) ? 1.0 : 0.0;
         }
         else
         {
@@ -758,8 +750,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
     this->mNodes.push_back(p_new_node);
 
     // Iterate over common elements
-    for (std::set<unsigned>::iterator iter=shared_elements.begin();
-         iter!=shared_elements.end();
+    for (std::set<unsigned>::iterator iter = shared_elements.begin();
+         iter != shared_elements.end();
          ++iter)
     {
         // Find which node has the lower local index in this element
@@ -783,7 +775,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
         GetElement(*iter)->AddNode(index, p_new_node);
     }
 }
-
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -841,7 +832,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
         {
             mElements[i]->ResetIndex(i);
         }
-
         for (unsigned i=0; i<this->mNodes.size(); i++)
         {
             this->mNodes[i]->SetIndex(i);
@@ -956,8 +946,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 	                            break;
 	                        }
 					    }
-					    
-					    
+
                         if (distance_between_nodes > mEdgeDivisionThreshold)
                         {
                             // If the nodes are too far apart, divide the edge
@@ -978,10 +967,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
         // areas and perimeters of elements are sorted in PerformT1Swap() method
 
         // Check that no nodes have overlapped elements
-
         /// \todo Only need to check this next bit if the element/node is on the boundary (see #933 and #943)
-
-        // Loop over elements
         for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
              iter != GetElementIteratorEnd();
              ++iter)
@@ -1331,7 +1317,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
         c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
         r_nodeA_location = node_midpoint; 
     
-        //Replace node B with node A
+        // Replace node B with node A
         for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
              it != nodeB_elem_indices.end();
             ++it)
@@ -1339,7 +1325,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
             unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
             assert(nodeB_local_index < UINT_MAX); // this element should contain node B
             
-            if (nodeA_elem_indices.count(*it)>0) //Element contains nodeA
+            if (nodeA_elem_indices.count(*it) > 0) // element contains node A
             {
                 // Remove node B
                 mElements[*it]->DeleteNode(nodeB_local_index);      
@@ -1798,22 +1784,11 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
 
-    // Sort nodeA and nodeB such that nodeBIndex>nodeAindex
-    assert(nodeBIndex!=nodeAIndex);
+    // Sort nodeA and nodeB such that nodeBIndex > nodeAindex
+    assert(nodeBIndex != nodeAIndex);
 
-    unsigned node1Index;
-    unsigned node2Index;
-
-    if (nodeAIndex < nodeBIndex)
-    {
-        node1Index = nodeAIndex;
-        node2Index = nodeBIndex;
-    }
-    else
-    {
-        node1Index = nodeBIndex;
-        node2Index = nodeAIndex;
-    }
+    unsigned node1_index = (nodeAIndex < nodeBIndex) ? nodeAIndex : nodeBIndex;
+    unsigned node2_index = (nodeAIndex < nodeBIndex) ? nodeBIndex : nodeAIndex;
 
     // Copy element
     std::vector<Node<SPACE_DIM>*> nodes_elem;
@@ -1838,23 +1813,27 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
     AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
 
-    /* Remove corect nodes from each elament 
-     * choose original element to be below (in the y direction) 
-     * the new element to keep stem cells at the bottom
+    /*
+     * Remove the correct nodes from each element. Choose the 
+     * original element to be below (in the y direction) the 
+     * new element, so as to keep stem cells at the bottom.
+     * 
+     * \todo Woah! Why does this comment refer to stem cells? 
+     * Is this code crypt-dependent? It shouldn't be... 
      */
     
-    // find lowest element \todo this could be more efficient
+    // Find lowest element \todo this could be more efficient
     double height_midpoint_1 = 0.0, height_midpoint_2 = 0.0; 
     unsigned counter_1=0, counter_2=0;
         
     for (unsigned i=0; i<num_nodes; i++)
     {
-        if (i>=node1Index && i<=node2Index)
+        if (i>=node1_index && i<=node2_index)
         {
             height_midpoint_1 += pElement->GetNode(i)->rGetLocation()[1];
             counter_1++;
         }
-        if (i<=node1Index || i>=node2Index)
+        if (i<=node1_index || i>=node2_index)
         {
             height_midpoint_2 += pElement->GetNode(i)->rGetLocation()[1];
             counter_2++;
@@ -1869,11 +1848,11 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         // Remove nodes node1 < # < node2 from new_element
         for (unsigned i=num_nodes; i>0; i--)
         {
-            if (i-1<node1Index || i-1>node2Index)
+            if (i-1<node1_index || i-1>node2_index)
             {
                 pElement->DeleteNode(i-1);
             }
-            else if (i-1>node1Index && i-1<node2Index)
+            else if (i-1>node1_index && i-1<node2_index)
             {
                 mElements[new_element_index]->DeleteNode(i-1);
             }
@@ -1883,14 +1862,13 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     {
         // Remove nodes  # < node1 and # > node2 from new_element
         // Remove nodes node1 < # < node2 from pElement
-
         for (unsigned i=num_nodes; i>0; i--)
         {
-            if (i-1<node1Index || i-1>node2Index)
+            if (i-1 < node1_index || i-1 > node2_index)
             {
                 mElements[new_element_index]->DeleteNode(i-1);
             }
-            else if (i-1>node1Index && i-1<node2Index)
+            else if (i-1 > node1_index && i-1 < node2_index)
             {
                 pElement->DeleteNode(i-1);
             }
@@ -1996,7 +1974,6 @@ bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<dou
         c_vector<double, SPACE_DIM> vertexB = p_element->GetNodeLocation((local_index+1)%num_nodes);
 
         // Check if this edge crosses the ray running out horizontally (increasing x, fixed y) from the test point
-
         c_vector<double, SPACE_DIM> vector_a_to_point = GetVectorFromAtoB(vertexA, rTestPoint);
         c_vector<double, SPACE_DIM> vector_b_to_point = GetVectorFromAtoB(vertexB, rTestPoint);
         c_vector<double, SPACE_DIM> vector_a_to_b = GetVectorFromAtoB(vertexA, vertexB);

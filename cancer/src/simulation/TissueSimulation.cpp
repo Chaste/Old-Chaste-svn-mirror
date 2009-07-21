@@ -117,7 +117,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 // Create a new cell
                 TissueCell new_cell = cell_iter->Divide();
 
-                //\todo This is specific to cell-centre based models, the location isn't used in a vertex simulation
+                ///\todo This is specific to cell-centre based models, the location isn't used in a vertex simulation
                 c_vector<double, DIM> new_location = zero_vector<double>(DIM);
                 if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
                 {

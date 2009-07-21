@@ -323,7 +323,8 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     if (DIM==2)
     {
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        if ( TissueConfig::Instance()->GetOutputVoronoiData() || UseAreaBasedDampingConstant() || TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
+        if ( TissueConfig::Instance()->GetOutputVoronoiData() || UseAreaBasedDampingConstant() || 
+             TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
         {
             CreateVoronoiTessellation();
         }

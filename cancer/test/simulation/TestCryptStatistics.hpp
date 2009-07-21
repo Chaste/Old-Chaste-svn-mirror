@@ -243,7 +243,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            (*cell_iter).SetMutationState(HEALTHY);
+            cell_iter->SetMutationState(HEALTHY);
         }
 
         crypt_statistics.LabelSPhaseCells();
@@ -254,9 +254,9 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            bool is_labelled = (*cell_iter).GetMutationState() == LABELLED;
+            bool is_labelled = cell_iter->GetMutationState() == LABELLED;
 
-            bool in_s_phase = (*cell_iter).GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE;
+            bool in_s_phase = cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE;
 
             TS_ASSERT_EQUALS(is_labelled, in_s_phase);
 
@@ -276,7 +276,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS((*cell_iter).GetMutationState(),HEALTHY);
+            TS_ASSERT_EQUALS(cell_iter->GetMutationState(),HEALTHY);
             counter++;
         }
 
@@ -307,7 +307,7 @@ public:
             }
             if (!in_section)
             {
-                (*cell_iter).SetMutationState(APC_ONE_HIT);
+                cell_iter->SetMutationState(APC_ONE_HIT);
             }
 
         }

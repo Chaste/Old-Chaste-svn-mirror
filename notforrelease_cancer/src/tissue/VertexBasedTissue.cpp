@@ -457,11 +457,11 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
     }
     mesh_writer.AddCellData("Cell types", cell_types);
     mesh_writer.WriteVtkUsingMesh(mrMesh, time.str());
-    *mpVtkMetaFile<<"        <DataSet timestep=\"";
-    *mpVtkMetaFile<<SimulationTime::Instance()->GetTimeStepsElapsed();                       
-    *mpVtkMetaFile<<"\" group=\"\" part=\"0\" file=\"results_";
-    *mpVtkMetaFile<<SimulationTime::Instance()->GetTimeStepsElapsed();                       
-    *mpVtkMetaFile<<".vtu\"/>\n";
+    *mpVtkMetaFile << "        <DataSet timestep=\"";
+    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();                       
+    *mpVtkMetaFile << "\" group=\"\" part=\"0\" file=\"results_";
+    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();                       
+    *mpVtkMetaFile << ".vtu\"/>\n";
 #endif //CHASTE_VTK
 }
 
@@ -483,12 +483,12 @@ void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bo
 
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
-    mDirPath=rDirectory;
+    mDirPath = rDirectory;
 #ifdef CHASTE_VTK
     mpVtkMetaFile = output_file_handler.OpenOutputFile("results.pvd");
-    *mpVtkMetaFile<<"<?xml version=\"1.0\"?>\n";
-    *mpVtkMetaFile<<"<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
-    *mpVtkMetaFile<<"    <Collection>\n";
+    *mpVtkMetaFile << "<?xml version=\"1.0\"?>\n";
+    *mpVtkMetaFile << "<VTKFile type=\"Collection\" version=\"0.1\" byte_order=\"LittleEndian\" compressor=\"vtkZLibDataCompressor\">\n";
+    *mpVtkMetaFile << "    <Collection>\n";
 #endif //CHASTE_VTK
 }
 
@@ -499,8 +499,8 @@ void VertexBasedTissue<DIM>::CloseOutputFiles()
     AbstractTissue<DIM>::CloseOutputFiles();
     mpElementFile->close();
  #ifdef CHASTE_VTK
-    *mpVtkMetaFile<<"    </Collection>\n";
-    *mpVtkMetaFile<<"</VTKFile>\n";
+    *mpVtkMetaFile << "    </Collection>\n";
+    *mpVtkMetaFile << "</VTKFile>\n";
     
     mpVtkMetaFile->close();
 #endif //CHASTE_VTK

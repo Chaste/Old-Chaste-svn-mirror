@@ -46,79 +46,93 @@ public:
     {
         // Create mesh
         VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
-        
+
     	TS_ASSERT_EQUALS(mesh.GetNumNodes(),30u);
-    	
-        unsigned counter = 0; 
-		
-		//\todo test its ok if nodes are deleted.
+
+        unsigned counter = 0;
         for (VertexMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
-            unsigned node_index = (*iter).GetIndex();
-            TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give node 0,1..,N in that order
+            unsigned node_index = iter->GetIndex();
+            TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give nodes 0,1..,N in that order
             counter++;
         }
 		TS_ASSERT_EQUALS(mesh.GetNumNodes(),counter);
-		
+
+    	// Check that the node iterator correctly handles deleted nodes
+    	mesh.GetNode(0)->MarkAsDeleted();
+
+        counter = 0;
+        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
+             iter != mesh.GetElementIteratorEnd();
+             ++iter)
+        {
+            unsigned node_index = iter->GetIndex();
+            TS_ASSERT_EQUALS(counter+1, node_index); // assumes the iterator will give nodes 1..,N in that order
+            counter++;
+        }
+
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), counter+1);
+
         // For coverage, test with an empty mesh
         VertexMesh<2,2> empty_mesh;
 
         // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
         VertexMesh<2,2>::NodeIterator iter = empty_mesh.GetNodeIteratorBegin();
 
-        // We only have a NOT-equals operator defined on the iterator
-        TS_ASSERT( !(iter != empty_mesh.GetNodeIteratorEnd()) );
+        // Check that the iterator is now at the end (we need to check this as a double-negative,
+        // as we only have a NOT-equals operator defined on the iterator).
+        bool iter_is_not_at_end = (iter != empty_mesh.GetNodeIteratorEnd());
+        TS_ASSERT_EQUALS(iter_is_not_at_end, false);
     }
 
     void TestVertexElementIterator() throw (Exception)
     {
     	// Create mesh
         VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
-        
-        TS_ASSERT_EQUALS(mesh.GetNumElements(),9u);
-        
-        unsigned counter = 0; 
 
-		//\todo test its ok if elements are deleted.
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),9u);
+
+        unsigned counter = 0;
         for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
-        	unsigned element_index = (*iter).GetIndex();
-            TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give element 0,1..,N in that order
+        	unsigned element_index = iter->GetIndex();
+            TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give elements 0,1..,N in that order
             counter++;
         }
 
 		TS_ASSERT_EQUALS(mesh.GetNumElements(),counter);
-		
+
         // For coverage, test with an empty mesh
         VertexMesh<2,2> empty_mesh;
 
         // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
         VertexMesh<2,2>::VertexElementIterator iter = empty_mesh.GetElementIteratorBegin();
 
-        // We only have a NOT-equals operator defined on the iterator
-        TS_ASSERT( !(iter != empty_mesh.GetElementIteratorEnd()) );
-        
+        // Check that the iterator is now at the end (we need to check this as a double-negative,
+        // as we only have a NOT-equals operator defined on the iterator).
+        bool iter_is_not_at_end = (iter != empty_mesh.GetElementIteratorEnd());
+        TS_ASSERT_EQUALS(iter_is_not_at_end, false);
+
         // Delete an element from mesh and test the iterator
         mesh.DeleteElementPriorToReMesh(0);
-        
+ 
         counter = 0;
         for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
-            unsigned element_index = (*iter).GetIndex();
-            TS_ASSERT_EQUALS(counter+1, element_index); // assumes the iterator will give element 0,1..,N in that order
+            unsigned element_index = iter->GetIndex();
+            TS_ASSERT_EQUALS(counter+1, element_index); // assumes the iterator will give elements 1..,N in that order
             counter++;
         }
 
-        TS_ASSERT_EQUALS(mesh.GetNumElements(),counter);
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(),counter+1);
-        
-        
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), counter+1);
     }
 
     void TestBasicVertexMesh() throw(Exception)
