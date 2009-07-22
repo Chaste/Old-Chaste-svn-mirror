@@ -83,7 +83,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                         if (i%3 != 2)
                         {
                             /*
-                             * If the mesh has an imposed flat bottom mve all nodes down by 0.3 (Magic number).
+                             * If the mesh has an imposed flat bottom move all nodes down by 0.3 (Magic number).
                              */  
                             if (isFlatBottom &&(j!=0))
                             { 
@@ -110,7 +110,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                         if (i%3 != 2)
                         {
                             /*
-                             * If the mesh has an imposed flat bottom mve all nodes down by 0.3 (Magic number).
+                             * If the mesh has an imposed flat bottom move all nodes down by 0.3 (Magic number).
                              */  
                             if (isFlatBottom)
                             { 

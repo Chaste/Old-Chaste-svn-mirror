@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptSimulation2d.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
 #include "NagaiHondaForce.hpp"
-#include "BoundaryForce.hpp"
+#include "VertexCryptBoundaryForce.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
@@ -399,8 +399,7 @@ public:
         // Tidy up
         delete p_simulator;
     }
-    
-    
+
     void TestCryptSimulationWithBoundaryForce() throw (Exception)
     {
         // Create mesh
@@ -416,7 +415,7 @@ public:
 
             CellType cell_type;
 
-            // Cells 0 1 2 and 3 are stem cells
+            // Cells 0, 1, 2 and 3 are stem cells
             if (elem_index<6)
             {
                 birth_time = - 2.0*(double)elem_index;
@@ -436,12 +435,12 @@ public:
         VertexBasedTissue<2> crypt(mesh, cells);
 
         // Create boundary force law
-        BoundaryForce<2> boundary_force_law;
-        
+        VertexCryptBoundaryForce<2> boundary_force_law;
+
         // Create force law
         NagaiHondaForce<2> force_law;
         std::vector<AbstractForce<2>*> force_collection;
-        
+
         force_collection.push_back(&boundary_force_law);
         force_collection.push_back(&force_law);
 
@@ -458,20 +457,22 @@ public:
         TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);//0.1
         TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);//0.1
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
-        
 
         // Make crypt shorter for sloughing 
         TissueConfig::Instance()->SetCryptLength(8.0);
-                
+
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+        // Coverage
+        TissueSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
+        VertexCryptSimulation2d *p_simulator;
+        p_simulator = TissueSimulationArchiver<2, VertexCryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", 10.0);
+        delete p_simulator;
     }
-    
-    
-    
 
     /// \todo Add more tests (see #923)
 

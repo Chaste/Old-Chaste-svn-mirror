@@ -25,53 +25,52 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "BoundaryForce.hpp"
 
+#include "VertexCryptBoundaryForce.hpp"
 
 template<unsigned DIM>
-BoundaryForce<DIM>::BoundaryForce()
+VertexCryptBoundaryForce<DIM>::VertexCryptBoundaryForce()
    : AbstractForce<DIM>()
 {
 }
 
-
 template<unsigned DIM>
-BoundaryForce<DIM>::~BoundaryForce()
+VertexCryptBoundaryForce<DIM>::~VertexCryptBoundaryForce()
 {
 }
 
-
 template<unsigned DIM>
-void BoundaryForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                                       AbstractTissue<DIM>& rTissue)
-{   
+void VertexCryptBoundaryForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
+                                                         AbstractTissue<DIM>& rTissue)
+{
     // Helper variable that is a static cast of the tissue
     VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
-    
-    /* The boundary force is taken to be a quadratic function (F = (y-a)^2 - b), which passes 
+
+    /*
+     * The boundary force is taken to be a quadratic function (F = (y-a)^2 - b), which passes 
      * through (0,0), but which is fixed at zero for y-values greater than or equal to the 
-     * cutoff point.
-     * The y-values correspond to the height up the crypt.
+     * cutoff point. The y-values correspond to the height up the crypt.
      */   
-    
+
     double cutoff_point = 0.2;    // The y-value at which the boundary force no longer has an effect
     double quadratic_shift = 0.5*cutoff_point;   // Distance to shift the quadratic curve (i.e. 'a')
-    
-    // Iterate over vertices in the tissue
-    for (unsigned node_index=0; node_index<p_tissue->GetNumNodes(); node_index++)
-    {
-        // Compute the boundary force on this node 
-        
-        c_vector<double, DIM> boundary_force = zero_vector<double>(DIM);;
 
-        double y_value = p_tissue->GetNode(node_index)->rGetLocation()[1];     // y-coordinate of node
-      
+    // Iterate over vertices in the tissue
+    for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = p_tissue->rGetMesh().GetNodeIteratorBegin();
+         node_iter != p_tissue->rGetMesh().GetNodeIteratorEnd();
+         ++node_iter)
+    {
+        // Compute the boundary force on this node
+        c_vector<double, DIM> boundary_force = zero_vector<double>(DIM);
+
+        double y_value = node_iter->rGetLocation()[1]; // y-coordinate of node
+
         if (y_value < cutoff_point)
-        {                
+        {
             boundary_force[1] = 150*(pow((y_value - quadratic_shift),2) - pow(quadratic_shift,2));                   
         }
-        
-        rForces[node_index] += boundary_force;
+
+        rForces[node_iter->GetIndex()] += boundary_force;
     }
 }
 
@@ -80,6 +79,6 @@ void BoundaryForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> 
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class BoundaryForce<1>;
-template class BoundaryForce<2>;
-template class BoundaryForce<3>;
+template class VertexCryptBoundaryForce<1>;
+template class VertexCryptBoundaryForce<2>;
+template class VertexCryptBoundaryForce<3>;

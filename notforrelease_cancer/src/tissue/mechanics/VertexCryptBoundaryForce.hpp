@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef BOUNDARYFORCE_HPP_
-#define BOUNDARYFORCE_HPP_
+#ifndef VERTEXCRYPTBOUNDARYFORCE_HPP_
+#define VERTEXCRYPTBOUNDARYFORCE_HPP_
 
 
 #include <boost/serialization/access.hpp>
@@ -37,10 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * A boundary force class for use in vertex-based tissue simulations to prevent cells moving below y=0
+ * A boundary force class for use in vertex-based crpyt simulations 
+ * to prevent cells moving below the bottom of the crypt.
  */
 template<unsigned DIM>
-class BoundaryForce  : public AbstractForce<DIM>
+class VertexCryptBoundaryForce  : public AbstractForce<DIM>
 {
 friend class TestForcesNotForRelease;
 
@@ -60,12 +61,12 @@ public:
     /**
      * Constructor.
      */
-    BoundaryForce();
+    VertexCryptBoundaryForce();
 
     /**
      * Destructor.
      */
-    ~BoundaryForce();
+    ~VertexCryptBoundaryForce();
 
     /**
      * Overridden AddForceContribution() method.
@@ -83,6 +84,6 @@ public:
 
 #include "TemplatedExport.hpp"
 
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(BoundaryForce)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(VertexCryptBoundaryForce)
 
-#endif /*BOUNDARYFORCE_HPP_*/
+#endif /*VERTEXCRYPTBOUNDARYFORCE_HPP_*/

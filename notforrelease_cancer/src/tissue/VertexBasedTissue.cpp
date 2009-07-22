@@ -446,14 +446,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
              iter != mrMesh.GetElementIteratorEnd();
              ++iter)
     {
-        if (!(iter->IsDeleted()))
-        {
-            cell_types.push_back( this->mLocationCellMap[iter->GetIndex()]->GetCellType() );
-        }
-        else
-        {
-            cell_types.push_back(-1.0);
-        }
+        cell_types.push_back(this->mLocationCellMap[iter->GetIndex()]->GetCellType());
     }
     mesh_writer.AddCellData("Cell types", cell_types);
     mesh_writer.WriteVtkUsingMesh(mrMesh, time.str());
