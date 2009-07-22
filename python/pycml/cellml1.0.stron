@@ -1,0 +1,351 @@
+<?xml version="1.0"?>
+<!-- 
+
+Schematron schema for CellML 1.0
+Designed to be used in conjunction with my RELAX NG schema
+
+Author: Jonathan Cooper
+
+Copyright (C) University of Oxford, 2005-2009
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+  -->
+
+<schema xmlns="http://purl.oclc.org/dsdl/schematron">
+  <!-- New NS for ISO Schematron is
+       http://purl.oclc.org/dsdl/schematron -->
+  <title>A Schematron Schema for CellML 1.0</title>
+
+  <!-- Core CellML namespaces -->
+  <ns prefix="cellml" uri="http://www.cellml.org/cellml/1.0#"/>
+  <ns prefix="mathml" uri="http://www.w3.org/1998/Math/MathML"/>
+
+  <!-- Metadata-related namespaces -->
+  <ns prefix="cmeta" uri="http://www.cellml.org/metadata/1.0#"/>
+  <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+  <ns prefix="dc" uri="http://purl.org/dc/elements/1.1/"/>
+  <ns prefix="dcterms" uri="http://purl.org/dc/terms/"/>
+  <ns prefix="bqs" uri="http://www.cellml.org/bqs/1.0#"/>
+  <ns prefix="vCard" uri="http://www.w3.org/2001/vcard-rdf/3.0#"/>
+
+  <pattern name="Checking uniqueness of names">
+    <title>Checking uniqueness of names</title>
+    <rule context="cellml:component">
+      <assert test="not(@name=following-sibling::cellml:component/@name)">
+        Component names must be unique within a model (3.4.2.2).
+        The name '<value-of select="@name"/>' is repeated.
+      </assert>
+    </rule>
+    <rule context="cellml:component/cellml:variable">
+      <assert test="not(@name=following-sibling::cellml:variable/@name)">
+        Variable names must be unique within a component (3.4.3.2).
+        The name '<value-of select="@name"/>' is repeated in component '<value-of select="../@name"/>'.
+      </assert>
+    </rule>
+    <rule context="cellml:units">
+      <let name="u" value="@name"/>
+      <assert test="not(@name=following-sibling::cellml:units/@name)">
+        Units names must be unique within the parent component or
+        model (5.4.1.2).
+        The name '<value-of select="@name"/>' is repeated in '<value-of select="../@name"/>'.
+        (Note however that a definition in a component may override
+         a definition in the parent model.)
+      </assert>
+      <assert test="not($u='ampere' or $u='becquerel' or $u='candela' or $u='celsius' or $u='coulomb' or $u='dimensionless' or $u='farad' or $u='gram' or $u='gray' or $u='henry' or $u='hertz' or $u='joule' or $u='katal' or $u='kelvin' or $u='kilogram' or $u='liter' or $u='litre' or $u='lumen' or $u='lux' or $u='meter' or $u='metre' or $u='mole' or $u='newton' or $u='ohm' or $u='pascal' or $u='radian' or $u='second' or $u='siemens' or $u='sievert' or $u='steradian' or $u='tesla' or $u='volt' or $u='watt' or $u='weber')">
+        The standard unit '<value-of select="$u"/>' may not be redefined (5.4.1.2).
+        This is attempted in '<value-of select="../@name"/>'.
+      </assert>
+    </rule>
+    <rule context="cellml:variable_ref">
+      <assert test="not(@variable=following-sibling::cellml:variable_ref/@variable)">
+        A variable must only be referenced once in a single reaction
+        (7.4.2.2).
+        The variable '<value-of select="@variable"/>' is referenced repeatedly,
+        in a reaction in component '<value-of select="ancestor::cellml:component/@name"/>'.
+      </assert>
+    </rule>
+    <rule context="cellml:role">
+      <let name="dv" value="@delta_variable" />
+      <assert test="not($dv) or count(ancestor::cellml:component/cellml:reaction//cellml:role[@delta_variable=$dv]) &lt; 2">
+        The value of the delta_variable attribute must be unique across
+        all role elements contained within the parent component element
+        (7.4.3.7).
+        The variable '<value-of select="$dv"/>' is repeated in component '<value-of select="ancestor::cellml:component/@name"/>'.
+      </assert>
+    </rule>
+  </pattern>
+
+
+  <pattern name="Rules from section 3">
+    <title>Additional rules from section 3 of the specification</title>
+    <rule context="cellml:component/cellml:variable">
+      <let name="u" value="@units"/>
+      <assert test="$u=ancestor::*/cellml:units/@name or $u='ampere' or $u='becquerel' or $u='candela' or $u='celsius' or $u='coulomb' or $u='dimensionless' or $u='farad' or $u='gram' or $u='gray' or $u='henry' or $u='hertz' or $u='joule' or $u='katal' or $u='kelvin' or $u='kilogram' or $u='liter' or $u='litre' or $u='lumen' or $u='lux' or $u='meter' or $u='metre' or $u='mole' or $u='newton' or $u='ohm' or $u='pascal' or $u='radian' or $u='second' or $u='siemens' or $u='sievert' or $u='steradian' or $u='tesla' or $u='volt' or $u='watt' or $u='weber'">
+        The value of the units attribute on a variable must be either
+        one of the standard units or the name of a unit defined in the
+        current component or model (3.4.3.3).
+        The units '<value-of select="$u"/>' on the variable '<value-of select="@name"/>' in component '<value-of select="../@name"/>' do not qualify.
+      </assert>
+    </rule>
+
+    <rule context="cellml:map_components">
+      <let name="c1" value="@component_1"/>
+      <let name="c2" value="@component_2"/>
+      <assert test="$c1=/cellml:model/cellml:component/@name">
+        Connections must be between components defined in the current model
+        (3.4.5.2).
+        There is no component '<value-of select="$c1"/>'.
+      </assert>
+      <assert test="$c2=/cellml:model/cellml:component/@name">
+        Connections must be between components defined in the current model
+        (3.4.5.3).
+        There is no component '<value-of select="$c2"/>'.
+      </assert>
+      <assert test="$c1 != $c2">
+        A connection must link two different components (3.4.5.4).
+        The component '<value-of select="$c1"/>' is being connected to itself.
+      </assert>
+      <assert test="not(following::cellml:map_components[@component_1=$c1 and @component_2=$c2 or @component_1=$c2 and @component_2=$c1])">
+        Each map_components element must map a unique pair of components
+        (3.4.5.4).
+        The pair ('<value-of select="$c1"/>','<value-of select="$c2"/>') is repeated.
+      </assert>
+    </rule>
+    <rule context="cellml:map_variables">
+      <let name="c1" value="../cellml:map_components/@component_1"/>
+      <let name="c2" value="../cellml:map_components/@component_2"/>
+      <let name="v1" value="@variable_1"/>
+      <let name="v2" value="@variable_2"/>
+      <assert test="$v1=/cellml:model/cellml:component[@name=$c1]/cellml:variable/@name">
+        A variable mapping must be between existing variables (3.4.6.2).
+        Variable '<value-of select="$v1"/>' doesn't exist in component '<value-of select="$c1"/>'.
+      </assert>
+      <assert test="$v2=/cellml:model/cellml:component[@name=$c2]/cellml:variable/@name">
+        A variable mapping must be between existing variables (3.4.6.3).
+        Variable '<value-of select="$v2"/>' doesn't exist in component '<value-of select="$c2"/>'.
+      </assert>
+
+<!--
+  These don't work as intended, e.g. in the case where a variable has
+  different private and public interfaces.
+-->
+
+<!--
+      <let name="pub1" value="//cellml:component[@name=$c1]/cellml:variable[@name=$v1]/@public_interface"/>
+      <let name="pub2" value="//cellml:component[@name=$c2]/cellml:variable[@name=$v2]/@public_interface"/>
+      <let name="priv1" value="//cellml:component[@name=$c1]/cellml:variable[@name=$v1]/@private_interface"/>
+      <let name="priv2" value="//cellml:component[@name=$c2]/cellml:variable[@name=$v2]/@private_interface"/>
+
+      <assert test="$priv1!='out' or $pub2='in'">
+        A private interface of "out" must be mapped to a
+        public interface of "in" (3.4.6.4).
+        Failing context: map between
+        '<value-of select="$c1"/>':'<value-of select="$v1"/>' and
+        '<value-of select="$c2"/>':'<value-of select="$v2"/>'
+      </assert>
+      <assert test="$priv2!='out' or $pub1='in'">
+        A private interface of "out" must be mapped to a
+        public interface of "in" (3.4.6.4).
+        Failing context: map between
+        '<value-of select="$c1"/>':'<value-of select="$v1"/>' and
+        '<value-of select="$c2"/>':'<value-of select="$v2"/>'
+      </assert>
+      <assert test="$pub1!='out' or $priv2='in' or $pub2='in'">
+        A public interface of "out" must be mapped to a
+        public or private interface of "in" (3.4.6.4).
+        Failing context: map between
+        '<value-of select="$c1"/>':'<value-of select="$v1"/>' and
+        '<value-of select="$c2"/>':'<value-of select="$v2"/>'
+      </assert>
+      <assert test="$pub2!='out' or $priv1='in' or $pub1='in'">
+        A public interface of "out" must be mapped to a
+        public or private interface of "in" (3.4.6.4).
+        Failing context: map between
+        '<value-of select="$c1"/>':'<value-of select="$v1"/>' and
+        '<value-of select="$c2"/>':'<value-of select="$v2"/>'
+      </assert>
+
+      <assert test="($pub1!='in' and $priv1!='in') or count(//cellml:map_variables[(@variable_1=$v1 and ../cellml:map_components/@component_1=$c1) or (@variable_2=$v2 and ../cellml:map_components/@component_2=$c2)]) &lt; 2">
+         A variable with either interface given as "in" must be mapped to
+         no more than one other variable in the model (3.4.6.4).
+         Variable '<value-of select="$v1"/>' in component '<value-of select="$c1"/>' is mapped too much.
+      </assert>
+-->
+    </rule>
+
+  </pattern>
+
+
+  <pattern name="Rules from section 4">
+    <title>Additional rules from section 4 of the specification</title>
+    <rule context="mathml:ci">
+      <assert test="normalize-space(text())=ancestor::cellml:component/cellml:variable/@name">
+        The content of a MathML ci element must match the name of a
+        variable in the enclosing component, once whitespace normalisation
+        has been performed (4.4.2.1).
+        Variable '<value-of select="text()"/>' does not exist in component '<value-of select="ancestor::cellml:component/@name"/>'.
+      </assert>
+    </rule>
+    <!-- We may be able to do 4.4.4 here, but it's tricky -->
+    <rule context="mathml:cn">
+      <let name="u" value="@cellml:units"/>
+      <assert test="$u=ancestor::*/cellml:units/@name or $u='ampere' or $u='becquerel' or $u='candela' or $u='celsius' or $u='coulomb' or $u='dimensionless' or $u='farad' or $u='gram' or $u='gray' or $u='henry' or $u='hertz' or $u='joule' or $u='katal' or $u='kelvin' or $u='kilogram' or $u='liter' or $u='litre' or $u='lumen' or $u='lux' or $u='meter' or $u='metre' or $u='mole' or $u='newton' or $u='ohm' or $u='pascal' or $u='radian' or $u='second' or $u='siemens' or $u='sievert' or $u='steradian' or $u='tesla' or $u='volt' or $u='watt' or $u='weber'">
+        Units on a cn element must be standard or defined in the current
+        component or model (4.4.3.2).
+        Units '<value-of select="$u"/>' are not defined in component '<value-of select="ancestor::cellml:component/@name"/>'.
+      </assert>
+    </rule>
+  </pattern>
+
+
+  <pattern name="Rules from section 5">
+    <title>Additional rules from section 5 of the specification</title>
+
+    <rule context="cellml:unit">
+      <let name="u" value="@units"/>
+      <assert test="$u=ancestor::*/cellml:units/@name or $u='ampere' or $u='becquerel' or $u='candela' or $u='celsius' or $u='coulomb' or $u='dimensionless' or $u='farad' or $u='gram' or $u='gray' or $u='henry' or $u='hertz' or $u='joule' or $u='katal' or $u='kelvin' or $u='kilogram' or $u='liter' or $u='litre' or $u='lumen' or $u='lux' or $u='meter' or $u='metre' or $u='mole' or $u='newton' or $u='ohm' or $u='pascal' or $u='radian' or $u='second' or $u='siemens' or $u='sievert' or $u='steradian' or $u='tesla' or $u='volt' or $u='watt' or $u='weber'">
+        The value of the units attribute on a unit element must be taken
+        from the dictionary of standard units or be the name of a 
+        user-defined unit in the current component or model (5.4.2.2).
+        Units '<value-of select="$u"/>' are not defined.
+      </assert>
+    </rule>
+
+  </pattern>
+
+
+  <pattern name="Rules from section 6">
+    <title>Additional rules from section 6 of the specification</title>
+
+    <!-- relationship attributes in a foreign namespace still need doing -->
+    <rule context="cellml:relationship_ref">
+      <assert test="not(@relationship=following-sibling::cellml:relationship_ref/@relationship and @name=following-sibling::cellml:relationship_ref/@name)">
+         A group element must not contain two or more relationship_ref
+         elements that define a relationship attribute in a common
+         namespace with the same value and that have the same name
+         attribute value (which may be non-existent) (6.4.2.5).
+         Relationship '<value-of select="@relationship"/>' name '<value-of select="@name"/>' is repeated.
+      </assert>
+    </rule>
+
+    <rule context="cellml:group[cellml:relationship_ref/@relationship='encapsulation' or cellml:relationship_ref/@relationship='containment']/cellml:component_ref">
+      <assert test="cellml:component_ref">
+        Containment and encapsulation relationships must be hierarchical
+        (6.4.3.2).
+        Potentially top-level component '<value-of select="@component"/>'
+        has not been given children.
+      </assert>
+    </rule>
+
+    <rule context="cellml:component_ref">
+      <let name="hierarchies" value="ancestor::cellml:group/cellml:relationship_ref/@relationship"/>
+      <let name="c" value="@component"/>
+
+      <assert test="not(cellml:component_ref) or not(following::cellml:component_ref[@component=$c and $hierarchies=ancestor::cellml:group/cellml:relationship_ref/@relationship]/cellml:component_ref)">
+        In a given hierarchy, only one component_ref element referencing
+        a given component may contain children (6.4.3.2).
+        Component '<value-of select="@component"/>' has children in multiple locations.
+      </assert>
+
+      <assert test="not(ancestor::cellml:component_ref) or not(following::cellml:component_ref[$hierarchies=ancestor::cellml:group/cellml:relationship_ref/@relationship]/cellml:component_ref[@component=$c])">
+        In a given hierarchy, a component may not be a child more than
+        once (6.4.3.2).
+        Component '<value-of select="@component"/>' has multiple parents.
+      </assert>
+
+      <assert test="$c=/cellml:model/cellml:component/@name">
+        A component_ref element must reference a component in the current
+        model (6.4.3.3).
+        Component '<value-of select="$c"/>' does not exist.
+      </assert>
+    </rule>
+
+  </pattern>
+
+
+  <pattern name="Rules from section 7">
+    <title>Additional rules from section 7 of the specification</title>
+
+    <rule context="cellml:role">
+
+      <!-- Current component and variable -->
+      <let name="c" value="ancestor::cellml:component/@name"/>
+      <let name="v" value="../@variable"/>
+
+      <assert test="not(/cellml:model/cellml:component_ref[@component=$c]/cellml:component_ref[ancestor::cellml:group/cellml:relationship_ref/@relationship='encapsulation']) or not(@delta_variable)">
+        An encapsulating component must not contain delta_variable
+        attrs on any role elements (7.4.1.3).
+        Variable '<value-of select="$v"/>' in component '<value-of select="$c"/>' has a role
+        which specifies a delta_variable.
+      </assert>
+
+      <assert test="not(/cellml:model/cellml:component_ref[@component=$c]/cellml:component_ref[ancestor::cellml:group/cellml:relationship_ref/@relationship='encapsulation']) or not(mathml:math)">
+        An encapsulating component must not contain explicit mathematics
+        within role elements (7.4.1.3).
+        Variable '<value-of select="$v"/>' in component '<value-of select="$c"/>' has a role
+        with explicit mathematics.
+      </assert>
+
+      <assert test="not(@role='rate' and count(ancestor::cellml:reaction//cellml:role[@role='rate']) > 1)">
+        There may only be one rate variable per reaction (7.4.3.3).
+        Variable '<value-of select="$v"/>' in a reaction in component '<value-of select="$c"/>'
+        is one of multiple rate variables.
+      </assert>
+
+      <assert test="not(ancestor::cellml:reaction/@reversible='no') or (@direction='forward' or not(@direction))">
+        Only reversible reactions may occur in 2 directions (7.4.3.5).
+        Variable '<value-of select="$v"/>' in a non-reversible reaction in
+        component '<value-of select="$c"/>' specifies a non-forward direction.
+      </assert>
+
+      <let name="role" value="@role"/>
+      <let name="dir" value="@direction"/>
+      <assert test="not(following-sibling::cellml:role[@role=$role and @direction=$dir])">
+         Each role element contained in a given variable_ref element
+         must have a unique combination of values for the role and
+         direction attributes (7.4.3.5).
+         Variable '<value-of select="$v"/>' in component '<value-of select="$c"/>' has conflicting roles.
+      </assert>
+
+      <assert test="not(@delta_variable and @stoichiometry) or ../../cellml:variable_ref/cellml:role[@role='rate']">
+         If the delta_variable and stoichiometry attributes are both
+         declared on any single reaction participant, a variable must
+         be provided to represent the reaction rate (7.4.3.8).
+         The variable '<value-of select="$v"/>' in component '<value-of select="$c"/>' has
+         a role with delta_variable and stoichiometry set, but there is
+         no rate variable.
+      </assert>
+    </rule>
+
+    <rule context="variable_ref">
+      <assert test="@variable=ancestor::cellml:component/cellml:variable/@name">
+        A variable reference in a reaction must reference a variable
+        defined in the current component (7.4.2.2).
+        Variable '<value-of select="@variable"/>' is not defined in '<value-of select="ancestor::cellml:component/@name"/>'.
+      </assert>
+    </rule>
+
+  </pattern>
+
+</schema>

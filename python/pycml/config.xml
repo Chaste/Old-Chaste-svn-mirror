@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<pycml_config>
+
+<!--
+  Variable names are given in full form, i.e. component,variable
+-->
+
+<global>
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <min>-100.0001</min>
+      <max>59.9999</max>
+      <step>0.01</step>
+    </lookup_table>
+  </lookup_tables>
+  <currents>
+    <stimulus>membrane,i_Stim</stimulus>
+    <ionic_match>membrane,i_.*</ionic_match> <!-- regexp on var names -->
+    <!--
+      Note that the stimulus current is automatically
+      excluded from being an ionic current.
+      Also note that there are implicit ^ and $ around the regexp.
+      -->
+  </currents>
+  <transmembrane_potential>membrane,V</transmembrane_potential>
+</global>
+
+<for_model id="mahajan_shiferaw_2008_version01">
+  <lookup_tables>
+    <lookup_table>
+      <var>cell,V</var>
+      <min>-100.0001</min>
+      <max>59.9999</max>
+      <step>0.01</step>
+    </lookup_table>
+  </lookup_tables>
+  <transmembrane_potential>cell,V</transmembrane_potential>
+  <currents>
+    <stimulus>cell,i_Stim</stimulus>
+    <ionic_match>cell,xi.*</ionic_match>
+  </currents>
+</for_model>
+
+<for_model id="priebe_beuckelmann_1998_version01">
+  <transmembrane_potential>cell,V</transmembrane_potential>
+  <currents>
+    <stimulus>cell,i_Stim</stimulus>
+    <ionic_match>cell,i_*</ionic_match>
+  </currents>
+</for_model>
+
+<for_model id="wiggle">
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <max>151.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
+<for_model id="wiggle2">
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <min>0</min>
+      <max>100</max>
+      <step>0.01</step>
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
+<for_model id="difrancesco_noble_model_1985">
+  <currents>
+    <stimulus>membrane,i_pulse</stimulus>
+  </currents>
+</for_model>
+
+<for_model id="fox_model_2002">
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <max>51.9999</max><!-- 269 for multi-cell! -->
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
+<for_model id="bondarenko_szigeti_bett_kim_rasmusson_2004_version03">
+  <currents>
+    <stimulus>membrane,i_stim</stimulus>
+  </currents>
+</for_model>
+        
+<for_model id="viswanathan_shaw_rudy_1999_version02_variant03">
+  <currents>
+    <stimulus>membrane,I_st</stimulus>
+  </currents>
+</for_model>
+
+<for_model id="courtemanche_1998">
+  <currents>
+    <stimulus>membrane,i_st</stimulus>
+  </currents>
+</for_model>
+
+<for_model name="dokos_celler_lovell_1996_version04">
+  <transmembrane_potential>membrane,E</transmembrane_potential>
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,E</var>
+      <min>-100.0001</min>
+      <max>49.9999</max>
+      <step>0.01</step>
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
+<for_models>
+  <ids>
+    <id>ten_tusscher_model_2004_endo</id>
+    <id>ten_tusscher_model_2004_M</id>
+    <id>ten_tusscher_model_2004_epi</id>
+  </ids>
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <max>59.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_models>
+
+<for_model id="iribe_kohl_noble_2006_version01">
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <max>54.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
+<for_model id="faber_rudy_2000">
+  <currents>
+    <stimulus>membrane,I_st</stimulus>
+  </currents>
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <max>269.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_model> 
+
+<for_model id="faber_rudy_2000_version01">
+  <currents>
+    <stimulus>membrane,I_st</stimulus>
+  </currents>
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <max>69.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_model> 
+
+<for_models>
+  <ids>
+    <id>luo_rudy_I_model_1991</id>
+    <id>luo_rudy_1991_version03</id>
+    <id>luo_rudy_1991</id>
+  </ids>
+  <currents>
+    <stimulus>membrane,I_stim</stimulus>
+  </currents>
+ <gating_vars>
+  <var>fast_sodium_current_m_gate,m</var>
+  <var>fast_sodium_current_h_gate,h</var>
+  <var>fast_sodium_current_j_gate,j</var>
+  <var>slow_inward_current_d_gate,d</var>
+  <var>slow_inward_current_f_gate,f</var>
+  <var>time_dependent_potassium_current_X_gate,X</var>
+ </gating_vars>
+ <newton_vars>
+  <var>intracellular_calcium_concentration,Cai</var>
+ </newton_vars>
+</for_models>
+
+<for_models>
+  <ids>
+    <id>noble_model_1991</id>
+    <id>noble_model_2000</id>
+    <id>noble_varghese_kohl_noble_1998_version07_variant03</id>
+  </ids>
+  <lookup_tables>
+    <lookup_table>
+      <var>membrane,V</var>
+      <max>69.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_models>
+
+<for_model id="noble_model_1998">
+ <gating_vars>
+  <var>rapid_delayed_rectifier_potassium_current_xr1_gate,xr1</var>
+  <var>rapid_delayed_rectifier_potassium_current_xr2_gate,xr2</var>
+  <var>slow_delayed_rectifier_potassium_current_xs_gate,xs</var>
+  <var>fast_sodium_current_m_gate,m</var>
+  <var>fast_sodium_current_h_gate,h</var>
+  <var>L_type_Ca_channel_d_gate,d</var>
+  <var>L_type_Ca_channel_f_gate,f</var>
+  <var>transient_outward_current_s_gate,s</var>
+  <var>transient_outward_current_r_gate,r</var>
+ </gating_vars>
+ <newton_vars>
+  <var>L_type_Ca_channel_f2_gate,f2</var>
+  <var>L_type_Ca_channel_f2ds_gate,f2ds</var>
+  <var>calcium_release,ActFrac</var>
+  <var> calcium_release,ProdFrac </var>
+  <var>intracellular_sodium_concentration,Na_i</var>
+  <var>intracellular_potassium_concentration,K_i</var>
+  <var>intracellular_calcium_concentration,Ca_i</var>
+  <var>intracellular_calcium_concentration,Ca_ds</var>
+  <var>intracellular_calcium_concentration,Ca_up</var>
+  <var>intracellular_calcium_concentration,Ca_rel</var>
+  <var>intracellular_calcium_concentration,Ca_Calmod</var>
+  <var>intracellular_calcium_concentration,Ca_Trop</var>
+ </newton_vars> 
+</for_model>
+
+</pycml_config>

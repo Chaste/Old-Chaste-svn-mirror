@@ -72,6 +72,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 
+// For PyCml testing
+#include "luo_rudy_1991.hpp"
+#include "luo_rudy_1991Opt.hpp"
+
 #include "ArchiveLocationInfo.hpp"
 
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
@@ -1107,6 +1111,69 @@ public:
 
             delete p_n98_cell;
         }
+     }
+     
+     /**
+      * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
+      * and gives expected results.
+      * 
+      * \todo run PyCml automatically, rather than having to generate the .hpp files by hand.
+      */
+     void TestPyCmlCodeGeneration()
+     {
+        clock_t ck_start, ck_end;
+
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 2.0 ;  // ms
+        double when = 50.0; // ms
+
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        
+        double end_time = 1000.0; //One second in milliseconds
+
+        // Normal model
+
+        Cellluo_rudy_1991FromCellML normal(p_solver, p_stimulus);
+        TS_ASSERT_EQUALS(normal.GetVoltageIndex(), 0u);
+
+        // Solve and write to file
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&normal,
+                                   end_time,
+                                   "Lr91DelayedStim");
+        ck_end = clock();
+        double normal_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tNormal: " << normal_time << std::endl;
+
+        CheckCellModelResults("Lr91DelayedStim");
+
+        RunOdeSolverWithIonicModel(&normal,
+                                   60.0,
+                                   "Lr91GetIIonic");
+        TS_ASSERT_DELTA( normal.GetIIonic(), 1.9411, 1e-3);
+
+        // Optimised model
+
+        Cellluo_rudy_1991FromCellMLOpt opt(p_solver, p_stimulus);
+        TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
+
+        // Solve and write to file
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&opt,
+                                   end_time,
+                                   "Lr91DelayedStim");
+        ck_end = clock();
+        double opt_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tOptimised: " << opt_time << std::endl;
+
+        CheckCellModelResults("Lr91DelayedStim");
+
+        RunOdeSolverWithIonicModel(&opt,
+                                   60.0,
+                                   "Lr91GetIIonic");
+        TS_ASSERT_DELTA( opt.GetIIonic(), 1.9411, 1e-3);
      }
 
 private:

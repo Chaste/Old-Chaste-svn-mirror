@@ -37,6 +37,13 @@ options = ['--conf=config.xml',
 #   --assume-valid --no-member-vars
 #   --lt-index-uses-floor
 
+# Use external PyCml if requested
+if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
+    print 'Using external PyCml from PYCML_DIR =', os.environ['PYCML_DIR']
+    pycml_dir = os.environ['PYCML_DIR']
+else:
+    pycml_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pycml')
+
 try:
     end = sys.argv.index('--')
     args = sys.argv[1:end]
@@ -74,6 +81,8 @@ def convert(model):
     print cmd
     os.system(cmd)
 
-os.chdir(os.environ['PYCML_DIR'])
+
+os.chdir(pycml_dir)
+
 for model in models:
     convert(model)
