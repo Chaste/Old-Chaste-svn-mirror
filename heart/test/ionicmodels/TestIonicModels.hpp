@@ -708,7 +708,7 @@ public:
         RunOdeSolverWithIonicModel(&purkinje_ode_system,
                                    1800,/*end time, in milliseconds for this model*/
                                    "DiFrancescoNoble",
-                                   100);
+                                   1000);
         //Check against validated data
         //(the valid data have been checked against CellML code of the model known to be valid).
         CheckCellModelResults("DiFrancescoNoble");
@@ -735,14 +735,19 @@ public:
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&rabbit_ode_system,
-                                   800,/*end time, in milliseconds for this model*/
+                                   400,/*end time, in milliseconds for this model*/
                                    "Mahajan2008",
-                                   100);
+                                   1000);
         // Check against validated data
         // (the code for the mahajan model was generated from a CellML code known to be valid)
         CheckCellModelResults("Mahajan2008");
     }
-
+    
+    /** 
+     *  Here we test the scale factors methiods for the mahajan model.
+     *  The idea is to set the scale factors for the 3 different cell types (epi, mid and endo)
+     *  and check that the rsulting APD makes sense if compared to experiemntal results
+     */ 
     void TestScaleFactorsForMahajanModel(void) throw(Exception)
     {
         double end_time=300;
@@ -837,10 +842,6 @@ public:
         double epi_APD = cell_properties_epi.GetLastActionPotentialDuration(90);
         double endo_APD = cell_properties_endo.GetLastActionPotentialDuration(90);
         double mid_APD = cell_properties_mid.GetLastActionPotentialDuration(90);
-
-        std::cout<<"\n"<<"Epicardial APD90 is "<<epi_APD;
-        std::cout<<"\n"<<"Midmyocardial APD90 is "<<mid_APD;
-        std::cout<<"\n"<<"Endpcardial APD90 is "<<endo_APD<<"\n";
 
         //check that percentage increase from epi to mid and endo (roughly) matches results
         // from McIntosh et al. Card Res, 45:397-409. 200 (Figure 1 and 2)

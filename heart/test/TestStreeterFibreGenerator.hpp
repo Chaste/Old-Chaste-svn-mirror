@@ -76,7 +76,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(fibre_generator.SetSurfaceFiles("wrong_name", "wrong_name", "wrong_name"));
 
         // Wrong surface format
-        std::string wrong_face_file = "heart/test/data/point50_heart_mesh/wrong_format.tri";
+        std::string wrong_face_file = "heart/test/data/box_shaped_heart/wrong_format.tri";
         TS_ASSERT_THROWS_ANYTHING(fibre_generator.SetSurfaceFiles(wrong_face_file, wrong_face_file, wrong_face_file));
 
 
