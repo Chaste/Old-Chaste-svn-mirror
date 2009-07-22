@@ -1163,16 +1163,16 @@ public:
         ck_start = clock();
         RunOdeSolverWithIonicModel(&opt,
                                    end_time,
-                                   "Lr91DelayedStim");
+                                   "Lr91FromPyCmlOpt");
         ck_end = clock();
         double opt_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tOptimised: " << opt_time << std::endl;
 
-        CheckCellModelResults("Lr91DelayedStim");
+        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOpt", 1e-4, true);
 
         RunOdeSolverWithIonicModel(&opt,
                                    60.0,
-                                   "Lr91GetIIonic");
+                                   "Lr91GetIIonicOpt");
         TS_ASSERT_DELTA( opt.GetIIonic(), 1.9411, 1e-3);
      }
 

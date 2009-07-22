@@ -112,22 +112,47 @@ void CheckCellModelResults(std::string baseResultsFilename)
     }
 }
 
-void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance)
+void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance, bool vOnly)
 {
     // Compare 2 sets of results, e.g. from 2 different solvers for the same model.
-    // Initially we assume the time series are the same; this will change.
     // If the time series differ, the finer resolution must be given first.
     ColumnDataReader data_reader1("TestIonicModels", baseResultsFilename1);
     std::vector<double> times1 = data_reader1.GetValues("Time");
-    std::vector<double> voltages1 = data_reader1.GetValues("V");
-    std::vector<double> calcium1 = data_reader1.GetValues("CaI");
-    std::vector<double> h1 = data_reader1.GetValues("h");
+    std::vector<double> voltages1;
+    std::vector<double> calcium1;
+    std::vector<double> h1;
+    
+    if (data_reader1.HasValues("V"))
+    {
+        voltages1 = data_reader1.GetValues("V");
+    }
+    else //data_reader1.HasValues("membrane__V")
+    {
+        voltages1 = data_reader1.GetValues("membrane__V");
+    }
 
     ColumnDataReader data_reader2("TestIonicModels", baseResultsFilename2);
     std::vector<double> times2 = data_reader2.GetValues("Time");
-    std::vector<double> voltages2 = data_reader2.GetValues("V");
-    std::vector<double> calcium2 = data_reader2.GetValues("CaI");
-    std::vector<double> h2 = data_reader2.GetValues("h");
+    std::vector<double> voltages2;
+    std::vector<double> calcium2;
+    std::vector<double> h2;
+    
+    if (data_reader2.HasValues("V"))
+    {
+        voltages2 = data_reader2.GetValues("V");
+    }
+    else //data_reader2.HasValues("membrane__V")
+    {
+        voltages2 = data_reader2.GetValues("membrane__V");
+    }
+    
+    if (!vOnly)
+    {
+        calcium1 = data_reader1.GetValues("CaI");
+        h1 = data_reader1.GetValues("h");
+        calcium2 = data_reader2.GetValues("CaI");
+        h2 = data_reader2.GetValues("h");
+    }
 
     TS_ASSERT(times1.size() >= times2.size());
     double last_v = voltages2[0];
@@ -154,8 +179,11 @@ void CompareCellModelResults(std::string baseResultsFilename1, std::string baseR
         TS_ASSERT_DELTA(times1[j], times2[i], 1e-12);
         // adjust tol to data
         TS_ASSERT_DELTA(voltages1[j], voltages2[i], tol);
-        TS_ASSERT_DELTA(calcium1[j],  calcium2[i],  tol/100);
-        TS_ASSERT_DELTA(h1[j],        h2[i],        tol/10);
+        if (!vOnly)
+        {
+            TS_ASSERT_DELTA(calcium1[j],  calcium2[i],  tol/100);
+            TS_ASSERT_DELTA(h1[j],        h2[i],        tol/10);
+        }
     }
 }
 

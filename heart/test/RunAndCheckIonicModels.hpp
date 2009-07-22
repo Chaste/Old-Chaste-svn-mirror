@@ -48,7 +48,8 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
 
 void CheckCellModelResults(std::string baseResultsFilename);
 
-void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance);
+void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2,
+                             double tolerance, bool vOnly=false);
 
 
 #endif //_RUNANDCHECKIONICMODELS_HPP_
