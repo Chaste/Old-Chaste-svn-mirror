@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 import os, sys
 exts = ['.cpp', '.hpp', '.py', '.java']
 dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects']
-#exclusions = ['triangle/triangle.cpp']
+exclusions = ['python/pycml/enum.py', 'python/pycml/pyparsing.py', 'python/pycml/schematron.py']
 
 apply_update =  '-update' in sys.argv
 apply_new = '-new' in sys.argv
@@ -41,7 +41,7 @@ if '-dir' in sys.argv:
     i = sys.argv.index('-dir')
     chaste_dir = os.path.realpath(sys.argv[i+1])
 
-#This next variable is unused -- it shows the previous depricated notice
+#This next variable is unused -- it shows the previous deprecated notice
 #as a mechanism for rolling the notice forward
 previous_depricated_notice="""Copyright (C) University of Oxford, 2005-2009
 
@@ -123,53 +123,54 @@ cpp_current_notice='/*\n\n'+current_notice+'\n*/'
 cpp_depricated_notice='/*\n\n'+depricated_notice+'\n*/'
 
 
-pycml_notice=" * Processed by pycml - CellML Tools in Python"
+pycml_notice=" Processed by pycml - CellML Tools in Python"
 xsd2_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
 xsd3_notice="// Copyright (C) 2005-2008 Code Synthesis Tools CC"
 triangle_notice="""/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
 /*  Jonathan Richard Shewchuk                                                */"""
 
 def CheckForCopyrightNotice(findStr, fileIn):
+    """Test if the (possibly multi-line) string findStr is contained anywhere in fileIn."""
     fileIn.seek(0)
-    file_text=fileIn.read()
+    file_text = fileIn.read()
     return (file_text.find(findStr) >= 0)
     
-def ReplaceStringInFile(findStr,repStr,filePath):
-   "replaces all findStr by repStr in file filePath"
-   tempName=filePath+'~'
+def ReplaceStringInFile(findStr, repStr, filePath):
+   """Replaces all findStr by repStr in file filePath"""
+   tempName = filePath+'~'
    input = open(filePath)
-   output = open(tempName,'w')
+   output = open(tempName, 'w')
 
-   s=input.read()
-   output.write(s.replace(findStr,repStr))
+   s = input.read()
+   output.write(s.replace(findStr, repStr))
    output.close()
    input.close()
-   os.rename(tempName,filePath)
-   print 'Notice: replaced depricated copyright notice in '+filePath
+   os.rename(tempName, filePath)
+   print 'Notice: replaced deprecated copyright notice in', filePath
 
 def HeadAppendStringInFile(appendString, filePath):
-   "adds appendStr to the top of file filePath"
-   tempName=filePath+'~'
+   """Adds appendStr to the top of file filePath"""
+   tempName = filePath+'~'
    input = open(filePath)
-   output = open(tempName,'w')
+   output = open(tempName, 'w')
 
-   s=input.read()
+   s = input.read()
    output.write(appendString)
    output.write(s)
    output.close()
    input.close()
-   os.rename(tempName,filePath)
-   print 'Notice: applied copyright notice in '+filePath
+   os.rename(tempName, filePath)
+   print 'Notice: applied copyright notice in ', filePath
     
 
    
 
 def InspectFile(fileName):
     file_in = open(fileName)
-    if (fileName[-21:]=='CheckForCopyrights.py'):
+    if fileName[-21:] == 'CheckForCopyrights.py':
     	#Can't really check this one, since it knows all the licences
     	return True
-    valid_notice=False
+    valid_notice = False
     if (CheckForCopyrightNotice(cpp_current_notice, file_in) or
         CheckForCopyrightNotice(py_current_notice, file_in)):
         #print 'Found current notice in '+file_name
@@ -179,26 +180,26 @@ def InspectFile(fileName):
         CheckForCopyrightNotice(xsd3_notice, file_in) or
         CheckForCopyrightNotice(triangle_notice, file_in)):
         #print 'Found 3rd party notice in '+file_name
-        if (valid_notice):
-            print "Multiple notices on"+file_name
+        if valid_notice:
+            print "Multiple notices on", file_name
             return False
         else:
             return True
-    if (valid_notice):
+    if valid_notice:
         return True
-    if (CheckForCopyrightNotice(cpp_depricated_notice, file_in)):
-        print 'Found depricated copyright notice for',fileName
-        if (apply_update):
+    if CheckForCopyrightNotice(cpp_depricated_notice, file_in):
+        print 'Found deprecated copyright notice for', fileName
+        if apply_update:
            	ReplaceStringInFile(cpp_depricated_notice, cpp_current_notice, fileName)
         	return True
         else:
             print 'Fix this by doing: python python/CheckForCopyrights.py -update'
             return False
     
-    print 'Found no copyright notice for',fileName
-    if (apply_new):
-        if (fileName[-3:] == '.py'):
-          	print 'Not implemented'
+    print 'Found no copyright notice for', fileName
+    if apply_new:
+        if fileName[-3:] == '.py':
+          	print 'Not implemented for .py files'
           	return False
         else:
 	        HeadAppendStringInFile(cpp_current_notice+"\n\n", fileName)
@@ -207,30 +208,32 @@ def InspectFile(fileName):
         print 'Fix this by doing: python python/CheckForCopyrights.py -new'
         return False
 
-#os.chdir(chaste_dir)
-num_no_copyrights=0
-num_copyrights=0
-# for root, dirs, files in os.walk(chaste_dir):
+num_no_copyrights = 0
+num_copyrights = 0
+chaste_dir_len = len(os.path.join(chaste_dir, ''))
 for root, dirs, files in os.walk(chaste_dir):
+    relative_root = root[chaste_dir_len:]
     # Check for ignored dirs
     for dir in dir_ignores:
         if dir in dirs:
             dirs.remove(dir)
     # Check for source files
     for file in files:
+        relative_path = os.path.join(relative_root, file)
         name, ext = os.path.splitext(file)
-        if (ext in exts or file=='SConscript' or file=='SConstruct'):
+        if ((ext in exts or file=='SConscript' or file=='SConstruct') and
+            relative_path not in exclusions):
             file_name = os.path.join(root, file)
-            if (InspectFile(file_name) == False):
-                num_no_copyrights+=1
+            if InspectFile(file_name) == False:
+                num_no_copyrights += 1
             else:
-                num_copyrights+=1
+                num_copyrights += 1
 
 # Let the test summary script know
-if (chaste_dir=="."):
-    dir = os.getcwd();
+if chaste_dir == ".":
+    dir = os.getcwd()
 else:
-    dir = chaste_dir;
+    dir = chaste_dir
     
 print "Copyright test run over ",dir," (",num_no_copyrights+num_copyrights,") files"
 if num_no_copyrights > 0:
@@ -243,3 +246,4 @@ if num_no_copyrights > 0:
     sys.exit(num_no_copyrights)
 else:
     print "Infrastructure test passed ok."
+
