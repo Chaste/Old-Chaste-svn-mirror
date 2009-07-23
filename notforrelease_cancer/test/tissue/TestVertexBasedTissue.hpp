@@ -713,7 +713,7 @@ public:
 
     // At the moment the tissue cannot be properly archived since the mesh cannot be. This test
     // just checks that the cells are correctly archived.
-    void TestArchivingVertexBasedTissue() throw (Exception)
+    void TestArchivingVertexBasedTissue() throw(Exception)
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename;

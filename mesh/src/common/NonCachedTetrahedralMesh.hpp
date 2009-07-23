@@ -29,7 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NONCACHEDTETRAHEDRALMESH_HPP_
 #define NONCACHEDTETRAHEDRALMESH_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "TetrahedralMesh.hpp"
+
+#include <boost/serialization/export.hpp>// at end of includes
 
 /**
  * A drop-in replacement for TetrahedralMesh that doesn't cache any
@@ -42,14 +47,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class NonCachedTetrahedralMesh : public TetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {
+private:
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the mesh.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       archive & boost::serialization::base_object<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+    }
 public:
 
     /** Reimplemented to do no caching */
     void RefreshJacobianCachedData();
-        
+
     /**
      * Get the Jacobian matrix and its determinant for a given element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rJacobian the Jacobian matrix
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
@@ -58,7 +77,7 @@ public:
 
     /**
      * Get the Jacobian matrix, its inverse and its determinant for a given element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rJacobian the Jacobian matrix
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
@@ -68,7 +87,7 @@ public:
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
@@ -77,13 +96,17 @@ public:
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given boundary element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
      */
     void GetWeightedDirectionForBoundaryElement(unsigned elementIndex, c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant) const;
-    
+
 };
+
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 1, 1);
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 2, 2);
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 3, 3);
 
 #endif /*NONCACHEDTETRAHEDRALMESH_HPP_*/

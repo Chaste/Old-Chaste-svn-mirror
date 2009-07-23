@@ -29,13 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTNONCACHEDTETRAHEDRALMESH_HPP_
 #define TESTNONCACHEDTETRAHEDRALMESH_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <ctime>
 #include "TrianglesMeshReader.hpp"
-#include "TetrahedralMesh.hpp"
 #include "NonCachedTetrahedralMesh.hpp"
 #include "OutputFileHandler.hpp"
 
-#include <ctime>
 
 class TestNonCachedTetrahedralMesh : public CxxTest::TestSuite
 {
@@ -185,6 +186,60 @@ public:
         c_vector<double, 3> direction;
         double det_direction;
         TS_ASSERT_THROWS_ANYTHING(non_cached_mesh.GetWeightedDirectionForElement(0u, direction, det_direction));
+    }
+
+    void TestArchiving()
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        handler.SetArchiveDirectory();
+        archive_filename = handler.GetOutputDirectoryFullPath() + "non_cached_tetrahedral_mesh.arch";
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "non_cached_tetrahedral_mesh");
+
+        {
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+
+            AbstractTetrahedralMesh<2,2>* const p_mesh = new NonCachedTetrahedralMesh<2,2>;
+            p_mesh->ConstructFromMeshReader(mesh_reader);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch << p_mesh;
+            delete p_mesh;
+        }
+
+        {
+            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // (but here AbstractMesh doesn't have the methods below).
+            AbstractTetrahedralMesh<2,2>* p_mesh2;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // restore from the archive
+            input_arch >> p_mesh2;
+
+            // Check we have the right number of nodes & elements
+            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), 543u);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), 984u);
+
+            // Check some node co-ordinates
+            TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
+            TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
+            TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[0], 1.0, 1e-6);
+            TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[1], 0.0, 1e-6);
+
+            // Check first element has the right nodes
+            TetrahedralMesh<2,2>::ElementIterator iter = p_mesh2->GetElementIteratorBegin();
+            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(0), 309u);
+            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(1), 144u);
+            TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(2), 310u);
+            TS_ASSERT_EQUALS(iter->GetNode(1), p_mesh2->GetNode(144));
+
+            delete p_mesh2;
+        }
     }
 
 };
