@@ -1,3 +1,10 @@
+chaste-source (1.0.6608) intrepid; urgency=low
+
+  * Package revision 6608 of Chaste.
+    - Adds PyCml to the package.
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Wed, 22 Jul 2009 15:15:29 +0000
+
 chaste-source (1.0.6433) intrepid; urgency=low
 
   * Package revision 6433 of Chaste.
