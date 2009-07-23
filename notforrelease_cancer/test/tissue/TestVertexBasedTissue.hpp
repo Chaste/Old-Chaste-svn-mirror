@@ -146,7 +146,7 @@ public:
         for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
-        {  
+        {
             std::set<unsigned> expected_node_indices;
             unsigned expected_index = iter->GetIndex();
 
@@ -211,7 +211,7 @@ public:
         for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
-        {  
+        {
         	unsigned elem_index = iter->GetIndex();
             TissueCell cell = tissue.rGetCellUsingLocationIndex(elem_index);
             double expected_area = TissueConfig::Instance()->GetMatureCellTargetArea();
@@ -228,7 +228,7 @@ public:
 
         // Make 1 and 4 undergo apoptosis
 
-        TissueCell cell_0 = tissue.rGetCellUsingLocationIndex(0);        
+        TissueCell cell_0 = tissue.rGetCellUsingLocationIndex(0);
         TissueCell cell_1 = tissue.rGetCellUsingLocationIndex(1);
         TissueCell cell_4 = tissue.rGetCellUsingLocationIndex(4);
 
@@ -239,10 +239,10 @@ public:
         double actual_area_1 = tissue.GetTargetAreaOfCell(cell_1);
         double actual_area_4 = tissue.GetTargetAreaOfCell(cell_4);
 
-        double expected_area_0 = 0.5;                
+        double expected_area_0 = 0.5;
 
         double expected_area_1 = TissueConfig::Instance()->GetMatureCellTargetArea();
-        expected_area_1 *= 0.5*(1.0 + 1.0/7.0); 
+        expected_area_1 *= 0.5*(1.0 + 1.0/7.0);
 
         double expected_area_4 = TissueConfig::Instance()->GetMatureCellTargetArea();
 
@@ -259,7 +259,7 @@ public:
         // Have run on for half the apoptosis time therefore the target area should have halved
 
         expected_area_0 = TissueConfig::Instance()->GetMatureCellTargetArea();
-        expected_area_0 *= 0.5*(1.0 + 0.5*apoptosis_time/2.0); 
+        expected_area_0 *= 0.5*(1.0 + 0.5*apoptosis_time/2.0);
 
         TS_ASSERT_DELTA(actual_area_0_after_dt, expected_area_0, 1e-12);
         TS_ASSERT_DELTA(actual_area_1_after_dt, 0.5*expected_area_1, 1e-12);
@@ -275,7 +275,7 @@ public:
         double actual_area_1_after_2dt = tissue.GetTargetAreaOfCell(cell_1);
         double actual_area_4_after_2dt = tissue.GetTargetAreaOfCell(cell_4);
 
-        // Have run on for the further half of the apoptosis time therefore the target area 
+        // Have run on for the further half of the apoptosis time therefore the target area
         // should have gone to zero
 
         TS_ASSERT_DELTA(actual_area_0_after_2dt, 0.5*expected_area_0, 1e-12);
@@ -485,7 +485,7 @@ public:
             // Cell 4 should divide immediately
             if (elem_index==4)
             {
-                cell_type = TRANSIT; // As stem cells always divide horizontally 
+                cell_type = TRANSIT; // As stem cells always divide horizontally
                 birth_time = -50.0;
             }
 
@@ -718,6 +718,9 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
+        // The following line is required because the loading of a tissue
+        // is usually called by the method TissueSimulation::Load()
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "vertex_mesh");
 
         // Archive tissue
         {
@@ -774,10 +777,6 @@ public:
             input_arch >> *p_simulation_time;
 
             VertexBasedTissue<2> *p_tissue;
-
-            // The following line is required because the loading of a tissue
-            // is usually called by the method TissueSimulation::Load()
-            ArchiveLocationInfo::SetMeshPathname ("notforrelease_cancer/test/data/TestVertexMesh/", "vertex_mesh");
 
             input_arch >> p_tissue;
 
@@ -926,7 +925,7 @@ public:
         // Cell 1 has centre of mass (0, 4/3)
         TS_ASSERT_DELTA(wnt_at_cell1, 2.0/3.0, 1e-4);
     }
-    
+
 };
 
 #endif /*TESTVERTEXBASEDTISSUE_HPP_*/

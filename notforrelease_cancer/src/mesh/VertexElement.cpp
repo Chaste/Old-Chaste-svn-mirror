@@ -105,7 +105,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
 
     // Remove the node at rIndex (removes node from element)
     this->mNodes.erase(this->mNodes.begin() + rIndex);
-    
+
 }
 
 
@@ -142,6 +142,7 @@ unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globa
 
 template class VertexElement<1,1>;
 template class VertexElement<1,2>;
+template class VertexElement<1,3>;
 template class VertexElement<2,2>;
 template class VertexElement<2,3>;
 template class VertexElement<3,3>;

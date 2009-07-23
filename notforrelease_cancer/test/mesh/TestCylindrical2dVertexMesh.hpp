@@ -65,11 +65,11 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease_cancer/test/data/TestCylindrical2dVertexMesh/cylindrical_vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestCylindrical2dVertexMesh/cylindrical_vertex_mesh.cell").c_str()), 0);
-        
+
         // Create periodic mesh with flat bottom
         Cylindrical2dVertexMesh flat_cylindrical_vertex_mesh(4, 4, 0.01, 2.0, true);
 
-        // The flat bottomed periodic mesh should have the same number of elements and nodes 
+        // The flat bottomed periodic mesh should have the same number of elements and nodes
         // \todo there should be 36 nodes but nodes are merged which doesn't delete them
         TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumElements(), 16u);
         TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumNodes(), 40u);
@@ -84,7 +84,7 @@ public:
 
         TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease_cancer/test/data/TestFlatCylindrical2dVertexMesh/flat_cylindrical_vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestFlatCylindrical2dVertexMesh/flat_cylindrical_vertex_mesh.cell").c_str()), 0);
-        
+
     }
 
 
@@ -249,9 +249,9 @@ public:
         centroid = mesh.GetCentroidOfElement(7);
         TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
         TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
-        
+
         // Test CalculateMomentOfElement() for all elements
-        // all elements are regular hexagons with edge 1/sqrt(3) 
+        // all elements are regular hexagons with edge 1/sqrt(3)
         c_vector<double, 3> moments;
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
@@ -262,32 +262,32 @@ public:
             TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
         }
     }
-    
+
     void TestDivideElement()
     {
         // Create mesh
         Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 16u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40u);
-                
+
         c_vector<double, 2> axis_of_division;
         axis_of_division(0)=1.0/sqrt(2.0);
         axis_of_division(1)=1.0/sqrt(2.0);
 
         //Divide non periodic element
         unsigned new_element_index = mesh.DivideElement(mesh.GetElement(2), axis_of_division);
-        
+
         TS_ASSERT_EQUALS(new_element_index, 16u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 17u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 42u);
-        
+
         TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[0], 2.6754, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[1], 0.8660, 1e-4);
 
         TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[0], 1.9433, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[1], 0.1339, 1e-4);
-        
+
         // Test new elements have correct nodes
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
@@ -295,29 +295,29 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(2)->GetIndex(), 7u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(3)->GetIndex(), 40u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(4)->GetIndex(), 41u);
-        
-        
+
+
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(0)->GetIndex(), 40u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(1)->GetIndex(), 11u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(2)->GetIndex(), 10u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(3)->GetIndex(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(4)->GetIndex(), 41u);
-        
-        
+
+
         // Divide periodic element
         new_element_index = mesh.DivideElement(mesh.GetElement(3),axis_of_division);
-        
+
         TS_ASSERT_EQUALS(new_element_index, 17u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 18u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 44u);
-        
+
         TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[0], 0.0773, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[1], 1.3660, 1e-4);
 
         TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[0], 2.8094, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[1], 0.6339, 1e-4);
-                
+
         // Test new elements have correct nodes
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(0)->GetIndex(), 7u);
@@ -325,8 +325,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(2)->GetIndex(), 8u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(3)->GetIndex(), 42u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(4)->GetIndex(), 43u);
-        
-        
+
+
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(0)->GetIndex(), 42u);
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(1)->GetIndex(), 12u);
@@ -334,7 +334,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(3)->GetIndex(), 11u);
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(4)->GetIndex(), 40u);
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(5)->GetIndex(), 43u);
-        
+
     }
 
 
@@ -344,14 +344,13 @@ public:
         OutputFileHandler handler(dirname, false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh_base.arch";
 
-        std::string mesh_filename = "cylindrical_vertex_mesh";
-        std::string mesh_pathname = handler.GetOutputDirectoryFullPath() + mesh_filename;
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cylindrical_vertex_mesh");
 
         // Create mesh
         unsigned num_cells_across = 4;
         unsigned num_cells_up = 7;
 
-        Cylindrical2dVertexMesh* const p_mesh = new Cylindrical2dVertexMesh(num_cells_across, num_cells_up, 0.01, 2.0);
+        AbstractMesh<2,2>* const p_saved_mesh = new Cylindrical2dVertexMesh(num_cells_across, num_cells_up, 0.01, 2.0);
 
         double crypt_width = num_cells_across*sqrt(3.0)/2.0;
 
@@ -366,41 +365,33 @@ public:
          */
         {
             // Serialize the mesh
-            double width = p_mesh->GetWidth(0);
-            TS_ASSERT_DELTA(width, crypt_width, 1e-7);
-
-            // Save the mesh data using mesh writers
-            VertexMeshWriter<2,2> vertex_mesh_writer(dirname, mesh_filename);
-            vertex_mesh_writer.WriteFilesUsingMesh(*p_mesh);
+            TS_ASSERT_DELTA((static_cast<Cylindrical2dVertexMesh*>(p_saved_mesh))->GetWidth(0), crypt_width, 1e-7);
 
             // Archive the mesh
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             // We have to serialize via a pointer here, or the derived class information is lost.
-            output_arch << p_mesh;
+            output_arch << p_saved_mesh;
         }
 
         {
             // De-serialize and compare
-            Cylindrical2dVertexMesh *p_mesh2;
+            AbstractMesh<2,2> *p_loaded_mesh;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
             // Restore from the archive
-            input_arch >> p_mesh2;
-
-            // Re-initialise the mesh
-            p_mesh2->Clear();
-            VertexMeshReader<2,2> mesh_reader(mesh_pathname);
-            p_mesh2->ConstructFromMeshReader(mesh_reader);
+            input_arch >> p_loaded_mesh;
 
             // Compare the loaded mesh against the original
-
+            Cylindrical2dVertexMesh *p_mesh2 = static_cast<Cylindrical2dVertexMesh*>(p_loaded_mesh);
+            Cylindrical2dVertexMesh *p_mesh = static_cast<Cylindrical2dVertexMesh*>(p_saved_mesh);
             // Compare width
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), crypt_width, 1e-7);
+            TS_ASSERT_DELTA(p_mesh->GetWidth(0), crypt_width, 1e-7);
 
             // Compare nodes
             TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), p_mesh2->GetNumNodes());

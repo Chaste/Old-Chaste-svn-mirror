@@ -1088,7 +1088,7 @@ public:
         EdgeIteratorTest<1>("mesh/test/data/1D_0_to_1_10_elements");
     }
 
-    void TestArchiving()
+    void TestArchiving() throw(Exception)
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;

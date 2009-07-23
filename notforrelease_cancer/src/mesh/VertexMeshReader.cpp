@@ -276,6 +276,7 @@ void VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifstre
 
 template class VertexMeshReader<1,1>;
 template class VertexMeshReader<1,2>;
+template class VertexMeshReader<1,3>;
 template class VertexMeshReader<2,2>;
 template class VertexMeshReader<2,3>;
 template class VertexMeshReader<3,3>;

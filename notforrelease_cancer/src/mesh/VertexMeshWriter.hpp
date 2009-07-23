@@ -28,6 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERTEXMESHWRITER_HPP_
 #define VERTEXMESHWRITER_HPP_
 
+// Forward declaration prevents circular include chain
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class VertexMesh;
+
 #ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 #define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
@@ -92,7 +96,7 @@ public:
      *
      * @param rMesh reference to the vertex-based mesh
      */
-    void WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    void WriteFilesUsingMesh(const VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
     /**
      * Write VTK file using a mesh.

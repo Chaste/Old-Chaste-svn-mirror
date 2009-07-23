@@ -28,16 +28,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERTEXMESH_HPP_
 #define VERTEXMESH_HPP_
 
+// Forward declaration prevents circular include chain
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class VertexMeshWriter;
+
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <climits>
+
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #include "AbstractMesh.hpp"
+#include "ArchiveLocationInfo.hpp"
 #include "VertexMeshReader.hpp"
+#include "VertexMeshWriter.hpp"
 #include "VertexElement.hpp"
 #include "VertexElementMap.hpp"
 
@@ -54,12 +64,12 @@ protected:
     /** Vector of pointers to VertexElements. */
     std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> mElements;
 
-    /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangment. */
+    /** The minimum distance apart that two nodes in the mesh can be without causing element rearrangement. */
     double mCellRearrangementThreshold;
 
     /** The maximum distance apart that neighbouring nodes in the mesh can be without the edge being divided. */
     double mEdgeDivisionThreshold;
-    
+
     /** The area threshold at which T2 swaps occur in an apoptotic, triangular cell/element */
     double mT2Threshold;
 
@@ -93,7 +103,7 @@ protected:
      * Replaces the node contained in the least number of elements with the other node.
      *
      * @param pNodeA one of the nodes to perform the merge with
-     * @param pNodeB the other node to perform the merge with 
+     * @param pNodeB the other node to perform the merge with
      */
     void PerformNodeMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
 
@@ -160,7 +170,7 @@ protected:
     void MoveOverlappingNodeOntoEdgeOfElement(Node<SPACE_DIM>* pNode, unsigned elementIndex);
 
     /**
-     * Solve node mapping method. This overridden method is required 
+     * Solve node mapping method. This overridden method is required
      * as it is pure virtual in the base class.
      *
      * @param index the global index of the node
@@ -168,7 +178,7 @@ protected:
     unsigned SolveNodeMapping(unsigned index) const;
 
     /**
-     * Solve element mapping method. This overridden method is required 
+     * Solve element mapping method. This overridden method is required
      * as it is pure virtual in the base class.
      *
      * @param index the global index of the element
@@ -176,7 +186,7 @@ protected:
     unsigned SolveElementMapping(unsigned index) const;
 
     /**
-     * Solve boundary element mapping method. This overridden method is required 
+     * Solve boundary element mapping method. This overridden method is required
      * as it is pure virtual in the base class.
      *
      * @param index the global index of the boundary element
@@ -185,23 +195,55 @@ protected:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
+
     /**
-     * Archives the member variables of the object which
-     * have to be preserved during its lifetime.
+     * Archive the VertexMesh. Note that this will write out a VertexMeshWriter file
+     * to wherever ArchiveLocationInfo has specified.
      *
-     * The remaining member variables are re-initialised before being used
-     * by each ReMesh() call so they do not need to be archived.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
+     * @param archive
+     * @param version
      */
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    void save(Archive & archive, const unsigned int version) const
     {
-        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mCellRearrangementThreshold;
         archive & mEdgeDivisionThreshold;
+        archive & mT2Threshold;
+        archive & mDeletedNodeIndices;
+        archive & mDeletedElementIndices;
+        archive & mAddedNodes;
+        archive & mAddedElements;
+
+        // Create a mesh writer pointing to the correct file and directory.
+        VertexMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
+                                                            ArchiveLocationInfo::GetMeshFilename(),
+                                                            false);
+        mesh_writer.WriteFilesUsingMesh(*this);
     }
+
+    /**
+     * Loads a mesh by using VertexMeshReader and the location in ArchiveLocationInfo.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
+        archive & mCellRearrangementThreshold;
+        archive & mEdgeDivisionThreshold;
+        archive & mT2Threshold;
+        archive & mDeletedNodeIndices;
+        archive & mDeletedElementIndices;
+        archive & mAddedNodes;
+        archive & mAddedElements;
+
+        VertexMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
+        this->ConstructFromMeshReader(mesh_reader);
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
 
 public:
 
@@ -214,7 +256,7 @@ public:
 
     /**
      * Get an iterator to the first element in the mesh.
-     * 
+     *
      * @param skipDeletedElements whether to include deleted element
      */
     inline VertexElementIterator GetElementIteratorBegin(bool skipDeletedElements=true);
@@ -227,7 +269,7 @@ public:
     //////////////////////////////////////////////////////////////////////
     //                             Methods                              //
     //////////////////////////////////////////////////////////////////////
-    
+
     /**
      * Default constructor.
      *
@@ -255,13 +297,9 @@ public:
     VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold, double t2Threshold = 0.01);
 
     /**
-     * Constructor for use by serializer.
-     *
-     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
-     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
-     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.01)
+     * Default constructor for use by serializer.
      */
-    VertexMesh(double cellRearrangementThreshold=0.01, double edgeDivisionThreshold=1.5, double t2Threshold=0.01);
+    VertexMesh();
 
     /**
      * Destructor.
@@ -284,7 +322,7 @@ public:
 
     /**
      * Set method for mT2Threshold.
-     * 
+     *
      * @param t2Threshold
      */
     void SetT2Threshold(double t2Threshold);
@@ -325,7 +363,7 @@ public:
     /**
      * @return the number of VertexElements in the mesh, including those marked as deleted.
      */
-    unsigned GetNumAllElements();
+    unsigned GetNumAllElements() const;
 
     /**
      * @param index  the global index of a specified vertex element
@@ -495,7 +533,7 @@ public:
      *
      * @param pElement is the element to remove
      */
-    void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);          
+    void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      * Mark an element as deleted. Note that it DOES NOT deal with the associated
@@ -519,16 +557,16 @@ public:
 
     /**
      * Method to divide an element in half using a specific axis.
-     * 
-     * If the new nodes (intersections of axis with element) are within 
-     * mCellRearrangementThreshold of existing nodes then they are 
+     *
+     * If the new nodes (intersections of axis with element) are within
+     * mCellRearrangementThreshold of existing nodes then they are
      * moved 2*mCellRearrangementThreshold away.
-     * 
+     *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
      * @param pElement the element to divide
-     * @param AxisOfDivision axis to divide the element by 
-     * 
+     * @param AxisOfDivision axis to divide the element by
+     *
      * @return the index of the new element
      */
     unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> AxisOfDivision);
@@ -570,11 +608,11 @@ public:
      * Note: inherited classes should overload ReMesh(VertexElementMap&).
      */
     void ReMesh();
-	
+
 	//////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////
-   
+
     /**
      * A smart iterator over the elements in the mesh.\todo This is the same as in AbstractTetrahedralMesh
      */
@@ -583,7 +621,7 @@ public:
     public:
         /**
          * Dereference the iterator giving you a *reference* to the current element.
-         * 
+         *
          * Make sure to use a reference for the result to avoid copying elements unnecessarily.
          */
         inline VertexElement<ELEMENT_DIM, SPACE_DIM>& operator*();
@@ -607,10 +645,10 @@ public:
 
         /**
          * Constructor for a new iterator.
-         * 
+         *
          * This should not be called directly by user code; use the mesh methods
          * AbstractTetrahedralMesh::GetElementIteratorBegin and AbstractTetrahedralMesh::GetElementIteratorEnd instead.
-         * 
+         *
          * @param rMesh the mesh to iterator over
          * @param elementIter where to start iterating
          * @param skipDeletedElements whether to include deleted elements
@@ -642,50 +680,8 @@ public:
 };
 
 #include "TemplatedExport.hpp"
-EXPORT_TEMPLATE_CLASS2(VertexMesh, 1, 1)
-EXPORT_TEMPLATE_CLASS2(VertexMesh, 1, 2)
-EXPORT_TEMPLATE_CLASS2(VertexMesh, 2, 2)
-EXPORT_TEMPLATE_CLASS2(VertexMesh, 2, 3)
-EXPORT_TEMPLATE_CLASS2(VertexMesh, 3, 3)
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(VertexMesh);
 
-namespace boost
-{
-namespace serialization
-{
-/**
- * Serialize information required to construct a VertexMesh.
- */
-template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-inline void save_construct_data(
-    Archive & ar, const VertexMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
-{
-    // Save data required to construct instance
-    const double cell_rearrangement_threshold = t->GetCellRearrangementThreshold();
-    ar << cell_rearrangement_threshold;
-
-    const double edge_division_threshold = t->GetEdgeDivisionThreshold();
-    ar << edge_division_threshold;
-}
-
-/**
- * De-serialize constructor parameters and initialise a VertexMesh.
- */
-template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-inline void load_construct_data(
-    Archive & ar, VertexMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
-{
-    // Retrieve data from archive required to construct new instance
-    double cell_rearrangement_threshold;
-    ar >> cell_rearrangement_threshold;
-
-    double edge_division_threshold;
-    ar >> edge_division_threshold;
-
-    // Invoke inplace constructor to initialise instance
-    ::new(t)VertexMesh<ELEMENT_DIM, SPACE_DIM>(cell_rearrangement_threshold, edge_division_threshold);
-}
-}
-} // namespace ...
 
 //////////////////////////////////////////////////////////////////////////////
 // VertexElementIterator class implementation - most methods are inlined    //
@@ -732,7 +728,7 @@ typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator& VertexMesh<E
         ++mElementIter;
     }
     while (!IsAtEnd() && !IsAllowedElement());
-    
+
     return (*this);
 }
 

@@ -364,7 +364,6 @@ inline void load_construct_data(
     Archive & ar, NodeBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Load the nodes
-    /// \todo Archiving of nodes doesn't seem to be implemented - how does the archiving of NodeBasedTissue work?!?
     std::vector<Node<DIM>* > nodes;
     ar >> nodes;
 

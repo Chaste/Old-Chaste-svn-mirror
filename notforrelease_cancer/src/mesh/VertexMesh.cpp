@@ -39,8 +39,12 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mEdgeDivisionThreshold(edgeDivisionThreshold),
       mT2Threshold(t2Threshold),
-      mAddedNodes(true)
+      mAddedNodes(true),
+      mAddedElements(true)
 {
+    mDeletedNodeIndices.clear();
+    mDeletedElementIndices.clear();
+    this->mMeshChangesDuringSimulation = true;
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
     assert(t2Threshold > 0.0);
@@ -63,15 +67,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(double cellRearrangementThreshold, double edgeDivisionThreshold, double t2Threshold)
-    : mCellRearrangementThreshold(cellRearrangementThreshold),
-      mEdgeDivisionThreshold(edgeDivisionThreshold),
-      mT2Threshold(t2Threshold),
-      mAddedNodes(false)
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh()
 {
-    assert(cellRearrangementThreshold > 0.0);
-    assert(edgeDivisionThreshold > 0.0);
-    assert(t2Threshold > 0.0);
+    this->mMeshChangesDuringSimulation = true;
     Clear();
 }
 
@@ -85,8 +83,12 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mEdgeDivisionThreshold(edgeDivisionThreshold),
       mT2Threshold(t2Threshold),
-      mAddedNodes(true)
+      mAddedNodes(true),
+      mAddedElements(true)
 {
+    mDeletedNodeIndices.clear();
+    mDeletedElementIndices.clear();
+    this->mMeshChangesDuringSimulation = true;
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
     assert(t2Threshold > 0.0);
@@ -320,6 +322,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     mDeletedNodeIndices.clear();
     mDeletedElementIndices.clear();
     mAddedNodes = false;
+    mAddedElements = false;
 
     for (unsigned i=0; i<mElements.size(); i++)
     {
@@ -350,7 +353,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements() const
 {
     return mElements.size();
 }
@@ -557,7 +560,7 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
     c_vector<double, 2> centroid = GetCentroidOfElement(index);
 
     c_vector<double, 3> moments = zero_vector<double>(3);
-   
+
     unsigned node_1;
     unsigned node_2;
 
@@ -569,29 +572,29 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
         // Original position of nodes
         c_vector<double, 2> original_pos_1 = p_element->GetNodeLocation(node_1);
         c_vector<double, 2> original_pos_2 = p_element->GetNodeLocation(node_2);
-        
+
         // Node position so centerd on origin
         c_vector<double, 2> pos_1 = this->GetVectorFromAtoB(centroid, original_pos_1);
         c_vector<double, 2> pos_2 = this->GetVectorFromAtoB(centroid, original_pos_2);
-        
+
 		/*
          * Note these formulae require the polygon to be centered on the origin
          */
         double a = pos_1(0)*pos_2(1)-pos_2(0)*pos_1(1);
-        
+
 		// Ixx
         moments(0) += (  pos_1(1)*pos_1(1)
                        + pos_1(1)*pos_2(1)
                        + pos_2(1)*pos_2(1) ) * a;
-                       
+
         // Iyy
         moments(1) += (  pos_1(0)*pos_1(0)
                        + pos_1(0)*pos_2(0)
                        + pos_2(0)*pos_2(0) ) * a;
-                      
+
         // Ixy
-        moments(2) += (  pos_1(0)*pos_2(1)  
-                       + 2*pos_1(0)*pos_1(1) 
+        moments(2) += (  pos_1(0)*pos_2(1)
+                       + 2*pos_1(0)*pos_1(1)
                        + 2*pos_2(0)*pos_2(1)
                        + pos_2(0)*pos_1(1) ) * a;
     }
@@ -860,7 +863,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
             recheck_mesh = false;
 
             // Loop over elements to check for T2Swaps
-            // Seperate loops as need to check for T2Swaps first 
+            // Seperate loops as need to check for T2Swaps first
 	        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
 	             iter != GetElementIteratorEnd();
 	             ++iter)
@@ -882,8 +885,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 				    }
                 }
 	        }
-			
-			// Loop over elements to check for T1Swaps  
+
+			// Loop over elements to check for T1Swaps
 			for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
 	             iter != GetElementIteratorEnd();
 	             ++iter)
@@ -894,13 +897,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                     assert(num_nodes > 0); // if not element should be deleted
 
                     unsigned new_num_nodes = num_nodes;
-				    
+
 					/*
 			         *  Perform T1 swaps and divide edges where necesary
 			         *  Check there are > 3 nodes in both elements that contain the pair of nodes
 			         *  and the edges are small enough
 			         */
-				    				
+
                     // Loop over element vertices
                     for (unsigned local_index=0; local_index<num_nodes; local_index++)
                     {
@@ -915,22 +918,22 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                         // If the nodes are too close together and we dont have a triangular element, perform a swap
                         std::set<unsigned> elements_of_node_a = p_current_node->rGetContainingElementIndices();
 					    std::set<unsigned> elements_of_node_b = p_anticlockwise_node->rGetContainingElementIndices();
-					         
+
 					    std::set<unsigned> common_elements;
 					    std::set_intersection(elements_of_node_a.begin(), elements_of_node_a.end(),
 					                          elements_of_node_b.begin(), elements_of_node_b.end(),
 					                          std::inserter(common_elements, common_elements.begin()));
-					    
-					    common_elements.erase(iter->GetIndex());     
-					    
+
+					    common_elements.erase(iter->GetIndex());
+
 					    if(common_elements.size() == 1u) // Also check neighboring element
 					    {
-					    	if ((distance_between_nodes < mCellRearrangementThreshold) && (iter->GetNumNodes() > 3u) 
+					    	if ((distance_between_nodes < mCellRearrangementThreshold) && (iter->GetNumNodes() > 3u)
 					    		&& (this->GetElement(*common_elements.begin())->GetNumNodes() > 3))
 	                        {
 	                            // Identify the type of node swap/merge needed then call method to perform swap/merge
 	                            IdentifySwapType(p_current_node, p_anticlockwise_node);
-	
+
 	                            recheck_mesh = true;
 	                            break;
 	                        }
@@ -941,7 +944,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 	                        {
 	                            // Identify the type of node swap/merge needed then call method to perform swap/merge
 	                            IdentifySwapType(p_current_node, p_anticlockwise_node);
-	
+
 	                            recheck_mesh = true;
 	                            break;
 	                        }
@@ -1111,11 +1114,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
          * ---o---o---
          *   /
          *  /
-         * 
+         *
          */
         EXCEPTION("A node is contained in more than three elements"); // the code can't handle this case
         //PerformNodeMerge(pNodeA, pNodeB);
-    } 
+    }
     else // each node is contained in at most three elements
     {
         if (all_indices.size()==1)
@@ -1169,14 +1172,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
            {
        	       /*
            	    * In this case, the node configuration looks like:
-                * 
+                *
 	           	*     A  B                  A  B
 	            *   \ empty/              \      /
 	            *    \    /                \(1) /
 	            * (3) o--o (1)  or      (2) o--o (3)    (element number in brackets)
 	            *    / (2)\                /    \
 	            *   /      \              /empty \
-                * 
+                *
                 * We perform a Type 1 swap in this case.
                 */
                 PerformT1Swap(pNodeA, pNodeB, all_indices);
@@ -1197,7 +1200,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 }
                 else
                 {
-                    #define COVERAGE_IGNORE       
+                    #define COVERAGE_IGNORE
                     EXCEPTION("One of the nodes must be contained in three elements and the other must be contained in two elements");
                     #undef  COVERAGE_IGNORE
                 }
@@ -1222,7 +1225,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 }
                 else
                 {
-                    #define COVERAGE_IGNORE       
+                    #define COVERAGE_IGNORE
                     EXCEPTION("At least one of node_alpha_local_index_before or .._after should be p_node_beta");
                     #undef  COVERAGE_IGNORE
                 }
@@ -1257,21 +1260,21 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 {
                    /*
 	                * In this case, the node configuration looks like:
-                    * 
+                    *
 	                *     A  B                      A  B
 	                *   \      /                  \      /
 	                *    \ (1)/                    \(1) /
 	                * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
 	                *    / (2)\                    /(2) \
 	                *   /      \                  /      \
-	                * 
+	                *
 	                * We perform a Type 1 swap in this case.
 	                */
 	                PerformT1Swap(pNodeA, pNodeB, all_indices);
                 }
                 else
                 {
-        #define COVERAGE_IGNORE       
+        #define COVERAGE_IGNORE
                     EXCEPTION("The intersection should be of length 1 or 2");
         #undef  COVERAGE_IGNORE
                 }
@@ -1309,14 +1312,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
     std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
 
-    // Move node with lowest index to midpoint 
+    // Move node with lowest index to midpoint
     c_vector<double, SPACE_DIM> node_midpoint = pNodeA->rGetLocation() + 0.5*this->GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
-     
+
     if (pNodeA->GetIndex() < pNodeB->GetIndex()) // Remove node B
     {
         c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
-        r_nodeA_location = node_midpoint; 
-    
+        r_nodeA_location = node_midpoint;
+
         // Replace node B with node A
         for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
              it != nodeB_elem_indices.end();
@@ -1324,18 +1327,18 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
         {
             unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
             assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-            
+
             if (nodeA_elem_indices.count(*it) > 0) // element contains node A
             {
                 // Remove node B
-                mElements[*it]->DeleteNode(nodeB_local_index);      
-            }    
+                mElements[*it]->DeleteNode(nodeB_local_index);
+            }
             else
             {
                 // Replace node B with node A
-#define COVERAGE_IGNORE ///\todo Fix coverage         
-                mElements[*it]->UpdateNode(nodeB_local_index, pNodeA);    
-#undef COVERAGE_IGNORE ///\todo Fix coverage         
+#define COVERAGE_IGNORE ///\todo Fix coverage
+                mElements[*it]->UpdateNode(nodeB_local_index, pNodeA);
+#undef COVERAGE_IGNORE ///\todo Fix coverage
             }
         }
         // \todo Delete node B
@@ -1353,16 +1356,16 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
         {
             unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
             assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-            
+
             if (nodeB_elem_indices.count(*it)>0) //Element contains nodeB
             {
                 // Remove node A
-                mElements[*it]->DeleteNode(nodeA_local_index);      
-            }    
+                mElements[*it]->DeleteNode(nodeA_local_index);
+            }
             else
             {
                 // Replace node A with node B
-                mElements[*it]->UpdateNode(nodeA_local_index, pNodeB);    
+                mElements[*it]->UpdateNode(nodeA_local_index, pNodeB);
             }
         }
         // \todo Delete node A
@@ -1527,87 +1530,87 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
     assert(SPACE_DIM == 2); // only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
-    
+
     /* For removing a small triangle
-     * 
+     *
      *  \
      *   \
      *   |\
      *   | \
-     *   |  \_ _ _ _ _ 
+     *   |  \_ _ _ _ _
      *   |  /
      *   | /
      *   |/
      *   /
      *  /
-     * 
-     * To 
+     *
+     * To
 
      *  \
      *   \
      *    \
      *     \
-     *      \_ _ _ _ _ 
+     *      \_ _ _ _ _
      *      /
      *     /
      *    /
      *   /
      *  /
-     * 
+     *
      */
-     
+
      // Assert that the triangle element has only three nodes (!)
-     
-     assert(pElement->GetNumNodes() == 3u);     
-               
-     c_vector<double, SPACE_DIM>& new_node_location = pElement->GetNode(0)->rGetModifiableLocation();    
+
+     assert(pElement->GetNumNodes() == 3u);
+
+     c_vector<double, SPACE_DIM>& new_node_location = pElement->GetNode(0)->rGetModifiableLocation();
      new_node_location = GetCentroidOfElement(pElement->GetIndex());
-     
+
      c_vector<unsigned, 3> neighbouring_elem_nums;
-     
+
      for (unsigned i=0; i<3; i++)
      {
          std::set<unsigned> elements_of_node_a = pElement->GetNode((i+1)%3)->rGetContainingElementIndices();
          std::set<unsigned> elements_of_node_b = pElement->GetNode((i+2)%3)->rGetContainingElementIndices();
-         
+
          std::set<unsigned> common_elements;
          std::set_intersection(elements_of_node_a.begin(), elements_of_node_a.end(),
                                 elements_of_node_b.begin(), elements_of_node_b.end(),
                                 std::inserter(common_elements, common_elements.begin()));
-    
+
          assert(common_elements.size() == 2u);
-         common_elements.erase(pElement->GetIndex());     
+         common_elements.erase(pElement->GetIndex());
          assert(common_elements.size() == 1u);
-         
+
          neighbouring_elem_nums(i) = *(common_elements.begin());
-     }    
-     
+     }
+
      // Extract the neighbouring elements
      VertexElement<ELEMENT_DIM,SPACE_DIM> *p_neighbouring_element_0 = this->GetElement(neighbouring_elem_nums(0));
-     VertexElement<ELEMENT_DIM,SPACE_DIM> *p_neighbouring_element_1 = this->GetElement(neighbouring_elem_nums(1));    
+     VertexElement<ELEMENT_DIM,SPACE_DIM> *p_neighbouring_element_1 = this->GetElement(neighbouring_elem_nums(1));
      VertexElement<ELEMENT_DIM,SPACE_DIM> *p_neighbouring_element_2 = this->GetElement(neighbouring_elem_nums(2));
-     
+
      // Need to check that none of the neighbouring elements are triangles
      if (    (p_neighbouring_element_0->GetNumNodes() > 3u)
          && (p_neighbouring_element_1->GetNumNodes() > 3u)
          && (p_neighbouring_element_2->GetNumNodes() > 3u) )
-     {    
+     {
          // Neighbour 0 - replace node 1 with node 0, delete node 2
          p_neighbouring_element_0->ReplaceNode(pElement->GetNode(1), pElement->GetNode(0));
          p_neighbouring_element_0->DeleteNode(p_neighbouring_element_0->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
- 
+
          // Neighbour 1 - delete node 2
          p_neighbouring_element_1->DeleteNode(p_neighbouring_element_1->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
- 
+
          // Neighbour 2 - delete node 1
          p_neighbouring_element_2->DeleteNode(p_neighbouring_element_2->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(1)));
- 
+
          // Also have to mark pElement, pElement->GetNode(1), pElement->GetNode(2) as deleted.
          mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(1));
          mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(2));
          pElement->GetNode(1)->MarkAsDeleted();
          pElement->GetNode(2)->MarkAsDeleted();
- 
+
          mDeletedElementIndices.push_back(pElement->GetIndex());
          pElement->MarkAsDeleted();
      }
@@ -1615,7 +1618,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
      {
         EXCEPTION("One of the neighbours of a apoptosing triangular element is also a triangle - dealing with this has not been implemented yet");
      }
-} 
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> AxisOfDivision)
@@ -1625,12 +1628,12 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     assert(SPACE_DIM == 2); // only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
-    
+
     // Find short axis
     unsigned element_index = pElement->GetIndex();
     c_vector<double, SPACE_DIM> centroid = GetCentroidOfElement(element_index);
-    c_vector<double, SPACE_DIM> short_axis = AxisOfDivision; 
-        
+    c_vector<double, SPACE_DIM> short_axis = AxisOfDivision;
+
     // Find long axis
     c_vector<double, SPACE_DIM> long_axis; // this is perpendicular to the short axis
     long_axis(0) = -short_axis(1);
@@ -1660,7 +1663,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     std::vector<unsigned> division_node_global_indices;
     int nodes_added = 0;
 
-    // Find intersections to form new nodes 
+    // Find intersections to form new nodes
     for (unsigned i=0; i<intersecting_nodes.size(); i++)
     {
         // Find intersections between edges and short_axis
@@ -1684,9 +1687,9 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
          * then we are interested in position_a + alpha * a_to_b
          */
         double determinant = a_to_b[0]*short_axis[1] - a_to_b[1]*short_axis[0];
-        
+
         c_vector<double, SPACE_DIM> moved_centroid = position_a + GetVectorFromAtoB(position_a,centroid); // Move centroid if on periodic mesh.
-        
+
         double alpha = (moved_centroid[0]*a_to_b[1] - position_a[0]*a_to_b[1]
                         -moved_centroid[1]*a_to_b[0] + position_a[1]*a_to_b[0])/determinant;
 
@@ -1695,17 +1698,17 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
         // If new node is too close to old node reposition 2*mCellRearrangementThreshold away.
         c_vector<double, SPACE_DIM> a_to_intersection = this->GetVectorFromAtoB(position_a, intersection);
         c_vector<double, SPACE_DIM> b_to_intersection = this->GetVectorFromAtoB(position_b, intersection);
-		
-        
+
+
         if (norm_2(a_to_intersection) < mCellRearrangementThreshold)
         {
-    		intersection = position_a + 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b); 
+    		intersection = position_a + 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b);
 	    }
         if (norm_2(b_to_intersection) < mCellRearrangementThreshold)
     	{
-    		intersection = position_b - 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b); 
-	    }  
-          
+    		intersection = position_b - 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b);
+	    }
+
         // Add new node to the mesh
         unsigned new_node_global_index = this->AddNode(new Node<SPACE_DIM>(0, false, intersection[0], intersection[1]));
         nodes_added++;
@@ -1766,10 +1769,10 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     assert(SPACE_DIM == 2); // only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
     #undef COVERAGE_IGNORE
-    
+
     // Find short axis
     c_vector<double, SPACE_DIM> short_axis = GetShortAxisOfElement(pElement->GetIndex());
-    
+
     unsigned new_element_index = DivideElement(pElement,short_axis);
     return new_element_index;
 }
@@ -1814,18 +1817,18 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
 
     /*
-     * Remove the correct nodes from each element. Choose the 
-     * original element to be below (in the y direction) the 
+     * Remove the correct nodes from each element. Choose the
+     * original element to be below (in the y direction) the
      * new element, so as to keep stem cells at the bottom.
-     * 
-     * \todo Woah! Why does this comment refer to stem cells? 
-     * Is this code crypt-dependent? It shouldn't be... 
+     *
+     * \todo Woah! Why does this comment refer to stem cells?
+     * Is this code crypt-dependent? It shouldn't be...
      */
-    
+
     // Find lowest element \todo this could be more efficient
-    double height_midpoint_1 = 0.0, height_midpoint_2 = 0.0; 
+    double height_midpoint_1 = 0.0, height_midpoint_2 = 0.0;
     unsigned counter_1=0, counter_2=0;
-        
+
     for (unsigned i=0; i<num_nodes; i++)
     {
         if (i>=node1_index && i<=node2_index)
@@ -1878,7 +1881,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     // \todo This can be removed if we like.
     /// Check New element is above Old Element
     double new_height_midpoint = 0.0, old_height_midpoint = 0.0;
- 
+
     for (unsigned i=0; i<pElement->GetNumNodes(); i++)
     {
         old_height_midpoint += pElement->GetNode(i)->rGetLocation()[1];
@@ -1891,7 +1894,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     new_height_midpoint /= (double)mElements[new_element_index]->GetNumNodes();
 
     assert(old_height_midpoint<=new_height_midpoint);
-    
+
     return new_element_index;
 }
 
@@ -2093,6 +2096,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::MoveOverlappingNodeOntoEdgeOfElement(No
 
 template class VertexMesh<1,1>;
 template class VertexMesh<1,2>;
+template class VertexMesh<1,3>;
 template class VertexMesh<2,2>;
 template class VertexMesh<2,3>;
 template class VertexMesh<3,3>;

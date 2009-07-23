@@ -72,23 +72,19 @@ private:
         archive & mWidth;
     }
 
-public:
-
     /**
-     * Constructor.
-     *
-     * @param width the width of the crypt (circumference)
-     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
-     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
+     * Constructor - used for serialization only
      */
-    Cylindrical2dVertexMesh(double width, double cellRearrangementThreshold=0.01, double edgeDivisionThreshold=1.5);
+    Cylindrical2dVertexMesh(){};
+
+public:
 
     /**
      * Helper constructor, creates a rectangular vertex-based mesh.
      *
      * @param numAcross  Number of VertexElements across.
      * @param numUp  Number of VertexElements up.
-     * @param cellRearrangementThreshold  The minimum threshold distance for element rearrangment.
+     * @param cellRearrangementThreshold  The minimum threshold distance for element rearrangement.
      * @param edgeDivisionThreshold  The maximum threshold distance for edge division.
      * @param isFlatBottom  Whether to enforce a flat bottom to the crypt? (defaults to false).
      */
@@ -160,51 +156,5 @@ public:
 };
 
 BOOST_CLASS_EXPORT(Cylindrical2dVertexMesh)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Serialize information required to construct a Cylindrical2dVertexMesh.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const Cylindrical2dVertexMesh * t, const BOOST_PFTO unsigned int file_version)
-{
-    // Save data required to construct instance
-    const double cell_rearrangement_threshold = t->GetCellRearrangementThreshold();
-    ar << cell_rearrangement_threshold;
-
-    const double edge_division_threshold = t->GetEdgeDivisionThreshold();
-    ar << edge_division_threshold;
-
-    const double width = t->GetWidth(0);
-    ar << width;
-}
-
-/**
- * De-serialize constructor parameters and initialise a Cylindrical2dVertexMesh.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, Cylindrical2dVertexMesh * t, const unsigned int file_version)
-{
-    // Retrieve data from archive required to construct new instance
-    double cell_rearrangement_threshold;
-    ar >> cell_rearrangement_threshold;
-
-    double edge_division_threshold;
-    ar >> edge_division_threshold;
-
-    double width;
-    ar >> width;
-
-    // Invoke inplace constructor to initialise instance
-    ::new(t)Cylindrical2dVertexMesh(width, cell_rearrangement_threshold, edge_division_threshold);
-}
-}
-} // namespace ...
-
 
 #endif /*CYLINDRICAL2DVERTEXMESH_HPP_*/

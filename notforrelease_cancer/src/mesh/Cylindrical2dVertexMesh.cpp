@@ -28,25 +28,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Cylindrical2dVertexMesh.hpp"
 
 
-Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(double width,
-                                                 double cellRearrangementThreshold,
-                                                 double edgeDivisionThreshold)
-    : VertexMesh<2,2>(cellRearrangementThreshold, edgeDivisionThreshold),
-      mWidth(width)
-{
-    #define COVERAGE_IGNORE
-    assert(width > 0.0);
-    #undef COVERAGE_IGNORE
-}
-
-
 Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                                                  unsigned numUp,
                                                  double cellRearrangementThreshold,
                                                  double edgeDivisionThreshold,
                                                  bool isFlatBottom)
-    : VertexMesh<2,2>(cellRearrangementThreshold, edgeDivisionThreshold)
 {
+    this->mCellRearrangementThreshold = cellRearrangementThreshold;
+    this->mEdgeDivisionThreshold = edgeDivisionThreshold;
     mWidth = 3*0.5*numAcross/(sqrt(3));   // This accounts for numAcross Elements
     mAddedNodes = true;
     assert(numAcross > 1);
@@ -58,7 +47,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
     {
         if (isFlatBottom && (j==1))
         {
-            // Flat bottom to cylindrical mesh 
+            // Flat bottom to cylindrical mesh
             for (unsigned i=0; i<=3*numAcross-1; i+=2)
             {
                 if (i!= 3*numAcross-1)
@@ -84,15 +73,15 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                         {
                             /*
                              * If the mesh has an imposed flat bottom move all nodes down by 0.3 (Magic number).
-                             */  
+                             */
                             if (isFlatBottom &&(j!=0))
-                            { 
+                            {
                                 Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0 - 0.3);
                                 mNodes.push_back(p_node);
                                 node_index++;
                             }
                             else
-                            { 
+                            {
                                 Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
                                 mNodes.push_back(p_node);
                                 node_index++;
@@ -111,15 +100,15 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                         {
                             /*
                              * If the mesh has an imposed flat bottom move all nodes down by 0.3 (Magic number).
-                             */  
+                             */
                             if (isFlatBottom)
-                            { 
+                            {
                                 Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0 - 0.3);
                                 mNodes.push_back(p_node);
                                 node_index++;
                             }
                             else
-                            { 
+                            {
                                 Node<2> *p_node = new Node<2>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
                                 mNodes.push_back(p_node);
                                 node_index++;
@@ -179,8 +168,8 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
 
     /*
      * If the mesh has an imposed flat bottom remove unnessesary nodes.
-     */  
-    if (isFlatBottom) 
+     */
+    if (isFlatBottom)
     {
         for (unsigned i=0; i<numAcross; i++)
         {
@@ -193,11 +182,11 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                 node_indices[4] = node_indices[0] + 2*numAcross;
                 node_indices[5] = node_indices[0] + numAcross;
 
-                assert(i != numAcross-1); // as numAcross is even so dont get to last columnn 
-    
-                /* If the element is even then merge nodes  1 and 2 together 
+                assert(i != numAcross-1); // as numAcross is even so dont get to last columnn
+
+                /* If the element is even then merge nodes  1 and 2 together
                  * and merge nodes 0 and 5 together.
-                 */  
+                 */
                 PerformNodeMerge(mNodes[node_indices[1]],mNodes[node_indices[2]]);
                 PerformNodeMerge(mNodes[node_indices[0]],mNodes[node_indices[5]]);
             }
