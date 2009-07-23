@@ -40,30 +40,33 @@ public:
         //These throw because we are getting things before they are set.
         TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveDirectory());
         TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetMeshPathname());
-        
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(),"mesh"); //default value
+
         ArchiveLocationInfo::SetMeshPathname("archive_dir", "mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "archive_dir/mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "archive_dir/");
-        
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "mesh_name");
+
         ArchiveLocationInfo::SetArchiveDirectory("new_archive_dir");
-        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "new_archive_dir/mesh_name");
+        ArchiveLocationInfo::SetMeshFilename("new_mesh_name");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "new_archive_dir/new_mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "new_archive_dir/");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "new_mesh_name");
 
         //Throws because the full path isn't relative to test output
         TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveRelativePath());
         ArchiveLocationInfo::SetArchiveDirectory(OutputFileHandler::GetChasteTestOutputDirectory() + "relative_archive_dir");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveRelativePath(), "relative_archive_dir/");
-        
     }
 
     void TestProcessUniqueNaming()
     {
         ArchiveLocationInfo::SetArchiveDirectory("new_archive_dir");
-        
+
         std::stringstream expected_filepath;
         expected_filepath << ArchiveLocationInfo::GetArchiveDirectory() << "fred";
         expected_filepath << "." << PetscTools::GetMyRank();
-        
+
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred"), expected_filepath.str());
     }
 

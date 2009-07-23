@@ -126,6 +126,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     SimulationTime *p_simulation_time = SimulationTime::Instance();
     assert(p_simulation_time->IsStartTimeSetUp());
     input_arch & *p_simulation_time;
+
     // - Wnt concentration (if used)
     bool archive_wnt;
     input_arch & archive_wnt;
@@ -134,6 +135,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
         WntConcentration<DIM> *p_wnt = WntConcentration<DIM>::Instance();
         input_arch & *p_wnt;
     }
+
     // - CellwiseData (if used)
     bool archive_cellwise_data;
     input_arch & archive_cellwise_data;
@@ -146,7 +148,6 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     // Load the simulation
     SIM *p_sim;
     input_arch >> p_sim;
-
     return p_sim;
 }
 
@@ -164,16 +165,9 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     // the directory.
     std::string archive_directory = pSim->GetOutputDirectory() + "/archive/";
     OutputFileHandler handler(archive_directory, false);
+    ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
     std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_sim_at_time_" + time_stamp.str() + ".arch";
-    std::string mesh_filename = std::string("mesh_") + time_stamp.str();
-
-    // Write the mesh to file. Call Update() first to
-    // ensure that the tissue is in a good state.
-    pSim->rGetTissue().Update();
-    if (pSim->rGetTissue().HasMesh())
-    {
-        pSim->rGetTissue().WriteMeshToFile(archive_directory, mesh_filename);
-    }
+    ArchiveLocationInfo::SetMeshFilename(std::string("mesh_") + time_stamp.str());
 
     // Create a new archive
     std::ofstream ofs(archive_filename.c_str());

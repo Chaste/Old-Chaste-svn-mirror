@@ -52,8 +52,8 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-    
-        unsigned counter = 0; 
+
+        unsigned counter = 0;
 
         for (AbstractTetrahedralMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
@@ -67,7 +67,7 @@ public:
         // For coverage, test with an empty mesh
         TetrahedralMesh<2,2> empty_mesh;
 
-        // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
+        // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed
         AbstractTetrahedralMesh<2,2>::NodeIterator iter = empty_mesh.GetNodeIteratorBegin();
 
         // We only have a NOT-equals operator defined on the iterator
@@ -79,8 +79,8 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-    
-        unsigned counter = 0; 
+
+        unsigned counter = 0;
 
         for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
@@ -94,7 +94,7 @@ public:
         // For coverage, test with an empty mesh
         TetrahedralMesh<2,2> empty_mesh;
 
-        // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed 
+        // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed
         AbstractTetrahedralMesh<2,2>::ElementIterator iter = empty_mesh.GetElementIteratorBegin();
 
         // We only have a NOT-equals operator defined on the iterator
@@ -123,6 +123,8 @@ public:
         TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(1), 144u);
         TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(2), 310u);
         TS_ASSERT_EQUALS(iter->GetNode(1), mesh.GetNode(144));
+
+        TS_ASSERT_EQUALS(mesh.IsMeshChanging(), false);
     }
 
     void TestMeshConstructionFromMeshReaderIndexedFromOne()
@@ -671,7 +673,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*width*height*depth );
         //\todo Does stagger make a different in 3D?
     }
- 
+
 
     void TestPermute()
     {
@@ -1417,29 +1419,31 @@ public:
 
         TS_ASSERT_THROWS_ANYTHING(cuboid_mesh.GetMeshFileBaseName());
     }
-    
+
     void TestArchiving()
     {
-        OutputFileHandler handler("ArchiveTetrahedralMesh");
+        OutputFileHandler handler("archive",false);
         std::string archive_filename;
         handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "tetrahedral_mesh.arch";               
-        
+        archive_filename = handler.GetOutputDirectoryFullPath() + "tetrahedral_mesh.arch";
+
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-    
-            TetrahedralMesh<2,2>* const p_mesh = new TetrahedralMesh<2,2>;
+
+            AbstractTetrahedralMesh<2,2>* const p_mesh = new TetrahedralMesh<2,2>;
             p_mesh->ConstructFromMeshReader(mesh_reader);
-                
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-    
+
             output_arch << p_mesh;
             delete p_mesh;
         }
 
         {
-            TetrahedralMesh<2,2>* p_mesh2;
+            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // (but here AbstractMesh doesn't have the methods below).
+            AbstractTetrahedralMesh<2,2>* p_mesh2;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -1447,28 +1451,28 @@ public:
 
             // restore from the archive
             input_arch >> p_mesh2;
-    
+
             // Check we have the right number of nodes & elements
             TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), 543u);
             TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), 984u);
-    
+
             // Check some node co-ordinates
             TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
             TS_ASSERT_DELTA(p_mesh2->GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
             TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[0], 1.0, 1e-6);
             TS_ASSERT_DELTA(p_mesh2->GetNode(1)->GetPoint()[1], 0.0, 1e-6);
-    
+
             // Check first element has the right nodes
             TetrahedralMesh<2,2>::ElementIterator iter = p_mesh2->GetElementIteratorBegin();
             TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(0), 309u);
             TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(1), 144u);
             TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(2), 310u);
             TS_ASSERT_EQUALS(iter->GetNode(1), p_mesh2->GetNode(144));
-            
+
             delete p_mesh2;
         }
     }
-    
+
 
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_

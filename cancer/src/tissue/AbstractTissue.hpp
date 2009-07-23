@@ -49,6 +49,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class AbstractTissue
 {
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Serialize the facade.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mCells;
+        archive & mLocationCellMap;
+        archive & mCellLocationMap;
+        archive & mTissueContainsMesh;
+    }
+
 protected:
 
     /** List of cells */
@@ -59,7 +77,7 @@ protected:
 
     /** Map cells to location (node or VertexElement) indices */
     std::map<TissueCell*, unsigned> mCellLocationMap;
-        
+
     /** Current cell mutation state counts */
     c_vector<unsigned, NUM_CELL_MUTATION_STATES> mCellMutationStateCount;
 
@@ -98,23 +116,6 @@ protected:
 
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
-
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Serialize the facade.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        archive & mCells;
-        archive & mLocationCellMap;
-        archive & mCellLocationMap;
-        archive & mTissueContainsMesh;
-    }
 
     /**
      * Check consistency of our internal data structures.
@@ -276,7 +277,7 @@ public:
     /**
      * Remove the Nodes (for cell-centre) or VertexElements (for cell-vertex) which
      * have been marked as deleted and update the correspondence with TissueCells.
-     * 
+     *
      * @param hasHadBirthsOrDeaths - a bool saying whether tissue has had Births Or Deaths
      */
     virtual void Update(bool hasHadBirthsOrDeaths=true)=0;
@@ -382,13 +383,13 @@ public:
      * @param rArchiveDirectory directory in which archive is stored
      * @param rMeshFileName base name for mesh files
      */
-    virtual void WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName);
+    virtual void WriteMeshToFile(){};
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.
      *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
-     * @param cleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation 
+     * @param cleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
      */
     virtual void CreateOutputFiles(const std::string& rDirectory,
                                    bool cleanOutputDirectory);
@@ -400,7 +401,7 @@ public:
 
     /**
      * Write the current time and node results to output files.
-     * 
+     *
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter

@@ -56,16 +56,16 @@ private:
 
     /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
-    
+
     /** Pointer to a Node box collection */
     NodeBoxCollection<DIM> *mpNodeBoxCollection;
-    
-    /** Vector of minimal spatial positions in each dimension */ 
+
+    /** Vector of minimal spatial positions in each dimension */
     c_vector<double, DIM> mMinSpatialPositions;
-    
-    /** Vector of maximal spatial positions in each dimension */ 
+
+    /** Vector of maximal spatial positions in each dimension */
     c_vector<double, DIM> mMaxSpatialPositions;
-    
+
     /** Node pairs for force calculations */
     std::set< std::pair<Node<DIM>*, Node<DIM>* > > mNodePairs;
 
@@ -73,7 +73,7 @@ private:
      *  Whether to delete the nodes (taken in one of the constructors, defaults to true)
      */
     bool mDeleteNodes;
-    
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -123,12 +123,12 @@ private:
      * @param domainSize c_vector of size 2*dimension reads minX, maxX, minY, maxY, etc
      */
     void SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize);
-    
+
     /**
      * Loops over nodes and sets mMinSpatialPositions and mMaxSpatialPositions
      */
     void FindMaxAndMin();
-    
+
 public:
 
     /**
@@ -210,7 +210,7 @@ public:
 
     /**
      * Remove nodes that have been marked as deleted and update the node cell map.
-     * 
+     *
      * @param hasHadBirthsOrDeaths whether tissue has had Births Or Deaths
      */
     void Update(bool hasHadBirthsOrDeaths=true);
@@ -228,12 +228,12 @@ public:
      * @return vector of Nodes
      */
     const std::vector<Node<DIM>* >& rGetNodes() const;
-    
+
     /**
      * @return pointer to a node box collection.
      */
     NodeBoxCollection<DIM>* GetNodeBoxCollection();
-    
+
     /**
      * @return Node pairs for force calculation.
      */
@@ -364,6 +364,7 @@ inline void load_construct_data(
     Archive & ar, NodeBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Load the nodes
+    /// \todo Archiving of nodes doesn't seem to be implemented - how does the archiving of NodeBasedTissue work?!?
     std::vector<Node<DIM>* > nodes;
     ar >> nodes;
 

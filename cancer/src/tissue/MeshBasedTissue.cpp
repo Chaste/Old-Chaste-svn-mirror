@@ -317,13 +317,13 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         mMarkedSprings.erase(**spring_it);
     }
 
-    Validate();
+    this->Validate();
 
     // Tessellate if needed
     if (DIM==2)
     {
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        if ( TissueConfig::Instance()->GetOutputVoronoiData() || UseAreaBasedDampingConstant() || 
+        if ( TissueConfig::Instance()->GetOutputVoronoiData() || UseAreaBasedDampingConstant() ||
              TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
         {
             CreateVoronoiTessellation();
@@ -380,10 +380,12 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName)
+void MeshBasedTissue<DIM>::WriteMeshToFile()
 {
     // The false is so the directory isn't cleaned
-    TrianglesMeshWriter<DIM, DIM> mesh_writer(rArchiveDirectory, rMeshFileName, false);
+    TrianglesMeshWriter<DIM, DIM> mesh_writer(ArchiveLocationInfo::GetArchiveDirectory(),
+                                              ArchiveLocationInfo::GetMeshFilename(),
+                                              false);
 
     mesh_writer.WriteFilesUsingMesh(mrMesh);
 }
@@ -415,7 +417,7 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::CloseOutputFiles()
 {
     AbstractTissue<DIM>::CloseOutputFiles();
-    
+
     mpElementFile->close();
 
     if (TissueConfig::Instance()->GetOutputVoronoiData())

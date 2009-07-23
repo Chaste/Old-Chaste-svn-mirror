@@ -568,14 +568,14 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), p_mesh->GetNumNodes());
     }
 
+    // NB This checks that periodicity is maintained through archiving...
     void TestArchiving() throw (Exception)
     {
         std::string dirname = "archive";
         OutputFileHandler handler(dirname, false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cylindrical_mesh_base.arch";
 
-        std::string mesh_filename = "cylindrical_mesh";
-        std::string mesh_pathname = handler.GetOutputDirectoryFullPath() + mesh_filename;
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cylindrical_mesh");
 
         // Set up a mesh
         unsigned cells_across = 5;
@@ -584,7 +584,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        MutableMesh<2,2>* const p_mesh = generator.GetCylindricalMesh();
+        AbstractTetrahedralMesh<2,2>* const p_mesh = generator.GetCylindricalMesh();
 
         // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
         // This is because the serialization library only allows you to save tracked
@@ -599,10 +599,6 @@ public:
             double width = p_mesh->GetWidth(0);
             TS_ASSERT_DELTA(width, crypt_width, 1e-7);
 
-            // Save the mesh data using mesh writers
-            TrianglesMeshWriter<2,2> mesh_writer(dirname, mesh_filename, false);
-            mesh_writer.WriteFilesUsingMesh(*p_mesh);
-
             // Archive the mesh
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -613,7 +609,7 @@ public:
 
         {
             // De-serialize and compare
-            MutableMesh<2,2> *p_mesh2;
+            AbstractTetrahedralMesh<2,2> *p_mesh2;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -622,19 +618,7 @@ public:
             // Restore from the archive
             input_arch >> p_mesh2;
 
-            // Re-initialise the mesh
-            p_mesh2->Clear();
-            TrianglesMeshReader<2,2> mesh_reader(mesh_pathname);
-            p_mesh2->ConstructFromMeshReader(mesh_reader);
-
-            // This is needed, as the honeycomb generator calls ReMesh prior to returning
-            // the mesh, to make it 'properly cylindrical'.   However, the cylindrical ReMesh
-            // creates lots of halo & mirror nodes prior to calling the base class ReMesh,
-            // and doesn't clean up all the internal data structures when it removes them,
-            // so some of the tests below fail, unless we also do a ReMesh after loading.
-            // Even if a ReMesh isn't actually needed, it should be safe.
-            NodeMap map(p_mesh2->GetNumNodes());
-            p_mesh2->ReMesh(map);
+            // Cylindrical2dMesh now remeshes itself on load (convert from TrianglesMeshReader to normal format)
 
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), crypt_width, 1e-7);
 

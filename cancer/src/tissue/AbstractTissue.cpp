@@ -193,10 +193,6 @@ unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCell* pCell)
 //                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
 
-template<unsigned DIM>
-void AbstractTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName)
-{
-}
 
 template<unsigned DIM>
 void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
@@ -427,7 +423,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
             // Write cell age
             *mpCellAgesFile << p_cell->GetAge() << " ";
         }
-            
+
     }
     *mpVizCellTypesFile << colour << " ";
 }

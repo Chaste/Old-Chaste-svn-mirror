@@ -36,7 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
     : mpDistributedVectorFactory(NULL),
-      mMeshFileBaseName("")
+      mMeshFileBaseName(""),
+      mMeshChangesDuringSimulation(false)
 {
 }
 
@@ -212,6 +213,12 @@ void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const doub
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 {
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::IsMeshChanging() const
+{
+    return mMeshChangesDuringSimulation;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

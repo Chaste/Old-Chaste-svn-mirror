@@ -60,7 +60,7 @@ public:
         PetscInt petsc_lo, petsc_hi;
         unsigned expected_local_size = (total/num_procs);
         unsigned max_expected_local_size = (total/num_procs) + total%num_procs;
-         
+
         Vec petsc_vec;
         petsc_vec = factory.CreateVec();
         VecGetOwnershipRange(petsc_vec, &petsc_lo, &petsc_hi);
@@ -69,25 +69,25 @@ public:
         {
             //This test is not robust.  PETSc has been known to split a 100 elements among 7 processors like this
             // 0  1  2  3  4  5  6  7
-            //15 15 14 14 14 14 14 14 
+            //15 15 14 14 14 14 14 14
             //TS_ASSERT_EQUALS(local_size, max_expected_local_size);
             //This test will fail if there are fewer elements in the vector than the number of processors
             TS_ASSERT_LESS_THAN_EQUALS(local_size, max_expected_local_size);
-        }    
+        }
         //Test that we can construct a factory from a given vector
         DistributedVectorFactory factory2(petsc_vec);
         Vec petsc_vec2;
         petsc_vec2 = factory2.CreateVec();
-        
+
         VecGetOwnershipRange(petsc_vec2, &petsc_lo, &petsc_hi);
         unsigned local_size2 = petsc_hi - petsc_lo;
         TS_ASSERT_EQUALS(local_size, local_size2);
         TS_ASSERT_EQUALS(local_size, factory2.GetLocalOwnership());
         TS_ASSERT_EQUALS(total, factory2.GetProblemSize());
-        
+
         TS_ASSERT_EQUALS((unsigned)(petsc_hi), factory2.GetHigh());
         TS_ASSERT_EQUALS((unsigned)(petsc_lo), factory2.GetLow());
-        
+
 
         //Uneven test (as above).
         //Calculate total number of elements in the vector
@@ -105,10 +105,10 @@ public:
 
         TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
         TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
-        
+
         VecDestroy(petsc_vec);
         VecDestroy(petsc_vec2);
-        VecDestroy(petsc_vec_uneven);  
+        VecDestroy(petsc_vec_uneven);
     }
 
     void TestRead()
@@ -307,7 +307,7 @@ public:
 
         VecDestroy(petsc_vec);
     }
-    
+
     void TestArchiving()
     {
         const unsigned TOTAL = 100;
@@ -316,48 +316,48 @@ public:
         unsigned hi = factory.GetHigh();
         unsigned lo = factory.GetLow();
         TS_ASSERT_EQUALS(factory.GetProblemSize(), TOTAL);
-        
+
         // Where to archive
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive", false);
         handler.SetArchiveDirectory();
         std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("factory.arch");
-        
+
         // Archive
         {
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             const DistributedVectorFactory* const p_factory = &factory;
             output_arch << p_factory;
         }
-        
+
         // Restore
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-            
+
             DistributedVectorFactory *p_new_factory;
             input_arch >> p_new_factory;
-            
+
             TS_ASSERT_EQUALS(p_new_factory->GetProblemSize(), TOTAL);
             TS_ASSERT_EQUALS(p_new_factory->GetHigh(), hi);
             TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
             TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), num_local_items);
-            
+
             delete p_new_factory;
         }
-        
+
         //Restore from a single process archive
         {
             std::ifstream ifs("global/test/data/distributed_vector_factory.arch", std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-            
+
             DistributedVectorFactory *p_new_factory = NULL;
-            
+
             if (PetscTools::IsSequential())
             {
                 input_arch >> p_new_factory;
-            
+
                 TS_ASSERT_EQUALS(p_new_factory->GetProblemSize(), TOTAL);
                 TS_ASSERT_EQUALS(p_new_factory->GetHigh(), TOTAL);
                 TS_ASSERT_EQUALS(p_new_factory->GetLow(), 0U);
@@ -368,7 +368,7 @@ public:
                 //Should not read this archive
                 TS_ASSERT_THROWS_ANYTHING(input_arch >> p_new_factory);
             }
-            
+
             delete p_new_factory;
         }
     }

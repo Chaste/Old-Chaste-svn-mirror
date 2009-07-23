@@ -54,7 +54,7 @@ private:
 
     /** Vertex-based mesh associated with the tissue. */
     VertexMesh<DIM, DIM>& mrMesh;
-    
+
     /** A cache of where the results are going (used for VTK writer). */
     std::string mDirPath;
     /** Meta results file for VTK. */
@@ -272,7 +272,7 @@ public:
      * Remove the VertexElements which have been marked as deleted, perform
      * any cell rearrangements if required, and update the correspondence
      * with TissueCells.
-     * 
+     *
      * @param hasHadBirthsOrDeaths - a bool saying whether tissue has had Births Or Deaths
      * not needed in this tissue class
      */
@@ -288,7 +288,7 @@ public:
      * @return the cell's target area
      */
     double GetTargetAreaOfCell(const TissueCell& rCell);
-    
+
     /**
      * Overridden WriteMeshToFile() method. For use by
      * the TissueSimulationArchiver.
@@ -296,7 +296,7 @@ public:
      * @param rArchiveDirectory directory in which archive is stored
      * @param rMeshFileName base name for mesh files
      */
-    void WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName);
+    void WriteMeshToFile();
 
     /**
      * Overridden CreateOutputFiles() method.

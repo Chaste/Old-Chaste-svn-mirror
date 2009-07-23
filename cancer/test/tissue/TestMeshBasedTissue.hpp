@@ -472,13 +472,15 @@ public:
         }
     }
 
-    // At the moment the tissue cannot be properly archived since the mesh cannot be. This test
-    // just checks that the cells are correctly archived.
+    // This test checks that the cells and nodes are correctly archived.
     void TestArchivingMeshBasedTissue() throw (Exception)
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
+        archive_filename = handler.GetOutputDirectoryFullPath() + "mesh_based_tissue.arch";
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"mesh_based_tissue_mesh");
+
+        std::vector<c_vector<double,2> > cell_locations;
 
         // Archive a tissue
         {
@@ -508,6 +510,7 @@ public:
                  ++cell_iter)
             {
                 cell_iter->ReadyToDivide();
+                cell_locations.push_back(p_tissue->GetLocationOfCellCentre(&(*cell_iter)));
             }
 
             p_tissue->MarkSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1));
@@ -542,10 +545,6 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
 
-            // The following line is required because the loading of a tissue
-            // is usually called by the method TissueSimulation::Load()
-            ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_4_elements");
-
             input_arch >> p_tissue;
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
@@ -556,6 +555,8 @@ public:
                  ++cell_iter)
             {
                 TS_ASSERT_DELTA(cell_iter->GetAge(),(double)(counter),1e-7);
+                TS_ASSERT_DELTA(p_tissue->GetLocationOfCellCentre(&(*cell_iter))[0],cell_locations[counter][0],1e-9);
+                TS_ASSERT_DELTA(p_tissue->GetLocationOfCellCentre(&(*cell_iter))[1],cell_locations[counter][1],1e-9);
                 counter++;
             }
 
@@ -571,8 +572,7 @@ public:
             // Check area-based viscosity is still true
             TS_ASSERT_EQUALS(p_tissue->UseAreaBasedDampingConstant(), true);
 
-            // This won't pass because of the mesh not being archived
-            // TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(),5u);
+            TS_ASSERT_EQUALS(p_tissue->rGetMesh().GetNumNodes(),5u);
 
             delete p_tissue;
         }

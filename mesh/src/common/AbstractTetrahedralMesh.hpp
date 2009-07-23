@@ -54,9 +54,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-
     /**
-     * Pure virtual solve element mapping method. For an element with a given 
+     * Pure virtual solve element mapping method. For an element with a given
      * global index, get the local index used by this process.
      * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
      *
@@ -65,7 +64,7 @@ private:
     virtual unsigned SolveElementMapping(unsigned index) const = 0;
 
     /**
-     * Pure virtual solve boundary element mapping method. For a boundary 
+     * Pure virtual solve boundary element mapping method. For a boundary
      * element with a given global index, get the local index used by this process.
      * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
      *
@@ -77,7 +76,12 @@ private:
     friend class boost::serialization::access;
 
     /**
-     * Archive the object.
+     * Archive the AbstractTetrahedralMesh. Note that this will write out a TrianglesMeshWriter file
+     * to wherever ArchiveLocationInfo has specified.
+     *
+     * If the mesh is MutableMesh (or a subclass) the file is written by examining the current mesh.
+     *
+     * If the mesh is not mutable then the file is a copy of the original file the mesh was read from.
      *
      * @param archive
      * @param version
@@ -85,30 +89,45 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        std::string output_directory =  ArchiveLocationInfo::GetArchiveRelativePath();
-        //Write the mesh
-        TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, "mesh", false);        
-        
-        try
-        {
-            // If this mesh object has been constructed from a mesh reader we can get reference to it
-            TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
-            mesh_writer.WriteFilesUsingMeshReader(mesh_reader, this->rGetNodePermutation());
-        }
-        catch(Exception& e)
-        {
-            // Caching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
-            // That may mean it is a mesh constructed from a geometric description rather that read from file.
+        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
 
-            ///\todo: WriteFilesUsingMesh cannot handle ParallelTetrahedralMesh objects.            
-            ///\todo: #98 "this" seems to point to a const object and therefore is not compatible with the signature of WriteFilesUsingMesh(). Modifying the signature to get a const reference doesn't work either, since the implementation uses ElementIterator which cannot be instantiated from a const reference.             
-            //mesh_writer.WriteFilesUsingMesh(*this);
-            NEVER_REACHED;            
+        // Create a mesh writer pointing to the correct file and directory.
+        TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
+                                                               ArchiveLocationInfo::GetMeshFilename(),
+                                                               false);
+        if (this->IsMeshChanging())
+        {
+            mesh_writer.WriteFilesUsingMesh(*this);
+        }
+        else
+        {
+            try
+            {
+                // If this mesh object has been constructed from a mesh reader we can get reference to it
+                /**
+                 * \todo #98 - what does this achieve? Overwrites existing mesh file or potentially
+                 * rewrites mesh with a different name, would it be better just to update the name
+                 * in the ArchiveLocationInfo ??
+                 */
+                TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
+                mesh_writer.WriteFilesUsingMeshReader(mesh_reader, this->rGetNodePermutation());
+            }
+            catch(Exception& e)
+            {
+                /**
+                 * Caching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
+                 * That may mean it is a mesh constructed from a geometric description rather that read from file.
+                 *
+                 * \todo #98, you can use the line mesh_writer.WriteFilesUsingMesh(*this) from above here,
+                 *  but have to think about parallel meshes.
+                 */
+                NEVER_REACHED;
+            }
         }
     }
 
     /**
-     * Un-archive the object.
+     * Loads a mesh by using TrianglesMeshReader and the location in ArchiveLocationInfo.
      *
      * @param archive
      * @param version
@@ -116,11 +135,9 @@ private:
     template<class Archive>
     void load(Archive & archive, const unsigned int version)
     {
-        std::string output_directory =  ArchiveLocationInfo::GetArchiveDirectory();       
-        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(output_directory + "mesh");
-    
+        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
         this->ConstructFromMeshReader(mesh_reader);
-        
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
@@ -147,7 +164,7 @@ public:
 
     /**
      * Get an iterator to the first element in the mesh.
-     * 
+     *
      * @param skipDeletedElements whether to include deleted element
      */
     inline ElementIterator GetElementIteratorBegin(bool skipDeletedElements=true);
@@ -185,12 +202,12 @@ public:
     /**
      * Get the total number of elements (including those marked as deleted).
      */
-    unsigned GetNumAllElements();
+    unsigned GetNumAllElements() const;
 
     /**
      * Get the total number of boundary elements (including those marked as deleted).
      */
-    unsigned GetNumAllBoundaryElements();
+    unsigned GetNumAllBoundaryElements() const;
 
     /**
      * Get the element with a given index in the mesh.
@@ -258,19 +275,19 @@ public:
      * @param elementIndex index of an element
      * @param rWeightedDirection the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian matrix
-     * 
+     *
      * \todo: this method doesn't seem to be used anywhere but in the test. Consider removing it.
      */
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex,
                                                         c_vector<double, SPACE_DIM>& rWeightedDirection,
                                                         double& rJacobianDeterminant) const;
 
- 
+
     //////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////
 
-   
+
     /**
      * A smart iterator over the elements in the mesh.
      */
@@ -279,7 +296,7 @@ public:
     public:
         /**
          * Dereference the iterator giving you a *reference* to the current element.
-         * 
+         *
          * Make sure to use a reference for the result to avoid copying elements unnecessarily.
          */
         inline Element<ELEMENT_DIM, SPACE_DIM>& operator*();
@@ -303,10 +320,10 @@ public:
 
         /**
          * Constructor for a new iterator.
-         * 
+         *
          * This should not be called directly by user code; use the mesh methods
          * AbstractTetrahedralMesh::GetElementIteratorBegin and AbstractTetrahedralMesh::GetElementIteratorEnd instead.
-         * 
+         *
          * @param rMesh the mesh to iterator over
          * @param elementIter where to start iterating
          * @param skipDeletedElements whether to include deleted elements
@@ -335,6 +352,7 @@ public:
          */
         inline bool IsAllowedElement();
     };
+
 };
 
 namespace boost
@@ -359,7 +377,7 @@ struct is_abstract<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >
 
 
 //////////////////////////////////////////////////////////////////////////////
-//      ElementIterator class implementation - most methods are inlined        //
+//      ElementIterator class implementation - most methods are inlined     //
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -403,7 +421,7 @@ typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator& Abstr
         ++mElementIter;
     }
     while (!IsAtEnd() && !IsAllowedElement());
-    
+
     return (*this);
 }
 

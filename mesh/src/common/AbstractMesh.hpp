@@ -47,15 +47,15 @@ class AbstractMesh
 {
 private:
     /**
-     * Pure virtual solve node mapping method. For a node with a given global 
+     * Pure virtual solve node mapping method. For a node with a given global
      * index, get the local index used by this process.
-     * 
+     *
      * Overridden in TetrahedralMesh ParallelTetrahedralMesh and Vertex Mesh classes.
      *
      * @param index the global index of the node
      */
     virtual unsigned SolveNodeMapping(unsigned index) const = 0;
-    
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -67,7 +67,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-       // Don't do anything - this is just so subclasses can archive member variables.
+        archive & mMeshChangesDuringSimulation;
     }
 
 protected:  // Give access of these variables to subclasses
@@ -90,6 +90,11 @@ protected:  // Give access of these variables to subclasses
      */
     std::string mMeshFileBaseName;
 
+    /**
+     * Whether this mesh changes during simulation (used to know whether to write a new one to file)
+     */
+    bool mMeshChangesDuringSimulation;
+
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -104,7 +109,7 @@ public:
 
     /**
      * Get an iterator to the first node in the mesh.
-     * 
+     *
      * @param skipDeletedNodes whether to include deleted nodes
      */
     inline NodeIterator GetNodeIteratorBegin(bool skipDeletedNodes=true);
@@ -130,7 +135,7 @@ public:
 
     /**
      * Get the number of nodes that are actually in use.
-     * 
+     *
      * Overridden in MutableMesh.
      */
     virtual unsigned GetNumNodes() const;
@@ -208,7 +213,7 @@ public:
     /**
      * Return the distance between two nodes.
      *
-     * This method calls GetVectorFromAtoB(), which is overridden in some 
+     * This method calls GetVectorFromAtoB(), which is overridden in some
      * daughter classes (e.g. Cylindrical2dMesh).
      *
      * @param indexA a node index
@@ -251,6 +256,11 @@ public:
      */
     virtual void RefreshMesh();
 
+    /**
+     * @return Whether the mesh changes (used in archiving).
+     */
+    bool IsMeshChanging() const;
+
     //////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////
@@ -263,7 +273,7 @@ public:
     public:
         /**
          * Dereference the iterator giving you a *reference* to the current node.
-         * 
+         *
          * Make sure to use a reference for the result to avoid copying nodes unnecessarily.
          */
         inline Node<SPACE_DIM>& operator*();
@@ -287,10 +297,10 @@ public:
 
         /**
          * Constructor for a new iterator.
-         * 
+         *
          * This should not be called directly by user code; use the mesh methods
          * AbstractMesh::GetNodeIteratorBegin and AbstractMesh::GetNodeIteratorEnd instead.
-         * 
+         *
          * @param rMesh the mesh to iterator over
          * @param nodeIter where to start iterating
          * @param skipDeletedNodes whether to include deleted nodes
@@ -319,7 +329,7 @@ public:
         inline bool IsAllowedNode();
     };
 
-    
+
 };
 
 namespace boost
@@ -387,7 +397,7 @@ typename AbstractMesh<ELEMENT_DIM, SPACE_DIM>::NodeIterator& AbstractMesh<ELEMEN
         ++mNodeIter;
     }
     while (!IsAtEnd() && !IsAllowedNode());
-    
+
     return (*this);
 }
 

@@ -240,9 +240,7 @@ public:
 };
 
 // Declare identifier for the serializer
-EXPORT_ABSTRACT_TEMPLATE_CLASS_SAME_DIMS(AbstractCardiacPde);
-EXPORT_ABSTRACT_TEMPLATE_CLASS2(AbstractCardiacPde, 1, 2);
-EXPORT_ABSTRACT_TEMPLATE_CLASS2(AbstractCardiacPde, 1, 3);
+EXPORT_ABSTRACT_TEMPLATE_CLASS_ALL_DIMS(AbstractCardiacPde);
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
 

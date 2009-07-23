@@ -28,4 +28,4 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 
 std::string ArchiveLocationInfo::mDirPath = "";
-std::string ArchiveLocationInfo::mMeshFilename = "";
+std::string ArchiveLocationInfo::mMeshFilename = "mesh";

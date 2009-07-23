@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <sstream>
 #include <cassert>
+#include <iostream>
 
 #include "Exception.hpp"
 #include "PetscTools.hpp"
@@ -42,9 +43,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * about where the archive is being written to, in order to write their own
  * files into the same folder.  The main methods are GetArchiveDirectory and
  * SetArchiveDirectory.
- * 
+ *
  * This functionality is used by the meshes, LinearSystem and HeartConfig.
- * 
+ *
  * For the benefit of the meshes (and the cancer code), there are also
  * shortcut methods SetMeshPathname and GetMeshPathname, allowing you to
  * specify the base file name for the mesh.  This is needed because the cancer
@@ -56,10 +57,10 @@ private:
 
     /** Directory that archives are being written to. */
     static std::string mDirPath;
-    
+
     /** Mesh filename (relative to #mDirPath). */
     static std::string mMeshFilename;
-    
+
 public:
     /**
      * Get the base path for the mesh files (minus file extension).
@@ -72,7 +73,7 @@ public:
         }
         return GetArchiveDirectory() + mMeshFilename;
     }
-    
+
     /**
      * Set the location to write mesh files.
      * @param rDirectory  the directory to write to.
@@ -83,7 +84,29 @@ public:
         SetArchiveDirectory(rDirectory);
         mMeshFilename = rFilename;
     }
-    
+
+    /**
+     * Set the filename for mesh files.
+     * @param rFilename  the base name (minus extension) for the mesh files, used to put on a timestamp.
+     */
+    static void SetMeshFilename(const std::string& rFilename)
+    {
+        mMeshFilename = rFilename;
+    }
+
+    /**
+     * Get the filename that the mesh should be written to
+     * @return mesh filename
+     */
+    static std::string GetMeshFilename()
+    {
+        if (mMeshFilename == "")
+        {
+            EXCEPTION("ArchiveLocationInfo::mMeshFilename has not been set");
+        }
+        return mMeshFilename;
+    }
+
     /**
      * Get the directory that archives are being written to.
      * Will always end in a '/'.
@@ -97,26 +120,27 @@ public:
         }
         return mDirPath;
     }
+
     /**
      * Get the full path to an output file which has a name unique to the current
      * process.  Useful for ensuring that each process writes to / reads from a
      * separate file when running in parallel.
-     * 
+     *
      * The path will have the form "path_to_output_dir/rFileName.process_rank"
-     * 
+     *
      * @param rFileName the base file name
      * @return a full path to the file for this process
-     */   
+     */
     static std::string GetProcessUniqueFilePath(const std::string& rFileName)
     {
         std::stringstream filepath;
         filepath << GetArchiveDirectory() << rFileName << "." << PetscTools::GetMyRank();
         return filepath.str();
     }
-      
+
     /**
      * Set the directory that archives are being written to.
-     * 
+     *
      * @param rDirectory  the directory in question.
      */
     static void SetArchiveDirectory(const std::string& rDirectory)
@@ -134,20 +158,19 @@ public:
      * Will always end in a '/'.
      * @return relative path to directory
      */
-     
     static std::string GetArchiveRelativePath()
     {
         std::string chaste_output=OutputFileHandler::GetChasteTestOutputDirectory();
-        //Find occurance of CHASTE_TEST_OUTPUT in string
+        //Find occurrence of CHASTE_TEST_OUTPUT in string
         std::string::size_type pos=mDirPath.find(chaste_output, 0);
         if (pos == std::string::npos)
         {
             EXCEPTION("Full path doesn't give a directory relative to CHASTE_TEST_OUTPUT");
         }
         assert(pos == 0); //Expect this as a prefix, not in the middle of the string
-        
+
         return mDirPath.substr(chaste_output.length());
-    }    
+    }
 };
 
 #endif /*ARCHIVELOCATIONINFO_HPP_*/

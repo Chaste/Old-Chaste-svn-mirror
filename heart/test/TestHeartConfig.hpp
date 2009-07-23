@@ -193,7 +193,7 @@ public :
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
 
         TS_ASSERT(HeartConfig::Instance()->IsPostProcessingRequested());
-        
+
         TS_ASSERT(HeartConfig::Instance()->IsApdMapsRequested());
         std::vector<std::pair<double,double> > apd_maps_requested;
         HeartConfig::Instance()->GetApdMaps(apd_maps_requested);
@@ -208,14 +208,14 @@ public :
         TS_ASSERT_EQUALS(upstroke_time_maps_requested[0], -30.0);
 
         TS_ASSERT(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested());
-                
-        TS_ASSERT(HeartConfig::Instance()->IsConductionVelocityMapsRequested());        
+
+        TS_ASSERT(HeartConfig::Instance()->IsConductionVelocityMapsRequested());
         std::vector<unsigned> conduction_velocity_maps_requested;
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps_requested);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested.size(), 2u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
-        
+
 
         /// \todo: refactor from here until the end of the test into a different test
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
@@ -508,7 +508,7 @@ public :
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);
 
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
-        
+
         // Tests for set functions of postprocessing
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
@@ -520,7 +520,7 @@ public :
         TS_ASSERT_EQUALS(apd_maps.size(),1u);
         TS_ASSERT_EQUALS(apd_maps[0].first,90);
         TS_ASSERT_EQUALS(apd_maps[0].second,-30);
-        
+
         apds[0].first = 80;//reploarisation percentage first, as per schema
         apds[0].second = -45;
         HeartConfig::Instance()->SetApdMaps(apds);
@@ -530,7 +530,7 @@ public :
         TS_ASSERT_EQUALS(apd_maps.size(),1u);
         TS_ASSERT_EQUALS(apd_maps[0].first,80);
         TS_ASSERT_EQUALS(apd_maps[0].second,-45);
-        
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested(), false);
         std::vector<double> upstroke_time_map, upstroke_time_map_get;
         upstroke_time_map.push_back(25.0);
@@ -561,41 +561,41 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
 
     }
-    
+
     void TestArchiving()
-    {        
-        //Archive                           
-        OutputFileHandler handler("ArchiveHeartConfig");
+    {
+        //Archive
+        OutputFileHandler handler("archive", false);
         std::string archive_filename;
         handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "heart_config.arch";       
+        archive_filename = handler.GetOutputDirectoryFullPath() + "heart_config.arch";
 
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
-        
+
         ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
         TS_ASSERT( user_ionic == ionic_models_available_type::FaberRudy2000 );
-        
+
         std::ofstream ofs(archive_filename.c_str());
         boost::archive::text_oarchive output_arch(ofs);
         HeartConfig* const p_archive_heart_config = HeartConfig::Instance();
         output_arch << static_cast<const HeartConfig&>(*p_archive_heart_config);
-        
-        ofs.close();  
+
+        ofs.close();
 
         HeartConfig::Instance()->Reset();
-        
+
         TS_ASSERT( HeartConfig::Instance()->GetDefaultIonicModel() == ionic_models_available_type::LuoRudyI );
 
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-        boost::archive::text_iarchive input_arch(ifs); 
-        
+        boost::archive::text_iarchive input_arch(ifs);
+
         HeartConfig *p_heart_config = HeartConfig::Instance();
         input_arch >> (*p_heart_config);
-        
+
         TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
     }
-    
+
     /**
      *  The following test is aimed at checking that the ChasteParameters.xml file,
      *  which is distributed with the executable, remains valid.
@@ -605,7 +605,7 @@ public :
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
     }
-    
+
     void TestExceptions() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
@@ -614,12 +614,12 @@ public :
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteInconsistent.xml"));
         HeartConfig::Instance()->Reset();
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"));
-        
+
         //Can't open a directory/file for writing
         HeartConfig::Instance()->SetOutputDirectory("../../../");
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->Write());
     }
-    
+
     /**
      * And here we try to check that using old XML or XSD files does The Right Thing.
      */
@@ -629,12 +629,12 @@ public :
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"));
-        
+
         // Check that release 1 xml can be loaded with latest schema
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
-        
+
         // Can release 1 xml be loaded with release 1 schema?
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);

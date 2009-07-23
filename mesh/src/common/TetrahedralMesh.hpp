@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TETRAHEDRALMESH_HPP_
 #define _TETRAHEDRALMESH_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "UblasVectorInclude.hpp"
 #include "UblasMatrixInclude.hpp"
 
@@ -40,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshReader.hpp"
 #include "ChastePoint.hpp"
 
-
+#include <boost/serialization/export.hpp>
 //////////////////////////////////////////////////////////////////////////
 //   DECLARATION
 //////////////////////////////////////////////////////////////////////////
@@ -53,6 +56,21 @@ class TetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestTetrahedralMesh; // to give access to private methods (not variables)
     friend class TestCryptSimulation2d; // to give access to private methods (not variables)
+
+private:
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the mesh.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+       archive & boost::serialization::base_object<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+    }
 
 protected:
 
@@ -76,8 +94,6 @@ protected:
      * @param index the global index of the boundary element
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
-
-protected:
 
     /** Vector storing the weighted direction for each element in the mesh. */
     std::vector< c_vector<double, SPACE_DIM> > mElementWeightedDirections;
@@ -336,7 +352,7 @@ public:
 
     /**
      * Get the Jacobian matrix and its determinant for a given element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rJacobian the Jacobian matrix
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
@@ -345,7 +361,7 @@ public:
 
     /**
      * Get the Jacobian matrix, its inverse and its determinant for a given element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rJacobian the Jacobian matrix
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
@@ -355,7 +371,7 @@ public:
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
@@ -364,7 +380,7 @@ public:
 
     /**
      * Get the weighted direction and the determinant of the Jacobian for a given boundary element.
-     * 
+     *
      * @param elementIndex index of the element in the mesh
      * @param rWeightedDirection the weighted direction
      * @param rJacobianDeterminant the determinant of the Jacobian matrix
@@ -433,5 +449,8 @@ public:
      */
     EdgeIterator EdgesEnd();
 };
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(TetrahedralMesh);
 
 #endif //_TETRAHEDRALMESH_HPP_

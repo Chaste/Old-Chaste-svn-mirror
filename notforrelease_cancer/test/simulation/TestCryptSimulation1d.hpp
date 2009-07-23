@@ -770,14 +770,10 @@ public:
         p_simulator1->Solve();
 
         // Save then reload and run from 0.2 to 0.25
-        NodeMap map(0);
-
         MutableMesh<1,1>& r_mesh1 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
-        r_mesh1.ReMesh(map);
         TissueSimulationArchiver<1, CryptSimulation1d>::Save(p_simulator1);
 
         CryptSimulation1d *p_simulator2 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
-
         MutableMesh<1,1>& r_mesh2 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
 
         TS_ASSERT_EQUALS(r_mesh1.GetNumAllNodes(), r_mesh2.GetNumAllNodes());

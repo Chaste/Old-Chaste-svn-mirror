@@ -206,10 +206,11 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<MutableMesh<2,2> >(*this);
         archive & mWidth;
         archive & mTop;
         archive & mBottom;
+
+        archive & boost::serialization::base_object<MutableMesh<2,2> >(*this);
     }
 
 public:

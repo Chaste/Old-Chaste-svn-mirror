@@ -93,21 +93,21 @@ public:
 
     /**
      * Add an entry to mNodeData.
-     * 
+     *
      * @param nextNode coordinates of the node to add
      */
     void SetNextNode(std::vector<double> nextNode);
 
     /**
      * Add an entry to mElementData.
-     * 
+     *
      * @param nextElement array of the nodes in the element to add
      */
     virtual void SetNextElement(std::vector<unsigned> nextElement);
 
     /**
      * Add an entry to mBoundaryFaceData.
-     * 
+     *
      * @param nextFace array of the nodes on the boundary face to add
      */
     void SetNextBoundaryFace(std::vector<unsigned> nextFace);
@@ -140,21 +140,30 @@ public:
 
     /**
      * Write a mesh to file.
-     * 
+     *
      * @param rMesh the mesh
      */
     void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
     /**
+     * Write a const mesh to file. Used by the serialization methods and avoids iterators...
+     *
+     * \todo This is a very smelly method which has copied code from the above method...
+     *
+     * @param rMesh the mesh
+     */
+    void WriteFilesUsingMesh(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+
+    /**
      * Read in a mesh and write it to file.
-     * 
+     *
      * @param rMeshReader the mesh reader
      */
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
 
     /**
      * Read in a mesh and a given permutation of the node indices, and write the permuted mesh to file.
-     * 
+     *
      * @param rMeshReader the mesh reader
      * @param rNodePermutation the node permutation
      */

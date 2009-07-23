@@ -166,6 +166,7 @@ public:
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "cellwise_data.arch";
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cellwise_data_mesh");
 
         {
             // Set up the data store
@@ -202,8 +203,6 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            // Restore from the archive
-            ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_4_elements");
             input_arch >> *p_data;
 
             // Check the data

@@ -45,11 +45,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()
     : mAddedNodes(false)
 {
+    this->mMeshChangesDuringSimulation = true;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh(std::vector<Node<SPACE_DIM> *> nodes)
 {
+    this->mMeshChangesDuringSimulation = true;
     Clear();
     for (unsigned index=0; index<nodes.size(); index++)
     {
@@ -118,7 +120,7 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 
 /**
  * The RescaleMeshFromBoundaryNode method is only defined for 1D meshes.
- * 
+ *
  * @param updatedPoint point determining the scale factor
  * @param boundaryNodeIndex index of the boundary node
  */
@@ -1031,6 +1033,7 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 
 template class MutableMesh<1,1>;
 template class MutableMesh<1,2>;
+template class MutableMesh<1,3>;
 template class MutableMesh<2,2>;
 template class MutableMesh<2,3>;
 template class MutableMesh<3,3>;

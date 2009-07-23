@@ -209,14 +209,14 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
     VertexElement<DIM, DIM> *p_element = GetElementCorrespondingToCell(pParentCell);
 
     // Divide the element
-    unsigned new_element_index; 
+    unsigned new_element_index;
     if (pParentCell->GetCellType() == STEM)
     {
         // Divide this element horizontally
         c_vector<double, 2> axis_of_division;
         axis_of_division(0)=1.0;
         axis_of_division(1)=0.0;
-        
+
         new_element_index = mrMesh.DivideElement(p_element,axis_of_division);
     }
     else
@@ -241,7 +241,7 @@ template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
 {
     //std::cout << "time, apop = " << SimulationTime::Instance()->GetTime() << " " << this->rGetCellUsingLocationIndex(18).HasApoptosisBegun() << "\n";
-        
+
     unsigned num_removed = 0;
 
     for (std::list<TissueCell>::iterator it = this->mCells.begin();
@@ -355,37 +355,37 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
 
     double cell_age = rCell.GetAge();
     double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
-        
+
     // If differentiated then g1_duration is infinite
     if (g1_duration == DBL_MAX) // dont use magic number, compare to DBL_MAX
     {
         // This is just for fixed cell cycle models, need to work out how to find the g1 duration
         g1_duration = TissueConfig::Instance()->GetTransitCellG1Duration();
-    }    
+    }
 
     if (rCell.GetCellType()==APOPTOTIC)
     {
         // Age of cell when apoptosis begins
-        //double cell_age_at_death = cell_age - TissueConfig::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath(); 
-        
+        //double cell_age_at_death = cell_age - TissueConfig::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath();
+
         if (rCell.GetStartOfApoptosisTime() - rCell.GetBirthTime() < g1_duration)
         {
             cell_target_area *= 0.5*(1 + (rCell.GetStartOfApoptosisTime() - rCell.GetBirthTime())/g1_duration);
         }
 
-        // The target area of an apoptotic cell decreases linearly to zero (and past it negative)        
+        // The target area of an apoptotic cell decreases linearly to zero (and past it negative)
         cell_target_area = cell_target_area - cell_target_area/(TissueConfig::Instance()->GetApoptosisTime())*(SimulationTime::Instance()->GetTime()-rCell.GetStartOfApoptosisTime());
-    
+
         // Don't allow a negative target area
         if (cell_target_area < 0)
         {
             cell_target_area = 0;
         }
     }
-    else 
+    else
     {
-        // In the case of a proliferating cell, the target area increases 
-        // linearly from A/2 to A over the course of the G1 phase 
+        // In the case of a proliferating cell, the target area increases
+        // linearly from A/2 to A over the course of the G1 phase
         if (cell_age < g1_duration)
         {
             cell_target_area *= 0.5*(1 + cell_age/g1_duration);
@@ -435,12 +435,12 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
     this->WriteCellResultsToFiles(cell_type_counter,
                                   cell_mutation_state_counter,
                                   cell_cycle_phase_counter);
-    
+
  #ifdef CHASTE_VTK
     VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);
     std::stringstream time;
     time << SimulationTime::Instance()->GetTimeStepsElapsed();
-    
+
     std::vector<double> cell_types;
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
              iter != mrMesh.GetElementIteratorEnd();
@@ -451,19 +451,21 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
     mesh_writer.AddCellData("Cell types", cell_types);
     mesh_writer.WriteVtkUsingMesh(mrMesh, time.str());
     *mpVtkMetaFile << "        <DataSet timestep=\"";
-    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();                       
+    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();
     *mpVtkMetaFile << "\" group=\"\" part=\"0\" file=\"results_";
-    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();                       
+    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();
     *mpVtkMetaFile << ".vtu\"/>\n";
 #endif //CHASTE_VTK
 }
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName)
+void VertexBasedTissue<DIM>::WriteMeshToFile()
 {
     // The false is so the directory isn't cleaned
-    VertexMeshWriter<DIM, DIM> mesh_writer(rArchiveDirectory, rMeshFileName, false);
+    VertexMeshWriter<DIM, DIM> mesh_writer(ArchiveLocationInfo::GetArchiveDirectory(),
+                                           ArchiveLocationInfo::GetMeshFilename(),
+                                           false);
 
     mesh_writer.WriteFilesUsingMesh(mrMesh);
 }
@@ -494,10 +496,10 @@ void VertexBasedTissue<DIM>::CloseOutputFiles()
  #ifdef CHASTE_VTK
     *mpVtkMetaFile << "    </Collection>\n";
     *mpVtkMetaFile << "</VTKFile>\n";
-    
+
     mpVtkMetaFile->close();
 #endif //CHASTE_VTK
-    
+
 }
 
 

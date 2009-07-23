@@ -42,14 +42,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * least one layer of ghost nodes. These are nodes which do not correspond to a cell,
  * but are necessary for remeshing (because the remesher tries to create a convex hull
  * of the set of nodes) and visualization purposes. The MeshBasedTissueWithGhostNodes
- * class deals with these ghost nodes, hiding the 'ghost nodes' concept from the 
+ * class deals with these ghost nodes, hiding the 'ghost nodes' concept from the
  * TissueSimulation class, so the latter only ever deals with real cells.
  */
 template<unsigned DIM>
 class MeshBasedTissueWithGhostNodes : public MeshBasedTissue<DIM>
 {
 private:
-
     /** Just so that the test can test the private functions */
     friend class TestMeshBasedTissueWithGhostNodes;
 
@@ -72,8 +71,9 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<MeshBasedTissue<DIM> >(*this);
+        // This needs to be first so that MeshBasedTissue::Validate() doesn't go mental.
         archive & mIsGhostNode;
+        archive & boost::serialization::base_object<MeshBasedTissue<DIM> >(*this);
     }
 
     /**
@@ -222,14 +222,14 @@ inline void load_construct_data(
     MutableMesh<DIM,DIM> *p_mesh;
     ar >> p_mesh;
 
-    // Re-initialise the mesh
-    p_mesh->Clear();
-    TrianglesMeshReader<DIM,DIM> mesh_reader(ArchiveLocationInfo::GetMeshPathname());
-    p_mesh->ConstructFromMeshReader(mesh_reader);
+    //// Re-initialise the mesh
+    //p_mesh->Clear();
+    //TrianglesMeshReader<DIM,DIM> mesh_reader(ArchiveLocationInfo::GetMeshPathname());
+    //p_mesh->ConstructFromMeshReader(mesh_reader);
 
-    // Needed for cylindrical meshes at present; should be safe in any case.
-    NodeMap map(p_mesh->GetNumNodes());
-    p_mesh->ReMesh(map);
+    //// Needed for cylindrical meshes at present; should be safe in any case.
+    //NodeMap map(p_mesh->GetNumNodes());
+    //p_mesh->ReMesh(map);
 
     // Invoke inplace constructor to initialise instance
     ::new(t)MeshBasedTissueWithGhostNodes<DIM>(*p_mesh);

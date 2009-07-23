@@ -52,6 +52,40 @@ template<unsigned DIM>
 class MeshBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
     friend class TestMeshBasedTissue;
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Serialize the facade.
+     *
+     * Note that serialization of the mesh and cells is handled by load/save_construct_data.
+     *
+     * Note also that member data related to writers is not saved - output must
+     * be set up again by the caller after a restart.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellCentreBasedTissue<DIM> >(*this);
+
+        // The Voronoi stuff can't be archived yet
+        //archive & mpVoronoiTessellation
+        delete mpVoronoiTessellation;
+        mpVoronoiTessellation = NULL;
+
+        archive & mMarkedSprings;
+        archive & mUseAreaBasedDampingConstant;
+
+        // In its present form, a call to MeshBasedTissue::Validate() here
+        // would result in a seg fault in the situation where we are actually loading
+        // a MeshBasedTissueWithGhostNodes. Commenting out this call breaks no tests.
+
+        //this->Update();
+        this->Validate();
+    }
 
 protected:
 #define COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
@@ -63,7 +97,7 @@ protected:
      * Used to calculate cell area and perimeter information if required.
      */
     VoronoiTessellation<DIM> *mpVoronoiTessellation;
-    
+
     /**
      * Whether to delete the mesh when we are destroyed.
      * Needed if this tissue has been de-serialized.
@@ -95,39 +129,6 @@ protected:
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
-
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Serialize the facade.
-     *
-     * Note that serialization of the mesh and cells is handled by load/save_construct_data.
-     *
-     * Note also that member data related to writers is not saved - output must
-     * be set up again by the caller after a restart.
-     *
-     * @param archive the archive
-     * @param version the current version of this class
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        archive & boost::serialization::base_object<AbstractCellCentreBasedTissue<DIM> >(*this);
-
-        // The Voronoi stuff can't be archived yet
-        //archive & mpVoronoiTessellation
-        delete mpVoronoiTessellation;
-        mpVoronoiTessellation = NULL;
-
-        archive & mMarkedSprings;
-        archive & mUseAreaBasedDampingConstant;
-
-        // In its present form, a call to MeshBasedTissue::Validate() here
-        // would result in a seg fault in the situation where we are actually loading
-        // a MeshBasedTissueWithGhostNodes. Commenting out this call breaks no tests.
-
-        // Validate();
-    }
 
     /**
      * Update mIsGhostNode if required by a remesh.
@@ -288,7 +289,7 @@ public:
      * @param rArchiveDirectory directory in which archive is stored
      * @param rMeshFileName base name for mesh files
      */
-    void WriteMeshToFile(const std::string& rArchiveDirectory, const std::string& rMeshFileName);
+    void WriteMeshToFile();
 
     /**
      * Overridden CreateOutputFiles() method.
@@ -297,7 +298,7 @@ public:
      * @param cleanOutputDirectory  whether to delete the contents of the output directory prior to output file creation
      */
     void CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory);
-    
+
     /**
      * Overridden CloseOutputFiles() method.
      */
@@ -346,20 +347,20 @@ public:
 
     /**
      * Write current results to mpTissueAreasFile if in 2D.
-     * 
+     *
      * The data is written in the form:
-     * 
+     *
      * time total_area apoptotic_area
      */
     void WriteTissueAreaResultsToFile();
 
     /**
      * Write current results to mpCellAreasFile.
-     * 
+     *
      * In 2D, the data is written in the form:
-     * 
+     *
      * time cell0_id cell0_x cell0_y cell0_area cell1_id cell1_x cell1_y cell1_area ...
-     * 
+     *
      * and similarly in 3D.
      */
     void WriteCellAreaResultsToFile();
@@ -501,14 +502,14 @@ inline void load_construct_data(
     MutableMesh<DIM,DIM> *p_mesh;
     ar >> p_mesh;
 
-    // Re-initialise the mesh
-    p_mesh->Clear();
-    TrianglesMeshReader<DIM,DIM> mesh_reader(ArchiveLocationInfo::GetMeshPathname());
-    p_mesh->ConstructFromMeshReader(mesh_reader);
+    //// Re-initialise the mesh
+    //p_mesh->Clear();
+    //TrianglesMeshReader<DIM,DIM> mesh_reader(ArchiveLocationInfo::GetMeshPathname());
+    //p_mesh->ConstructFromMeshReader(mesh_reader);
 
     // Needed for cylindrical meshes at present; should be safe in any case.
-    NodeMap map(p_mesh->GetNumNodes());
-    p_mesh->ReMesh(map);
+    //NodeMap map(p_mesh->GetNumNodes());
+    //p_mesh->ReMesh(map);
 
     // Invoke inplace constructor to initialise instance
     ::new(t)MeshBasedTissue<DIM>(*p_mesh);

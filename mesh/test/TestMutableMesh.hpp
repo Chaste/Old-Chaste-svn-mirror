@@ -112,7 +112,7 @@ public:
         MutableMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        unsigned counter = 0; 
+        unsigned counter = 0;
 
         for (AbstractTetrahedralMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
@@ -121,7 +121,7 @@ public:
             unsigned node_index = (*iter).GetIndex();
             TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give node 0,1..,N in that order
             counter++;
-        }            
+        }
 
         TS_ASSERT_EQUALS(counter, mesh.GetNumNodes());
 
@@ -129,14 +129,14 @@ public:
         mesh.DeleteNode(10);
         mesh.DeleteNode(70);
 
-        unsigned another_counter = 0; 
+        unsigned another_counter = 0;
 
         for (AbstractTetrahedralMesh<2,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
         {
             another_counter++;
-        }            
+        }
 
         TS_ASSERT_EQUALS(another_counter+3, counter)
         TS_ASSERT_EQUALS(another_counter+3, mesh.GetNumAllNodes());
@@ -149,7 +149,7 @@ public:
         MutableMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        unsigned counter = 0; 
+        unsigned counter = 0;
 
         for (AbstractTetrahedralMesh<2,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
@@ -158,7 +158,7 @@ public:
             unsigned element_index = (*iter).GetIndex();
             TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give element 0,1..,N in that order
             counter++;
-        }            
+        }
 
         TS_ASSERT_EQUALS(counter, mesh.GetNumElements());
     }
@@ -244,6 +244,8 @@ public:
         p_element = mesh.GetElement(*++elt_iter);
         mesh.GetJacobianForElement(p_element->GetIndex(), jacobian, jacobian_det);
         TS_ASSERT_DELTA(jacobian_det, 0.1, 1e-6);
+
+        TS_ASSERT_EQUALS(mesh.IsMeshChanging(), true);
     }
 
     void Test2DSetPoint()
@@ -1084,6 +1086,105 @@ public:
         EdgeIteratorTest<3>("mesh/test/data/cube_2mm_12_elements");
         EdgeIteratorTest<2>("mesh/test/data/square_4_elements");
         EdgeIteratorTest<1>("mesh/test/data/1D_0_to_1_10_elements");
+    }
+
+    void TestArchiving()
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        handler.SetArchiveDirectory();
+        archive_filename = handler.GetOutputDirectoryFullPath() + "mutable_mesh.arch";
+
+        unsigned num_nodes;
+        unsigned num_elements;
+        unsigned total_num_nodes;
+        unsigned total_num_elements;
+        std::vector<c_vector<double,2> > node_locations;
+        std::vector<c_vector<unsigned,3> > element_nodes;
+
+        {
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+
+            AbstractTetrahedralMesh<2,2>* const p_mesh = new MutableMesh<2,2>;
+            p_mesh->ConstructFromMeshReader(mesh_reader);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            NodeMap map(p_mesh->GetNumNodes());
+            static_cast<MutableMesh<2,2>* >(p_mesh)->ReMesh(map);
+
+            // Record values to test
+            for (MutableMesh<2,2>::NodeIterator it = static_cast<MutableMesh<2,2>* >(p_mesh)->GetNodeIteratorBegin();
+                it != static_cast<MutableMesh<2,2>* >(p_mesh)->GetNodeIteratorEnd();
+                ++it)
+            {
+                node_locations.push_back(it->rGetLocation());
+            }
+
+            for (MutableMesh<2,2>::ElementIterator it2 = static_cast<MutableMesh<2,2>* >(p_mesh)->GetElementIteratorBegin();
+                it2 != static_cast<MutableMesh<2,2>* >(p_mesh)->GetElementIteratorEnd();
+                ++it2)
+            {
+                c_vector<unsigned, 3> nodes;
+                for (unsigned i=0; i<3; i++)
+                {
+                    nodes[i]=it2->GetNodeGlobalIndex(i);
+                }
+                element_nodes.push_back(nodes);
+            }
+            num_nodes = p_mesh->GetNumNodes();
+            num_elements = p_mesh->GetNumElements();
+            total_num_nodes = p_mesh->GetNumAllNodes();
+            total_num_elements = p_mesh->GetNumAllElements();
+
+            output_arch << p_mesh;
+            delete p_mesh;
+        }
+
+        {
+            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // (but here AbstractMesh doesn't have the methods below).
+            AbstractTetrahedralMesh<2,2>* p_mesh2;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // restore from the archive
+            input_arch >> p_mesh2;
+
+            // Check we have the right number of nodes & elements
+            TS_ASSERT_EQUALS(num_nodes, p_mesh2->GetNumNodes());
+            TS_ASSERT_EQUALS(num_elements, p_mesh2->GetNumElements());
+            TS_ASSERT_EQUALS(total_num_nodes, p_mesh2->GetNumAllNodes());
+            TS_ASSERT_EQUALS(total_num_elements, p_mesh2->GetNumAllElements());
+
+            // Test recorded node locations
+            unsigned counter = 0;
+            for (MutableMesh<2,2>::NodeIterator it = static_cast<MutableMesh<2,2>* >(p_mesh2)->GetNodeIteratorBegin();
+                it != static_cast<MutableMesh<2,2>* >(p_mesh2)->GetNodeIteratorEnd();
+                ++it)
+            {
+                TS_ASSERT_DELTA(node_locations[counter][0], it->rGetLocation()[0], 1e-9);
+                TS_ASSERT_DELTA(node_locations[counter][1], it->rGetLocation()[1], 1e-9);
+                counter++;
+            }
+            counter = 0;
+            // Test each element contains the correct nodes.
+            for (MutableMesh<2,2>::ElementIterator it2 = static_cast<MutableMesh<2,2>* >(p_mesh2)->GetElementIteratorBegin();
+                            it2 != static_cast<MutableMesh<2,2>* >(p_mesh2)->GetElementIteratorEnd();
+                            ++it2)
+            {
+                for (unsigned i=0; i<3; i++)
+                {
+                    TS_ASSERT_EQUALS(element_nodes[counter][i],it2->GetNodeGlobalIndex(i));
+                }
+                counter++;
+            }
+
+            delete p_mesh2;
+        }
     }
 
 };

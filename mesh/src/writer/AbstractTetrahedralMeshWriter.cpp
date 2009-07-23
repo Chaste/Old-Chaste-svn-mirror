@@ -164,6 +164,68 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
+     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
+{
+    NodeMap node_map(rMesh.GetNumAllNodes());
+    unsigned new_index = 0;
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
+    {
+        Node<SPACE_DIM> *p_node = rMesh.GetNode(i);
+
+        if (p_node->IsDeleted() == false)
+        {
+            std::vector<double> coords(SPACE_DIM);
+            for (unsigned j=0; j<SPACE_DIM; j++)
+            {
+                coords[j] = p_node->GetPoint()[j];
+            }
+            SetNextNode(coords);
+            node_map.SetNewIndex(i,new_index++);
+        }
+        else
+        {
+            node_map.SetDeleted(i);
+        }
+    }
+    assert(new_index==(unsigned)rMesh.GetNumNodes());
+
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllElements(); i++)
+    {
+        Element<ELEMENT_DIM, SPACE_DIM> *p_element = rMesh.GetElement(i);
+
+        if (p_element->IsDeleted() == false)
+        {
+            std::vector<unsigned> indices(p_element->GetNumNodes());
+
+            for (unsigned j=0; j<indices.size(); j++)
+            {
+                unsigned old_index = p_element->GetNodeGlobalIndex(j);
+                indices[j] = node_map.GetNewIndex(old_index);
+            }
+            this->SetNextElement(indices);
+        }
+    }
+
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllBoundaryElements(); i++)
+    {
+        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *p_boundary_element = rMesh.GetBoundaryElement(i);
+        if (p_boundary_element->IsDeleted() == false)
+        {
+            std::vector<unsigned> indices(ELEMENT_DIM);
+            for (unsigned j=0; j<ELEMENT_DIM; j++)
+            {
+                unsigned old_index=p_boundary_element->GetNodeGlobalIndex(j);
+                indices[j] = node_map.GetNewIndex(old_index);
+            }
+            SetNextBoundaryFace(indices);
+        }
+    }
+    WriteFiles();
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {

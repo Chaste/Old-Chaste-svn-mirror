@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MUTABLEMESH_HPP_
 #define MUTABLEMESH_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "TetrahedralMesh.hpp"
 #include "NodeMap.hpp"
 
@@ -44,15 +47,26 @@ class MutableMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
     /**
      * Serialize the mesh.
      *
+     * Note that if you are calling this method (from subclasses) you should archive your
+     * member variables FIRST. So that this method can call a ReMesh
+     * (to convert from TrianglesMeshReader input format into your native format).
+     *
      * @param archive the archive
      * @param version the current version of this class
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-       // Overriden serialisation code in AbstractTetrahedralMesh since cancer doesn't need to store the mesh explicitly. Is this OK AlexF?
-    }    
-    
+        archive & boost::serialization::base_object<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+
+        // Do a remesh after archiving has finished to get right number of boundary nodes etc.
+        // (strictly only relevant for load - but doesn't take long in the scheme of things.)
+        // NOTE - Subclasses must archive their member variables BEFORE calling this method.
+        NodeMap map(this->GetNumNodes());
+        this->ReMesh(map);
+        assert(map.IsIdentityMap()); // Otherwise the tissue will get VERY confused.
+    }
+
 protected:
 
     /**
@@ -252,5 +266,7 @@ public:
 #undef COVERAGE_IGNORE
 };
 
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(MutableMesh);
 
 #endif /*MUTABLEMESH_HPP_*/

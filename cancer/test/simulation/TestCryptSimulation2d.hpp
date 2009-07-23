@@ -617,20 +617,20 @@ public:
         // In this test it hasn't so we need this to avoid memory leak.
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
 
+        // And record current state of mesh
+        MutableMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(&(simulator.rGetTissue())))->rGetMesh();
+
         // Save
         TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
-
         // Load
         CryptSimulation2d *p_simulator;
-        p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0.0);
+        p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0);
 
-        // Create an identical mesh for comparison purposes
-        HoneycombMeshGenerator generator2(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh *p_mesh2 = generator2.GetCylindricalMesh();
+        // Get the loaded mesh
+        MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue())))->rGetMesh();
 
-        // Compare
-        MutableMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue())))->rGetMesh();
-        CompareMeshes(p_mesh2, &r_mesh);
+        // Compare with mesh before save.
+        CompareMeshes(&r_mesh, &r_mesh2);
 
         // Tidy up
         delete p_simulator;
@@ -638,7 +638,7 @@ public:
     }
 
     // A check that save and load works when a Voronoi tessellation is involved
-    void TestMeshSurvivesSaveLoadWithVoroniTessellation() throw (Exception)
+    void TestMeshSurvivesSaveLoadWithVoronoiTessellation() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -836,19 +836,18 @@ public:
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
-        // Save then reload and run from 0.2 to 0.25
-        NodeMap map(0);
-
+        // Get mesh
         MutableMesh<2,2>& r_mesh1 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
-        r_mesh1.ReMesh(map);
+
+        // Save then reload, compare meshes either side
         TissueSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator1);
 
         CryptSimulation2d *p_simulator2 = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
-
         MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
 
         CompareMeshes(&r_mesh1, &r_mesh2);
 
+        // Run a bit further...
         p_simulator2->SetEndTime(0.25);
 
         // Run simulation
