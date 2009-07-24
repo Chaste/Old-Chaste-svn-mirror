@@ -742,8 +742,9 @@ public:
             }
 
 
-            TS_ASSERT_DELTA(p_mesh_loaded->GetCellRearrangementThreshold(), 0.01, 1e-4);
-            TS_ASSERT_DELTA(p_mesh_loaded->GetEdgeDivisionThreshold(), 2.0, 1e-4);
+            TS_ASSERT_DELTA(p_mesh_loaded->GetCellRearrangementThreshold(), p_mesh_original->GetCellRearrangementThreshold(), 1e-9);
+            TS_ASSERT_DELTA(p_mesh_loaded->GetEdgeDivisionThreshold(), p_mesh_original->GetEdgeDivisionThreshold(), 1e-9);
+            TS_ASSERT_DELTA(p_mesh_loaded->GetT2Threshold(), p_mesh_original->GetT2Threshold(), 1e-9);
 
             // Tidy up
             delete p_mesh_original;

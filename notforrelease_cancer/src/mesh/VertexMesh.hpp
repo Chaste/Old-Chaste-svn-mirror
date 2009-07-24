@@ -197,7 +197,7 @@ protected:
     friend class boost::serialization::access;
 
     /**
-     * Archive the VertexMesh and its member variables. Note that this will 
+     * Archive the VertexMesh and its member variables. Note that this will
      * write out a VertexMeshWriter file to wherever ArchiveLocationInfo has specified.
      *
      * @param archive the archive

@@ -38,12 +38,8 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
                                                double t2Threshold)
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mEdgeDivisionThreshold(edgeDivisionThreshold),
-      mT2Threshold(t2Threshold),
-      mAddedNodes(true),
-      mAddedElements(true)
+      mT2Threshold(t2Threshold)
 {
-    mDeletedNodeIndices.clear();
-    mDeletedElementIndices.clear();
     this->mMeshChangesDuringSimulation = true;
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
@@ -68,6 +64,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh()
+    : mCellRearrangementThreshold(0.0), // Overwritten as soon as archiving is complete
+      mEdgeDivisionThreshold(0.0), // Overwritten as soon as archiving is complete
+      mT2Threshold(0.0) // Overwritten as soon as archiving is complete
 {
     this->mMeshChangesDuringSimulation = true;
     Clear();
@@ -82,12 +81,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                                                double t2Threshold)
     : mCellRearrangementThreshold(cellRearrangementThreshold),
       mEdgeDivisionThreshold(edgeDivisionThreshold),
-      mT2Threshold(t2Threshold),
-      mAddedNodes(true),
-      mAddedElements(true)
+      mT2Threshold(t2Threshold)
 {
-    mDeletedNodeIndices.clear();
-    mDeletedElementIndices.clear();
+    Clear();
     this->mMeshChangesDuringSimulation = true;
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
@@ -223,6 +219,8 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 mElements.push_back(p_element);
             }
         }
+        mAddedNodes = true;
+        mAddedElements = true;
     }
 }
 
