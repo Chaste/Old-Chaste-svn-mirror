@@ -460,18 +460,6 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
 
 
 template<unsigned DIM>
-void VertexBasedTissue<DIM>::WriteMeshToFile()
-{
-    // The false is so the directory isn't cleaned
-    VertexMeshWriter<DIM, DIM> mesh_writer(ArchiveLocationInfo::GetArchiveDirectory(),
-                                           ArchiveLocationInfo::GetMeshFilename(),
-                                           false);
-
-    mesh_writer.WriteFilesUsingMesh(mrMesh);
-}
-
-
-template<unsigned DIM>
 void VertexBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
 {
     AbstractTissue<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);

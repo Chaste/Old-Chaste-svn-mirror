@@ -379,17 +379,6 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,
 //                             Output methods                               //
 //////////////////////////////////////////////////////////////////////////////
 
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::WriteMeshToFile()
-{
-    // The false is so the directory isn't cleaned
-    TrianglesMeshWriter<DIM, DIM> mesh_writer(ArchiveLocationInfo::GetArchiveDirectory(),
-                                              ArchiveLocationInfo::GetMeshFilename(),
-                                              false);
-
-    mesh_writer.WriteFilesUsingMesh(mrMesh);
-}
-
 
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)

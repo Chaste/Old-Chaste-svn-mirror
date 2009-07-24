@@ -283,15 +283,6 @@ public:
     virtual TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
 
     /**
-     * Overridden WriteMeshToFile() method. For use by
-     * the TissueSimulationArchiver.
-     *
-     * @param rArchiveDirectory directory in which archive is stored
-     * @param rMeshFileName base name for mesh files
-     */
-    void WriteMeshToFile();
-
-    /**
      * Overridden CreateOutputFiles() method.
      *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored

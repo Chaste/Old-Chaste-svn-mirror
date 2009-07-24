@@ -290,12 +290,6 @@ public:
     double GetTargetAreaOfCell(const TissueCell& rCell);
 
     /**
-     * Overridden WriteMeshToFile() method. For use by
-     * the TissueSimulationArchiver.
-     */
-    void WriteMeshToFile();
-
-    /**
      * Overridden CreateOutputFiles() method.
      *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored

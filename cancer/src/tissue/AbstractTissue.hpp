@@ -376,14 +376,6 @@ public:
     unsigned GetLocationIndexUsingCell(TissueCell* pCell);
 
     /**
-     * If the tissue contains a mesh, write this to file. For use by
-     * the TissueSimulationArchiver. Must be overridden in each subclass
-     * that contains a mesh.
-     */
-    virtual void WriteMeshToFile()
-    {}
-
-    /**
      * Use an output file handler to create output files for visualizer and post-processing.
      *
      * @param rDirectory  pathname of the output directory, relative to where Chaste output is stored
