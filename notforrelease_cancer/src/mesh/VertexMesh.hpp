@@ -609,6 +609,24 @@ public:
      */
     void ReMesh();
 
+    /**
+     * Translate the mesh given the displacement vector.
+     * This is the translation method that actually does the work.
+     *
+     * @param displacement is a translation vector of the correct size
+     * \todo pass by const reference?
+     */
+    void Translate(c_vector<double, SPACE_DIM> displacement);
+
+    /**
+     * Translate the mesh given the coordinate displacements separately.
+     *
+     * @param xMovement is the x-displacement (defaults to 0.0)
+     * @param yMovement is the y-displacement (defaults to 0.0)
+     * @param zMovement is the z-displacement (defaults to 0.0)
+     */
+    void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
+
 	//////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////

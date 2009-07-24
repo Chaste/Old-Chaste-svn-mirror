@@ -475,7 +475,7 @@ public:
         VertexMesh<2,2> vertex_mesh(3, 3, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
+        // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<vertex_mesh.GetNumElements(); elem_index++)
         {

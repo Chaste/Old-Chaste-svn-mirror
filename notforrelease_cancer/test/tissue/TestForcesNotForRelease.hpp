@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseDataGradient.hpp"
 #include "CryptProjectionForce.hpp"
 #include "NagaiHondaForce.hpp"
+#include "VertexCryptBoundaryForce.hpp"
 #include "VertexBasedTissue.hpp"
 #include "WntConcentration.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -118,13 +119,11 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "chemotaxis_spring_system.arch";
 
-        unsigned num_nodes;
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
             MutableMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-            num_nodes = mesh.GetNumNodes();
 
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
@@ -443,13 +442,11 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "crypt_projection_spring_system.arch";
 
-        unsigned num_nodes;
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
             MutableMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-            num_nodes = mesh.GetNumNodes();
 
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
@@ -710,6 +707,64 @@ public:
             TS_ASSERT_DELTA(norm_2(node_forces[i]), apoptotic_force_magnitude, 1e-4);
             TS_ASSERT_DELTA(node_forces[i][0], -apoptotic_force_magnitude*cos(angles[i]), 1e-4);
             TS_ASSERT_DELTA(node_forces[i][1], -apoptotic_force_magnitude*sin(angles[i]), 1e-4);
+        }
+    }
+
+    void TestVertexCryptBoundaryForce() throw (Exception)
+    {
+        // Create a simple 2D VertexMesh
+        VertexMesh<2,2> mesh(5, 5, 0.1, 0.5);
+
+        // Translate mesh so that some points are below y=0
+        mesh.Translate(0.0, -3.0);
+
+        // Set up cells, one for each VertexElement. Give each cell
+        // a birth time of -elem_index, so its age is elem_index
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            CellType cell_type = DIFFERENTIATED;
+            double birth_time = 0.0 - elem_index;
+
+            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(mesh, cells);
+
+        // Create a force system
+        VertexCryptBoundaryForce<2> force(100);
+
+        // Initialise a vector of new node forces
+        std::vector<c_vector<double, 2> > node_forces;
+        node_forces.reserve(tissue.GetNumNodes());
+
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        {
+            node_forces.push_back(zero_vector<double>(2));
+        }
+
+        force.AddForceContribution(node_forces, tissue);
+
+        // Check forces are correct        
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);
+
+            double y = mesh.GetNode(i)->rGetLocation()[1];
+            if (y >= 0.0)
+            {
+                // If y > 0, the force contribution should be zero...
+                TS_ASSERT_DELTA(node_forces[i][1], 0.0, 1e-4);
+            }
+            else
+            {
+                // ...otherwise, the force contribution should be quadratic in y
+                double expected_force = force.GetForceStrength()*y*y;
+                TS_ASSERT_DELTA(node_forces[i][1], expected_force, 1e-4);
+            }
         }
     }
 

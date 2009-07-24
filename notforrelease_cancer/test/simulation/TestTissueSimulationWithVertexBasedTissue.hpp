@@ -103,7 +103,7 @@ public:
         VertexMesh<2,2> mesh(6, 6, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
+        // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
@@ -189,7 +189,7 @@ public:
         VertexMesh<2,2> mesh(1, 1, 0.1, 0.5);
 
         // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
+        // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
@@ -244,7 +244,7 @@ public:
         VertexMesh<2,2> mesh(5, 5, 0.1, 1.0);
 
         // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
+        // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
@@ -319,7 +319,7 @@ public:
         mesh.SetT2Threshold(0.001); ///\todo this stops the T2swap
 
         // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
+        // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
@@ -444,7 +444,7 @@ public:
         Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
+        // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
@@ -507,7 +507,7 @@ public:
         VertexMesh<2,2> mesh(6, 6, 0.01, 2.0);
 
         // Set up cells, one for each VertexElement. Give each cell
-        // a random birth time of -elem_index, so its age is elem_index
+        // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {

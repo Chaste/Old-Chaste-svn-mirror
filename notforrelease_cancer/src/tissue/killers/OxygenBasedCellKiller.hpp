@@ -111,7 +111,7 @@ template<class Archive, unsigned DIM>
 inline void save_construct_data(
     Archive & ar, const OxygenBasedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
-    // save data required to construct instance
+    // Save data required to construct instance
     const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
     double conc = t->GetHypoxicConcentration();

@@ -37,8 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * A boundary force class for use in vertex-based crpyt simulations 
- * to prevent cells moving below the bottom of the crypt.
+ * A boundary force class for use in vertex-based crypt simulations
+ * to prevent cells moving below the bottom of the crypt (y=0).
+ * 
+ * The boundary force is taken to be zero for y>0, and proportional to y^2
+ * for y<0 (hence is continuously differentiable at y=0). The constant of
+ * proportionality is given by the parameter mForceStrength, whose value is
+ * set in the constructor. 
  */
 template<unsigned DIM>
 class VertexCryptBoundaryForce  : public AbstractForce<DIM>
@@ -47,6 +52,9 @@ friend class TestForcesNotForRelease;
 
 private:
 
+    /** Parameter determining the strength of the force acting on nodes below y=0. */ 
+    double mForceStrength;
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -54,14 +62,17 @@ private:
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
+        archive & mForceStrength;
     }
 
 public:
 
     /**
      * Constructor.
+     * 
+     * @param forceStrength the force strength \todo give a default value/add to TissueConfig?
      */
-    VertexCryptBoundaryForce();
+    VertexCryptBoundaryForce(double forceStrength);
 
     /**
      * Destructor.
@@ -79,11 +90,47 @@ public:
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);
 
+    /** @return mForceStrength */
+    double GetForceStrength() const;
+
 };
 
 
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(VertexCryptBoundaryForce)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a VertexCryptBoundaryForce.
+ */
+template<class Archive, unsigned DIM>
+inline void save_construct_data(
+    Archive & ar, const VertexCryptBoundaryForce<DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    double strength = t->GetForceStrength();
+    ar << strength;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a VertexCryptBoundaryForce.
+ */
+template<class Archive, unsigned DIM>
+inline void load_construct_data(
+    Archive & ar, VertexCryptBoundaryForce<DIM> * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    double strength;
+    ar >> strength;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)VertexCryptBoundaryForce<DIM>(strength);
+}
+}
+} // namespace ...
 
 #endif /*VERTEXCRYPTBOUNDARYFORCE_HPP_*/

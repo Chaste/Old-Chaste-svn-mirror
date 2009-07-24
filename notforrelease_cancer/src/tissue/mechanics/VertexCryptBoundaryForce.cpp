@@ -29,9 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptBoundaryForce.hpp"
 
 template<unsigned DIM>
-VertexCryptBoundaryForce<DIM>::VertexCryptBoundaryForce()
-   : AbstractForce<DIM>()
+VertexCryptBoundaryForce<DIM>::VertexCryptBoundaryForce(double forceStrength)
+   : AbstractForce<DIM>(),
+     mForceStrength(forceStrength)
 {
+    // We don't want the force to act in the wrong direction
+    assert(mForceStrength > 0.0);
 }
 
 template<unsigned DIM>
@@ -46,34 +49,29 @@ void VertexCryptBoundaryForce<DIM>::AddForceContribution(std::vector<c_vector<do
     // Helper variable that is a static cast of the tissue
     VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
 
-    /*
-     * The boundary force is taken to be a quadratic function (F = (y-a)^2 - b), which passes 
-     * through (0,0), but which is fixed at zero for y-values greater than or equal to the 
-     * cutoff point. The y-values correspond to the height up the crypt.
-     */   
-
-    double cutoff_point = 0.2;    // The y-value at which the boundary force no longer has an effect
-    double quadratic_shift = 0.5*cutoff_point;   // Distance to shift the quadratic curve (i.e. 'a')
-
-    // Iterate over vertices in the tissue
+    // Iterate over nodes
     for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = p_tissue->rGetMesh().GetNodeIteratorBegin();
          node_iter != p_tissue->rGetMesh().GetNodeIteratorEnd();
          ++node_iter)
     {
-        // Compute the boundary force on this node
-        c_vector<double, DIM> boundary_force = zero_vector<double>(DIM);
+        double y = node_iter->rGetLocation()[1]; // y-coordinate of node
 
-        double y_value = node_iter->rGetLocation()[1]; // y-coordinate of node
-
-        if (y_value < cutoff_point)
+        // If the node lies below the line y=0, then add the boundary force contribution to rForces
+        if (y < 0.0)
         {
-            boundary_force[1] = 150*(pow((y_value - quadratic_shift),2) - pow(quadratic_shift,2));                   
-        }
+            c_vector<double, DIM> boundary_force = zero_vector<double>(DIM);
+            boundary_force[1] = mForceStrength*pow(y, 2.0);
 
-        rForces[node_iter->GetIndex()] += boundary_force;
+            rForces[node_iter->GetIndex()] += boundary_force;                   
+        }        
     }
 }
 
+template<unsigned DIM>
+double VertexCryptBoundaryForce<DIM>::GetForceStrength() const
+{
+    return mForceStrength;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

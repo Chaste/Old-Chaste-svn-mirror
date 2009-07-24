@@ -1565,7 +1565,6 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(), 9u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(5)->GetIndex(), 5u);
-
     }
 
     void TestReMeshExceptions() throw(Exception)
@@ -2603,7 +2602,6 @@ public:
             TS_ASSERT_EQUALS(mesh1.GetNode(i)->IsBoundaryNode(), false);
         }
 
-
         // Create a mesh with some interior nodes
         VertexMesh<2,2> mesh2(2, 2, 0.01, 2.0);
 
@@ -2618,7 +2616,6 @@ public:
             TS_ASSERT_EQUALS(mesh2.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
         }
 
-
         // Create a larger mesh with some interior nodes
         VertexMesh<2,2> mesh3(3, 3, 0.01, 2.0);
 
@@ -2632,6 +2629,53 @@ public:
             }
             TS_ASSERT_EQUALS(mesh3.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
         }
+    }
+
+
+    void TestTranslation2DWithUblas()
+    {
+        // Create 2D mesh
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+
+        c_vector<double, 2> old_location1 = mesh.GetNode(4)->rGetLocation();
+        c_vector<double, 2> old_location2 = mesh.GetNode(9)->rGetLocation();
+
+        // Set translation vector
+        c_vector<double, 2> trans_vec;
+        trans_vec(0) = 2.0;
+        trans_vec(1) = 3.0;
+
+        // Translate
+        mesh.Translate(trans_vec);
+        c_vector<double, 2> new_location1 = mesh.GetNode(4)->rGetLocation();
+        c_vector<double, 2> new_location2 = mesh.GetNode(9)->rGetLocation();
+
+        // Spot check a couple of nodes
+        TS_ASSERT_DELTA(new_location1[0], old_location1[0] + 2.0, 1e-6);
+        TS_ASSERT_DELTA(new_location1[1], old_location1[1] + 3.0, 1e-6);
+
+        TS_ASSERT_DELTA(new_location2[0], old_location2[0] + 2.0, 1e-6);
+        TS_ASSERT_DELTA(new_location2[1], old_location2[1] + 3.0, 1e-6);
+    }
+
+    void TestTranslationMethod() throw (Exception)
+    {
+        // Create 2D mesh
+        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+
+        // Pick a random node and store spatial position
+        Node<2> *p_node = mesh.GetNode(10);
+        ChastePoint<2> original_coordinate = p_node->GetPoint();
+
+        const double x_movement = 1.0;
+        const double y_movement = 2.5;
+
+        mesh.Translate(x_movement, y_movement);
+
+        ChastePoint<2>  new_coordinate = p_node->GetPoint();
+
+        TS_ASSERT_DELTA(original_coordinate[0], new_coordinate[0] - x_movement, 1e-6);
+        TS_ASSERT_DELTA(original_coordinate[1], new_coordinate[1] - y_movement, 1e-6);
     }
 
 };

@@ -435,7 +435,7 @@ public:
         VertexBasedTissue<2> crypt(mesh, cells);
 
         // Create boundary force law
-        VertexCryptBoundaryForce<2> boundary_force_law;
+        VertexCryptBoundaryForce<2> boundary_force_law(150);
 
         // Create force law
         NagaiHondaForce<2> force_law;
@@ -451,11 +451,11 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
         // Modified parameters to make cells equilibriate 
-        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0005);//0.1
-        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);//1.0
-        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);//0.1
-        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);//0.1
-        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);//0.1
+        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0005);
+        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);
+        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);
+        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);
+        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
 
         // Make crypt shorter for sloughing 
