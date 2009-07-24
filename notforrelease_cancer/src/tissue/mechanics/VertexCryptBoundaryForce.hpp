@@ -70,9 +70,9 @@ public:
     /**
      * Constructor.
      * 
-     * @param forceStrength the force strength \todo give a default value/add to TissueConfig?
+     * @param forceStrength the force strength
      */
-    VertexCryptBoundaryForce(double forceStrength);
+    VertexCryptBoundaryForce(double forceStrength=1.0);
 
     /**
      * Destructor.
@@ -99,38 +99,5 @@ public:
 #include "TemplatedExport.hpp"
 
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(VertexCryptBoundaryForce)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Serialize information required to construct a VertexCryptBoundaryForce.
- */
-template<class Archive, unsigned DIM>
-inline void save_construct_data(
-    Archive & ar, const VertexCryptBoundaryForce<DIM> * t, const BOOST_PFTO unsigned int file_version)
-{
-    // Save data required to construct instance
-    double strength = t->GetForceStrength();
-    ar << strength;
-}
-
-/**
- * De-serialize constructor parameters and initialise a VertexCryptBoundaryForce.
- */
-template<class Archive, unsigned DIM>
-inline void load_construct_data(
-    Archive & ar, VertexCryptBoundaryForce<DIM> * t, const unsigned int file_version)
-{
-    // Retrieve data from archive required to construct new instance
-    double strength;
-    ar >> strength;
-
-    // Invoke inplace constructor to initialise instance
-    ::new(t)VertexCryptBoundaryForce<DIM>(strength);
-}
-}
-} // namespace ...
 
 #endif /*VERTEXCRYPTBOUNDARYFORCE_HPP_*/
