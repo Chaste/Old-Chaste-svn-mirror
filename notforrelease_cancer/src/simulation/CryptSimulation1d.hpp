@@ -56,7 +56,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the simulation and member variable.
+     * Archive the simulation and member variables.
      *
      * @param archive the archive
      * @param version the current version of this class

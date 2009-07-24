@@ -76,7 +76,7 @@ protected:
     /** Facade encapsulating cells in the tissue being simulated. */
     AbstractTissue<DIM>& mrTissue;
 
-    /** Whether to delete the facade in the destructor. */
+    /** Whether to delete the tissue facade in the destructor. */
     bool mDeleteTissue;
 
     /** Whether delete the collection of force laws in the destructor. */

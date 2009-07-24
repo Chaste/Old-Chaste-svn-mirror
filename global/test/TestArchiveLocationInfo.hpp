@@ -35,9 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestArchiveLocationInfo : public CxxTest::TestSuite
 {
 public:
-    void TestMethods()
+
+    void TestMethods() throw(Exception)
     {
-        //These throw because we are getting things before they are set.
+        // These throw because we are getting things before they are set.
         TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveDirectory());
         TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetMeshPathname());
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(),"mesh"); //default value
@@ -53,7 +54,7 @@ public:
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "new_archive_dir/");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "new_mesh_name");
 
-        //Throws because the full path isn't relative to test output
+        // This throws because the full path isn't relative to test output
         TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveRelativePath());
         ArchiveLocationInfo::SetArchiveDirectory(OutputFileHandler::GetChasteTestOutputDirectory() + "relative_archive_dir");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveRelativePath(), "relative_archive_dir/");
@@ -69,7 +70,6 @@ public:
 
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred"), expected_filepath.str());
     }
-
 
 };
 

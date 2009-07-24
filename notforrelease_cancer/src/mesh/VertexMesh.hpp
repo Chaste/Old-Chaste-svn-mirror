@@ -197,11 +197,11 @@ protected:
     friend class boost::serialization::access;
 
     /**
-     * Archive the VertexMesh. Note that this will write out a VertexMeshWriter file
-     * to wherever ArchiveLocationInfo has specified.
+     * Archive the VertexMesh and its member variables. Note that this will 
+     * write out a VertexMeshWriter file to wherever ArchiveLocationInfo has specified.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
@@ -215,18 +215,18 @@ protected:
         archive & mAddedNodes;
         archive & mAddedElements;
 
-        // Create a mesh writer pointing to the correct file and directory.
+        // Create a mesh writer pointing to the correct file and directory
         VertexMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
-                                                            ArchiveLocationInfo::GetMeshFilename(),
-                                                            false);
+                                                             ArchiveLocationInfo::GetMeshFilename(),
+                                                             false);
         mesh_writer.WriteFilesUsingMesh(*this);
     }
 
     /**
      * Loads a mesh by using VertexMeshReader and the location in ArchiveLocationInfo.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void load(Archive & archive, const unsigned int version)

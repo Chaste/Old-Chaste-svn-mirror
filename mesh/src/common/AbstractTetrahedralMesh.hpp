@@ -83,8 +83,8 @@ private:
      *
      * If the mesh is not mutable then the file is a copy of the original file the mesh was read from.
      *
-     * @param archive
-     * @param version
+     * @param archive the archive
+     * @param version the current version of this class
      */
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const

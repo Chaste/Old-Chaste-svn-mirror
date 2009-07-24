@@ -53,6 +53,11 @@ private:
     friend class boost::serialization::access;
     /**
      * Archive the object and its member variables.
+     * 
+     * Serialization of singleton objects must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
      *
      * @param archive the archive
      * @param version the current version of this class

@@ -53,7 +53,7 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Serialize the facade.
+     * Serialize the object and its member variables.
      *
      * @param archive the archive
      * @param version the current version of this class

@@ -71,7 +71,7 @@ private:
 
     friend class boost::serialization::access;
     /**
-     * Serialize the facade.
+     * Serialize the object and its member variables.
      *
      * Note that serialization of the mesh and cells is handled by load/save_construct_data.
      *
@@ -336,18 +336,8 @@ inline void load_construct_data(
     Archive & ar, VertexBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    assert(ArchiveLocationInfo::GetMeshPathname().length() > 0);
     VertexMesh<DIM,DIM> *p_mesh;
     ar >> p_mesh;
-
-    // Re-initialise the mesh
-    p_mesh->Clear();
-    VertexMeshReader<DIM, DIM> mesh_reader(ArchiveLocationInfo::GetMeshPathname());
-    p_mesh->ConstructFromMeshReader(mesh_reader);
-
-    // Remesh
-    VertexElementMap map(p_mesh->GetNumElements());
-    p_mesh->ReMesh(map);
 
     // Invoke inplace constructor to initialise instance
     ::new(t)VertexBasedTissue<DIM>(*p_mesh);

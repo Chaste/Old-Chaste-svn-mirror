@@ -60,7 +60,8 @@ private:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    /** Archive the object and its member variables.
+    /**
+     * Archive the object and its member variables.
      *
      * Serialization of singleton objects must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
