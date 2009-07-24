@@ -292,9 +292,6 @@ public:
     /**
      * Overridden WriteMeshToFile() method. For use by
      * the TissueSimulationArchiver.
-     *
-     * @param rArchiveDirectory directory in which archive is stored
-     * @param rMeshFileName base name for mesh files
      */
     void WriteMeshToFile();
 

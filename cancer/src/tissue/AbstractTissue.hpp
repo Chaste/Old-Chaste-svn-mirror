@@ -379,11 +379,9 @@ public:
      * If the tissue contains a mesh, write this to file. For use by
      * the TissueSimulationArchiver. Must be overridden in each subclass
      * that contains a mesh.
-     *
-     * @param rArchiveDirectory directory in which archive is stored
-     * @param rMeshFileName base name for mesh files
      */
-    virtual void WriteMeshToFile(){};
+    virtual void WriteMeshToFile()
+    {}
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.
