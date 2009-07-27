@@ -85,7 +85,7 @@ private:
      * the 'archive' folder in rArchiveDirectory, with the archive itself called
      * 'tissue_sim_at_time_`rTimeStamp`.arch'.  The path to this file is returned.
      *
-     * The path to the mesh is stored as ArchiveLocationInfo::GetMeshPathname() for use by the
+     * The path to the mesh is stored in ArchiveLocationInfo for use by the
      * Tissue de-serialization routines.
      *
      * @param rArchiveDirectory  the name of the simulation to load
