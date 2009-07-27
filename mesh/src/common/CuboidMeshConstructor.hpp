@@ -30,10 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CUBOIDMESHCONSTRUCTOR_HPP_
 #define CUBOIDMESHCONSTRUCTOR_HPP_
 
-#include "TrianglesMeshWriter.hpp"
+#include "TetrahedralMesh.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
-#include "TetrahedralMesh.hpp"
 
 //const double mesh_width = 0.2; // cm
 
