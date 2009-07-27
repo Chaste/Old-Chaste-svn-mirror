@@ -40,8 +40,12 @@ public:
     {
         // These throw because we are getting things before they are set.
         TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveDirectory());
-        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetMeshPathname());
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(),"mesh"); //default value
+
+        // To test exceptions (default value is now "mesh".)
+        ArchiveLocationInfo::SetMeshFilename("");
+        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetMeshPathname());
+        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetMeshFilename());
 
         ArchiveLocationInfo::SetMeshPathname("archive_dir", "mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshPathname(), "archive_dir/mesh_name");
