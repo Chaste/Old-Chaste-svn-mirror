@@ -187,6 +187,19 @@ public:
      */
     TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
 
+    /**
+     * Overridden GenerateCellResultsAndWriteToFiles() method.
+     * 
+     * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
+     * Also accounts for ghost nodes.
+     * 
+     * @param rCellTypeCounter cell type counter
+     * @param rCellMutationStateCounter cell mutation state counter
+     * @param rCellCyclePhaseCounter cell cycle phase counter
+     */
+    virtual void GenerateCellResultsAndWriteToFiles(std::vector<unsigned>& rCellTypeCounter,
+                                                    std::vector<unsigned>& rCellMutationStateCounter,
+                                                    std::vector<unsigned>& rCellCyclePhaseCounter);
 };
 
 

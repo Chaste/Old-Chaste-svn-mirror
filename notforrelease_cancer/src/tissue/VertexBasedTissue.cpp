@@ -398,11 +398,7 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
 template<unsigned DIM>
 void VertexBasedTissue<DIM>::WriteResultsToFiles()
 {
-    std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
-
-    this->WriteTimeAndNodeResultsToFiles(cell_type_counter,
-                                         cell_mutation_state_counter,
-                                         cell_cycle_phase_counter);
+    AbstractTissue<DIM>::WriteResultsToFiles();
 
     // Write element data to file
     *mpElementFile << SimulationTime::Instance()->GetTime() << "\t";
@@ -421,20 +417,6 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
         }
     }
     *mpElementFile << "\n";
-
-    for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
-             iter != mrMesh.GetElementIteratorEnd();
-             ++iter)
-    {
-        this->GenerateCellResults(iter->GetIndex(),
-                                  cell_type_counter,
-                                  cell_mutation_state_counter,
-                                  cell_cycle_phase_counter);
-    }
-
-    this->WriteCellResultsToFiles(cell_type_counter,
-                                  cell_mutation_state_counter,
-                                  cell_cycle_phase_counter);
 
  #ifdef CHASTE_VTK
     VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);

@@ -131,11 +131,6 @@ public:
      */
     virtual double GetDampingConstant(unsigned nodeIndex);
 
-    /**
-     * Write results from the current tissue state to output files.
-     */
-    virtual void WriteResultsToFiles();
-
 };
 
 #endif /*ABSTRACTCELLCENTREBASEDTISSUE_HPP_*/

@@ -127,38 +127,6 @@ double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex
 }
 
 
-template<unsigned DIM>
-void AbstractCellCentreBasedTissue<DIM>::WriteResultsToFiles()
-{
-    AbstractTissue<DIM>::WriteResultsToFiles();
-
-    std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
-
-    this->WriteTimeAndNodeResultsToFiles(cell_type_counter,
-                                         cell_mutation_state_counter,
-                                         cell_cycle_phase_counter);
-
-	/*
-	 * Note that we cannot use a mesh iterator below, as the child class
-	 * NodeBasedTissue does not contain a mesh.
-	 */
-    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
-    {
-        if ( !(this->GetNode(node_index)->IsDeleted()) )
-        {
-            this->GenerateCellResults(node_index,
-                                      cell_type_counter,
-                                      cell_mutation_state_counter,
-                                      cell_cycle_phase_counter);
-        }
-    }
-
-    this->WriteCellResultsToFiles(cell_type_counter,
-                                  cell_mutation_state_counter,
-                                  cell_cycle_phase_counter);
-}
-
-
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

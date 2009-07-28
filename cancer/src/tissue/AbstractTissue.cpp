@@ -428,6 +428,27 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     *mpVizCellTypesFile << colour << " ";
 }
 
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::GenerateCellResultsAndWriteToFiles(std::vector<unsigned>& rCellTypeCounter,
+                                                             std::vector<unsigned>& rCellMutationStateCounter,
+                                                             std::vector<unsigned>& rCellCyclePhaseCounter)
+{
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = Begin();
+         cell_iter != End();
+         ++cell_iter)
+    {
+        GenerateCellResults(GetLocationIndexUsingCell(&(*cell_iter)),
+                            rCellTypeCounter,
+                            rCellMutationStateCounter,
+                            rCellCyclePhaseCounter);
+    }
+
+    WriteCellResultsToFiles(rCellTypeCounter,
+                            rCellMutationStateCounter,
+                            rCellCyclePhaseCounter);
+}
+
 template<unsigned DIM>
 void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
                                                   std::vector<unsigned>& rCellMutationStateCounter,
@@ -571,6 +592,16 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(std::vector<unsigned>& 
 template<unsigned DIM>
 void AbstractTissue<DIM>::WriteResultsToFiles()
 {
+    std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
+
+    WriteTimeAndNodeResultsToFiles(cell_type_counter,
+                                   cell_mutation_state_counter,
+                                   cell_cycle_phase_counter);
+
+    GenerateCellResultsAndWriteToFiles(cell_type_counter,
+                                       cell_mutation_state_counter,
+                                       cell_cycle_phase_counter);
+
     // Write logged cell data if required
     if (TissueConfig::Instance()->GetOutputCellIdData())
     {
@@ -600,6 +631,7 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
     }
     *mpCellIdFile << "\n";
 }
+
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

@@ -268,6 +268,25 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
     AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(rNodeForces, dt);
 }
 
+template<unsigned DIM>
+void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles(std::vector<unsigned>& rCellTypeCounter,
+                                                                            std::vector<unsigned>& rCellMutationStateCounter,
+                                                                            std::vector<unsigned>& rCellCyclePhaseCounter)
+{
+    for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = this->mrMesh.GetNodeIteratorBegin();
+         node_iter != this->mrMesh.GetNodeIteratorEnd();
+         ++node_iter)
+    {
+        this->GenerateCellResults(node_iter->GetIndex(),
+                                  rCellTypeCounter,
+                                  rCellMutationStateCounter,
+                                  rCellCyclePhaseCounter);
+    }
+
+    this->WriteCellResultsToFiles(rCellTypeCounter,
+                            rCellMutationStateCounter,
+                            rCellCyclePhaseCounter);
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

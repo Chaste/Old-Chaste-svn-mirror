@@ -401,6 +401,17 @@ public:
                                         std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**
+     * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
+     * 
+     * @param rCellTypeCounter cell type counter
+     * @param rCellMutationStateCounter cell mutation state counter
+     * @param rCellCyclePhaseCounter cell cycle phase counter
+     */
+    virtual void GenerateCellResultsAndWriteToFiles(std::vector<unsigned>& rCellTypeCounter,
+                                                    std::vector<unsigned>& rCellMutationStateCounter,
+                                                    std::vector<unsigned>& rCellCyclePhaseCounter);
+
+    /**
      * Generate results for a given cell in the current tissue state to output files.
      *
      * @param locationIndex location index of the cell
