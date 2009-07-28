@@ -65,7 +65,7 @@ public:
      * Reset method for the end time and the number of time steps, to run the simulation
      * further after a first initial run.
      *
-     * @param rEndTime the new end time for this simulation (the simulation will run from 
+     * @param rEndTime the new end time for this simulation (the simulation will run from
      *      the current time to this new end time, NOT from 0 to this end time)
      * @param rNumberOfTimeStepsInThisRun the number of time steps into which the next run is split
      */
@@ -73,7 +73,7 @@ public:
 
     /**
      * Get the simulation time step, set in earlier calls.
-     * 
+     *
      * Warning: Use of this method may result in round errors; generally use GetTime() instead.
      *
      * @return time step for this run of the simulation

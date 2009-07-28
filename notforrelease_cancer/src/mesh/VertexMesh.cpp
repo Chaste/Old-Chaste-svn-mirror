@@ -575,12 +575,12 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
         c_vector<double, 2> pos_1 = this->GetVectorFromAtoB(centroid, original_pos_1);
         c_vector<double, 2> pos_2 = this->GetVectorFromAtoB(centroid, original_pos_2);
 
-		/*
+        /*
          * Note these formulae require the polygon to be centered on the origin
          */
         double a = pos_1(0)*pos_2(1)-pos_2(0)*pos_1(1);
 
-		// Ixx
+        // Ixx
         moments(0) += (  pos_1(1)*pos_1(1)
                        + pos_1(1)*pos_2(1)
                        + pos_2(1)*pos_2(1) ) * a;
@@ -631,8 +631,8 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     {
         if (moments(2) == 0.0)
         {
-        	short_axis(0) = (moments(0) < moments(1)) ? 0.0 : 1.0;
-        	short_axis(1) = (moments(0) < moments(1)) ? 1.0 : 0.0;
+            short_axis(0) = (moments(0) < moments(1)) ? 0.0 : 1.0;
+            short_axis(1) = (moments(0) < moments(1)) ? 1.0 : 0.0;
         }
         else
         {
@@ -862,33 +862,33 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 
             // Loop over elements to check for T2Swaps
             // Seperate loops as need to check for T2Swaps first
-	        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
-	             iter != GetElementIteratorEnd();
-	             ++iter)
-	        {
+            for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
+                 iter != GetElementIteratorEnd();
+                 ++iter)
+            {
                 if (!recheck_mesh)
                 {
                     if (iter->GetNumNodes() == 3u)
-				    {
-					    /*
-				         *  Perform T2 swaps where necesary
-				         * Check there are only 3 nodes and the element is small enough
-				         */
-					    if (GetAreaOfElement(iter->GetIndex()) < GetT2Threshold())
-				        {
-				            PerformT2Swap(&(*iter));
-				            recheck_mesh = true;
+                    {
+                        /*
+                         *  Perform T2 swaps where necesary
+                         * Check there are only 3 nodes and the element is small enough
+                         */
+                        if (GetAreaOfElement(iter->GetIndex()) < GetT2Threshold())
+                        {
+                            PerformT2Swap(&(*iter));
+                            recheck_mesh = true;
                             break;
-				        }
-				    }
+                        }
+                    }
                 }
-	        }
+            }
 
-			// Loop over elements to check for T1Swaps
-			for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
-	             iter != GetElementIteratorEnd();
-	             ++iter)
-	        {
+            // Loop over elements to check for T1Swaps
+            for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
+                 iter != GetElementIteratorEnd();
+                 ++iter)
+            {
                 if (!recheck_mesh)
                 {
                     unsigned num_nodes = iter->GetNumNodes();
@@ -896,11 +896,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 
                     unsigned new_num_nodes = num_nodes;
 
-					/*
-			         *  Perform T1 swaps and divide edges where necesary
-			         *  Check there are > 3 nodes in both elements that contain the pair of nodes
-			         *  and the edges are small enough
-			         */
+                    /*
+                     *  Perform T1 swaps and divide edges where necesary
+                     *  Check there are > 3 nodes in both elements that contain the pair of nodes
+                     *  and the edges are small enough
+                     */
 
                     // Loop over element vertices
                     for (unsigned local_index=0; local_index<num_nodes; local_index++)
@@ -915,38 +915,38 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 
                         // If the nodes are too close together and we dont have a triangular element, perform a swap
                         std::set<unsigned> elements_of_node_a = p_current_node->rGetContainingElementIndices();
-					    std::set<unsigned> elements_of_node_b = p_anticlockwise_node->rGetContainingElementIndices();
+                        std::set<unsigned> elements_of_node_b = p_anticlockwise_node->rGetContainingElementIndices();
 
-					    std::set<unsigned> common_elements;
-					    std::set_intersection(elements_of_node_a.begin(), elements_of_node_a.end(),
-					                          elements_of_node_b.begin(), elements_of_node_b.end(),
-					                          std::inserter(common_elements, common_elements.begin()));
+                        std::set<unsigned> common_elements;
+                        std::set_intersection(elements_of_node_a.begin(), elements_of_node_a.end(),
+                                              elements_of_node_b.begin(), elements_of_node_b.end(),
+                                              std::inserter(common_elements, common_elements.begin()));
 
-					    common_elements.erase(iter->GetIndex());
+                        common_elements.erase(iter->GetIndex());
 
-					    if(common_elements.size() == 1u) // Also check neighboring element
-					    {
-					    	if ((distance_between_nodes < mCellRearrangementThreshold) && (iter->GetNumNodes() > 3u)
-					    		&& (this->GetElement(*common_elements.begin())->GetNumNodes() > 3))
-	                        {
-	                            // Identify the type of node swap/merge needed then call method to perform swap/merge
-	                            IdentifySwapType(p_current_node, p_anticlockwise_node);
+                        if(common_elements.size() == 1u) // Also check neighboring element
+                        {
+                            if ((distance_between_nodes < mCellRearrangementThreshold) && (iter->GetNumNodes() > 3u)
+                                && (this->GetElement(*common_elements.begin())->GetNumNodes() > 3))
+                            {
+                                // Identify the type of node swap/merge needed then call method to perform swap/merge
+                                IdentifySwapType(p_current_node, p_anticlockwise_node);
 
-	                            recheck_mesh = true;
-	                            break;
-	                        }
-					    }
-					    else // On boundary
-					    {
-	                        if ((distance_between_nodes < mCellRearrangementThreshold) && (iter->GetNumNodes() > 3u))
-	                        {
-	                            // Identify the type of node swap/merge needed then call method to perform swap/merge
-	                            IdentifySwapType(p_current_node, p_anticlockwise_node);
+                                recheck_mesh = true;
+                                break;
+                            }
+                        }
+                        else // On boundary
+                        {
+                            if ((distance_between_nodes < mCellRearrangementThreshold) && (iter->GetNumNodes() > 3u))
+                            {
+                                // Identify the type of node swap/merge needed then call method to perform swap/merge
+                                IdentifySwapType(p_current_node, p_anticlockwise_node);
 
-	                            recheck_mesh = true;
-	                            break;
-	                        }
-					    }
+                                recheck_mesh = true;
+                                break;
+                            }
+                        }
 
                         if (distance_between_nodes > mEdgeDivisionThreshold)
                         {
@@ -955,7 +955,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                             new_num_nodes++;
                         }
                     }
-				}
+                }
                 else
                 {
                     break;
@@ -1168,15 +1168,15 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 
            if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
            {
-       	       /*
-           	    * In this case, the node configuration looks like:
+                  /*
+                   * In this case, the node configuration looks like:
                 *
-	           	*     A  B                  A  B
-	            *   \ empty/              \      /
-	            *    \    /                \(1) /
-	            * (3) o--o (1)  or      (2) o--o (3)    (element number in brackets)
-	            *    / (2)\                /    \
-	            *   /      \              /empty \
+                   *     A  B                  A  B
+                *   \ empty/              \      /
+                *    \    /                \(1) /
+                * (3) o--o (1)  or      (2) o--o (3)    (element number in brackets)
+                *    / (2)\                /    \
+                *   /      \              /empty \
                 *
                 * We perform a Type 1 swap in this case.
                 */
@@ -1232,43 +1232,43 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 std::set<unsigned> node_gamma_elem_indices = p_node_gamma->rGetContainingElementIndices();
 
                 // Form the set intersection between gamma and beta
-			    std::set<unsigned> intersection_indices, temp_set2;
-			    std::set_intersection(node_beta_elem_indices.begin(), node_beta_elem_indices.end(),
-			                   node_gamma_elem_indices.begin(), node_gamma_elem_indices.end(),
-			                   std::inserter(temp_set2, temp_set2.begin()));
-			    intersection_indices.swap(temp_set2); // temp_set2 will be deleted
+                std::set<unsigned> intersection_indices, temp_set2;
+                std::set_intersection(node_beta_elem_indices.begin(), node_beta_elem_indices.end(),
+                               node_gamma_elem_indices.begin(), node_gamma_elem_indices.end(),
+                               std::inserter(temp_set2, temp_set2.begin()));
+                intersection_indices.swap(temp_set2); // temp_set2 will be deleted
 
                 if (intersection_indices.size() == 2)
                 {
                    /*
                     * In this case, the node configuration looks like:
                     *
-	                *     A  B             A  B
-	                *   \                       /
-	                *    \  (1)           (1)  /
-	                * (3) o--o---   or  ---o--o (3)    (element number in brackets)
-	                *    /  (2)           (2)  \
-	                *   /                       \
-	                *
+                    *     A  B             A  B
+                    *   \                       /
+                    *    \  (1)           (1)  /
+                    * (3) o--o---   or  ---o--o (3)    (element number in brackets)
+                    *    /  (2)           (2)  \
+                    *   /                       \
+                    *
                     * We perform a node merge in this case.
                     */
                     PerformNodeMerge(pNodeA, pNodeB);
-		        }
+                }
                 else if (intersection_indices.size() == 1) // Correct set up for T1Swap
                 {
                    /*
-	                * In this case, the node configuration looks like:
+                    * In this case, the node configuration looks like:
                     *
-	                *     A  B                      A  B
-	                *   \      /                  \      /
-	                *    \ (1)/                    \(1) /
-	                * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
-	                *    / (2)\                    /(2) \
-	                *   /      \                  /      \
-	                *
-	                * We perform a Type 1 swap in this case.
-	                */
-	                PerformT1Swap(pNodeA, pNodeB, all_indices);
+                    *     A  B                      A  B
+                    *   \      /                  \      /
+                    *    \ (1)/                    \(1) /
+                    * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
+                    *    / (2)\                    /(2) \
+                    *   /      \                  /      \
+                    *
+                    * We perform a Type 1 swap in this case.
+                    */
+                    PerformT1Swap(pNodeA, pNodeB, all_indices);
                 }
                 else
                 {
@@ -1700,12 +1700,12 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
 
         if (norm_2(a_to_intersection) < mCellRearrangementThreshold)
         {
-    		intersection = position_a + 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b);
-	    }
+            intersection = position_a + 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b);
+        }
         if (norm_2(b_to_intersection) < mCellRearrangementThreshold)
-    	{
-    		intersection = position_b - 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b);
-	    }
+        {
+            intersection = position_b - 2*mCellRearrangementThreshold*a_to_b/norm_2(a_to_b);
+        }
 
         // Add new node to the mesh
         unsigned new_node_global_index = this->AddNode(new Node<SPACE_DIM>(0, false, intersection[0], intersection[1]));

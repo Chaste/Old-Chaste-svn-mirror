@@ -48,9 +48,9 @@ double RandomCellKiller<DIM>::GetDeathProbabilityInAnHour() const
 template<unsigned DIM>
 void RandomCellKiller<DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
 {
-	// We assume a constant time step
-	double death_prob_this_timestep = 1.0 - pow((1.0 - mProbabilityOfDeathInAnHour), SimulationTime::Instance()->GetTimeStep());
-	
+    // We assume a constant time step
+    double death_prob_this_timestep = 1.0 - pow((1.0 - mProbabilityOfDeathInAnHour), SimulationTime::Instance()->GetTimeStep());
+
     if (!rCell.HasApoptosisBegun() &&
         RandomNumberGenerator::Instance()->ranf() < death_prob_this_timestep)
     {

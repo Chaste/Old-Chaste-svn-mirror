@@ -78,7 +78,7 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
     else
     {
         std::set< std::pair<Node<DIM>*, Node<DIM>* > >& r_node_pairs = (static_cast<NodeBasedTissue<DIM>*>(&rTissue))->rGetNodePairs();
-        
+
         assert(DIM==2); // 3d boxes not implemented yet - if fails nightly uncomment the double node loop below
                         // and use that for the 3d case
         for (typename std::set< std::pair<Node<DIM>*, Node<DIM>* > >::iterator iter = r_node_pairs.begin();
@@ -86,10 +86,10 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
             iter++)
         {
             std::pair<Node<DIM>*, Node<DIM>* > pair = *iter;
-            
+
             unsigned node_a_index = pair.first->GetIndex();
             unsigned node_b_index = pair.second->GetIndex();
-            
+
             // Calculate the force between nodes
             c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
             for (unsigned j=0; j<DIM; j++)
@@ -101,7 +101,7 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
             rForces[node_a_index] += force;
             rForces[node_b_index] -= force;
         }
-            
+
 //        // Iterate over nodes
 //        for (unsigned node_a_index=0; node_a_index<rTissue.GetNumNodes(); node_a_index++)
 //        {

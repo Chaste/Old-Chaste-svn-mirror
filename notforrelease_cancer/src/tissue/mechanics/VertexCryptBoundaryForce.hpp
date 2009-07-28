@@ -39,11 +39,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A boundary force class for use in vertex-based crypt simulations
  * to prevent cells moving below the bottom of the crypt (y=0).
- * 
+ *
  * The boundary force is taken to be zero for y>0, and proportional to y^2
  * for y<0 (hence is continuously differentiable at y=0). The constant of
  * proportionality is given by the parameter mForceStrength, whose value is
- * set in the constructor. 
+ * set in the constructor.
  */
 template<unsigned DIM>
 class VertexCryptBoundaryForce  : public AbstractForce<DIM>
@@ -52,7 +52,7 @@ friend class TestForcesNotForRelease;
 
 private:
 
-    /** Parameter determining the strength of the force acting on nodes below y=0. */ 
+    /** Parameter determining the strength of the force acting on nodes below y=0. */
     double mForceStrength;
 
     friend class boost::serialization::access;
@@ -69,7 +69,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param forceStrength the force strength
      */
     VertexCryptBoundaryForce(double forceStrength=1.0);

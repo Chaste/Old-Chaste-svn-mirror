@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how to create a new cell cycle model class and how this 
+ * In this tutorial we show how to create a new cell cycle model class and how this
  * can be used in a tissue simulation.
  *
  * EMPTYLINE
@@ -61,34 +61,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 
-/* The next two headers are used in archiving, and only need to be included 
- * if you want to be able to archive (save or load) the new cell killer object 
- * in a tissue simulation (in this case, these headers must be included before 
+/* The next two headers are used in archiving, and only need to be included
+ * if you want to be able to archive (save or load) the new cell killer object
+ * in a tissue simulation (in this case, these headers must be included before
  * any other serialisation headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-/* The next header defines a base class for simple generation-based cell 
- * cycle models. 
- * 
- * A cell cycle model is 'simple' if the duration of each phase of the cell 
- * cycle is determined when the cell cycle model is created, rather than 
- * evaluated 'on the fly' (e.g. by solving a system of ordinary differential 
- * equations for the concentrations of key cell cycle proteins), and may 
+/* The next header defines a base class for simple generation-based cell
+ * cycle models.
+ *
+ * A cell cycle model is 'simple' if the duration of each phase of the cell
+ * cycle is determined when the cell cycle model is created, rather than
+ * evaluated 'on the fly' (e.g. by solving a system of ordinary differential
+ * equations for the concentrations of key cell cycle proteins), and may
  * depend on the cell type.
- * 
- * A simple cell cycle model is generation-based if it keeps track of the 
- * generation of the corresponding cell, and sets the cell type according 
+ *
+ * A simple cell cycle model is generation-based if it keeps track of the
+ * generation of the corresponding cell, and sets the cell type according
  * to this.
- * 
+ *
  * Our new cell cycle model will inherit from this abstract class. */
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
-/* The remaining header files define classes that will be used in the tissue 
- * simulation test: {{{CheckReadyToDivideAndPhaseIsUpdated}}} defines a helper 
- * class for testing a cell cycle model; {{{HoneycombMeshGenerator}}} defines 
- * a helper class for generating a suitable mesh; {{{GeneralisedLinearSpringForce}}} 
- * defines a force law for describing the mechanical interactions between neighbouring 
- * cells in the tissue; and {{{TissueSimulation}}} defines the class that 
+/* The remaining header files define classes that will be used in the tissue
+ * simulation test: {{{CheckReadyToDivideAndPhaseIsUpdated}}} defines a helper
+ * class for testing a cell cycle model; {{{HoneycombMeshGenerator}}} defines
+ * a helper class for generating a suitable mesh; {{{GeneralisedLinearSpringForce}}}
+ * defines a force law for describing the mechanical interactions between neighbouring
+ * cells in the tissue; and {{{TissueSimulation}}} defines the class that
  * simulates the evolution of the tissue. */
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -100,31 +100,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * == Defining the cell cycle model class ==
  *
- * As an example, let us consider a cell cycle model in which the durations 
- * of S, G2 and M phases are fixed, but the duration of G1 phase is an exponential 
+ * As an example, let us consider a cell cycle model in which the durations
+ * of S, G2 and M phases are fixed, but the duration of G1 phase is an exponential
  * random variable with rate parameter lambda.
- * 
- * The rate parameter is a constant, dependent on cell type, whose value is 
- * chosen such that the mean of the distribution, 1/lambda, equals the mean 
- * G1 duration as defined in the {{{TissueConfig}}} singleton class. 
- * 
- * To implement this model we define a new cell cycle model, {{{MyCellCycleModel}}}, 
- * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and 
+ *
+ * The rate parameter is a constant, dependent on cell type, whose value is
+ * chosen such that the mean of the distribution, 1/lambda, equals the mean
+ * G1 duration as defined in the {{{TissueConfig}}} singleton class.
+ *
+ * To implement this model we define a new cell cycle model, {{{MyCellCycleModel}}},
+ * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
  * overrides the {{{SetG1Duration()}}} method.
  */
 class MyCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {
 private:
 
-    /* You only need to include the next block of code if you want to be able 
-     * to archive (save or load) the cell cycle model object in a tissue simulation. 
-     * The code consists of a serialize method, in which we first archive the cell 
-     * cycle model using the serialization code defined in the base class 
-     * {{{AbstractSimpleGenerationBasedCellCycleModel}}}. We then archive an instance 
-     * of the {{{RandomNumberGenerator}}} singleton class, which is used in the 
-     * {{{SetG1Duration()}}} method. Note that serialization of singleton objects 
-     * must be done with care. Before the object is serialized via a pointer, it must 
-     * be serialized directly, or an assertion will trip when a second instance of the 
+    /* You only need to include the next block of code if you want to be able
+     * to archive (save or load) the cell cycle model object in a tissue simulation.
+     * The code consists of a serialize method, in which we first archive the cell
+     * cycle model using the serialization code defined in the base class
+     * {{{AbstractSimpleGenerationBasedCellCycleModel}}}. We then archive an instance
+     * of the {{{RandomNumberGenerator}}} singleton class, which is used in the
+     * {{{SetG1Duration()}}} method. Note that serialization of singleton objects
+     * must be done with care. Before the object is serialized via a pointer, it must
+     * be serialized directly, or an assertion will trip when a second instance of the
      * class is created on de-serialization. */
     friend class boost::serialization::access;
     template<class Archive>
@@ -139,18 +139,18 @@ private:
     /* We override the {{{SetG1Duration()}}} method as follows. */
     void SetG1Duration()
     {
-        /* As we will access the cell type of the cell associated with this cell 
+        /* As we will access the cell type of the cell associated with this cell
          * cycle model, we should assert that this cell exists. */
         assert(mpCell != NULL);
 
         /* We now set the G1 duration based on cell type.
          *
-         * For stem and transit cells, we use the {{{RandomNumberGenerator}}} 
-         * singleton class to generate a random number U drawn from U[0,1], and 
-         * transform this into a random number T drawn from Exp(lambda) using 
+         * For stem and transit cells, we use the {{{RandomNumberGenerator}}}
+         * singleton class to generate a random number U drawn from U[0,1], and
+         * transform this into a random number T drawn from Exp(lambda) using
          * the transformation T = -log(U)/lambda.
-         * 
-         * For differentiated cells, which do not progress through the 
+         *
+         * For differentiated cells, which do not progress through the
          * cell cycle, we set the G1 duration to {{{DBL_MAX}}}. */
         double uniform_random_number = RandomNumberGenerator::Instance()->ranf();
 
@@ -170,27 +170,27 @@ private:
         }
     }
 
-/* The first public method is a default constructor, which just calls the base 
+/* The first public method is a default constructor, which just calls the base
  * constructor. */
 public:
 
     MyCellCycleModel()
     {}
 
-    /* The second public method overrides {{{CreateCellCycleModel()}}}. This is a 
+    /* The second public method overrides {{{CreateCellCycleModel()}}}. This is a
      * builder method to create new copies of the cell cycle model. */
     AbstractCellCycleModel* CreateCellCycleModel()
     {
         return new MyCellCycleModel(*this);
-    }   
+    }
 };
 
-/* You only need to include the next block of code if you want to be able to 
+/* You only need to include the next block of code if you want to be able to
  * archive (save or load) the cell cycle model object in a tissue simulation. */
 BOOST_CLASS_EXPORT(MyCellCycleModel)
 
 /*
- * This completes the code for {{{MyCellCycleModel}}}. Note that usually this code would 
+ * This completes the code for {{{MyCellCycleModel}}}. Note that usually this code would
  * be separated out into a separate declaration in a .hpp file and definition in a .cpp file.
  *
  * EMPTYLINE
@@ -198,7 +198,7 @@ BOOST_CLASS_EXPORT(MyCellCycleModel)
  * === The Tests ===
  *
  * EMPTYLINE
- * 
+ *
  * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
 class TestCreatingAndUsingANewCellCycleModelTutorial : public CxxTest::TestSuite
@@ -211,16 +211,16 @@ public:
      * == Testing the cell cycle model ==
      *
      * EMPTYLINE
-     * 
+     *
      * We begin by testing that our new cell cycle model is implemented correctly.
      */
     void TestMyCellCycleModel() throw(Exception)
     {
-        /* We must first set the start time. In addition, it is advisable to reset 
-         * the values of all model parameters. Recall that {{{SimulationTime}}} and 
-         * {{{TissueConfig}}} are ''singleton'' classes; this means one and only 
-         * one of each of these objects is instantiated at any time, and that single 
-         * object is accessible from anywhere in the code. As a result, we do not need 
+        /* We must first set the start time. In addition, it is advisable to reset
+         * the values of all model parameters. Recall that {{{SimulationTime}}} and
+         * {{{TissueConfig}}} are ''singleton'' classes; this means one and only
+         * one of each of these objects is instantiated at any time, and that single
+         * object is accessible from anywhere in the code. As a result, we do not need
          * to keep passing round the current time or model parameter values. */
         SimulationTime::Instance()->SetStartTime(0.0);
         TissueConfig::Instance()->Reset();
@@ -228,7 +228,7 @@ public:
         /* Test that we can construct a {{{MyCellCycleModel}}} object: */
         TS_ASSERT_THROWS_NOTHING(MyCellCycleModel cell_model3);
 
-        /* Now construct and initialise a large number of {{{MyCellCycleModel}}}s and 
+        /* Now construct and initialise a large number of {{{MyCellCycleModel}}}s and
          * associated cells: */
         unsigned num_cells = 1e5;
         std::vector<TissueCell> cells;
@@ -240,7 +240,7 @@ public:
             cells.push_back(cell);
         }
 
-        /* Find the mean G1 duration and test that it is within some tolerance of 
+        /* Find the mean G1 duration and test that it is within some tolerance of
          * the expected value: */
         double expected_mean_g1_duration = TissueConfig::Instance()->GetStemCellG1Duration();
         double sample_mean_g1_duration = 0.0;
@@ -257,10 +257,10 @@ public:
         TissueCell my_cell(TRANSIT, HEALTHY, p_my_model);
         my_cell.InitialiseCellCycleModel();
 
-        /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to 
+        /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to
          * test that this cell progresses correctly through the cell cycle. */
         unsigned num_steps = 100;
-        double mean_cell_cycle_time = TissueConfig::Instance()->GetStemCellG1Duration() 
+        double mean_cell_cycle_time = TissueConfig::Instance()->GetStemCellG1Duration()
                                         + TissueConfig::Instance()->GetSG2MDuration();
 
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(mean_cell_cycle_time, num_steps);
@@ -269,21 +269,20 @@ public:
         {
             SimulationTime::Instance()->IncrementTimeOneStep();
 
-            /* The numbers for the G1 duration below is taken from the first 
+            /* The numbers for the G1 duration below is taken from the first
              * random number generated: */
             CheckReadyToDivideAndPhaseIsUpdated(p_my_model, 1.18892);
         }
 
-        /* Lastly, we briefly test that archiving of {{{MyCellCycleModel}}} has 
-         * been implemented correctly. Create an {{{OutputFileHandler}}} and use 
+        /* Lastly, we briefly test that archiving of {{{MyCellCycleModel}}} has
+         * been implemented correctly. Create an {{{OutputFileHandler}}} and use
          * this to define a filename for the archive. */
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_cycle_model.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "my_cell_cycle_model.arch";
 
         /* Create an output archive. */
         {
-            /* Destroy the current instance of {{{SimulationTime}}} and create another instance. 
+            /* Destroy the current instance of {{{SimulationTime}}} and create another instance.
              * Set the start time, end time and number of time steps. */
             SimulationTime::Destroy();
             SimulationTime::Instance()->SetStartTime(0.0);
@@ -313,8 +312,8 @@ public:
             output_arch << p_cell;
         }
 
-        /* Now create an input archive. Begin by again destroying the current 
-         * instance of {{{SimulationTime}}} and creating another instance. Set 
+        /* Now create an input archive. Begin by again destroying the current
+         * instance of {{{SimulationTime}}} and creating another instance. Set
          * the start time, end time and number of time steps. */
         {
             SimulationTime::Destroy();
@@ -356,8 +355,8 @@ public:
      * == Using the cell cycle model in a tissue simulation ==
      *
      * EMPTYLINE
-     * 
-     * We conclude with a brief test demonstrating how {{{MyCellCycleModel}}} can be used 
+     *
+     * We conclude with a brief test demonstrating how {{{MyCellCycleModel}}} can be used
      * in a tissue simulation.
      */
     void TestTissueSimulationWithMyCellCycleModel() throw(Exception)
@@ -367,7 +366,7 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
         TissueConfig::Instance()->Reset();
 
-        /* We use the honeycomb mesh generator to create a honeycomb mesh covering a 
+        /* We use the honeycomb mesh generator to create a honeycomb mesh covering a
          * circular domain of given radius.
          */
         HoneycombMeshGenerator generator(10, 10, 0, false);
@@ -387,21 +386,21 @@ public:
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (TissueConfig::Instance()->GetStemCellG1Duration() 
+                                    (TissueConfig::Instance()->GetStemCellG1Duration()
                                         + TissueConfig::Instance()->GetSG2MDuration());
             /* We then set the birth time and push the cell back into the vector of cells. */
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
 
-        /* Now that we have defined the mesh and cells, we can define the tissue. The constructor 
+        /* Now that we have defined the mesh and cells, we can define the tissue. The constructor
          * takes in the mesh and the cells vector. */
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         /* We must now create one or more force laws, which determine the mechanics of
          * the tissue. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring, and so use 
-         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force 
+         * neighbour that can be represented as a linear overdamped spring, and so use
+         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
          * into a vector. Note that we have called the method {{{UseCutoffPoint}}} on the
          * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
          * laws - this modifies the force law so that two neighbouring cells do not impose

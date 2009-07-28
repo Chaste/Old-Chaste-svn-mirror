@@ -169,7 +169,7 @@ public:
     }
 
     /**
-     * The purpose of this test is to check that it is possible to construct and run 
+     * The purpose of this test is to check that it is possible to construct and run
      * a short 1D tissue simulation without throwing any exceptions.
      */
     void Test1dTissueSimulation() throw (Exception)

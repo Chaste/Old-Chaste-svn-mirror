@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how to create a new tissue simulation class in which cells 
+ * In this tutorial we show how to create a new tissue simulation class in which cells
  * are constrained to lie within a fixed domain.
  *
  * EMPTYLINE
@@ -62,16 +62,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 
-/* The next header defines a base class for tissue simulations, from which 
+/* The next header defines a base class for tissue simulations, from which
  * the new class will inherit. */
 #include "TissueSimulation.hpp"
-/* The remaining header files define classes that will be used in the tissue 
- * simulation test: {{{HoneycombMeshGenerator}}} defines a helper class for 
- * generating a suitable mesh; {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}} 
- * defines a helper class for generating a vector of cells with fixed cell 
- * cycle models; {{{GeneralisedLinearSpringForce}}} defines a force law for 
- * describing the mechanical interactions between neighbouring cells in the 
- * tissue; and {{{TissueSimulation}}} defines the class that simulates the 
+/* The remaining header files define classes that will be used in the tissue
+ * simulation test: {{{HoneycombMeshGenerator}}} defines a helper class for
+ * generating a suitable mesh; {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}}
+ * defines a helper class for generating a vector of cells with fixed cell
+ * cycle models; {{{GeneralisedLinearSpringForce}}} defines a force law for
+ * describing the mechanical interactions between neighbouring cells in the
+ * tissue; and {{{TissueSimulation}}} defines the class that simulates the
  * evolution of a tissue. */
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
@@ -82,20 +82,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * == Defining the tissue simulation class ==
  *
- * As an example, let us consider a two-dimensional tissue simulation in which 
- * all cells are constrained to lie within the domain given in Cartesian coordinates  
- * by 0 <= y <= 5. To implement this we define a tissue simulation class, 
- * {{{MyTissueSimulation}}}, which inherits from {{{TissueSimulation}}} and overrides 
+ * As an example, let us consider a two-dimensional tissue simulation in which
+ * all cells are constrained to lie within the domain given in Cartesian coordinates
+ * by 0 <= y <= 5. To implement this we define a tissue simulation class,
+ * {{{MyTissueSimulation}}}, which inherits from {{{TissueSimulation}}} and overrides
  * the {{{ApplyTissueBoundaryConditions()}}} method.
  */
 class MyTissueSimulation : public TissueSimulation<2>
 {
-/* The first public method is a default constructor, which just calls the base 
- * constructor. There are four input argument: a reference to a tissue object, 
- * {{{rTissue}}}; a collection of force laws governing tissue mechanics, 
- * {{{forceCollection}}}; an optional flag, {{{deleteTissueAndForceCollection}}}, 
- * telling the simulation whether to delete the tissue and force collection 
- * on destruction to free up memory; and another optional flag, {{{initialiseCells}}}, 
+/* The first public method is a default constructor, which just calls the base
+ * constructor. There are four input argument: a reference to a tissue object,
+ * {{{rTissue}}}; a collection of force laws governing tissue mechanics,
+ * {{{forceCollection}}}; an optional flag, {{{deleteTissueAndForceCollection}}},
+ * telling the simulation whether to delete the tissue and force collection
+ * on destruction to free up memory; and another optional flag, {{{initialiseCells}}},
  * telling the simulation whether to initialise cells. */
 public:
 
@@ -107,13 +107,13 @@ public:
     {
     }
 
-    /* The second public method overrides {{{ApplyTissueBoundaryConditions()}}}. 
-     * This method is called during the {{{Solve()}}} method at the end of each 
-     * timestep, just after the position of each node in the tissue has been 
-     * updated according to its equation of motion. We iterate over all nodes 
-     * associated with real cells and update their positions according to any 
+    /* The second public method overrides {{{ApplyTissueBoundaryConditions()}}}.
+     * This method is called during the {{{Solve()}}} method at the end of each
+     * timestep, just after the position of each node in the tissue has been
+     * updated according to its equation of motion. We iterate over all nodes
+     * associated with real cells and update their positions according to any
      * boundary conditions. In our case, this means that if any node moves
-     * This method iterates over all cells in the tissue, and calls {{{Kill()}}} on 
+     * This method iterates over all cells in the tissue, and calls {{{Kill()}}} on
      * any cell whose centre has y coordinate less than 0 or greater than 5. */
     void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations)
     {
@@ -138,14 +138,14 @@ public:
             assert(p_node->rGetLocation()[1] <= 5.0);
             assert(p_node->rGetLocation()[1] >= 0.0);
         }
-    }   
+    }
 };
 
-/* You only need to include the next block of code if you want to be able to 
- * archive (save or load) the tissue simulation. We start by including a 
- * serialization header, then define {{{save_construct_data}}} and 
- * {{{load_construct_data}}} methods, which archive the tissue simulation 
- * constructor input argument(s) (in this case, a tissue and a collection of 
+/* You only need to include the next block of code if you want to be able to
+ * archive (save or load) the tissue simulation. We start by including a
+ * serialization header, then define {{{save_construct_data}}} and
+ * {{{load_construct_data}}} methods, which archive the tissue simulation
+ * constructor input argument(s) (in this case, a tissue and a collection of
  * force laws). */
 BOOST_CLASS_EXPORT(MyTissueSimulation)
 
@@ -173,7 +173,7 @@ namespace boost
             ar >> p_tissue;
             std::vector<AbstractForce<2>*> force_collection;
             ar >> force_collection;
-        
+
             // Invoke inplace constructor to initialise instance
             ::new(t)MyTissueSimulation(*p_tissue, force_collection, true, false);
         }
@@ -182,8 +182,8 @@ namespace boost
 
 
 /*
- * This completes the code for {{{MyTissueSimulation}}}. Note that usually this code 
- * would be separated out into a separate declaration in a .hpp file and definition 
+ * This completes the code for {{{MyTissueSimulation}}}. Note that usually this code
+ * would be separated out into a separate declaration in a .hpp file and definition
  * in a .cpp file.
  *
  * EMPTYLINE
@@ -191,7 +191,7 @@ namespace boost
  * === The Tests ===
  *
  * EMPTYLINE
- * 
+ *
  * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
 class TestCreatingATissueSimulationWithBoundaryConditionsTutorial : public CxxTest::TestSuite
@@ -204,7 +204,7 @@ public:
      * == Testing the tissue simulation ==
      *
      * EMPTYLINE
-     * 
+     *
      * We now test that our new tissue simulation is implemented correctly.
      */
     void TestMyTissueSimulation() throw(Exception)
@@ -219,24 +219,24 @@ public:
         /* Get the mesh using the {{{GetMesh()}}} method. */
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s. 
-         * To do this, we can use a static method on the 
-         * {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}} helper class. 
-         * The {{{<2>}}} below denotes the dimension. We create an empty vector of cells 
-         * and pass this into the method along with the mesh. The {{{cells}}} vector is 
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
+         * To do this, we can use a static method on the
+         * {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}} helper class.
+         * The {{{<2>}}} below denotes the dimension. We create an empty vector of cells
+         * and pass this into the method along with the mesh. The {{{cells}}} vector is
          * populated once the method {{{GenerateBasic}}} is called. */
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
-        /* Now that we have defined the mesh and cells, we can define the tissue. The 
+        /* Now that we have defined the mesh and cells, we can define the tissue. The
          * constructor takes in the mesh and the cells vector. */
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         /* We must now create one or more force laws, which determine the mechanics of
          * the tissue. For this test, we assume that a cell experiences a force from each
-         * neighbour that can be represented as a linear overdamped spring, and so use 
-         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force 
+         * neighbour that can be represented as a linear overdamped spring, and so use
+         * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
          * into a vector. Note that we have called the method {{{UseCutoffPoint}}} on the
          * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
          * laws - this modifies the force law so that two neighbouring cells do not impose

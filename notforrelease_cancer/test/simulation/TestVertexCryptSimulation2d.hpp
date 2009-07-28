@@ -73,10 +73,10 @@ private:
 
         TS_ASSERT_EQUALS(pMesh1->GetNumElements(), pMesh2->GetNumElements());
 
-		for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = pMesh1->GetElementIteratorBegin();
+        for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = pMesh1->GetElementIteratorBegin();
              iter != pMesh1->GetElementIteratorEnd();
              ++iter)
-		{
+        {
             unsigned elem_index = iter->GetIndex();
             VertexElement<DIM,DIM> *p_elt2 = pMesh2->GetElement(elem_index);
             TS_ASSERT_EQUALS(iter->GetNumNodes(), p_elt2->GetNumNodes());
@@ -221,7 +221,7 @@ public:
                 birth_time = -23.5;
                 cell_type = STEM;
             }
-            // Cells 2 3 and 4 should divide at later times 
+            // Cells 2 3 and 4 should divide at later times
             else if ((elem_index==1)||(elem_index==2)||(elem_index==3))
             {
                 birth_time = -15.5 - 2.0*(double)elem_index;
@@ -250,17 +250,17 @@ public:
         simulator.SetSamplingTimestepMultiple(1);
         simulator.SetEndTime(1.0);
         simulator.SetOutputDirectory("TestVertexCryptWithBirth");
-        
-        // Make crypt shorter for sloughing 
+
+        // Make crypt shorter for sloughing
         TissueConfig::Instance()->SetCryptLength(5.0);
-                
+
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
-    
+
     void noTestCryptSimulationLong() throw (Exception)
     {
         // Create mesh
@@ -273,7 +273,7 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            
+
             StochasticDurationGenerationBasedCellCycleModel *p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
             CellType cell_type;
             unsigned generation;
@@ -283,31 +283,31 @@ public:
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
-                generation=0; 
+                generation=0;
             }
                // Cells 0 1 2 3 4 and 5 are stem cells
             else if (elem_index<24)
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
-                generation=1; 
+                generation=1;
             }
             else if (elem_index<40)
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
-                generation=2; 
+                generation=2;
             }
             else
             {
                 cell_type = DIFFERENTIATED;
-                generation=3; 
+                generation=3;
             }
-            
+
             p_cell_cycle_model->SetGeneration(generation);
 
             TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
-            
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -326,18 +326,18 @@ public:
         simulator.SetEndTime(200);
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
-        // Modified parameters to make cells equilibriate 
+        // Modified parameters to make cells equilibriate
         TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0001);//0.1
         TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);//1.0
         TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(10.0);//0.1
         TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);//0.1
         TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);//0.1
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
-        
 
-        // Make crypt shorter for sloughing 
+
+        // Make crypt shorter for sloughing
         TissueConfig::Instance()->SetCryptLength(8.0);
-                
+
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -450,7 +450,7 @@ public:
         simulator.SetEndTime(10);
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
-        // Modified parameters to make cells equilibriate 
+        // Modified parameters to make cells equilibriate
         TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0005);
         TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);
         TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);
@@ -458,7 +458,7 @@ public:
         TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
 
-        // Make crypt shorter for sloughing 
+        // Make crypt shorter for sloughing
         TissueConfig::Instance()->SetCryptLength(8.0);
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);

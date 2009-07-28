@@ -180,20 +180,20 @@ public:
         cells.push_back(cell);
 
         NodeBasedTissue<2> tissue(nodes, cells);
-        
+
         // throws exception as update hasn't been called so no node pairs set up yet
         TS_ASSERT_THROWS_ANYTHING(tissue.rGetNodePairs());
-        
+
         // throws exception as the cut-off length hasn't been set and has its default value of DBL_MAX
         TS_ASSERT_THROWS_ANYTHING(tissue.Update());
 
         TissueConfig::Instance()->SetMechanicsCutOffLength(1.2);
         tissue.Update();
-        
+
         std::set< std::pair<Node<2>*, Node<2>* > >& r_node_pairs = tissue.rGetNodePairs();
         r_node_pairs.clear();
     }
-    
+
     void TestAddCell()
     {
         // Create two nodes
@@ -346,7 +346,7 @@ public:
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
-        
+
         // Test we have the right numbers of nodes and cells
         TS_ASSERT_EQUALS(node_based_tissue.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), 81u);
@@ -357,7 +357,7 @@ public:
 
         TissueConfig::Instance()->SetMechanicsCutOffLength(1.2);
         node_based_tissue.Update(true);
-        
+
         // Test that one cell has been removed
         TS_ASSERT_EQUALS(num_removed, 1u);
         TS_ASSERT_EQUALS(node_based_tissue.GetNumRealCells(), 80u);
@@ -537,11 +537,11 @@ public:
         std::string output_directory = "TestNodeBasedTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-		TissueConfig::Instance()->SetOutputCellMutationStates(true);
-		TissueConfig::Instance()->SetOutputCellTypes(true);
-		TissueConfig::Instance()->SetOutputCellCyclePhases(true);
-		TissueConfig::Instance()->SetOutputCellAncestors(true);
-		TissueConfig::Instance()->SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+        TissueConfig::Instance()->SetOutputCellAncestors(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
 
         TS_ASSERT_THROWS_NOTHING(node_based_tissue.CreateOutputFiles(output_directory, false));
 
@@ -624,9 +624,9 @@ public:
 
         std::string output_directory = "TestWritingCellCyclePhases";
         OutputFileHandler output_file_handler(output_directory, false);
-		
-		TissueConfig::Instance()->SetOutputCellCyclePhases(true);
-		
+
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+
         node_based_tissue.CreateOutputFiles(output_directory, false);
         node_based_tissue.WriteResultsToFiles();
         node_based_tissue.CloseOutputFiles();
@@ -643,8 +643,7 @@ public:
     void TestArchivingTissue() throw (Exception)
     {
         OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "NodeBasedTissue.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "NodeBasedTissue.arch";
 
         // Archive a simple tissue
         {
@@ -741,9 +740,9 @@ public:
             delete p_tissue;
         }
     }
-    
-    
-    
+
+
+
 };
 
 #endif /*TESTNODEBASEDTISSUE_HPP_*/

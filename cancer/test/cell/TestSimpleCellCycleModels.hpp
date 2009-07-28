@@ -376,8 +376,7 @@ public:
     void TestArchiveFixedDurationGenerationBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "fixed_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "fixed_cell_cycle.arch";
 
         // Create an output archive
         {
@@ -436,8 +435,7 @@ public:
     void TestArchiveStochasticDurationGenerationBasedCellCycleModel()
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_cell_cycle.arch";
 
         double random_number_test = 0;
 
@@ -517,8 +515,7 @@ public:
         TissueConfig *p_params = TissueConfig::Instance();
 
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "simple_wnt_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "simple_wnt_cell_cycle.arch";
 
         // Set up the Wnt concentration
         double wnt_level = 1.0;

@@ -164,8 +164,7 @@ public:
 
         // Work out where to put the archive
         OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "cellwise_data.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cellwise_data.arch";
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cellwise_data_mesh");
 
         {

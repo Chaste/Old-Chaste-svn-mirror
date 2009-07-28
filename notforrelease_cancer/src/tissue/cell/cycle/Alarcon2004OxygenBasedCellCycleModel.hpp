@@ -90,12 +90,12 @@ public:
      * @param dimension the spatial dimension (needed by the templated class CellwiseData)
      */
     Alarcon2004OxygenBasedCellCycleModel(unsigned dimension);
-    
+
     /**
      * Copy constructor.
-     * 
+     *
      * Also copies our ODE system.
-     * 
+     *
      * @param rOtherModel the instance being copied.
      */
     Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& rOtherModel);

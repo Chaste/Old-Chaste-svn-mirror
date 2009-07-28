@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- * VertexElementMap class used when remeshing. The map associates the indices 
+ * VertexElementMap class used when remeshing. The map associates the indices
  * of VertexElements in the old mesh with indices of VertexElements in the new mesh.
  */
 class VertexElementMap

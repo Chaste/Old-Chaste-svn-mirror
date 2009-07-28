@@ -71,7 +71,7 @@ std::set< Node<DIM>* >& NodeBox<DIM>::rGetNodesContained()
 template<unsigned DIM>
 NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 2*DIM> domainSize)
     : mDomainSize(domainSize),
-      mCutOffLength(cutOffLength)   
+      mCutOffLength(cutOffLength)
 {
     assert(DIM==2); //todo: 3d node box collection
     switch (DIM)
@@ -94,7 +94,7 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
 //
 //                box_min_x += cutOffLength;
 //            }
-//            
+//
 //            break;
 //        }
         case 2:

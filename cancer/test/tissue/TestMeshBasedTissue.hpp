@@ -407,9 +407,9 @@ public:
         std::string output_directory = "TestTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-		TissueConfig::Instance()->SetOutputCellMutationStates(true);
-		TissueConfig::Instance()->SetOutputCellTypes(true);
-		TissueConfig::Instance()->SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
 
         TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
 
@@ -476,8 +476,7 @@ public:
     void TestArchivingMeshBasedTissue() throw (Exception)
     {
         OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "mesh_based_tissue.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mesh_based_tissue.arch";
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"mesh_based_tissue_mesh");
 
         std::vector<c_vector<double,2> > cell_locations;

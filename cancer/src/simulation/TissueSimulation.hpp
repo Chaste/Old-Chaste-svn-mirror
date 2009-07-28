@@ -43,18 +43,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre- or vertex-based 
+ * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre- or vertex-based
  * tissue.
- * 
- * In cell-centre-based tissues, each cell is represented by a single node (corresponding 
- * to its centre), and connectivity is defined either by a Delaunay triangulation or 
- * a radius of influence. In vertex-based tissues, each cell is represented by a polytope 
- * (corresponding to its membrane) with a variable number of vertices. 
  *
- * The TissueSimulation is constructed with a Tissue, which updates the correspondence 
- * between each TissueCell and its spatial representation and handles cell division (governed 
- * by the CellCycleModel associated with each cell); and one or more Force laws, which define 
- * the mechanical properties of the Tissue. It is also possible to add one or more CellKiller 
+ * In cell-centre-based tissues, each cell is represented by a single node (corresponding
+ * to its centre), and connectivity is defined either by a Delaunay triangulation or
+ * a radius of influence. In vertex-based tissues, each cell is represented by a polytope
+ * (corresponding to its membrane) with a variable number of vertices.
+ *
+ * The TissueSimulation is constructed with a Tissue, which updates the correspondence
+ * between each TissueCell and its spatial representation and handles cell division (governed
+ * by the CellCycleModel associated with each cell); and one or more Force laws, which define
+ * the mechanical properties of the Tissue. It is also possible to add one or more CellKiller
  * objects to the TissueSimulation, which specify the conditions under which a TissueCell dies.
  */
 template<unsigned DIM>
@@ -179,10 +179,10 @@ protected:
     unsigned DoCellBirth();
 
     /**
-     * Calculate the new locations of the cell centres of a dividing cell, move 
+     * Calculate the new locations of the cell centres of a dividing cell, move
      * the parent cell and return the location of the daughter cell.
-     * 
-     * The new locations are found by picking a random direction and placing the 
+     *
+     * The new locations are found by picking a random direction and placing the
      * parent and daughter in opposing directions along this axis.
      *
      * @param pParentCell pointer to the parent cell

@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This class consists of a single test, in which a 2D model
- * of a growing monolayer of cells is simulated for a fixed 
+ * of a growing monolayer of cells is simulated for a fixed
  * period of time.
  *
  * This test is used for profiling, to establish the run time
@@ -52,7 +52,7 @@ public:
 
     void Test2DMonolayerRepresentativeSimulationForProfiling() throw (Exception)
     {
-    	// Set start time
+        // Set start time
         SimulationTime::Instance()->SetStartTime(0.0);
 
         // Create a simple mesh
@@ -89,9 +89,9 @@ public:
         simulator.SetEndTime(50.0);
 
         // Run simulation
-		simulator.Solve();
+        simulator.Solve();
 
-		// Tidy up
+        // Tidy up
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

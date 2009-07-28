@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNodeBoxCollection : public AbstractCancerTestSuite
 {
 public:
-     
+
     void TestNodeBox() throw (Exception)
     {
         c_vector<double, 2*2> box_size;
@@ -51,32 +51,32 @@ public:
         box_size(1) = 1.1; // max x
         box_size(2) = -0.1; // min y
         box_size(3) = 1.1; // max y
-        
+
         NodeBox<2> test_box(box_size);
         c_vector<double, 2*2> returned_min_max_values = test_box.rGetMinAndMaxValues();
         for (unsigned i=0; i<4; i++)
         {
             TS_ASSERT_EQUALS(returned_min_max_values(i), box_size(i));
         }
-    
+
         c_vector<double, 2> node_location;
         node_location(0) = 0.5;
         node_location(1) = 0.5;
-        
+
         Node<2> test_node(213,node_location);
-        
+
         test_box.AddNode(&test_node);
         std::set< Node<2>* > nodes_contained_before = test_box.rGetNodesContained();
-        
+
         TS_ASSERT_EQUALS(*(nodes_contained_before.begin()), &test_node);
         TS_ASSERT_EQUALS((*(nodes_contained_before.begin()))->GetIndex(), 213u);
-        
+
         test_box.RemoveNode(&test_node);
         std::set< Node<2>* > nodes_contained_after = test_box.rGetNodesContained();
         TS_ASSERT(nodes_contained_after.empty());
     }
-    
-    
+
+
     void TestBoxGeneration2d() throw (Exception)
     {
         // Create a simple mesh
@@ -114,7 +114,7 @@ public:
         {
             std::set< Node<2>* > nodes_in_box = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetNodesContained();
             c_vector<double, 2*2> box_min_max_values = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetMinAndMaxValues();
-            
+
             for (std::set< Node<2>* >::iterator it_nodes_in_box = nodes_in_box.begin();
                 it_nodes_in_box != nodes_in_box.end();
                 it_nodes_in_box++)
@@ -122,9 +122,9 @@ public:
                 Node<2>* current_node = *it_nodes_in_box;
                 double x_position = current_node->rGetLocation()[0];
                 double y_position = current_node->rGetLocation()[1];
-                
+
                 double epsilon = 1e-12;
-                
+
                 TS_ASSERT_LESS_THAN(box_min_max_values(0)-epsilon, x_position);
                 TS_ASSERT_LESS_THAN(x_position, box_min_max_values(1)+epsilon);
                 TS_ASSERT_LESS_THAN(box_min_max_values(2)-epsilon, y_position);
@@ -133,7 +133,7 @@ public:
         }
 
         // Have checked that all the local boxes are calculated correctly on a 5 by 6 grid - here we
-        // hardcode a few checks on the 7 by 7 grid. 
+        // hardcode a few checks on the 7 by 7 grid.
         std::set<unsigned> local_boxes_to_box_0 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(0);
         std::set<unsigned> correct_answer_0;
         correct_answer_0.insert(0);
@@ -153,7 +153,7 @@ public:
         TS_ASSERT_EQUALS(local_boxes_to_box_4, correct_answer_4);
 
         std::set<unsigned> local_boxes_to_box_10 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(10);
-        std::set<unsigned> correct_answer_10; 
+        std::set<unsigned> correct_answer_10;
         correct_answer_10.insert(2);
         correct_answer_10.insert(3);
         correct_answer_10.insert(4);
@@ -173,7 +173,7 @@ public:
         correct_answer_48.insert(48);
         TS_ASSERT_EQUALS(local_boxes_to_box_48, correct_answer_48);
     }
-    
+
     void TestPairsReturned() throw (Exception)
     {
         std::vector< ChastePoint<2>* > points(10);
@@ -187,7 +187,7 @@ public:
         points[7] = new ChastePoint<2>(2.6, 1.4);
         points[8] = new ChastePoint<2>(2.4, 1.5);
         points[9] = new ChastePoint<2>(3.3, 3.6);
-        
+
         std::vector<Node<2>* > nodes;
         for (unsigned i=0; i<points.size(); i++)
         {
@@ -195,20 +195,20 @@ public:
         }
 
         NodeBasedTissue<2> node_based_tissue(nodes);
-        
+
         double cut_off_length = 1.0;
-        
+
         c_vector<double, 2*2> domain_size;
         domain_size(0) = 0.0;
         domain_size(1) = 4.0;
         domain_size(2) = 0.0;
         domain_size(3) = 4.0;
-        
+
         node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
-        
+
         std::set< std::pair<Node<2>*, Node<2>* > > pairs_returned;
         node_based_tissue.GetNodeBoxCollection()->CalculateNodePairs(nodes,pairs_returned);
-        
+
         std::set< std::pair<Node<2>*, Node<2>* > > pairs_should_be;
         pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[0],nodes[1]));
         pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[2],nodes[3]));
@@ -229,9 +229,9 @@ public:
         pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[6],nodes[7]));
         pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[6],nodes[8]));
         pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[7],nodes[8]));
-        
+
         TS_ASSERT_EQUALS(pairs_should_be,pairs_returned );
-        
+
         for (unsigned i=0; i<points.size(); i++)
         {
             // Tissue deletes the nodes

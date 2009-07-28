@@ -56,7 +56,7 @@ TissueCell::TissueCell(CellType cellType,
     }
 
     mpCellCycleModel->SetCell(this);
-    
+
     // Set Cell identifier
     mCellId = ++ mMaxCellId -1;
 }
@@ -216,7 +216,7 @@ bool TissueCell::HasApoptosisBegun() const
 
 double TissueCell::GetStartOfApoptosisTime() const
 {
-    return mStartOfApoptosisTime;   
+    return mStartOfApoptosisTime;
 }
 
 double TissueCell::TimeUntilDeath() const
@@ -236,7 +236,7 @@ bool TissueCell::IsDead()
     {
         if (SimulationTime::Instance()->GetTime() >= mDeathTime)
         {
-            this->Kill();   
+            this->Kill();
         }
     }
     return mIsDead;

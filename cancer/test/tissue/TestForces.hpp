@@ -685,16 +685,13 @@ public:
     void TestGeneralisedLinearSpringForceArchiving() throw (Exception)
     {
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "meineke_spring_system.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "meineke_spring_system.arch";
 
-        unsigned num_nodes;
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
 
             MutableMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-            num_nodes = mesh.GetNumNodes();
 
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 

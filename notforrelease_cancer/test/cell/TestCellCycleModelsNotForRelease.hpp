@@ -546,8 +546,7 @@ public:
         TissueConfig::Instance()->SetHepaOneParameters();
 
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "alarcon_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "alarcon_cell_cycle.arch";
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
@@ -623,8 +622,7 @@ public:
     void TestArchiveSimpleOxygenBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_cell_cycle.arch";
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
@@ -680,8 +678,7 @@ public:
     void TestArchiveStochasticDivisionRuleCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_div_rule_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "stoch_div_rule_cell_cycle.arch";
 
         // Create an output archive
         {
@@ -730,8 +727,7 @@ public:
     void TestArchiveStochasticOxygenBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_oxygen_based_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_oxygen_based_cell_cycle.arch";
 
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);

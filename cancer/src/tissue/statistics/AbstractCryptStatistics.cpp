@@ -47,7 +47,7 @@ void AbstractCryptStatistics::LabelAllCellsAsHealthy()
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-    	cell_iter->SetMutationState(HEALTHY);
+        cell_iter->SetMutationState(HEALTHY);
     }
 }
 

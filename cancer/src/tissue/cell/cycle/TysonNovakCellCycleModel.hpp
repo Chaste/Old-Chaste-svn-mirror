@@ -87,12 +87,12 @@ public:
      * Default constructor.
      */
     TysonNovakCellCycleModel();
-    
+
     /**
      * Copy constructor.
-     * 
+     *
      * Also creates a copy of our ODE system.
-     * 
+     *
      * @param rOtherModel the instance being copied.
      */
     TysonNovakCellCycleModel(const TysonNovakCellCycleModel& rOtherModel);

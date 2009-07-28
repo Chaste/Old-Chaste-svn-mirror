@@ -212,7 +212,7 @@ public:
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
-        	unsigned elem_index = iter->GetIndex();
+            unsigned elem_index = iter->GetIndex();
             TissueCell cell = tissue.rGetCellUsingLocationIndex(elem_index);
             double expected_area = TissueConfig::Instance()->GetMatureCellTargetArea();
 
@@ -684,11 +684,11 @@ public:
         std::string output_directory = "TestVertexBasedTissueOutputWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-		TissueConfig::Instance()->SetOutputCellMutationStates(true);
-		TissueConfig::Instance()->SetOutputCellTypes(true);
-		TissueConfig::Instance()->SetOutputCellCyclePhases(true);
-		TissueConfig::Instance()->SetOutputCellAncestors(true);
-		TissueConfig::Instance()->SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+        TissueConfig::Instance()->SetOutputCellAncestors(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
 
         TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
 
@@ -716,8 +716,7 @@ public:
     void TestArchivingVertexBasedTissue() throw(Exception)
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
         // The following line is required because the loading of a tissue
         // is usually called by the method TissueSimulation::Load()
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "vertex_mesh");

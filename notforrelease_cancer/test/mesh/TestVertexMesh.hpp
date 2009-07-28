@@ -47,7 +47,7 @@ public:
         // Create mesh
         VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
 
-    	TS_ASSERT_EQUALS(mesh.GetNumNodes(),30u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),30u);
 
         unsigned counter = 0;
         for (VertexMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
@@ -58,10 +58,10 @@ public:
             TS_ASSERT_EQUALS(counter, node_index); // assumes the iterator will give nodes 0,1..,N in that order
             counter++;
         }
-		TS_ASSERT_EQUALS(mesh.GetNumNodes(), counter);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), counter);
 
-    	// Check that the node iterator correctly handles deleted nodes
-    	mesh.GetNode(0)->MarkAsDeleted();
+        // Check that the node iterator correctly handles deleted nodes
+        mesh.GetNode(0)->MarkAsDeleted();
 
         counter = 0;
         for (VertexMesh<2,2>::NodeIterator iter = mesh.GetNodeIteratorBegin();
@@ -89,7 +89,7 @@ public:
 
     void TestVertexElementIterator() throw (Exception)
     {
-    	// Create mesh
+        // Create mesh
         VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(),9u);
@@ -99,12 +99,12 @@ public:
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
-        	unsigned element_index = iter->GetIndex();
+            unsigned element_index = iter->GetIndex();
             TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give elements 0,1..,N in that order
             counter++;
         }
 
-		TS_ASSERT_EQUALS(mesh.GetNumElements(),counter);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),counter);
 
         // For coverage, test with an empty mesh
         VertexMesh<2,2> empty_mesh;
@@ -1063,9 +1063,9 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(3), 1.0+0.2*sqrt(41.0), 1e-6);
     }
 
-	/*
-	 * This tests that T1Swaps rearange to form a Triangular element for a T2 Swap
-	 */
+    /*
+     * This tests that T1Swaps rearange to form a Triangular element for a T2 Swap
+     */
     void TestPrepareForT2Swap() throw(Exception)
     {
         // Make 8 nodes to assign to four elements
@@ -1148,11 +1148,11 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(1)->GetIndex(), 6u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 7u);
 
-       	vertex_mesh.SetT2Threshold(0.1); //T2 threshold larger so does occur
-       	vertex_mesh.ReMesh();
-       	TS_ASSERT(vertex_mesh.GetElement(4)->IsDeleted());
+           vertex_mesh.SetT2Threshold(0.1); //T2 threshold larger so does occur
+           vertex_mesh.ReMesh();
+           TS_ASSERT(vertex_mesh.GetElement(4)->IsDeleted());
 
-		// \todo more tests
+        // \todo more tests
     }
 
 
@@ -2252,7 +2252,7 @@ public:
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
-        	unsigned elem_index = iter->GetIndex();
+            unsigned elem_index = iter->GetIndex();
             TS_ASSERT_DELTA(mesh.GetAreaOfElement(elem_index), 0.8660, 1e-4);
             TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(elem_index), 3.4641, 1e-4);
         }

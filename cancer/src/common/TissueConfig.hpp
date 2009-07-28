@@ -201,17 +201,17 @@ public:
      * @return mCellBoundaryAdhesionEnergyParameter
      */
     double GetCellBoundaryAdhesionEnergyParameter();
-	/**
-	 * @return mOutputCellIdData
-	 */
-	bool GetOutputCellIdData();
-	/**
-	 * @return mOutputCellMutationStates
-	 */
-	bool GetOutputCellMutationStates();
-	/**
-	 * @return mOutputCellAncestors
-	 */
+    /**
+     * @return mOutputCellIdData
+     */
+    bool GetOutputCellIdData();
+    /**
+     * @return mOutputCellMutationStates
+     */
+    bool GetOutputCellMutationStates();
+    /**
+     * @return mOutputCellAncestors
+     */
     bool GetOutputCellAncestors();
     /**
      * @return mOutputCellTypes
@@ -390,45 +390,45 @@ public:
      * Set mCellBoundaryAdhesionEnergyParameter.
      */
     void SetCellBoundaryAdhesionEnergyParameter(double);
-	/**
-	 * Set mOutputCellIdData.
-	 */
-	void SetOutputCellIdData(bool);
-	/**
-	 * Set mOutputCellMutationStates.
-	 */
+    /**
+     * Set mOutputCellIdData.
+     */
+    void SetOutputCellIdData(bool);
+    /**
+     * Set mOutputCellMutationStates.
+     */
     void SetOutputCellMutationStates(bool);
-	/**
-	 * Set mOutputCellAncestors.
-	 */
+    /**
+     * Set mOutputCellAncestors.
+     */
     void SetOutputCellAncestors(bool);
-	/**
-	 * Set mOutputCellTypes.
-	 */
+    /**
+     * Set mOutputCellTypes.
+     */
     void SetOutputCellTypes(bool);
-	/**
-	 * Set mOutputCellVariables.
-	 */
+    /**
+     * Set mOutputCellVariables.
+     */
     void SetOutputCellVariables(bool);
-	/**
-	 * Set mOutputCellCyclePhases.
-	 */
+    /**
+     * Set mOutputCellCyclePhases.
+     */
     void SetOutputCellCyclePhases(bool);
-	/**
-	 * Set mOutputCellAges.
-	 */
+    /**
+     * Set mOutputCellAges.
+     */
     void SetOutputCellAges(bool);
-	/**
-	 * Set mOutputCellAreas.
-	 */
+    /**
+     * Set mOutputCellAreas.
+     */
     void SetOutputCellAreas(bool);
-	/**
-	 * Set mOutputVoronoiData.
-	 */
+    /**
+     * Set mOutputVoronoiData.
+     */
     void SetOutputVoronoiData(bool);
-  	/**
-	 * Set mOutputTissueAreas.
-	 */
+      /**
+     * Set mOutputTissueAreas.
+     */
     void SetOutputTissueAreas(bool);
 
     /**
@@ -518,13 +518,13 @@ private:
 
     /**
      * Spring stiffness.
-     * 
-     * Represented by the parameter mu in the model by Meineke et al (2001) in 
-     * their off-lattice model of the intestinal crypt 
+     *
+     * Represented by the parameter mu in the model by Meineke et al (2001) in
+     * their off-lattice model of the intestinal crypt
      * (doi:10.1046/j.0960-7722.2001.00216.x).
      */
     double mSpringStiffness;
-    
+
     /**
      * Mechanics cut off length.
      * Used in NodeBasedTissue.
@@ -533,8 +533,8 @@ private:
 
     /**
      * Damping constant for normal cells.
-     * Represented by the parameter eta in the model by Meineke et al (2001) in 
-     * their off-lattice model of the intestinal crypt 
+     * Represented by the parameter eta in the model by Meineke et al (2001) in
+     * their off-lattice model of the intestinal crypt
      * (doi:10.1046/j.0960-7722.2001.00216.x).
      */
     double mDampingConstantNormal;
@@ -672,19 +672,19 @@ private:
     bool mOutputCellIdData;
 
     /**
-     * Whether to count the number of each cell mutation 
+     * Whether to count the number of each cell mutation
      * state and output to file.
      */
     bool mOutputCellMutationStates;
 
     /**
-     * Whether to output the ancestor of each cell to a 
+     * Whether to output the ancestor of each cell to a
      * visualizer file.
      */
     bool mOutputCellAncestors;
 
     /**
-     * Whether to count the number of each cell type and output 
+     * Whether to count the number of each cell type and output
      * to file.
      */
     bool mOutputCellTypes;
@@ -700,7 +700,7 @@ private:
     /** Whether to write the cell ages to a file. */
     bool mOutputCellAges;
 
-	/** Whether to write the cell areas to a file. */
+    /** Whether to write the cell areas to a file. */
     bool mOutputCellAreas;
 
     /** Whether to write cell area and perimeter information to file. */

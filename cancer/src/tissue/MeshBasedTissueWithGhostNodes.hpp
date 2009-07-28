@@ -189,10 +189,10 @@ public:
 
     /**
      * Overridden GenerateCellResultsAndWriteToFiles() method.
-     * 
+     *
      * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
      * Also accounts for ghost nodes.
-     * 
+     *
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter

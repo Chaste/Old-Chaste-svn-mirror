@@ -84,7 +84,7 @@ private:
 
     /**
      * Make a periodic honeycomb mesh.
-     * 
+     *
      * @param width  The periodic length scale to base this mesh around
      * @param ghosts  The number of rows of ghost nodes to add on at the top and bottom
      */

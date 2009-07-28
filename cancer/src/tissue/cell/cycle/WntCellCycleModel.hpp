@@ -85,7 +85,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param dimension the spatial dimension
      */
     WntCellCycleModel(unsigned dimension)

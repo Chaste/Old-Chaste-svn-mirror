@@ -116,8 +116,7 @@ public:
     void TestChemotacticForceArchiving() throw (Exception)
     {
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "chemotaxis_spring_system.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "chemotaxis_spring_system.arch";
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
@@ -159,7 +158,7 @@ public:
             // Restore from the archive
             input_arch >> p_chemotactic_force;
 
-            /// \todo This currently doesn't test anything as ChemotacticForce has no member data. 
+            /// \todo This currently doesn't test anything as ChemotacticForce has no member data.
             ///       Either find something to test, or remove this archiving test.
 
             // Tidy up
@@ -439,8 +438,7 @@ public:
         TissueConfig *p_params = TissueConfig::Instance();
 
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "crypt_projection_spring_system.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "crypt_projection_spring_system.arch";
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
@@ -748,7 +746,7 @@ public:
 
         force.AddForceContribution(node_forces, tissue);
 
-        // Check forces are correct        
+        // Check forces are correct
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);

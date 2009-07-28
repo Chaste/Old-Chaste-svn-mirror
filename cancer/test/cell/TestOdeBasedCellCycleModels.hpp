@@ -793,8 +793,7 @@ public:
     {
         // Set up
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "tyson_novak_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tyson_novak_cell_cycle.arch";
 
         {
             // Set up simulation time
@@ -854,8 +853,7 @@ public:
     {
         // Set up
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_cell_cycle.arch";
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(1.0);
 
         {
@@ -932,8 +930,7 @@ public:
     {
         // Set up
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "inge_wnt_swat_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "inge_wnt_swat_cell_cycle.arch";
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
         {
@@ -1009,8 +1006,7 @@ public:
 
         // Set up
         OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_wnt_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "stochastic_wnt_cell_cycle.arch";
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
         {
@@ -1119,12 +1115,12 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
     }
-    
+
     void TestCopyingCells() throw(Exception)
     {
         TysonNovakCellCycleModel *p_original_cell_cycle= new TysonNovakCellCycleModel;
         TissueCell cell(STEM, HEALTHY, p_original_cell_cycle);
-        
+
         // These changed from default
         p_original_cell_cycle->mLastTime = 42.01;
         p_original_cell_cycle->mDivideTime = -42.01;
@@ -1134,7 +1130,7 @@ public:
         p_original_cell_cycle->mCurrentCellCyclePhase = S_PHASE;
         p_original_cell_cycle->mG1Duration = 987;
         p_original_cell_cycle->mReadyToDivide = true;
-        
+
         TissueCell cell2 = cell;
         TysonNovakCellCycleModel *p_new_cell_cycle = static_cast<TysonNovakCellCycleModel* > (cell2.GetCellCycleModel());
         TS_ASSERT_EQUALS(&cell2, p_new_cell_cycle->GetCell() );
@@ -1149,7 +1145,7 @@ public:
         TS_ASSERT_EQUALS(p_original_cell_cycle->mG1Duration, p_new_cell_cycle->mG1Duration);
         TS_ASSERT_EQUALS(p_original_cell_cycle->mReadyToDivide, p_new_cell_cycle->mReadyToDivide);
     }
-    
+
 };
 
 

@@ -59,7 +59,7 @@ unsigned AbstractWntOdeBasedCellCycleModel::GetDimension()
     return mDimension;
 }
 
- 
+
 double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccurred());

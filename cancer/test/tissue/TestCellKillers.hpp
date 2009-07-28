@@ -354,8 +354,7 @@ public:
     {
         // Set up singleton classes
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "random_killer.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "random_killer.arch";
 
         {
             // Create an output archive
@@ -393,8 +392,7 @@ public:
     {
         // Set up singleton classes
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
 
         TissueConfig *p_params = TissueConfig::Instance();
 

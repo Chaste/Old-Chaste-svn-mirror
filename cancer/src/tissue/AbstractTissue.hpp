@@ -402,7 +402,7 @@ public:
 
     /**
      * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
-     * 
+     *
      * @param rCellTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
@@ -420,7 +420,7 @@ public:
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
     void GenerateCellResults(unsigned locationIndex,
-    						 std::vector<unsigned>& rCellTypeCounter,
+                             std::vector<unsigned>& rCellTypeCounter,
                              std::vector<unsigned>& rCellMutationStateCounter,
                              std::vector<unsigned>& rCellCyclePhaseCounter);
 

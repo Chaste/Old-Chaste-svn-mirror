@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMeshReader.hpp"
 
 /*
- * This typedef is just because we can't have lines such as 
+ * This typedef is just because we can't have lines such as
  * TS_ASSERT_THROWS_NOTHING(p_mesh_reader=new VertexMeshReader<2,2>(name));
  * because the macro thinks the comma separates two arguments
  */
@@ -204,14 +204,14 @@ public:
 
         /*
          * Coverage
-         * 
-         * \todo The methods GetNextFaceData() and GetNumFaces() are not 
-         * fully implemented for VertexMeshReader, but must be overridden 
-         * as they are pure virtual in the base class. When they are 
+         *
+         * \todo The methods GetNextFaceData() and GetNumFaces() are not
+         * fully implemented for VertexMeshReader, but must be overridden
+         * as they are pure virtual in the base class. When they are
          * implemented, these lines need to be replaced by proper tests.
-         * 
+         *
          * See also #1001
-         */ 
+         */
         ElementData face_data = mesh_reader.GetNextFaceData();
         TS_ASSERT_EQUALS(face_data.NodeIndices.empty(), true);
         TS_ASSERT_EQUALS(face_data.AttributeValue, 0u);

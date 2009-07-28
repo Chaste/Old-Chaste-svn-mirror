@@ -94,16 +94,16 @@ public:
             distance.push_back(norm_2(basic_vertex_mesh.GetNode(i)->rGetLocation()));
         }
         vertex_mesh_writer.AddPointData("Distance from origin", distance);
-       
+
         vertex_mesh_writer.WriteVtkUsingMesh(basic_vertex_mesh);
 
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.vtu";
         //? Only compare the first 531 bytes for now (the offsets and stuff seem to be changing)
         TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh.vtu").c_str()), 0);
-        
+
 #endif //CHASTE_VTK
     }
-    
+
 void TestMeshVtkWriter3D() throw(Exception)
     {           // Create 3D mesh
         std::vector<Node<3>*> nodes;
@@ -124,7 +124,7 @@ void TestMeshVtkWriter3D() throw(Exception)
         TS_ASSERT_DELTA(mesh3d.GetWidth(1), 2.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(2), 3.0, 1e-4);
         VertexMeshWriter<3,3> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh_3d", false);
-        
+
 #ifdef CHASTE_VTK
         std::vector<double> cell_ids;
         cell_ids.push_back(0.0);
@@ -136,16 +136,16 @@ void TestMeshVtkWriter3D() throw(Exception)
             distance.push_back(norm_2(mesh3d.GetNode(i)->rGetLocation()));
         }
         vertex_mesh_writer.AddPointData("Distance from origin", distance);
-       
+
         vertex_mesh_writer.WriteVtkUsingMesh(mesh3d, "42");
-        
+
         OutputFileHandler handler("TestVertexMeshWriter", false);
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_42.vtu";
         //? Only compare the first 531 bytes for now (the offsets and stuff seem to be changing)
         TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_3d.vtu").c_str()), 0);
-#endif //CHASTE_VTK   
-    }     
-    
+#endif //CHASTE_VTK
+    }
+
 };
 
 

@@ -209,8 +209,7 @@ public:
     {
         // Set up
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "radial_killer.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "radial_killer.arch";
 
         c_vector<double,2> centre(2);
         centre[0] = 0.1;
@@ -263,8 +262,7 @@ public:
     {
         // Set up
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_killer.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_killer.arch";
 
         {
             // Create an output archive

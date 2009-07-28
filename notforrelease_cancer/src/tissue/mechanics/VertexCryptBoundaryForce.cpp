@@ -62,8 +62,8 @@ void VertexCryptBoundaryForce<DIM>::AddForceContribution(std::vector<c_vector<do
             c_vector<double, DIM> boundary_force = zero_vector<double>(DIM);
             boundary_force[1] = mForceStrength*pow(y, 2.0);
 
-            rForces[node_iter->GetIndex()] += boundary_force;                   
-        }        
+            rForces[node_iter->GetIndex()] += boundary_force;
+        }
     }
 }
 

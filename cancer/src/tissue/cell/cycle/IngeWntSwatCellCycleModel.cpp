@@ -98,7 +98,7 @@ void IngeWntSwatCellCycleModel::Initialise()
     assert(mpCell!=NULL);
 
     double wnt_level = GetWntLevel();
-    
+
     mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, wnt_level, mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 

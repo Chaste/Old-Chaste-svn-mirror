@@ -39,8 +39,8 @@ class CryptStatistics : public AbstractCryptStatistics
 protected:
 
     /**
-     * Method computing the perpendicular distance from the cell to the line from (xBottom, 0) to 
-     * (xTop, yTop), and returning if the distance is within the specified width to the section 
+     * Method computing the perpendicular distance from the cell to the line from (xBottom, 0) to
+     * (xTop, yTop), and returning if the distance is within the specified width to the section
      * (defaults to 0.5).
      *
      * @param xBottom the x coordinate of the bottom of the line

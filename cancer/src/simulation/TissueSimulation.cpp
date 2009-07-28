@@ -177,8 +177,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     c_vector<double, DIM> random_vector;
 
     /*
-     * Pick a random direction and move the parent cell backwards by 0.5*separation 
-     * in that direction and return the position of the daughter cell 0.5*separation 
+     * Pick a random direction and move the parent cell backwards by 0.5*separation
+     * in that direction and return the position of the daughter cell 0.5*separation
      * forwards in that direction.
      */
     switch (DIM)
@@ -188,21 +188,21 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
             double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
 
             random_vector(0) = 0.5*separation*random_direction;
-            
+
             parent_coords = parent_coords - random_vector;
-		    daughter_coords = parent_coords + random_vector;
+            daughter_coords = parent_coords + random_vector;
 
             break;
         }
         case 2:
         {
             double random_angle = 2.0*M_PI*RandomNumberGenerator::Instance()->ranf();
-    
+
             random_vector(0) = 0.5*separation*cos(random_angle);
             random_vector(1) = 0.5*separation*sin(random_angle);
-            
+
             parent_coords = parent_coords - random_vector;
-		    daughter_coords = parent_coords + random_vector;
+            daughter_coords = parent_coords + random_vector;
 
             break;
         }
@@ -210,14 +210,14 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
         {
             double random_zenith_angle = M_PI*RandomNumberGenerator::Instance()->ranf(); // phi
             double random_azimuth_angle = 2*M_PI*RandomNumberGenerator::Instance()->ranf(); // theta
-    
+
             random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
             random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
             random_vector(2) = 0.5*separation*cos(random_zenith_angle);
 
             /// \todo Should really make this the same way round as the other cases, but this would break tests
             parent_coords = parent_coords + random_vector;
-		    daughter_coords = parent_coords - random_vector;
+            daughter_coords = parent_coords - random_vector;
 
             break;
         }

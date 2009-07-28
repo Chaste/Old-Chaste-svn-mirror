@@ -58,8 +58,8 @@ public:
     {}
 
     /**
-     * To recreate the virtual labelling experiments performed by Meineke et al 
-     * (2001) in their off-lattice model of the intestinal crypt 
+     * To recreate the virtual labelling experiments performed by Meineke et al
+     * (2001) in their off-lattice model of the intestinal crypt
      * (doi:10.1046/j.0960-7722.2001.00216.x).
      *
      * Cells which are in S phase have their mutation state changed

@@ -98,7 +98,7 @@ void TissueConfig::Reset()
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
     mSpringStiffness = 15.0;        // this is mu in Meineke
-    mMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller             
+    mMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
     mDampingConstantNormal = 1.0;   // this is nu in Meineke
     mDampingConstantMutant = 2.0;
     mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin
@@ -129,8 +129,8 @@ void TissueConfig::Reset()
     mCellCellAdhesionEnergyParameter = 0.01;
     mCellBoundaryAdhesionEnergyParameter = 0.01;
 
-	mOutputCellIdData = false;
-	mOutputCellMutationStates = false;
+    mOutputCellIdData = false;
+    mOutputCellMutationStates = false;
     mOutputCellAncestors = false;
     mOutputCellTypes = false;
     mOutputCellVariables = false;
@@ -299,39 +299,39 @@ bool TissueConfig::GetOutputCellIdData()
 }
 bool TissueConfig::GetOutputCellMutationStates()
 {
-	return mOutputCellMutationStates;
+    return mOutputCellMutationStates;
 }
 bool TissueConfig::GetOutputCellAncestors()
 {
-	return mOutputCellAncestors;
+    return mOutputCellAncestors;
 }
 bool TissueConfig::GetOutputCellTypes()
 {
-	return mOutputCellTypes;
+    return mOutputCellTypes;
 }
 bool TissueConfig::GetOutputCellVariables()
 {
-	return mOutputCellVariables;
+    return mOutputCellVariables;
 }
 bool TissueConfig::GetOutputCellCyclePhases()
 {
-	return mOutputCellCyclePhases;
+    return mOutputCellCyclePhases;
 }
 bool TissueConfig::GetOutputCellAges()
 {
-	return mOutputCellAges;
+    return mOutputCellAges;
 }
 bool TissueConfig::GetOutputCellAreas()
 {
-	return mOutputCellAreas;
+    return mOutputCellAreas;
 }
 bool TissueConfig::GetOutputVoronoiData()
 {
-	return mOutputVoronoiData;
+    return mOutputVoronoiData;
 }
 bool TissueConfig::GetOutputTissueAreas()
 {
-	return mOutputTissueAreas;
+    return mOutputTissueAreas;
 }
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -528,41 +528,41 @@ void TissueConfig::SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdh
 }
 void TissueConfig::SetOutputCellIdData(bool writeCellIdData)
 {
-	mOutputCellIdData = writeCellIdData;
+    mOutputCellIdData = writeCellIdData;
 }
 void TissueConfig::SetOutputCellMutationStates(bool outputCellMutationStates)
 {
-	mOutputCellMutationStates = outputCellMutationStates;
+    mOutputCellMutationStates = outputCellMutationStates;
 }
 void TissueConfig::SetOutputCellAncestors(bool outputCellAncestors)
 {
-	mOutputCellAncestors = outputCellAncestors;
+    mOutputCellAncestors = outputCellAncestors;
 }
 void TissueConfig::SetOutputCellTypes(bool outputCellTypes)
 {
-	mOutputCellTypes = outputCellTypes;
+    mOutputCellTypes = outputCellTypes;
 }
 void TissueConfig::SetOutputCellVariables(bool outputCellVariables)
 {
-	mOutputCellVariables = outputCellVariables;
+    mOutputCellVariables = outputCellVariables;
 }
 void TissueConfig::SetOutputCellCyclePhases(bool outputCellCyclePhases)
 {
-	mOutputCellCyclePhases = outputCellCyclePhases;
+    mOutputCellCyclePhases = outputCellCyclePhases;
 }
 void TissueConfig::SetOutputCellAges(bool outputCellAges)
 {
-	mOutputCellAges = outputCellAges;
+    mOutputCellAges = outputCellAges;
 }
 void TissueConfig::SetOutputCellAreas(bool outputCellAreas)
 {
-	mOutputCellAreas = outputCellAreas;
+    mOutputCellAreas = outputCellAreas;
 }
 void TissueConfig::SetOutputVoronoiData(bool outputVoronoiData)
 {
-	mOutputVoronoiData = outputVoronoiData;
+    mOutputVoronoiData = outputVoronoiData;
 }
 void TissueConfig::SetOutputTissueAreas(bool outputTissueAreas)
 {
-	mOutputTissueAreas = outputTissueAreas;
+    mOutputTissueAreas = outputTissueAreas;
 }

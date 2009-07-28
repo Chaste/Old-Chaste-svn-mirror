@@ -49,13 +49,13 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
         case 1:
         {
             double crypt_length = TissueConfig::Instance()->GetCryptLength();
-        
+
             for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
                  cell_iter != this->mpTissue->End();
                  ++cell_iter)
             {
                 double x = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
-        
+
                 if (x > crypt_length)
                 {
                     cell_iter->Kill();
@@ -67,14 +67,14 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
         {
             double crypt_length = TissueConfig::Instance()->GetCryptLength();
             double crypt_width = TissueConfig::Instance()->GetCryptWidth();
-        
+
             for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
                  cell_iter != this->mpTissue->End();
                  ++cell_iter)
             {
                 double x = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
                 double y = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
-        
+
                 if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
                 {
                     cell_iter->Kill();

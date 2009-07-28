@@ -41,10 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The probability passed into the constructor will be the probability
  * of any cell dying whenever TestAndLabelCellsForApoptosis() is called.
  *
- * Note this does take into account timesteps - the input probability is the 
- * probability that in an hour's worth of trying, the cell killer will have 
- * successfully killed a given cell. In the method TestAndLabelSingleCellForApoptosis() 
- * this probability is used to calculate the probability that the cell is killed 
+ * Note this does take into account timesteps - the input probability is the
+ * probability that in an hour's worth of trying, the cell killer will have
+ * successfully killed a given cell. In the method TestAndLabelSingleCellForApoptosis()
+ * this probability is used to calculate the probability that the cell is killed
  * at a given time step.
  */
 template<unsigned DIM>
@@ -52,11 +52,11 @@ class RandomCellKiller : public AbstractCellKiller<DIM>
 {
 private:
 
-	/**
-	 * Probability that in an hour's worth of trying, the cell killer 
-	 * will have successfully killed a given cell.
- 	 */
- 	double mProbabilityOfDeathInAnHour;
+    /**
+     * Probability that in an hour's worth of trying, the cell killer
+     * will have successfully killed a given cell.
+      */
+     double mProbabilityOfDeathInAnHour;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -95,7 +95,7 @@ public:
     /**
      * @return mProbabilityOfDeathInAnHour.
      */
-	double GetDeathProbabilityInAnHour() const;
+    double GetDeathProbabilityInAnHour() const;
 
     /**
      * Overridden method to test a given cell for apoptosis.

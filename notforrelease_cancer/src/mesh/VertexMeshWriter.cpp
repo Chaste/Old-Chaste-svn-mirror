@@ -102,13 +102,13 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(const VertexM
     *p_element_file << num_elements << "\t";
     *p_element_file << num_attr << "\n";
 
-	 // Write each element's data
+     // Write each element's data
     /// \todo need to think about how best to do this in 3D (see #866)
-	for (unsigned i=0; i<rMesh.GetNumAllElements(); i++)
+    for (unsigned i=0; i<rMesh.GetNumAllElements(); i++)
     {
-	    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = rMesh.GetElement(i);
-	    if (!p_element->IsDeleted())
-	    {
+        VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = rMesh.GetElement(i);
+        if (!p_element->IsDeleted())
+        {
             *p_element_file << p_element->GetIndex();
             *p_element_file << "\t" << p_element->GetNumNodes();
 
@@ -117,7 +117,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(const VertexM
                 *p_element_file << "\t" << p_element->GetNodeGlobalIndex(i);
             }
             *p_element_file << "\n";
-	    }
+        }
     }
     *p_element_file << comment << "\n";
     p_element_file->close();

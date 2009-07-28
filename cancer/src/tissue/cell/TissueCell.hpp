@@ -78,7 +78,7 @@ private:
         archive & mIsLogged;
         archive & mAncestor;
         archive & mCellId;
-		archive & mMaxCellId;
+        archive & mMaxCellId;
     }
 
 protected:
@@ -99,13 +99,13 @@ protected:
 
     /** An identifier which is unique to this cell */
     unsigned mCellId;
-    
+
     /** maximum cell identifier */
     static unsigned mMaxCellId;
 
     /** When the cell will/did die */
     double mDeathTime;
-    
+
     /** When the cell was commanded to start apoptosis */
     double mStartOfApoptosisTime;
 
@@ -113,7 +113,7 @@ protected:
     bool mUndergoingApoptosis;
 
     /**
-     * Whether the cell is dead or not (they exist in the Tissue until they are 
+     * Whether the cell is dead or not (they exist in the Tissue until they are
      * removed by AbstractTissue::RemoveDeadCells()
      */
     bool mIsDead;
@@ -194,7 +194,7 @@ public:
      * Get the cell's birth time from its cell cycle model.
      */
     double GetBirthTime() const;
-    
+
     /**
      * Get the time at which apoptosis was commanded to start.
      */
@@ -241,7 +241,7 @@ public:
     /**
      * Makes the cell enter apoptosis and sets #mDeathTime using the apoptosis
      * time from the cancer parameters.
-     * 
+     *
      * @param setDeathTime whether we tell the cell exactly when to die (defaults to true)
      */
     void StartApoptosis(bool setDeathTime=true);
@@ -279,7 +279,7 @@ public:
 
     /**
      * Give the TissueCell an index which it passes to its children.
-     * 
+     *
      * @param ancestorIndex the cell's ancestor index
      */
     void SetAncestor(unsigned ancestorIndex);

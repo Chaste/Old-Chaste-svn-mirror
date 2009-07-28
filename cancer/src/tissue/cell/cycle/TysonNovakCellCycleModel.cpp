@@ -100,7 +100,7 @@ AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
 {
     double dt = 0.1/60.0;
-    
+
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem,mLastTime,currentTime,dt);
 
     return msSolver.StoppingEventOccurred();

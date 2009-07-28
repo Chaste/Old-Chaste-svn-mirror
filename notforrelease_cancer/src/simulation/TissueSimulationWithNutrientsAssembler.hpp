@@ -87,7 +87,7 @@ protected:
     /**
      * The SimpleLinearEllipticAssembler version of this method is
      * overloaded using the interpolated source term.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -120,7 +120,7 @@ public:
 
     /**
      * Constructor stores the mesh and PDE and boundary conditions.
-     * 
+     *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBoundaryConditions pointer to the boundary conditions

@@ -90,7 +90,7 @@ private:
     /**
      * Assignment operator has no definition and can't be called.
      * This is to prevent running the default assignment operator.
-     *  
+     *
      * @param rOtherModel the cell cycle model being copied.
      */
     AbstractCellCycleModel & operator = (const AbstractCellCycleModel& rOtherModel);
@@ -235,21 +235,21 @@ public:
      * TissueCell to create a copy of the cell cycle model when
      * copying a cell.  It thus needs to create an instance of the right
      * class which is an exact copy of this instance.
-     * 
+     *
      * This method is also called by TissueCell::Divide() to create a cell
      * cycle model for the daughter cell.  Note that the parent cell
      * cycle model will have had ResetForDivision() called just before
      * CreateCellCycleModel() is called, so performing an exact copy of the
      * parent is suitable behaviour.  Any daughter-cell-specific initialisation
      * can be done in InitialiseDaughterCell().
-     * 
+     *
      * It is suggested to implement this method using the copy constructor,
      * for example:
      *      return new TysonNovakCellCycleModel(*this);
      * If any special copying behaviour is required, a suitable copy
      * constructor can then be written (which you should have done anyway,
      * of course).
-     * 
+     *
      * @note  This base class does not define a copy constructor, despite the
      *    fact that it contains a pointer to a TissueCell.  This is OK
      *    because the TissueCell is not deleted by our destructor, and

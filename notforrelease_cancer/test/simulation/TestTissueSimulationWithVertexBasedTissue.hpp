@@ -202,7 +202,7 @@ public:
                 cell_type = TRANSIT;
                 birth_time = -23.5;
             }
-            
+
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -262,7 +262,7 @@ public:
 //                cell_type = STEM;
 //                birth_time = -23.75;
 //            }
-//            
+//
 //            else if (elem_index==18)
 //            {
 //                cell_type = STEM;
@@ -311,7 +311,7 @@ public:
     {
         // we don't want apoptosing cells to be labelled as dead after a certain time in
         // vertex simulations, so set the apoptosis time to something large
-                
+
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(5, 5, 0.1, 2.0);
 
@@ -374,7 +374,7 @@ public:
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements-3);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells-3);
     }
-    
+
     void TestSingleCellRelaxationAndApoptosis() throw (Exception)
     {
         // Construct a 2D vertex mesh consisting of a single element
@@ -421,18 +421,18 @@ public:
 
         // Run simulation
         simulator.Solve();
-        
+
         // Test relaxes to circle (can be more stringent with more nodes and more time)
         TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 1.0, 1e-1);
         TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 1e-1);
-        
+
         TissueCell& r_cell = simulator.rGetTissue().rGetCellUsingLocationIndex(0);
         bool set_death_time = false;
         r_cell.StartApoptosis(set_death_time);
-        
+
         simulator.SetEndTime(4.0);
         simulator.Solve();
-        
+
         TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 0.0065, 1e-4);
         TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 0.3701, 1e-3);
     }
@@ -479,7 +479,7 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
 
         /*
-         * to visualise need to add "MeshWidth   3.46410162" to results.vizsetup. 
+         * to visualise need to add "MeshWidth   3.46410162" to results.vizsetup.
          */
         simulator.SetOutputDirectory("TestVertexCryptWithCellBirth");
         simulator.SetEndTime(1.0);

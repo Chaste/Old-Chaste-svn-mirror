@@ -191,7 +191,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             cell_type = STEM;
         }
 
-        mpCell->SetCellType(cell_type);        
+        mpCell->SetCellType(cell_type);
         AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
     }
     else

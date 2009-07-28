@@ -43,7 +43,7 @@ class AbstractForce
     friend class boost::serialization::access;
     /**
      * Serialize the object and its member variables.
-     * 
+     *
      * Serialization of singleton objects must be done with care.
      * Before the object is serialized via a pointer, it *MUST* be
      * serialized directly, or an assertion will trip when a second

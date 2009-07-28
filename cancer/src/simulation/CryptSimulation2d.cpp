@@ -58,8 +58,8 @@ c_vector<double, 2> CryptSimulation2d::CalculateDividingCellCentreLocations(Tiss
     c_vector<double, 2> random_vector;
 
     /*
-     * Pick a random direction and move the parent cell backwards by 0.5*separation 
-     * in that direction and return the position of the daughter cell 0.5*separation 
+     * Pick a random direction and move the parent cell backwards by 0.5*separation
+     * in that direction and return the position of the daughter cell 0.5*separation
      * forwards in that direction.
      */
 

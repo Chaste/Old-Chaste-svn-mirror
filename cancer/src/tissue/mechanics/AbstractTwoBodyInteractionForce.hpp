@@ -60,7 +60,7 @@ private :
 protected:
     /** Whether to have zero force if the cells are far enough apart */
     bool mUseCutoffPoint;
-    
+
 public :
 
     /**
