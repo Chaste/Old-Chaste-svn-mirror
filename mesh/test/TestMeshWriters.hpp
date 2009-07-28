@@ -317,6 +317,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
+        //1.6K uncompressed, 1.3K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK
@@ -350,7 +351,7 @@ public:
 
 
         writer.WriteFilesUsingMesh(mesh);
-
+        //13K uncompressed, 3.7K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/2D_0_to_1mm_200_elements.vtu mesh/test/data/TestVtkWriter/2D_0_to_1mm_200_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK
@@ -385,10 +386,10 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
+        
+        //32K uncompressed, 19K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
-
-        // Only compare the first 531 bytes for now (the offsets and stuff seem to be changing)
-        TS_ASSERT_EQUALS(system(("cmp -n 531 " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 

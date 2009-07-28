@@ -175,11 +175,12 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
     assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
     vtkXMLUnstructuredGridWriter *p_writer = vtkXMLUnstructuredGridWriter::New();
     p_writer->SetInput(mpVtkUnstructedMesh);
-    p_writer->SetDataMode(vtkXMLWriter::Appended);
-    //p_writer->SetDataMode(vtkXMLWriter::Ascii);//For testing
-    //Not sure how the uninitialised stuff arises, but you can remove
+    //Uninitialised stuff arises (see #1079), but you can remove
     //valgrind problems by removing compression:
-    //p_writer->SetCompressor(NULL);
+    // **** REMOVE WITH CAUTION *****
+    p_writer->SetCompressor(NULL);
+    // **** REMOVE WITH CAUTION *****
+
     std::string vtk_file_name = this->mpOutputFileHandler->GetOutputDirectoryFullPath() + this->mBaseName;
     if (stamp != "")
     {
