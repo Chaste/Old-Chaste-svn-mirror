@@ -140,11 +140,11 @@ public:
      *  over the time range using the ODE timestep provided, as part of the solve,
      *  and updated at the end once the solution has been found, as is lambda.
      * 
-     *  @param currentTime the current time
+     *  @param time the current time
      *  @param nextTime the next time
      *  @param odeTimestep the ODE timestep
      */
-    void Solve(double currentTime, double nextTime, double odeTimestep);
+    void Solve(double time, double nextTime, double odeTimestep);
 
 
 private:

@@ -96,13 +96,13 @@ public:
      *  corresponding rhs vector entry is also set to 0, so the equation for the
      *  bath node voltage is 1*V = 0.
      * @param existingSolutionOrGuess voltages (not used) \todo rename
-     * @param currentTime \todo rename
+     * @param time
      * @param assembleVector If set, then RHS corresponding to bath nodes are affected as described
      * @param assembleMatrix If set, then matrix rows corresponding to bath nodes are affected as described
      * 
      * 
      */
-    void FinaliseLinearSystem(Vec existingSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix);
+    void FinaliseLinearSystem(Vec existingSolutionOrGuess, double time, bool assembleVector, bool assembleMatrix);
 
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.

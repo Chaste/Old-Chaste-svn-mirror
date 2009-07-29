@@ -62,9 +62,9 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantit
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::PrepareForAssembleSystem(
-            Vec existingSolution, double currentTime)
+            Vec existingSolution, double time)
 {
-    mpMonodomainPde->SolveCellSystems(existingSolution, currentTime, currentTime+this->mDt);
+    mpMonodomainPde->SolveCellSystems(existingSolution, time, time+this->mDt);
 }
 
 

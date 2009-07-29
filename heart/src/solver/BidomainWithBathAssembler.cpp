@@ -117,7 +117,7 @@ c_vector<double,2*(ELEMENT_DIM+1)>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             Vec existingSolutionOrGuess,
-            double currentTime,
+            double time,
             bool assembleVector, bool assembleMatrix)
 {
 

@@ -97,11 +97,11 @@ std::vector<double>& ImplicitCardiacMechanicsAssembler<DIM>::rGetLambda()
 
 
 template<unsigned DIM>
-void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double currentTime, double nextTime, double odeTimestep)
+void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime, double odeTimestep)
 {
     // set the times, which are used in AssembleOnElement
-    assert(currentTime < nextTime);
-    mCurrentTime = currentTime;
+    assert(time < nextTime);
+    mCurrentTime = time;
     mNextTime = nextTime;
     mOdeTimestep = odeTimestep;
 

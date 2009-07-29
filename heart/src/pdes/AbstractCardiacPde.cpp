@@ -203,7 +203,7 @@ AbstractCardiacCell* AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::GetCardiacCell( uns
 
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double currentTime, double nextTime)
+void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
 
@@ -220,7 +220,7 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSoluti
             // solve
             // Note: Voltage should not be updated. GetIIonic will be called later
             // and needs the old voltage. The voltage will be updated from the pde.
-            mCellsDistributed[index.Local]->ComputeExceptVoltage(currentTime, nextTime);
+            mCellsDistributed[index.Local]->ComputeExceptVoltage(time, nextTime);
         }
         catch (Exception &e)
         {
