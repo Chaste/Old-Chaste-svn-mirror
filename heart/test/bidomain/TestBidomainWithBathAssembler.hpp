@@ -226,8 +226,8 @@ public:
         }
 
         // a couple of hardcoded values
-        TS_ASSERT_DELTA(sol_repl[2*50], 3.7656, 1e-3);
-        TS_ASSERT_DELTA(sol_repl[2*70], 5.1800, 1e-3);
+        TS_ASSERT_DELTA(sol_repl[2*50], 3.7684, 1e-3);
+        TS_ASSERT_DELTA(sol_repl[2*70], 5.1777, 1e-3);
     }
 
 

@@ -120,6 +120,9 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             double time,
             bool assembleVector, bool assembleMatrix)
 {
+    // CG (default solver) won't work since the system is indefinite. Switch to SYMMLQ
+    this->mpLinearSystem->SetKspType("symmlq"); // Switches the solver
+    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.            
 
     unsigned* is_node_bath = new unsigned[this->mpMesh->GetNumNodes()];
     for(unsigned i = 0; i < this->mpMesh->GetNumNodes(); ++i)
@@ -178,12 +181,11 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
                 PetscInt local_lo, local_hi;
                 (*this->GetLinearSystem())->GetOwnershipRange(local_lo, local_hi);
                 
+                // If this processor owns i-th row, check it.
                 if ((local_lo <= (int)num_equation) && ((int)num_equation < local_hi))
                 {
-                    // This processor owns i-th row. Check it.
                     for (unsigned column=0; column < (*this->GetLinearSystem())->GetSize(); column++)
                     {
-                        //std::cout << column << " " << (*this->GetLinearSystem())->GetMatrixElement(num_equation, column) << std::endl;
                         assert((*this->GetLinearSystem())->GetMatrixElement(num_equation, column)==0.0);                                        
                     }
                 }

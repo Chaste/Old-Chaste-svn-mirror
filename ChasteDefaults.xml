@@ -26,8 +26,8 @@
 		<KSPTolerances>
 			<KSPAbsolute>2e-4</KSPAbsolute>
 		</KSPTolerances>
-		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>jacobi</KSPPreconditioner>
+		<KSPSolver>cg</KSPSolver>
+		<KSPPreconditioner>bjacobi</KSPPreconditioner>
 	</Numerical>
 	
 	<PostProcessing>

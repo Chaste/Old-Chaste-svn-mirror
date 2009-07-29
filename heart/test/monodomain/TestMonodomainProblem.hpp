@@ -258,7 +258,6 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dWithEdgeStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
 
-        static double test_tolerance=1e-10;
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
@@ -314,7 +313,7 @@ public:
                     // This works as we are using the 'criss-cross' mesh,
                     // the voltages would vary more with a mesh with all the
                     // triangles aligned in the same direction.
-                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
+                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 2e-4);
                 }
 
 

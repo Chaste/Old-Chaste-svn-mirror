@@ -136,7 +136,7 @@ public:
                     // the voltages would vary more with a mesh with all the
                     // triangles aligned in the same direction.
 
-                    TS_ASSERT_DELTA(voltage[node_index], probe_voltage, 1e-10);
+                    TS_ASSERT_DELTA(voltage[node_index], probe_voltage, 2e-4);
                 }
 
                 TS_ASSERT_DELTA(voltage[node_index], 0.139426, 2e-3);
