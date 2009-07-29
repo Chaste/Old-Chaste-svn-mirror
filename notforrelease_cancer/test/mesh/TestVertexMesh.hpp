@@ -2445,7 +2445,7 @@ public:
     }
 
 
-    void TestScale()
+    void TestScaleAndTranslate()
     {
         // Create 2D mesh
         VertexMesh<2,2> mesh2d(3, 3, 0.01, 2.0);
@@ -2491,6 +2491,23 @@ public:
         TS_ASSERT_DELTA(mesh3d.GetWidth(0), 4.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(1), 4.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(2), 4.0, 1e-4);
+        
+        // Test the translate method
+        // Pick a certain node and store spatial position
+        Node<3> *p_node = mesh3d.GetNode(7);
+        ChastePoint<3> original_coordinate = p_node->GetPoint();
+
+        const double x_movement = 1.0;
+        const double y_movement = 2.5;
+        const double z_movement = 2.5;
+
+        mesh3d.Translate(x_movement, y_movement, z_movement);
+
+        ChastePoint<3>  new_coordinate = p_node->GetPoint();
+
+        TS_ASSERT_DELTA(original_coordinate[0], new_coordinate[0] - x_movement, 1e-6);
+        TS_ASSERT_DELTA(original_coordinate[1], new_coordinate[1] - y_movement, 1e-6);
+        TS_ASSERT_DELTA(original_coordinate[2], new_coordinate[2] - z_movement, 1e-6);
     }
 
 
@@ -2716,7 +2733,7 @@ public:
         TS_ASSERT_DELTA(new_location2[1], old_location2[1] + 3.0, 1e-6);
     }
 
-    void TestTranslationMethod() throw (Exception)
+    void TestTranslation2DMethod() throw (Exception)
     {
         // Create 2D mesh
         VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
