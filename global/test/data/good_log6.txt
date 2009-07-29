@@ -1,2 +1,0 @@
-Exception occurred (although possibly handled), error message:
-hello

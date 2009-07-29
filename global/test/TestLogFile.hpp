@@ -183,25 +183,5 @@ public:
             TS_FAIL("log file not written?");
         }
     }
-
-//// Errors no longer get written to the log file (see comment in Exception.cpp)
-//
-//    void dontTestExceptionMessageIsWritten()
-//    {
-//        LogFile::Instance()->Set(1, "TestLogFile", "log6.txt");
-//        try
-//        {
-//            EXCEPTION("hello");
-//        }
-//        catch(Exception& e)
-//        {
-//        }
-//        LogFile::Close();
-//
-//        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestLogFile/";
-//        // this will fail if optimised (and should fail) since the NDEBUG flag currently forces NO LOGGING
-//        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log6.txt  global/test/data/good_log6.txt").c_str()), 0);
-//    }
-
 };
 #endif /*TESTLOGFILE_HPP_*/
