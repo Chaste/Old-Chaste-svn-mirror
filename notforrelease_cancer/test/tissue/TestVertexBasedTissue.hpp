@@ -705,6 +705,8 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/results.vizancestors").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/cellmutationstates.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/cellages.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellcyclephases.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/cellcyclephases.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "celltypes.dat     notforrelease_cancer/test/data/TestVertexBasedTissueOutputWriters/celltypes.dat").c_str()), 0);
 
         // For coverage
         TS_ASSERT_THROWS_NOTHING(tissue.WriteResultsToFiles());
