@@ -120,16 +120,16 @@ double PolynomialMaterialLaw3d::GetAlpha(unsigned i, unsigned j)
     return mAlpha[i][j];
 }
 
-PolynomialMaterialLaw3d::PolynomialMaterialLaw3d(unsigned N, std::vector<std::vector<double> > alpha)
+PolynomialMaterialLaw3d::PolynomialMaterialLaw3d(unsigned n, std::vector<std::vector<double> > alpha)
 {
-    if (N==0)
+    if (n==0)
     {
-        EXCEPTION("N must be positive");
+        EXCEPTION("n must be positive");
     }
 
-    mN = N;
+    mN = n;
 
-    // error checking: must have alpha[p][q]=0 if p+q>N
+    // error checking: must have alpha[p][q]=0 if p+q>n
     for (unsigned p=0; p<=mN; p++)
     {
         if (alpha[p].size() < mN+1-p)
@@ -142,7 +142,7 @@ PolynomialMaterialLaw3d::PolynomialMaterialLaw3d(unsigned N, std::vector<std::ve
             if ((p+q>mN) && (fabs(alpha[p][q]) > 1e-12))
             {
                 std::stringstream err_mess;
-                err_mess << "alpha[" << p << "][" << q << "] should be zero, as p+q > " << N;
+                err_mess << "alpha[" << p << "][" << q << "] should be zero, as p+q > " << n;
                 EXCEPTION(err_mess.str());
             }
         }
@@ -151,14 +151,14 @@ PolynomialMaterialLaw3d::PolynomialMaterialLaw3d(unsigned N, std::vector<std::ve
     mAlpha = alpha;
 }
 
-std::vector<std::vector<double> > PolynomialMaterialLaw3d::GetZeroedAlpha(unsigned N)
+std::vector<std::vector<double> > PolynomialMaterialLaw3d::GetZeroedAlpha(unsigned n)
 {
-    std::vector<std::vector<double> > alpha(N+1);
+    std::vector<std::vector<double> > alpha(n+1);
 
-    for (unsigned i=0; i<N+1; i++)
+    for (unsigned i=0; i<n+1; i++)
     {
-        alpha[i].resize(N+1);
-        for (unsigned j=0; j<N+1; j++)
+        alpha[i].resize(n+1);
+        for (unsigned j=0; j<n+1; j++)
         {
             alpha[i][j] = 0.0;
         }

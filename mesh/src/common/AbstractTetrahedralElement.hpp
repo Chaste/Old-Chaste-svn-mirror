@@ -87,11 +87,9 @@ public:
      *
      * @param rJacobian  the Jacobian matrix
      * @param rJacobianDeterminant  the determinant of the Jacobian
-     * @param concreteMove (defaults to true) \todo this argument is not used in the method, should it be removed? (#991) 
      */
     void CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
-                           double& rJacobianDeterminant,
-                           bool concreteMove=true);
+                           double& rJacobianDeterminant);
 
     /**
      * Compute the weighted direction for this element.

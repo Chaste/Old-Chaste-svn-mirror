@@ -97,7 +97,7 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
 {}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double& rJacobianDeterminant, bool concreteMove)
+void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian, double& rJacobianDeterminant)
 {
 
     assert(ELEMENT_DIM <= SPACE_DIM);

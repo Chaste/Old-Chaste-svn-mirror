@@ -129,17 +129,17 @@ public :
     /**
      * Constructor.
      * 
-     * @param N the parameter N \todo This should be n
+     * @param n the parameter n 
      * @param alpha the matrix of parameters alpha
      */
-    PolynomialMaterialLaw3d(unsigned N, std::vector<std::vector<double> > alpha);
+    PolynomialMaterialLaw3d(unsigned n, std::vector<std::vector<double> > alpha);
 
     /**
-     * Resize the matrix alpha to be of size (N+1)*(N+1) and zero all entries.
+     * Resize the matrix alpha to be of size (n+1)*(n+1) and zero all entries.
      * 
-     * @param N the parameter N \todo This should be n
+     * @param n the parameter n
      */
-    static std::vector<std::vector<double> > GetZeroedAlpha(unsigned N);
+    static std::vector<std::vector<double> > GetZeroedAlpha(unsigned n);
 };
 
 #endif /*POLYNOMIALMATERIALLAW3D_HPP_*/
