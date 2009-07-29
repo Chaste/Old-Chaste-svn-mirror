@@ -119,9 +119,11 @@ public:
         Timer::Reset();        
         {
             Mat system_matrix;
+            //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
             
             Vec system_rhs;
+            //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
@@ -142,9 +144,11 @@ public:
         
         {
             Mat system_matrix;
+            //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
             
             Vec system_rhs;
+            //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
