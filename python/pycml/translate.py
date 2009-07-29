@@ -1075,20 +1075,18 @@ class CellMLTranslator(object):
             varname = self.code_name(var)
             self.writeln('if (', varname, '>', max,
                          ' || ', varname, '<', min, ')')
+            self.open_block()
+            self.writeln('#define COVERAGE_IGNORE', indent=False)
             if self.constrain_table_indices:
-                self.open_block()
                 self.writeln('if (', varname, '>', max, ') ', varname,
                              ' = ', max, ';')
                 self.writeln('else ', varname, ' = ', max, ';')
-                self.close_block()
             elif self.use_multi_cell_interface:
-                self.writeln(
-                    'EXCEPTION(DumpState("V outside lookup table range", rY, cell));',
-                    indent_offset=1)
+                self.writeln('EXCEPTION(DumpState("V outside lookup table range", rY, cell));')
             else:
-                self.writeln(
-                    'EXCEPTION(DumpState("V outside lookup table range", rY));',
-                    indent_offset=1)
+                self.writeln('EXCEPTION(DumpState("V outside lookup table range", rY));')
+            self.writeln('#undef COVERAGE_IGNORE', indent=False)
+            self.close_block()
             self.writeln('double ', offset, ' = ', varname, ' - ', min, ';')
             self.writeln('double ', offset_over_step, ' = ', offset, ' * ',
                          step_inverse, ';')

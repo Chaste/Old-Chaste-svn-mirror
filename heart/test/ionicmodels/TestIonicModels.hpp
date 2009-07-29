@@ -72,10 +72,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 
-// For PyCml testing
-#include "luo_rudy_1991.hpp"
-#include "luo_rudy_1991Opt.hpp"
-
 #include "ArchiveLocationInfo.hpp"
 
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
@@ -116,8 +112,6 @@ public:
         std::cout << "\n\tForward: " << forward << std::endl;
 
         CheckCellModelResults("N98RegResult");
-        //TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
-        //This cell now returns a current density
         TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.2462, 1e-3);
 
         TS_ASSERT_THROWS_ANYTHING(n98_ode_system.SetState(ALL_VARS));
@@ -154,14 +148,12 @@ public:
         ck_start = clock();
         RunOdeSolverWithIonicModel(&n98_ode_system,
                                    150.0,
-                                   "N98RegResult");
+                                   "N98RegResultOpt");
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
 
-        CheckCellModelResults("N98RegResult");
-        //TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.023, 1e-3);
-        //This cell now returns a current density
+        CheckCellModelResults("N98RegResultOpt", "N98RegResult");
         TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.2462, 1e-3);
 
         //Stress the lookup table with a silly voltage
@@ -179,11 +171,9 @@ public:
 
         n98_ode_system.rGetStateVariables()[0] = -100.1;
         TS_ASSERT_THROWS_ANYTHING(RunOdeSolverWithIonicModel(&n98_ode_system,
-                                   150.0,
-                                   "DoNotRun"));
-
+                                                             150.0,
+                                                             "DoNotRun"));
     }
-
 
 
     void TestOdeSolverForHH52WithSimpleStimulus(void)
@@ -623,6 +613,7 @@ public:
         //This cell now returns a current density
         TS_ASSERT_DELTA( n98_backward_system.GetIIonic(), 0.2462, 1e-3);
 
+        ///\todo compare with the forward results?
     }
 
     void TestOdeSolveForTT06WithSimpleStimulus(void)
@@ -644,10 +635,10 @@ public:
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&TT_model,
-                                 simulation_end,
-                                 "TenTusscher",
-                                 1000,
-                                 true);
+                                   simulation_end,
+                                   "TenTusscher",
+                                   1000,
+                                   true);
         //Check against validated data
         //These data are considered valid after (visually) checking against output from  CellML code of the model for an epicardial cell
         // and also numerically compared against pycml automatically generated code.
@@ -670,7 +661,7 @@ public:
                                    10,
                                    "TenTusscher",
                                    1000,
-                                   true);
+                                   false);
         double i_ionic = TT_model.GetIIonic();
 
         //now double the scale factors
@@ -681,7 +672,7 @@ public:
                                    10,
                                    "TenTusscher",
                                    1000,
-                                   true);
+                                   false);
         double i_ionic_2 = TT_model.GetIIonic();
 
         //check that the second case gets a smaller i_ionic
@@ -693,7 +684,7 @@ public:
                                    10,
                                    "TenTusscher",
                                    1000,
-                                   true);
+                                   false);
         double i_ionic_3 = TT_model.GetIIonic();
 
          TS_ASSERT_LESS_THAN(i_ionic , i_ionic_3);
@@ -803,31 +794,31 @@ public:
         epi_solution = p_backward_solver->Solve(&epicardial_model, state_variables_epi, 0, end_time, time_step, sampling_time);
 
         epi_solution.WriteToFile("TestIonicModels",
-                              mahajan_epi_file,
-                              &epicardial_model,
-                              "ms",//time units
-                              100,//steps per row
-                              false);/*true cleans the directory*/
+                                 mahajan_epi_file,
+                                 &epicardial_model,
+                                 "ms",//time units
+                                 100,//steps per row
+                                 false);/*true cleans the directory*/
 
         OdeSolution mid_solution;
         mid_solution = p_backward_solver->Solve(&midmyocardial_model, state_variables_mid, 0, end_time, time_step, sampling_time);
 
         mid_solution.WriteToFile("TestIonicModels",
-                              mahajan_mid_file,
-                              &epicardial_model,
-                              "ms",//time units
-                              100,//steps per row
-                              false);/*true cleans the directory*/
+                                 mahajan_mid_file,
+                                 &epicardial_model,
+                                 "ms",//time units
+                                 100,//steps per row
+                                 false);/*true cleans the directory*/
 
         OdeSolution endo_solution;
         endo_solution = p_backward_solver->Solve(&endocardial_model, state_variables_endo, 0, end_time, time_step, sampling_time);
 
         endo_solution.WriteToFile("TestIonicModels",
-                              mahajan_endo_file,
-                              &midmyocardial_model,
-                              "ms",//time units
-                              100,//steps per row
-                              false);/*true cleans the directory*/
+                                  mahajan_endo_file,
+                                  &midmyocardial_model,
+                                  "ms",//time units
+                                  100,//steps per row
+                                  false);/*true cleans the directory*/
 
 
         ColumnDataReader data_reader_epi("TestIonicModels", mahajan_epi_file);
@@ -852,7 +843,7 @@ public:
         TS_ASSERT_DELTA((mid_APD-epi_APD)*100/epi_APD, 36.2, 2);
         TS_ASSERT_DELTA((endo_APD-epi_APD)*100/epi_APD, 8, 2);
 
-     }
+    }
 
 //    Uncomment the includes for the models too
 //
@@ -1111,69 +1102,6 @@ public:
 
             delete p_n98_cell;
         }
-     }
-     
-     /**
-      * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
-      * and gives expected results.
-      * 
-      * \todo run PyCml automatically, rather than having to generate the .hpp files by hand.
-      */
-     void TestPyCmlCodeGeneration()
-     {
-        clock_t ck_start, ck_end;
-
-        // Set stimulus
-        double magnitude = -25.5;
-        double duration  = 2.0 ;  // ms
-        double when = 50.0; // ms
-
-        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
-        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        
-        double end_time = 1000.0; //One second in milliseconds
-
-        // Normal model
-
-        Cellluo_rudy_1991FromCellML normal(p_solver, p_stimulus);
-        TS_ASSERT_EQUALS(normal.GetVoltageIndex(), 0u);
-
-        // Solve and write to file
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&normal,
-                                   end_time,
-                                   "Lr91DelayedStim");
-        ck_end = clock();
-        double normal_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        std::cout << "\n\tNormal: " << normal_time << std::endl;
-
-        CheckCellModelResults("Lr91DelayedStim");
-
-        RunOdeSolverWithIonicModel(&normal,
-                                   60.0,
-                                   "Lr91GetIIonic");
-        TS_ASSERT_DELTA( normal.GetIIonic(), 1.9411, 1e-3);
-
-        // Optimised model
-
-        Cellluo_rudy_1991FromCellMLOpt opt(p_solver, p_stimulus);
-        TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
-
-        // Solve and write to file
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&opt,
-                                   end_time,
-                                   "Lr91FromPyCmlOpt");
-        ck_end = clock();
-        double opt_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        std::cout << "\n\tOptimised: " << opt_time << std::endl;
-
-        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOpt", 1e-4, true);
-
-        RunOdeSolverWithIonicModel(&opt,
-                                   60.0,
-                                   "Lr91GetIIonicOpt");
-        TS_ASSERT_DELTA( opt.GetIIonic(), 1.9411, 1e-3);
      }
 
 private:

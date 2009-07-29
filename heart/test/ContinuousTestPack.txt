@@ -30,6 +30,7 @@ TestPapillaryFibreCalculator.hpp
 TestPlaneStimulusCellFactory.hpp
 postprocessing/TestPostProcessingWriter.hpp
 postprocessing/TestPropagationPropertiesCalculator.hpp
+ionicmodels/TestPyCml.hpp
 TestChasteParametersReader.hpp
 TestStimulus.hpp
 TestStimulusBoundaryCondition.hpp

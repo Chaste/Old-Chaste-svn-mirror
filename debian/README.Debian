@@ -1,9 +1,8 @@
-chaste-source for Debian
+chaste-source for Ubuntu
 ------------------------
 
-This package is identical to the source release of Chaste, except that the file
-python/hostconfig/default.py has been modified to reflect standard locations of
-libraries and tools on Ubuntu systems.
+This source code provided by this package is identical to the source release of
+Chaste.
 
 The source code archive is installed as /usr/src/chaste-source.tar.bz2.  To use
 Chaste unpack this archive to a convenient location, for example:

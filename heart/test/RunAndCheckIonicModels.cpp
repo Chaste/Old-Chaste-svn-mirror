@@ -48,7 +48,7 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
 
         // Test ComputeExceptVoltage
         double v_init = pOdeSystem->GetVoltage();
-        pOdeSystem->ComputeExceptVoltage(start_time, endTime);
+        pOdeSystem->ComputeExceptVoltage(start_time, start_time + 100.0 /*ms*/);
         double v_end = pOdeSystem->GetVoltage();
         TS_ASSERT_DELTA(v_init, v_end, 1e-6);
 
@@ -65,43 +65,43 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
     solution.WriteToFile("TestIonicModels",filename,pOdeSystem,"ms",stepPerRow,false);
 }
 
-void CheckCellModelResults(std::string baseResultsFilename)
+std::vector<double> GetVoltages(ColumnDataReader& rReader)
 {
-    /*
-     * Check the cell model against a previous version
-     * or another source e.g. Alan's COR
-     */
-
-    // read data entries for the new file and compare to valid data from
-    // other source
-    ColumnDataReader data_reader("TestIonicModels", baseResultsFilename);
-    std::vector<double> times = data_reader.GetValues("Time");
-    std::vector<double> voltages;
-
     //Rather Ugly, we can't currently guarantee what the name of the voltage column is,
     //hence we try to cover the most common possibilities
-    if (data_reader.HasValues("V"))
+    std::vector<double> voltages;
+    if (rReader.HasValues("V"))
     {
-        voltages = data_reader.GetValues("V");
+        voltages = rReader.GetValues("V");
     }
-    else //data_reader.HasValues("membrane__V")
+    else //rReader.HasValues("membrane__V")
     {
-        voltages = data_reader.GetValues("membrane__V");
+        voltages = rReader.GetValues("membrane__V");
+    }
+    return voltages;
+}
+
+/*
+ * Check the cell model against a previous version
+ * or another source e.g. Alan's COR
+ */
+void CheckCellModelResults(const std::string& rBaseResultsFilename,
+                           std::string validResultsBasename)
+{
+    // read data entries for the new file
+    ColumnDataReader data_reader("TestIonicModels", rBaseResultsFilename);
+    std::vector<double> times = data_reader.GetValues("Time");
+    std::vector<double> voltages = GetVoltages(data_reader);
+
+    if (validResultsBasename == "")
+    {
+        validResultsBasename = rBaseResultsFilename;
     }
 
-    ColumnDataReader valid_reader("heart/test/data", baseResultsFilename+"ValidData",
+    ColumnDataReader valid_reader("heart/test/data", validResultsBasename + "ValidData",
                                   false);
     std::vector<double> valid_times = valid_reader.GetValues("Time");
-    std::vector<double> valid_voltages;
-
-    if (valid_reader.HasValues("V"))
-    {
-        valid_voltages = valid_reader.GetValues("V");
-    }
-    else //valid_reader.HasValues("membrane__V")
-    {
-        valid_voltages = valid_reader.GetValues("membrane__V");
-    }
+    std::vector<double> valid_voltages = GetVoltages(valid_reader);
 
     TS_ASSERT_EQUALS(times.size(), valid_times.size());
     for (unsigned i=0; i<valid_times.size(); i++)
@@ -112,39 +112,22 @@ void CheckCellModelResults(std::string baseResultsFilename)
     }
 }
 
-void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance, bool vOnly)
+void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2,
+                             double tolerance, bool vOnly)
 {
     // Compare 2 sets of results, e.g. from 2 different solvers for the same model.
     // If the time series differ, the finer resolution must be given first.
     ColumnDataReader data_reader1("TestIonicModels", baseResultsFilename1);
     std::vector<double> times1 = data_reader1.GetValues("Time");
-    std::vector<double> voltages1;
+    std::vector<double> voltages1 = GetVoltages(data_reader1);
     std::vector<double> calcium1;
     std::vector<double> h1;
-    
-    if (data_reader1.HasValues("V"))
-    {
-        voltages1 = data_reader1.GetValues("V");
-    }
-    else //data_reader1.HasValues("membrane__V")
-    {
-        voltages1 = data_reader1.GetValues("membrane__V");
-    }
 
     ColumnDataReader data_reader2("TestIonicModels", baseResultsFilename2);
     std::vector<double> times2 = data_reader2.GetValues("Time");
-    std::vector<double> voltages2;
+    std::vector<double> voltages2 = GetVoltages(data_reader2);
     std::vector<double> calcium2;
     std::vector<double> h2;
-    
-    if (data_reader2.HasValues("V"))
-    {
-        voltages2 = data_reader2.GetValues("V");
-    }
-    else //data_reader2.HasValues("membrane__V")
-    {
-        voltages2 = data_reader2.GetValues("membrane__V");
-    }
     
     if (!vOnly)
     {

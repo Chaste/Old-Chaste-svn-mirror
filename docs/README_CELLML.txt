@@ -11,12 +11,24 @@ could be directly loaded by the standalone executable; this
 functionality is planned for a future release) the source code release
 of Chaste is required to make use of CellML models.
 
+Relevant information can also be found at
+https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/CodeGenerationFromCellML
+
 
 Installing PyCml
 ================
 
-PyCml itself is a pure Python tool, but it does have two
-prerequisites: Amara and RNV.
+PyCml itself is a pure Python tool distributed with the Chaste source
+code (in folder python/pycml), but it does have two prerequisites:
+Amara and RNV.
+
+If you install the Ubuntu Chaste package, this should pull in everything
+needed.
+
+(Note: if upgrading from a pre-release version of the Ubuntu package,
+ you may need to install recommended packages manually.)
+
+Instructions for manually installing the dependencies follow.
 
 Amara
 -----
@@ -29,7 +41,7 @@ installed to reduce opportunities for confusion (e.g. do
 on Fedora).
 
 Amara and RNV require the expat library to parse XML:
-  sudo aptitude install libexpat1-dev
+  sudo aptitude install expat libexpat1-dev
 You will also need the Python header files:
   sudo aptitude install python-dev
 
@@ -52,16 +64,6 @@ http://ftp.davidashen.net/PreTI/RNV/RNV.ZIP and built from source:
 The last line ensures that the tool is available on your path and so
 can be found by PyCml.
 
-PyCml itself
-------------
-
-The latest release of PyCml can be obtained from the Chaste download
-site (http://www.comlab.ox.ac.uk/chaste/download.html).  Download and
-unpack it in a convenient location, and ensure the environment
-variable PYCML_DIR points to that location:
-
-  export PYCML_DIR=/path/to/pycml
-
 
 Using PyCml
 ===========
@@ -71,28 +73,24 @@ the options require some human intervention.  There is a helper script
 included in the Chaste source release (python/ConvertCellModel.py) to
 simplify the process of using PyCml.
 
-Another general point is that, with any of the transformations, you
-may need to include the --Wu flag if the model does not pass units
-validation.  This demotes the error messages to warnings, allowing
-transformation to proceed (assuming no other errors were found).
-
 Using the helper script
 -----------------------
 
-The script python/ConvertCellModel.py should ease the process of using
-PyCml.  It requires the environment variable PYCML_DIR to indicate
-where PyCml is installed.  Run the script supplying CellML files as
-arguments.  Extra options for PyCml can also be supplied.  It will
-generate both normal and 'fully' optimised versions of models
-(i.e. with both partial evaluation and lookup tables done).
+The script python/ConvertCellModel.py should ease the process of using PyCml.
+Run the script supplying CellML files as arguments. Extra options for PyCml
+can also be supplied. It will generate both normal and 'fully' optimised
+versions of models (i.e. with both partial evaluation and lookup tables done).
 
 Examples:
+  python/ConvertCellModel.py --assume-valid heart/src/odes/cellml/luo_rudy_1991.cellml
+  python/ConvertCellModel.py heart/src/odes/cellml/AnotherCellModel.cellml --no-member-vars
 
-  python/ConvertCellModel.py --assume-valid heart/src/ode/MyCellModel.cellml
-  python/ConvertCellModel.py heart/src/ode/AnotherCellModel.cellml --row-lookup-method
+Some options are specified implicitly. At the time of writing these are:
+ --conf=config.xml --use-chaste-stimulus --convert-interfaces --Wu --row-lookup-method
 
-Some options are specified implicitly.  At the time of writing these
-are --conf=config.xml --use-chaste-stimulus --convert-interfaces --Wu.
+By default the helper script will use the PyCml shipped with Chaste. If,
+however, you have the environment variable PYCML_DIR set, the script will
+assume this points to an installation of PyCml that you want to use instead. 
 
 The PyCml configuration file
 ----------------------------
@@ -163,6 +161,15 @@ cases).  For example:
 
 Invoking PyCml directly
 -----------------------
+
+An important point to note is that, at present, the tools must be run with the
+current working directory set to their location, i.e. cd /path/to/pycml before
+running the commands below.
+
+Another general point is that, with any of the transformations, you may need to
+include the --Wu flag if the model does not pass units validation. This demotes
+the error messages to warnings, allowing transformation to proceed (assuming no
+other errors were found). 
 
 > Generating a standard AbstractCardiacCell subclass
 
