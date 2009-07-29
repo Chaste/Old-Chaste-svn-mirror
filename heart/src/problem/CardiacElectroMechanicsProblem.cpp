@@ -138,12 +138,14 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
 
     std::vector<c_vector<double,DIM> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
 
-    ///\todo Rather inefficient
+    ///\todo Improve efficiency pf this method?
     ReplicatableVector voltage_replicated(voltage);
     double V=voltage_replicated[mWatchedElectricsNodeIndex];
 
-///\todo:
-// NOTE!!! HARDCODED state variable index - assumes Lr91. Hierarchy not set up yet.
+    /**
+     * \todo: NOTE!!! HARDCODED state variable index - assumes Lr91. 
+     * Metadata is currently being added to CellML models and then this will be avoided by asking for Calcium.
+     */
     double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->rGetStateVariables()[3];
 
     *mpWatchedLocationFile << time << " ";

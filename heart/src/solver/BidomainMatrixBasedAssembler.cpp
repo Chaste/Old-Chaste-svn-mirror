@@ -43,7 +43,7 @@ c_matrix<double,2*(DIM+1),2*(DIM+1)> BidomainRhsMatrixAssembler<DIM>::ComputeMat
             c_vector<double, DIM+1> &rPhi,
             c_matrix<double, DIM, DIM+1> &rGradPhi,
             ChastePoint<DIM> &rX,
-            c_vector<double,2> &u,
+            c_vector<double,2> &rU,
             c_matrix<double,2,DIM> &rGradU /* not used */,
             Element<DIM,DIM>* pElement)
 {
@@ -73,7 +73,7 @@ c_vector<double,2*(DIM+1)> BidomainRhsMatrixAssembler<DIM>::ComputeVectorTerm(
     c_vector<double, DIM+1> &rPhi,
     c_matrix<double, DIM, DIM+1> &rGradPhi,
     ChastePoint<DIM> &rX,
-    c_vector<double,2> &u,
+    c_vector<double,2> &rU,
     c_matrix<double, 2, DIM> &rGradU /* not used */,
     Element<DIM,DIM>* pElement)
 
@@ -167,12 +167,12 @@ BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::~BidomainMatrixBasedAssembl
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(
-        Vec currentSolution)
+        Vec existingSolution)
 {
     DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
     
     // dist stripe for the current Voltage
-    DistributedVector distributed_current_solution = p_factory->CreateDistributedVector(currentSolution);
+    DistributedVector distributed_current_solution = p_factory->CreateDistributedVector(existingSolution);
     DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0);
 
     // dist stripe for z

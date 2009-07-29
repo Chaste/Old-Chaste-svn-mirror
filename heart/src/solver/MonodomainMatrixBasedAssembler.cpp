@@ -154,10 +154,10 @@ MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::~MonodomainMatrixBasedAss
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution)
+void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(Vec existingSolution)
 {
     // copy V to z
-    VecCopy(currentSolution, this->mVectorForMatrixBasedRhsAssembly);
+    VecCopy(existingSolution, this->mVectorForMatrixBasedRhsAssembly);
 
     // set up a vector which has the nodewise force term (ie A*I_ionic+I_stim)
     Vec force_term_at_nodes = this->mpMesh->GetDistributedVectorFactory()->CreateVec();

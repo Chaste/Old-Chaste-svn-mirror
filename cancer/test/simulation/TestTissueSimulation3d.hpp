@@ -122,6 +122,9 @@ public:
             cell.SetBirthTime(0.0);
             cells.push_back(cell);
         }
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);        
 
         // Setting last cell to undergo cell birth
         cell.SetBirthTime(-50.0);
@@ -143,9 +146,10 @@ public:
         simulator.SetEndTime(1.0);
 
         simulator.Solve();
-
+        
+        // Start with a single 3D tetrahedron, add one node get two tetrahedral elements.
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u); 
 
         TrianglesMeshWriter<3,3> mesh_writer2("Test3DCellBirth", "EndMesh", false);
         mesh_writer2.WriteFilesUsingMesh(mesh);

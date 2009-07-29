@@ -56,7 +56,7 @@ public:
       * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
       * and gives expected results.
       * 
-      * \todo run PyCml automatically, rather than having to generate the .hpp files by hand.
+      * \todo #1030 run PyCml automatically, rather than having to generate the .hpp files by hand.
       */
      void TestPyCmlCodeGeneration()
      {

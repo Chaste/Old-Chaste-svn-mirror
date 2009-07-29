@@ -67,7 +67,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Class containing common functionality to monodomain and bidomain PDEs.
  *
- * \todo more details...
+ * Contains the cardiac cells (ODE systems for each node of the mesh),
+ * conductivity tensors (dependent on fibre directions).
+ * 
+ * Also contains knowledge of parallelisation in the form of the 
+ * distributed vector factory. 
  */
 template <unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class AbstractCardiacPde
@@ -89,9 +93,10 @@ private:
 
         //Archive cells using handler.GetProcessUniqueFilePath("") and ArchiveLocationInfo
 
+        /// \todo #98 Check that mpIntracellularConductivityTensors is archived properly here.
+
         archive & mpDistributedVectorFactory;
     }
-
 
 protected:
 
@@ -106,6 +111,7 @@ protected:
      *  replicated over all processes.
      */
     ReplicatableVector mIionicCacheReplicated;
+    
     /**
      *  Cache containing all the stimulus currents for each node,
      *  replicated over all processes.
@@ -133,6 +139,7 @@ protected:
      * Defaults to true.
      */
     bool mDoCacheReplication;
+    
     /**
      * This is to mark the conventional assembly on the first time step.
      *
@@ -194,7 +201,6 @@ public:
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex );
 
-
     /**
      *  SolveCellSystems()
      *
@@ -205,11 +211,11 @@ public:
      *  that method is now a virtual method in the assemblers not the
      *  pdes.
      *
-     * @param currentSolution  the current voltage solution vector
-     * @param currentTime  the current simulation time
+     * @param existingSolution  the current voltage solution vector
+     * @param time  the current simulation time
      * @param nextTime  when to simulate the cells until
      */
-    virtual void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime);
+    virtual void SolveCellSystems(Vec existingSolution, double time, double nextTime);
 
     /** Get the entire ionic current cache */
     ReplicatableVector& rGetIionicCacheReplicated();

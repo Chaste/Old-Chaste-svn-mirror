@@ -87,7 +87,9 @@ public:
     {
     }
 
-    /** Create cell model
+    /** 
+     * Create cell model
+     * 
      * \todo - I thought that the concept here was to ramp the stimulus down
      * over the first quarter, in order to make sure that there is no interface
      * between stimulated region and un-stimulated region where the FEM linear interpolation

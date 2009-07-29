@@ -214,7 +214,7 @@ public :
 
     /**
      * Short helper function - the max of a std::vec.
-     * \todo this is in the wrong place
+     * \todo Move to UblasCustomFunctions?
      * 
      * @param vec a vector of doubles
      */

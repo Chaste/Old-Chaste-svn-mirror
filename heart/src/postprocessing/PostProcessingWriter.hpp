@@ -36,7 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /** 
  * Write out physiological parameters at the end of a simulation
  * - APD map
- * - ...
+ * - Upstroke time map
+ * 
+ * \todo - Needs to deal with the case where no upstroke is found.
  */
 class PostProcessingWriter
 {

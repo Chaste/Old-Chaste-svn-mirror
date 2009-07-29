@@ -270,7 +270,8 @@ public:
         {
             if (((*iter)->GetNodeLocation(0))[0]==1.0)
             {
-                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim, 0); //note: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2? (todo)
+                /// \todo: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2?
+                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim, 0); 
                 bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim,   1);
             }
         }

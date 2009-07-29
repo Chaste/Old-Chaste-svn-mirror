@@ -154,9 +154,9 @@ public:
         monodomain_problem.Solve();
 
         ///////////////////////////////////////////////////////////////////////
-        // now reread the data and check verify that one of the stimulated
-        // nodes was actually stimulated, and that the propagation spread to
-        // a nearby node
+        ///todo: now reread the data and check verify that one of the stimulated
+        ///nodes was actually stimulated, and that the propagation spread to
+        ///a nearby node
         ///////////////////////////////////////////////////////////////////////
         /*
          *
@@ -183,7 +183,7 @@ public:
         TS_ASSERT(stimulated_node_was_excited);
         TS_ASSERT(unstimulated_node_was_excited);
         *
-        */ ///\todo
+        */ 
     }
 };
 

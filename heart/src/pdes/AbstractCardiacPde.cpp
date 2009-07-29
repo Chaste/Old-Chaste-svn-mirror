@@ -154,7 +154,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractC
       mDoOneCacheReplication(true),
       mpDistributedVectorFactory(NULL)
 {
-    /// todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
+    /// \todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
     mpIntracellularConductivityTensors = NULL;
 }
 
@@ -203,11 +203,11 @@ AbstractCardiacCell* AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::GetCardiacCell( uns
 
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
+void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double currentTime, double nextTime)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
 
-    DistributedVector dist_solution = mpDistributedVectorFactory->CreateDistributedVector(currentSolution);
+    DistributedVector dist_solution = mpDistributedVectorFactory->CreateDistributedVector(existingSolution);
     DistributedVector::Stripe voltage(dist_solution, 0);
     for (DistributedVector::Iterator index = dist_solution.Begin();
          index != dist_solution.End();

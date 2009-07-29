@@ -40,13 +40,13 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
             c_vector<double, ELEMENT_DIM+1> &rPhi,
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
             ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,2> &u,
+            c_vector<double,2> &rU,
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     if (pElement->GetRegion() != HeartRegionCode::BATH) // ie if a tissue element
     {
-        return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
+        return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
     }
     else // bath element
     {
@@ -90,13 +90,13 @@ c_vector<double,2*(ELEMENT_DIM+1)>
             c_vector<double, ELEMENT_DIM+1> &rPhi,
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
             ChastePoint<SPACE_DIM> &rX,
-            c_vector<double,2> &u,
+            c_vector<double,2> &rU,
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
             Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     if (pElement->GetRegion() != HeartRegionCode::BATH) // ie if a tissue element
     {
-        return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,u,rGradU,pElement);
+        return BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
     }
     else // bath element
     {
@@ -116,7 +116,7 @@ c_vector<double,2*(ELEMENT_DIM+1)>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
-            Vec currentSolutionOrGuess,
+            Vec existingSolutionOrGuess,
             double currentTime,
             bool assembleVector, bool assembleMatrix)
 {

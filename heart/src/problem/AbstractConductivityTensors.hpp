@@ -99,7 +99,8 @@ public:
      *  Sets constant conductivities for all the elements of the mesh.
      *  @param constantConductivities Longitudinal, Transverse (y axis) and Normal conductivity (z axis)
      *
-     *  \todo Explain problem with c_vector and SPACE_DIM
+     *  We need explicit instanciation of this method to make sure that c_vector length matches SPACE_DIM.
+     *  Compiler won't detect mismatches.
      */
     void SetConstantConductivities(c_vector<double, 1> constantConductivities);
 
@@ -107,7 +108,8 @@ public:
      *  Sets constant conductivities for all the elements of the mesh.
      *  @param constantConductivities Longitudinal, Transverse (y axis) and Normal conductivity (z axis)
      *
-     *  \todo Explain problem with c_vector and SPACE_DIM
+     *  We need explicit instanciation of this method to make sure that c_vector length matches SPACE_DIM.
+     *  Compiler won't detect mismatches.
      */
     void SetConstantConductivities(c_vector<double, 2> constantConductivities);
 
@@ -115,7 +117,8 @@ public:
      *  Sets constant conductivities for all the elements of the mesh.
      *  @param constantConductivities Longitudinal, Transverse (y axis) and Normal conductivity (z axis)
      *
-     *  \todo Explain problem with c_vector and SPACE_DIM
+     *  We need explicit instanciation of this method to make sure that c_vector length matches SPACE_DIM.
+     *  Compiler won't detect mismatches.
      */
     virtual void SetConstantConductivities(c_vector<double, 3> constantConductivities);
 

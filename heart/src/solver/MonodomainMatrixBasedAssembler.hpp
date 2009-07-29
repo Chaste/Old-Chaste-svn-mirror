@@ -65,7 +65,7 @@ public:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -73,7 +73,7 @@ public:
         c_vector<double, ELEM_DIM+1> &rPhi,
         c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,1> &u,
+        c_vector<double,1> &rU,
         c_matrix<double,1,SPACE_DIM> &rGradU /* not used */,
         Element<ELEM_DIM,SPACE_DIM>* pElement);
 
@@ -84,7 +84,7 @@ public:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i
+     * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -92,7 +92,7 @@ public:
         c_vector<double, ELEM_DIM+1> &rPhi,
         c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,1> &u,
+        c_vector<double,1> &rU,
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
         Element<ELEM_DIM,SPACE_DIM>* pElement);
 
@@ -196,9 +196,9 @@ public:
      * This constructs the vector z such that b (in Ax=b) is given by Bz = b. See class
      * documentation.
      * 
-     * @param currentSolution the current solution
+     * @param existingSolution the current solution
      */
-    void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
+    void ConstructVectorForMatrixBasedRhsAssembly(Vec existingSolution);
 };
 
 /**

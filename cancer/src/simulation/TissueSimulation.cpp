@@ -117,7 +117,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 // Create a new cell
                 TissueCell new_cell = cell_iter->Divide();
 
-                ///\todo This is specific to cell-centre based models, the location isn't used in a vertex simulation
+                ///\todo This is specific to cell-centre based models, the location isn't used in a vertex simulation, move it down to AbstractCellCentreBasedTissue?? 
                 c_vector<double, DIM> new_location = zero_vector<double>(DIM);
                 if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
                 {
@@ -189,8 +189,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
 
             random_vector(0) = 0.5*separation*random_direction;
 
-            parent_coords = parent_coords - random_vector;
-            daughter_coords = parent_coords + random_vector;
+            //parent_coords = parent_coords - random_vector;
+            //daughter_coords = parent_coords + random_vector;
 
             break;
         }
@@ -201,8 +201,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
             random_vector(0) = 0.5*separation*cos(random_angle);
             random_vector(1) = 0.5*separation*sin(random_angle);
 
-            parent_coords = parent_coords - random_vector;
-            daughter_coords = parent_coords + random_vector;
+            //parent_coords = parent_coords - random_vector;
+            //daughter_coords = parent_coords + random_vector;
 
             break;
         }
@@ -216,8 +216,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
             random_vector(2) = 0.5*separation*cos(random_zenith_angle);
 
             /// \todo Should really make this the same way round as the other cases, but this would break tests
-            parent_coords = parent_coords + random_vector;
-            daughter_coords = parent_coords - random_vector;
+            //parent_coords = parent_coords + random_vector;
+            //daughter_coords = parent_coords - random_vector;
 
             break;
         }
@@ -225,6 +225,9 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
             // This can't happen
             NEVER_REACHED;
     }
+    
+    parent_coords = parent_coords - random_vector;
+    daughter_coords = parent_coords + random_vector;
 
     // Set the parent to use this location
     ChastePoint<DIM> parent_coords_point(parent_coords);

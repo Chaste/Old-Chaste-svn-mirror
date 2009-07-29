@@ -60,7 +60,11 @@ public:
      */
      void SetConstantConductivities(c_vector<double, 3> constantConductivities);
 
-    /** \todo there are extensive comments within the implementation of this method */
+    /** 
+     * Set up the tensors.
+     * 
+     * See extensive comments within the implementation of this method. 
+     */
     void Init() throw (Exception);
 };
 

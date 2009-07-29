@@ -352,7 +352,6 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         }
         catch (Exception& e)
         {
-            ///\todo: what's all this about?
             #define COVERAGE_IGNORE
             LOG(2, "WARNING in ImplicitCardiacMechanicsAssembler!\n");
             active_tension = 1e10;

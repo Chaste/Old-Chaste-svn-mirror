@@ -86,7 +86,7 @@ protected:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i
+     * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -94,7 +94,7 @@ protected:
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,1> &u,
+        c_vector<double,1> &rU,
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
@@ -111,7 +111,16 @@ protected:
      */
     void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode);
 
-    virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime);
+    /**
+     * This method is called at the beginning of AssembleSystem() and should be
+     * overloaded in the concrete assembler class if there is any work to be done
+     * before assembling, for example integrating ODEs such as in the Monodomain
+     * assembler.
+     * 
+     * @param existingSolutionOrGuess
+     * @param time
+     */
+    virtual void PrepareForAssembleSystem(Vec existingSolutionOrGuess, double time);
 
     /**
      * Create the linear system object if it hasn't been already.

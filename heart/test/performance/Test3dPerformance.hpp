@@ -117,8 +117,7 @@ public:
         tester.MeshNum++;
         tester.Run();
         HeartEventHandler::Report();
-///\todo
-//        Can't run mesh 5 yet: runs out of memory.
+///\todo: Can't run mesh 5 yet: runs out of memory.
 //        tester.MeshNum++;
 //        tester.Run();
 //        HeartEventHandler::Report();

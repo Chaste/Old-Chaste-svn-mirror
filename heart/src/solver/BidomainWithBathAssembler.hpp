@@ -60,7 +60,7 @@ public:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -68,7 +68,7 @@ public:
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &u,
+        c_vector<double,2> &rU,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
@@ -78,7 +78,7 @@ public:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param u The unknown as a vector, u(i) = u_i
+     * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -86,7 +86,7 @@ public:
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &u,
+        c_vector<double,2> &rU,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
@@ -95,14 +95,14 @@ public:
      *  bath nodes voltages are zero, except for the diagonal (set to 1). The
      *  corresponding rhs vector entry is also set to 0, so the equation for the
      *  bath node voltage is 1*V = 0.
-     * @param currentSolutionOrGuess voltages (not used) \todo rename
+     * @param existingSolutionOrGuess voltages (not used) \todo rename
      * @param currentTime \todo rename
      * @param assembleVector If set, then RHS corresponding to bath nodes are affected as described
      * @param assembleMatrix If set, then matrix rows corresponding to bath nodes are affected as described
      * 
      * 
      */
-    void FinaliseLinearSystem(Vec currentSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix);
+    void FinaliseLinearSystem(Vec existingSolutionOrGuess, double currentTime, bool assembleVector, bool assembleMatrix);
 
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.

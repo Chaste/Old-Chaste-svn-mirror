@@ -36,12 +36,12 @@ c_vector<double,1*(ELEMENT_DIM+1)> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>
     c_vector<double, ELEMENT_DIM+1> &rPhi,
     c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
     ChastePoint<SPACE_DIM> &rX,
-    c_vector<double,1> &u,
+    c_vector<double,1> &rU,
     c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
     Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     return  rPhi * (mSourceTerm + this->mDtInverse *
-                    mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * u(0));
+                    mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * rU(0));
 }
 
 
@@ -62,9 +62,9 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantit
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::PrepareForAssembleSystem(
-            Vec currentSolution, double currentTime)
+            Vec existingSolution, double currentTime)
 {
-    mpMonodomainPde->SolveCellSystems(currentSolution, currentTime, currentTime+this->mDt);
+    mpMonodomainPde->SolveCellSystems(existingSolution, currentTime, currentTime+this->mDt);
 }
 
 

@@ -200,9 +200,9 @@ c_vector<double, 2*ELEMENT_DIM> BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::Com
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::PrepareForAssembleSystem(Vec currentSolution, double time)
+void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::PrepareForAssembleSystem(Vec existingSolution, double time)
 {
-    mpBidomainPde->SolveCellSystems(currentSolution, time, time+this->mDt);
+    mpBidomainPde->SolveCellSystems(existingSolution, time, time+this->mDt);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -230,7 +230,7 @@ Vec BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::GenerateNullBasis() const
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec currentSolution, double currentTime)
+void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec existingSolution, double time)
 {
     if (!(this->mpBoundaryConditions->HasDirichletBoundaryConditions()))
     {

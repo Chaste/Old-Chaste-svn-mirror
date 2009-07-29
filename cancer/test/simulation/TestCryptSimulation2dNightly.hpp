@@ -198,7 +198,11 @@ public:
 
         VoronoiTessellation<2u>& r_tessellation = crypt.rGetVoronoiTessellation();
 
-        /// \todo Voronoi is worked out for the ghost nodes too - is this necessary (probably not??)
+        /**
+         * Voronoi is worked out for the ghost nodes too, although this is not strictly necessary,
+         * you do need the immediate ghost nodes to work out the Voronoi tessellation of the outer
+         * real nodes, so need to work out the full tessellation really.
+         */
         TS_ASSERT_EQUALS(r_tessellation.GetNumFaces(), number_of_cells + ghost_indices.size());
         TS_ASSERT_EQUALS(r_tessellation.GetNumVertices(), 273u);
     }

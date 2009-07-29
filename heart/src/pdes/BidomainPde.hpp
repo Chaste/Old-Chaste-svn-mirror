@@ -81,6 +81,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        archive & boost::serialization::base_object<AbstractCardiacPde<SPACE_DIM> >(*this);
     }
 
     /** Extracellular conductivity tensors. */
@@ -132,8 +133,6 @@ inline void save_construct_data(
     const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
     
     ar << r_cells_distributed;
-    
-    /// \todo: #98 Archive intra and extra conductivity tensors       
 }    
     
 /**
@@ -148,9 +147,7 @@ inline void load_construct_data(
 
     ar >> cells_distributed;
 
-    /// \todo: #98 Retrieve intra and extra conductivity tensors
-
-    ::new(t)BidomainPde<SPACE_DIM>(cells_distributed /*, pass intra and extracellular conductivity tensors*/);
+    ::new(t)BidomainPde<SPACE_DIM>(cells_distributed);
 }
 }
 } // namespace ...

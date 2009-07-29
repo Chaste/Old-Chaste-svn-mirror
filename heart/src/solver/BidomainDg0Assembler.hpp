@@ -153,7 +153,7 @@ protected:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param rU The unknown as a vector, u(i) = u_i \todo should this be rU?
+     * @param rU The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -214,10 +214,10 @@ protected:
      *
      *  Called at the beginning of AbstractLinearAssembler::AssembleSystem()
      *  after the system. Here, used to integrate cell odes.
-     *  @param currentSolution is the voltage to feed into the cell models \todo rename
+     *  @param existingSolution is the voltage to feed into the cell models
      *  @param time the simulation time 
      */
-    virtual void PrepareForAssembleSystem(Vec currentSolution, double time);
+    virtual void PrepareForAssembleSystem(Vec existingSolution, double time);
 
     /**
      *  FinaliseAssembleSystem
@@ -226,10 +226,10 @@ protected:
      *  has been assembled. Here, used to avoid problems with phi_e drifting
      *  by one of 3 methods: pinning nodes, using a null space, or using an
      *  "average phi_e = 0" row.
-     *  @param currentSolution voltages (phi_e may need shifting) \todo rename
-     *  @param currentTime \todo rename
+     *  @param existingSolution voltages (phi_e may need shifting)
+     *  @param time
      */
-    virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime);
+    virtual void FinaliseAssembleSystem(Vec existingSolution, double time);
 
     /**
      *  GenerateNullBasis

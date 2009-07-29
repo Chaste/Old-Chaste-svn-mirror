@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 
-/// \todo: test unarchiving
+/// \todo #98: test unarchiving
 //#include <boost/archive/text_iarchive.hpp>
 
 #include "LinearSystem.hpp"
@@ -47,6 +47,9 @@ class TestBidomainArchiveLinearSystem : public CxxTest::TestSuite
 {
 public:
 
+    /**
+     *  \todo #98: test unarchiving
+     */
     void TestDumpBidomainPE() throw (Exception)
     {
         // after 1.4 ms of simulation the wavefront is half way through the cube
@@ -64,7 +67,6 @@ public:
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
         
-/// \todo: test unarchiving        
 //        OutputFileHandler handler(HeartConfig::Instance()->GetOutputDirectory(), false);
 //        handler.SetArchiveDirectory();
 //        
