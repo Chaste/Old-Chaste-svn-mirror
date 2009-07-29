@@ -150,7 +150,11 @@
   </lookup_tables>
 </for_model> 
 
-<for_model id="faber_rudy_2000_version01">
+<for_models>
+  <ids>
+    <id>faber_rudy_2000_version01</id>
+    <id>LR_Dynamic_model_2000</id>
+  </ids>
   <currents>
     <stimulus>membrane,I_st</stimulus>
   </currents>
@@ -160,7 +164,7 @@
       <max>69.9999</max>
     </lookup_table>
   </lookup_tables>
-</for_model> 
+</for_models> 
 
 <for_models>
   <ids>
