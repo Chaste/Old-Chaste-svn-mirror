@@ -2159,12 +2159,70 @@ public:
     }
 
 
-    void TestDivideVertexElementWhereNewNodesAreCloseToOldNodes() throw(Exception)
+    void TestDivideVertexElementWhereNewNodesAreCloseToOldNodes1() throw(Exception)
     {
         // Make 6 nodes
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, -1.0, 0.0));
-        nodes.push_back(new Node<2>(1, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, -0.009, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(3, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(4, false, 0.5, 1.0));
+        nodes.push_back(new Node<2>(5, false, -1.0, 1.0));
+        std::vector<Node<2>*> nodes_elem;
+
+        // Make one rectangular element out of these nodes
+        nodes_elem.push_back(nodes[0]);
+        nodes_elem.push_back(nodes[1]);
+        nodes_elem.push_back(nodes[2]);
+        nodes_elem.push_back(nodes[3]);
+        nodes_elem.push_back(nodes[4]);
+        nodes_elem.push_back(nodes[5]);
+
+        std::vector<VertexElement<2,2>*> elements;
+        elements.push_back(new VertexElement<2,2>(0, nodes_elem));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> mesh(nodes, elements);
+
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
+
+        // Divide element
+        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(0));
+
+        TS_ASSERT_EQUALS(new_element_index, 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);
+
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(0)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(4)->GetIndex(), 7u);
+
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(4)->GetIndex(), 5u);
+
+        // Test locations of new nodes
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], -0.009+2*mesh.GetCellRearrangementThreshold(), 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 0.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[0], 0.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[1], 1.0, 1e-4);
+    }
+    
+    void TestDivideVertexElementWhereNewNodesAreCloseToOldNodes2() throw(Exception)
+    {
+        // Make 6 nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, -1.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 0.009, 0.0));
         nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
         nodes.push_back(new Node<2>(3, false, 1.0, 1.0));
         nodes.push_back(new Node<2>(4, false, 0.5, 1.0));
@@ -2211,7 +2269,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(5)->GetIndex(), 7u);
 
         // Test locations of new nodes
-        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], -0.02, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[0], 0.009-2*mesh.GetCellRearrangementThreshold(), 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(6)->rGetLocation()[1], 0.0, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[1], 1.0, 1e-4);
