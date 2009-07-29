@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CmguiWriter.hpp"
 #include "VtkWriter.hpp"
 
-
 class TestMeshWriters : public CxxTest::TestSuite
 {
 public:
@@ -228,7 +227,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 51u);
     }
 
-    void TestTriangles1DMeshIn2DSpaceWithDeletedNode()
+    void TestTriangles1DMeshIn2DSpaceWithDeletedNode() throw (Exception)
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
         MutableMesh<1,2> mesh;
@@ -236,15 +235,21 @@ public:
         mesh.DeleteBoundaryNodeAt(0);
 
         TrianglesMeshWriter<1,2> mesh_writer("", "1dMeshIn2dSpaceWithDeletedNode");
-
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
-        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshWriter<1,2> mesh_writer2("", "1dMeshIn2dSpaceWithDeletedNodeConst");
+        mesh_writer2.WriteFilesUsingMesh(static_cast<const MutableMesh<1,2> &>(mesh));
 
+        std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<1,2> mesh_reader2(output_dir + "1dMeshIn2dSpaceWithDeletedNode");
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 50u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 49u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 50u);
+        
+        TrianglesMeshReader<1,2> mesh_reader3(output_dir + "1dMeshIn2dSpaceWithDeletedNodeConst");
+        TS_ASSERT_EQUALS(mesh_reader3.GetNumNodes(), 50u);
+        TS_ASSERT_EQUALS(mesh_reader3.GetNumElements(), 49u);
+        TS_ASSERT_EQUALS(mesh_reader3.GetNumFaces(), 50u);
     }
 
     void Test2DClosedMeshIn3DSpace()
