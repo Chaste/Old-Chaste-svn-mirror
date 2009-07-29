@@ -879,7 +879,7 @@ bool HeartConfig::IsConductionVelocityMapsRequested() const
 
 void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const
 {
-    assert(IsApdMapsRequested());///\todo Is this a cut-n-paste error?
+    assert(IsApdMapsRequested());
     assert(conduction_velocity_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&

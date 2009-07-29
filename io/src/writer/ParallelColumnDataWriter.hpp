@@ -65,11 +65,11 @@ public:
      */
     virtual ~ParallelColumnDataWriter();
 
-    /**
-     * Get whether it is the master process or not.
-     * \todo Where is this implemented? (#991)
-     */
-    bool AmMaster() const;
+//    /**
+//     * Get whether it is the master process or not.
+//     * \todo Where is this implemented? (#991)
+//     */
+//    bool AmMaster() const;
 
     /**
      * Write data for a given variable from a Petsc vector to the dataset.

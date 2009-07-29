@@ -65,8 +65,8 @@ private:
     Vec mRhsVector;  /**< The right-hand side vector. */
     PetscInt mSize;  /**< The size of the linear system. */
 
-    /** \todo
-     * Verify claim that ownership range for Vec and Mat is same.
+    /** 
+     * \todo Verify claim that ownership range for Vec and Mat is same.
      * This should only matter for efficiency if the claim is false.
      */
     PetscInt mOwnershipRangeLo; /**< For parallel code.  Stores lowest index of vectors and lowest row of matrix stored locally. */
@@ -111,7 +111,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //MatNullSpace mMatNullSpace; ///\todo 
+        //MatNullSpace mMatNullSpace; ///\todo archive mMatNullSpace.
   
         archive & mNonZerosUsed;  
         archive & mMatrixIsConstant;
@@ -120,7 +120,7 @@ private:
         archive & mKspType;
         archive & mPcType;
 
-        //Vec mDirichletBoundaryConditionsVector; ///\todo
+        //Vec mDirichletBoundaryConditionsVector; ///\todo archive mDirichletBoundaryConditionsVector.
     }    
 
 public:

@@ -71,8 +71,8 @@ private:
 public:
 
     double mMeshWidth; /**< Width of the mesh. */
-    unsigned NumElements; /**< Number of elements in the mesh. \todo Should be mNumElements */
-    unsigned NumNodes; /**< Number of nodes in the mesh. \todo Should be mNumNodes  */
+    unsigned mNumElements; /**< Number of elements in the mesh. */
+    unsigned mNumNodes; /**< Number of nodes in the mesh.  */
 
     /**
      * Construct the mesh.

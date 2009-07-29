@@ -219,9 +219,10 @@ public:
     ~BidomainMatrixBasedAssembler();
 
     /**
-     *  This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class
-     *  documentation.
-     * @param existingSolution the vector of ionic currents to use in the assembly \todo Rename
+     * This constructs the vector z such that b (in Ax=b) is given by Bz = b. See main class
+     * documentation.
+     * 
+     * @param existingSolution the vector of ionic currents to use in the assembly.
      */
     virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec existingSolution);
 };

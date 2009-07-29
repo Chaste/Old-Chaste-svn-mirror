@@ -108,8 +108,8 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
 PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y)
 {
-    /// todo: refactoring: create a method for scattering and another for reversing
-    /// todo: optimisation: don't create x11, x22, y11, y22 everytime the method is called. Store them in the PC context.
+    /// \todo refactoring: create a method for scattering and another for reversing
+    /// \todo optimisation: don't create x11, x22, y11, y22 everytime the method is called. Store them in the PC context.
     
     // Cast the pointer to a PC context to our defined type
     PCBlockDiagonal::PCBlockDiagonalContext* block_diag_context = (PCBlockDiagonal::PCBlockDiagonalContext*) pc_context;

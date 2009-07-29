@@ -95,12 +95,11 @@ public:
      *  bath nodes voltages are zero, except for the diagonal (set to 1). The
      *  corresponding rhs vector entry is also set to 0, so the equation for the
      *  bath node voltage is 1*V = 0.
-     * @param existingSolutionOrGuess voltages (not used) \todo rename
+     * 
+     * @param existingSolutionOrGuess voltages (not used)
      * @param time
      * @param assembleVector If set, then RHS corresponding to bath nodes are affected as described
      * @param assembleMatrix If set, then matrix rows corresponding to bath nodes are affected as described
-     * 
-     * 
      */
     void FinaliseLinearSystem(Vec existingSolutionOrGuess, double time, bool assembleVector, bool assembleMatrix);
 

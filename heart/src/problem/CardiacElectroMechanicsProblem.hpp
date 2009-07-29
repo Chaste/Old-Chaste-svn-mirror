@@ -197,6 +197,11 @@ public :
 
     /**
      *  Delete allocated memory and close the watched location file
+     * 
+     * NOTE if SetWatchedLocation but not Initialise has been
+     * called, mpWatchedLocationFile will be uninitialised and
+     * using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
+     * it is true if Initialise has been called.
      */
     virtual ~CardiacElectroMechanicsProblem();
 

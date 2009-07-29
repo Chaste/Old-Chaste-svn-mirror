@@ -419,10 +419,9 @@ boost::numeric::ublas::c_matrix<T, 1, 3> Inverse(const boost::numeric::ublas::c_
 template<class T>
 c_vector<T, 3> VectorProduct(const c_vector<T, 3>& rA, const c_vector<T, 3>& rB)
 {
-    //This is a cross-product
-    // What do you get when you cross an elephant with a banana?
+    /// This is a cross-product, only implemented for 3-vectors
+    /// What do you get when you cross an elephant with a banana?
 	/// \todo remove Joe's awful joke
-    //only implemented for 3-vectors
 
     c_vector<T, 3> result;
 

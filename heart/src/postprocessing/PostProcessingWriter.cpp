@@ -89,7 +89,7 @@ void PostProcessingWriter::WriteUpstrokeTimeMap(double threshold)
         { 
             std::vector<double> upstroke_times;
             upstroke_times = mpCalculator->CalculateUpstrokeTimes(node_index, threshold);
-            assert(upstroke_times.size()!=0); ///\todo Fix (see above)
+            assert(upstroke_times.size()!=0); /// \todo Allow this (see class description)
             for (unsigned i = 0; i < upstroke_times.size(); i++)
             {
                 *p_file << upstroke_times[i] << "\t";
@@ -111,7 +111,7 @@ void PostProcessingWriter::WriteMaxUpstrokeVelocityMap(double threshold)
         { 
             std::vector<double> upstroke_velocities;
             upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
-            assert(upstroke_velocities.size()!=0); ///\todo Fix (see above)
+            assert(upstroke_velocities.size()!=0); /// \todo Allow this (see class description)
             for (unsigned i = 0; i < upstroke_velocities.size(); i++)
             {
                 *p_file << upstroke_velocities[i] << "\t";

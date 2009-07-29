@@ -87,7 +87,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
                 break;
 
             case media_type::NoFibreOrientation:
-                /// \todo: Create a class defining constant tensors to be used when no fibre orientation is provided
+                /// \todo Create a class defining constant tensors to be used when no fibre orientation is provided.
                 mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
                 break;
 
@@ -97,7 +97,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
     }
     else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
     {
-        // See previous todo.
+        /// \todo Create a class defining constant tensors to be used when no fibre orientation is provided.
         mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
     }
 

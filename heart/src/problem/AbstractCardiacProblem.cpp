@@ -527,7 +527,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostPr
             catch(Exception& e)
             {
                 //If there isn't a MeshReader available we will use the data contained in the actual mesh object.
-                ///\todo: WriteFilesUsingMesh cannot handle ParallelTetrahedralMesh objects. Abort if so.
+                ///\todo WriteFilesUsingMesh cannot handle ParallelTetrahedralMesh objects. Abort if so.
                 mesh_writer.WriteFilesUsingMesh(*mpMesh);
             }
 

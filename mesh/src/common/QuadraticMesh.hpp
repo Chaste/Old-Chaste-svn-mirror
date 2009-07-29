@@ -168,7 +168,7 @@ public:
      */
     QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic);
 
-    ///\todo: 1d constructor
+    ///\todo 1d constructor
 
     /**
      * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)

@@ -327,8 +327,8 @@ public:
             {
                 case 1:
                 {
-                    first_quadrant_node = (unsigned) (0.25*constructor.NumElements);
-                    third_quadrant_node = (unsigned) (0.75*constructor.NumElements);
+                    first_quadrant_node = (unsigned) (0.25*constructor.mNumElements);
+                    third_quadrant_node = (unsigned) (0.75*constructor.mNumElements);
                     break;
                 }
                 case 2:

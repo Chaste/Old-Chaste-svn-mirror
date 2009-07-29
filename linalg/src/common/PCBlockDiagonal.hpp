@@ -79,10 +79,10 @@ public:
      *  This struct defines the state of the preconditioner (initialised data and objects to be reused)
      */   
     typedef struct{
-        Mat A11_matrix_subblock; /**< See \todo */
-        Mat A22_matrix_subblock; /**< See \todo */        
-        PC  PC_amg_A11; /**< See \todo */
-        PC  PC_amg_A22; /**< See \todo */
+        Mat A11_matrix_subblock; /// See \todo - don't create these every time but store them.
+        Mat A22_matrix_subblock; /// See \todo - don't create these every time but store them.
+        PC  PC_amg_A11; /// See \todo - don't create these every time but store them.
+        PC  PC_amg_A22; /// See \todo - don't create these every time but store them.
         
     } PCBlockDiagonalContext;
 

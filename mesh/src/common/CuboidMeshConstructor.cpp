@@ -67,10 +67,10 @@ std::string CuboidMeshConstructor<DIM>::Construct(unsigned meshNum, double meshW
     TetrahedralMesh<DIM,DIM> mesh;
     ConstructHyperCube(mesh, mesh_size);
     mesh.Scale(scaling, scaling, scaling);
-    NumElements = mesh.GetNumElements();
-    NumNodes = mesh.GetNumNodes();
+    mNumElements = mesh.GetNumElements();
+    mNumNodes = mesh.GetNumNodes();
     std::stringstream file_name_stream;
-    file_name_stream << "cube_" << DIM << "D_2mm_" << NumElements << "_elements";
+    file_name_stream << "cube_" << DIM << "D_2mm_" << mNumElements << "_elements";
     std::string mesh_filename = file_name_stream.str();
 
     if (output_file_handler.IsMaster())

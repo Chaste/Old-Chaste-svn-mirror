@@ -138,7 +138,7 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
 
     std::vector<c_vector<double,DIM> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
 
-    ///\todo Improve efficiency pf this method?
+    ///\todo Improve efficiency of this method?
     ReplicatableVector voltage_replicated(voltage);
     double V=voltage_replicated[mWatchedElectricsNodeIndex];
 
@@ -228,7 +228,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     LOG(2, "Nhs ode timestep " << mNhsOdeTimeStep);
     LOG(2, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
 #define COVERAGE_IGNORE
-//todo: Coverage
+/// \todo Cover these lines
     if(mpElectricsMesh != NULL)
     {
         LOG(2, "Electrics mesh has " << mpElectricsMesh->GetNumNodes() << " nodes");
@@ -245,11 +245,12 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
 
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
-{
-    // NOTE if SetWatchedLocation but not Initialise has been
-    // called, mpWatchedLocationFile will be uninitialised and
-    // using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
-    // it is true if Initialise has been called.
+{   /** 
+     * NOTE if SetWatchedLocation but not Initialise has been
+     * called, mpWatchedLocationFile will be uninitialised and
+     * using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
+     * it is true if Initialise has been called.
+     */
     if(mIsWatchedLocation && mpMechanicsMesh)
     {
         mpWatchedLocationFile->close();

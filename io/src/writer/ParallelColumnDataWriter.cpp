@@ -165,9 +165,7 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
 
     if (mAmMaster)
     {
-        ///\todo
-        ///This is where the master is going to take messages from the
-        ///slaves and write them
+        /// \todo This is where the master is going to take messages from the slaves and write them.
         ColumnDataWriter::DoAdvanceAlongUnlimitedDimension();
     }
 }
@@ -176,7 +174,7 @@ void ParallelColumnDataWriter::Close()
 {
     MPI_Barrier(PETSC_COMM_WORLD);
 
-    ///\todo.. we may still have queued messages at this point.
+    ///\todo we may still have queued messages at this point - force their output.
     if (mAmMaster)
     {
         ColumnDataWriter::Close();

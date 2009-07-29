@@ -83,7 +83,7 @@ private:
      * line 2: <first upstroke time for node 1> <second upstroke time for node 1> ...
      * etc.
      * 
-     * If there is no upstroke then there will a ...///\todo Fix (see below)
+     * If there is no upstroke then there will a ... /// \todo Allow this (see class description)
      * 
      * @param threshold  - Vm used to signify the upstroke (mV) 
      */
@@ -96,7 +96,7 @@ private:
      * line 2: <first upstroke velocity for node 1> <second upstroke velocity for node 1> ...
      * etc.
      * 
-     * If there is no upstroke then there will a ...///\todo Fix (see below)
+     * If there is no upstroke then there will a ... /// \todo Allow this (see class description)
      * 
      * @param threshold  - Vm used to signify the upstroke (mV) 
      */

@@ -73,11 +73,12 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
     : mDomainSize(domainSize),
       mCutOffLength(cutOffLength)
 {
-    assert(DIM==2); ///todo 3d node box collection
+    assert(DIM==2); /// \todo 3d node box collection
     switch (DIM)
     {
-//// commented out as the 1d case is not tested or covered - do we really care about 1d? if so \todo 1d node box collection
-////
+/// commented out as the 1d case is not tested or covered - do we really care about 1d? 
+/// if so \todo 1d node box collection
+//
 //        case 1:
 //        {
 //            mNumBoxesEachDirection(0) = 0;
