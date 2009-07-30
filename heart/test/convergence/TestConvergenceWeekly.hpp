@@ -65,9 +65,11 @@ public:
     }
 
     //Experiments with ksp_atol follow.
-    //This first one has to be done before we've asked for symmlq
+    //This first one has to be done with GMRES as 1D are known to be a bit flakey
     void TestSpaceConvergencein1DWithAtol() throw(Exception)
     {
+        HeartConfig::Instance()->SetKSPSolver("gmres");
+        HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
        //tester.SetKspAbsoluteTolerance(1e-5);
