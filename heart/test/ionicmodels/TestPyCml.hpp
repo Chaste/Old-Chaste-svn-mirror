@@ -154,7 +154,7 @@ public:
             RunOdeSolverWithIonicModel(p_opt_cell,
                                        end_time,
                                        "Lr91FromPyCmlOptAfterArchive");
-            CheckCellModelResults("Lr91FromPyCmlOptAfterArchive", "Lr91DelayedStim");
+            CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOptAfterArchive", 1e-4, true);
 
             delete p_normal_cell;
             delete p_opt_cell;
