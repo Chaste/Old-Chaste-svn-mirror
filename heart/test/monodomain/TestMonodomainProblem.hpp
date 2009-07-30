@@ -160,8 +160,9 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=1e-6;
 
+        /// \todo: If we request "relative" tolerance we shouldn't testing in an "absolute" manner
+        double atol=1e-5;
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
         TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
@@ -219,7 +220,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(atol/4.0);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(atol/10.0);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
