@@ -73,6 +73,10 @@ public:
 
     void ConvergeInVarious(StimulusType stimulusType)
     {
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), "cg");
+        HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
+        HeartConfig::Instance()->SetKSPSolver("gmres");
         {
             std::cout << "PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2>\n";
             PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
@@ -82,6 +86,7 @@ public:
 
         {
             std::cout << "SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2>\n";
+            //Block Jacobi with CG can detect zero pivots in a 1-D convergence test
             SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulusType);
             if (stimulusType != REGION)
@@ -96,6 +101,7 @@ public:
 
         {
             std::cout << "KspConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2>\n";
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 5.0e-4);
             KspConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulusType);
             if (stimulusType != REGION)
@@ -106,7 +112,8 @@ public:
             {
                 TS_ASSERT_DELTA(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-4, 1e-10);
             }
-            HeartConfig::Instance()->Reset();
+            //See above - we've fiddled with HeartConfig...
+            HeartConfig::Instance()->SetUseAbsoluteTolerance(5.0e-4);
         }
 
         {
@@ -123,12 +130,16 @@ public:
             RunConvergenceTester(&tester, stimulusType);
             TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
         }
-
+        //Put the KSP defaults back (see above)
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), "jacobi");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), "gmres");
+        HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
+        HeartConfig::Instance()->SetKSPSolver("cg");
     }
 
 public:
 
-    void TestFullActionPotential() throw(Exception)
+    void joeTestFullActionPotential() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SimulateFullActionPotential=true;
