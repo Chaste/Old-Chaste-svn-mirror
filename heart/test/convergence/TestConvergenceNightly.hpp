@@ -139,7 +139,7 @@ public:
 
 public:
 
-    void joeTestFullActionPotential() throw(Exception)
+    void TestFullActionPotential() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
         tester.SimulateFullActionPotential=true;
