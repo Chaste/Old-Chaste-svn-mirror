@@ -68,11 +68,12 @@ private:
      */
     void ConstructHyperCube(TetrahedralMesh<3,3>& rMesh, unsigned width);
 
+    double mMeshWidth; /**< Width of the mesh.*/
+
 public:
 
-    double mMeshWidth; /**< Width of the mesh. */
-    unsigned mNumElements; /**< Number of elements in the mesh. */
-    unsigned mNumNodes; /**< Number of nodes in the mesh.  */
+    unsigned NumElements; /**< Number of elements in the mesh. \todo Should be mNumElements and private*/
+    unsigned NumNodes; /**< Number of nodes in the mesh.   \todo Should be mNumNodes and private*/
 
     /**
      * Construct the mesh.

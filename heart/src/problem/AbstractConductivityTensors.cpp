@@ -36,7 +36,7 @@ void AbstractConductivityTensors<SPACE_DIM>::OpenFibreOrientationFile()
     mDataFile.open(mFibreOrientationFilename.c_str());
     if (!mDataFile.is_open())
     {
-        EXCEPTION("Wrong fibre orientation file name.");
+        EXCEPTION("Wrong fibre orientation file name "+mFibreOrientationFilename);
     }
 }
 

@@ -151,7 +151,7 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     file_stream.open(surfaceFile.c_str());
     if (!file_stream.is_open())
     {
-        EXCEPTION("Wrong surface definition file name.");
+        EXCEPTION("Wrong surface definition file name " + surfaceFile);
     }
 
     // Temporary storage for the nodes, helps discarding repeated values
