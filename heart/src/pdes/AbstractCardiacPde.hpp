@@ -96,7 +96,6 @@ private:
         /// \todo #98 Check that mpIntracellularConductivityTensors is archived properly here.
 
         archive & mpDistributedVectorFactory;
-        mpFactoryWasUnarchived = true;
     }
 
 protected:

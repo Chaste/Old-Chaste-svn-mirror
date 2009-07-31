@@ -203,39 +203,45 @@ public:
         handler.SetArchiveDirectory();
         archive_filename = handler.GetOutputDirectoryFullPath() + "bidomain_pde.arch";       
 
-        TetrahedralMesh<1,1> mesh;
-        mesh.ConstructLinearMesh(1);
-
-        MyCardiacCellFactory cell_factory;
-        cell_factory.SetMesh(&mesh);
-
-        MonodomainPde<1> monodomain_pde( &cell_factory );            
-        
-        std::ofstream ofs(archive_filename.c_str());
-        boost::archive::text_oarchive output_arch(ofs);
-        MonodomainPde<1>* const p_archive_monodomain_pde = &monodomain_pde;
-        output_arch << p_archive_monodomain_pde;
-        
-        ofs.close();  
-
-        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-        boost::archive::text_iarchive input_arch(ifs); 
-        
-        MonodomainPde<1> *p_monodomain_pde;
-        input_arch >> p_monodomain_pde;
+        {
+            TetrahedralMesh<1,1> mesh;
+            mesh.ConstructLinearMesh(1);
+    
+            MyCardiacCellFactory cell_factory;
+            cell_factory.SetMesh(&mesh);
+    
+            MonodomainPde<1> monodomain_pde( &cell_factory );            
             
-        // Test rGetIntracellularConductivityTensor
-        /// \todo: #98 Can't test this yet. Intracellular tensors have not been generated. Check second constructor of AbstractCardiacPde.
-//        const c_matrix<double, 1, 1>& tensor_before_archiving = monodomain_pde.rGetIntracellularConductivityTensor(1);
-//        const c_matrix<double, 1, 1>& tensor_after_archiving = p_monodomain_pde->rGetIntracellularConductivityTensor(1);
-//        
-//        TS_ASSERT(tensor_before_archiving(0,0) == tensor_after_archiving(0,0));
-        
-        // Test GetCardiacCell
-        // Test rGetIionicCacheReplicated
-        // Test rGetIntracellularStimulusCacheReplicated
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            MonodomainPde<1>* const p_archive_monodomain_pde = &monodomain_pde;
+            output_arch << p_archive_monodomain_pde;
+            
+            ofs.close();
+        }  
 
-        delete p_monodomain_pde;        
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs); 
+            
+            MonodomainPde<1> *p_monodomain_pde;
+            input_arch >> p_monodomain_pde;
+                
+            // Test rGetIntracellularConductivityTensor
+            /// \todo: #98 Can't test this yet. Intracellular tensors have not been generated. Check second constructor of AbstractCardiacPde.
+    //        const c_matrix<double, 1, 1>& tensor_before_archiving = monodomain_pde.rGetIntracellularConductivityTensor(1);
+    //        const c_matrix<double, 1, 1>& tensor_after_archiving = p_monodomain_pde->rGetIntracellularConductivityTensor(1);
+    //        
+    //        TS_ASSERT(tensor_before_archiving(0,0) == tensor_after_archiving(0,0));
+            
+            // Test GetCardiacCell
+            // Test rGetIionicCacheReplicated
+            // Test rGetIntracellularStimulusCacheReplicated
+    
+            delete p_monodomain_pde;
+            
+            ifs.close();
+        }        
     }
     
 };

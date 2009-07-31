@@ -157,28 +157,34 @@ public:
         handler.SetArchiveDirectory();
         archive_filename = handler.GetOutputDirectoryFullPath() + "bidomain_pde.arch";       
 
-        TetrahedralMesh<1,1> mesh;
-        mesh.ConstructLinearMesh(1);
+        {
+            TetrahedralMesh<1,1> mesh;
+            mesh.ConstructLinearMesh(1);
+    
+            MyCardiacCellFactory cell_factory;
+            cell_factory.SetMesh(&mesh);
+    
+            BidomainPde<1> bidomain_pde( &cell_factory );            
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            BidomainPde<1>* const p_archive_bidomain_pde = &bidomain_pde;
+            output_arch << p_archive_bidomain_pde;  
+    
+            ofs.close();
+        }
 
-        MyCardiacCellFactory cell_factory;
-        cell_factory.SetMesh(&mesh);
-
-        BidomainPde<1> bidomain_pde( &cell_factory );            
-        
-        std::ofstream ofs(archive_filename.c_str());
-        boost::archive::text_oarchive output_arch(ofs);
-        BidomainPde<1>* const p_archive_bidomain_pde = &bidomain_pde;
-        output_arch << p_archive_bidomain_pde;  
-
-        ofs.close();
-
-        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-        boost::archive::text_iarchive input_arch(ifs); 
-        
-        BidomainPde<1> *p_bidomain_pde;
-        input_arch >> p_bidomain_pde; 
-        
-        delete p_bidomain_pde;
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs); 
+            
+            BidomainPde<1> *p_bidomain_pde;
+            input_arch >> p_bidomain_pde; 
+            
+            delete p_bidomain_pde;
+            
+            ifs.close();
+        }
     }
 };
 

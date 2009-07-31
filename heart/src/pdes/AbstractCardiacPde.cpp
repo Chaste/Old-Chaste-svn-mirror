@@ -153,16 +153,11 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractC
       mStride(stride),      
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
-      mpDistributedVectorFactory(NULL)
+      mpDistributedVectorFactory(NULL),
+      mpFactoryWasUnarchived(true)
 {
     /// \todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
-    mpIntracellularConductivityTensors = NULL;
-    
-    // Memory needs to be freed explicitly since it won't be done by the cell factory.
-    if (mpFactoryWasUnarchived)
-    {
-        delete mpDistributedVectorFactory;
-    }
+    mpIntracellularConductivityTensors = NULL;    
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
@@ -185,6 +180,12 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
     {
         delete mpIntracellularConductivityTensors;
     }
+    
+    // If the distributed vector factory was unarchived we need to free it explicitly. 
+    if (mpFactoryWasUnarchived)
+    {
+        delete mpDistributedVectorFactory;
+    }    
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
