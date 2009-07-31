@@ -73,8 +73,8 @@ public:
 
     void ConvergeInVarious(StimulusType stimulusType)
     {
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), "cg");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi")==0);
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg")==0);
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
         HeartConfig::Instance()->SetKSPSolver("gmres");
         {
@@ -131,8 +131,8 @@ public:
             TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
         }
         //Put the KSP defaults back (see above)
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPPreconditioner(), "jacobi");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetKSPSolver(), "gmres");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "jacobi")==0);
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         HeartConfig::Instance()->SetKSPSolver("cg");
     }
