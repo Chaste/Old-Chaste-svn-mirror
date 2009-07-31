@@ -96,6 +96,7 @@ private:
         /// \todo #98 Check that mpIntracellularConductivityTensors is archived properly here.
 
         archive & mpDistributedVectorFactory;
+        mpFactoryWasUnarchived = true;
     }
 
 protected:
@@ -153,6 +154,11 @@ protected:
      * Used to retrieve node ownership range when needed.
      */
     DistributedVectorFactory* mpDistributedVectorFactory;
+    
+    /**
+     * Wether the distributed vector factory was unarchived or got from the cell factory.
+     */
+    bool mpFactoryWasUnarchived;
 public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.

@@ -45,7 +45,8 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
     : mStride(stride),
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
-      mpDistributedVectorFactory(pCellFactory->GetMesh()->GetDistributedVectorFactory())
+      mpDistributedVectorFactory(pCellFactory->GetMesh()->GetDistributedVectorFactory()),
+      mpFactoryWasUnarchived(false)
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
     assert(pCellFactory!=NULL);
@@ -156,6 +157,12 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractC
 {
     /// \todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
     mpIntracellularConductivityTensors = NULL;
+    
+    // Memory needs to be freed explicitly since it won't be done by the cell factory.
+    if (mpFactoryWasUnarchived)
+    {
+        delete mpDistributedVectorFactory;
+    }
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
