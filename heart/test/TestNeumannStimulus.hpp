@@ -148,7 +148,7 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
-        double atol=5e-3;
+        double atol=8e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 22.4940, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 22.6008, atol);
