@@ -79,15 +79,15 @@ public:
      *  This struct defines the state of the preconditioner (initialised data and objects to be reused)
      */   
     typedef struct{
-        Mat A11_matrix_subblock; /// See \todo - don't create these every time but store them.
-        Mat A22_matrix_subblock; /// See \todo - don't create these every time but store them.
-        PC  PC_amg_A11; /// See \todo - don't create these every time but store them.
-        PC  PC_amg_A22; /// See \todo - don't create these every time but store them.
+        Mat A11_matrix_subblock; /**< Mat object that stores the A11 subblock. See \todo - don't create this every iteration but save it first time is needed. */
+        Mat A22_matrix_subblock; /**< Mat object that stores the A22 subblock.  See \todo - don't create this every iteration but save it first time is needed. */
+        PC  PC_amg_A11; /**<  inv(A11) is approximated by an AMG cycle. We compute it with HYPRE via a PC object. See \todo - don't create this every iteration but save it first time is needed. */
+        PC  PC_amg_A22; /**<  inv(A22) is approximated by an AMG cycle. We compute it with HYPRE via a PC object. See \todo - don't create this every iteration but save it first time is needed. */
         
     } PCBlockDiagonalContext;
 
-    PCBlockDiagonalContext mPCContext; /**< As above.  See PCShellSetContext().*/
-    PC mPetscPCObject;/**< Actual preconditioner */
+    PCBlockDiagonalContext mPCContext; /**< PC context, this will be passed to PCBlockDiagonalApply when PETSc returns control to our preconditioner subroutine.  See PCShellSetContext().*/
+    PC mPetscPCObject;/**< Generic PETSc preconditioner object */
 
 public:
 
