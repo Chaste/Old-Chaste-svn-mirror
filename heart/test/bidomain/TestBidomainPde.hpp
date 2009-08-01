@@ -152,10 +152,9 @@ public:
     void TestSaveAndLoadCardiacPDE()
     {
         //Archive                           
-        OutputFileHandler handler("Archive", false);
-        std::string archive_filename;
+        OutputFileHandler handler("archive", false);
         handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "bidomain_pde.arch";       
+        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("bidomain_pde.arch");
 
         {
             TetrahedralMesh<1,1> mesh;
