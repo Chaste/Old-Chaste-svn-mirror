@@ -60,7 +60,7 @@ std::vector<std::string> AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRa
     // exception that should be caught by the user.
     if (!data_file.is_open())
     {
-        EXCEPTION("Could not open data file " + rFileName + " .");
+        EXCEPTION("Could not open data file " + rFileName);
     }
 
     // Read each line in turn

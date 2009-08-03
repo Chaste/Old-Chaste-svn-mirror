@@ -79,7 +79,7 @@ public:
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
     // edge.
-    void TestMonodomainFitzHughNagumoWithEdgeStimulus( void )
+    void TestMonodomainFitzHughNagumoWithEdgeStimulus( void ) throw (Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.01, 0.01));
         HeartConfig::Instance()->SetSimulationDuration(1.2); //ms
