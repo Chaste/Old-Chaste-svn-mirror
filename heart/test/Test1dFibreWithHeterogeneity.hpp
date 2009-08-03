@@ -148,6 +148,8 @@ public:
                 p_plot_file->close();
 
                 std::stringstream cmd;
+                //Note: this test uses ndiff.
+                //Note that there is excess data here.
                 cmd << "ndiff " << plot_file_handler.GetChasteTestOutputDirectory() << "HeterogeneityPlots/" << plot_file_name_stream.str() << " heart/test/data/HeterogeneityPlots/Node_" << relevant_nodes[i] << ".csv";
                 TS_ASSERT_EQUALS(system(cmd.str().c_str()), 0);
             }
