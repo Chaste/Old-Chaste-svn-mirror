@@ -5,7 +5,6 @@ mesh/TestVertexMeshReader.hpp
 mesh/TestVertexMeshWriter.hpp
 mesh/TestVertexElement.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
-odes/TestLee2003WntSignallingOdeSystem.hpp
 simulation/TestCryptProjectionStatistics.hpp
 simulation/TestCryptSimulation1d.hpp
 simulation/TestNutrientPdes.hpp
