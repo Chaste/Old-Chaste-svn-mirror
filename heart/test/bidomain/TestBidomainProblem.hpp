@@ -305,7 +305,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
-        HeartConfig::Instance()->SetOutputDirectory("Monodomain1d");
+        HeartConfig::Instance()->SetOutputDirectory("Monodomain1dVersusBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
 
         Vec monodomain_results;
