@@ -269,23 +269,42 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
 }
 
 template<unsigned DIM>
-void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles(std::vector<unsigned>& rCellTypeCounter,
-                                                                            std::vector<unsigned>& rCellMutationStateCounter,
-                                                                            std::vector<unsigned>& rCellCyclePhaseCounter)
+void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles()
 {
+    // Set up cell type counter
+    std::vector<unsigned> cell_type_counter(this->mCellTypeCount.size());
+    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
+    {
+        cell_type_counter[i] = 0;
+    }
+
+    // Set up cell mutation state counter
+    std::vector<unsigned> cell_mutation_state_counter(this->mCellMutationStateCount.size());
+    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+    {
+        cell_mutation_state_counter[i] = 0;
+    }
+
+    // Set up cell cycle phase counter
+    std::vector<unsigned> cell_cycle_phase_counter(5);
+    for (unsigned i=0; i<5; i++)
+    {
+        cell_cycle_phase_counter[i] = 0;
+    }
+
     for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = this->mrMesh.GetNodeIteratorBegin();
          node_iter != this->mrMesh.GetNodeIteratorEnd();
          ++node_iter)
     {
         this->GenerateCellResults(node_iter->GetIndex(),
-                                  rCellTypeCounter,
-                                  rCellMutationStateCounter,
-                                  rCellCyclePhaseCounter);
+                                  cell_type_counter,
+                                  cell_mutation_state_counter,
+                                  cell_cycle_phase_counter);
     }
 
-    this->WriteCellResultsToFiles(rCellTypeCounter,
-                            rCellMutationStateCounter,
-                            rCellCyclePhaseCounter);
+    this->WriteCellResultsToFiles(cell_type_counter,
+                                  cell_mutation_state_counter,
+                                  cell_cycle_phase_counter);
 }
 
 /////////////////////////////////////////////////////////////////////////////

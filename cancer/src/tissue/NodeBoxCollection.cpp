@@ -76,7 +76,7 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
     assert(DIM==2); /// \todo 3d node box collection
     switch (DIM)
     {
-/// commented out as the 1d case is not tested or covered - do we really care about 1d? 
+/// commented out as the 1d case is not tested or covered - do we really care about 1d?
 /// if so \todo 1d node box collection
 //
 //        case 1:
@@ -177,37 +177,30 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
         {
             local_boxes.insert(box_index-1);
         }
-
         if (!IsTopRow(box_index))
         {
             local_boxes.insert(box_index+1);
         }
-
         if (!IsLeftColumn(box_index))
         {
             local_boxes.insert(box_index-mNumBoxesEachDirection(1));
         }
-
         if (!IsRightColumn(box_index))
         {
             local_boxes.insert(box_index+mNumBoxesEachDirection(1));
         }
-
         if ( (!IsBottomRow(box_index)) && (!IsLeftColumn(box_index)) )
         {
             local_boxes.insert(box_index-mNumBoxesEachDirection(1)-1);
         }
-
         if ( (!IsBottomRow(box_index)) && (!IsRightColumn(box_index)) )
         {
             local_boxes.insert(box_index+mNumBoxesEachDirection(1)-1);
         }
-
         if ( (!IsTopRow(box_index)) && (!IsRightColumn(box_index)) )
         {
             local_boxes.insert(box_index+mNumBoxesEachDirection(1)+1);
         }
-
         if ( (!IsTopRow(box_index)) && (!IsLeftColumn(box_index)) )
         {
             local_boxes.insert(box_index-mNumBoxesEachDirection(1)+1);

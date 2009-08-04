@@ -79,10 +79,10 @@ TissueConfig::TissueConfig()
  * mSymmetricDivisionProbability has no units
  * mAreaBasedDampingConstantParameter has no units
  * mMatureCellTargetArea has no units
- * mDeformationEnergyParameter has ? units
- * mMembraneSurfaceEnergyParameter has ? units
- * mCellCellAdhesionEnergyParameter has ? units
- * mCellBoundaryAdhesionEnergyParameter has ? units
+ * mDeformationEnergyParameter has ? units \todo Fix this comment
+ * mMembraneSurfaceEnergyParameter has ? units \todo Fix this comment
+ * mCellCellAdhesionEnergyParameter has ? units \todo Fix this comment
+ * mCellBoundaryAdhesionEnergyParameter has ? units \todo Fix this comment
  */
 void TissueConfig::Reset()
 {

@@ -2216,7 +2216,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(7)->rGetLocation()[1], 1.0, 1e-4);
     }
-    
+
     void TestDivideVertexElementWhereNewNodesAreCloseToOldNodes2() throw(Exception)
     {
         // Make 6 nodes
@@ -2491,7 +2491,7 @@ public:
         TS_ASSERT_DELTA(mesh3d.GetWidth(0), 4.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(1), 4.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(2), 4.0, 1e-4);
-        
+
         // Test the translate method
         // Pick a certain node and store spatial position
         Node<3> *p_node = mesh3d.GetNode(7);

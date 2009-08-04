@@ -256,8 +256,8 @@ public:
      *
      * @param rNewCell  the cell to add
      * @param cellDivisionVector  a vector providing information regarding how the cell division should occur
-     *     (for cell-centre tissues, this vector is the position of the daughter cell; for vertex tissues it 
-     *      can be used by any subclass of TissueSimulation to as a means of dictating the axis along which 
+     *     (for cell-centre tissues, this vector is the position of the daughter cell; for vertex tissues it
+     *      can be used by any subclass of TissueSimulation to as a means of dictating the axis along which
      *      the parent cell divides)
      * @param pParentCell pointer to a parent cell (if required)
      *
@@ -394,25 +394,13 @@ public:
 
     /**
      * Write the current time and node results to output files.
-     *
-     * @param rCellTypeCounter cell type counter
-     * @param rCellMutationStateCounter cell mutation state counter
-     * @param rCellCyclePhaseCounter cell cycle phase counter
      */
-    void WriteTimeAndNodeResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
-                                        std::vector<unsigned>& rCellMutationStateCounter,
-                                        std::vector<unsigned>& rCellCyclePhaseCounter);
+    void WriteTimeAndNodeResultsToFiles();
 
     /**
      * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
-     *
-     * @param rCellTypeCounter cell type counter
-     * @param rCellMutationStateCounter cell mutation state counter
-     * @param rCellCyclePhaseCounter cell cycle phase counter
      */
-    virtual void GenerateCellResultsAndWriteToFiles(std::vector<unsigned>& rCellTypeCounter,
-                                                    std::vector<unsigned>& rCellMutationStateCounter,
-                                                    std::vector<unsigned>& rCellCyclePhaseCounter);
+    virtual void GenerateCellResultsAndWriteToFiles();
 
     /**
      * Generate results for a given cell in the current tissue state to output files.

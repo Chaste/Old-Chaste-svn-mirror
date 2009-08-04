@@ -116,7 +116,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             {
                 // Create a new cell
                 TissueCell new_cell = cell_iter->Divide();
- 
+
                 // Call method that determines how cell division occurs and returns a vector
                 c_vector<double, DIM> new_location = CalculateCellDivisionVector(&(*cell_iter));
 
@@ -184,14 +184,14 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
             case 1:
             {
                 double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
-                
+
                 random_vector(0) = 0.5*separation*random_direction;
                 break;
             }
             case 2:
             {
                 double random_angle = 2.0*M_PI*RandomNumberGenerator::Instance()->ranf();
-                
+
                 random_vector(0) = 0.5*separation*cos(random_angle);
                 random_vector(1) = 0.5*separation*sin(random_angle);
                 break;
@@ -200,7 +200,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
             {
                 double random_zenith_angle = M_PI*RandomNumberGenerator::Instance()->ranf(); // phi
                 double random_azimuth_angle = 2*M_PI*RandomNumberGenerator::Instance()->ranf(); // theta
-    
+
                 random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
                 random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
                 random_vector(2) = 0.5*separation*cos(random_zenith_angle);

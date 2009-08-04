@@ -1072,8 +1072,6 @@ public:
                         cell_iterator->StartApoptosis();
                     }
                 }
-
-
                 cell_iterator++;
             }
 
@@ -1112,7 +1110,7 @@ public:
 
                 cell_iterator++;
             }
-            times[i]=p_simulation_time->GetTime();
+            times[i] = p_simulation_time->GetTime();
             i++;
         }
 

@@ -55,11 +55,7 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
 
     RandomNumberGenerator *p_random_num_gen = RandomNumberGenerator::Instance();
 
-    unsigned num_cells = rMesh.GetNumNodes();
-    if (!locationIndices.empty())
-    {
-        num_cells = locationIndices.size();
-    }
+    unsigned num_cells = locationIndices.empty() ? rMesh.GetNumNodes() : locationIndices.size();
 
     AbstractCellCycleModel *p_cell_cycle_model = NULL;
     double typical_transit_cycle_time;

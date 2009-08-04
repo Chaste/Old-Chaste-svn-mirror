@@ -309,7 +309,6 @@ public:
             {
                 cell_iter->SetMutationState(APC_ONE_HIT);
             }
-
         }
         simulator.SetEndTime(3*time_of_each_run);
         simulator.Solve();

@@ -53,7 +53,6 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 }
 
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(const VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
 {
@@ -122,7 +121,6 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(const VertexM
     *p_element_file << comment << "\n";
     p_element_file->close();
 }
-
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -212,6 +210,8 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddCellData(std::string dataName,
     p_scalars->Delete(); //Reference counted
 #endif //CHASTE_VTK
 }
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
 {

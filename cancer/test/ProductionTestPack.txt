@@ -10,6 +10,7 @@ mesh/TestVoronoiAreaOnPeriodicMesh.hpp
 odes/TestIngeWntSwatCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
 odes/TestWntCellCycleOdeSystem.hpp
+simulation/TestCryptSimulation1d.hpp
 simulation/TestCryptSimulation2d.hpp
 simulation/TestTissueSimulation3d.hpp
 tissue/TestCellKillers.hpp

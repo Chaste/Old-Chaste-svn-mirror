@@ -182,12 +182,12 @@ protected:
      * Method for determining how cell division occurs. This method returns a vector
      * which is then passed into the Tissue method AddCell(). This method may be
      * overridden by subclasses.
-     * 
+     *
      * For a cell-centre tissue, this method calculates the new locations of the cell
      * centres of a dividing cell, moves the parent cell and returns the location of
      * the daughter cell. The new locations are found by picking a random direction
      * and placing the parent and daughter in opposing directions along this axis.
-     * 
+     *
      * For a vertex tissue, the method returns the zero vector.
      *
      * @param pParentCell pointer to the parent cell

@@ -54,12 +54,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
     std::list<TissueCell>::iterator it = mCells.begin();
     for (unsigned i=0; it != mCells.end(); ++it, ++i)
     {
-        unsigned index = i;
-        if (!locationIndices.empty())
-        {
-            // Assume that the ordering matches
-            index = locationIndices[i];
-        }
+        unsigned index = locationIndices.empty() ? i : locationIndices[i]; // assume that the ordering matches
         mLocationCellMap[index] = &(*it);
         mCellLocationMap[&(*it)] = index;
     }
@@ -82,9 +77,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
 template<unsigned DIM>
 void AbstractTissue<DIM>::InitialiseCells()
 {
-    for (std::list<TissueCell>::iterator iter = mCells.begin();
-        iter != mCells.end();
-        ++iter)
+    for (std::list<TissueCell>::iterator iter=mCells.begin(); iter!=mCells.end(); ++iter)
     {
         iter->InitialiseCellCycleModel();
     }
@@ -116,9 +109,9 @@ unsigned AbstractTissue<DIM>::GetNumRealCells()
 template<unsigned DIM>
 void AbstractTissue<DIM>::SetCellAncestorsToNodeIndices()
 {
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin(); cell_iter!=this->End(); ++cell_iter)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        cell_iter->SetAncestor( mCellLocationMap[&(*cell_iter)] );
+        cell_iter->SetAncestor(mCellLocationMap[&(*cell_iter)]);
     }
 }
 
@@ -423,30 +416,46 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
             // Write cell age
             *mpCellAgesFile << p_cell->GetAge() << " ";
         }
-
     }
     *mpVizCellTypesFile << colour << " ";
 }
 
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::GenerateCellResultsAndWriteToFiles(std::vector<unsigned>& rCellTypeCounter,
-                                                             std::vector<unsigned>& rCellMutationStateCounter,
-                                                             std::vector<unsigned>& rCellCyclePhaseCounter)
+void AbstractTissue<DIM>::GenerateCellResultsAndWriteToFiles()
 {
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = Begin();
-         cell_iter != End();
-         ++cell_iter)
+    // Set up cell type counter
+    std::vector<unsigned> cell_type_counter(mCellTypeCount.size());
+    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
     {
-        GenerateCellResults(GetLocationIndexUsingCell(&(*cell_iter)),
-                            rCellTypeCounter,
-                            rCellMutationStateCounter,
-                            rCellCyclePhaseCounter);
+        cell_type_counter[i] = 0;
     }
 
-    WriteCellResultsToFiles(rCellTypeCounter,
-                            rCellMutationStateCounter,
-                            rCellCyclePhaseCounter);
+    // Set up cell mutation state counter
+    std::vector<unsigned> cell_mutation_state_counter(mCellMutationStateCount.size());
+    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+    {
+        cell_mutation_state_counter[i] = 0;
+    }
+
+    // Set up cell cycle phase counter
+    std::vector<unsigned> cell_cycle_phase_counter(5);
+    for (unsigned i=0; i<5; i++)
+    {
+        cell_cycle_phase_counter[i] = 0;
+    }
+
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=Begin(); cell_iter!=End(); ++cell_iter)
+    {
+        GenerateCellResults(GetLocationIndexUsingCell(&(*cell_iter)),
+                            cell_type_counter,
+                            cell_mutation_state_counter,
+                            cell_cycle_phase_counter);
+    }
+
+    WriteCellResultsToFiles(cell_type_counter,
+                            cell_mutation_state_counter,
+                            cell_cycle_phase_counter);
 }
 
 template<unsigned DIM>
@@ -507,13 +516,9 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellTy
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
-                                                         std::vector<unsigned>& rCellMutationStateCounter,
-                                                         std::vector<unsigned>& rCellCyclePhaseCounter)
+void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
 {
-    // Write current simulation time
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    double time = p_simulation_time->GetTime();
+    double time = SimulationTime::Instance()->GetTime();
 
     *mpVizNodesFile << time << "\t";
     *mpVizCellTypesFile << time << "\t";
@@ -541,27 +546,6 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(std::vector<unsigned>& 
     if (TissueConfig::Instance()->GetOutputCellAges())
     {
         *mpCellAgesFile << time << "\t";
-    }
-
-    // Set up cell type counter
-    rCellTypeCounter.reserve(mCellTypeCount.size());
-    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
-    {
-        rCellTypeCounter[i] = 0;
-    }
-
-    // Set up cell mutation state counter
-    rCellMutationStateCounter.reserve(mCellMutationStateCount.size());
-    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
-    {
-        rCellMutationStateCounter[i] = 0;
-    }
-
-    // Set up cell cycle phase counter
-    rCellCyclePhaseCounter.reserve(5);
-    for (unsigned i=0; i<5; i++)
-    {
-        rCellCyclePhaseCounter[i] = 0;
     }
 
     // Write node data to file
@@ -592,15 +576,9 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles(std::vector<unsigned>& 
 template<unsigned DIM>
 void AbstractTissue<DIM>::WriteResultsToFiles()
 {
-    std::vector<unsigned> cell_type_counter, cell_mutation_state_counter, cell_cycle_phase_counter;
+    WriteTimeAndNodeResultsToFiles();
 
-    WriteTimeAndNodeResultsToFiles(cell_type_counter,
-                                   cell_mutation_state_counter,
-                                   cell_cycle_phase_counter);
-
-    GenerateCellResultsAndWriteToFiles(cell_type_counter,
-                                       cell_mutation_state_counter,
-                                       cell_cycle_phase_counter);
+    GenerateCellResultsAndWriteToFiles();
 
     // Write logged cell data if required
     if (TissueConfig::Instance()->GetOutputCellIdData())

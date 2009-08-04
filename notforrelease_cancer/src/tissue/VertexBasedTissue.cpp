@@ -159,9 +159,7 @@ unsigned VertexBasedTissue<DIM>::GetNumNodes()
 template<unsigned DIM>
 c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell* pCell)
 {
-    // Get location index corresponding to this cell
-    unsigned location_index = this->GetLocationIndexUsingCell(pCell);
-    return mrMesh.GetCentroidOfElement(location_index);
+    return mrMesh.GetCentroidOfElement(this->mCellLocationMap[pCell]);
 }
 
 
@@ -350,7 +348,7 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     double cell_age = rCell.GetAge();
     double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
 
-    // If differentiated then g1_duration is infinite
+    // If the cell is differentiated then its G1 duration is infinite
     if (g1_duration == DBL_MAX) // dont use magic number, compare to DBL_MAX
     {
         // This is just for fixed cell cycle models, need to work out how to find the g1 duration
@@ -394,8 +392,10 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
 {
     AbstractTissue<DIM>::WriteResultsToFiles();
 
+    SimulationTime* p_time = SimulationTime::Instance();
+
     // Write element data to file
-    *mpElementFile << SimulationTime::Instance()->GetTime() << "\t";
+    *mpElementFile << p_time->GetTime() << "\t";
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
              iter != mrMesh.GetElementIteratorEnd();
              ++iter)
@@ -415,7 +415,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
  #ifdef CHASTE_VTK
     VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);
     std::stringstream time;
-    time << SimulationTime::Instance()->GetTimeStepsElapsed();
+    time << p_time->GetTimeStepsElapsed();
 
     std::vector<double> cell_types;
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
@@ -427,9 +427,9 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
     mesh_writer.AddCellData("Cell types", cell_types);
     mesh_writer.WriteVtkUsingMesh(mrMesh, time.str());
     *mpVtkMetaFile << "        <DataSet timestep=\"";
-    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();
+    *mpVtkMetaFile << p_time->GetTimeStepsElapsed();
     *mpVtkMetaFile << "\" group=\"\" part=\"0\" file=\"results_";
-    *mpVtkMetaFile << SimulationTime::Instance()->GetTimeStepsElapsed();
+    *mpVtkMetaFile << p_time->GetTimeStepsElapsed();
     *mpVtkMetaFile << ".vtu\"/>\n";
 #endif //CHASTE_VTK
 }

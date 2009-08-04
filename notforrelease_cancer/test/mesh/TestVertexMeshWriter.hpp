@@ -140,7 +140,7 @@ void TestMeshVtkWriter3D() throw(Exception)
         vertex_mesh_writer.WriteVtkUsingMesh(mesh3d, "42");
 
         OutputFileHandler handler("TestVertexMeshWriter", false);
-        
+
         //1.5K uncompressed, 1.5K compressed
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_42.vtu";
         TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh_3d.vtu").c_str()), 0);
