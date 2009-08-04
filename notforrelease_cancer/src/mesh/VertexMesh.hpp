@@ -565,11 +565,11 @@ public:
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
      * @param pElement the element to divide
-     * @param AxisOfDivision axis to divide the element by
+     * @param axisOfDivision axis to divide the element by
      *
      * @return the index of the new element
      */
-    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> AxisOfDivision);
+    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision);
 
 
     /**

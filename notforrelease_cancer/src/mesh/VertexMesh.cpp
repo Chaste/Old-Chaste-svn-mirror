@@ -1619,7 +1619,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> AxisOfDivision)
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1630,7 +1630,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     // Find short axis
     unsigned element_index = pElement->GetIndex();
     c_vector<double, SPACE_DIM> centroid = GetCentroidOfElement(element_index);
-    c_vector<double, SPACE_DIM> short_axis = AxisOfDivision;
+    c_vector<double, SPACE_DIM> short_axis = axisOfDivision;
 
     // Find long axis
     c_vector<double, SPACE_DIM> long_axis; // this is perpendicular to the short axis

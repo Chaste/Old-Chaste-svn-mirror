@@ -116,13 +116,9 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             {
                 // Create a new cell
                 TissueCell new_cell = cell_iter->Divide();
-
-                ///\todo This is specific to cell-centre based models, the location isn't used in a vertex simulation, move it down to AbstractCellCentreBasedTissue?? 
-                c_vector<double, DIM> new_location = zero_vector<double>(DIM);
-                if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
-                {
-                    new_location = CalculateDividingCellCentreLocations(&(*cell_iter));
-                }
+ 
+                // Call method that determines how cell division occurs and returns a vector
+                c_vector<double, DIM> new_location = CalculateCellDivisionVector(&(*cell_iter));
 
                 // Add new cell to the tissue
                 mrTissue.AddCell(new_cell, new_location, &(*cell_iter));
@@ -164,64 +160,71 @@ const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollectio
 
 
 template<unsigned DIM>
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueCell* pParentCell)
 {
-    // Location of parent and daughter cells
-    c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(pParentCell);
-    c_vector<double, DIM> daughter_coords;
-
-    // Get separation parameter
-    double separation = TissueConfig::Instance()->GetDivisionSeparation();
-
-    // Make a random direction vector of the required length
-    c_vector<double, DIM> random_vector;
-
-    /*
-     * Pick a random direction and move the parent cell backwards by 0.5*separation
-     * in that direction and return the position of the daughter cell 0.5*separation
-     * forwards in that direction.
-     */
-    switch (DIM)
+    if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
     {
-        case 1:
-        {
-            double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
-            
-            random_vector(0) = 0.5*separation*random_direction;
-            break;
-        }
-        case 2:
-        {
-            double random_angle = 2.0*M_PI*RandomNumberGenerator::Instance()->ranf();
-            
-            random_vector(0) = 0.5*separation*cos(random_angle);
-            random_vector(1) = 0.5*separation*sin(random_angle);
-            break;
-        }
-        case 3:
-        {
-            double random_zenith_angle = M_PI*RandomNumberGenerator::Instance()->ranf(); // phi
-            double random_azimuth_angle = 2*M_PI*RandomNumberGenerator::Instance()->ranf(); // theta
+        // Location of parent and daughter cells
+        c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(pParentCell);
+        c_vector<double, DIM> daughter_coords;
 
-            random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
-            random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
-            random_vector(2) = 0.5*separation*cos(random_zenith_angle);
-            break;
-        }
-        default:
-            // This can't happen
-            NEVER_REACHED;
-    }
+        // Get separation parameter
+        double separation = TissueConfig::Instance()->GetDivisionSeparation();
+
+        // Make a random direction vector of the required length
+        c_vector<double, DIM> random_vector;
+
+        /*
+         * Pick a random direction and move the parent cell backwards by 0.5*separation
+         * in that direction and return the position of the daughter cell 0.5*separation
+         * forwards in that direction.
+         */
+        switch (DIM)
+        {
+            case 1:
+            {
+                double random_direction = -1.0 + 2.0*(RandomNumberGenerator::Instance()->ranf() < 0.5);
+                
+                random_vector(0) = 0.5*separation*random_direction;
+                break;
+            }
+            case 2:
+            {
+                double random_angle = 2.0*M_PI*RandomNumberGenerator::Instance()->ranf();
+                
+                random_vector(0) = 0.5*separation*cos(random_angle);
+                random_vector(1) = 0.5*separation*sin(random_angle);
+                break;
+            }
+            case 3:
+            {
+                double random_zenith_angle = M_PI*RandomNumberGenerator::Instance()->ranf(); // phi
+                double random_azimuth_angle = 2*M_PI*RandomNumberGenerator::Instance()->ranf(); // theta
     
-    parent_coords = parent_coords - random_vector;
-    daughter_coords = parent_coords + random_vector;
+                random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
+                random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
+                random_vector(2) = 0.5*separation*cos(random_zenith_angle);
+                break;
+            }
+            default:
+                // This can't happen
+                NEVER_REACHED;
+        }
 
-    // Set the parent to use this location
-    ChastePoint<DIM> parent_coords_point(parent_coords);
-    unsigned node_index = mrTissue.GetLocationIndexUsingCell(pParentCell);
-    mrTissue.SetNode(node_index, parent_coords_point);
+        parent_coords = parent_coords - random_vector;
+        daughter_coords = parent_coords + random_vector;
 
-    return daughter_coords;
+        // Set the parent to use this location
+        ChastePoint<DIM> parent_coords_point(parent_coords);
+        unsigned node_index = mrTissue.GetLocationIndexUsingCell(pParentCell);
+        mrTissue.SetNode(node_index, parent_coords_point);
+
+        return daughter_coords;
+    }
+    else
+    {
+        return zero_vector<double>(DIM);
+    }
 }
 
 

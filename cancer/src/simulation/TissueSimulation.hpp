@@ -179,18 +179,23 @@ protected:
     unsigned DoCellBirth();
 
     /**
-     * Calculate the new locations of the cell centres of a dividing cell, move
-     * the parent cell and return the location of the daughter cell.
-     *
-     * The new locations are found by picking a random direction and placing the
-     * parent and daughter in opposing directions along this axis.
+     * Method for determining how cell division occurs. This method returns a vector
+     * which is then passed into the Tissue method AddCell(). This method may be
+     * overridden by subclasses.
+     * 
+     * For a cell-centre tissue, this method calculates the new locations of the cell
+     * centres of a dividing cell, moves the parent cell and returns the location of
+     * the daughter cell. The new locations are found by picking a random direction
+     * and placing the parent and daughter in opposing directions along this axis.
+     * 
+     * For a vertex tissue, the method returns the zero vector.
      *
      * @param pParentCell pointer to the parent cell
      *
-     * @return daughter_coords The coordinates for the daughter cell.
+     * @return a vector containing information on cell division.
      *
      */
-    virtual c_vector<double, DIM> CalculateDividingCellCentreLocations(TissueCell* pParentCell);
+    virtual c_vector<double, DIM> CalculateCellDivisionVector(TissueCell* pParentCell);
 
     /**
      * During a simulation time step, process any cell sloughing or death

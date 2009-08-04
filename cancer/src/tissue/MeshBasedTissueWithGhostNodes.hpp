@@ -181,11 +181,11 @@ public:
      * Add a new cell to the tissue and update mIsGhostNode.
      *
      * @param rNewCell  the cell to add
-     * @param newLocation  the position in space at which to put it
+     * @param cellDivisionVector  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell=NULL);
+    TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> cellDivisionVector, TissueCell* pParentCell=NULL);
 
     /**
      * Overridden GenerateCellResultsAndWriteToFiles() method.

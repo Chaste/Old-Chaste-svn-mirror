@@ -363,10 +363,10 @@ void MeshBasedTissue<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rMap)
 }
 
 template<unsigned DIM>
-TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
+TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> cellDivisionVector, TissueCell* pParentCell)
 {
     // Add new cell to tissue
-    TissueCell *p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(rNewCell, newLocation, pParentCell);
+    TissueCell *p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(rNewCell, cellDivisionVector, pParentCell);
 
     // Mark spring between parent cell and new cell
     MarkSpring(*pParentCell, *p_created_cell);

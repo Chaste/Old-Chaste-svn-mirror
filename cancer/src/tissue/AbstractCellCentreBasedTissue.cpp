@@ -59,10 +59,10 @@ Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(Tissue
 
 
 template<unsigned DIM>
-TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
+TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> cellDivisionVector, TissueCell* pParentCell)
 {
     // Create a new node
-    Node<DIM> *p_new_node = new Node<DIM>(this->GetNumNodes(), newLocation, false);   // never on boundary
+    Node<DIM> *p_new_node = new Node<DIM>(this->GetNumNodes(), cellDivisionVector, false);   // never on boundary
     unsigned new_node_index = AddNode(p_new_node); // use copy constructor so it doesn't matter that new_node goes out of scope
 
     // Update cells vector

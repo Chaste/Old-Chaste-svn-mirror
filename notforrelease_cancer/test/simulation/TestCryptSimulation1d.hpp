@@ -257,7 +257,7 @@ public:
      * In this test, we check that the daughters of a cell that has just divided
      * are put in the correct positions.
      */
-    void TestCalculateDividingCellCentreLocations() throw (Exception)
+    void TestCalculateCellDivisionVector() throw (Exception)
     {
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -291,7 +291,7 @@ public:
 
         // Set up crypt simulation
         CryptSimulation1d simulator(crypt, force_collection);
-        simulator.SetOutputDirectory("TestCalculateDividingCellCentreLocations");
+        simulator.SetOutputDirectory("TestCalculateCellDivisionVector");
         simulator.SetEndTime(1.001);
 
         // Run simulation

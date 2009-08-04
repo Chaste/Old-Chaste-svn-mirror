@@ -201,28 +201,22 @@ unsigned VertexBasedTissue<DIM>::GetNumElements()
 
 
 template<unsigned DIM>
-TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> newLocation, TissueCell* pParentCell)
+TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> cellDivisionVector, TissueCell* pParentCell)
 {
-    /// \todo newLocation is redundant for vertex-based tissues (#852)
-
     // Get the element associated with this cell
     VertexElement<DIM, DIM> *p_element = GetElementCorrespondingToCell(pParentCell);
 
     // Divide the element
     unsigned new_element_index;
-    if (pParentCell->GetCellType() == STEM)
+    if ( norm_2(cellDivisionVector) < DBL_EPSILON )
     {
-        // Divide this element horizontally
-        c_vector<double, 2> axis_of_division;
-        axis_of_division(0)=1.0;
-        axis_of_division(1)=0.0;
-
-        new_element_index = mrMesh.DivideElement(p_element,axis_of_division);
+        // If the cell division vector is the default zero vector, divide the element along the short axis
+        new_element_index = mrMesh.DivideElement(p_element);
     }
     else
     {
-        // Divide this element along the short axis
-        new_element_index = mrMesh.DivideElement(p_element);
+        // If the cell division vector has any non-zero component, divide the element along this axis
+        new_element_index = mrMesh.DivideElement(p_element, cellDivisionVector);
     }
 
     // Associate the new cell with the element

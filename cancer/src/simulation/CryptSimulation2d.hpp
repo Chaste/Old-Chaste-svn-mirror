@@ -87,7 +87,7 @@ private :
      *
      * @return daughter_coords the coordinates for the daughter cell.
      */
-    c_vector<double, 2> CalculateDividingCellCentreLocations(TissueCell* pParentCell);
+    c_vector<double, 2> CalculateCellDivisionVector(TissueCell* pParentCell);
 
     /**
      * Overridden WriteVisualizerSetupFile() method.

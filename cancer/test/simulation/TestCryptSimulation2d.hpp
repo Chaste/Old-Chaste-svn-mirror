@@ -1178,7 +1178,7 @@ public:
     }
 
 
-    void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
+    void TestCalculateCellDivisionVectorConfMesh() throw (Exception)
     {
         // Set up cancer parameters
         TissueConfig::Instance()->Reset();
@@ -1212,7 +1212,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(conf_crypt, force_collection);
 
-        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*conf_iter));
+        c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(&(*conf_iter));
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
@@ -1221,7 +1221,7 @@ public:
     }
 
 
-    void TestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
+    void TestCalculateCellDivisionVectorConfMeshStemCell() throw (Exception)
     {
         // Make a parent node
         c_vector<double,2> location;
@@ -1254,7 +1254,7 @@ public:
         // different branches will execute to make sure daughter stays in crypt ie. +ve y component
         for (unsigned repetitions=0; repetitions<=1; repetitions++)
         {
-            c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*conf_iter));
+            c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(&(*conf_iter));
             c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
             c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
 
@@ -1270,7 +1270,7 @@ public:
     }
 
 
-    void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
+    void TestCalculateCellDivisionVectorCylindricalMesh() throw (Exception)
     {
         // Make a mesh
         c_vector<double,2> location;
@@ -1298,7 +1298,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
-        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*cyl_iter));
+        c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(&(*cyl_iter));
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter),
@@ -1307,7 +1307,7 @@ public:
     }
 
 
-    void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
+    void TestCalculateCellDivisionVectorCylindricalMeshStemCell() throw (Exception)
     {
         // Make a mesh
         c_vector<double,2> location;
@@ -1335,7 +1335,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
-        c_vector<double,2> daughter_location = simulator.CalculateDividingCellCentreLocations(&(*cyl_iter));
+        c_vector<double,2> daughter_location = simulator.CalculateCellDivisionVector(&(*cyl_iter));
         c_vector<double,2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double,2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
 
@@ -1343,9 +1343,7 @@ public:
         TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                        TissueConfig::Instance()->GetDivisionSeparation(),
-                        1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
     }
 
 

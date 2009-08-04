@@ -44,7 +44,7 @@ CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
 }
 
 
-c_vector<double, 1> CryptSimulation1d::CalculateDividingCellCentreLocations(TissueCell* pParentCell)
+c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCell* pParentCell)
 {
     // Location of parent and daughter cells
     c_vector<double, 1> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
