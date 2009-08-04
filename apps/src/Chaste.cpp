@@ -26,11 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <petscvec.h>
 
 #include <vector>
 #include <ctime>
 #include <memory>
+
+#include "UblasIncludes.hpp"
 
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
