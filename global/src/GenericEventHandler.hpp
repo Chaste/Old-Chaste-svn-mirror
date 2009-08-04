@@ -234,7 +234,7 @@ public:
         }
         const unsigned top_event = NUM_EVENTS-1;
         double total = ConvertTicksToSeconds(mCpuTime[top_event]);
-        
+
         // Make the output precision depend on total run time
         const char* format;
         if (total > 999999.0)      // 11.5 days
@@ -249,7 +249,7 @@ public:
         {
             format = "%8.3f ";
         }
-        
+
         for (unsigned turn=0; turn<PetscTools::GetNumProcs(); turn++)
         {
             std::cout.flush();
@@ -284,7 +284,7 @@ public:
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
                     const double secs = ConvertTicksToSeconds(total_cpu_time[event]);
-                    printf("%7.2e ", secs/PetscTools::GetNumProcs());
+                    printf(format, secs/PetscTools::GetNumProcs());
                     printf("(%3.0f%%)  ", secs/total*100.0);
                 }
                 std::cout << "(seconds) \n";
@@ -300,7 +300,7 @@ public:
                 for (unsigned event=0; event<NUM_EVENTS; event++)
                 {
                     const double secs = ConvertTicksToSeconds(max_cpu_time[event]);
-                    printf("%7.2e ", secs);
+                    printf(format, secs);
                     printf("(%3.0f%%)  ", secs/total*100.0);
                 }
                 std::cout << "(seconds) \n";
