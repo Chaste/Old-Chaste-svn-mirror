@@ -53,7 +53,7 @@ binary-indep: install-indep
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs -i
-	dh_installdocs -i -XCopying.txt
+	dh_installdocs -i -XCopying.txt -X.svn
 #	dh_python
 #	dh_installinfo
 #	dh_installman

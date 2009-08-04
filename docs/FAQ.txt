@@ -1,7 +1,13 @@
+This file is very sparse at present.  More useful information can be found
+on the Chaste developers' wiki at
+https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/TroubleShooting
+For a guest login, use the username "anonymous", and your email address as
+the password.
+
 
 Q: I have problems compiling some libraries, the error looks to be caused by HDF5/MPI
 
-A: Mpi redefines std:: c headers. Try this:
+A: MPICH redefines std:: c headers. Try this:
 Add
   #undef SEEK_SET
   #undef SEEK_END

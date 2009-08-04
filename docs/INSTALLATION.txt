@@ -1,5 +1,13 @@
 CHASTE DEVELOPER INSTALLATION GUIDE
 
+
+This guide walks you through a "standard" installation of Chaste and all its
+dependencies.  Other guides can be found on the developer wiki at
+https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/DeveloperInstallGuide
+For a guest login, use the username "anonymous", and your email address as
+the password.
+
+
 First define the folder where you want to install the libraries which Chaste depends on, for example,
 export CHASTE_LIBS=/home/scratch/chaste-libs
 

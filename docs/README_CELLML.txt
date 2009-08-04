@@ -11,8 +11,10 @@ could be directly loaded by the standalone executable; this
 functionality is planned for a future release) the source code release
 of Chaste is required to make use of CellML models.
 
-Relevant information can also be found at
+Relevant information can also be found on the developers' wiki at
 https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/CodeGenerationFromCellML
+For a guest login, use the username "anonymous", and your email address as
+the password.
 
 
 Installing PyCml

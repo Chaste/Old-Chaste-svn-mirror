@@ -26,8 +26,11 @@ source code.
 For more information please refer to the chaste website at: 
 http://web.comlab.ox.ac.uk/chaste/
 
+Information on changes in this release can be found in the file
+docs/ReleaseNotes.html.
+
 Tutorial examples for this release are available at:
-https://chaste.ediamond.ox.ac.uk/chaste/tutorials/release_1
+https://chaste.ediamond.ox.ac.uk/chaste/tutorials/release_1_1
 
 Documentation generated from the code by Doxygen is available at:
-https://chaste.ediamond.ox.ac.uk/chaste/docs/release_1
+https://chaste.ediamond.ox.ac.uk/chaste/docs/release_1_1
