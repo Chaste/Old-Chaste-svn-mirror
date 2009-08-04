@@ -59,13 +59,13 @@
 
 <li>Heart:<ul>
 <li><tt>this-&gt;mpMesh</tt> is no longer directly available to cell factories, as it can be used accidentally while unset. Use the <tt>GetMesh()</tt> method instead.</li>
-<li>Cardiac cell models are now constructed using <tt>boost::shared_ptr&lt;&gt;</tt> instead of normal pointers for the 'stimulus' and 'ode solver' arguments (changes to <tt>CellFactories</tt>).  (TODO: More details)</li>
+<li>Cardiac cell models are now constructed using <tt>boost::shared_ptr&lt;&gt;</tt> instead of normal pointers for the 'stimulus' and 'ode solver' arguments.  This will require changes to cell factories too.  See files <tt>heart/test/ionicmodels/TestIonicModels.hpp</tt> and <tt>heart/src/problem/PlaneStimulusCellFactory.hpp</tt> for examples of the new usage.</li>
 </ul></li>
 
 <li>Cancer:<ul>
 <li><tt>WntConcentration</tt> is now templated over dimension. You will have to pass in the dimension when constructing any Wnt-dependent cell cycle model.</li>
 <li><tt>SloughingCellKiller</tt> is also now templated over dimension.</li>
-<li><tt>FixedCellCycleModel</tt>, <tt>StochasticCellCycleModel</tt>, and the two corresponding <tt>CellGenerators</tt> have been renamed.  (TODO: To?)</li>
+<li><tt>FixedCellCycleModel</tt>, <tt>StochasticCellCycleModel</tt>, and the two corresponding <tt>CellGenerators</tt> have been renamed (to <tt>FixedDurationGenerationBasedCellCycleModel</tt> and <tt>StochasticDurationGenerationBasedCellCycleModel</tt> respectively).</li>
 <li>The <tt>CancerParameters</tt> singleton class has been renamed <tt>TissueConfig</tt> (to match the heart code).</li>
 <li><tt>cancer/src/tissue/MeshArchiveInfo</tt> has been replaced by <tt>global/src/ArchiveLocationInfo</tt>, which has slightly different usage.</li>
 </ul></li>
