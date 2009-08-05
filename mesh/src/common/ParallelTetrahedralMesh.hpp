@@ -32,11 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <vector>
 #include <set>
-#include <climits>
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractTetrahedralMesh.hpp"

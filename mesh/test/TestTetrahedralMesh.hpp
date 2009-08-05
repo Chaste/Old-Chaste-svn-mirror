@@ -1426,6 +1426,7 @@ public:
         std::string archive_filename;
         handler.SetArchiveDirectory();
         archive_filename = handler.GetOutputDirectoryFullPath() + "tetrahedral_mesh.arch";
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "tetrahedral_mesh");
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");

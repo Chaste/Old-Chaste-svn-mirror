@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTQUADRATICMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include "QuadraticMesh.hpp"
 #include "OutputFileHandler.hpp"
 
@@ -388,6 +390,58 @@ public:
     {
         TS_ASSERT_THROWS_ANYTHING(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", false));
     }
+/// \todo #1089 We need a method which can write out a QuadraticMesh before we can do archiving of it.
+//    void xTestArchiving() throw(Exception)
+//    {
+//        OutputFileHandler handler("archive",false);
+//        std::string archive_filename;
+//        handler.SetArchiveDirectory();
+//        archive_filename = handler.GetOutputDirectoryFullPath() + "quadratic_mesh.arch";
+//        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "quadratic_mesh");
+//
+//        AbstractTetrahedralMesh<3,3>* const p_mesh = new QuadraticMesh<3>("mesh/test/data/cube_1626_elements_quadratic", false);
+//
+//        {
+//            std::ofstream ofs(archive_filename.c_str());
+//            boost::archive::text_oarchive output_arch(ofs);
+//            output_arch << p_mesh;
+//        }
+//
+//        {
+//            // Should archive the most abstract class you can to check boost knows what individual classes are.
+//            // (but here AbstractMesh doesn't have the methods below).
+//            AbstractTetrahedralMesh<3,3>* p_mesh2;
+//
+//            // Create an input archive
+//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+//            boost::archive::text_iarchive input_arch(ifs);
+//
+//            // restore from the archive
+//            input_arch >> p_mesh2;
+//            
+//            // compare the boundary elements of both meshes, should be identical (as one was created from the other)
+//            QuadraticMesh<3>::BoundaryElementIterator iter1
+//                   = p_mesh->GetBoundaryElementIteratorBegin();
+//            
+//            for (QuadraticMesh<3>::BoundaryElementIterator iter2
+//                   = p_mesh2->GetBoundaryElementIteratorBegin();
+//                 iter2 != p_mesh2->GetBoundaryElementIteratorEnd();
+//                 ++iter2)
+//            {
+//                TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 6u );
+//                TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 6u );
+//                
+//                for(unsigned i=0; i<6; i++)
+//                {
+//                   TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
+//                }
+//                iter1++;
+//            }
+//
+//            delete p_mesh2;
+//        }
+//        delete p_mesh;
+//    }
 };
 
 #endif // _TESTQUADRATICMESH_HPP_

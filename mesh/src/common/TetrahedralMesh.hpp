@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshReader.hpp"
 #include "ChastePoint.hpp"
 
-#include <boost/serialization/export.hpp>
+#include <boost/serialization/export.hpp> // needs to be included last
 //////////////////////////////////////////////////////////////////////////
 //   DECLARATION
 //////////////////////////////////////////////////////////////////////////
