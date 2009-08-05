@@ -151,7 +151,7 @@ public:
     }
 
 // see #1061
-    void failing__Test2dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
+    void Test2dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(40);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dExtraStimGrounded");
@@ -188,7 +188,7 @@ public:
 
         //boundary flux for Phi_e
         //-4e3 is enough to trigger an action potential, -3e3 is below threshold, -5e3 crashes the cell model.
-        double boundary_flux = -1e4;
+        double boundary_flux = -9e3;
         double duration = 2.5; //ms
 
         Electrodes<2> electrodes(mesh,true,0,0.0,0.1,boundary_flux, duration);
@@ -222,7 +222,7 @@ public:
     }
 
 // see #1061
-    void failing_Test3dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
+    void Test3dBathExtracellularStimulusOneEdgeGroundedOnOppositeEdge() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(6);  //ms
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath3dExtraStimGrounded");
