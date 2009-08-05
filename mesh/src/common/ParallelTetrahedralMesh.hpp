@@ -32,6 +32,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <vector>
 #include <set>
+#include <climits>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/base_object.hpp>
 
 #include "AbstractTetrahedralMesh.hpp"
 #include "Node.hpp"
@@ -105,6 +111,22 @@ private:
 
     /** Partition type (given by enum PartitionType). */
     PartitionType mMetisPartitioning;
+    
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the mesh.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+    }
+   
+  
 
 public:
 
@@ -122,7 +144,6 @@ public:
 
     /**
      * Construct the mesh using a MeshReader.
-     * This method must be overridden in concrete classes.
      *
      * @param rMeshReader the mesh reader
      * @param cullInternalFaces whether to cull internal faces (defaults to false)
@@ -294,5 +315,43 @@ private:
      */
     void ReorderNodes(std::vector<unsigned>& rNodePermutation);
 };
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(ParallelTetrahedralMesh);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Record number of processors when saving...
+ */
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
+{
+    unsigned num_procs = PetscTools::GetNumProcs();
+    ar << num_procs;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a ParallelTetrahedralMesh, 
+ * checking the number of processors is the same.
+ */
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
+{
+    unsigned num_procs;
+    ar >> num_procs;
+    if (num_procs != PetscTools::GetNumProcs())
+    {
+        EXCEPTION("This archive was written for a different number of processors");
+    }
+    // Invoke inplace constructor to initialise instance
+    ::new(t)ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>( ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::DUMB );
+}
+}
+} // namespace ...
 
 #endif /*PARALLELTETRAHEDRALMESH_HPP_*/
