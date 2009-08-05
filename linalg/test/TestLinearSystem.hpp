@@ -296,15 +296,56 @@ public:
      */
     void TestNullBasis()
     {
-        const int SIZE = 5;
-        Vec test_vec;
-        VecCreate(PETSC_COMM_WORLD, &test_vec);
-        VecSetSizes(test_vec, PETSC_DECIDE, SIZE);
-        VecSetFromOptions(test_vec);
-        LinearSystem ls(test_vec);
-        ls.SetNullBasis(&test_vec, 1);
+        unsigned size = 10;
 
-        VecDestroy(test_vec);
+        // Test it throws if one of the vectors in the base is not normal
+        {        
+            std::vector<double> data(size,1.0);
+            Vec non_orthonormal = PetscTools::CreateVec(data);
+                    
+            LinearSystem ls((PetscInt) size);
+            TS_ASSERT_THROWS_ANYTHING(ls.SetNullBasis(&non_orthonormal, 1));
+            VecDestroy(non_orthonormal);
+        }
+
+        // Test it throws if the vectors in the base are not orthogonal
+        {        
+            std::vector<double> data(size,0.0);
+            data[0] = 1.0;            
+            Vec one_zeros = PetscTools::CreateVec(data);
+            
+            std::vector<double> data2(size,0.0);
+            data2[1] = 1.0;            
+            Vec zero_one_zeros = PetscTools::CreateVec(data2);
+            
+            Vec null_basis[] = {one_zeros, zero_one_zeros, one_zeros}; 
+                    
+            LinearSystem ls((PetscInt) size);
+            TS_ASSERT_THROWS_ANYTHING(ls.SetNullBasis(null_basis, 3));
+
+            VecDestroy(one_zeros);
+            VecDestroy(zero_one_zeros);            
+        }
+
+        
+        // Test it doesn't throws if a non-orthonormal basis is passed        
+        {
+            std::vector<double> data(size,0.0);
+            data[0] = 1.0;            
+            Vec one_zeros = PetscTools::CreateVec(data);
+            
+            std::vector<double> data2(size,0.0);
+            data2[1] = 1.0;            
+            Vec zero_one_zeros = PetscTools::CreateVec(data2);
+
+            Vec null_basis[] = {one_zeros, zero_one_zeros}; 
+                    
+            LinearSystem ls((PetscInt) size);
+            TS_ASSERT_THROWS_NOTHING(ls.SetNullBasis(null_basis, 2));
+
+            VecDestroy(one_zeros);
+            VecDestroy(zero_one_zeros);            
+        }        
     }
 
     // Test the 3rd constructor

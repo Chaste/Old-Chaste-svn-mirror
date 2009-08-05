@@ -389,6 +389,38 @@ unsigned LinearSystem::GetSize() const
 
 void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
 {
+#ifndef NDEBUG
+    // Check all the vectors of the base are normal
+    for (unsigned vec_index=0; vec_index<numberOfBases; vec_index++)
+    {
+        PetscReal l2_norm;
+        VecNorm(nullBasis[vec_index], NORM_2, &l2_norm);
+        if (l2_norm != 1.0)
+        {
+            EXCEPTION("One of the vectors in the null space is not normal");
+        }        
+    }
+    
+    // Check all the vectors of the base are orthogonal
+    for (unsigned vec_index=1; vec_index<numberOfBases; vec_index++)
+    {
+        // The strategy is to check the (i-1)-th vector against vectors from i to n with VecMDot. This should be the most efficient way of doing it.
+        unsigned num_vectors_ahead = numberOfBases-vec_index;
+        PetscScalar dot_products[num_vectors_ahead];
+        VecMDot(nullBasis[vec_index-1], num_vectors_ahead, &nullBasis[vec_index], dot_products); 
+
+        for (unsigned index=0; index<num_vectors_ahead; index++)
+        {            
+            if (dot_products[index] != 0.0)
+            {
+                EXCEPTION("The null space is not orthogonal.");                
+            }
+        }        
+         
+    }
+            
+#endif
+
     PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullBasis, &mMatNullSpace) );
 }
 
