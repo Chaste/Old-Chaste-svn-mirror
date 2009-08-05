@@ -70,11 +70,13 @@ private :
 
     /**
      * Overridden CalculateCellDivisionVector() method.
-     * 
-     * By default this method returns the zero vector. If the parent cell 
-     * is a stem cell, then this method returns the vector (0,1). This is 
-     * then used by the VertexBasedTissue method AddCell() as the axis along 
+     *
+     * By default this method returns the zero vector. If the parent cell
+     * is a stem cell, then this method returns the vector (0,1). This is
+     * then used by the VertexBasedTissue method AddCell() as the axis along
      * which the cell divides.
+     *
+     * @param pParentCell pointer to the parent cell
      */
     c_vector<double, 2> CalculateCellDivisionVector(TissueCell* pParentCell);
 
