@@ -395,7 +395,7 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
     {
         PetscReal l2_norm;
         VecNorm(nullBasis[vec_index], NORM_2, &l2_norm);
-        if (l2_norm != 1.0)
+        if (fabs(l2_norm-1.0) > 1e-08)
         {
             EXCEPTION("One of the vectors in the null space is not normal");
         }        
@@ -411,7 +411,7 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
 
         for (unsigned index=0; index<num_vectors_ahead; index++)
         {            
-            if (dot_products[index] != 0.0)
+            if (fabs(dot_products[index]) > 1e-08 )
             {
                 EXCEPTION("The null space is not orthogonal.");                
             }
