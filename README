@@ -1,0 +1,32 @@
+The source code and tests with this project accompany a paper published in
+and issue of Philosophical Transaction of the Royal Society, May 2009.
+
+This is a bolt-on to Chaste release 1.1.
+
+Please unzip this project as a bolt-on project to you main checkout of
+Chaste (so that its location is ./projects/PhilTransA2009 relative to the
+Chaste parent directory.
+
+Timing results similar to the 2D barchart figures can be reproduced with
+ scons build=GccOpt test_suite=projects/PhilTransA2009/test/TestCardiacFastSlowProblemForPaper2D.hpp
+Timing results similar to the 3D barchart figures can be reproduced with
+ scons build=GccOpt test_suite=projects/PhilTransA2009/test/TestCardiacFastSlowProblemForPaper3D.hpp 
+Actual timing results were produced using an Intel compiler and the Intel
+Math Kernel Library.  That is, with 
+scons build=IntelProduction ... 
+
+Bibtex information for the paper
+--------------------------------
+
+@article{Bernabeu2009,
+  author = {Bernabeu, M.O. and  Bordas, R. and  Pathmanathan, P. and  Pitt--Francis, J. and  Cooper, J. and  Garny, A. and  Ga
+vaghan, D.J. and  Rodr\'{i}guez, B. and  Southern, J.A.\ and Whiteley, J.P.},
+  year = {2009},
+  title = {Chaste: incorporating a novel multi--scale spatial and temporal algorithm into a large--scale open source library},
+  journal = {Phil.\ Trans.\ R.\ Soc.\ A},
+  doi = {10.1098/rsta.2008.0309},
+  month = {May},
+  volume = {367},
+  number = {1895},
+  pages = {1907--1930}
+}
