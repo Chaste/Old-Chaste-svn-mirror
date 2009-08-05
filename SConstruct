@@ -41,7 +41,7 @@ Help("""
   For other options, such as profiling, optimised builds and 
   memory testing please refer to:
   
-  https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/wiki/BuildGuide
+  https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/BuildGuide
 
 """)
 

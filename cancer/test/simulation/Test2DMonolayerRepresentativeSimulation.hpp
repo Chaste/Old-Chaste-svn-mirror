@@ -43,8 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * period of time.
  *
  * This test is used for profiling, to establish the run time
- * variation as the code is developed. Results can be seen at
- * https://chaste.ediamond.ox.ac.uk/tests.py/profileHistory
+ * variation as the code is developed.
  */
 class Test2DMonolayerRepresentativeSimulation : public CxxTest::TestSuite
 {
