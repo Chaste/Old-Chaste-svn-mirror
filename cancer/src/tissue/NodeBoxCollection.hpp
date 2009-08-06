@@ -91,60 +91,16 @@ private:
     std::vector< NodeBox<DIM> > mBoxes;
 
     /** The domain being partitioned. */
-    c_vector<double,2*DIM> mDomainSize;
+    c_vector<double, 2*DIM> mDomainSize;
 
     /** The width of each box. */
     double mCutOffLength;
 
     /** Number of boxes in each direction. */
-    c_vector<unsigned,DIM> mNumBoxesEachDirection;
+    c_vector<unsigned, DIM> mNumBoxesEachDirection;
 
     /** The boxes local (itself and nearest neighbour) to a given box. */
     std::vector< std::set<unsigned> > mLocalBoxes;
-
-    /**
-     * 2D specific helper method - whether a box is on the bottom row of
-     * all the boxes.
-     *
-     * @param boxIndex the box index
-     */
-    bool IsBottomRow(unsigned boxIndex)
-    {
-        return boxIndex % mNumBoxesEachDirection(1)==0;
-    }
-
-    /**
-     * 2D specific helper methods - whether a box is on the top row of
-     * all the boxes.
-     *
-     * @param boxIndex the box index
-     */
-    bool IsTopRow(unsigned boxIndex)
-    {
-        return boxIndex % mNumBoxesEachDirection(1)==mNumBoxesEachDirection(1)-1;
-    }
-
-    /**
-     * 2D specific helper methods - whether a box is on the left side of
-     * the boxes.
-     *
-     * @param boxIndex the box index
-     */
-    bool IsLeftColumn(unsigned boxIndex)
-    {
-        return boxIndex < mNumBoxesEachDirection(1);
-    }
-
-    /**
-     * 2D specific helper methods - whether a box is on the right side of
-     * the boxes.
-     *
-     * @param boxIndex the box index
-     */
-    bool IsRightColumn(unsigned boxIndex)
-    {
-        return boxIndex >= mBoxes.size() - mNumBoxesEachDirection(1);
-    }
 
 public:
 

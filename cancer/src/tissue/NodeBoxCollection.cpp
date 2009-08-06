@@ -73,80 +73,115 @@ NodeBoxCollection<DIM>::NodeBoxCollection(double cutOffLength, c_vector<double, 
     : mDomainSize(domainSize),
       mCutOffLength(cutOffLength)
 {
-    assert(DIM==2); /// \todo 3d node box collection
-    switch (DIM)
+    /*
+     * Start by calculating the number of boxes in each direction and total number of boxes.
+     * Also create a helper vector of coefficients, whose first entry is 1 and whose i-th
+     * entry (for i>1) is the i-th partial product of the vector mNumBoxesEachDirection. This
+     * vector of coefficients will be used in the next code block to compute how many boxes
+     * along in each dimension each box, given its index.
+     */
+    unsigned num_boxes = 1;
+    std::vector<unsigned> coefficients;
+    coefficients.push_back(1);
+
+    for (unsigned i=0; i<DIM; i++)
     {
-/// commented out as the 1d case is not tested or covered - do we really care about 1d?
-/// if so \todo 1d node box collection
-//
-//        case 1:
-//        {
-//            mNumBoxesEachDirection(0) = 0;
-//            double box_min_x = domainSize(0);
-//            while (box_min_x <=  domainSize(1))
-//            {
-//                c_vector<double, 2*DIM> box_coords;
-//                box_coords(0) = box_min_x;
-//                box_coords(1) = box_min_x + cutOffLength;
-//
-//                NodeBox<DIM> new_box(box_coords);
-//                mBoxes.push_back(new_box);
-//                mNumBoxesEachDirection(0)++;
-//
-//                box_min_x += cutOffLength;
-//            }
-//
-//            break;
-//        }
-        case 2:
-        {
-            mNumBoxesEachDirection(0) = 0;
-            double box_min_x = domainSize(0);
-            while (box_min_x <=  domainSize(1))
-            {
-                double box_min_y = domainSize(2);
-                mNumBoxesEachDirection(1) = 0;
-                while (box_min_y <= domainSize(3))
-                {
-                    c_vector<double, 2*DIM> box_coords;
-                    box_coords(0) = box_min_x;
-                    box_coords(1) = box_min_x + cutOffLength;
-                    box_coords(2) = box_min_y;
-                    box_coords(3) = box_min_y + cutOffLength;
-
-                    NodeBox<DIM> new_box(box_coords);
-                    mBoxes.push_back(new_box);
-                    mNumBoxesEachDirection(1)++;
-
-                    box_min_y += cutOffLength;
-                }
-                mNumBoxesEachDirection(0)++;
-                box_min_x += cutOffLength;
-            }
-            assert(mNumBoxesEachDirection(0)*mNumBoxesEachDirection(1)==mBoxes.size());
-            break;
-        }
+        mNumBoxesEachDirection(i) = (unsigned)((domainSize(2*i+1) - domainSize(2*i))/cutOffLength) + 1;
+        num_boxes *= mNumBoxesEachDirection(i);
+        coefficients.push_back(coefficients[i]*mNumBoxesEachDirection(i));
     }
+
+    for (unsigned box_index=0; box_index<num_boxes; box_index++)
+    {
+        /*
+         * The code block below computes how many boxes along in each dimension the
+         * current box is and stores this information in the second, ..., (DIM+1)th
+         * entries of the vector current_box_indices. The first entry of
+         * current_box_indices is zero to ensure that the for loop works correctly.
+         *
+         * Our convention is that in 3D the index of each box, box_index, is related
+         * to its indices (i,j,k) by
+         *
+         * box_index = i + mNumBoxesEachDirection(0)*j
+         *               + mNumBoxesEachDirection(0)*mNumBoxesEachDirection(1)*k,
+         *
+         * while in 2D, box_index is related to (i,j) by
+         *
+         * box_index = i + mNumBoxesEachDirection(0)*j
+         *
+         * and in 1D we simply have box_index = i.
+         */
+        c_vector<unsigned, DIM+1> current_box_indices;
+        current_box_indices[0] = 0;
+
+        for (unsigned i=0; i<DIM; i++)
+        {
+            unsigned temp = 0;
+            for (unsigned j=1; j<i; j++)
+            {
+                temp += coefficients[j]*current_box_indices[j-1];
+            }
+            current_box_indices[i+1] = (box_index%coefficients[i+1] - temp)/coefficients[i];
+        }
+
+        /*
+         * We now use the information stores in current_box_indices to construct the
+         * NodeBox, which we add to mBoxes.
+         */
+        c_vector<double, 2*DIM> box_coords;
+        for (unsigned l=0; l<DIM; l++)
+        {
+            box_coords(2*l) = domainSize(2*l) + current_box_indices(l+1)*cutOffLength;
+            box_coords(2*l+1) = domainSize(2*l) + (current_box_indices(l+1)+1)*cutOffLength;
+        }
+
+        NodeBox<DIM> new_box(box_coords);
+        mBoxes.push_back(new_box);
+    }
+
+    // Check that we have the correct number of boxes
+    assert(num_boxes == mBoxes.size());
+
+    // Finish by calculating which boxes are neighbours
     CalculateLocalBoxes();
 }
 
 template<unsigned DIM>
 unsigned NodeBoxCollection<DIM>::CalculateContainingBox(Node<DIM>* pNode)
 {
-    assert(DIM==2);
+    // Get the location of the node
+    c_vector<double, DIM> location = pNode->rGetLocation();
 
-    double x = pNode->rGetLocation()[0];
-    double y = pNode->rGetLocation()[1];
-
+    // The node must lie inside the boundary of the box collection
     for (unsigned i=0; i<DIM; i++)
     {
-        assert(pNode->rGetLocation()[i] >= mDomainSize(2*i));
-        assert(pNode->rGetLocation()[i] <= mDomainSize(2*i+1));
+        assert(location[i] >= mDomainSize(2*i));
+        assert(location[i] <= mDomainSize(2*i+1));
     }
-    unsigned box_x_index = (unsigned) floor((x-mDomainSize(0))/mCutOffLength);
-    unsigned box_y_index = (unsigned) floor((y-mDomainSize(2))/mCutOffLength);
-    assert(mNumBoxesEachDirection(1)*box_x_index + box_y_index < mBoxes.size());
-    return mNumBoxesEachDirection(1)*box_x_index + box_y_index;
+
+    // Compute the containing box index in each dimension
+    c_vector<unsigned, DIM> containing_box_indices;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        containing_box_indices[i] = (unsigned) floor((location[i] - mDomainSize(2*i))/mCutOffLength);
+    }
+
+    // Use these to compute the index of the containing box
+    unsigned containing_box_index = 0;
+    for (unsigned i=0; i<DIM; i++)
+    {
+        unsigned temp = 1;
+        for (unsigned j=0; j<i; j++)
+        {
+            temp *= mNumBoxesEachDirection(j);
+        }
+        containing_box_index += temp*containing_box_indices[i];
+    }
+
+    // This index must be less than the number of boxes
+    assert(containing_box_index < mBoxes.size());
+
+    return containing_box_index;
 }
 
 template<unsigned DIM>
@@ -165,48 +200,216 @@ unsigned NodeBoxCollection<DIM>::GetNumBoxes()
 template<unsigned DIM>
 void NodeBoxCollection<DIM>::CalculateLocalBoxes()
 {
-    assert(DIM==2);
-
-    mLocalBoxes.clear();
-    for (unsigned box_index=0; box_index<mBoxes.size(); box_index++)
+    switch (DIM)
     {
-        std::set<unsigned> local_boxes;
-        local_boxes.insert(box_index);
+        case 1:
+        {
+            // In 1D, we only need to look for neighbours in the current and successive boxes
+            mLocalBoxes.clear();
+            for (unsigned box_index=0; box_index<mBoxes.size(); box_index++)
+            {
+                std::set<unsigned> local_boxes;
+                local_boxes.insert(box_index);
+                if (box_index < mNumBoxesEachDirection(0)-1)
+                {
+                    local_boxes.insert(box_index+1);
+                }
+                mLocalBoxes.push_back(local_boxes);
+            }
+            break;
+        }
+        case 2:
+        {
+            // In 2D, we only need to look for neighbours in the current box and half the neighbouring boxes
+            mLocalBoxes.clear();
+            for (unsigned box_index=0; box_index<mBoxes.size(); box_index++)
+            {
+                std::set<unsigned> local_boxes;
 
-        if (!IsBottomRow(box_index))
-        {
-            local_boxes.insert(box_index-1);
-        }
-        if (!IsTopRow(box_index))
-        {
-            local_boxes.insert(box_index+1);
-        }
-        if (!IsLeftColumn(box_index))
-        {
-            local_boxes.insert(box_index-mNumBoxesEachDirection(1));
-        }
-        if (!IsRightColumn(box_index))
-        {
-            local_boxes.insert(box_index+mNumBoxesEachDirection(1));
-        }
-        if ( (!IsBottomRow(box_index)) && (!IsLeftColumn(box_index)) )
-        {
-            local_boxes.insert(box_index-mNumBoxesEachDirection(1)-1);
-        }
-        if ( (!IsBottomRow(box_index)) && (!IsRightColumn(box_index)) )
-        {
-            local_boxes.insert(box_index+mNumBoxesEachDirection(1)-1);
-        }
-        if ( (!IsTopRow(box_index)) && (!IsRightColumn(box_index)) )
-        {
-            local_boxes.insert(box_index+mNumBoxesEachDirection(1)+1);
-        }
-        if ( (!IsTopRow(box_index)) && (!IsLeftColumn(box_index)) )
-        {
-            local_boxes.insert(box_index-mNumBoxesEachDirection(1)+1);
-        }
+                // Insert the current box
+                local_boxes.insert(box_index);
 
-        mLocalBoxes.push_back(local_boxes);
+                // If we're not on the top-most row, then insert the box above
+                if (box_index < mBoxes.size() - mNumBoxesEachDirection(0))
+                {
+                    local_boxes.insert(box_index + mNumBoxesEachDirection(0));
+
+                    // If we're also not on the left-most column, then insert the box above-left
+                    if (box_index % mNumBoxesEachDirection(0) != 0)
+                    {
+                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) - 1);
+                    }
+                }
+
+                // If we're not on the right-most column, then insert the box to the right
+                if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
+                {
+                    local_boxes.insert(box_index + 1);
+
+                    // If we're also not on the top-most row, then insert the box above-right
+                    if (box_index < mBoxes.size() - mNumBoxesEachDirection(0))
+                    {
+                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) + 1);
+                    }
+                }
+
+                mLocalBoxes.push_back(local_boxes);
+            }
+            break;
+        }
+        case 3:
+        {
+            ///\todo Tidy up this code. Also we only need to look for neighbours in the current box and half the neighbouring boxes
+            mLocalBoxes.clear();
+            unsigned num_boxes_xy = mNumBoxesEachDirection(0)*mNumBoxesEachDirection(1);
+
+            for (unsigned box_index=0; box_index<mBoxes.size(); box_index++)
+            {
+                std::set<unsigned> local_boxes;
+
+                // Insert the current box
+                local_boxes.insert(box_index);
+
+                // If we're not on the left face (x min), then insert the box to the left
+                if (box_index % mNumBoxesEachDirection(0) != 0)
+                {
+                    local_boxes.insert(box_index - 1);
+
+                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top left box
+                    if (box_index >= num_boxes_xy) // bottom
+                    {
+                        local_boxes.insert(box_index - num_boxes_xy - 1);
+                    }
+                    if (box_index < mBoxes.size() - num_boxes_xy) // top
+                    {
+                        local_boxes.insert(box_index + num_boxes_xy - 1);
+                    }
+
+                    // If we're also not on the near face (y min), then insert the near-left box
+                    if (box_index % num_boxes_xy > mNumBoxesEachDirection(0))
+                    {
+                        local_boxes.insert(box_index - mNumBoxesEachDirection(0) - 1);
+
+                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top near-left box
+                        if (box_index >= num_boxes_xy) // bottom
+                        {
+                            local_boxes.insert(box_index - num_boxes_xy - mNumBoxesEachDirection(0) - 1);
+                        }
+                        if (box_index < mBoxes.size() - num_boxes_xy) // top
+                        {
+                            local_boxes.insert(box_index + num_boxes_xy - mNumBoxesEachDirection(0) - 1);
+                        }
+                    }
+                    // If we're also not on the far face (y max), then insert the far-left box
+                    if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
+                    {
+                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) - 1);
+
+                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top far-left box
+                        if (box_index >= num_boxes_xy) // bottom
+                        {
+                            local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0) - 1);
+                        }
+                        if (box_index < mBoxes.size() - num_boxes_xy) // top
+                        {
+                            local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0) - 1);
+                        }
+                    }
+                }
+
+                // If we're not on the right face (x max), then insert the box to the right
+                if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
+                {
+                    local_boxes.insert(box_index + 1);
+
+                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top right box
+                    if (box_index >= num_boxes_xy) // bottom
+                    {
+                        local_boxes.insert(box_index - num_boxes_xy + 1);
+                    }
+                    if (box_index < mBoxes.size() - num_boxes_xy) // top
+                    {
+                        local_boxes.insert(box_index + num_boxes_xy + 1);
+                    }
+
+                    // If we're also not on the near face (y min), then insert the near-right box
+                    if (box_index % num_boxes_xy > mNumBoxesEachDirection(0))
+                    {
+                        local_boxes.insert(box_index - mNumBoxesEachDirection(0) + 1);
+
+                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top near-right box
+                        if (box_index >= num_boxes_xy) // bottom
+                        {
+                            local_boxes.insert(box_index - num_boxes_xy - mNumBoxesEachDirection(0) + 1);
+                        }
+                        if (box_index < mBoxes.size() - num_boxes_xy) // top
+                        {
+                            local_boxes.insert(box_index + num_boxes_xy - mNumBoxesEachDirection(0) + 1);
+                        }
+                    }
+                    // If we're also not on the far face (y max), then insert the far-right box
+                    if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
+                    {
+                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) + 1);
+
+                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top far-right box
+                        if (box_index >= num_boxes_xy) // bottom
+                        {
+                            local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0) + 1);
+                        }
+                        if (box_index < mBoxes.size() - num_boxes_xy) // top
+                        {
+                            local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0) + 1);
+                        }
+                    }
+                }
+                // If we're not on the near face (y min), then insert the far box
+                if (box_index % num_boxes_xy > mNumBoxesEachDirection(0))
+                {
+                    local_boxes.insert(box_index - mNumBoxesEachDirection(0));
+
+                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top near box
+                    if (box_index >= num_boxes_xy) // bottom
+                    {
+                        local_boxes.insert(box_index - num_boxes_xy - mNumBoxesEachDirection(0));
+                    }
+                    if (box_index < mBoxes.size() - num_boxes_xy) // top
+                    {
+                        local_boxes.insert(box_index + num_boxes_xy - mNumBoxesEachDirection(0));
+                    }
+                }
+                // If we're not on the far face (y max), then insert the far box
+                if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
+                {
+                    local_boxes.insert(box_index + mNumBoxesEachDirection(0));
+
+                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top far box
+                    if (box_index >= num_boxes_xy) // bottom
+                    {
+                        local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0));
+                    }
+                    if (box_index < mBoxes.size() - num_boxes_xy) // top
+                    {
+                        local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0));
+                    }
+                }
+                // If we're not on the top face (z max), then insert the box above
+                if (box_index < mBoxes.size() - num_boxes_xy)
+                {
+                    local_boxes.insert(box_index + num_boxes_xy);
+                }
+                // If we're not on the bottom face (z min), then insert the box below
+                if (box_index >= num_boxes_xy)
+                {
+                    local_boxes.insert(box_index - num_boxes_xy);
+                }
+
+                mLocalBoxes.push_back(local_boxes);
+            }
+            break;
+        }
+        default:
+            NEVER_REACHED;
     }
 }
 
@@ -230,24 +433,32 @@ void NodeBoxCollection<DIM>::CalculateNodePairs(std::vector<Node<DIM>*>& rNodes,
         std::set<unsigned> local_boxes_indices = GetLocalBoxes(box_index);
 
         // Loop over all the local boxes
-        for (std::set<unsigned>::iterator iter = local_boxes_indices.begin();
-             iter != local_boxes_indices.end();
-             iter++)
+        for (std::set<unsigned>::iterator box_iter = local_boxes_indices.begin();
+             box_iter != local_boxes_indices.end();
+             box_iter++)
         {
-            NodeBox<DIM>& r_box = mBoxes[*iter];
-            std::set< Node<DIM>* >& r_contained_nodes = r_box.rGetNodesContained();
+            // Get the set of nodes contained in this box
+            std::set< Node<DIM>* >& r_contained_nodes = mBoxes[*box_iter].rGetNodesContained();
 
-            // Get all the nodes in the local boxes in the original node
+            // Loop over these nodes
             for (typename std::set<Node<DIM>*>::iterator node_iter = r_contained_nodes.begin();
-                node_iter != r_contained_nodes.end();
-                ++node_iter)
+                 node_iter != r_contained_nodes.end();
+                 ++node_iter)
             {
-                unsigned index2 = (*node_iter)->GetIndex();
+                // Get the index of the other node
+                unsigned other_node_index = (*node_iter)->GetIndex();
 
-                // If node_index1 < node_index2 add the pair to the set.
-                if (node_index < index2)
+                // If we're in the same box, then take care not to store the node pair twice
+                if (*box_iter == box_index)
                 {
-                    rNodePairs.insert(std::pair<Node<DIM>*,Node<DIM>*>(rNodes[node_index],rNodes[index2]));
+                    if (other_node_index > node_index)
+                    {
+                        rNodePairs.insert(std::pair<Node<DIM>*, Node<DIM>*>(rNodes[node_index], rNodes[other_node_index]));
+                    }
+                }
+                else
+                {
+                    rNodePairs.insert(std::pair<Node<DIM>*, Node<DIM>*>(rNodes[node_index], rNodes[other_node_index]));
                 }
             }
         }

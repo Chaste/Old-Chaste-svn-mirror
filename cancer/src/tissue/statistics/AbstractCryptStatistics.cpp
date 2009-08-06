@@ -59,11 +59,11 @@ std::vector<bool> AbstractCryptStatistics::GetWhetherCryptSectionCellsAreLabelle
     {
         if (cryptSection[vector_index]->GetMutationState() == LABELLED)
         {
-            crypt_section_labelled[vector_index]=true;
+            crypt_section_labelled[vector_index] = true;
         }
         else
         {
-            crypt_section_labelled[vector_index]=false;
+            crypt_section_labelled[vector_index] = false;
         }
     }
 

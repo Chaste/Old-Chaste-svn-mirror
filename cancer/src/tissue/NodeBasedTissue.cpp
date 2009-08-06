@@ -50,7 +50,8 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool
       mAddedNodes(true),
       mpNodeBoxCollection(NULL),
       mDeleteNodes(deleteNodes)
-{   // No Validate() because the cells are not associated with the tissue yet in archiving
+{
+    // No Validate() because the cells are not associated with the tissue yet in archiving
 }
 
 
@@ -106,7 +107,7 @@ void NodeBasedTissue<DIM>::Validate()
     std::vector<bool> validated_node(GetNumNodes());
     for (unsigned i=0; i<validated_node.size(); i++)
     {
-        validated_node[i]=false;
+        validated_node[i] = false;
     }
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)

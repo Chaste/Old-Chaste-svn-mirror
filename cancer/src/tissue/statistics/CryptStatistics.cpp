@@ -93,7 +93,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
 
     if (dist < widthOfSection)
     {
-        is_in_section=true;
+        is_in_section = true;
     }
 
     // 2nd Line
