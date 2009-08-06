@@ -33,11 +33,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 Exception::Exception(std::string message,
                      std::string filename, const unsigned rLineNumber)
+    : mShortMessage(message)
 {
     std::stringstream line_number;
     line_number << rLineNumber;
 
-    mMessage = std::string("\nChaste error: ") + filename + ":"  + line_number.str()  + ": " + message;
+    mMessage = std::string("\nChaste error: ") + filename + ":"  + line_number.str()  + ": " + mShortMessage;
 
     ///// The following would write the error message to the log file, if one exists.
     ///// It's commented out because you end up with 100s of errors in the log from
@@ -52,4 +53,9 @@ Exception::Exception(std::string message,
 std::string Exception::GetMessage() const
 {
     return mMessage;
+}
+
+std::string Exception::GetShortMessage() const
+{
+    return mShortMessage;
 }

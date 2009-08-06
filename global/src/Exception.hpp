@@ -49,7 +49,8 @@ const double DOUBLE_UNSET=DBL_MAX;
 class Exception
 {
 private:
-    std::string mMessage; /**< Exception message */
+    std::string mMessage; /**< Full exception message - includes file and line number. */
+    std::string mShortMessage; /**< Short exception message - just text of the exception. */
 
 public:
     /**
@@ -61,11 +62,19 @@ public:
      */
     Exception(std::string message, std::string filename, const unsigned rLineNumber);
 
-    /** Get the message associated with the exception
+    /**
+     * Get the message associated with the exception with file and line number
      *
-     * @return The message set when the exception was thrown.
+     * @return The message set when the exception was thrown including file and line number information
      **/
     std::string GetMessage() const;
+
+    /**
+     * Get the message associated with the exception
+     *
+     * @return The message text set when the exception was thrown.
+     **/
+    std::string GetShortMessage() const;
 };
 
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)

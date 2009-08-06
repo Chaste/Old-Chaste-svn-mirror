@@ -96,8 +96,8 @@ public:
         if (MeshNum!=prev_mesh_num)
         {
             mesh_pathname = constructor.Construct(MeshNum, mMeshWidth);
-            mNumElements = constructor.NumElements;
-            mNumNodes = constructor.NumNodes;
+            mNumElements = constructor.GetNumElements();
+            mNumNodes = constructor.GetNumNodes();
             prev_mesh_num = MeshNum;
         }
 

@@ -76,7 +76,7 @@ private:
     double mMeshWidth;
 public:
 
-    /** Constructor 
+    /** Constructor
      * @param meshWidth x-width of mesh
      */
 
@@ -87,14 +87,14 @@ public:
     {
     }
 
-    /** 
+    /**
      * Create cell model
-     * 
+     *
      * \todo - I thought that the concept here was to ramp the stimulus down
      * over the first quarter, in order to make sure that there is no interface
      * between stimulated region and un-stimulated region where the FEM linear interpolation
      * makes the stimulus mesh-dependant.
-     * 
+     *
      * @param node Global node index
      */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
@@ -132,7 +132,7 @@ public:
      */
     unsigned MeshNum;
     double RelativeConvergenceCriterion; /**< Main convergence test is LastDifference < RelativeConvergenceCriterion */
-    double LastDifference; /**< Used to store and retrieve the difference between success runs (relative 2-norm of Vm at 3rd quarter node).*/ 
+    double LastDifference; /**< Used to store and retrieve the difference between success runs (relative 2-norm of Vm at 3rd quarter node).*/
     double Apd90FirstQn; /**< Used to store and retrieve the APD90 of a node in the first quarter x-value*/
     double Apd90ThirdQn; /**< Used to store and retrieve the APD90 of a node in the third quarter x-value*/
     double ConductionVelocity;  /**< Used to store and retrieve the conduction velocity between the first & third quarter nodes*/
@@ -147,8 +147,8 @@ public:
     /** true if the plane stimulus should applied with an exact value (not scaled by space-step)
      *  used in StimulusConverger in projects/jmpf
      */
-    bool UseAbsoluteStimulus; 
-    /** 
+    bool UseAbsoluteStimulus;
+    /**
      * A value to be used with a plane stimulus (not scaled by space-step)
      *  used in StimulusConverger in projects/jmpf
      */
@@ -159,7 +159,7 @@ public:
     double NeumannStimulus; /**< Quantity of face stimulus to use in the Neumann case */
 
     AbstractUntemplatedConvergenceTester();
-    
+
     /**
      * Run the same test at different levels of refinement until
      * some convergence criterion is met.
@@ -252,7 +252,7 @@ public:
         do
         {
             CuboidMeshConstructor<DIM> constructor;
-            
+
             //If the printing time step is too fine, then simulations become I/O bound without much improvement in accuracy
             double printing_step = this->PdeTimeStep;
 #define COVERAGE_IGNORE
@@ -327,8 +327,8 @@ public:
             {
                 case 1:
                 {
-                    first_quadrant_node = (unsigned) (0.25*constructor.NumElements);
-                    third_quadrant_node = (unsigned) (0.75*constructor.NumElements);
+                    first_quadrant_node = (unsigned) (0.25*constructor.GetNumElements());
+                    third_quadrant_node = (unsigned) (0.75*constructor.GetNumElements());
                     break;
                 }
                 case 2:
@@ -359,7 +359,7 @@ public:
             nodes_to_be_output.push_back(first_quadrant_node);
             nodes_to_be_output.push_back(third_quadrant_node);
             cardiac_problem.SetOutputNodes(nodes_to_be_output);
-  
+
             // The results of the tests were originally obtained with the following conductivity
             // values. After implementing fibre orientation the defaults changed. Here we set
             // the former ones to be used.
@@ -486,14 +486,14 @@ public:
                 double cond_velocity_error = 1e10;
                 double apd90_first_qn_error = 1e10;
                 double apd90_third_qn_error = 1e10;
-                
+
                 if (this->PopulatedResult)
                 {
                     if (prev_cond_velocity != 0.0)
                     {
                         cond_velocity_error = fabs(ConductionVelocity - prev_cond_velocity) / prev_cond_velocity;
                     }
-#define COVERAGE_IGNORE                    
+#define COVERAGE_IGNORE
                     if (prev_apd90_first_qn != 0.0)
                     {
                         apd90_first_qn_error = fabs(Apd90FirstQn - prev_apd90_first_qn) / prev_apd90_first_qn;
@@ -510,7 +510,7 @@ public:
                     {
                         apd90_third_qn_error = DBL_EPSILON; //Avoid log zero on plot
                     }
-#undef COVERAGE_IGNORE                    
+#undef COVERAGE_IGNORE
                     if (cond_velocity_error == 0.0)
                     {
                         cond_velocity_error = DBL_EPSILON; //Avoid log zero on plot
@@ -530,14 +530,14 @@ public:
                 if (this->PopulatedResult)
                 {
                     //If the PDE step is varying then we'll have twice as much data now as we use to have
-                    
-                    unsigned time_factor=(time_series.size()-1) / (prev_times.size()-1);               
+
+                    unsigned time_factor=(time_series.size()-1) / (prev_times.size()-1);
                     assert (time_factor == 1 || time_factor == 2 || time_factor == 8);
                     //Iterate over the shorter time series data
                     for (unsigned data_point = 0; data_point<prev_times.size(); data_point++)
                     {
                         unsigned this_data_point=time_factor*data_point;
-                       
+
                         assert(time_series[this_data_point] == prev_times[data_point]);
                         double abs_error = fabs(transmembrane_potential[this_data_point]-prev_voltage[data_point]);
                         max_abs_error = (abs_error > max_abs_error) ? abs_error : max_abs_error;
@@ -545,7 +545,7 @@ public:
                         sum_sq_abs_error_full += abs_error*abs_error;
                         sum_sq_prev_voltage_full += prev_voltage[data_point] * prev_voltage[data_point];
                         if (time_series[this_data_point] <= 8.0)
-                        {   
+                        {
                             //In most regular cases we always do this, since the simulation stops at ms
                             sum_sq_abs_error += abs_error*abs_error;
                             sum_sq_prev_voltage += prev_voltage[data_point] * prev_voltage[data_point];
@@ -675,7 +675,7 @@ public:
     virtual double Abscissa()=0;
     /** This is currently used as stub for convergence testers which need to converge
      * to a known standardised result (the StimulusConvergence tester in projects/jmpf).
-     * 
+     *
      * @param result a standard vector to be sized and filled with V_m values by this method (in subclass)
      * @param times a standard vector to be sized and filled with times values by this method (in subclass)
      */
@@ -688,7 +688,7 @@ public:
 
     /**
      * @return when the convergence criterion is met
-     */ 
+     */
     bool IsConverged()
     {
         return Converged;

@@ -291,7 +291,8 @@ public:
 
         // Cover exception - when constructing an instance of IngeWntSwatCellCycleModel,
         // we must pass in an hypothesis number (1 or 2)
-        TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleModel model(0,2));
+        TS_ASSERT_THROWS_EQUALS(IngeWntSwatCellCycleModel model(0,2), const Exception &err,
+                err.GetShortMessage(), "Model must be set up with argument(hypothesis) = 1u or 2u" );
 
         // Create cell cycle model and associated cell
         IngeWntSwatCellCycleModel *p_cell_model = new IngeWntSwatCellCycleModel(1,2);
@@ -606,7 +607,8 @@ public:
         for (unsigned i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_THROWS_ANYTHING(p_cell_model_1->UpdateCellType());
+            TS_ASSERT_THROWS_EQUALS(p_cell_model_1->UpdateCellType(), const Exception &e,
+                    e.GetShortMessage(), "WntCellCycleModel::UpdateCellType() should only be called when the cell cycle model has been evaluated to the current time\n");
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, expected_g1_duration);
         }
 

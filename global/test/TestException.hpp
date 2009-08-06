@@ -26,13 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef _TESTEXCEPTION_HPP_
 #define _TESTEXCEPTION_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "Exception.hpp"
-
 
 class TestException : public CxxTest::TestSuite
 {
@@ -53,8 +51,14 @@ public:
             TS_ASSERT_EQUALS(e_msg.substr(e_len - len), msg);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(EXCEPTION("Hello. I'm an exception"));
-        TS_ASSERT_THROWS_ANYTHING(NEVER_REACHED);
+        TS_ASSERT_THROWS_EQUALS(EXCEPTION("Hello. I'm an exception"), const Exception &err,
+                        err.GetShortMessage(), "Hello. I'm an exception" );
+        //NB The following test will fail if the number of lines above is changed... (that's why method GetShortMessage() was introduced).
+        TS_ASSERT_THROWS_EQUALS(EXCEPTION("Hello. I'm an exception"), const Exception &err,
+                                err.GetMessage(), "\nChaste error: ./global/test/TestException.hpp:58: Hello. I\'m an exception" );
+
+        TS_ASSERT_THROWS_EQUALS(NEVER_REACHED,  const Exception &err,
+                err.GetShortMessage(), "Should have been impossible to reach this line of code");
     }
 };
 

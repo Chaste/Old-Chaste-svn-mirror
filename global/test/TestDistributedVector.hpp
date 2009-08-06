@@ -366,7 +366,8 @@ public:
             else
             {
                 //Should not read this archive
-                TS_ASSERT_THROWS_ANYTHING(input_arch >> p_new_factory);
+                TS_ASSERT_THROWS_EQUALS(input_arch >> p_new_factory, const Exception &e,
+                                        e.GetShortMessage(), "This archive was written for a different number of processors");
             }
 
             delete p_new_factory;
