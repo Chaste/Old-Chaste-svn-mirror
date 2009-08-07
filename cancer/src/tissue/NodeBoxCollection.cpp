@@ -204,12 +204,16 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
     {
         case 1:
         {
-            // In 1D, we only need to look for neighbours in the current and successive boxes
+            // We only need to look for neighbours in the current and successive boxes
             mLocalBoxes.clear();
             for (unsigned box_index=0; box_index<mBoxes.size(); box_index++)
             {
                 std::set<unsigned> local_boxes;
+
+                // Insert the current box
                 local_boxes.insert(box_index);
+
+                // If we're not at the right-most box, then insert the box to the right
                 if (box_index < mNumBoxesEachDirection(0)-1)
                 {
                     local_boxes.insert(box_index+1);
@@ -220,7 +224,7 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
         }
         case 2:
         {
-            // In 2D, we only need to look for neighbours in the current box and half the neighbouring boxes
+            // We only need to look for neighbours in the current box and half the neighbouring boxes
             mLocalBoxes.clear();
             for (unsigned box_index=0; box_index<mBoxes.size(); box_index++)
             {
@@ -240,7 +244,6 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
                         local_boxes.insert(box_index + mNumBoxesEachDirection(0) - 1);
                     }
                 }
-
                 // If we're not on the right-most column, then insert the box to the right
                 if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
                 {
@@ -259,7 +262,7 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
         }
         case 3:
         {
-            ///\todo Tidy up this code. Also we only need to look for neighbours in the current box and half the neighbouring boxes
+            // We only need to look for neighbours in the current box and half the neighbouring boxes
             mLocalBoxes.clear();
             unsigned num_boxes_xy = mNumBoxesEachDirection(0)*mNumBoxesEachDirection(1);
 
@@ -270,140 +273,84 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
                 // Insert the current box
                 local_boxes.insert(box_index);
 
-                // If we're not on the left face (x min), then insert the box to the left
-                if (box_index % mNumBoxesEachDirection(0) != 0)
-                {
-                    local_boxes.insert(box_index - 1);
-
-                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top left box
-                    if (box_index >= num_boxes_xy) // bottom
-                    {
-                        local_boxes.insert(box_index - num_boxes_xy - 1);
-                    }
-                    if (box_index < mBoxes.size() - num_boxes_xy) // top
-                    {
-                        local_boxes.insert(box_index + num_boxes_xy - 1);
-                    }
-
-                    // If we're also not on the near face (y min), then insert the near-left box
-                    if (box_index % num_boxes_xy > mNumBoxesEachDirection(0))
-                    {
-                        local_boxes.insert(box_index - mNumBoxesEachDirection(0) - 1);
-
-                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top near-left box
-                        if (box_index >= num_boxes_xy) // bottom
-                        {
-                            local_boxes.insert(box_index - num_boxes_xy - mNumBoxesEachDirection(0) - 1);
-                        }
-                        if (box_index < mBoxes.size() - num_boxes_xy) // top
-                        {
-                            local_boxes.insert(box_index + num_boxes_xy - mNumBoxesEachDirection(0) - 1);
-                        }
-                    }
-                    // If we're also not on the far face (y max), then insert the far-left box
-                    if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
-                    {
-                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) - 1);
-
-                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top far-left box
-                        if (box_index >= num_boxes_xy) // bottom
-                        {
-                            local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0) - 1);
-                        }
-                        if (box_index < mBoxes.size() - num_boxes_xy) // top
-                        {
-                            local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0) - 1);
-                        }
-                    }
-                }
-
-                // If we're not on the right face (x max), then insert the box to the right
-                if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
-                {
-                    local_boxes.insert(box_index + 1);
-
-                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top right box
-                    if (box_index >= num_boxes_xy) // bottom
-                    {
-                        local_boxes.insert(box_index - num_boxes_xy + 1);
-                    }
-                    if (box_index < mBoxes.size() - num_boxes_xy) // top
-                    {
-                        local_boxes.insert(box_index + num_boxes_xy + 1);
-                    }
-
-                    // If we're also not on the near face (y min), then insert the near-right box
-                    if (box_index % num_boxes_xy > mNumBoxesEachDirection(0))
-                    {
-                        local_boxes.insert(box_index - mNumBoxesEachDirection(0) + 1);
-
-                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top near-right box
-                        if (box_index >= num_boxes_xy) // bottom
-                        {
-                            local_boxes.insert(box_index - num_boxes_xy - mNumBoxesEachDirection(0) + 1);
-                        }
-                        if (box_index < mBoxes.size() - num_boxes_xy) // top
-                        {
-                            local_boxes.insert(box_index + num_boxes_xy - mNumBoxesEachDirection(0) + 1);
-                        }
-                    }
-                    // If we're also not on the far face (y max), then insert the far-right box
-                    if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
-                    {
-                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) + 1);
-
-                        // If we're also not on the bottom/top face (z min/max), then insert the bottom/top far-right box
-                        if (box_index >= num_boxes_xy) // bottom
-                        {
-                            local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0) + 1);
-                        }
-                        if (box_index < mBoxes.size() - num_boxes_xy) // top
-                        {
-                            local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0) + 1);
-                        }
-                    }
-                }
-                // If we're not on the near face (y min), then insert the far box
-                if (box_index % num_boxes_xy > mNumBoxesEachDirection(0))
-                {
-                    local_boxes.insert(box_index - mNumBoxesEachDirection(0));
-
-                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top near box
-                    if (box_index >= num_boxes_xy) // bottom
-                    {
-                        local_boxes.insert(box_index - num_boxes_xy - mNumBoxesEachDirection(0));
-                    }
-                    if (box_index < mBoxes.size() - num_boxes_xy) // top
-                    {
-                        local_boxes.insert(box_index + num_boxes_xy - mNumBoxesEachDirection(0));
-                    }
-                }
                 // If we're not on the far face (y max), then insert the far box
                 if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
                 {
                     local_boxes.insert(box_index + mNumBoxesEachDirection(0));
 
-                    // If we're also not on the bottom/top face (z min/max), then insert the bottom/top far box
-                    if (box_index >= num_boxes_xy) // bottom
+                    // If we're also not on the left face (x min), then insert the box to the left
+                    if (box_index % mNumBoxesEachDirection(0) != 0)
                     {
-                        local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0));
+                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) - 1);
                     }
-                    if (box_index < mBoxes.size() - num_boxes_xy) // top
+                }
+                // If we're not on the right face (x max), then insert the box to the right
+                if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
+                {
+                    local_boxes.insert(box_index + 1);
+
+                    // If we're also not on the far face (y max) row, then insert the box to the far-right
+                    if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
                     {
-                        local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0));
+                        local_boxes.insert(box_index + mNumBoxesEachDirection(0) + 1);
                     }
                 }
                 // If we're not on the top face (z max), then insert the box above
                 if (box_index < mBoxes.size() - num_boxes_xy)
                 {
                     local_boxes.insert(box_index + num_boxes_xy);
+                    
+                    // If we're also not on the far face (y max), then insert the above-far box
+                    if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
+                    {
+                        local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0));
+    
+                        // If we're also not on the left face (x min), then insert the box to the above-left
+                        if (box_index % mNumBoxesEachDirection(0) != 0)
+                        {
+                            local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0) - 1);
+                        }
+                    }
+                    // If we're also not on the right face (x max), then insert the box to the above-right
+                    if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
+                    {
+                        local_boxes.insert(box_index + num_boxes_xy + 1);
+    
+                        // If we're also not on the far face (y max) row, then insert the box to the above-far-right
+                        if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
+                        {
+                            local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0) + 1);
+                        }
+                    }
                 }
-                // If we're not on the bottom face (z min), then insert the box below
+                // If we're not on the bottom face (z min), then insert the box above
                 if (box_index >= num_boxes_xy)
                 {
                     local_boxes.insert(box_index - num_boxes_xy);
+                    
+                    // If we're also not on the far face (y max), then insert the below-far box
+                    if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
+                    {
+                        local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0));
+    
+                        // If we're also not on the left face (x min), then insert the box to the below-left
+                        if (box_index % mNumBoxesEachDirection(0) != 0)
+                        {
+                            local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0) - 1);
+                        }
+                    }
+                    // If we're also not on the right face (x max), then insert the box to the below-right
+                    if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
+                    {
+                        local_boxes.insert(box_index - num_boxes_xy + 1);
+    
+                        // If we're also not on the far face (y max) row, then insert the box to the below-far-right
+                        if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
+                        {
+                            local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0) + 1);
+                        }
+                    }
                 }
-
                 mLocalBoxes.push_back(local_boxes);
             }
             break;

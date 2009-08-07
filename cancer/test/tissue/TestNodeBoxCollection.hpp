@@ -399,37 +399,6 @@ public:
             }
         }
 
-        std::set<unsigned> local_boxes_to_box_13 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(13);
-        std::set<unsigned> correct_answer_13;
-        correct_answer_13.insert(0);
-        correct_answer_13.insert(1);
-        correct_answer_13.insert(2);
-        correct_answer_13.insert(3);
-        correct_answer_13.insert(4);
-        correct_answer_13.insert(5);
-        correct_answer_13.insert(6);
-        correct_answer_13.insert(7);
-        correct_answer_13.insert(8);
-        correct_answer_13.insert(9);
-        correct_answer_13.insert(10);
-        correct_answer_13.insert(11);
-        correct_answer_13.insert(12);
-        correct_answer_13.insert(13);
-        correct_answer_13.insert(14);
-        correct_answer_13.insert(15);
-        correct_answer_13.insert(16);
-        correct_answer_13.insert(17);
-        correct_answer_13.insert(18);
-        correct_answer_13.insert(19);
-        correct_answer_13.insert(20);
-        correct_answer_13.insert(21);
-        correct_answer_13.insert(22);
-        correct_answer_13.insert(23);
-        correct_answer_13.insert(24);
-        correct_answer_13.insert(25);
-        correct_answer_13.insert(26);
-        TS_ASSERT_EQUALS(local_boxes_to_box_13, correct_answer_13);
-
         std::set<unsigned> local_boxes_to_box_0 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(0);
         std::set<unsigned> correct_answer_0;
         correct_answer_0.insert(0);
@@ -442,21 +411,38 @@ public:
         correct_answer_0.insert(13);
         TS_ASSERT_EQUALS(local_boxes_to_box_0, correct_answer_0);
 
+        std::set<unsigned> local_boxes_to_box_13 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(13);
+        std::set<unsigned> correct_answer_13;
+        correct_answer_13.insert(4);
+        correct_answer_13.insert(5);
+        correct_answer_13.insert(6);
+        correct_answer_13.insert(7);
+        correct_answer_13.insert(8);
+        correct_answer_13.insert(13);
+        correct_answer_13.insert(14);
+        correct_answer_13.insert(15);
+        correct_answer_13.insert(16);
+        correct_answer_13.insert(17);
+        correct_answer_13.insert(22);
+        correct_answer_13.insert(23);
+        correct_answer_13.insert(24);
+        correct_answer_13.insert(25);
+        correct_answer_13.insert(26);
+        TS_ASSERT_EQUALS(local_boxes_to_box_13, correct_answer_13);
+
         std::set<unsigned> local_boxes_to_box_34 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(34);
         std::set<unsigned> correct_answer_34;
-        correct_answer_34.insert(21);
-        correct_answer_34.insert(22);
-        correct_answer_34.insert(23);
-        correct_answer_34.insert(24);
         correct_answer_34.insert(25);
         correct_answer_34.insert(26);
-        correct_answer_34.insert(30);
-        correct_answer_34.insert(31);
-        correct_answer_34.insert(32);
-        correct_answer_34.insert(33);
         correct_answer_34.insert(34);
         correct_answer_34.insert(35);
         TS_ASSERT_EQUALS(local_boxes_to_box_34, correct_answer_34);
+
+        std::set<unsigned> local_boxes_to_box_35 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(35);
+        std::set<unsigned> correct_answer_35;
+        correct_answer_35.insert(26);
+        correct_answer_35.insert(35);
+        TS_ASSERT_EQUALS(local_boxes_to_box_35, correct_answer_35);
     }
 };
 
