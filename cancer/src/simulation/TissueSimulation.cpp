@@ -162,6 +162,11 @@ const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollectio
 template<unsigned DIM>
 c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueCell* pParentCell)
 {
+    /**
+     * \todo Could remove this dynamic_cast by moving the code block below into
+     * AbstractCellCentreBasedTissue::AddCell(), allowing it to be overruled by
+     * this method when overridden in subclasses. See also comment on #1093.
+     */
     if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
     {
         // Location of parent and daughter cells
