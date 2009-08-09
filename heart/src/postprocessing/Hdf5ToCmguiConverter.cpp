@@ -50,13 +50,14 @@ void Hdf5ToCmguiConverter::Write(std::string type)
 
     DistributedVectorFactory factory(num_nodes);
 
-    Vec data = factory.CreateVec();
-    Vec data_phie = factory.CreateVec();
+    Vec data = factory.CreateVec();//for V
+    Vec data_phie = factory.CreateVec();//for phi_e
     
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
         //create the file for this time step
         std::stringstream time_step_string;
+        //unsigned to string
         time_step_string << time_step;
         if (PetscTools::AmMaster())
         {
@@ -68,14 +69,13 @@ void Hdf5ToCmguiConverter::Write(std::string type)
         ReplicatableVector repl_data(data);
         assert(repl_data.size()==num_nodes);
         
-        //get the data for phi only if needed
+        //get the data for phie only if needed
         ReplicatableVector repl_data_phie;
         if (type=="Bi")
         {
             repl_data_phie.resize(num_nodes);
-            mpReaderPhie->GetVariableOverNodes(data_phie, "Phi_e", time_step);
-            repl_data_phie.ReplicatePetscVector(data_phie);
-            
+            mpReader->GetVariableOverNodes(data_phie, "Phi_e", time_step);
+            repl_data_phie.ReplicatePetscVector(data_phie);          
         }
        
         if(PetscTools::AmMaster())
@@ -120,40 +120,36 @@ void Hdf5ToCmguiConverter::Write(std::string type)
 Hdf5ToCmguiConverter::Hdf5ToCmguiConverter(std::string inputDirectory,
                           std::string fileBaseName)
 {
-    // store dir and filenames, and create two readers
+    // store dir and filenames, and create the reader
     mFileBaseName = fileBaseName;
     mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
-    mpReaderPhie = new Hdf5DataReader(inputDirectory, mFileBaseName);
     
     // check the data file read has one or two variables (ie V; or V and PhiE)
     std::vector<std::string> variable_names = mpReader->GetVariableNames();
     if((variable_names.size()==0) || (variable_names.size()>2))
     {
         delete mpReader;
-        delete mpReaderPhie;
         EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
     }
 
-    // if one variable, a monodomain problem
+    // if one variable, it is a monodomain problem
     if(variable_names.size()==1)
     {
         if(variable_names[0]!="V")
         {
             delete mpReader;
-            delete mpReaderPhie;
             EXCEPTION("One variable, but it is not called 'V'");
         }
 
         Write("Mono");
     }
 
-    // if two variable, a bidomain problem
+    // if two variables, it is a bidomain problem
     if(variable_names.size()==2)
     {
         if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
         {
             delete mpReader;
-            delete mpReaderPhie;
             EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
         }
 
@@ -168,5 +164,4 @@ Hdf5ToCmguiConverter::Hdf5ToCmguiConverter(std::string inputDirectory,
 Hdf5ToCmguiConverter::~Hdf5ToCmguiConverter()
 {
     delete mpReader;
-    delete mpReaderPhie;
 }

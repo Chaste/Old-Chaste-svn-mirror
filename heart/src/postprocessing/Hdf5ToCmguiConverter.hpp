@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   .....
  *   
  *   For bidomain simulations, we will have two fields, one for Vm and one for Phie.
- *   The list of nodes above will be repeated one after another i.e. 
+ *   The Cmgui format for two fields is as follows: 
  *   
  *   Node: 1
  *   Vm_node_1
@@ -57,9 +57,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Hdf5ToCmguiConverter
 {
 private:
-    Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted (for V)*/
-    Hdf5DataReader* mpReaderPhie; /**< Pointer to reader of the file to be converted (for Phie)*/
-    std::string mFileBaseName; /**< Base name for the files [basename]_V.dat etc.*/
+    Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
+    std::string mFileBaseName; /**< Base name for the files [basename].exnode etc.*/
 
     /** A helper method which takes in a string, which must be 'Mono' or 'Bi'
      *  and reads the data from the hdf5 file, writing it out in
