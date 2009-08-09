@@ -12,6 +12,7 @@ convergence/TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
 TestElectrodes.hpp
 ionicmodels/TestFaberRudyAgainstLimpet.hpp
+postprocessing/TestHdf5ToCmguiConverter.hpp
 postprocessing/TestHdf5ToMeshalyzerConverter.hpp
 TestHeartConfig.hpp
 TestHeartGeometryInformation.hpp
