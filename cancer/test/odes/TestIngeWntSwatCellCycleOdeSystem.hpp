@@ -54,7 +54,7 @@ public:
     {
         double wnt_level = 1.0;
 
-        TS_ASSERT_THROWS_ANYTHING(IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(3,wnt_level));
+        TS_ASSERT_THROWS_THIS(IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(3,wnt_level),"You must set up this cell cycle ODE system with hypothesis one or two.");
 
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(1,wnt_level);
 

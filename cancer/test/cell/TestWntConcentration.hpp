@@ -311,7 +311,7 @@ public:
 
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
-        TS_ASSERT_THROWS_ANYTHING(p_wnt->SetType(NONE));
+        TS_ASSERT_THROWS_THIS(p_wnt->SetType(NONE),"Destroy has not been called");
 
         WntConcentration<2>::Destroy();
 
@@ -338,7 +338,7 @@ public:
 
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
-        TS_ASSERT_THROWS_ANYTHING(p_wnt->SetConstantWntValueForTesting(-10));
+        TS_ASSERT_THROWS_THIS(p_wnt->SetConstantWntValueForTesting(-10),"WntConcentration<DIM>::SetConstantWntValueForTesting - Wnt value for testing should be non-negative.\n");
 
         WntConcentration<2>::Destroy();
     }

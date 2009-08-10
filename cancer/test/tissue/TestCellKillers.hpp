@@ -71,9 +71,12 @@ public:
         // Get a reference to the cells held in tissue
         std::list<TissueCell>& r_cells = tissue.rGetCells();
 
-        // Bad probabilities passed in
-        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue, -0.1));
-        TS_ASSERT_THROWS_ANYTHING(RandomCellKiller<2> random_cell_killer(&tissue,  1.1));
+        // Check for bad probabilities being passed in
+        TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&tissue, -0.1),
+                              "Probability of death must be between zero and one");
+
+        TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&tissue,  1.1),
+                              "Probability of death must be between zero and one");
 
         // Create cell killer
         RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
@@ -346,7 +349,7 @@ public:
         SloughingCellKiller<3> sloughing_cell_killer(&tissue);
 
         // Check that an exception is thrown, as this method is not yet implemented in 3D
-        TS_ASSERT_THROWS_ANYTHING(sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath());
+        TS_ASSERT_THROWS_THIS(sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath(), "SloughingCellKiller is not yet implemented in 3D");
     }
 
 

@@ -199,7 +199,7 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
         simulator.SetEndTime(1.0);
 
-        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
+        TS_ASSERT_THROWS_THIS(simulator.Solve(),"OutputDirectory not set");
 
         // Destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
@@ -433,7 +433,7 @@ public:
         // Coverage of exceptions (after main test to avoid problems with SimulationTime).
         simulator.SetEndTime(10.0);
         simulator.SetOutputDirectory("");
-        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
+        TS_ASSERT_THROWS_THIS(simulator.Solve(),"OutputDirectory not set");
         CancerEventHandler::Reset(); // otherwise event handler left in bad state after throw
     }
 
@@ -945,13 +945,16 @@ public:
         // (it is too small for it to figure out what's happening on its own)
 
         // Cover exceptions
-        TS_ASSERT_THROWS_ANYTHING(simulator.rGetTissue().GetCellMutationStateCount());
+        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellMutationStateCount(),
+                              "Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
-        TS_ASSERT_THROWS_ANYTHING(simulator.rGetTissue().GetCellTypeCount());
+        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellTypeCount(),
+                              "Call TissueConfig::Instance()->SetOutputCellTypes(true) before using this function");
         TissueConfig::Instance()->SetOutputCellTypes(true);
 
-        TS_ASSERT_THROWS_ANYTHING(simulator.rGetTissue().GetCellCyclePhaseCount());
+        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellCyclePhaseCount(),
+                              "Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
 
         // Run simulation
         simulator.Solve();

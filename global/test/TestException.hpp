@@ -59,6 +59,9 @@ public:
 
         TS_ASSERT_THROWS_EQUALS(NEVER_REACHED,  const Exception &err,
                 err.GetShortMessage(), "Should have been impossible to reach this line of code");
+
+        // Our own shorthand macro for the above method
+        TS_ASSERT_THROWS_THIS(NEVER_REACHED, "Should have been impossible to reach this line of code");
     }
 };
 

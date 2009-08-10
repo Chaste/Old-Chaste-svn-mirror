@@ -56,7 +56,7 @@ public:
         FixedDurationGenerationBasedCellCycleModel fixed_model;
         SimulationTime::Destroy();
 
-        TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell(STEM, HEALTHY, &fixed_model));
+        TS_ASSERT_THROWS_THIS(TissueCell bad_cell(STEM, HEALTHY, &fixed_model),"TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
 
         // Proper test again
 
@@ -64,7 +64,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-        TS_ASSERT_THROWS_ANYTHING(TissueCell stem_cell(STEM, HEALTHY, NULL));
+        TS_ASSERT_THROWS_THIS(TissueCell stem_cell(STEM, HEALTHY, NULL),"Cell cycle model is null");
 
         TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
@@ -107,7 +107,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();//t=6
 
         // Cover bad cell cycle model
-        TS_ASSERT_THROWS_ANYTHING(TissueCell bad_cell2(STEM, HEALTHY, NULL));
+        TS_ASSERT_THROWS_THIS(TissueCell bad_cell2(STEM, HEALTHY, NULL),"Cell cycle model is null");
 
         TissueCell stem_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
@@ -984,12 +984,12 @@ public:
 
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
         TS_ASSERT_EQUALS(cell.IsDead(),false);
-        TS_ASSERT_THROWS_ANYTHING(cell.TimeUntilDeath());
+        TS_ASSERT_THROWS_THIS(cell.TimeUntilDeath(),"Shouldn\'t be checking time until apoptosis as it isn\'t set");
 
         p_simulation_time->IncrementTimeOneStep(); // t=0.2
 
         cell.StartApoptosis();
-        TS_ASSERT_THROWS_ANYTHING(cell.StartApoptosis());
+        TS_ASSERT_THROWS_THIS(cell.StartApoptosis(),"StartApoptosis() called when already undergoing apoptosis");
 
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
         TS_ASSERT_EQUALS(cell.IsDead(),false);

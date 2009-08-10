@@ -112,8 +112,8 @@ public:
             cells.push_back(cell);
         }
 
-        // Fails as no cell corresponding to node 0
-        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissue<2> tissue2(mesh, cells));
+        // Fails as no cell corresponding to node 4
+        TS_ASSERT_THROWS_THIS(MeshBasedTissue<2> tissue2(mesh, cells),"Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
         AbstractCellCycleModel *p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -123,6 +123,10 @@ public:
         cells.push_back(cell);
 
         TS_ASSERT_THROWS_NOTHING(MeshBasedTissue<2> tissue2(mesh, cells));
+
+        // A bit of Northern compatibility testing hidden here (not relevant to this test!)
+        TS_ASSERT_THROWS_NOWT(MeshBasedTissue<2> tissue2(mesh, cells));
+        TS_ASSERT_CHAMPION(true);
     }
 
     void TestCreateCellPair()

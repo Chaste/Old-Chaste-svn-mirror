@@ -197,7 +197,7 @@ public:
 
         // For coverage of an exception.
         simulator.SetUpdateTissueRule(false);
-        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
+        TS_ASSERT_THROWS_THIS(simulator.Solve(),"Tissue has had births or deaths but mUpdateTissue is set to false, please set it to true.");
         CancerEventHandler::Reset(); // Otherwise logging has been started but not stopped due to exception above.
 
         simulator.SetUpdateTissueRule(true);

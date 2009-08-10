@@ -75,7 +75,7 @@ public:
         // Fails as the tissue constructor is not given the location indices
         // corresponding to real cells, so cannot work out which nodes are
         // ghost nodes
-        TS_ASSERT_THROWS_ANYTHING(MeshBasedTissueWithGhostNodes<2> dodgy_tissue(mesh, cells));
+        TS_ASSERT_THROWS_THIS(MeshBasedTissueWithGhostNodes<2> dodgy_tissue(mesh, cells),"Node 4 does not appear to be a ghost node or have a cell associated with it");
 
         // Passes as the tissue constructor automatically works out which
         // cells are ghost nodes using the mesh and cell_location_indices
@@ -92,13 +92,13 @@ public:
         // Test rGetCellUsingLocationIndex()
 
         TS_ASSERT_THROWS_NOTHING(tissue.rGetCellUsingLocationIndex(0)); // real cell
-        TS_ASSERT_THROWS_ANYTHING(tissue.rGetCellUsingLocationIndex(mesh.GetNumNodes()-1u)); // ghost node
+        TS_ASSERT_THROWS_THIS(tissue.rGetCellUsingLocationIndex(mesh.GetNumNodes()-1u),"Location index input argument does not correspond to a TissueCell"); // ghost node
 
         // Now we label a real cell's node as a ghost
         ghost_node_indices.insert(1u);
 
         // Validate detects this inconsistency
-        TS_ASSERT_THROWS_ANYTHING(tissue.SetGhostNodes(ghost_node_indices));
+        TS_ASSERT_THROWS_THIS(tissue.SetGhostNodes(ghost_node_indices),"Node 1 is labelled as a ghost node and has a cell attached");
     }
 
     // Test with ghost nodes, checking that the Iterator doesn't loop over ghost nodes

@@ -766,8 +766,7 @@ public:
             {
                 /// Should not read this archive - \todo - broken, see #1089
                 // input_arch >> p_mesh3
-                //TS_ASSERT_THROWS_EQUALS(input_arch >> p_mesh3, const Exception &e,
-                //                        e.GetShortMessage(), "This archive was written for a different number of processors");
+                //TS_ASSERT_THROWS_THIS(input_arch >> p_mesh3, "This archive was written for a different number of processors");
             }
             delete p_mesh3;
         }

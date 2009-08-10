@@ -70,7 +70,7 @@ public:
         CellwiseData<2> *p_data = CellwiseData<2>::Instance();
 
         TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
-        TS_ASSERT_THROWS_ANYTHING(p_data->SetTissue(tissue));
+        TS_ASSERT_THROWS_THIS(p_data->SetTissue(tissue),"SetTissue must be called after SetNumNodesAndVars()");
 
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
 
@@ -122,7 +122,7 @@ public:
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 2);
         p_data->SetTissue(tissue);
 
-        TS_ASSERT_THROWS_ANYTHING(p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1));
+        TS_ASSERT_THROWS_THIS(p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1),"SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
