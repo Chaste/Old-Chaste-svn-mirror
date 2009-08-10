@@ -308,6 +308,18 @@ public:
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exnode mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exelem").c_str()), 0);
+        
+        //now test the set method for additional fields. We set two fields.
+        CmguiWriter writer2("TestCmguiWriterAdditionalHeaders", "cube_2mm_12_elements");
+        
+        std::vector<std::string> field_names;
+        field_names.push_back("V");
+        field_names.push_back("Phi_e");
+        std::string results_dir2 = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriterAdditionalHeaders";
+        writer2.SetAdditionalFieldNames(field_names);
+        TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements_additional_fields.exelem").c_str()), 0);
+                        
     }
 
     void TestVtkWriter() throw(Exception)

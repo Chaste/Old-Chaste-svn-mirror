@@ -63,21 +63,21 @@ public :
 
         // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
         // as that is where the reader reads from.
-        CopyToTestOutputDirectory("heart/test/data/CmguiData/CubeForCmgui_monodomain.h5",
+        CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/cube_2mm_12_elements.h5",
                                   working_directory);
 
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToCmguiConverter converter(working_directory, "CubeForCmgui_monodomain");
+        Hdf5ToCmguiConverter converter(working_directory, "cube_2mm_12_elements");
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_monodomain_0.exnode"
-                                     + " heart/test/data/CmguiData/CubeForCmgui_monodomain_0.exnode";
+        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_0.exnode"
+                                     + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_monodomain_1.exnode"
-                                     + " heart/test/data/CmguiData/CubeForCmgui_monodomain_1.exnode";
+        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_1.exnode"
+                                     + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 
@@ -89,21 +89,21 @@ public :
 
         // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
         // as that is where the reader reads from.
-        CopyToTestOutputDirectory("heart/test/data/CmguiData/CubeForCmgui_bidomain.h5",
+        CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/cube_2mm_12_elements.h5",
                                   working_directory);
 
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToCmguiConverter converter(working_directory, "CubeForCmgui_bidomain");
+        Hdf5ToCmguiConverter converter(working_directory, "cube_2mm_12_elements");
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_bidomain_0.exnode"
-                                     + " heart/test/data/CmguiData/CubeForCmgui_bidomain_0.exnode";
+        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_0.exnode"
+                                     + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_bidomain_1.exnode"
-                                     + " heart/test/data/CmguiData/CubeForCmgui_bidomain_1.exnode";
+        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_1.exnode"
+                                     + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 

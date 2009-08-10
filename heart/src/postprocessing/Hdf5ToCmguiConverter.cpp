@@ -92,7 +92,7 @@ void Hdf5ToCmguiConverter::Write(std::string type)
             {
                 *p_file << "#Fields=2" << "\n" << " 1) " << "V , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
                 //the details of the second field
-                *p_file << "\n" << " 2) " << "Phie , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+                *p_file << "\n" << " 2) " << "Phi_e , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
             }
             
             //write the data 

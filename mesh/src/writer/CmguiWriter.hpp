@@ -31,18 +31,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTetrahedralMeshWriter.hpp"
 
-
+/**
+ * Header for node base file (.exnode)
+ */
 static const char CmguiNodeFileHeader[] = " #Fields=1\n\
  1) coordinates, coordinate, rectangular cartesian, #Components=3\n\
    x.  Value index= 1, #Derivatives= 0\n\
    y.  Value index= 2, #Derivatives= 0\n\
    z.  Value index= 3, #Derivatives= 0\n";
 
+/**
+ * Header for element base file (.exelem)
+ */
 static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*simplex*simplex\n\
  #Scale factor sets= 0\n\
- #Nodes= 4\n\
- #Fields=1\n\
- 1) coordinates, coordinate, rectangular cartesian, #Components=3\n\
+ #Nodes= 4\n";
+ 
+/**
+ * Header for element base file (.exelem), this coems after the definition of the number of fields
+ */
+static const char CmguiCoordinatesFileHeader[] = " 1) coordinates, coordinate, rectangular cartesian, #Components=3\n\
    x.  l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n\
      #Nodes= 4\n\
       1.  #Values=1\n\
@@ -85,8 +93,26 @@ static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*
       4.  #Values=1\n\
        Value indices:     1\n\
        Scale factor indices:   4\n";
-
-
+       
+/**
+ * Header for additional fields in the element base file (.exelem), 
+ * Here we assume all additional fields will be interpolated by cmgui in the same way
+ */
+static const char CmguiAdditonalFieldHeader[] = " field, rectangular cartesian, #Components=1\n\
+   x.  l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n\
+     #Nodes= 4\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n\
+      3.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   3\n\
+      4.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   4\n";
 /**
  *  CmguiWriter
  *
@@ -100,6 +126,13 @@ static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*
  */
 class CmguiWriter : public AbstractTetrahedralMeshWriter<3,3>
 {
+private:
+    
+    /**
+     * For storage of names of additional fields.
+     */
+    std::vector<std::string> mAdditionalFieldNames;
+    
 public:
 
     /**
@@ -117,6 +150,13 @@ public:
      * Write mesh data to files.
      */
     void WriteFiles();
+    
+    /**
+     * Set any additional field that we want cmgui to visualize (interpolated over) elements and surfaces
+     * 
+     * @param rFieldNames is a reference to a vector of string containing the names of each additional field name
+     */
+    void SetAdditionalFieldNames(std::vector<std::string>& rFieldNames);
 
     /**
      * Destructor.

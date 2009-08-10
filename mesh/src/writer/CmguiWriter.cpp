@@ -25,7 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+#include "Exception.hpp"
 #include "CmguiWriter.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ void CmguiWriter::WriteFiles()
     //////////////////////////
     std::string node_file_name = this->mBaseName + ".exnode";
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
-
+    
     // Write the node header
     *p_node_file << "Group name: " << this->mBaseName << "\n";
     *p_node_file << CmguiNodeFileHeader;
@@ -77,6 +77,27 @@ void CmguiWriter::WriteFiles()
     *p_elem_file << "Group name: " << this->mBaseName << "\n";
     *p_elem_file << CmguiElementFileHeader;
 
+    //now we need to figure out how many additional fields we have 
+    unsigned number_of_fields = mAdditionalFieldNames.size();
+    std::stringstream string_of_number_of_fields;
+    //we write the number of additional fields + 1 because the coordinates field gets written anyway
+    string_of_number_of_fields << number_of_fields+1;
+    //and write accordingly the total number of fields
+    *p_elem_file << " #Fields="<<string_of_number_of_fields.str()<<"\n"; 
+    
+    //first field (the coordinates field is fixed and always there
+    *p_elem_file << CmguiCoordinatesFileHeader;
+    
+    //now write the specification for each additional field
+    for (unsigned i = 0; i <  number_of_fields; i++)
+    {
+        //unsigned to string
+        std::stringstream i_string;
+        i_string << i+2;
+        *p_elem_file<<i_string.str()<<")  "<<mAdditionalFieldNames[i]<<" ,";
+        *p_elem_file << CmguiAdditonalFieldHeader;
+    }
+    
     // Write each elements's data
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
     {
@@ -92,3 +113,9 @@ void CmguiWriter::WriteFiles()
     }
     p_elem_file->close();
 }
+
+void CmguiWriter::SetAdditionalFieldNames(std::vector<std::string>& rFieldNames)
+{
+    mAdditionalFieldNames = rFieldNames;
+}
+
