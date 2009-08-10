@@ -67,7 +67,7 @@ private:
         TS_ASSERT_DELTA(p_inst->GetSpringStiffness(), 15.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetMechanicsCutOffLength(), DBL_MAX, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantNormal(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetApoptosisTime(), 0.25, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);

@@ -100,7 +100,7 @@ void TissueConfig::Reset()
     mSpringStiffness = 15.0;        // this is mu in Meineke
     mMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
     mDampingConstantNormal = 1.0;   // this is nu in Meineke
-    mDampingConstantMutant = 2.0;
+    mDampingConstantMutant = 1.0;
     mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin
                                         // (divided by 6 as a cell normally is a hexagon)
     mApoptosisTime = 0.25;          // cell takes 15 min to fully undergo apoptosis

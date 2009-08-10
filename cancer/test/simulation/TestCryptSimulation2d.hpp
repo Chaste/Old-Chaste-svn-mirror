@@ -442,7 +442,7 @@ public:
     {
         // Create a log of this test
         LogFile *p_log_file = LogFile::Instance();
-        p_log_file->Set(2,"Crypt2DCylindricalMultipleDivisions");
+        p_log_file->Set(2, "Crypt2DCylindricalMultipleDivisions");
 
         // Create mesh
         unsigned cells_across = 6;
@@ -760,10 +760,10 @@ public:
         WntConcentration<2>::Destroy();
 
         // Check writing of voronoi data
-        OutputFileHandler handler("Crypt2DPeriodicStandardResult",false);
+        OutputFileHandler handler("Crypt2DPeriodicStandardResult", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
 
-        NumericFileComparison comp(results_file,"cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat");
+        NumericFileComparison comp(results_file, "cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat");
         TS_ASSERT(comp.CompareFiles());
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cancer/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
     }
@@ -864,7 +864,7 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
         // Test Wnt concentration was set up correctly
-        TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(),true);
+        TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), true);
 
         // Test the Wnt concentration result
         TissueCell *p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28));
@@ -978,10 +978,10 @@ public:
         TS_ASSERT_EQUALS(cell_type_count[3], 0u);
 
         // Check writing of voronoi data
-        OutputFileHandler handler("Crypt2DWntMatureCells",false);
+        OutputFileHandler handler("Crypt2DWntMatureCells", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
 
-        NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
+        NumericFileComparison comp(results_file, "cancer/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
         TS_ASSERT(comp.CompareFiles(2e-6));
 
         // Tidy up
@@ -1039,10 +1039,10 @@ public:
         simulator.Solve();
 
         // Check writing of cell data
-        OutputFileHandler handler("Crypt2DCylindricalCellIdLogged",false);
+        OutputFileHandler handler("Crypt2DCylindricalCellIdLogged", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/loggedcell.dat";
 
-        NumericFileComparison comp(results_file,"cancer/test/data/Crypt2DCylindricalCellIdLogged/loggedcell.dat");
+        NumericFileComparison comp(results_file, "cancer/test/data/Crypt2DCylindricalCellIdLogged/loggedcell.dat");
         TS_ASSERT(comp.CompareFiles(2e-4));
     }
 
@@ -1530,7 +1530,7 @@ public:
         simulator.Solve();
 
         // Check writing of beta-catenin data
-        OutputFileHandler handler("CryptBetaCatenin",false);
+        OutputFileHandler handler("CryptBetaCatenin", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizbetacatenin";
         std::string results_setup_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizsetup";
 

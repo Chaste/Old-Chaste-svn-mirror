@@ -159,14 +159,55 @@ public:
         TS_ASSERT_EQUALS(p_cell1->GetMutationState(), APC_ONE_HIT);
     }
 
+    void TestGetDampingConstant()
+    {
+        // Change the mutant damping constant to be different from the normal
+        TissueConfig::Instance()->SetDampingConstantMutant(23.57);
+
+        // Create a simple mesh
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+
+        // Bestow mutations on some cells
+        cells[0].SetMutationState(HEALTHY);
+        cells[1].SetMutationState(APC_ONE_HIT);
+        cells[2].SetMutationState(APC_TWO_HIT);
+        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
+        cells[4].SetMutationState(LABELLED);
+
+        // Create tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        TS_ASSERT_EQUALS(tissue.UseAreaBasedDampingConstant(), false);
+
+        double damping_const_0 = tissue.GetDampingConstant(0);
+        double damping_const_1 = tissue.GetDampingConstant(1);
+        double damping_const_2 = tissue.GetDampingConstant(2);
+        double damping_const_3 = tissue.GetDampingConstant(3);
+        double damping_const_4 = tissue.GetDampingConstant(4);
+
+        // Check that each mutation state gives the correct damping constant
+        TS_ASSERT_DELTA(damping_const_0, TissueConfig::Instance()->GetDampingConstantNormal(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_1, TissueConfig::Instance()->GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_2, TissueConfig::Instance()->GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_3, TissueConfig::Instance()->GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_4, TissueConfig::Instance()->GetDampingConstantMutant(), 1e-6);
+    }
+
+
     void TestAreaBasedDampingConstant()
     {
         // Create a simple mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
-
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a birth time of -node_index,

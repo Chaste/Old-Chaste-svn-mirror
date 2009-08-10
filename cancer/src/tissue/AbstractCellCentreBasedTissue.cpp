@@ -113,16 +113,13 @@ void AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(const std::vector< 
 template<unsigned DIM>
 double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
-    double damping_multiplier = 1.0;
-
-    if (   (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != HEALTHY)
-        && (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() != APC_ONE_HIT) )
+    if (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() == HEALTHY)
     {
-        return TissueConfig::Instance()->GetDampingConstantMutant()*damping_multiplier;
+        return TissueConfig::Instance()->GetDampingConstantNormal();
     }
     else
     {
-        return TissueConfig::Instance()->GetDampingConstantNormal()*damping_multiplier;
+        return TissueConfig::Instance()->GetDampingConstantMutant();
     }
 }
 
