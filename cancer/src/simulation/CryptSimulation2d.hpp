@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A 2D crypt simulation object. For more details, see the paper by
- * van Leeuwen et al (to appear in Cell Prolif.).
+ * van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  */
 class CryptSimulation2d : public TissueSimulation<2>
 {

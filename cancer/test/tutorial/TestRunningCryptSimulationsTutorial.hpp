@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * In this tutorial we show how Chaste is used to run crypt simulations.
  * Full details of the computational model can be found in the paper by
- * van Leeuwen ''et al'' (to appear in Cell Prolif.)
+ * van Leeuwen ''et al'' (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  *
  * The first thing to do is include the following header, which allows us
  * to use certain methods in our test (this header file should be included
