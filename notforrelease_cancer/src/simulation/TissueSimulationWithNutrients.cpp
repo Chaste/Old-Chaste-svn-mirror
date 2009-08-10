@@ -629,7 +629,7 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
         unsigned counter = 0;
         double average_conc = 0.0;
 
-        for (std::map<double, TissueCell*>::iterator iter=distance_cell_map.begin();
+        for (std::map<double, TissueCell*>::iterator iter = distance_cell_map.begin();
              iter != distance_cell_map.end();
              ++iter)
         {

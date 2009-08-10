@@ -76,18 +76,17 @@ double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
     std::set<unsigned> containing_elements = GetNode(nodeIndex)->rGetContainingElementIndices();
     unsigned num_containing_elements = containing_elements.size();
 
-    for (std::set<unsigned>::iterator iter=containing_elements.begin();
-         iter!=containing_elements.end();
+    for (std::set<unsigned>::iterator iter = containing_elements.begin();
+         iter != containing_elements.end();
          ++iter)
     {
-        if (   (this->rGetCellUsingLocationIndex(*iter).GetMutationState() != HEALTHY)
-            && (this->rGetCellUsingLocationIndex(*iter).GetMutationState() != APC_ONE_HIT) )
+        if (this->rGetCellUsingLocationIndex(*iter).GetMutationState() == HEALTHY)
         {
-            average_damping_constant += TissueConfig::Instance()->GetDampingConstantMutant()/((double) num_containing_elements);
+            average_damping_constant += TissueConfig::Instance()->GetDampingConstantNormal()/((double) num_containing_elements);
         }
         else
         {
-            average_damping_constant += TissueConfig::Instance()->GetDampingConstantNormal()/((double) num_containing_elements);
+            average_damping_constant += TissueConfig::Instance()->GetDampingConstantMutant()/((double) num_containing_elements);
         }
     }
 
@@ -319,8 +318,8 @@ void VertexBasedTissue<DIM>::Validate()
 {
     std::vector<bool> validated_element = std::vector<bool>(this->GetNumElements(), false);
 
-    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin();
-         cell_iter!=this->End();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
          ++cell_iter)
     {
         unsigned elem_index = GetLocationIndexUsingCell(&(*cell_iter));

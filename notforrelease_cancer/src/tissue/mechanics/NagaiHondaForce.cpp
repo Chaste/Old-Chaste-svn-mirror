@@ -78,7 +78,7 @@ void NagaiHondaForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM
         std::set<unsigned> containing_elem_indices = p_tissue->GetNode(node_index)->rGetContainingElementIndices();
 
         // Iterate over these elements
-        for (std::set<unsigned>::iterator iter=containing_elem_indices.begin();
+        for (std::set<unsigned>::iterator iter = containing_elem_indices.begin();
              iter != containing_elem_indices.end();
              ++iter)
         {

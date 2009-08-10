@@ -284,8 +284,10 @@ public:
     }
 
 
-    void TestDampingConstant()
+    void TestGetDampingConstant()
     {
+        TissueConfig::Instance()->SetDampingConstantMutant(8.0);
+
         // Create mesh
         VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
 
@@ -300,7 +302,10 @@ public:
             cells.push_back(cell);
             cell_location_indices.push_back(i);
         }
-        cells[0].SetMutationState(APC_TWO_HIT);
+        cells[0].SetMutationState(APC_ONE_HIT);
+        cells[6].SetMutationState(APC_TWO_HIT);
+        cells[7].SetMutationState(BETA_CATENIN_ONE_HIT);
+        cells[8].SetMutationState(LABELLED);
 
         // Create tissue
         VertexBasedTissue<2> tissue(mesh, cells);
@@ -310,13 +315,13 @@ public:
         double normal_damping_constant = TissueConfig::Instance()->GetDampingConstantNormal();
         double mutant_damping_constant = TissueConfig::Instance()->GetDampingConstantMutant();
 
-        // Node 3 is contained in cell 2 only, therefore should have normal damping constant
-        double damping_constant_at_node_3 = tissue.GetDampingConstant(3);
-        TS_ASSERT_DELTA(damping_constant_at_node_3, normal_damping_constant, 1e-6);
-
         // Node 0 is contained in cell 0 only, therefore should have mutant damping constant
         double damping_constant_at_node_0 = tissue.GetDampingConstant(0);
         TS_ASSERT_DELTA(damping_constant_at_node_0, mutant_damping_constant, 1e-6);
+
+        // Node 3 is contained in cell 2 only, therefore should have a normal damping constant
+        double damping_constant_at_node_3 = tissue.GetDampingConstant(3);
+        TS_ASSERT_DELTA(damping_constant_at_node_3, normal_damping_constant, 1e-6);
 
         // Node 5 is contained in cells 0 and 1, therefore should an averaged damping constant
         double damping_constant_at_node_5 = tissue.GetDampingConstant(5);
@@ -325,6 +330,14 @@ public:
         // Node 9 is contained in cells 0, 1, 3, therefore should an averaged damping constant
         double damping_constant_at_node_9 = tissue.GetDampingConstant(9);
         TS_ASSERT_DELTA(damping_constant_at_node_9, (2*normal_damping_constant+mutant_damping_constant)/3.0, 1e-6);
+
+        // Node 20 is contained in cell 6 only, therefore should have a mutant damping constant
+        double damping_constant_at_node_20 = tissue.GetDampingConstant(20);
+        TS_ASSERT_DELTA(damping_constant_at_node_20, mutant_damping_constant, 1e-6);
+
+        // Node 25 is contained in cells 6 and 7, therefore should have a mutant damping constant
+        double damping_constant_at_node_25 = tissue.GetDampingConstant(25);
+        TS_ASSERT_DELTA(damping_constant_at_node_25, mutant_damping_constant, 1e-6);
     }
 
 

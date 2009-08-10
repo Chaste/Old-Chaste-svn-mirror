@@ -1027,7 +1027,7 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndice
     std::set<unsigned> containing_elem_indices = this->GetNode(nodeIndex)->rGetContainingElementIndices();
 
     // Iterate over these elements
-    for (std::set<unsigned>::iterator elem_iter=containing_elem_indices.begin();
+    for (std::set<unsigned>::iterator elem_iter = containing_elem_indices.begin();
          elem_iter != containing_elem_indices.end();
          ++elem_iter)
     {
@@ -1068,8 +1068,8 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAls
     }
 
     // Check if each neighbour is also in this element; if not, add it to the set
-    for (std::set<unsigned>::iterator iter=node_neighbours.begin();
-         iter!=node_neighbours.end();
+    for (std::set<unsigned>::iterator iter = node_neighbours.begin();
+         iter != node_neighbours.end();
          ++iter)
     {
         if (node_indices_in_this_element.find(*iter) == node_indices_in_this_element.end())
@@ -1725,8 +1725,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
                               std::inserter(shared_elements, shared_elements.begin()));
 
         // Iterate over common elements
-        for (std::set<unsigned>::iterator iter=shared_elements.begin();
-             iter!=shared_elements.end();
+        for (std::set<unsigned>::iterator iter = shared_elements.begin();
+             iter != shared_elements.end();
              ++iter)
         {
             // Find which node has the lower local index in this element

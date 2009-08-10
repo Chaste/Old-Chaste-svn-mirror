@@ -84,9 +84,9 @@ public:
         radial_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
-            cell_iter!=tissue.End();
-            ++cell_iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
             double r = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)) - centre);
 
@@ -104,9 +104,9 @@ public:
         tissue.RemoveDeadCells();
 
         // Check that we are correctly left with cells inside the circle of death
-        for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
-            cell_iter!=tissue.End();
-            ++cell_iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
             double r = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)) - centre);
             TS_ASSERT_LESS_THAN_EQUALS(r, radius);
@@ -149,9 +149,9 @@ public:
         std::list<TissueCell>& r_cells = tissue.rGetCells();
 
         // Reset cell types to STEM
-        for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
-            cell_iter != tissue.End();
-            ++cell_iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
             cell_iter->SetCellType(STEM);
         }

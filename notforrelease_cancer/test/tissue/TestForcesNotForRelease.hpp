@@ -97,8 +97,8 @@ public:
         }
         chemotactic_force.AddForceContribution(node_forces, tissue);
 
-        for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
-             cell_iter!=tissue.End();
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
              ++cell_iter)
         {
             unsigned index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
