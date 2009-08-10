@@ -75,7 +75,7 @@ public :
         std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_monodomain_0.exnode"
                                      + " heart/test/data/CmguiData/CubeForCmgui_monodomain_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
-        
+
         std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_monodomain_1.exnode"
                                      + " heart/test/data/CmguiData/CubeForCmgui_monodomain_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
@@ -101,7 +101,7 @@ public :
         std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_bidomain_0.exnode"
                                      + " heart/test/data/CmguiData/CubeForCmgui_bidomain_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
-        
+
         std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/CubeForCmgui_bidomain_1.exnode"
                                      + " heart/test/data/CmguiData/CubeForCmgui_bidomain_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
@@ -111,23 +111,26 @@ public :
     {
         std::string bidomain_directory = "TestHdf5ToCmguiConverter_bidomain";
         std::string monodomain_directory = "TestHdf5ToCmguiConverter_monodomain";
-        
+
         CopyToTestOutputDirectory("io/test/data/hdf5_test_full_format.h5", // doesn't have one or two variables
                                   bidomain_directory);
 
         HeartConfig::Instance()->SetOutputDirectory(bidomain_directory);
-        
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToCmguiConverter converter(bidomain_directory, "hdf5_test_full_format") );
+
+        TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter(bidomain_directory, "hdf5_test_full_format"),
+                "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
                                   monodomain_directory);
 
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToCmguiConverter converter2("TestHdf5ToCmguiConverter_monodomain", "bad_heart_data_1") );
+        TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter2("TestHdf5ToCmguiConverter_monodomain", "bad_heart_data_1"),
+                "One variable, but it is not called \'V\'");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
                                   bidomain_directory);
 
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToCmguiConverter converter2(bidomain_directory, "bad_heart_data_2") );
+        TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter2(bidomain_directory, "bad_heart_data_2"),
+                "Two variables, but they are not called \'V\' and \'Phi_e\'");
     }
 };
 #endif /*TESTHDF5TOCMGUICONVERTER_HPP_*/

@@ -165,7 +165,7 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
         // Fails because no bath
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Initialise(), "No bath element found");
 
         // Prevent an EventHandling exception in later tests
         HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
@@ -271,7 +271,7 @@ public:
             if (((*iter)->GetNodeLocation(0))[0]==1.0)
             {
                 /// \todo: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2?
-                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim, 0); 
+                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim, 0);
                 bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim,   1);
             }
         }
@@ -422,7 +422,8 @@ public:
             // Avoid event handler exception
             HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
             BidomainProblem<2> no_bath_problem( &cell_factory, false );
-            TS_ASSERT_THROWS_ANYTHING(no_bath_problem.SetElectrodes(electrodes));
+            TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(electrodes),
+                    "Cannot set electrodes when problem has been defined to not have a bath");
         }
 
         bidomain_problem.SetElectrodes(electrodes);

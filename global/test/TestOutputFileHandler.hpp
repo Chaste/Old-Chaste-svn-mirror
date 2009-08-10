@@ -71,7 +71,9 @@ public:
             // This should try to write files to /, which isn't allowed (we hope!)
             OutputFileHandler handler3("../../../../../../../../../../../../../../../",
                                        false);
-            TS_ASSERT_THROWS_ANYTHING(p_file_stream = handler3.OpenOutputFile("test_file"));
+
+            TS_ASSERT_THROWS_THIS(p_file_stream = handler3.OpenOutputFile("test_file"),
+                    "Could not open file test_file in " + handler3.GetOutputDirectoryFullPath());
         }
 
         // Test that the Chaste directory is meaningful, just for coverage purposes
@@ -113,7 +115,7 @@ public:
             TS_ASSERT(!handler.IsMaster());
         }
     }
-    
+
 };
 
 #endif /*TESTOUTPUTFILEHANDLER_HPP_*/

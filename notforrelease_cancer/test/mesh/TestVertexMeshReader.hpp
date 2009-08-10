@@ -69,7 +69,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
 
         // Reads node 3 from file when expecting number 1
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextNode());
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextNode(),"Data for node 1 missing");
     }
 
 
@@ -117,7 +117,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
 
         // Reads element 2 from file when expecting number 1
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextElementData());
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextElementData(), "Data for element 1 missing");
     }
 
 
@@ -130,7 +130,7 @@ public:
     void TestPermutedNodesFail() throw(Exception)
     {
         VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_permuted_nodes");
-        TS_ASSERT_THROWS_ANYTHING(for(unsigned i=0;i<mesh_reader.GetNumNodes();i++){mesh_reader.GetNextNode();})
+        TS_ASSERT_THROWS_THIS(for(unsigned i=0;i<mesh_reader.GetNumNodes();i++){mesh_reader.GetNextNode();}, "Data for node 3 missing")
     }
 
 
@@ -161,7 +161,8 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_node = mesh_reader.GetNextNode());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_node = mesh_reader.GetNextNode());
+        TS_ASSERT_THROWS_THIS(next_node = mesh_reader.GetNextNode(),
+                "Cannot get the next line from node or element file due to incomplete data");
     }
 
 
@@ -180,7 +181,8 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_element = mesh_reader.GetNextElementData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_element = mesh_reader.GetNextElementData().NodeIndices);
+        TS_ASSERT_THROWS_THIS(next_element = mesh_reader.GetNextElementData().NodeIndices,
+                "Cannot get the next line from node or element file due to incomplete data");
     }
 
 
@@ -222,8 +224,10 @@ public:
 
     void TestOtherExceptions() throw(Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(READER_2D mesh_reader("notforrelease_cancer/test/data/nonexistent_file"));
-        TS_ASSERT_THROWS_ANYTHING(READER_2D mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_without_element_file"));
+        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader("notforrelease_cancer/test/data/nonexistent_file"),
+                "Could not open data file: notforrelease_cancer/test/data/nonexistent_file.node");
+        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader("notforrelease_cancer/test/data/baddata/vertex_mesh_without_element_file"),
+                "Could not open data file: notforrelease_cancer/test/data/baddata/vertex_mesh_without_element_file.cell");
     }
 
 };

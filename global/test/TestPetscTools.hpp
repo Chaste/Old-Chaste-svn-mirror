@@ -117,8 +117,8 @@ public:
     void TestReplicateError()
     {
         //
-        // A factory is created here to set static members on DistributedVector. 
-        // As part of #988 these members are being moved to non-static members on 
+        // A factory is created here to set static members on DistributedVector.
+        // As part of #988 these members are being moved to non-static members on
         // DistributedVectorFactory. This should be refactored once this is complete.
         //
         DistributedVectorFactory factory(1);
@@ -128,7 +128,7 @@ public:
         }
         else
         {
-            TS_ASSERT_THROWS_ANYTHING(PetscTools::ReplicateException(false));
+            TS_ASSERT_THROWS_THIS(PetscTools::ReplicateException(false), "Another process threw an exception; bailing out.");
         }
     }
 

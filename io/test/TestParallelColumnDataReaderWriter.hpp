@@ -123,7 +123,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->PutVector(var2_id, var2));
 
         // Throws since var3 is the wrong size
-        TS_ASSERT_THROWS_ANYTHING(mpParallelWriter->PutVector(var1_id, var3));
+        TS_ASSERT_THROWS_THIS(mpParallelWriter->PutVector(var1_id, var3), "Size of vector does not match FixedDimensionSize.");
 
         // No-op if not master, writes anyway if we are
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->PutVariable(var1_id, 0.0, 0));
@@ -217,7 +217,7 @@ public:
     }
 
     // Read back the data written in the test above
-    void TestColumnReader()
+    void TestColumnReader() throw(Exception)
     {
         /*
          * There is no *Parallel* ColumnDataReader.  Since everyone might
@@ -226,7 +226,7 @@ public:
          */
 
         // Make a parallel data writer
-        TS_ASSERT_THROWS_NOTHING(mpReader = new ColumnDataReader("TestParallelColumnDataWriter","ParallelColumnWriter"));
+        mpReader = new ColumnDataReader("TestParallelColumnDataWriter","ParallelColumnWriter");
 
         // Check that there's the correct number of files
         std::vector<double> time_stamps;
@@ -245,8 +245,8 @@ public:
         TS_ASSERT_EQUALS(var2_node4[0],104.0); //First time step
         TS_ASSERT_DELTA(var2_node4[1],sqrt(104.0),1e-4); //Second time step
 
-        TS_ASSERT_THROWS_ANYTHING(mpReader->GetValues("LifeSigns",4));
-        TS_ASSERT_THROWS_ANYTHING(mpReader->GetValues("Var1",10));
+        TS_ASSERT_THROWS_THIS(mpReader->GetValues("LifeSigns",4),"Unknown variable");
+        TS_ASSERT_THROWS(mpReader->GetValues("Var1",10),std::out_of_range);
 
         // Delete the reader: makes sure that files are closed
         delete mpReader;

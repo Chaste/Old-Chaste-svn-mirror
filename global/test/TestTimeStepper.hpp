@@ -45,7 +45,7 @@ public:
         TimeStepper stepper(0.0, DBL_MAX, DBL_EPSILON);
         stepper.mTimeStep = (unsigned)(-1);
         TS_ASSERT(!stepper.IsTimeAtEnd());
-        TS_ASSERT_THROWS_ANYTHING(stepper.AdvanceOneTimeStep());
+        TS_ASSERT_THROWS_THIS(stepper.AdvanceOneTimeStep(),"Time step counter has overflowed.");
     }
 
     void TestAdvance()
@@ -71,7 +71,7 @@ public:
         ////////////////////////////////////////////////////////
         // tests
         ////////////////////////////////////////////////////////
-        TS_ASSERT_THROWS_ANYTHING(TimeStepper(end_time, start_time, timestep));
+        TS_ASSERT_THROWS_THIS(TimeStepper(end_time, start_time, timestep),"The simulation duration must be positive");
 
         TimeStepper stepper(start_time, end_time, timestep);
 
@@ -119,14 +119,19 @@ public:
         TS_ASSERT(stepper.IsTimeAtEnd());
         TS_ASSERT(stepper.GetTimeStepsElapsed()==time_step_number);
     }
-    
+
     void TestEnforceConstantTimeStep() throw(Exception)
     {
         TimeStepper stepper(0.0, 1.0, 0.3); // timestep does not divide, but no checking..
-        
-        TS_ASSERT_THROWS_ANYTHING( TimeStepper bad_const_dt_stepper(0.0, 1.0, 0.3, true) );
-        TS_ASSERT_THROWS_ANYTHING( TimeStepper bad_const_dt_stepper2(0.0, 1.0, 0.99999999, true) );
-        
+
+        TS_ASSERT_THROWS_THIS( TimeStepper bad_const_dt_stepper(0.0, 1.0, 0.3, true),
+                "TimeStepper estimate non-constant timesteps will need to be used: "
+                "check timestep divides (end_time-start_time) (or divides printing timestep)" );
+
+        TS_ASSERT_THROWS_THIS( TimeStepper bad_const_dt_stepper2(0.0, 1.0, 0.99999999, true),
+                "TimeStepper estimate non-constant timesteps will need to be used: "
+                "check timestep divides (end_time-start_time) (or divides printing timestep)" );
+
         TimeStepper const_dt_stepper(0.0, 1.0, 0.1, true);
         unsigned counter = 0;
         while (!const_dt_stepper.IsTimeAtEnd())
@@ -136,7 +141,7 @@ public:
         }
         TS_ASSERT_EQUALS(counter,10u);
     }
-        
+
 };
 
 #endif /*TESTTIMESTEPPER_HPP_*/

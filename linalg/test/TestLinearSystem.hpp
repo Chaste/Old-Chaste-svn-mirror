@@ -94,13 +94,13 @@ public:
         //SetRelativeTolerance
         ls.SetRelativeTolerance(1e-2);
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve());
-        
+
         KSPConvergedReason reason;
         KSPGetConvergedReason(ls.mKspSolver, &reason);
-        TS_ASSERT_EQUALS(reason, KSP_CONVERGED_RTOL); 
-        
-        
-        
+        TS_ASSERT_EQUALS(reason, KSP_CONVERGED_RTOL);
+
+
+
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         VecGetArray(solution_vector, &p_solution_elements_array);
 
@@ -119,10 +119,10 @@ public:
         ls.SetAbsoluteTolerance(1e-8);
         solution_vector = ls.Solve();
         KSPGetConvergedReason(ls.mKspSolver, &reason);
-        TS_ASSERT_EQUALS(reason, KSP_CONVERGED_ATOL); 
-        
+        TS_ASSERT_EQUALS(reason, KSP_CONVERGED_ATOL);
+
         //Check that it converged for the right reason
-        
+
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         VecGetArray(solution_vector, &p_solution_elements_array);
 
@@ -172,17 +172,17 @@ public:
 
 
         ls.SetMatrixRow(2, 125.0);
-        
+
         //Note: this method is collective.  All processes MUST do it together.
         ls.AssembleFinalLinearSystem();
 
- 
+
         //Note: these methods are collective.  All processes MUST do them together.
         for (unsigned i=0; i<2; i++)
         {
             ls.ZeroMatrixRow(i);
         }
-        
+
         if (lo <=0 && 0<hi)
         {
             TS_ASSERT_EQUALS(ls.GetMatrixElement(0, 1), 0.0);
@@ -299,53 +299,54 @@ public:
         unsigned size = 10;
 
         // Test it throws if one of the vectors in the base is not normal
-        {        
+        {
             std::vector<double> data(size,1.0);
             Vec non_orthonormal = PetscTools::CreateVec(data);
-                    
+
             LinearSystem ls((PetscInt) size);
-            TS_ASSERT_THROWS_ANYTHING(ls.SetNullBasis(&non_orthonormal, 1));
+            TS_ASSERT_THROWS_THIS(ls.SetNullBasis(&non_orthonormal, 1),
+                    "One of the vectors in the null space is not normal");
             VecDestroy(non_orthonormal);
         }
 
         // Test it throws if the vectors in the base are not orthogonal
-        {        
-            std::vector<double> data(size,0.0);
-            data[0] = 1.0;            
-            Vec one_zeros = PetscTools::CreateVec(data);
-            
-            std::vector<double> data2(size,0.0);
-            data2[1] = 1.0;            
-            Vec zero_one_zeros = PetscTools::CreateVec(data2);
-            
-            Vec null_basis[] = {one_zeros, zero_one_zeros, one_zeros}; 
-                    
-            LinearSystem ls((PetscInt) size);
-            TS_ASSERT_THROWS_ANYTHING(ls.SetNullBasis(null_basis, 3));
-
-            VecDestroy(one_zeros);
-            VecDestroy(zero_one_zeros);            
-        }
-
-        
-        // Test it doesn't throws if a non-orthonormal basis is passed        
         {
             std::vector<double> data(size,0.0);
-            data[0] = 1.0;            
+            data[0] = 1.0;
             Vec one_zeros = PetscTools::CreateVec(data);
-            
+
             std::vector<double> data2(size,0.0);
-            data2[1] = 1.0;            
+            data2[1] = 1.0;
             Vec zero_one_zeros = PetscTools::CreateVec(data2);
 
-            Vec null_basis[] = {one_zeros, zero_one_zeros}; 
-                    
+            Vec null_basis[] = {one_zeros, zero_one_zeros, one_zeros};
+
+            LinearSystem ls((PetscInt) size);
+            TS_ASSERT_THROWS_THIS(ls.SetNullBasis(null_basis, 3),"The null space is not orthogonal.");
+
+            VecDestroy(one_zeros);
+            VecDestroy(zero_one_zeros);
+        }
+
+
+        // Test it doesn't throws if a non-orthonormal basis is passed
+        {
+            std::vector<double> data(size,0.0);
+            data[0] = 1.0;
+            Vec one_zeros = PetscTools::CreateVec(data);
+
+            std::vector<double> data2(size,0.0);
+            data2[1] = 1.0;
+            Vec zero_one_zeros = PetscTools::CreateVec(data2);
+
+            Vec null_basis[] = {one_zeros, zero_one_zeros};
+
             LinearSystem ls((PetscInt) size);
             TS_ASSERT_THROWS_NOTHING(ls.SetNullBasis(null_basis, 2));
 
             VecDestroy(one_zeros);
-            VecDestroy(zero_one_zeros);            
-        }        
+            VecDestroy(zero_one_zeros);
+        }
     }
 
     // Test the 3rd constructor
@@ -477,7 +478,8 @@ public:
 #else
         VecSet(bad_guess, too_big);
 #endif
-        TS_ASSERT_THROWS_ANYTHING(solution_vector = ls.Solve(bad_guess));
+        TS_ASSERT_THROWS_THIS(solution_vector = ls.Solve(bad_guess),
+                "DIVERGED_DTOL in function \'User provided function\' on line \xDB of file linalg/src/common/LinearSystem.cpp");
 
         VecDestroy(solution_vector);
         VecDestroy(good_guess);
@@ -728,17 +730,17 @@ public:
         TS_ASSERT_EQUALS(maxits, 10000);
 
     }
-    
+
     void TestPetscSaveAndLoad()
     {
-         //Archive                           
+         //Archive
         OutputFileHandler handler("Archive", false);
         std::string archive_filename_lhs, archive_filename_rhs;
-        archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "direct_lhs.mat";   
-        archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "direct_rhs.vec"; 
-        
+        archive_filename_lhs = handler.GetOutputDirectoryFullPath() + "direct_lhs.mat";
+        archive_filename_rhs = handler.GetOutputDirectoryFullPath() + "direct_rhs.vec";
+
         // Make a linear system
-        LinearSystem ls = LinearSystem(3);    
+        LinearSystem ls = LinearSystem(3);
         ls.SetMatrixIsSymmetric();
         // Enter symmetric data
         for (int row=0; row<3; row++)
@@ -753,53 +755,53 @@ public:
         ls.SetRhsVectorElement(0, 14.0);
         ls.SetRhsVectorElement(1, 32.0);
         ls.SetRhsVectorElement(2, 50.0);
-        
+
         // SAVE
         {
             PetscViewer vec_viewer;
             PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_WRITE, &vec_viewer);
-        
+
             VecView(ls.GetRhsVector(), vec_viewer);
             PetscViewerDestroy(vec_viewer);
-            
+
             PetscViewer mat_viewer;
             PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_lhs.c_str(),FILE_MODE_WRITE, &mat_viewer);
-        
+
             MatView(ls.GetLhsMatrix(), mat_viewer);
-            PetscViewerDestroy(mat_viewer);            
+            PetscViewerDestroy(mat_viewer);
         }
         // LOAD
         {
-            
+
             PetscViewer vec_viewer;
             PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_READ, &vec_viewer);
             Vec new_vec;
             VecLoad(vec_viewer, PETSC_NULL, &new_vec);
             PetscViewerDestroy(vec_viewer);
-            
+
             int lo, hi;
             VecGetOwnershipRange(new_vec, &lo, &hi);
             std::vector<double> answer;
             answer.push_back(14.0);
             answer.push_back(32.0);
             answer.push_back(50.0);
-            
+
             double *p_vec_values;
             VecGetArray(new_vec, &p_vec_values);
-            
+
             for ( int i = lo; i < hi; i++ )
-            {       
+            {
                 TS_ASSERT_DELTA(p_vec_values[i-lo], answer[i], 1e-9);
             }
-            
+
             VecDestroy(new_vec);
-            
+
             PetscViewer mat_viewer;
             PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_READ, &mat_viewer);
             Mat new_mat;
             MatLoad(mat_viewer, PETSC_NULL, &new_mat);
             PetscViewerDestroy(mat_viewer);
-            
+
             for (int row=lo; row<hi; row++)
             {
                 // Get a whole row out of the matrix and check it
@@ -809,29 +811,29 @@ public:
                 for (int col=0; col<3; col++)
                 {
                    col_as_array[col] = col;
-                }            
-                double ret_array[3];            
+                }
+                double ret_array[3];
                 MatGetValues(new_mat, 1, row_as_array, 3, col_as_array, ret_array);
-                
+
                 for (int col=0; col<3; col++)
-                {               
+                {
                     TS_ASSERT_DELTA(ret_array[col], fabs(row-col), 1e-9);
                 }
             }
-            
+
             MatDestroy(new_mat);
         }
-        
+
     }
 
     void TestSaveAndLoadLinearSystem()
     {
-         //Archive                           
+         //Archive
         OutputFileHandler handler("Archive", false);
         handler.SetArchiveDirectory();
         std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + "linear_system.arch";       
-        
+        archive_filename = handler.GetOutputDirectoryFullPath() + "linear_system.arch";
+
         int lo, hi;
         unsigned size=5;
         std::vector<double> rhs_values;
@@ -850,9 +852,9 @@ public:
             MatIsSymmetricKnown(temp_mat, &symm_set, &is_symmetric);
             TS_ASSERT_EQUALS(symm_set, PETSC_FALSE);
             TS_ASSERT_EQUALS(is_symmetric, PETSC_FALSE);
-            
+
             ls.SetMatrixIsSymmetric();
-            
+
             MatIsSymmetricKnown(temp_mat, &symm_set, &is_symmetric);
             TS_ASSERT_EQUALS(symm_set, PETSC_TRUE);
             TS_ASSERT_EQUALS(is_symmetric, PETSC_TRUE);
@@ -866,24 +868,24 @@ public:
                 }
             }
             ls.AssembleFinalLinearSystem();
-    
+
             for (unsigned i=0; i<size; i++)
             {
                 ls.SetRhsVectorElement(i, rhs_values[i]);
             }
             ls.SetKspType("cg");
             ls.SetPcType("none");
-                
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             LinearSystem* const p_linear_system = &ls;
-            output_arch << p_linear_system;  
-            
-            TS_ASSERT_EQUALS(p_linear_system->GetSize(), size);    
+            output_arch << p_linear_system;
+
+            TS_ASSERT_EQUALS(p_linear_system->GetSize(), size);
             VecGetOwnershipRange(p_linear_system->GetRhsVector(), &lo, &hi);
-            
+
             for ( int i = lo; i < hi; i++ )
-            {       
+            {
                 TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), rhs_values[i], 1e-9);
             }
 
@@ -893,18 +895,18 @@ public:
                 {
                     TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), (row == col)?(row+1.0):0.0, 1e-9);
                 }
-            }         
-            
+            }
+
         }
         // LOAD
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs); 
-            
+            boost::archive::text_iarchive input_arch(ifs);
+
             //LinearSystem linear_system(3);
             LinearSystem *p_linear_system;//=&linear_system;
             input_arch >> p_linear_system;
-            
+
             //Check that structural symmetry is preserved
             PetscTruth symm_set, is_symmetric;
             is_symmetric=PETSC_FALSE;
@@ -913,19 +915,19 @@ public:
             TS_ASSERT_EQUALS(is_symmetric, PETSC_TRUE);
 
 
-            TS_ASSERT_EQUALS(p_linear_system->GetSize(), size);    
-            
+            TS_ASSERT_EQUALS(p_linear_system->GetSize(), size);
+
             int saved_lo, saved_hi;
             VecGetOwnershipRange(p_linear_system->GetRhsVector(), &saved_lo, &saved_hi);
-            
+
             TS_ASSERT_EQUALS(hi, saved_hi);
             TS_ASSERT_EQUALS(lo, saved_lo);
-                     
+
             for ( int i = lo; i < hi; i++ )
             {
                 TS_ASSERT_DELTA(p_linear_system->GetRhsVectorElement(i), rhs_values[i], 1e-9);
             }
-            
+
             for (unsigned row=(unsigned)lo; row<(unsigned)hi; row++)
             {
                 for (unsigned col=0; col<size; col++)
@@ -933,7 +935,7 @@ public:
                     TS_ASSERT_DELTA(p_linear_system->GetMatrixElement(row, col), (row == col)?(row+1.0):0.0, 1e-9);
                 }
             }
-            
+
             //Check archiving of KSP/PC types
             Vec solution_vector3;
             solution_vector3 = p_linear_system->Solve();
@@ -943,15 +945,15 @@ public:
             KSPGetType(p_linear_system->mKspSolver, &solver);
             KSPGetPC(p_linear_system->mKspSolver, &prec);
             PCGetType(prec, &pc);
-    
+
             TS_ASSERT( strcmp(solver, "cg")==0 );
             TS_ASSERT( strcmp(pc, "none")==0 );
             delete p_linear_system;
         }
-        
+
     }
-    
-    
+
+
     // this test should be the last in the suite
     void TestSetFromOptions()
     {
@@ -977,7 +979,7 @@ public:
         TS_ASSERT( strcmp(pc,"jacobi")==0 );
     }
     // the above test should be last in the suite
-    
+
 //    void TestSingularSolves() throw(Exception)
 //    {
 //        LinearSystem ls(2);
@@ -991,10 +993,10 @@ public:
 //        ls.SetRhsVectorElement(1, 100.0);
 //
 //        ls.AssembleFinalLinearSystem();
-//        
+//
 //        Vec x = ls.Solve();
 //        ReplicatableVector xx(x);
-//        
+//
 //        std::cout << xx[0] << " " << xx[1] << "\n"; //solves fine without null space?
 //    }
 };

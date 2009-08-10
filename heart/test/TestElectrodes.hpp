@@ -67,11 +67,11 @@ public:
         }
 
         unsigned num_grounded_nodes = 0u;
-        
+
         for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
              iter != mesh.GetNodeIteratorEnd();
              ++iter)
-        {       
+        {
             Node<2>* p_node = &(*iter);
             if (p_bcc->HasDirichletBoundaryCondition(p_node, 1))
             {
@@ -85,11 +85,13 @@ public:
         unsigned num_grounded_nodes_reduced;
         int mpi_ret = MPI_Allreduce(&num_grounded_nodes, &num_grounded_nodes_reduced, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(mpi_ret, MPI_SUCCESS);
-        
+
         TS_ASSERT_EQUALS(num_grounded_nodes_reduced, 11u);
 
-        TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration));
-        TS_ASSERT_THROWS_ANYTHING(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,duration));
+        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration),
+                "Minimum value of coordinate is not the value given");
+        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,duration),
+                "Maximum value of coordinate is not the value given");
 
         TS_ASSERT_EQUALS(electrodes.SwitchOff(0.0), false); // t<end time
         TS_ASSERT_EQUALS(electrodes.SwitchOff(1.0), false); // t<end time

@@ -118,18 +118,21 @@ public :
                                   "TestHdf5ToMeshalyzerConverter");
 
         HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
-        
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format") );
+
+        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format"),
+                "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
                                   "TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1") );
+        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1"),
+                "One variable, but it is not called \'V\'");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
                                   "TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_ANYTHING( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2") );
+        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2"),
+                "Two variables, but they are not called \'V\' and \'Phi_e\'");
     }
 };
 #endif /*TESTHDF5TOMESHALYZERCONVERTER_HPP_*/

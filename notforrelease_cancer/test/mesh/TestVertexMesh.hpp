@@ -771,7 +771,7 @@ public:
 
         map.ResetToIdentity();
         map.SetDeleted(4);
-        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(4));
+        TS_ASSERT_THROWS_THIS(map.GetNewIndex(4),"VertexElement has been deleted");
         TS_ASSERT_EQUALS(map.IsDeleted(4), true);
         TS_ASSERT_EQUALS(map.IsDeleted(5), false);
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
@@ -1282,7 +1282,9 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
 
         // Attempt to perform a T2 swap on the middle triangle element
-        TS_ASSERT_THROWS_ANYTHING( vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0)) );
+        TS_ASSERT_THROWS_THIS( vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0)),
+                "One of the neighbours of a apoptosing triangular element is also a triangle - "
+                "dealing with this has not been implemented yet" );
     }
 
 
@@ -1637,7 +1639,7 @@ public:
 
         // Call remesh
         //vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
-        TS_ASSERT_THROWS_ANYTHING(vertex_mesh.ReMesh());
+        TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(),"A node is contained in more than three elements");
     }
 
     void TestReMeshDivideEdgeIfTooBig() throw(Exception)

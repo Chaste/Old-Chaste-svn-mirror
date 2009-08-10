@@ -176,7 +176,7 @@ public:
         else
         {
             TS_ASSERT(!distributed_vector.IsGlobalIndexLocal(2));
-            TS_ASSERT_THROWS_ANYTHING(distributed_vector[2]);
+            TS_ASSERT_THROWS(distributed_vector[2],DistributedVectorException);
         }
 
         //read the 3rd element of the other vectors
@@ -189,8 +189,8 @@ public:
         else
         {
             TS_ASSERT(!distributed_vector.IsGlobalIndexLocal(3));
-            TS_ASSERT_THROWS_ANYTHING(linear[3]);
-            TS_ASSERT_THROWS_ANYTHING(quadratic[3]);
+            TS_ASSERT_THROWS(linear[3],DistributedVectorException);
+            TS_ASSERT_THROWS(quadratic[3],DistributedVectorException);
         }
 
         VecDestroy(vec);
@@ -271,8 +271,8 @@ public:
         else
         {
             TS_ASSERT(!distributed_vector.IsGlobalIndexLocal(2));
-            TS_ASSERT_THROWS_ANYTHING(linear[2]);
-            TS_ASSERT_THROWS_ANYTHING(linear_chunk[2]);
+            TS_ASSERT_THROWS(linear[2],DistributedVectorException);
+            TS_ASSERT_THROWS(linear_chunk[2],DistributedVectorException);
         }
 
         VecDestroy(petsc_vec);
@@ -282,7 +282,7 @@ public:
 
     void TestException()
     {
-        TS_ASSERT_THROWS_ANYTHING(throw DistributedVectorException() );
+        TS_ASSERT_THROWS(throw DistributedVectorException(), DistributedVectorException);
     }
 
     void TestUnevenDistribution()

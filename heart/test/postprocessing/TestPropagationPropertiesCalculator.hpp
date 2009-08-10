@@ -49,11 +49,11 @@ public:
         PropagationPropertiesCalculator ppc(&simulation_data);
 
         // Should throw because node 95 never crosses the threshold
-        TS_ASSERT_THROWS_ANYTHING(ppc.CalculateConductionVelocity(5,95,0.9));
-        TS_ASSERT_THROWS_ANYTHING(ppc.CalculateAllConductionVelocities(5,95,0.9)[0]);
+        TS_ASSERT_THROWS_THIS(ppc.CalculateConductionVelocity(5,95,0.9), "AP never reached one of the nodes");
+        TS_ASSERT_THROWS_THIS(ppc.CalculateAllConductionVelocities(5,95,0.9)[0], "AP never reached one of the nodes");
 
         // Should throw because AP is not complete here
-        TS_ASSERT_THROWS_ANYTHING(ppc.CalculateActionPotentialDuration(50,5));
+        TS_ASSERT_THROWS_THIS(ppc.CalculateActionPotentialDuration(50,5), "No full action potential was recorded");
 
         // Should not throw because the upstroke propagated far enough in simulation time
         //for both methods of last conduction velocity and all of them
@@ -94,12 +94,12 @@ public:
         TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(5,  -30.0).size(),2U);
         TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(50, -30.0).size(),1U);
         TS_ASSERT_EQUALS (ppc.CalculateUpstrokeTimes(95, -30.0).size(),1U);
-        
+
         TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(5,-30.0)[0],2.5100,0.01);
         TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(5,-30.0)[1],402.5100,0.01);
         TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(50, -30.0)[0],7.1300,0.01);
         TS_ASSERT_DELTA(ppc.CalculateUpstrokeTimes(95, -30.0)[0],11.7600,0.01);
-        
+
         // Checking the velocity from a node with 2 upstrokes to a node with one only.
         // The method checks for the last AP that reached both, i.e. second from lasta t node 5.
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(5,95,0.9), 0.097, 0.003);
@@ -112,7 +112,7 @@ public:
        // Then we check some values (should be rather uniform over the cable)
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(5,50,0.45), 0.097, 0.003);
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(50,95,0.45), 0.097, 0.003);
-        
+
         //cover the case of conduction calculated from and to the same node, it should return 0
         TS_ASSERT_DELTA(ppc.CalculateConductionVelocity(5,5,0.0), 0.0, 0.000001);
 
@@ -153,12 +153,14 @@ public:
 
         //Testing the method that returns all APs
         TS_ASSERT_EQUALS(properties_fs.CalculateActionPotentialDuration(90, middle_index), properties_fs.CalculateAllActionPotentialDurations(90, middle_index, -30.0)[0]);
-        
+
         //Throws because the percentage "0.9%" looks too small and is likely to be a mistake
-        TS_ASSERT_THROWS_ANYTHING(properties_fs.CalculateActionPotentialDuration(0.9, middle_index));
+        TS_ASSERT_THROWS_THIS(properties_fs.CalculateActionPotentialDuration(0.9, middle_index),
+                "First argument of CalculateActionPotentialDuration() is expected to be a percentage");
 
         //Throws because the percentage "100%" looks too big.
-        TS_ASSERT_THROWS_ANYTHING(properties_fs.CalculateActionPotentialDuration(100.0, middle_index));
+        TS_ASSERT_THROWS_THIS(properties_fs.CalculateActionPotentialDuration(100.0, middle_index),
+                "First argument of CalculateActionPotentialDuration() is expected to be a percentage");
 
         Hdf5DataReader simulation_data_bw("heart/test/data/BidomainBackwardToCompareWithFastSlow3D",
                                        "res", false);
@@ -177,7 +179,7 @@ public:
         TS_ASSERT_DELTA(properties_bw.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.055556, 0.001);
         TS_ASSERT_DELTA(properties_bw.CalculateMaximumUpstrokeVelocity(middle_index), 173.02, 0.01);
 
-        //Testing the mtehod that returns all APs
+        //Testing the method that returns all APs
         TS_ASSERT_EQUALS(properties_bw.CalculateActionPotentialDuration(90, middle_index), properties_bw.CalculateAllActionPotentialDurations(90, middle_index, -30.0)[0]);
     }
 

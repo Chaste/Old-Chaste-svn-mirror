@@ -72,7 +72,7 @@ AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
-{    
+{
     if (mpDefaultBoundaryConditionsContainer!=NULL)
     {
         delete mpDefaultBoundaryConditionsContainer;
@@ -205,7 +205,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         }
         catch (Exception& e)
         {
-            EXCEPTION(std::string("No mesh given: define it in XML parameters file or call SetMesh()\n") + e.GetMessage());
+            EXCEPTION(std::string("No mesh given: define it in XML parameters file or call SetMesh()\n") + e.GetShortMessage());
         }
     }
     mpCellFactory->SetMesh( mpMesh );
@@ -215,7 +215,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         mpMesh->ReadNodesPerProcessorFile(mNodesPerProcessorFilename);
     }
     HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
-    
+
     ///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
     delete mpCardiacPde; // In case we're called twice
     mpCardiacPde = CreateCardiacPde();
@@ -251,14 +251,14 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
             EXCEPTION("Either explicitly specify not to print output (call PrintOutput(false)) or specify the output directory and filename prefix");
         }
     }
-    
+
     double end_time = HeartConfig::Instance()->GetSimulationDuration();
     double pde_time = HeartConfig::Instance()->GetPdeTimeStep();
-    
-    // MatrixIsConstant stuff requires CONSTANT dt - do some checks to make sure the TimeStepper won't find 
+
+    // MatrixIsConstant stuff requires CONSTANT dt - do some checks to make sure the TimeStepper won't find
     // non-constant dt.
     // Note: printing_time does not have to divide end_time, but dt must divide printing_time and end_time.
-    // HeartConfig checks pde_dt divides printing dt 
+    // HeartConfig checks pde_dt divides printing dt
     if( fabs( end_time - pde_time*round(end_time/pde_time)) > 1e-10 )
     {
         EXCEPTION("Pde timestep does not seem to divide end time - check parameters");
@@ -272,7 +272,7 @@ Vec AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialConditi
     //{
     //    DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
     //}
-    DistributedVectorFactory* p_factory = mpMesh->GetDistributedVectorFactory(); 
+    DistributedVectorFactory* p_factory = mpMesh->GetDistributedVectorFactory();
     Vec initial_condition = p_factory->CreateVec(PROBLEM_DIM);
     DistributedVector ic = p_factory->CreateDistributedVector(initial_condition);
     std::vector<DistributedVector::Stripe> stripe;
@@ -404,7 +404,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         VecDestroy(mSolution);
         HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
     }
-    
+
     while ( !stepper.IsTimeAtEnd() )
     {
         // solve from now up to the next printing time
@@ -469,15 +469,15 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         ///\todo This should go in a location set in ArchiveLocationInfo (see LinearSystem::load_construct_data(...))
         OutputFileHandler handler(HeartConfig::Instance()->GetOutputDirectory(), false);
         handler.SetArchiveDirectory();
-        
+
         std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + HeartConfig::Instance()->GetOutputFilenamePrefix() +"_ls.arch";       
-        
+        archive_filename = handler.GetOutputDirectoryFullPath() + HeartConfig::Instance()->GetOutputFilenamePrefix() +"_ls.arch";
+
         std::ofstream ofs(archive_filename.c_str());
         boost::archive::text_oarchive output_arch(ofs);
 
         LinearSystem* const p_linear_system = *(mpAssembler->GetLinearSystem());
-        output_arch << p_linear_system;          
+        output_arch << p_linear_system;
 
         ofs.close();
     }
@@ -489,7 +489,7 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
     HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
-    
+
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -601,7 +601,7 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::SetArchiveLinearSystemObject(bool archive)
 {
     mArchiveKSP = archive;
-}     
+}
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

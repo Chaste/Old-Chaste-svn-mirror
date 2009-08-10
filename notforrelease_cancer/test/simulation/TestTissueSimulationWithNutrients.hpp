@@ -953,7 +953,7 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Coverage
-        TS_ASSERT_THROWS_ANYTHING(simulator.CreateCoarseNutrientMesh(10.0));
+        TS_ASSERT_THROWS_THIS(simulator.CreateCoarseNutrientMesh(10.0), "This method is only implemented in 2D");
 
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

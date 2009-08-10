@@ -44,9 +44,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
         // There must be a one-one correspondence between cells and location indices
         if (mCells.size() != locationIndices.size())
         {
-            std::stringstream ss;
-            ss << "There is not a one-one correspondence between cells and location indices";
-            EXCEPTION(ss.str());
+            EXCEPTION("There is not a one-one correspondence between cells and location indices");
         }
     }
 

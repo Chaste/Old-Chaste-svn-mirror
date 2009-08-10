@@ -95,16 +95,17 @@ public:
     void TestCreateColumnReader()
     {
         // File does not exist
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("", "testdoesnotexist"));
+        std::string exception_should_be = "Couldn\'t open info file: " + std::string(getenv("CHASTE_TEST_OUTPUT")) + "/testdoesnotexist.info";
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"),exception_should_be);
 
         // File contains corrupt data
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "testbad", false));
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testbad", false), "Couldn\'t read info file correctly");
 
         // .info file exists (unlimited) but _unlimited.dat file does not
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "UnlimitedMissing", false));
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "UnlimitedMissing", false), "Couldn\'t open ancillary data file");
 
         // .info file exists (fixed dim) but .dat file does not
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "DatMissing", false));
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "DatMissing", false), "Couldn\'t open data file");
 
         delete mpTestReader;
     }
@@ -114,11 +115,15 @@ public:
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"),
+                "Unlimited dimension already set. Cannot be defined twice");
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "m secs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("", "msecs"));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "m secs"),
+                "Unlimited dimension already set. Cannot be defined twice");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("T,i,m,e", "msecs"),
+                "Unlimited dimension already set. Cannot be defined twice");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("", "msecs"),
+                "Unlimited dimension already set. Cannot be defined twice");
 
         delete mpTestWriter;
     }
@@ -128,9 +133,12 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node", "dimension.less", 5000));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("*Node*","dimensionless", 5000));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000),
+                "Variable name/units \'Node \' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension("Node", "dimension.less", 5000),
+                "Variable name/units \'dimension.less\' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension("*Node*","dimensionless", 5000),
+                "Variable name/units \'*Node*\' not allowed: may only contain alphanumeric characters or \'_\'.");
 
         delete mpTestWriter;
     }
@@ -148,10 +156,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineVariable("Dummy", ""));
 
         // Bad variable names/units
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milli amperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I   K", "milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I.K", "milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("", "milliamperes"));
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("I_K", "milli amperes"), "Variable name/units \'milli amperes\' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("I   K", "milliamperes"), "Variable name/units \'I   K\' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("I.K", "milliamperes"), "Variable name/units \'I.K\' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("", "milliamperes"), "Variable name not allowed: may not be blank.");
 
         TS_ASSERT_EQUALS(ina_var_id, 0);
         TS_ASSERT_EQUALS(ik_var_id, 1);
@@ -163,25 +171,25 @@ public:
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(0, 0, 0));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(0, 0, 0), "Cannot put variables when in Define mode");
 
         // Ending define mode without having defined a dimension and a variable should raise an exception
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_THROWS_THIS(mpTestWriter->EndDefineMode(), "Cannot end define mode. No dimensions have been defined.");
 
         int ina_var_id = 0;
         int ik_var_id = 0;
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_THROWS_THIS(mpTestWriter->EndDefineMode(), "Cannot end define mode. No variables have been defined.");
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca", "milli amperes"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node", "dimensionless", 5000));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineVariable("I_Ca", "milli amperes"), "Cannot define variables when not in Define mode");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"), "Unlimited dimension already set. Cannot be defined twice");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension("Node", "dimensionless", 5000), "Cannot define variables when not in Define mode");
 
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
@@ -197,14 +205,14 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 0));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension("Node","dimensionless", 0), "Fixed dimension must be at least 1 long");
         mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000);
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time","msecs"), "Cannot define variables when not in Define mode");
         delete mpTestWriter;
     }
 
@@ -249,8 +257,8 @@ public:
         }
 
         // Test for coverage
-        TS_ASSERT_THROWS_ANYTHING(values_ik = mpTestReader->GetValues("I_K", 3));
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader->GetValues("BadVar"));
+        TS_ASSERT_THROWS_THIS(values_ik = mpTestReader->GetValues("I_K", 3), "Data file has no fixed dimension");
+        TS_ASSERT_THROWS_THIS(mpTestReader->GetValues("BadVar"), "Unknown variable");
 
         delete mpTestReader;
     }
@@ -265,7 +273,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"));
+        TS_ASSERT_THROWS_THIS(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"), "Variable name: Time already in use as unlimited dimension");
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
@@ -279,7 +287,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124));
 
         // Check that an incorrect var id causes an exception:
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(234, -33.124));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(234, -33.124), "variableID unknown");
 
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
@@ -298,13 +306,14 @@ public:
         TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node", "dimensionless"));
+        TS_ASSERT_THROWS_THIS(node_var_id = mpTestWriter->DefineVariable("Node", "dimensionless"),
+                "Variable name: Node already in use as fixed dimension");
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(short_id = mpTestWriter->DefineVariable("Short_column", "dimensionless"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(node_var_id, 0, -1));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(node_var_id, 0, -2));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(node_var_id, 0, -1), "Dimension position not supplied");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(node_var_id, 0, -2), "Dimension position out of range");
 
         for (unsigned i=0; i<4; i++)
         {
@@ -328,7 +337,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("", "testfixed"));
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader->GetValues("BadVar", 0));
+        TS_ASSERT_THROWS_THIS(mpTestReader->GetValues("BadVar", 0), "Unknown variable");
 
         for (int i=0; i<4; i++)
         {
@@ -350,10 +359,10 @@ public:
             }
         }
 
-        TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1));
+        TS_ASSERT_THROWS_THIS(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1), "Unknown variable");
 
         // Check that get unlimited dimension values throws
-        TS_ASSERT_THROWS_ANYTHING(std::vector<double> unlimited_values = mpTestReader->GetUnlimitedDimensionValues());
+        TS_ASSERT_THROWS_THIS(std::vector<double> unlimited_values = mpTestReader->GetUnlimitedDimensionValues(), "Data file has no unlimited dimension");
 
         delete mpTestReader;
     }
@@ -369,7 +378,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node", "dimensionless"));
+        TS_ASSERT_THROWS_THIS(node_var_id = mpTestWriter->DefineVariable("Node", "dimensionless"), "Variable name: Node already in use as fixed dimension");
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
@@ -379,7 +388,7 @@ public:
         mpTestWriter->PutVariable(ica_var_id, -33.124,3);
         mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3);
         mpTestWriter->AdvanceAlongUnlimitedDimension();
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(ica_var_id, -63.124,2));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(ica_var_id, -63.124,2), "Cannot advance along unlimited dimension if it is not defined");
 
         // Note: the above call to PutVariable will, in effect, execute AdvanceAlongUnlimitedDimension and
         //       therefore throw an exception, hence we have to repeat that call to PutVariable below
@@ -403,7 +412,7 @@ public:
         int ica_var_id = 0;
         TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
         TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"));
+        TS_ASSERT_THROWS_THIS(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"), "Variable name: Time already in use as unlimited dimension");
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
@@ -422,7 +431,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 63.124,2));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -35.124,3));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(time_var_id, 0.2,3));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(time_var_id, 0.2,3), "Dimension position supplied, but not required");
 
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
@@ -444,7 +453,7 @@ public:
         }
 
         // Check exception thrown if dimension is not given
-        TS_ASSERT_THROWS_ANYTHING(ica_values = mpTestReader->GetValues("I_Ca"));
+        TS_ASSERT_THROWS_THIS(ica_values = mpTestReader->GetValues("I_Ca"), "Data file has fixed dimension which must be specified");
 
         delete mpTestReader;
     }

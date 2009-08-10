@@ -114,14 +114,15 @@ public:
         CheckCellModelResults("N98RegResult");
         TS_ASSERT_DELTA( n98_ode_system.GetIIonic(), 0.2462, 1e-3);
 
-        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.SetState(ALL_VARS));
-        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.GetNumSlowValues());
-        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.IsFastOnly());
+        std::string error_should_be = "Non fast-slow cell model being used in a fast-slow problem.";
+        TS_ASSERT_THROWS_THIS(n98_ode_system.SetState(ALL_VARS), error_should_be);
+        TS_ASSERT_THROWS_THIS(n98_ode_system.GetNumSlowValues(), error_should_be);
+        TS_ASSERT_THROWS_THIS(n98_ode_system.IsFastOnly(), error_should_be);
         std::vector<double> slows;
         slows.push_back(100.0);
-        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.AdjustOutOfRangeSlowValues(slows));
-        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.GetSlowValues(slows));
-        TS_ASSERT_THROWS_ANYTHING(n98_ode_system.SetSlowValues(slows));
+        TS_ASSERT_THROWS_THIS(n98_ode_system.AdjustOutOfRangeSlowValues(slows), error_should_be);
+        TS_ASSERT_THROWS_THIS(n98_ode_system.GetSlowValues(slows), error_should_be);
+        TS_ASSERT_THROWS_THIS(n98_ode_system.SetSlowValues(slows), error_should_be);
 
      }
 
@@ -159,20 +160,23 @@ public:
         //Stress the lookup table with a silly voltage
         n98_ode_system.rGetStateVariables()[0] = 70.0;
         TS_ASSERT_EQUALS(n98_ode_system.GetVoltage(), 70.0);
-        TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
+        TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
+                err.GetShortMessage().find("V outside lookup table range",0), 0u);
         n98_ode_system.rGetStateVariables()[0] = 71.0;
-        TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
+        TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
+                err.GetShortMessage().find("V outside lookup table range",0), 0u);
         n98_ode_system.rGetStateVariables()[0] = 69.0;
         TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
         n98_ode_system.rGetStateVariables()[0] = -100.1;
-        TS_ASSERT_THROWS_ANYTHING( n98_ode_system.GetIIonic());
+        TS_ASSERT_THROWS_EQUALS( n98_ode_system.GetIIonic(), const Exception &err,
+                err.GetShortMessage().find("V outside lookup table range",0), 0u);
         n98_ode_system.rGetStateVariables()[0] = -100.0;
         TS_ASSERT_THROWS_NOTHING( n98_ode_system.GetIIonic());
 
         n98_ode_system.rGetStateVariables()[0] = -100.1;
-        TS_ASSERT_THROWS_ANYTHING(RunOdeSolverWithIonicModel(&n98_ode_system,
-                                                             150.0,
-                                                             "DoNotRun"));
+
+        TS_ASSERT_THROWS_EQUALS( RunOdeSolverWithIonicModel(&n98_ode_system, 150.0, "DoNotRun"),
+                const Exception &err, err.GetShortMessage().find("V outside lookup table range",0), 0u);
     }
 
 
@@ -227,7 +231,9 @@ public:
         FitzHughNagumo1961OdeSystem fhn61_ode_system(p_solver, p_stimulus);
 
         // fhn has no [Ca_i]
-        TS_ASSERT_THROWS_ANYTHING(fhn61_ode_system.GetIntracellularCalciumConcentration());
+        TS_ASSERT_THROWS_THIS(fhn61_ode_system.GetIntracellularCalciumConcentration(),
+                "AbstractCardiacCell::GetIntracellularCalciumConcentration() called. "
+                "Either model has no [Ca_i] or method has not been implemented yet");
 
         // Solve and write to file
         ck_start = clock();
@@ -272,7 +278,7 @@ public:
 
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        
+
         double end_time = 1000.0; //One second in milliseconds
 
         LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
@@ -306,9 +312,9 @@ public:
         double duration  = 2.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
-        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude, 
-                                                                          duration, 
-                                                                          period, 
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude,
+                                                                          duration,
+                                                                          period,
                                                                           start));
 
         double end_time = 1000.0; //One second in milliseconds
@@ -517,9 +523,9 @@ public:
         double duration  = 1.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
-        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude, 
-                                                                          duration, 
-                                                                          period, 
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude,
+                                                                          duration,
+                                                                          period,
                                                                           start));
 
         double end_time = 200.0;  // milliseconds
@@ -570,9 +576,9 @@ public:
     // we x-out the other tests in this file).
     void TestLr91WithVoltageDropVariousTimeStepRatios() //throw (Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(1))
-        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(2))
-        TS_ASSERT_THROWS_ANYTHING(TryTestLr91WithVoltageDrop(3))
+        TS_ASSERT_THROWS_THIS(TryTestLr91WithVoltageDrop(1), "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\nState:\n\th:0.986175\n\tj:0.988583\n\tm:-0.000153345\n\tCaI:0.000196549\n\tV:-88.5033\n\td:0.00298028\n\tf:0.994585\n\tx:0.164349\n");
+        TS_ASSERT_THROWS_THIS(TryTestLr91WithVoltageDrop(2), "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\nState:\n\th:0.996928\n\tj:0.991501\n\tm:1.13356\n\tCaI:0.000190974\n\tV:-94.6553\n\td:0.00240631\n\tf:0.994981\n\tx:0.161201\n");
+        TS_ASSERT_THROWS_THIS(TryTestLr91WithVoltageDrop(3), "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\nState:\n\th:0.999304\n\tj:0.994241\n\tm:-5.04719e-05\n\tCaI:0.000184873\n\tV:-99.5479\n\td:0.00187486\n\tf:0.995289\n\tx:0.15841\n");
         TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
     }
 
@@ -737,12 +743,12 @@ public:
         // (the code for the mahajan model was generated from a CellML code known to be valid)
         CheckCellModelResults("Mahajan2008");
     }
-    
-    /** 
+
+    /**
      *  Here we test the scale factors methiods for the mahajan model.
      *  The idea is to set the scale factors for the 3 different cell types (epi, mid and endo)
      *  and check that the rsulting APD makes sense if compared to experiemntal results
-     */ 
+     */
     void TestScaleFactorsForMahajanModel(void) throw(Exception)
     {
         double end_time=300;
@@ -932,7 +938,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             output_arch <<  p_luo_rudy_cell;
-            
+
             // These results are in the repository and should be replicated after the load below
 //            RunOdeSolverWithIonicModel(p_luo_rudy_cell,
 //                           50.0,
@@ -950,7 +956,7 @@ public:
 
             TS_ASSERT_EQUALS( p_luo_rudy_cell->GetNumberOfStateVariables(), 8U );
 
-            
+
             RunOdeSolverWithIonicModel(p_luo_rudy_cell,
                                        50.0,
                                        "LRAfterArchive");
@@ -960,14 +966,14 @@ public:
             delete p_luo_rudy_cell;
         }
      }
-     
+
     void TestBackwardCellsArchiving(void) throw(Exception)
     {
         //Archive
         OutputFileHandler handler("archive", false);
         handler.SetArchiveDirectory();
         std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("backward_cells.arch");
-        
+
         // Save
         {
             // Set stimulus
@@ -992,7 +998,7 @@ public:
             output_arch <<  p_backward_cell1;
             output_arch <<  p_backward_cell2;
             output_arch <<  p_backward_cell3;
-            
+
             // These results are in the repository and should be replicated after the load below
 //            RunOdeSolverWithIonicModel(p_backward_cell1,
 //                                       50.0,
@@ -1005,7 +1011,7 @@ public:
 //            RunOdeSolverWithIonicModel(p_backward_cell3,
 //                                       50.0,
 //                                       "Backward3AfterArchiveValidData");
-                                       
+
             delete p_backward_cell1;
             delete p_backward_cell2;
             delete p_backward_cell3;
@@ -1029,25 +1035,25 @@ public:
             RunOdeSolverWithIonicModel(p_backward_cell1,
                                        50.0,
                                        "Backward1AfterArchive");
-                                       
+
             RunOdeSolverWithIonicModel(p_backward_cell2,
                                        50.0,
                                        "Backward2AfterArchive");
-                                       
+
             RunOdeSolverWithIonicModel(p_backward_cell3,
                                        50.0,
-                                       "Backward3AfterArchive");                       
+                                       "Backward3AfterArchive");
 
             CheckCellModelResults("Backward1AfterArchive");
             CheckCellModelResults("Backward2AfterArchive");
             CheckCellModelResults("Backward3AfterArchive");
-            
+
             delete p_backward_cell1;
             delete p_backward_cell2;
             delete p_backward_cell3;
         }
      }
-     
+
     void TestPyCMLArchiving(void) throw(Exception)
     {
         //Archive
@@ -1076,12 +1082,12 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             output_arch <<  p_n98_cell;
-            
+
             // These results are in the repository and should be replicated after the load below
 //            RunOdeSolverWithIonicModel(p_n98_cell,
 //                                       50.0,
 //                                       "N98AfterArchiveValidData");
-                                       
+
             delete p_n98_cell;
         }
         // Load

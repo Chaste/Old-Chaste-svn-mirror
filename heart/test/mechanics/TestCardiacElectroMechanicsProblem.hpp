@@ -76,7 +76,7 @@ public:
         //                                           "");
         //pos(1) = 1.1;
         //problem2.SetWatchedPosition(pos);
-        //TS_ASSERT_THROWS_ANYTHING(problem2.Initialise());
+        //TS_ASSERT_THROWS_THIS(problem2.Initialise(), "");
         //// ... but the exception causes a segmentation fault and had to be replaced
         //// with an assert(0);
     }

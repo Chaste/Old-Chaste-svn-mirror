@@ -859,10 +859,13 @@ public:
 
         writer.PutVector(ina_id, petsc_data_short);
         //Try to write striped data in the wrong columns
-        TS_ASSERT_THROWS_ANYTHING(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long));
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long),
+                "Columns should be consecutive. Try reordering them.");
         //Try to write data of wrong size
-        TS_ASSERT_THROWS_ANYTHING(writer.PutVector(ina_id, petsc_data_long));
-        TS_ASSERT_THROWS_ANYTHING(writer.PutStripedVector(vm_id, ina_id, petsc_data_short));
+        TS_ASSERT_THROWS_THIS(writer.PutVector(ina_id, petsc_data_long),
+                "Vector size doesn\'t match fixed dimension");
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(vm_id, ina_id, petsc_data_short),
+                "Vector size doesn\'t match fixed dimension");
 
         writer.Close();
 
@@ -879,11 +882,15 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"),
+                "Unlimited dimension already set. Cannot be defined twice");
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "m secs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("", "msecs"));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "m secs"),
+                "Unlimited dimension already set. Cannot be defined twice");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("T,i,m,e", "msecs"),
+                "Unlimited dimension already set. Cannot be defined twice");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("", "msecs"),
+                "Unlimited dimension already set. Cannot be defined twice");
 
         std::vector<unsigned> node_numbers;
         node_numbers.push_back(21);
@@ -891,15 +898,15 @@ public:
         node_numbers.push_back(6);
 
         // Data not increasing
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(node_numbers, 100),"Input should be monotonic increasing");
         node_numbers[2]=100;
         // Data is increasing but the last number is too large
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(node_numbers, 100),"Vector size doesn\'t match nodes to output");
 
         mpTestWriter->DefineFixedDimension(5000);
         // Can't set fixed dimension more than once
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(5000),"Fixed dimension already set");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(node_numbers, 100),"Vector size doesn\'t match nodes to output");
 
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -910,13 +917,18 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineVariable("Dummy",""));
 
         // Defined twice
-        TS_ASSERT_THROWS_ANYTHING(ik2_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
+        TS_ASSERT_THROWS_THIS(ik2_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"),
+                "Variable name already exists");
 
         // Bad variable names/units
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milli amperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I   K", "milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I.K", "milliamperes"));
-        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("", "milliamperes"));
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("I_K", "milli amperes"),
+                "Variable name/units \'milli amperes\' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("I   K", "milliamperes"),
+                "Variable name/units \'I   K\' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("I.K", "milliamperes"),
+                "Variable name/units \'I.K\' not allowed: may only contain alphanumeric characters or \'_\'.");
+        TS_ASSERT_THROWS_THIS(ik_var_id = mpTestWriter->DefineVariable("", "milliamperes"),
+                "Variable name not allowed: may not be blank.");
 
         TS_ASSERT_EQUALS(ina_var_id, 0);
         TS_ASSERT_EQUALS(ik_var_id, 1);
@@ -932,19 +944,22 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new Hdf5DataWriter(vec_factory, "", "testdefine"));
 
         // Ending define mode without having defined at least a variable and a fixed dimension should raise an exception
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_THROWS_THIS(mpTestWriter->EndDefineMode(),"Cannot end define mode. No variables have been defined.");
 
         int ina_var_id = 0;
         int ik_var_id = 0;
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_THROWS_THIS(mpTestWriter->EndDefineMode(),
+                "Cannot end define mode. No variables have been defined.");
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
 
         //In Hdf5 a fixed dimension should be defined always
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
+        TS_ASSERT_THROWS_THIS(mpTestWriter->EndDefineMode(),
+                "Cannot end define mode. One fixed dimension should be defined.");
+
         std::vector<unsigned> node_numbers;
         node_numbers.push_back(21);
         node_numbers.push_back(47);
@@ -952,17 +967,22 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca", "milli amperes"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(5000));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineVariable("I_Ca", "milli amperes"),
+                "Cannot define variables when not in Define mode");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"),
+                "Unlimited dimension already set. Cannot be defined twice");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(5000),
+                "Cannot define variables when not in Define mode");
 
         // Can't call define fixed dimension again
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(node_numbers, 100));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(node_numbers, 100),
+                "Cannot define variables when not in Define mode");
 
         // Test that we can't write incomplete data from a vector that doesn't have the right entries (0 to 59)
         DistributedVectorFactory factory(60);
         Vec petsc_data_short=factory.CreateVec();
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVector(0, petsc_data_short));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutVector(0, petsc_data_short),
+                "Vector size doesn\'t match fixed dimension");
         VecDestroy(petsc_data_short);
 
         mpTestWriter->Close();
@@ -978,14 +998,15 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension(0));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(0),"Fixed dimension must be at least 1 long");
         mpTestWriter->DefineFixedDimension(5000);
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"),
+                "Cannot define variables when not in Define mode");
         mpTestWriter->Close();
         delete mpTestWriter;
     }
@@ -1003,8 +1024,10 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutUnlimitedVariable(0.0));
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
+        TS_ASSERT_THROWS_THIS(mpTestWriter->PutUnlimitedVariable(0.0),
+                "PutUnlimitedVariable() called but no unlimited dimension has been set");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->AdvanceAlongUnlimitedDimension(),
+                "Trying to advance along an unlimited dimension without having defined any");
 
         mpTestWriter->Close();
         delete mpTestWriter;
@@ -1062,11 +1085,16 @@ public:
         }
         distributed_vector_long.Restore();
 
-        TS_ASSERT_THROWS_ANYTHING(writer.PutVector(node_id, node_number));
-        TS_ASSERT_THROWS_ANYTHING(writer.PutVector(ina_id, petsc_data_short));
-        TS_ASSERT_THROWS_ANYTHING(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long));
-        TS_ASSERT_THROWS_ANYTHING(writer.PutUnlimitedVariable(0.0));
-        TS_ASSERT_THROWS_ANYTHING(writer.AdvanceAlongUnlimitedDimension());
+        TS_ASSERT_THROWS_THIS(writer.PutVector(node_id, node_number),
+                "Cannot write data while in define mode.");
+        TS_ASSERT_THROWS_THIS(writer.PutVector(ina_id, petsc_data_short),
+                "Cannot write data while in define mode.");
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long),
+                "Cannot write data while in define mode.");
+        TS_ASSERT_THROWS_THIS(writer.PutUnlimitedVariable(0.0),
+                "Cannot write data while in define mode.");
+        TS_ASSERT_THROWS_THIS(writer.AdvanceAlongUnlimitedDimension(),
+                "Trying to advance along an unlimited dimension without having defined any");
 
         writer.Close();
         VecDestroy(petsc_data_short);

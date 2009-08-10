@@ -67,7 +67,8 @@ public:
         VecSetValue(initial_guess, 1, -1e8, INSERT_VALUES);
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
-        TS_ASSERT_THROWS_ANYTHING(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, NULL));
+        TS_ASSERT_THROWS_THIS(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, NULL),
+                "Iteration 27, unable to find damping factor such that residual decreases in update direction");
         VecDestroy(initial_guess);
     }
 

@@ -82,19 +82,20 @@ public:
         c_vector<double, 3> constant_conductivities_3d(Create_c_vector(2.1, 0.8, 0.0));
 
         OrthotropicConductivityTensors<1> ortho_1d_tensors;
-        TS_ASSERT_THROWS_ANYTHING(ortho_1d_tensors.SetConstantConductivities(constant_conductivities_2d));
-        TS_ASSERT_THROWS_ANYTHING(ortho_1d_tensors.SetConstantConductivities(constant_conductivities_3d));
+        TS_ASSERT_THROWS_THIS(ortho_1d_tensors.SetConstantConductivities(constant_conductivities_2d),"Wrong number of conductivities provided");
+        TS_ASSERT_THROWS_THIS(ortho_1d_tensors.SetConstantConductivities(constant_conductivities_3d),"Wrong number of conductivities provided");
 
         OrthotropicConductivityTensors<3> ortho_3d_tensors;
-        TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities_1d));
-        TS_ASSERT_THROWS_ANYTHING(ortho_3d_tensors.SetConstantConductivities(constant_conductivities_2d));
+        TS_ASSERT_THROWS_THIS(ortho_3d_tensors.SetConstantConductivities(constant_conductivities_1d),"Wrong number of conductivities provided");
+        TS_ASSERT_THROWS_THIS(ortho_3d_tensors.SetConstantConductivities(constant_conductivities_2d),"Wrong number of conductivities provided");
 
         // AxisymmetricConductivityTensors only makes sense in 3D problems
-        TS_ASSERT_THROWS_ANYTHING(AxisymmetricConductivityTensors<2> axi_tensor);
+        TS_ASSERT_THROWS_THIS(AxisymmetricConductivityTensors<2> axi_tensor,"Axisymmetric anisotropic conductivity only makes sense in 3D");
 
         // Transversal and longitudinal conductivities should have the same value
         AxisymmetricConductivityTensors<3> axi_3d_tensor;
-        TS_ASSERT_THROWS_ANYTHING( axi_3d_tensor.SetConstantConductivities(Create_c_vector(0.5,0.25,0.15)) );
+        TS_ASSERT_THROWS_THIS( axi_3d_tensor.SetConstantConductivities(Create_c_vector(0.5,0.25,0.15)),
+                "Axisymmetric media defined: transversal and normal conductivities should have the same value" );
 
     }
 
@@ -104,28 +105,35 @@ public:
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
             ortho_tensors.SetFibreOrientationFile("non_existing_file.fibres");
-            TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // non existing file
+            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
+                    "Wrong fibre orientation file name non_existing_file.fibres"); // non existing file
         }
 
         {
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
             ortho_tensors.SetFibreOrientationFile ("heart/test/data/SimpleOrthotropic2D.fibres");
-            TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // mismatching SPACE_DIM and # vectors in file
+            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
+                    "Orthotropic media defined. Number of vectors in fibre orientation file and "
+                    "size of them should match SPACE_DIM"); // mismatching SPACE_DIM and # vectors in file
         }
 
         {
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
             ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic2DWrongFormat.fibres");
-            TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // wrong file format
+            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
+                    "First (non comment) line of the fibre orientation file should contain the number "
+                    "of elements of the mesh (and nothing else)"); // wrong file format
         }
 
         {
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
             ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3DShortFile.fibres");
-            TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init()); // short file
+            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
+                    "Fibre orientation file contains less fibre definitions than the "
+                    "number of elements in the mesh"); // short file
         }
     }
 
@@ -188,7 +196,7 @@ public:
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities(constant_conductivities);
         ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibre");
-        TS_ASSERT_THROWS_ANYTHING(ortho_tensors.Init());
+        TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),"Wrong fibre orientation file name heart/test/data/SimpleAxisymmetric.fibre");
 
         AxisymmetricConductivityTensors<3> axi_tensors;
         axi_tensors.SetConstantConductivities(constant_conductivities);
@@ -325,7 +333,7 @@ public:
         axi_tensors.SetNonConstantConductivities(&non_constant_conductivities);
 
         axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");
-        TS_ASSERT_THROWS_ANYTHING(axi_tensors.Init());
+        TS_ASSERT_THROWS_THIS(axi_tensors.Init(),"Axisymmetric media defined. Fibre orientation file should contain 3 values per element");
 
         axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibres");
         axi_tensors.Init();

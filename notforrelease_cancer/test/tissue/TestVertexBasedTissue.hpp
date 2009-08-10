@@ -127,7 +127,8 @@ public:
 
         // This should throw an exception as the number of cells
         // does not equal the number of elements
-        TS_ASSERT_THROWS_ANYTHING(VertexBasedTissue<2> tissue(mesh, cells));
+        TS_ASSERT_THROWS_THIS(VertexBasedTissue<2> tissue(mesh, cells),
+                "Element 8 does not appear to have a cell associated with it");
 
         TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         double birth_time = 0.0 - mesh.GetNumElements()-1;

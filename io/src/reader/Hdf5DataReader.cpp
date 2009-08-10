@@ -203,12 +203,16 @@ std::vector<double> Hdf5DataReader::GetVariableOverTime(const std::string& rVari
         }
         if ( node_index == mIncompleteNodeIndices.size())
         {
-            EXCEPTION("The incomplete file does not contain info of node " + nodeIndex);
+            std::stringstream ss;
+            ss << "The incomplete file does not contain info of node " << nodeIndex ;
+            EXCEPTION(ss.str());
         }
     }
     if (actual_node_index >= mVariablesDatasetSizes[1])
     {
-        EXCEPTION("The file doesn't contain info of node " + nodeIndex);
+        std::stringstream ss;
+        ss << "The file doesn't contain info of node " << actual_node_index ;
+        EXCEPTION(ss.str());
     }
 
     std::map<std::string, unsigned>::iterator col_iter = mVariableToColumnIndex.find(rVariableName);
@@ -262,7 +266,9 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data,
     // Check for valid timestep
     if (timestep >= mNumberTimesteps)
     {
-        EXCEPTION("The file does not contain data for timestep number" + timestep);
+        std::stringstream ss;
+        ss << "The file does not contain data for timestep number " << timestep;
+        EXCEPTION(ss.str());
     }
 
     ///\todo Use DistributedVector?

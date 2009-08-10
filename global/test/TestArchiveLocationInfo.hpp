@@ -39,12 +39,12 @@ public:
     void TestMethods() throw(Exception)
     {
         // These throw because we are getting things before they are set.
-        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveDirectory());
+        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetArchiveDirectory(),"ArchiveLocationInfo::mDirPath has not been set");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(),"mesh"); //default value
 
         // To test exceptions (default value is now "mesh".)
         ArchiveLocationInfo::SetMeshFilename("");
-        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetMeshFilename());
+        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetMeshFilename(),"ArchiveLocationInfo::mMeshFilename has not been set");
 
         ArchiveLocationInfo::SetMeshPathname("archive_dir", "mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "archive_dir/");
@@ -56,7 +56,7 @@ public:
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "new_mesh_name");
 
         // This throws because the full path isn't relative to test output
-        TS_ASSERT_THROWS_ANYTHING(ArchiveLocationInfo::GetArchiveRelativePath());
+        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetArchiveRelativePath(),"Full path doesn\'t give a directory relative to CHASTE_TEST_OUTPUT");
         ArchiveLocationInfo::SetArchiveDirectory(OutputFileHandler::GetChasteTestOutputDirectory() + "relative_archive_dir");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveRelativePath(), "relative_archive_dir/");
     }

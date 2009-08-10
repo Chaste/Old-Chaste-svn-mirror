@@ -236,8 +236,8 @@ public :
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMeshProvided(), false);
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetLoadMesh())
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetCreateMesh())
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetLoadMesh(),"No Mesh provided (neither default nor user defined)");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateMesh(), "No Mesh provided (neither default nor user defined)");
 
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMeshProvided(), true);
@@ -277,9 +277,11 @@ public :
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
 
         c_vector<double, 3> slab_dimensions;
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions),
+                "Tissue slabs can only be defined in 3D");
         c_vector<double, 1> fibre_length;
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetFibreLength(fibre_length));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetFibreLength(fibre_length),
+                "Tissue fibres can only be defined in 1D");
 
         c_vector<double, 2> sheet_dimensions;
         HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
@@ -302,9 +304,11 @@ public :
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
 
         c_vector<double, 3> slab_dimensions;
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSlabDimensions(slab_dimensions),
+                "Tissue slabs can only be defined in 3D");
         c_vector<double, 2> sheet_dimensions;
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions),
+                "Tissue sheets can only be defined in 2D");
 
         c_vector<double, 1> fibre_length;
         HeartConfig::Instance()->GetFibreLength(fibre_length);
@@ -340,7 +344,7 @@ public :
         HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::DifrancescoNoble);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::DifrancescoNoble);
 
-        TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
+        TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
         std::vector< c_vector<double,3> > cornerA;
         std::vector< c_vector<double,3> > cornerB;
@@ -359,7 +363,7 @@ public :
 
         HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);
 
-        TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided())
+        TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
         std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
@@ -368,16 +372,16 @@ public :
                                                                 intra_h_conductivities,
                                                                 extra_h_conductivities);
 
-        TS_ASSERT(conductivities_heterogeneity_areas.size() == 2)
-        TS_ASSERT(intra_h_conductivities.size() == 2)
-        TS_ASSERT(extra_h_conductivities.size() == 2)
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas.size(), 2u);
+        TS_ASSERT_EQUALS(intra_h_conductivities.size(), 2u);
+        TS_ASSERT_EQUALS(extra_h_conductivities.size(), 2u);
 
-        TS_ASSERT(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(0.0, 0.0, 0.0)));
-        TS_ASSERT(!conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)));
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(0.0, 0.0, 0.0)), true);
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), false);
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.5);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.5);
 
-        TS_ASSERT(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)));
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
@@ -442,19 +446,19 @@ public :
         // Test code to check consistency among TimeSteps
         // throws because argument is negative
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.1,0.1);
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdeTimeStep(0.2));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdeTimeStep(0.2), "Ode time-step should not be greater than pde time-step");
 
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(-0.1, 0.1, 0.1));
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1, -0.1, 0.1));
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1, 0.1, -0.1));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(-0.1, 0.1, 0.1), "Ode time-step should be positive");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1, -0.1, 0.1), "Pde time-step should be positive");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1, 0.1, -0.1), "Printing time-step should be positive");
 
         //Throws when we try to print more often than the pde time step
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.1));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.1), "Printing time-step should not be smaller than PDE time step");
          //Throws when printing step is not a multiple of pde time step
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3), "Printing time-step should be a multiple of PDE time step");
 
         // Throws because ode time step is bigger than pde time step
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3), "Printing time-step should be a multiple of PDE time step");
 
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
@@ -467,8 +471,8 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-11);
         //Check that relative tolerance is disabled
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance() == false);
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetRelativeTolerance());
-
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetRelativeTolerance(),
+                "Relative tolerance is not set in Chaste parameters");
 
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
@@ -476,7 +480,8 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-4);
         //Check that absolute tolerance is disabled
         TS_ASSERT(HeartConfig::Instance()->GetUseAbsoluteTolerance() == false);
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->GetAbsoluteTolerance());
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetAbsoluteTolerance(),
+                "Absolute tolerance is not set in Chaste parameters");
 
         HeartConfig::Instance()->SetKSPSolver("cg");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "cg")==0);
@@ -487,7 +492,7 @@ public :
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "symmlq")==0);
 
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPSolver("foobar"));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetKSPSolver("foobar"),"Unknown solver type provided");
 
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "jacobi")==0);
@@ -507,7 +512,8 @@ public :
         HeartConfig::Instance()->SetKSPPreconditioner("none");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);
 
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetKSPPreconditioner("foobar"));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetKSPPreconditioner("foobar"),
+                "Unknown preconditioner type provided");
 
         // Tests for set functions of postprocessing
 
@@ -609,15 +615,18 @@ public :
     void TestExceptions() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"),
+                "XML parsing error in configuration file: DoesNotExist.xml");
         HeartConfig::Instance()->Reset();
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteInconsistent.xml"));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteInconsistent.xml"),
+                "Ode time-step should not be greater than pde time-step");
         HeartConfig::Instance()->Reset();
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"),
+                "Ode time-step should not be greater than pde time-step");
 
         //Can't open a directory/file for writing
         HeartConfig::Instance()->SetOutputDirectory("../../../");
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->Write());
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(), "Could not open XML file in HeartConfig");
     }
 
     /**
@@ -628,7 +637,8 @@ public :
         // Broken schema should throw
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
-        TS_ASSERT_THROWS_ANYTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"));
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"),
+                "XML parsing error in configuration file: heart/test/data/xml/BrokenSchema.xml");
 
         // Check that release 1 xml can be loaded with latest schema
         HeartConfig::Instance()->Reset();

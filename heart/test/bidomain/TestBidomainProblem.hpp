@@ -94,7 +94,7 @@ public:
         // check throws if the fixed node num isn't valid
         pinned_nodes.push_back(1000);
         bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
-        TS_ASSERT_THROWS_ANYTHING( bidomain_problem.Solve() );
+        TS_ASSERT_THROWS_THIS( bidomain_problem.Solve(), "Fixed node number must be less than total number nodes" );
 
         // Pin extracellular potential of node 100 to 0
         pinned_nodes.clear();
@@ -286,7 +286,8 @@ public:
                             p_container,
                             2);
 
-        TS_ASSERT_THROWS_ANYTHING(p_bidomain_assembler->SetRowForAverageOfPhiZeroed(0));
+        TS_ASSERT_THROWS_THIS(p_bidomain_assembler->SetRowForAverageOfPhiZeroed(0),
+                "Row for applying the constraint \'Average of phi_e = zero\' should be odd in C++ like indexing");
 
         delete p_container;
         delete p_bidomain_assembler;
@@ -438,7 +439,8 @@ public:
         TS_ASSERT_EQUALS( node_10.size(), 4U);
 
         //Can't read back this node as it wasn't written
-        TS_ASSERT_THROWS_ANYTHING( data_reader1.GetVariableOverTime("V", 1));
+        TS_ASSERT_THROWS_THIS( data_reader1.GetVariableOverTime("V", 1),
+                "The incomplete file does not contain info of node 1");
 
         delete p_bidomain_problem;
 
@@ -484,8 +486,17 @@ public:
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         // Throws as sodium out goes of range
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-        
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "m gate for fast sodium current has gone out of range. "
+                "Check model parameters, for example spatial stepsize\n"
+                "State:\n"
+                "\th:0.448164\n"
+                "\tj:0.957694\n"
+                "\tm:1\n"
+                "\tCaI:0.00019891\n"
+                "\tV:280.837\n"
+                "\td:0.00561409\n"
+                "\tf:0.994221\n"
+                "\tx:0.217138\n");
 
         //Test for regular output
         Hdf5DataReader data_reader=bidomain_problem.GetDataReader();
@@ -524,16 +535,18 @@ public:
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
         // Throws because we've not called initialise
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "Pde is null, Initialise() probably hasn\'t been called");
 
         // Throws because mesh filename is unset
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Initialise(),
+                "No mesh given: define it in XML parameters file or call SetMesh()\n"
+                "No Mesh provided (neither default nor user defined)");
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
 
         // Negative simulation duration
         HeartConfig::Instance()->SetSimulationDuration(-1.0);  //ms
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "End time should be greater than 0");
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler
@@ -542,13 +555,13 @@ public:
 
         // Exception caused by relative tolerance and no clamping
         HeartConfig::Instance()->SetUseRelativeTolerance(2e-3);
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "Bidomain external voltage is not bounded in this simulation - use KSP *absolute* tolerance");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-3);
 
         // Throws (in AbstractCardiacProblem) as dt does not divide end time
         HeartConfig::Instance()->SetPrintingTimeStep(0.15);
         HeartConfig::Instance()->SetPdeTimeStep(0.15);
-        TS_ASSERT_THROWS_ANYTHING( bidomain_problem.Solve() );
+        TS_ASSERT_THROWS_THIS( bidomain_problem.Solve(),"Pde timestep does not seem to divide end time - check parameters" );
         HeartConfig::Instance()->SetPdeTimeStep(0.01);
         HeartConfig::Instance()->SetPrintingTimeStep(0.01);
 
@@ -556,7 +569,7 @@ public:
         std::vector<unsigned> too_large;
         too_large.push_back(4358743);
         bidomain_problem.SetFixedExtracellularPotentialNodes(too_large);
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "Fixed node number must be less than total number nodes");
 
         //Explicitly reset the counters so the next test in the test suite doesn't find on
         HeartEventHandler::Reset();

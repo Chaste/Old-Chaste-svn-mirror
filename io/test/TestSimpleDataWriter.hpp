@@ -41,7 +41,8 @@ public:
         std::vector<std::vector<double> > empty_data;
 
         // No data
-        TS_ASSERT_THROWS_ANYTHING(SimpleDataWriter bad_writer("SimpleDataWriter", "bad1", empty_data));
+        TS_ASSERT_THROWS_THIS(SimpleDataWriter bad_writer("SimpleDataWriter", "bad1", empty_data),
+                "Data vector is empty");
 
         std::vector<double> t;
         std::vector<double> x;
@@ -51,7 +52,8 @@ public:
         x.push_back(0.2);
 
         // t and x have different sizes
-        TS_ASSERT_THROWS_ANYTHING(SimpleDataWriter bad_writer("SimpleDataWriter", "bad2", t,x));
+        TS_ASSERT_THROWS_THIS(SimpleDataWriter bad_writer("SimpleDataWriter", "bad2", t,x),
+                "Data vector sizes are not all equal");
     }
 
 

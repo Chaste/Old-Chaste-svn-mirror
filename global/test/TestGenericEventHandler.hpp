@@ -54,16 +54,16 @@ class TestGenericEventHandler : public CxxTest::TestSuite
 public:
 
     void TestEvents() throw(Exception)
-    {  
+    {
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         //The first BeginEvent implicitly calls:
         //AnEventHandler::BeginEvent(AnEventHandler::TEST3);
-        
+
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         MPISLEEP(0.01);
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
 
-       
+
         MPISLEEP(0.01);
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
 
@@ -74,13 +74,14 @@ public:
         AnEventHandler::Report();
 
         //No longer allowed to report twice
-        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::Report());
+        TS_ASSERT_THROWS_THIS(AnEventHandler::Report(),"Asked to report on an event handler which is set to zero.");
     }
 
     void TestEventExceptions() throw(Exception)
     {
         // should not be able to end an event that has not yet begun
-        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::EndEvent(AnEventHandler::TEST1));
+        TS_ASSERT_THROWS_THIS(AnEventHandler::EndEvent(AnEventHandler::TEST1),
+                "Error: The event associated with the counter for \'Test1\' had not begun when EndEvent was called.");
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
 
@@ -89,7 +90,8 @@ public:
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         TS_ASSERT(!AnEventHandler::IsEnabled());
         // Report should then throw
-        TS_ASSERT_THROWS_ANYTHING(AnEventHandler::Report());
+        TS_ASSERT_THROWS_THIS(AnEventHandler::Report(),
+                "Asked to report on a disabled event handler.  Check for contributory errors above.");
     }
 
     void TestReset()
@@ -130,7 +132,7 @@ public:
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
         AnEventHandler::EndEvent(AnEventHandler::TEST1);
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
-        
+
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
         MPISLEEP(0.01);//Seconds
         dummy=0;//Separate the sleep from the end of the event
@@ -138,9 +140,9 @@ public:
         //Test in milliseconds (at least 10 and not too much)
         TS_ASSERT_LESS_THAN_EQUALS(10.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST2));
         TS_ASSERT_LESS_THAN_EQUALS(AnEventHandler::GetElapsedTime(AnEventHandler::TEST2), 35.0);
-                   
+
     }
-    
+
     void TestSilentlyCloseEvent()
     {
         AnEventHandler::Headings();
@@ -148,10 +150,10 @@ public:
         AnEventHandler::Enable();
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
         MPISLEEP(0.01);
-        
+
         AnEventHandler::Report();
     }
-    
+
     void TestReportPrecision()
     {
         AnEventHandler::Headings();
@@ -161,12 +163,12 @@ public:
         AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e3; // fake short run time
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
         AnEventHandler::Report();
-        
+
         AnEventHandler::BeginEvent(AnEventHandler::TEST3);
         AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e5; // fake longer run time
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
         AnEventHandler::Report();
-        
+
         AnEventHandler::BeginEvent(AnEventHandler::TEST3);
         AnEventHandler::mCpuTime[AnEventHandler::TEST3] += CLOCKS_PER_SEC * 1e7; // fake long run time
         AnEventHandler::EndEvent(AnEventHandler::TEST3);

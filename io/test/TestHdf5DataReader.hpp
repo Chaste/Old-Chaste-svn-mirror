@@ -411,10 +411,12 @@ public:
         TS_ASSERT_EQUALS(times.size(),1U);
         TS_ASSERT_EQUALS(times[0],0.0);
 
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 99/*node*/));
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverTime("Node", 99/*node*/),
+                "The file does not contain time dependent data");
 
         Vec data = factory.CreateVec();
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/),
+                "The file does not contain time dependent data");
 
         VecDestroy(data);
         reader.Close();
@@ -438,22 +440,27 @@ public:
         writer.AdvanceAlongUnlimitedDimension();
 
         writer.Close();
-
-        TS_ASSERT_THROWS_ANYTHING(Hdf5DataReader reader2("hdf5_reader", "hdf5_wrong_name"));
+        std::string exception_should_be = "Hdf5DataReader could not open " + std::string(getenv("CHASTE_TEST_OUTPUT")) + "/hdf5_reader/hdf5_wrong_name.h5";
+        TS_ASSERT_THROWS_THIS(Hdf5DataReader reader2("hdf5_reader", "hdf5_wrong_name"),exception_should_be);
         Hdf5DataReader reader("hdf5_reader", "hdf5_test_overtime_exceptions");
 
         TS_ASSERT_THROWS_NOTHING(reader.GetVariableOverTime("Node", 99/*node*/));
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("WrongName", 99/*node*/));
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 100/*node*/));
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverTime("WrongName", 99/*node*/),
+                "The file doesn\'t contain data for variable WrongName");
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverTime("Node", 100/*node*/),
+                "The file doesn\'t contain info of node 100");
 
         Vec data = factory.CreateVec();
         reader.GetVariableOverNodes(data, "Node", 0/*timestep*/);
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "WrongName")); //Wrong name
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/)); //Time step doesn't exist
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverNodes(data, "WrongName"),
+                "The file does not contain data for variable WrongName"); //Wrong name
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverNodes(data, "I_K", 1/*timestep*/),
+                "The file does not contain data for timestep number 1"); //Time step doesn't exist
 
         DistributedVectorFactory factory2(NUMBER_NODES+1);
         Vec data_too_big = factory2.CreateVec();
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data_too_big, "Node", 0/*timestep*/)); //Data too big
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverNodes(data_too_big, "Node", 0/*timestep*/),
+                "Could not read data because Vec is the wrong size"); //Data too big
 
         VecDestroy(data);
         VecDestroy(data_too_big);
@@ -478,7 +485,8 @@ public:
 
         // Can't read into a PETSc Vec
         Vec data = factory.CreateVec();
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/));
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverNodes(data, "Node", 1/*timestep*/),
+                "You can only get a vector for complete data");
         VecDestroy(data);
 
         // Can read one of the nodes that was written
@@ -497,7 +505,7 @@ public:
         }
 
         // Data not included
-        TS_ASSERT_THROWS_ANYTHING(reader.GetVariableOverTime("Node", 22));
+        TS_ASSERT_THROWS_THIS(reader.GetVariableOverTime("Node", 22),"The incomplete file does not contain info of node 22");
     }
 };
 

@@ -49,7 +49,8 @@ public:
     {
         // Check throws an exception if no data given
         std::vector<double> empty;
-        TS_ASSERT_THROWS_ANYTHING(CellProperties cell_props(empty, empty));
+        TS_ASSERT_THROWS_THIS(CellProperties cell_props(empty, empty),
+                "Insufficient time steps to calculate physiological properties.");
 
         //Creating an artificial flat potential profile
         std::vector<double> times;
@@ -62,12 +63,12 @@ public:
         CellProperties  cell_properties(flat_v, times);
 
         //Should throw exceptions because the cached vector of onset times (mOnsets) is empty
-        TS_ASSERT_THROWS_ANYTHING(cell_properties.GetLastActionPotentialDuration(90));
-        TS_ASSERT_THROWS_ANYTHING(cell_properties.GetAllActionPotentialDurations(90)[0]);
+        TS_ASSERT_THROWS_THIS(cell_properties.GetLastActionPotentialDuration(90), "No upstroke occurred");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetAllActionPotentialDurations(90)[0], "No upstroke occurred");
 
         //Should throw exceptions because upstroke was never crossed
-        TS_ASSERT_THROWS_ANYTHING(cell_properties.GetTimeAtLastMaxUpstrokeVelocity());
-        TS_ASSERT_THROWS_ANYTHING(cell_properties.GetLastMaxUpstrokeVelocity());
+        TS_ASSERT_THROWS_THIS(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), "Upstroke never occurred");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetLastMaxUpstrokeVelocity(), "Upstroke never occurred");
 
         //Now make it cross the threshold so the onset vector isn't empty any longer
         times.push_back(100);
@@ -76,7 +77,7 @@ public:
         CellProperties  new_cell_properties(flat_v, times);
 
         //Now this should throw an exception because the vectors of APs is empty...
-        TS_ASSERT_THROWS_ANYTHING(new_cell_properties.GetLastActionPotentialDuration(90));
+        TS_ASSERT_THROWS_THIS(new_cell_properties.GetLastActionPotentialDuration(90), "No full action potential was recorded");
 
         //...but we can calculate peak properties for the last AP (though incomplete)
         TS_ASSERT_EQUALS(new_cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 100);

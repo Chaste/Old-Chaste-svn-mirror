@@ -125,7 +125,8 @@ public:
         LogFile *p_log_file = LogFile::Instance();
 
         // bad level
-        TS_ASSERT_THROWS_ANYTHING(p_log_file->Set( LogFile::MaxLoggingLevel()+1, "TestLogFile") );
+        TS_ASSERT_THROWS_THIS(p_log_file->Set( LogFile::MaxLoggingLevel()+1, "TestLogFile"),
+                "Requested level 3 should have been less than or equal to 2");
 
         p_log_file->Set(1, "TestLogFile", "log4.txt");
 

@@ -171,7 +171,7 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
 
     }
-    
+
     // Same as TestMonodomainProblem1D, except the 1D mesh is embedded in 3D space.
     void TestMonodomainProblem1Din3D() throw(Exception)
     {
@@ -294,7 +294,7 @@ public:
         for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=r_mesh.GetNodeIteratorBegin();
              iter != r_mesh.GetNodeIteratorEnd();
              ++iter)
-        {       
+        {
             unsigned i=(*iter).GetIndex();
             if ((*iter).GetPoint()[0] == 0.1)
             {
@@ -562,7 +562,7 @@ public:
 
         // Checking that the following files don't exist in the output directory before calling Solve()
         unsigned num_files=5;
-        std::string test_file_names[5]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat", 
+        std::string test_file_names[5]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat",
               "ChasteParameters.xml", "ChasteDefaults.xml"};
         for (unsigned i=0; i<num_files; i++)
         {
@@ -583,15 +583,15 @@ public:
         {
             if(test_file_names[i] == "monodomain2d_V.dat")
             {
-                /* 
+                /*
                  * Since we started using bjacobi as the default preconditioner, parallel and sequential tests
                  * may return different results (always accurate to the tolerance requested). "diff" is unable
                  * to take this consideration into account.
-                 * 
-                 * We will test that the file exists though.                 
+                 *
+                 * We will test that the file exists though.
                  */
                 std::ifstream vm_file;
-                std::string command = handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i]; 
+                std::string command = handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
                 vm_file.open(command.c_str());
                 TS_ASSERT(vm_file.is_open());
                 vm_file.close();
@@ -697,13 +697,15 @@ public:
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         // Throws because we've not called initialise
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"Pde is null, Initialise() probably hasn\'t been called");
 
         // Throws because mesh filename is unset
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Initialise(),
+                "No mesh given: define it in XML parameters file or call SetMesh()\n"
+                "No Mesh provided (neither default nor user defined)");
 
         // Throws because initialise hasn't been called
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"Pde is null, Initialise() probably hasn\'t been called");
 
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("");
@@ -712,15 +714,17 @@ public:
         monodomain_problem.Initialise();
 
         //Throws because the HDF5 slab isn't on the disk
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetDataReader());
+        TS_ASSERT_THROWS_THIS(monodomain_problem.GetDataReader(),"Data reader invalid as data writer cannot be initialised");
 
         // throw because end time is negative
         HeartConfig::Instance()->SetSimulationDuration(-1.0); //ms
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"End time should be greater than 0");
         HeartConfig::Instance()->SetSimulationDuration( 1.0); //ms
 
         // throws because output dir and filename are both ""
-        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),
+                "Either explicitly specify not to print output (call PrintOutput(false)) or "
+                "specify the output directory and filename prefix");
     }
 };
 

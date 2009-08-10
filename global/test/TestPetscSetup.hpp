@@ -54,6 +54,8 @@ public:
 
     void TestPetscExceptions()
     {
+        // Note we could test with TS_ASSERT_THROWS_THIS() but PetscException includes line numbers so it isn't very robust.
+
         int err = 0;
         TS_ASSERT_THROWS_NOTHING(PETSCEXCEPT(err));
 
@@ -61,19 +63,19 @@ public:
         err = VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v);
         VecDestroy(v);
         //#define PETSC_ERR_ARG_WRONGSTATE   73   /* object in argument is in wrong */
-        TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
+        TS_ASSERT_THROWS(PETSCEXCEPT(err), Exception);
 
         err=PETSC_ERR_FILE_OPEN;
         //#define PETSC_ERR_FILE_OPEN        65   /* unable to open file */
-        TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
+        TS_ASSERT_THROWS(PETSCEXCEPT(err), Exception);
 
         //See if we can do it without a temporary
-        TS_ASSERT_THROWS_ANYTHING(
-            PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v)));
+        TS_ASSERT_THROWS(
+            PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v)), Exception);
         VecDestroy(v);
 
         //This test give back an "unknown error" message
-        TS_ASSERT_THROWS_ANYTHING( PETSCEXCEPT(-3));
+        TS_ASSERT_THROWS( PETSCEXCEPT(-3), Exception);
     }
 
 
@@ -83,15 +85,15 @@ public:
         //These next few lines are designed to force the coverage test to pass.
         //Some are hard to throw in normal circumstances --
         //"Unknown KSP error code" ought never to be thrown.
-        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_ITS) );
-        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_DTOL) );
-        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_BREAKDOWN) );
-        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_BREAKDOWN_BICG) );
-        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_NONSYMMETRIC) );
-        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_INDEFINITE_PC) );
-        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(-735827) );
+        TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_ITS), Exception );
+        TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_DTOL), Exception );
+        TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_BREAKDOWN), Exception );
+        TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_BREAKDOWN_BICG), Exception );
+        TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_NONSYMMETRIC), Exception );
+        TS_ASSERT_THROWS( KSPEXCEPT(KSP_DIVERGED_INDEFINITE_PC), Exception );
+        TS_ASSERT_THROWS( KSPEXCEPT(-735827), Exception );
     }
-    
+
     void TestDivideOneByZero() throw(Exception)
     {
         double one = 1.0;
@@ -108,7 +110,7 @@ public:
         TS_ASSERT_EQUALS(ans, negative_infinity);
 #endif
     }
-    
+
     void TestDivideZeroByZero() throw(Exception)
     {
         double zero = 0.0;

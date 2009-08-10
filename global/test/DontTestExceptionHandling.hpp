@@ -70,7 +70,7 @@ public:
 
     void TestCatchingExceptionWithCxxtest()
     {
-        TS_ASSERT_THROWS_ANYTHING(EXCEPTION("Will cxxtest be nice I wonder?"));
+        TS_ASSERT_THROWS_THIS(EXCEPTION("Will cxxtest be nice I wonder?"),"Will cxxtest be nice I wonder?");
         TS_ASSERT_THROWS_NOTHING(EXCEPTION("Will cxxtest be nice I wonder?"));
     }
 };

@@ -169,7 +169,7 @@ boost::shared_ptr<chaste_parameters_type> HeartConfig::ReadFile(const std::strin
         std::string chaste_root = GetChasteRoot();
         p.no_namespace_schema_location(chaste_root + "/heart/src/io/ChasteParameters.xsd");
     }
-    
+
     // get the parameters using the method 'ChasteParameters(rFileName)',
     // which returns a std::auto_ptr. We convert to a shared_ptr for easier semantics.
     try
@@ -190,7 +190,7 @@ boost::shared_ptr<chaste_parameters_type> HeartConfig::ReadFile(const std::strin
 void HeartConfig::SetParametersFile(const std::string& rFileName)
 {
     mpUserParameters = ReadFile(rFileName);
-    
+
     CheckTimeSteps(); // For consistency with SetDefaultsFile
 }
 
@@ -1160,7 +1160,7 @@ void HeartConfig::CheckTimeSteps() const
 
     if ( remainder > DBL_EPSILON && remainder < GetPdeTimeStep()-DBL_EPSILON)
     {
-        EXCEPTION("Printing time-step should a multiple of PDE time step");
+        EXCEPTION("Printing time-step should be a multiple of PDE time step");
     }
 
     if ( GetOdeTimeStep() > GetPdeTimeStep() )

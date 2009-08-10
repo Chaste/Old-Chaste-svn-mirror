@@ -101,7 +101,8 @@ public:
     void TestEventExceptions() throw(Exception)
     {
         // should not be able to end and event that has not yet begun
-        TS_ASSERT_THROWS_ANYTHING(HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING));
+        TS_ASSERT_THROWS_THIS(HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING),
+                "Error: The event associated with the counter for \'Total\' had not begun when EndEvent was called.");
 
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 
@@ -110,7 +111,8 @@ public:
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
         TS_ASSERT(!HeartEventHandler::IsEnabled());
         // Report should then throw
-        TS_ASSERT_THROWS_ANYTHING(HeartEventHandler::Report());
+        TS_ASSERT_THROWS_THIS(HeartEventHandler::Report(),
+                "Asked to report on a disabled event handler.  Check for contributory errors above.");
     }
 
  };

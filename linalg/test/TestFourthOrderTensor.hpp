@@ -127,7 +127,7 @@ public :
 
         // check throws if bad component passed in..
         FourthOrderTensor<3> Z;
-        TS_ASSERT_THROWS_ANYTHING(Z.SetAsProduct(X,A,5));
+        TS_ASSERT_THROWS_THIS(Z.SetAsProduct(X,A,5), "Component not 0, 1, 2, or 3");
 
 
         for (unsigned M=0; M<3; M++)

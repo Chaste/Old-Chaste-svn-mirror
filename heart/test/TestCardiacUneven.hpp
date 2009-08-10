@@ -108,7 +108,8 @@ public:
         }
         else
         {
-            TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
+            TS_ASSERT_THROWS_THIS(monodomain_problem.Initialise(),
+                    "Number of processes doesn\'t match the size of the nodes-per-processor file");
             HeartEventHandler::Reset();
         }
     }
@@ -152,7 +153,8 @@ public:
         }
         else
         {
-            TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
+            TS_ASSERT_THROWS_THIS(bidomain_problem.Initialise(),
+                    "Number of processes doesn\'t match the size of the nodes-per-processor file");
             HeartEventHandler::Reset();
         }
     }
