@@ -98,17 +98,17 @@ public:
         c_vector<double,2> height_extremes = cylindrical_vertex_mesh.GetWidthExtremes(1u);
 
         TS_ASSERT_DELTA(width_extremes[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(width_extremes[1], 2.8867, 1e-4);
+        TS_ASSERT_DELTA(width_extremes[1], 3.5, 1e-4); // \todo this should really be 4 as mesh is periodic
 
         TS_ASSERT_DELTA(height_extremes[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(height_extremes[1], 4.5000, 1e-4);
+        TS_ASSERT_DELTA(height_extremes[1], 13.0*0.5/sqrt(3), 1e-4);
 
         // Test GetWidth() method
         double width = cylindrical_vertex_mesh.GetWidth(0);
         double height = cylindrical_vertex_mesh.GetWidth(1);
 
-        TS_ASSERT_DELTA(width, 3.4641, 1e-4);
-        TS_ASSERT_DELTA(height, 4.5000, 1e-4);
+        TS_ASSERT_DELTA(width, 4, 1e-4);
+        TS_ASSERT_DELTA(height, 13.0*0.5/sqrt(3), 1e-4);
     }
 
 
@@ -122,21 +122,21 @@ public:
 
         // Test a normal vector and distance calculation
         c_vector<double, 2> vector = mesh.GetVectorFromAtoB(node18_location, node19_location);
-        TS_ASSERT_DELTA(vector[0], 0.5773, 1e-4);
+        TS_ASSERT_DELTA(vector[0], 1.0, 1e-4);
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(norm_2(vector), 0.5773, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetDistanceBetweenNodes(18, 19), 0.5773, 1e-4);
+        TS_ASSERT_DELTA(norm_2(vector), 1.0, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetDistanceBetweenNodes(18, 19), 1.0, 1e-4);
 
         // Test the opposite vector
         vector = mesh.GetVectorFromAtoB(node19_location, node18_location);
-        TS_ASSERT_DELTA(vector[0], -0.5773, 1e-4);
+        TS_ASSERT_DELTA(vector[0], -1.0, 1e-4);
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
 
         // Test a periodic calculation
         c_vector<double, 2> node16_location = mesh.GetNode(16)->rGetLocation();
         vector = mesh.GetVectorFromAtoB(node16_location, node19_location);
 
-        TS_ASSERT_DELTA(vector[0], -1.1547, 1e-4);
+        TS_ASSERT_DELTA(vector[0], -1.0, 1e-4);
         TS_ASSERT_DELTA(vector[1], 0.0000, 1e-4);
     }
 
@@ -149,13 +149,13 @@ public:
         // Move one of the nodes to near the periodic boundary
         c_vector<double, 2> new_point_location;
         new_point_location[0] = -0.01;
-        new_point_location[1] = 1.5;
+        new_point_location[1] = 3.0*0.5/sqrt(3);
         ChastePoint<2> new_point(new_point_location);
 
         // This node was on left and is now near the right
         mesh.SetNode(12u, new_point);
-        TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[0], 3.4541, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[1], 1.5, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[0], 3.99, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[1], 3.0*0.5/sqrt(3), 1e-4);
 
         // This node has stayed close to where it was
         new_point.SetCoordinate(0u, 0.2);
@@ -163,10 +163,10 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[0], 0.2, 1e-4);
 
         // This node was on right and is now near the left
-        new_point.SetCoordinate(0u, 3.5);
+        new_point.SetCoordinate(0u, 4.1);
         mesh.SetNode(8u, new_point);
-        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[0], 0.0358, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[1], 1.5, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[0], 0.1, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[1], 3.0*0.5/sqrt(3), 1e-4);
     }
 
 
@@ -180,8 +180,8 @@ public:
 
         // Choose a node on the left boundary
         ChastePoint<2> point = mesh.GetNode(18)->GetPoint();
-        TS_ASSERT_DELTA(point[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(point[1], 1.5000, 1e-4);
+        TS_ASSERT_DELTA(point[0], 0.5, 1e-4);
+        TS_ASSERT_DELTA(point[1], 4.0*0.5/sqrt(3), 1e-4);
 
         // Create a new node close to this node
         point.SetCoordinate(0, -0.01);
@@ -206,7 +206,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 85u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 36u);
 
-        TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[0], 5.18615, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[0], 5.99, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(new_index)->rGetLocation()[1], 4.5000, 1e-4);
 
         // Now tet AddNode() when mDeletedNodeIndices is populated
@@ -242,13 +242,13 @@ public:
 
         // Test centroid calculations for nonperiodic element
         c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
-        TS_ASSERT_DELTA(centroid(0), 1.4433, 1e-4);
-        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(0), 2.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 5.0*0.5/sqrt(3), 1e-4);
 
         // Test centroid calculations for periodic element
         centroid = mesh.GetCentroidOfElement(7);
-        TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
-        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(0), 0.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 5.0*0.5/sqrt(3), 1e-4);
 
         // Test CalculateMomentOfElement() for all elements
         // all elements are regular hexagons with edge 1/sqrt(3)
@@ -282,24 +282,24 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 17u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 42u);
 
-        TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[0], 2.6754, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[1], 0.8660, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[0], 2.8660, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(40)->rGetLocation()[1], 0.9433, 1e-4);
 
-        TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[0], 1.9433, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[1], 0.1339, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[0], 2.1339, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(41)->rGetLocation()[1], 0.2113, 1e-4);
 
         // Test new elements have correct nodes
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(2)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(1)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(2)->GetIndex(), 11u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(3)->GetIndex(), 40u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(4)->GetIndex(), 41u);
 
 
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(0)->GetIndex(), 40u);
-        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(1)->GetIndex(), 11u);
+        TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(1)->GetIndex(), 14u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(2)->GetIndex(), 10u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(3)->GetIndex(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(4)->GetIndex(), 41u);
@@ -312,29 +312,27 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 18u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 44u);
 
-        TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[0], 0.0773, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[1], 1.3660, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[0], -0.1339, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(42)->rGetLocation()[1], 0.9433, 1e-4);
 
-        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[0], 2.8094, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[1], 0.6339, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[0], 3.1339, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[1], 0.2113, 1e-4);
 
         // Test new elements have correct nodes
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(0)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(0)->GetIndex(), 3u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(1)->GetIndex(), 4u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(2)->GetIndex(), 8u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(3)->GetIndex(), 42u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(4)->GetIndex(), 43u);
 
 
-        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(0)->GetIndex(), 42u);
-        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(1)->GetIndex(), 12u);
-        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(2)->GetIndex(), 15u);
-        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(3)->GetIndex(), 11u);
-        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(4)->GetIndex(), 40u);
-        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(5)->GetIndex(), 43u);
-
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(1)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(2)->GetIndex(), 11u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(3)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(4)->GetIndex(), 43u);
     }
 
 
@@ -352,7 +350,7 @@ public:
 
         AbstractMesh<2,2>* const p_saved_mesh = new Cylindrical2dVertexMesh(num_cells_across, num_cells_up, 0.01, 2.0);
 
-        double crypt_width = num_cells_across*sqrt(3.0)/2.0;
+        double crypt_width = num_cells_across;
 
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
