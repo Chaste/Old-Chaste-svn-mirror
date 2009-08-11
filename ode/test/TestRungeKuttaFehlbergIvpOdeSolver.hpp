@@ -97,7 +97,8 @@ public:
          }
 
          // Divides step size by 10 and causes it to fall over.
-         TS_ASSERT_THROWS_ANYTHING(rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size));
+         TS_ASSERT_THROWS_THIS(rkf_solver.AdjustStepSize(current_step_size, error, tolerance, max_step_size, min_step_size),
+                 "RKF45 Solver: Ode needs a smaller timestep than the set minimum\n");
     }
 
     void TestCalculateNextYValue() throw(Exception)
@@ -296,8 +297,10 @@ public:
         TS_ASSERT_EQUALS(rkf_solver.StoppingEventOccurred(), true);
 
         // Coverage of exceptions
-        TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1, 1e-5));
-        TS_ASSERT_THROWS_ANYTHING(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1));
+        TS_ASSERT_THROWS_THIS(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1, 1e-5),
+                "(Solve with sampling) Stopping event is true for initial condition");
+        TS_ASSERT_THROWS_THIS(rkf_solver.Solve(&ode_system_with_events, solutions.rGetSolutions()[last], M_PI/6.0, 2.0, 0.1),
+                "(Solve without sampling) Stopping event is true for initial condition");
     }
 
     void TestRKFehlbergAnotherNonlinearEquationAnalytic() throw(Exception)

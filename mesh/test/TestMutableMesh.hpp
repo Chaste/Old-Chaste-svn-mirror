@@ -227,11 +227,13 @@ public:
 
         // Move node 3 so that one element is empty
         point.SetCoordinate(0, 0.200);
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point));
+        TS_ASSERT_THROWS_THIS(mesh.SetNode(node_index, point),
+                "Moving node caused an element to have a non-positive Jacobian determinant");
 
         // Move node 3 so that one element is negative
         point.SetCoordinate(0, 0.15);
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point));
+        TS_ASSERT_THROWS_THIS(mesh.SetNode(node_index, point),
+                "Moving node caused an element to have a non-positive Jacobian determinant");
 
         // Move node 3 back (and recover)
         point.SetCoordinate(0, 0.3);
@@ -292,7 +294,8 @@ public:
 
         // Nudge too far
         point.SetCoordinate(0, -0.0065);
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point));
+        TS_ASSERT_THROWS_THIS(mesh.SetNode(node_index, point),
+                "Moving node caused an element to have a non-positive Jacobian determinant");
 
         // Put it back
         point.SetCoordinate(0, 0.063497248392600097);
@@ -381,7 +384,8 @@ public:
 
         // Nudge too far
         point.SetCoordinate(2, 1.0);
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(interior_node_index, point));
+        TS_ASSERT_THROWS_THIS(mesh.SetNode(interior_node_index, point),
+                "Moving node caused an element to have a non-positive Jacobian determinant");
 
         // Put it back
         point.SetCoordinate(2, 0.75);
@@ -445,7 +449,8 @@ public:
 
         // Can't nudge right since an element flips chirality
         point.SetCoordinate(0, -0.5);
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(boundary_node_index, point));
+        TS_ASSERT_THROWS_THIS(mesh.SetNode(boundary_node_index, point),
+                "Moving node caused an subspace element to change direction");
 
         // Put it back
         point.SetCoordinate(0, -1.0);
@@ -523,7 +528,8 @@ public:
         // Can't nudge to the other side of the circle without changing handedness
         point.SetCoordinate(0, -1.0);
         point.SetCoordinate(2, 0.0);
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(boundary_node_index, point));
+        TS_ASSERT_THROWS_THIS(mesh.SetNode(boundary_node_index, point),
+                "Moving node caused an subspace element to change direction");
     }
 
     void TestDeletingNodes()
@@ -569,7 +575,7 @@ public:
         TS_ASSERT_EQUALS(p_new_rhs_node->GetNumContainingElements(), 1u);
 
         // Only allowed to remove boundary nodes
-        TS_ASSERT_THROWS_ANYTHING(mesh.DeleteBoundaryNodeAt(5));
+        TS_ASSERT_THROWS_THIS(mesh.DeleteBoundaryNodeAt(5)," You may only delete a boundary node ");
 
         // Delete the left end node
         mesh.DeleteBoundaryNodeAt(0);
@@ -654,7 +660,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetVolume(), 1.0);
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(0, 1));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(0, 1),
+                "These nodes cannot be merged since they are not neighbours on the boundary");
     }
 
     void Test1DNodeMerger()
@@ -669,7 +676,8 @@ public:
         const int not_neighbour_index = 5;
 
         // Cannot merge node 3 with node 5 since they are not neighbours
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_neighbour_index));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_neighbour_index),
+                "These nodes cannot be merged since they are not neighbours");
 
         // Merge node 3 with node 4
         mesh.MoveMergeNode(node_index, target_index);
@@ -718,12 +726,14 @@ public:
         TS_ASSERT_DELTA(jacobian_det, 0.00825652, 1e-6);
 
         // Cannot merge since they are not neighbours
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_neighbour_index));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_neighbour_index),
+                "These nodes cannot be merged since they are not neighbours");
 
         // Cannot merge since an element goes negative
         // The element 763 shared by moving node (432), reflex node (206) and the
         // other neighbour to the reflex node goes negative
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_feasible_index, false));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_feasible_index, false),
+                "Moving node caused an element to have a non-positive Jacobian determinant");
 
         // Added "crossReference=false" to stop elements deregistering
         mesh.MoveMergeNode(node_index, target_index);
@@ -749,8 +759,10 @@ public:
         const int not_neighbour_index = 204;
         const int not_feasible_index = 103;
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_neighbour_index));
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_feasible_index, false));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_neighbour_index),
+                "These nodes cannot be merged since they are not neighbours");
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_feasible_index, false),
+                "Moving node caused an element to have a non-positive Jacobian determinant");
         //Added "crossReference=false" to stop elements deregistering
 
         TS_ASSERT_THROWS_NOTHING( mesh.MoveMergeNode(node_index, target_index));
@@ -788,7 +800,7 @@ public:
         const int target_index = 20;
         const int not_boundary_index = 400;
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_boundary_index));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_boundary_index),"A boundary node can only be moved on to another boundary node");
         mesh.MoveMergeNode(node_index, target_index);
 
         TS_ASSERT_DELTA(area - mesh.GetVolume(), 1.24e-4, 1e-6);
@@ -813,7 +825,7 @@ public:
         const int target_index = 10;
         const int not_boundary_index = 31;
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_boundary_index));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(node_index, not_boundary_index),"A boundary node can only be moved on to another boundary node");
         mesh.MoveMergeNode(node_index, target_index);
 
         TS_ASSERT_DELTA(area - mesh.GetVolume(), 0.00, 1e-6);
@@ -935,10 +947,10 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
 
         // Deleting a deleted node should throw an exception
-        TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(2));
+        TS_ASSERT_THROWS_THIS(mesh.DeleteNode(2),"Trying to delete a deleted node");
 
         // Moving a deleted node should throw an exception
-        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(2,1));
+        TS_ASSERT_THROWS_THIS(mesh.MoveMergeNode(2,1),"Trying to move a deleted node");
     }
 
     void TestDeleteNodeFails() throw (Exception)
@@ -947,7 +959,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(0));
+        TS_ASSERT_THROWS_THIS(mesh.DeleteNode(0),"Failure to delete node");
     }
 
     void TestMeshAddNodeAndReMeshMethod()

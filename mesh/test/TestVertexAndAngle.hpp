@@ -46,7 +46,7 @@ public:
         VertexAndAngle<3> va;
 
         // First check the computation for points inside each of the four quadrants
-        
+
         // x>0, y>0
         va.ComputeAndSetAngle(1.0, sqrt(3.0));
         double computed_angle = va.GetAngle();
@@ -80,12 +80,12 @@ public:
         va.ComputeAndSetAngle(-1.0, 0.0);
         computed_angle = va.GetAngle();
         TS_ASSERT_DELTA(computed_angle, M_PI, 1e-7);
-        
+
         va.ComputeAndSetAngle(0.0, -1.0);
         computed_angle = va.GetAngle();
         TS_ASSERT_DELTA(computed_angle, -M_PI/2.0, 1e-7);
 
-        TS_ASSERT_THROWS_ANYTHING(va.ComputeAndSetAngle(0.0, 0.0));
+        TS_ASSERT_THROWS_THIS(va.ComputeAndSetAngle(0.0, 0.0),"Tried to compute polar angle of (0,0)");
 
         // Coverage of templated dimensions
         VertexAndAngle<1> va_1d;

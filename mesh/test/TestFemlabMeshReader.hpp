@@ -58,10 +58,11 @@ public:
 
         AbstractMeshReader<1,1>* pWrongFemlabMeshReader;
 
-        TS_ASSERT_THROWS_ANYTHING(pWrongFemlabMeshReader = new READER_1D("mesh/test/data/",
+        TS_ASSERT_THROWS_THIS(pWrongFemlabMeshReader = new READER_1D("mesh/test/data/",
                                                                          "femlab_lshape_nodes.dat",
                                                                          "femlab_lshape_elements.dat",
-                                                                         "femlab_lshape_edges.dat"));
+                                                                         "femlab_lshape_edges.dat"),
+                              "SPACE_DIM  != dimension read from file");
     }
 
     /**
@@ -155,7 +156,7 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_node = mpFemlabMeshReader->GetNextNode());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_node = mpFemlabMeshReader->GetNextNode());
+        TS_ASSERT_THROWS_THIS(next_node = mpFemlabMeshReader->GetNextNode(),"All nodes already got");
 
         delete mpFemlabMeshReader;
     }
@@ -194,7 +195,7 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_element_data = mpFemlabMeshReader->GetNextElementData());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_element_data = mpFemlabMeshReader->GetNextElementData());
+        TS_ASSERT_THROWS_THIS(next_element_data = mpFemlabMeshReader->GetNextElementData(),"All elements already got");
 
         delete mpFemlabMeshReader;
     }
@@ -231,7 +232,8 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices);
+        TS_ASSERT_THROWS_THIS(next_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices,
+                "All faces (or edges) already got");
 
         delete mpFemlabMeshReader;
     }

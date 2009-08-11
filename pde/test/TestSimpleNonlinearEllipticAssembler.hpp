@@ -518,7 +518,8 @@ public:
 
         // cover the bad size exception
         Vec badly_sized_init_guess = PetscTools::CreateVec(1,1.0); // size=1
-        TS_ASSERT_THROWS_ANYTHING( assembler.Solve(badly_sized_init_guess, true) );
+        TS_ASSERT_THROWS_THIS( assembler.Solve(badly_sized_init_guess, true),
+                "Size of initial guess vector, 1, does not match size of problem, 11" );
 
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);

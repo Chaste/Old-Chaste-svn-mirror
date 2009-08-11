@@ -121,8 +121,8 @@ public:
         InventorVoronoiWriter inventor_writer("InventorWriter", "ScaledSimpleTet");
 
         // These call throw exceptions because the scale factor is not between 0 and 1
-        TS_ASSERT_THROWS_ANYTHING(inventor_writer.ScaleAndWrite(tessellation, -1.0));
-        TS_ASSERT_THROWS_ANYTHING(inventor_writer.ScaleAndWrite(tessellation, 2.0));
+        TS_ASSERT_THROWS_THIS(inventor_writer.ScaleAndWrite(tessellation, -1.0),"scaleFactor should be between 0 and 1");
+        TS_ASSERT_THROWS_THIS(inventor_writer.ScaleAndWrite(tessellation, 2.0),"scaleFactor should be between 0 and 1");
 
         inventor_writer.ScaleAndWrite(tessellation, 2.0/3.0);
 

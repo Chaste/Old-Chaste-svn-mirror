@@ -234,7 +234,8 @@ public:
                                                   fixed_nodes);
 
         // for coverage
-        TS_ASSERT_THROWS_ANYTHING(assembler.SetWriteOutput(true));
+        TS_ASSERT_THROWS_THIS(assembler.SetWriteOutput(true),
+                "Can\'t write output if no output directory was given in constructor");
         assembler.SetWriteOutput(false);
 
         assembler.Solve();
@@ -531,9 +532,9 @@ public:
         assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
 
         assembler.Solve();
-    
-        // matrix might have (small) errors introduced if this fails 
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u); 
+
+        // matrix might have (small) errors introduced if this fails
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u);
 
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 

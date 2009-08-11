@@ -456,14 +456,14 @@ public:
 
         // Alter to be collinear (for coverage)
         nodes[2]->rGetModifiableLocation()[1] = 0.0;
-        TS_ASSERT_THROWS_ANYTHING(element.CalculateWeightedDirection(weighted_direction, det));
+        TS_ASSERT_THROWS_THIS(element.CalculateWeightedDirection(weighted_direction, det),"Jacobian determinant is zero");
 
         // Alter to be deleted (for coverage)
         element.MarkAsDeleted();
-        TS_ASSERT_THROWS_ANYTHING(element.CalculateWeightedDirection(weighted_direction, det));
+        TS_ASSERT_THROWS_THIS(element.CalculateWeightedDirection(weighted_direction, det),"Attempting to Refresh a deleted element");
 
         Node<3> *p_fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
-        TS_ASSERT_THROWS_ANYTHING(element.ReplaceNode(p_fake_node, p_fake_node));
+        TS_ASSERT_THROWS_THIS(element.ReplaceNode(p_fake_node, p_fake_node),"You didn\'t have that node to start with.");
         delete p_fake_node;
 
         for (unsigned i=0; i<nodes.size(); i++)
@@ -635,7 +635,8 @@ public:
         nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
         Element<3,3> element_3d(0, nodes);
         // Weighted direction only makes sense in a subspace element
-        TS_ASSERT_THROWS_ANYTHING(element_3d.CalculateWeightedDirection(direction, det));
+        TS_ASSERT_THROWS_THIS(element_3d.CalculateWeightedDirection(direction, det),
+                "WeightedDirection undefined for fully dimensional element");
 
         // 3D element in 3D space has no orientation (other than JacobianDeterminant)
         centroid = element_3d.CalculateCentroid();
@@ -735,7 +736,8 @@ public:
 
         // Trying to add Point(0.11) to Element(0)
         // This point is contained in Element(1)
-        TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_first_element, new_point));
+        TS_ASSERT_THROWS_THIS(mesh.RefineElement(p_first_element, new_point),
+                "RefineElement could not be started (point is not in element)");
     }
 
     void Test1DRefineElementWithPointTooFarLeftFails() throw (Exception)
@@ -749,7 +751,8 @@ public:
 
         // Trying to add Point(-0.1) to Element(0)
         // This point is to the left of Element(0)
-        TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_first_element, new_point));
+        TS_ASSERT_THROWS_THIS(mesh.RefineElement(p_first_element, new_point),
+                "RefineElement could not be started (point is not in element)");
     }
 
     void Test1DRefineElementManyNodes() throw (Exception)
@@ -834,7 +837,8 @@ public:
         ChastePoint<2> new_point(0.095, 0.005);
 
         // Shouldn't be able to insert this point at the edge of the element
-        TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_corner_element, new_point));
+        TS_ASSERT_THROWS_THIS(mesh.RefineElement(p_corner_element, new_point),
+                "RefineElement could not be started (point is not in element)");
     }
 
     void Test3DRefineElement() throw (Exception)
@@ -906,7 +910,8 @@ public:
         // Point to be inserted in wrong place
         ChastePoint<3> new_point(0.9, 0.75, 1.0);
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_corner_element, new_point));
+        TS_ASSERT_THROWS_THIS(mesh.RefineElement(p_corner_element, new_point),
+                "RefineElement could not be started (point is not in element)");
     }
 
     void TestGetStiffnessMatrixGlobalIndices()

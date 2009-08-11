@@ -85,9 +85,12 @@ public:
         std::vector<double> v(2);
         v[0] = -1.0;
         v[1] = -2.0;
-        TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditions(v));
-        TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditionsComponent(2, -3.0));
-        TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariables(v));
+        TS_ASSERT_THROWS_THIS(ode.SetInitialConditions(v),
+                "The number of initial conditions must be that of the number of state variables");
+        TS_ASSERT_THROWS_THIS(ode.SetInitialConditionsComponent(2, -3.0),
+                "Index is greater than the number of state variables");
+        TS_ASSERT_THROWS_THIS(ode.SetStateVariables(v),
+                "The size of the passed in vector must be that of the number of state variables");
     }
 
     void TestParameters()
@@ -152,7 +155,8 @@ public:
         ode.SetStateVariable(0, 2.0);
 		ode.SetStateVariable(1, 5.0);
 
-		TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariable(2, 1.0)); //cover exception
+		TS_ASSERT_THROWS_THIS(ode.SetStateVariable(2, 1.0),
+		        "The index passed in must be less than the number of state variables"); //cover exception
 
 		state_variables = ode.rGetStateVariables();
 
@@ -194,7 +198,7 @@ public:
         unsigned var_number = ode_system.GetStateVariableNumberByName("v");
         TS_ASSERT_EQUALS(var_number, 1u);
 
-        TS_ASSERT_THROWS_ANYTHING(ode_system.GetStateVariableNumberByName("foo"));
+        TS_ASSERT_THROWS_THIS(ode_system.GetStateVariableNumberByName("foo"),"State variable does not exist");
 
         TS_ASSERT_EQUALS(ode_system.GetStateVariableValueByNumber(var_number), 10.0);
 

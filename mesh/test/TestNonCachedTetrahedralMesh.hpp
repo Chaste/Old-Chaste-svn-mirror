@@ -181,11 +181,13 @@ public:
 
         c_matrix<double, 3, 3> jacobian;
         double det_jacobian;
-        TS_ASSERT_THROWS_ANYTHING(non_cached_mesh.GetJacobianForElement(0u, jacobian, det_jacobian));
+        TS_ASSERT_THROWS_THIS(non_cached_mesh.GetJacobianForElement(0u, jacobian, det_jacobian),
+                "Use GetInverseJacobianForElement to retrieve Jacobian data instead.");
 
         c_vector<double, 3> direction;
         double det_direction;
-        TS_ASSERT_THROWS_ANYTHING(non_cached_mesh.GetWeightedDirectionForElement(0u, direction, det_direction));
+        TS_ASSERT_THROWS_THIS(non_cached_mesh.GetWeightedDirectionForElement(0u, direction, det_direction),
+                "Probably redundant method.");
     }
 
     void TestArchiving()

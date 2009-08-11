@@ -209,14 +209,14 @@ public:
         double det;
         c_matrix<double, 2, 2> jacob;
         c_matrix<double, 2, 2> inv;
-        
+
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
         {
             TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 6u);
             mesh.GetInverseJacobianForElement(i, jacob, det, inv);
             TS_ASSERT_EQUALS(det, 1.0);
         }
-        
+
 
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[0], 1.0, 1e-6);
         TS_ASSERT_DELTA( mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
@@ -250,7 +250,7 @@ public:
         }
         TS_ASSERT_EQUALS(num_boundary_elements, 4u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
-        
+
     }
 
     void TestAutomaticallyGenerated2dMesh2() throw(Exception)
@@ -313,9 +313,9 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[1], 2.71828183, 1e-5);
         TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[2], 2.99792, 1e-4);
     }
-    
 
-    
+
+
     void TestWritingReadingBoundaryElementsFile2d() throw(Exception)
     {
         // read in a quadratic mesh with linear boundary elements
@@ -327,14 +327,14 @@ public:
         OutputFileHandler handler("TestQuadraticMesh", false);
         std::string file = handler.GetOutputDirectoryFullPath() + "/generated2d.face";
         TS_ASSERT_EQUALS(system(("diff " + file + " mesh/test/data/square_128_elements_fully_quadratic.edge").c_str()), 0);
- 
-        // read in the same quadratic mesh with /quadratic/ boundary elements 
+
+        // read in the same quadratic mesh with /quadratic/ boundary elements
         QuadraticMesh<2> mesh2("mesh/test/data/square_128_elements_fully_quadratic", true);
-        
+
         // compare the boundary elements of both meshes, should be identical (as one was created from the other)
         QuadraticMesh<2>::BoundaryElementIterator iter1
                = mesh1.GetBoundaryElementIteratorBegin();
-        
+
         for (QuadraticMesh<2>::BoundaryElementIterator iter2
                = mesh2.GetBoundaryElementIteratorBegin();
              iter2 != mesh2.GetBoundaryElementIteratorEnd();
@@ -342,14 +342,14 @@ public:
         {
             TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 3u );
             TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 3u );
-            
+
             for (unsigned i=0; i<3; i++)
             {
                TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
             }
             iter1++;
         }
-    }  
+    }
 
     void TestWritingReadingBoundaryElementsFile3d() throw(Exception)
     {
@@ -362,14 +362,14 @@ public:
         OutputFileHandler handler("TestQuadraticMesh", false);
         std::string file = handler.GetOutputDirectoryFullPath() + "/generated3d.face";
         TS_ASSERT_EQUALS(system(("diff " + file + " mesh/test/data/cube_1626_elements_fully_quadratic.face").c_str()), 0);
- 
-        // read in the same quadratic mesh with /quadratic/ boundary elements 
+
+        // read in the same quadratic mesh with /quadratic/ boundary elements
         QuadraticMesh<3> mesh2("mesh/test/data/cube_1626_elements_fully_quadratic", true);
-        
+
         // compare the boundary elements of both meshes, should be identical (as one was created from the other)
         QuadraticMesh<3>::BoundaryElementIterator iter1
                = mesh1.GetBoundaryElementIteratorBegin();
-        
+
         for (QuadraticMesh<3>::BoundaryElementIterator iter2
                = mesh2.GetBoundaryElementIteratorBegin();
              iter2 != mesh2.GetBoundaryElementIteratorEnd();
@@ -377,19 +377,21 @@ public:
         {
             TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 6u );
             TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 6u );
-            
+
             for(unsigned i=0; i<6; i++)
             {
                TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
             }
             iter1++;
         }
-    }        
+    }
 
     void TestExceptions() throw(Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", false));
+        TS_ASSERT_THROWS_THIS(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", false),
+                "The quadratic mesh doesn\'t appear to have all vertices before the rest of the nodes");
     }
+
 /// \todo #1089 We need a method which can write out a QuadraticMesh before we can do archiving of it.
 //    void xTestArchiving() throw(Exception)
 //    {
@@ -418,11 +420,11 @@ public:
 //
 //            // restore from the archive
 //            input_arch >> p_mesh2;
-//            
+//
 //            // compare the boundary elements of both meshes, should be identical (as one was created from the other)
 //            QuadraticMesh<3>::BoundaryElementIterator iter1
 //                   = p_mesh->GetBoundaryElementIteratorBegin();
-//            
+//
 //            for (QuadraticMesh<3>::BoundaryElementIterator iter2
 //                   = p_mesh2->GetBoundaryElementIteratorBegin();
 //                 iter2 != p_mesh2->GetBoundaryElementIteratorEnd();
@@ -430,7 +432,7 @@ public:
 //            {
 //                TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 6u );
 //                TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 6u );
-//                
+//
 //                for(unsigned i=0; i<6; i++)
 //                {
 //                   TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));

@@ -72,10 +72,11 @@ public:
     void TestExceptions()
     {
         // The file does not exist
-        TS_ASSERT_THROWS_ANYTHING( READER_3D mesh_reader("no_file") );
+        TS_ASSERT_THROWS_THIS( READER_3D mesh_reader("no_file"), "Could not open data file no_file.pts");
 
         // We are in the wrong dimension
-        TS_ASSERT_THROWS_ANYTHING( READER_2D reader("mesh/test/data/Memfem_slab") );
+        TS_ASSERT_THROWS_THIS( READER_2D reader("mesh/test/data/Memfem_slab"),
+                "You have asked to read non-3D data. All Memfem data is in 3D.");
     }
 
 };

@@ -246,7 +246,7 @@ public:
         }
         // This one has gone
         TS_ASSERT(map.IsDeleted(7));
-        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(7));
+        TS_ASSERT_THROWS_THIS(map.GetNewIndex(7),"Node has been deleted");
         for (unsigned i=8; i<map.Size(); i++)
         {
             // These have shuffled down
@@ -265,7 +265,7 @@ public:
         // Create another mesh
         MutableMesh<1,1> mesh2;
         mesh2.ConstructLinearMesh(10);
-        
+
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 10u);
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 11u);
 
@@ -345,7 +345,7 @@ public:
                 TS_ASSERT_EQUALS(mesh2.GetElement(elem_index)->GetNodeGlobalIndex(1), elem_index);
             }
         }
-        
+
     }
 
     void TestRemeshWithMethod2D() throw (Exception)
@@ -380,7 +380,7 @@ public:
         }
         // This one has gone
         TS_ASSERT(map.IsDeleted(432));
-        TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(432));
+        TS_ASSERT_THROWS_THIS(map.GetNewIndex(432),"Node has been deleted");
         for (unsigned i=433; i<map.Size(); i++)
         {
             // These have shuffled down
@@ -433,7 +433,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetVolume(), area, 1e-6);
 
         mesh.DeleteNode(3);
-        TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
+        TS_ASSERT_THROWS_THIS(mesh.ReMesh(map),"The number of nodes must exceed the spatial dimension.");
     }
 
     void TestNodeMap()
@@ -491,7 +491,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
+        TS_ASSERT_THROWS_THIS(mesh.ReMesh(map),"The number of nodes must exceed the spatial dimension.");
     }
 
     void Test2DReMeshFailsAfterEnoughDeletions() throw (Exception)
@@ -515,7 +515,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 3u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 2u);
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.ReMesh(map));
+        TS_ASSERT_THROWS_THIS(mesh.ReMesh(map),"The number of nodes must exceed the spatial dimension.");
     }
 
     void TestRawTriangleLibraryCall()

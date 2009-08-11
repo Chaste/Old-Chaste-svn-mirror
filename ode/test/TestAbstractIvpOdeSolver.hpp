@@ -125,7 +125,8 @@ private :
         TS_ASSERT_EQUALS(rSolver.StoppingEventOccurred(), true);
 
         // This is to cover the exception when a stopping event occurs before the first timestep.
-        TS_ASSERT_THROWS_ANYTHING(rSolver.Solve(&ode_with_events, state_variables, 2.0, 3.0, 0.001));
+        TS_ASSERT_THROWS_THIS(rSolver.Solve(&ode_with_events, state_variables, 2.0, 3.0, 0.001),
+                "(Solve without sampling) Stopping event is true for initial condition");
 
         ///////////////////////////////////////////////
         // Repeat with sampling time larger than dt
@@ -152,7 +153,8 @@ private :
         std::vector<double> bad_init_cond;
         bad_init_cond.push_back(-1);  //y0 < 0 so stopping event true
         bad_init_cond.push_back(0.0);
-        TS_ASSERT_THROWS_ANYTHING(rSolver.Solve(&ode_with_events, bad_init_cond, 0.0, 2.0, 0.001, 0.01));
+        TS_ASSERT_THROWS_THIS(rSolver.Solve(&ode_with_events, bad_init_cond, 0.0, 2.0, 0.001, 0.01),
+                "(Solve with sampling) Stopping event is true for initial condition");
     }
 
 public:
@@ -193,7 +195,8 @@ public:
         // Cover an exception. This throws because SolveAndUpdateStateVar
         // called but the state is not set up in this ODE system.
         OdeSecondOrder ode2;
-        TS_ASSERT_THROWS_ANYTHING(euler_solver.SolveAndUpdateStateVariable(&ode2, 0, 1, 0.01));
+        TS_ASSERT_THROWS_THIS(euler_solver.SolveAndUpdateStateVariable(&ode2, 0, 1, 0.01),
+                "SolveAndUpdateStateVariable() called but the state variable vector in the ODE system is not set up");
     }
 
     void TestRungeKutta2Solver()
@@ -229,18 +232,18 @@ public:
         rk4_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
     }
-    
+
     void TestWithParameters()
     {
         ParameterisedOde ode; // dy/dt = a, y(0) = 0.
         EulerIvpOdeSolver euler_solver;
 
         TS_ASSERT_EQUALS(ode.GetParameter(0), 0);
-        
+
         // Test with a = 0 => y = 0.
         euler_solver.SolveAndUpdateStateVariable(&ode, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode.rGetStateVariables()[0], 0.0, 1e-6);
-        
+
         // Test with a = 5 => y = 5t.
         ode.SetStateVariables(ode.GetInitialConditions());
         ode.SetParameter(0, 5.0);
@@ -502,7 +505,7 @@ public:
         global_error_rk4 = (1.0/24.0)*pow(h_value,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_rk4, exact_solution, global_error_rk4);
     }
-    
+
     void TestArchivingSolvers() throw(Exception)
     {
         OutputFileHandler handler("archive",false);
@@ -513,17 +516,17 @@ public:
         {
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // Set up a solver
             AbstractIvpOdeSolver* const p_euler_ivp_ode_solver = new EulerIvpOdeSolver;
             AbstractIvpOdeSolver* const p_runge_kutta_2_ode_solver = new RungeKutta2IvpOdeSolver;
             AbstractIvpOdeSolver* const p_runge_kutta_4_ode_solver = new RungeKutta4IvpOdeSolver;
-            
+
             // Should always archive a pointer
             output_arch << p_euler_ivp_ode_solver;
             output_arch << p_runge_kutta_2_ode_solver;
             output_arch << p_runge_kutta_4_ode_solver;
-            
+
             // Free memory
             delete p_euler_ivp_ode_solver;
             delete p_runge_kutta_2_ode_solver;
@@ -533,8 +536,8 @@ public:
         // Restore
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);            
-            
+            boost::archive::text_iarchive input_arch(ifs);
+
             // Create a pointer
             AbstractIvpOdeSolver *p_euler;
             AbstractIvpOdeSolver *p_rk2;
@@ -542,25 +545,25 @@ public:
             input_arch >> p_euler;
             input_arch >> p_rk2;
             input_arch >> p_rk4;
-            
+
             // Check the solver now has the properties of the one archived above.
             Ode1 ode_system;
             p_euler->SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
             TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0], 1.0, 1e-2);
-            
+
             Ode1 ode_system_2;
             p_rk2->SolveAndUpdateStateVariable(&ode_system_2, 0, 1, 0.01);
             TS_ASSERT_DELTA(ode_system_2.rGetStateVariables()[0], 1.0, 1e-2);
-            
+
             Ode1 ode_system_3;
             p_rk4->SolveAndUpdateStateVariable(&ode_system_3, 0, 1, 0.01);
             TS_ASSERT_DELTA(ode_system_3.rGetStateVariables()[0], 1.0, 1e-2);
-            
+
             delete p_euler;
             delete p_rk2;
             delete p_rk4;
         }
-    } 
+    }
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

@@ -148,8 +148,8 @@ public:
             TS_ASSERT_DELTA(node.rGetLocation()[i], coords[i], 1e-12);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(node.RemoveElement(256));
-        TS_ASSERT_THROWS_ANYTHING(node.RemoveBoundaryElement(256));
+        TS_ASSERT_THROWS_THIS(node.RemoveElement(256),"Tried to remove an index which was not in the set");
+        TS_ASSERT_THROWS_THIS(node.RemoveBoundaryElement(256),"Tried to remove an index which was not in the set");
     }
 
     void TestFlagging()

@@ -105,10 +105,14 @@ public :
         }
 
         // Exceptions (unsupported cases)
-        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<1> quad_rule(4));
-        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<2> quad_rule(4));
-        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<3> quad_rule(5));
-        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<4> quad_rule(1));
+        TS_ASSERT_THROWS_THIS(GaussianQuadratureRule<1> quad_rule(4),
+                "Number of gauss points per dimension not supported.");
+        TS_ASSERT_THROWS_THIS(GaussianQuadratureRule<2> quad_rule(4),
+                "Number of gauss points per dimension not supported.");
+        TS_ASSERT_THROWS_THIS(GaussianQuadratureRule<3> quad_rule(5),
+                "Number of gauss points per dimension not supported.");
+        TS_ASSERT_THROWS_THIS(GaussianQuadratureRule<4> quad_rule(1),
+                "Gauss points not available for this dimension.");
     }
 
     /**

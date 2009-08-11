@@ -64,10 +64,12 @@ public:
         SimpleDg0ParabolicAssembler<1,1, true> assembler(NULL,NULL,NULL);
 
         // start > end
-        TS_ASSERT_THROWS_ANYTHING(assembler.SetTimes(1.0, 0.0, 0.01));
+        TS_ASSERT_THROWS_THIS(assembler.SetTimes(1.0, 0.0, 0.01),
+                "Starting time has to less than ending time");
 
         // dt = 0
-        TS_ASSERT_THROWS_ANYTHING(assembler.SetTimes(0.0, 1.0, 0.0));
+        TS_ASSERT_THROWS_THIS(assembler.SetTimes(0.0, 1.0, 0.0),
+                "Time step has to be greater than zero");
     }
 
     /// test 1D problem

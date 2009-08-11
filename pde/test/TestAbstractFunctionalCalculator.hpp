@@ -89,7 +89,7 @@ public:
         TS_ASSERT_DELTA(result, mesh.GetVolume(), 1e-6);
 
         Vec bad_vec = PetscTools::CreateVec(mesh.GetNumNodes()+1, 0.0);
-        TS_ASSERT_THROWS_ANYTHING(volume_calculator.Calculate(mesh,bad_vec));
+        TS_ASSERT_THROWS_THIS(volume_calculator.Calculate(mesh,bad_vec),"The solution size does not match the mesh");
 
         VecDestroy(vec);
         VecDestroy(bad_vec);

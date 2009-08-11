@@ -75,7 +75,7 @@ public:
         // Reads node 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
         // Reads node 3 from file when expecting number 1
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextNode());
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextNode(),"Data for node 1 missing");
     }
 
     /**
@@ -107,7 +107,7 @@ public:
         // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
         // Reads element 2 from file when expecting number 1
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextElementData());
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextElementData(),"Data for element 1 missing");
     }
 
     /**
@@ -132,7 +132,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader2("mesh/test/data/baddata/bad_faces_disk_522_elements");
 
         // First boundary face is #20, on its way through the file there's a gap between face 1 and face 10
-        TS_ASSERT_THROWS_ANYTHING(mesh_reader2.GetNextFaceData());
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextFaceData(),"Data for face 2 missing");
         /// \todo: the exception thrown here is thrown in the constructor as well. In that case, it's wrongly
         /// caught considering it an end of file exception and therefore setting an inconsistent number of faces.
     }
@@ -179,7 +179,7 @@ public:
     void TestPermutedNodesFail() throw(Exception)
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/baddata/permuted_nodes_disk_522_elements");
-        TS_ASSERT_THROWS_ANYTHING(for(unsigned i=0;i<reader.GetNumNodes();i++){reader.GetNextNode();})
+        TS_ASSERT_THROWS_THIS(for(unsigned i=0;i<reader.GetNumNodes();i++){reader.GetNextNode();},"Data for node 5 missing")
     }
 
     /**
@@ -190,7 +190,9 @@ public:
     void TestOrder2ElementsFail() throw(Exception)
     {
         TrianglesMeshReader<2,2> *p_mesh_reader;
-        TS_ASSERT_THROWS_ANYTHING(p_mesh_reader = new READER_2D("mesh/test/data/baddata/disk_522_order_2_elements"));
+        TS_ASSERT_THROWS_THIS(p_mesh_reader = new READER_2D("mesh/test/data/baddata/disk_522_order_2_elements"),
+                "Number of nodes per elem, 6, does not match expected number, 3 "
+                "(which is calculated given the order of elements chosen, 1 (1=linear, 2=quadratics)");
     }
 
     /**
@@ -220,7 +222,7 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_node = mesh_reader.GetNextNode());
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_node = mesh_reader.GetNextNode());
+        TS_ASSERT_THROWS_THIS(next_node = mesh_reader.GetNextNode(),"File contains incomplete data");
     }
 
     /**
@@ -239,7 +241,7 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_element = mesh_reader.GetNextElementData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_element = mesh_reader.GetNextElementData().NodeIndices);
+        TS_ASSERT_THROWS_THIS(next_element = mesh_reader.GetNextElementData().NodeIndices,"File contains incomplete data");
     }
 
     /**
@@ -261,7 +263,7 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextEdgeData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_ANYTHING(next_edge = mesh_reader.GetNextEdgeData().NodeIndices);
+        TS_ASSERT_THROWS_THIS(next_edge = mesh_reader.GetNextEdgeData().NodeIndices,"File contains incomplete data");
     }
 
     /**
@@ -283,7 +285,8 @@ public:
     void Test0DMeshIn1DSpaceFails() throw(Exception)
     {
         TrianglesMeshReader<0,1> *p_mesh_reader;
-        TS_ASSERT_THROWS_ANYTHING(p_mesh_reader = new READER_0D_IN_1D("mesh/test/data/trivial_1d_mesh"));
+        TS_ASSERT_THROWS_THIS(p_mesh_reader = new READER_0D_IN_1D("mesh/test/data/trivial_1d_mesh"),
+                "Can\'t have a zero-dimensional mesh in a one-dimensional space");
     }
 
     void Test1DMeshIn2DSpace() throw(Exception)
@@ -297,7 +300,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 51u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 50u);
     }
-    
+
     void Test1DMeshIn3DSpace() throw(Exception)
     {
         TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/trivial_1d_in_3d_mesh");
@@ -322,7 +325,8 @@ public:
     void TestOtherExceptions() throw(Exception)
     {
         // This should fail because SPACE_DIM doesn't match the dimension in the file
-        TS_ASSERT_THROWS_ANYTHING( READER_1D mesh_reader("mesh/test/data/disk_984_elements") );
+        TS_ASSERT_THROWS_THIS( READER_1D mesh_reader("mesh/test/data/disk_984_elements"),
+                "SPACE_DIM  != dimension read from file ");
     }
 
     ////////////////////////////////////////////////////////
@@ -330,7 +334,8 @@ public:
     ////////////////////////////////////////////////////////
     void TestReadingQuadraticMesh1d() throw(Exception)
     {
-        TS_ASSERT_THROWS_ANYTHING( READER_1D wrong_reader("mesh/test/data/1D_0_to_1_10_elements_quadratics", 1));
+        TS_ASSERT_THROWS_THIS( READER_1D wrong_reader("mesh/test/data/1D_0_to_1_10_elements_quadratics", 1),
+                "Could not open data file: mesh/test/data/1D_0_to_1_10_elements_quadratics.node");
 
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratic", 2);
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 21u);

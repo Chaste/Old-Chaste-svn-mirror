@@ -251,7 +251,8 @@ public:
         TS_ASSERT_DELTA(solver.GetLastStepSize(), 0.1, 1e-6);
 
         // If we try to continue, the stopping event is still true, which is an error
-        TS_ASSERT_THROWS_ANYTHING(solutions = solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.01));
+        TS_ASSERT_THROWS_THIS(solutions = solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.01),
+                "(Solve with sampling) Stopping event is true for initial condition");
 
         // Alternative Solve method
         state_variables = ode_system.GetInitialConditions();
@@ -259,7 +260,8 @@ public:
         TS_ASSERT_EQUALS(solver.StoppingEventOccurred(), true);
         TS_ASSERT_DELTA(solver.GetStoppingTime(), M_PI_2, 0.01)
         // If we try to continue, the stopping event is still true, which is an error
-        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+        TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1),
+                "(Solve) Stopping event is true for initial condition");
 #endif // CHASTE_CVODE
     }
 
@@ -309,21 +311,25 @@ public:
 
         // Exception in EvaluateYDerivatives
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+        TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1),
+                "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
 
         // Not enough steps
         ode_system.BeNice();
         solver.SetMaxSteps(1);
         state_variables = ode_system.GetInitialConditions();
-        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+        TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1),
+                "CVODE Error -1 in module CVODE function CVode: At t = 7.25834e-09, mxstep steps taken before reaching tout.");
 
         //Try again with time sampling
-        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.1));
+        TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1, 0.1),
+                "CVODE Error -1 in module CVODE function CVode: At t = 3.43413e-09, mxstep steps taken before reaching tout.");
 
         // Exception in root function
         solver.CheckForStoppingEvents();
         state_variables = ode_system.GetInitialConditions();
-        TS_ASSERT_THROWS_ANYTHING(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1));
+        TS_ASSERT_THROWS_THIS(solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.1),
+                "CVODE Error -12 in module CVODE function CVRcheck1: At t = 0, the rootfinding routine failed in an unrecoverable manner.");
 #endif // CHASTE_CVODE
     }
 

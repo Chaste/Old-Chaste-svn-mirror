@@ -582,7 +582,7 @@ public:
             ChastePoint<3> out(centroid+normal);
             ChastePoint<3> in(centroid-normal);
             TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
-            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(out));
+            TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(out),"Point is not in mesh");
         }
     }
 
@@ -643,7 +643,7 @@ public:
                 TS_ASSERT_DELTA(normal[2], 1.0, 1e-16);
             }
             TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
-            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(out));
+            TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(out),"Point is not in mesh");
         }
 
         TrianglesMeshWriter<3,3> mesh_writer("", "CuboidMesh");
@@ -1033,7 +1033,7 @@ public:
         ChastePoint<1> point2(-0.1);
         ChastePoint<1> point3(0.2);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),1u);
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
+        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point2),"Point is not in mesh");
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),1u);  //in elements 1 and 2
 
         std::vector<unsigned> indices;
@@ -1110,7 +1110,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1), 110u);
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point1), 110u);
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
+        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point2),"Point is not in mesh");
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point2), 199u); // contains top-right corner
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3), 89u); // in elements 89,90,91,108,109, 110
 
@@ -1207,7 +1207,7 @@ public:
         ChastePoint<3> point3(0.050000000000000003, 0.050000000000000003, 0.050000000000000003);
         // Node 665 of mesh
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1), 2992u);
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
+        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point2),"Point is not in mesh");
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3), 2044u);
         /*in elements 2044, 2047. 2058, 2192, 2268, 2286, 2392, 2414, 2415,
          * 2424, 2426, 2452, 2661, 2704, 2734, 2745, 2846, 2968, 2990, 2992,
@@ -1215,7 +1215,7 @@ public:
          */
 
         // This should throw because vertex is not strictly contained in any element
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point3, true));
+        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point3, true),"Point is not in mesh");
 
         std::vector<unsigned> indices;
         indices = mesh.GetContainingElementIndices(point1);
@@ -1279,7 +1279,7 @@ public:
         TS_ASSERT_DELTA( mesh.GetAngleBetweenNodes(1,0),  M_PI,     1e-12);
         TS_ASSERT_DELTA( mesh.GetAngleBetweenNodes(2,0), -3*M_PI/4, 1e-12);
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetAngleBetweenNodes(0,0));
+        TS_ASSERT_THROWS_THIS(mesh.GetAngleBetweenNodes(0,0),"Tried to compute polar angle of (0,0)");
     }
 
     void TestNodesPerProcessorFile() throw (Exception)
@@ -1289,10 +1289,11 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Throws because file does not exist
-        TS_ASSERT_THROWS_ANYTHING(mesh.ReadNodesPerProcessorFile("dsgund"));
+        TS_ASSERT_THROWS_THIS(mesh.ReadNodesPerProcessorFile("dsgund"),"Unable to read nodes per processor file dsgund");
 
         // Throws because sum of nodes is not equal to the number of nodes in the mesh
-        TS_ASSERT_THROWS_ANYTHING(mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt"));
+        TS_ASSERT_THROWS_THIS(mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt"),
+                "Sum of nodes per processor, 5, not equal to number of nodes in mesh, 4");
 
         if (PetscTools::GetNumProcs() == 2)
         {
@@ -1417,7 +1418,7 @@ public:
         TetrahedralMesh<3,3> cuboid_mesh;
         cuboid_mesh.ConstructCuboid(7, 4, 5);
 
-        TS_ASSERT_THROWS_ANYTHING(cuboid_mesh.GetMeshFileBaseName());
+        TS_ASSERT_THROWS_THIS(cuboid_mesh.GetMeshFileBaseName(),"This mesh was not constructed from a file.");
     }
 
     void TestArchiving()

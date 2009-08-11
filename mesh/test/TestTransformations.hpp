@@ -550,9 +550,9 @@ public:
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_THROWS_ANYTHING(mesh.RotateZ(1.4));
-        TS_ASSERT_THROWS_ANYTHING(mesh.RotateY(0.3));
-        TS_ASSERT_THROWS_ANYTHING(mesh.RotateX(0.7));
+        TS_ASSERT_THROWS_THIS(mesh.RotateZ(1.4),"This rotation is not valid in less than 2D");
+        TS_ASSERT_THROWS_THIS(mesh.RotateY(0.3),"This rotation is only valid in 3D");
+        TS_ASSERT_THROWS_THIS(mesh.RotateX(0.7),"This rotation is only valid in 3D");
     }
 };
 

@@ -46,7 +46,8 @@ public:
         ChastePoint<3> point_outside(-4, -4, -4);
 
         ChasteCuboid cuboid_a_b(point_a, point_b);
-        TS_ASSERT_THROWS_ANYTHING(ChasteCuboid cuboid_b_a(point_b, point_a));
+        TS_ASSERT_THROWS_THIS(ChasteCuboid cuboid_b_a(point_b, point_a),
+                "Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
 
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_inside), true);
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_a), true);

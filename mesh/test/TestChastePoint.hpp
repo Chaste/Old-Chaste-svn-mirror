@@ -110,7 +110,7 @@ public:
     void TestZeroDimPoint()
     {
         ChastePoint<0> zero_dim_point;
-        TS_ASSERT_THROWS_ANYTHING(zero_dim_point[0]);
+        TS_ASSERT_THROWS_THIS(zero_dim_point[0], "Zero-dimensional point has no data");
     }
 
     void TestCreateFromCvector()

@@ -47,8 +47,8 @@ class TestMaterialLaws : public CxxTest::TestSuite
 public:
     void TestMooneyRivlinLaw()
     {
-        TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw<2> bad_mr_law(-3.0));
-        TS_ASSERT_THROWS_ANYTHING(MooneyRivlinMaterialLaw<3> bad_mr_law2(3.0));
+        TS_ASSERT_THROWS_THIS(MooneyRivlinMaterialLaw<2> bad_mr_law(-3.0),"c1 must be positive in mooney-rivlin");
+        TS_ASSERT_THROWS_THIS(MooneyRivlinMaterialLaw<3> bad_mr_law2(3.0),"Two parameters needed for 3d Mooney-Rivlin");
 
         double c1 = 2.0;
 
@@ -195,7 +195,7 @@ public:
 
     void TestExponentialLaw()
     {
-        TS_ASSERT_THROWS_ANYTHING(ExponentialMaterialLaw<2> bad_exp_law(-3.0,1));
+        TS_ASSERT_THROWS_THIS(ExponentialMaterialLaw<2> bad_exp_law(-3.0,1),"a must be positive");
 
         double a = 2.0;
         double b = 3.0;
@@ -393,17 +393,17 @@ public:
 
 
         // check exception thrown if N=0
-        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d bad_poly1(0,alpha));
+        TS_ASSERT_THROWS_THIS(PolynomialMaterialLaw3d bad_poly1(0,alpha),"n must be positive");
 
         // check exception thrown if alpha is not correctly sized
         std::vector< std::vector<double> > bad_alpha(2);
         bad_alpha[0].resize(1);
         bad_alpha[1].resize(1);
-        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d bad_poly2(2,bad_alpha));
+        TS_ASSERT_THROWS_THIS(PolynomialMaterialLaw3d bad_poly2(2,bad_alpha),"alpha not big enough");
 
         // check exception thrown if alpha[p][q]!=0, when p+q>N
         alpha[2][2] = 1.0;
-        TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d bad_poly3(2,alpha));
+        TS_ASSERT_THROWS_THIS(PolynomialMaterialLaw3d bad_poly3(2,alpha),"alpha[2][2] should be zero, as p+q > 2");
 
         // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
         // obviously it should be zero
