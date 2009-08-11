@@ -697,8 +697,8 @@ public:
             TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), 543u);
             TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), 984u);
 
-            unsigned catches = 0;
             // Check some node co-ordinates
+
             try
             {
                 Node<2> *p_node1 = p_mesh->GetNode(0);
@@ -708,22 +708,20 @@ public:
             }
             catch(Exception& e)
             {
-                TS_ASSERT_EQUALS(e.GetShortMessage(), "Requested node 0 does not belong to processor 1");
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
             }
 
-            catches = 0;
             try
             {
-                Node<2> *p_node1 = p_mesh->GetNode(0);
-                Node<2> *p_node2 = p_mesh2->GetNode(0);
+                Node<2> *p_node1 = p_mesh->GetNode(500);
+                Node<2> *p_node2 = p_mesh2->GetNode(500);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
             }
             catch(Exception& e)
             {
-                TS_ASSERT_EQUALS(e.GetShortMessage(), "Requested node 0 does not belong to processor 1");
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
             }
 
-            catches = 0;
             // Check first element has the right nodes
             try
             {
@@ -733,10 +731,9 @@ public:
             }
             catch(Exception& e)
             {
-                TS_ASSERT_EQUALS(e.GetShortMessage(), "Requested element 0 does not belong to processor 0");
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
             }
 
-            catches = 0;
             try
             {
                 Element<2,2> *p_element = p_mesh->GetElement(500);
@@ -745,7 +742,7 @@ public:
             }
             catch(Exception& e)
             {
-                TS_ASSERT_EQUALS(e.GetShortMessage(), "Requested element 500 does not belong to processor 1");
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
             }
 
             delete p_mesh2;
