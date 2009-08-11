@@ -417,8 +417,8 @@ namespace CxxTest
 #   define TSM_ASSERT_THROWS_EQUALS(m,e,t,x,y) TSM_ASSERT_THROWS_ASSERT(m,e,t,TSM_ASSERT_EQUALS(m,x,y))
 
     // Chaste-specific TS_ASSERT_THROWS_THIS shorthand for our Exception class.
-#   define TS_ASSERT_THROWS_THIS(e,y) TS_ASSERT_THROWS_EQUALS(e,const Exception &err,err.GetShortMessage(),y)
-#   define TS_ASSERT_THROWS_CONTAINS(e,y) TS_ASSERT_THROWS_ASSERT(e,const Exception &err, TS_ASSERT_DIFFERS((int)(err.GetShortMessage().find(y)),-1));
+#   define TS_ASSERT_THROWS_THIS(e,y) TS_ASSERT_THROWS_ASSERT(e,const Exception &err,TS_ASSERT(err.GetShortMessage()==y || err.GetShortMessage()=="Another process threw an exception; bailing out."))
+#   define TS_ASSERT_THROWS_CONTAINS(e,y) TS_ASSERT_THROWS_ASSERT(e,const Exception &err, TS_ASSERT((int)(err.GetShortMessage().find(y))!=-1 || err.GetShortMessage()=="Another process threw an exception; bailing out."))
 
     // TS_ASSERT_THROWS_DIFFERS
 #   define TS_ASSERT_THROWS_DIFFERS(e,t,x,y) TS_ASSERT_THROWS_ASSERT(e,t,TS_ASSERT_DIFFERS(x,y))
