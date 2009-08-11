@@ -576,9 +576,12 @@ public:
     // we x-out the other tests in this file).
     void TestLr91WithVoltageDropVariousTimeStepRatios() //throw (Exception)
     {
-        TS_ASSERT_THROWS_THIS(TryTestLr91WithVoltageDrop(1), "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\nState:\n\th:0.986175\n\tj:0.988583\n\tm:-0.000153345\n\tCaI:0.000196549\n\tV:-88.5033\n\td:0.00298028\n\tf:0.994585\n\tx:0.164349\n");
-        TS_ASSERT_THROWS_THIS(TryTestLr91WithVoltageDrop(2), "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\nState:\n\th:0.996928\n\tj:0.991501\n\tm:1.13356\n\tCaI:0.000190974\n\tV:-94.6553\n\td:0.00240631\n\tf:0.994981\n\tx:0.161201\n");
-        TS_ASSERT_THROWS_THIS(TryTestLr91WithVoltageDrop(3), "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\nState:\n\th:0.999304\n\tj:0.994241\n\tm:-5.04719e-05\n\tCaI:0.000184873\n\tV:-99.5479\n\td:0.00187486\n\tf:0.995289\n\tx:0.15841\n");
+        TS_ASSERT_THROWS_CONTAINS(TryTestLr91WithVoltageDrop(1),
+                "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\n");
+        TS_ASSERT_THROWS_CONTAINS(TryTestLr91WithVoltageDrop(2),
+                "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\n");
+        TS_ASSERT_THROWS_CONTAINS(TryTestLr91WithVoltageDrop(3),
+                "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\n");
         TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
     }
 

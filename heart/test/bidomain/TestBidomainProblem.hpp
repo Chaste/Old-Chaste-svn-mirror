@@ -486,17 +486,8 @@ public:
         bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         // Throws as sodium out goes of range
-        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "m gate for fast sodium current has gone out of range. "
-                "Check model parameters, for example spatial stepsize\n"
-                "State:\n"
-                "\th:0.448164\n"
-                "\tj:0.957694\n"
-                "\tm:1\n"
-                "\tCaI:0.00019891\n"
-                "\tV:280.837\n"
-                "\td:0.00561409\n"
-                "\tf:0.994221\n"
-                "\tx:0.217138\n");
+        TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(), "m gate for fast sodium current has gone out of range. "
+                "Check model parameters, for example spatial stepsize\n");
 
         //Test for regular output
         Hdf5DataReader data_reader=bidomain_problem.GetDataReader();

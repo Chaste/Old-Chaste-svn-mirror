@@ -62,6 +62,9 @@ public:
 
         // Our own shorthand macro for the above method
         TS_ASSERT_THROWS_THIS(NEVER_REACHED, "Should have been impossible to reach this line of code");
+        // Further shorthand macro which just checks that the message thrown contains the string
+        TS_ASSERT_THROWS_CONTAINS(NEVER_REACHED, "Should");
+
     }
 };
 

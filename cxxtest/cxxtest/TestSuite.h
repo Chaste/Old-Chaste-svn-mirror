@@ -418,6 +418,7 @@ namespace CxxTest
 
     // Chaste-specific TS_ASSERT_THROWS_THIS shorthand for our Exception class.
 #   define TS_ASSERT_THROWS_THIS(e,y) TS_ASSERT_THROWS_EQUALS(e,const Exception &err,err.GetShortMessage(),y)
+#   define TS_ASSERT_THROWS_CONTAINS(e,y) TS_ASSERT_THROWS_ASSERT(e,const Exception &err, TS_ASSERT_DIFFERS((int)(err.GetShortMessage().find(y)),-1));
 
     // TS_ASSERT_THROWS_DIFFERS
 #   define TS_ASSERT_THROWS_DIFFERS(e,t,x,y) TS_ASSERT_THROWS_ASSERT(e,t,TS_ASSERT_DIFFERS(x,y))

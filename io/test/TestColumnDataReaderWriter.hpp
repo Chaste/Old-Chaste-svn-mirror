@@ -95,8 +95,7 @@ public:
     void TestCreateColumnReader()
     {
         // File does not exist
-        std::string exception_should_be = "Couldn\'t open info file: " + std::string(getenv("CHASTE_TEST_OUTPUT")) + "/testdoesnotexist.info";
-        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"),exception_should_be);
+        TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"),"Couldn\'t open info file: ");
 
         // File contains corrupt data
         TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testbad", false), "Couldn\'t read info file correctly");

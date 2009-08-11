@@ -126,7 +126,8 @@ public:
         // variables going out of range. An exception should be thrown in the
         // EvaluateYDerivatives() method of the cell model
 
-        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(), "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\nState:\n\th:0.982892\n\tj:0.987962\n\tm:-0.000875329\n\tCaI:0.000199181\n\tV:-88.9866\n\td:0.00310226\n\tf:0.994354\n\tx:0.165957\n");
+        TS_ASSERT_THROWS_CONTAINS(monodomain_problem.Solve(),
+                "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\n");
 //#endif
     }
 

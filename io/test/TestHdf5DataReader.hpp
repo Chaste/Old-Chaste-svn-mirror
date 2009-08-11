@@ -440,8 +440,7 @@ public:
         writer.AdvanceAlongUnlimitedDimension();
 
         writer.Close();
-        std::string exception_should_be = "Hdf5DataReader could not open " + std::string(getenv("CHASTE_TEST_OUTPUT")) + "/hdf5_reader/hdf5_wrong_name.h5";
-        TS_ASSERT_THROWS_THIS(Hdf5DataReader reader2("hdf5_reader", "hdf5_wrong_name"),exception_should_be);
+        TS_ASSERT_THROWS_CONTAINS(Hdf5DataReader reader2("hdf5_reader", "hdf5_wrong_name"),"Hdf5DataReader could not open ");
         Hdf5DataReader reader("hdf5_reader", "hdf5_test_overtime_exceptions");
 
         TS_ASSERT_THROWS_NOTHING(reader.GetVariableOverTime("Node", 99/*node*/));
