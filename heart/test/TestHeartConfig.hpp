@@ -667,7 +667,7 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
     }
     
-    void TestGetOuputVariables()
+    void TestGetOuputVariablesFromXML()
     {
         // Use the configuration file we just modified.
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
@@ -692,6 +692,40 @@ public :
             TS_ASSERT_EQUALS(output_variables[2],"Ki");
         }        
     }
+    
+    void TestSetAndGetOuputVariables()
+    {
+        // Get the singleton in a clean state
+        HeartConfig::Instance()->Reset();
+        
+        // Set the variables we are interested in writing.
+        std::vector<std::string> output_variables;
+        output_variables.push_back("CaI");
+        output_variables.push_back("Nai");
+        output_variables.push_back("Ki");
+        
+        HeartConfig::Instance()->SetOutputVariables( output_variables );
+
+        // We want a method to check if the user is interested in any extra variable
+        TS_ASSERT(HeartConfig::Instance()->GetOutputVariablesProvided());
+
+        // Get them
+        std::vector<std::string> got_output_variables;        
+        HeartConfig::Instance()->GetOutputVariables(got_output_variables);
+
+        bool three_variables_defined = (got_output_variables.size() == 3u); 
+
+        // Test three variables were provided
+        TS_ASSERT(three_variables_defined);
+        
+        // Test the actual names
+        if (three_variables_defined)
+        {
+            TS_ASSERT_EQUALS(got_output_variables[0],"CaI");
+            TS_ASSERT_EQUALS(got_output_variables[1],"Nai");
+            TS_ASSERT_EQUALS(got_output_variables[2],"Ki");
+        }        
+    }    
     
 };
 

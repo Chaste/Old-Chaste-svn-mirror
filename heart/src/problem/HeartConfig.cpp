@@ -1084,6 +1084,25 @@ void HeartConfig::SetOutputFilenamePrefix(const std::string& rOutputFilenamePref
     mpUserParameters->Simulation().OutputFilenamePrefix().set(rOutputFilenamePrefix);
 }
 
+void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVariables)
+{
+    if ( ! mpUserParameters->Simulation().OutputVariables().present())
+    {
+        output_variables_type variables_requested;
+        mpUserParameters->Simulation().OutputVariables().set(variables_requested);
+    }
+        
+    XSD_SEQUENCE_TYPE(output_variables_type::Var)&
+    var_type_sequence = mpUserParameters->Simulation().OutputVariables()->Var();
+    //Erase or create a sequence
+    var_type_sequence.clear();
+
+    for (unsigned i=0; i<rOutputVariables.size(); i++)
+    {
+        var_type temp(rOutputVariables[i]);
+        var_type_sequence.push_back(temp);
+    }
+}
 
 // Physiological
 void HeartConfig::SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities)
@@ -1318,16 +1337,16 @@ void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_m
 void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
 {
     XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
-    upstroke_map_sequence= mpUserParameters->PostProcessing()->UpstrokeTimeMap();
+    var_type_sequence= mpUserParameters->PostProcessing()->UpstrokeTimeMap();
     //Erase or create a sequence
-    upstroke_map_sequence.clear();
+    var_type_sequence.clear();
 
     for (unsigned i=0; i<upstroke_time_maps.size(); i++)
     {
         XSD_CREATE_WITH_FIXED_ATTR1(upstrokes_map_type, temp,
                                     upstroke_time_maps[i],
                                     "mV");
-        upstroke_map_sequence.push_back(temp);
+        var_type_sequence.push_back(temp);
     }
 }
 

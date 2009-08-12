@@ -252,7 +252,8 @@ public:
      * [path]/output/res_parameters.xml  (a copy of this configuration at the end of the simulation)
      * [path]/output/res_times.info
      * [path]/output/res_V.dat
-     */std::string GetOutputFilenamePrefix() const;
+     */
+    std::string GetOutputFilenamePrefix() const;
 
     // Physiological
     /**
@@ -374,10 +375,11 @@ public:
      * @param outputVariables reference to std::vector to contain the output variables requested
      */
     void GetOutputVariables(std::vector<std::string> &outputVariables) const;
-
-    /*
+    
+     /*
      *  Set methods
      */
+
     // Simulation
     /** Set the configuration dimension
      * @param spaceDimension 1, 2 or 3.
@@ -461,6 +463,14 @@ public:
      * [path]/output/res_V.dat
      */
     void SetOutputFilenamePrefix(const std::string& rOutputFilenamePrefix);
+    
+    /**
+     * @param rOutputVariables  a vector of std::strings of the names 
+     * of each variable that should be outputted at each time step.
+     * 
+     * USING THIS METHOD WILL OVERRIDE THE ANY OUTPUT VARIABLES SET IN THE XML FILE  
+     */
+    void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
 
     // Physiological
     /**

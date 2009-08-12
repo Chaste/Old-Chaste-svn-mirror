@@ -622,8 +622,20 @@ public:
     // Test the functionality for outputing the values of requested cell state variables
     void TestBidomainProblemPrintsMultipleVariables() throw (Exception)
     {
+        // Get the singleton in a clean state
+        HeartConfig::Instance()->Reset();
+
         // Set configuration file 
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/MultipleVariablesBidomain.xml");
+        
+        // Override the variables we are interested in writing.
+        std::vector<std::string> output_variables;
+        output_variables.push_back("Ca_NSR");
+        output_variables.push_back("Nai");
+        output_variables.push_back("j");
+        output_variables.push_back("Ki");
+        
+        HeartConfig::Instance()->SetOutputVariables( output_variables );
    
         // Set up problem
         PlaneStimulusCellFactory<FaberRudy2000Version3, 1> cell_factory;
@@ -652,11 +664,14 @@ public:
         std::vector<double> node_5_phi = data_reader1.GetVariableOverTime("Phi_e", 5);
         TS_ASSERT_EQUALS( node_5_phi.size(), 11u);
 
-        std::vector<double> node_5_cai = data_reader1.GetVariableOverTime("CaI", 5);
-        TS_ASSERT_EQUALS( node_5_cai.size(), 11U);
+        std::vector<double> node_5_cansr = data_reader1.GetVariableOverTime("Ca_NSR", 5);
+        TS_ASSERT_EQUALS( node_5_cansr.size(), 11U);
 
         std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("Nai", 5);
         TS_ASSERT_EQUALS( node_5_nai.size(), 11U);        
+
+        std::vector<double> node_5_j = data_reader1.GetVariableOverTime("j", 5);
+        TS_ASSERT_EQUALS( node_5_j.size(), 11U);        
 
         std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("Ki", 5);
         TS_ASSERT_EQUALS( node_5_ki.size(), 11U);
