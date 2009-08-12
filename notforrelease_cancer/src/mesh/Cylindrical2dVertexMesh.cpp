@@ -135,21 +135,24 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
     /*
      * If the mesh has an imposed flat bottom remove unnessesary nodes.
      */
-//    if (isFlatBottom)
-//    {
-//        for (unsigned i=0; i<numAcross; i++)
-//        {
-//                node_indices[0] = i; // j=0 as on bottom row
-//                node_indices[1] = node_indices[0] + 1;
-//                node_indices[2] = node_indices[0] + numAcross + 1;
-//                node_indices[3] = node_indices[0] + 2*numAcross + 1;
-//                node_indices[4] = node_indices[0] + 2*numAcross;
-//                node_indices[5] = node_indices[0] + numAcross;
-//                
-//                // merge nodes 0 and 5 together.
-//                PerformNodeMerge(mNodes[node_indices[0]],mNodes[node_indices[5]]);
-//        }
-//    }
+    if (isFlatBottom)
+    {
+        for (unsigned i=0; i<numAcross; i++)
+        {
+                node_indices[0] = i; // j=0 as on bottom row
+                node_indices[1] = node_indices[0] + 1;
+                node_indices[2] = node_indices[0] + numAcross + 1;
+                node_indices[3] = node_indices[0] + 2*numAcross + 1;
+                node_indices[4] = node_indices[0] + 2*numAcross;
+                node_indices[5] = node_indices[0] + numAcross;
+                
+
+                // Move node 0 to the same position as node 5 and then 
+                // merge nodes 0 and 5 together.
+                SetNode(node_indices[0],mNodes[node_indices[5]]->GetPoint());
+                PerformNodeMerge(mNodes[node_indices[0]],mNodes[node_indices[5]]);
+        }
+    }
 }
 
 

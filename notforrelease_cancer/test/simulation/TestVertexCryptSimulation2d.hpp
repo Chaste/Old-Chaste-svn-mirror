@@ -327,11 +327,13 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
         // Modified parameters to make cells equilibriate
+        simulator.SetDt(0.001);       
+        
         TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0001);//0.1
         TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);//1.0
         TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(10.0);//0.1
-        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);//0.1
-        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);//0.1
+        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(1.0);//0.1
+        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(1.0);//0.1
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
 
 
