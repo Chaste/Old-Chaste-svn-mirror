@@ -198,7 +198,7 @@ public:
         unsigned var_number = ode_system.GetStateVariableNumberByName("v");
         TS_ASSERT_EQUALS(var_number, 1u);
 
-        TS_ASSERT_THROWS_THIS(ode_system.GetStateVariableNumberByName("foo"),"State variable does not exist");
+        TS_ASSERT_THROWS_THIS(ode_system.GetStateVariableNumberByName("foo"),"State variable 'foo' does not exist");
 
         TS_ASSERT_EQUALS(ode_system.GetStateVariableValueByNumber(var_number), 10.0);
 

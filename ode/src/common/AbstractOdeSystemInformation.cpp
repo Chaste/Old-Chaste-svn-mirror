@@ -79,7 +79,7 @@ unsigned AbstractOdeSystemInformation::GetStateVariableNumberByName(const std::s
     for ( ; it != mVariableNames.end() && *it != rName; ++it, ++var_number);
     if (it == mVariableNames.end())
     {
-        EXCEPTION("State variable does not exist");
+        EXCEPTION("State variable '" + rName + "' does not exist");
     }
     return var_number;
 }
