@@ -168,7 +168,7 @@
 	<PostProcessing>
 	        <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
 	        <UpstrokeTimeMap threshold="-30.0" threshold_unit="mV"/>
-	        <MaxUpstrokeVelocityMap/>
+	        <MaxUpstrokeVelocityMap threshold="-30.0" threshold_unit="mV"/>
 	        <ConductionVelocityMap origin_node="10"/>
 	        <ConductionVelocityMap origin_node="20"/>
 	</PostProcessing>

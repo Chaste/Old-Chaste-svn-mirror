@@ -208,7 +208,11 @@ public :
         TS_ASSERT_EQUALS(upstroke_time_maps_requested[0], -30.0);
 
         TS_ASSERT(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested());
-
+        std::vector<double> upstroke_velocity_maps_requested;
+        HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_maps_requested);
+        TS_ASSERT_EQUALS(upstroke_velocity_maps_requested.size(), 1u);
+        TS_ASSERT_EQUALS(upstroke_velocity_maps_requested[0], -30.0);
+        
         TS_ASSERT(HeartConfig::Instance()->IsConductionVelocityMapsRequested());
         std::vector<unsigned> conduction_velocity_maps_requested;
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps_requested);
@@ -547,6 +551,17 @@ public :
         TS_ASSERT_EQUALS(upstroke_time_map_get.size(),2u);
         TS_ASSERT_EQUALS(upstroke_time_map_get[0],25);
         TS_ASSERT_EQUALS(upstroke_time_map_get[1],55);
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested(), false);
+        std::vector<double> upstroke_velocity_map, upstroke_velocity_map_get;
+        upstroke_velocity_map.push_back(25.0);
+        upstroke_velocity_map.push_back(55.0);
+        HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(upstroke_velocity_map);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested(), true);
+        HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_map_get);
+        TS_ASSERT_EQUALS(upstroke_velocity_map_get.size(),2u);
+        TS_ASSERT_EQUALS(upstroke_velocity_map_get[0],25);
+        TS_ASSERT_EQUALS(upstroke_velocity_map_get[1],55);
     }
 
     void TestWrite() throw(Exception)

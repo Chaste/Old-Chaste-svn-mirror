@@ -860,10 +860,31 @@ void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) 
 bool HeartConfig::IsMaxUpstrokeVelocityMapRequested() const
 {
     assert(IsPostProcessingRequested());
+    
+    XSD_SEQUENCE_TYPE(postprocessing_type::MaxUpstrokeVelocityMap)&
+    max_upstroke_velocity_map = DecideLocation( & mpUserParameters->PostProcessing(),
+                            & mpDefaultParameters->PostProcessing(),
+                            "MaxUpstrokeVelocityMap")->get().MaxUpstrokeVelocityMap();
+                            
+    return (max_upstroke_velocity_map.begin() != max_upstroke_velocity_map.end());
+}
 
-    return DecideLocation( & mpUserParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
-                            & mpDefaultParameters->PostProcessing().get().MaxUpstrokeVelocityMap(),
-                            "MaxUpstrokeVelocityMap")->present();
+void HeartConfig::GetMaxUpstrokeVelocityMaps(std::vector<double>& upstroke_velocity_maps) const
+{
+     assert(IsMaxUpstrokeVelocityMapRequested());
+    assert(upstroke_velocity_maps.size() == 0);
+
+    XSD_SEQUENCE_TYPE(postprocessing_type::MaxUpstrokeVelocityMap)&
+        max_upstroke_velocity_maps_sequence = DecideLocation( & mpUserParameters->PostProcessing(),
+                                   & mpDefaultParameters->PostProcessing(),
+                                   "MaxUpstrokeVelocityMap")->get().MaxUpstrokeVelocityMap();
+
+    for (XSD_ITERATOR_TYPE(postprocessing_type::MaxUpstrokeVelocityMap) i = max_upstroke_velocity_maps_sequence.begin();
+         i != max_upstroke_velocity_maps_sequence.end();
+         ++i)
+    {
+        upstroke_velocity_maps.push_back(i->threshold());       
+    }
 }
 
 bool HeartConfig::IsConductionVelocityMapsRequested() const
@@ -1307,6 +1328,24 @@ void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
                                     upstroke_time_maps[i],
                                     "mV");
         upstroke_map_sequence.push_back(temp);
+    }
+}
+
+void HeartConfig::SetMaxUpstrokeVelocityMaps (std::vector<double>& max_upstroke_velocity_maps)
+{
+    XSD_SEQUENCE_TYPE(postprocessing_type::MaxUpstrokeVelocityMap)&
+    max_upstroke_velocity_maps_sequence= mpUserParameters->PostProcessing()->MaxUpstrokeVelocityMap();
+    //Erase or create a sequence
+    max_upstroke_velocity_maps_sequence.clear();
+
+    for (unsigned i=0; i<max_upstroke_velocity_maps.size(); i++)
+    {
+        XSD_CREATE_WITH_FIXED_ATTR1(max_upstrokes_velocity_map_type, temp,
+                                    max_upstroke_velocity_maps[i],
+                                    "mV");
+                                    
+        
+        max_upstroke_velocity_maps_sequence.push_back(temp);
     }
 }
 

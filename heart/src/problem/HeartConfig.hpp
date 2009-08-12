@@ -343,7 +343,14 @@ public:
      * \todo - This method has "Is" in the name, others do not.
      */
     bool IsMaxUpstrokeVelocityMapRequested() const;
-
+    
+    /**
+     * @param upstroke_velocity_maps  each entry is a request for a map with
+     *  - a threshold (in mV, defaulted to -30 mV)
+     * \todo - no set method
+     */
+    void GetMaxUpstrokeVelocityMaps(std::vector<double>& upstroke_velocity_maps) const;
+    
     /**
      * @return true if conduction velocity maps have been requested
      */
@@ -559,11 +566,17 @@ public:
      */
     void SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps);
 
-    /** Set the parameters of the conduction velocity map requested
+    /** Set the parameters of the upstroke time map requested
      *
      *  @param upstroke_time_maps  is the maps of upstroke velocities to set
      */
     void SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps);
+    
+    /** Set the parameters of the maximal upstroke velocity map requested
+     *
+     *  @param max_upstroke_velocity_maps is the maps of upstroke velocities to set
+     */
+    void SetMaxUpstrokeVelocityMaps (std::vector<double>& max_upstroke_velocity_maps);
 
     ~HeartConfig(); /**< Destructor*/
 protected:
