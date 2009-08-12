@@ -587,6 +587,9 @@ public:
      *  @param conduction_velocity_maps is the maps of conduction velocities to set
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
+    ////////////////////////////////////////////
+    ///Implementation lost in r6773, when recovered, uncomment the test! 
+    ////////////////////////////////////////////
     
     ~HeartConfig(); /**< Destructor*/
 protected:
