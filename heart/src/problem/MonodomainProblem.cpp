@@ -112,6 +112,21 @@ void MonodomainProblem<ELEM_DIM, SPACE_DIM>::WriteInfo(double time)
     std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
 }
 
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+void MonodomainProblem<ELEM_DIM, SPACE_DIM>::DefineWriterColumns()
+{
+    AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,1>::DefineWriterColumns();
+    AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,1>::DefineExtraVariablesWriterColumns();
+}
+
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+void MonodomainProblem<ELEM_DIM, SPACE_DIM>::WriteOneStep(double time, Vec voltageVec)
+{
+    this->mpWriter->PutUnlimitedVariable(time);
+    this->mpWriter->PutVector(this->mVoltageColumnId, voltageVec);
+    AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,1>::WriteExtraVariablesOneStep();
+}
+
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

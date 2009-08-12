@@ -559,12 +559,69 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineWriterColumns
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::WriteOneStep(double time, Vec voltageVec)
+void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVariablesWriterColumns()
 {
-    mpWriter->PutUnlimitedVariable(time);
+    // Check if any extra output variables have been requested
+    if(HeartConfig::Instance()->GetOutputVariablesProvided())
+    {
+        // Get their names in a vector
+        std::vector<std::string> output_variables;        
+        HeartConfig::Instance()->GetOutputVariables(output_variables);
+        
+        // Loop over them 
+        for (unsigned var_index=0; var_index<output_variables.size(); var_index++)
+        {
+            // Get variable name
+            std::string var_name = output_variables[var_index];
+            
+            // Register it in the data writer
+            unsigned column_id = this->mpWriter->DefineVariable(var_name, "");
+            
+            // Store column id 
+            mExtraVariablesId.push_back(column_id);        
+        }
+    }        
+}
 
-    //DistributedVector::Stripe transmembrane(voltageVec, 0);
-    mpWriter->PutVector(mVoltageColumnId, voltageVec);
+template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariablesOneStep()
+{
+    // Check if any extra output variables have been requested
+    if(HeartConfig::Instance()->GetOutputVariablesProvided())
+    {
+        // Get variable names in a vector
+        std::vector<std::string> output_variables;        
+        HeartConfig::Instance()->GetOutputVariables(output_variables);
+                
+        // Loop over the requested state variables
+        for (unsigned var_index=0; var_index<output_variables.size(); var_index++)
+        {
+            // Get variable name
+            std::string var_name = output_variables[var_index];
+
+            // Create vector for storing values over the local nodes
+            Vec variable_data =  this->mpMesh->GetDistributedVectorFactory()->CreateVec();
+            DistributedVector distributed_var_data = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(variable_data);
+
+            // Get variable index inside cell model
+            unsigned var_number = this->mpCardiacPde->GetCardiacCell(distributed_var_data.Begin().Global)->GetStateVariableNumberByName(var_name);
+            
+            // Loop over the local nodes and gather the data             
+            for (DistributedVector::Iterator index = distributed_var_data.Begin();
+                 index!= distributed_var_data.End();
+                 ++index)
+            {
+                // Store value for node "index"
+                distributed_var_data[index] = this->mpCardiacPde->GetCardiacCell(index.Global)->GetStateVariableValueByNumber(var_number);
+            }            
+            distributed_var_data.Restore();
+            
+            // Write it to disc
+            this->mpWriter->PutVector(mExtraVariablesId[var_index], variable_data);
+            
+            VecDestroy(variable_data);           
+        }
+    }
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

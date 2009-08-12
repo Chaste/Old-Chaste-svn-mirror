@@ -79,6 +79,8 @@ protected:
 
     /** Used by the writer */
     unsigned mVoltageColumnId;
+    /** List of extra variables to be written to HDF5 file */
+    std::vector<unsigned> mExtraVariablesId;
     /** Used by the writer */
     unsigned mTimeColumnId;
     /** Used by the writer */
@@ -267,6 +269,11 @@ public:
      * Define what variables are written to the primary results file.
      */
     virtual void DefineWriterColumns();
+    
+    /**
+     * Define the user specified variables to be written to the primary results file
+     */
+    void DefineExtraVariablesWriterColumns();
 
     /**
      * Write one timestep of output data to the primary results file.
@@ -274,7 +281,12 @@ public:
      * @param time  the current time
      * @param voltageVec  the solution vector to write
      */
-    virtual void WriteOneStep(double time, Vec voltageVec);
+    virtual void WriteOneStep(double time, Vec voltageVec) = 0;
+    
+    /**
+     * Write one timestep of output data for the extra variables to the primary results file.
+     */
+    void WriteExtraVariablesOneStep();
 
     /**
      * It creates and initialises the hdf writer from the Hdf5DataWriter class.

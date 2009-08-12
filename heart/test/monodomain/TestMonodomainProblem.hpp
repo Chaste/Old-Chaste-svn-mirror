@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "FaberRudy2000Version3.hpp"
 #include "Hdf5DataReader.hpp"
 #include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
@@ -689,6 +690,46 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[7], 33.6119, atol);
     }
 
+    // Test the functionality for outputing the values of requested cell state variables
+    void TestMonodomainProblemPrintsMultipleVariables() throw (Exception)
+    {
+        // Set configuration file 
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/MultipleVariablesMonodomain.xml");
+   
+        // Set up problem
+        PlaneStimulusCellFactory<FaberRudy2000Version3, 1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+
+        // Solve
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();
+        monodomain_problem.ConvertOutputToMeshalyzerFormat();
+
+        // Get a reference to a reader object for the simulation results
+        Hdf5DataReader data_reader1=monodomain_problem.GetDataReader();
+        std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
+
+        // Check there is information about 101 timesteps (0, 0.01, 0.02, ...) 
+        TS_ASSERT_EQUALS( times.size(), 11u);
+        TS_ASSERT_DELTA( times[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA( times[1], 0.01, 1e-12);
+        TS_ASSERT_DELTA( times[2], 0.02, 1e-12);
+        TS_ASSERT_DELTA( times[3], 0.03, 1e-12);
+
+        // There should be 101 values per variable and node.
+        std::vector<double> node_5_v = data_reader1.GetVariableOverTime("V", 5);
+        TS_ASSERT_EQUALS( node_5_v.size(), 11u);
+
+        std::vector<double> node_5_cai = data_reader1.GetVariableOverTime("CaI", 5);
+        TS_ASSERT_EQUALS( node_5_cai.size(), 11U);
+
+        std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("Nai", 5);
+        TS_ASSERT_EQUALS( node_5_nai.size(), 11U);        
+
+        std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("Ki", 5);
+        TS_ASSERT_EQUALS( node_5_ki.size(), 11U);
+    }
+    
     void TestMonodomainProblemExceptions() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms

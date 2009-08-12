@@ -375,7 +375,6 @@ public:
      */
     void GetOutputVariables(std::vector<std::string> &outputVariables) const;
 
-
     /*
      *  Set methods
      */

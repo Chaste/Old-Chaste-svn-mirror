@@ -76,6 +76,22 @@ public:
      * @param time  the current time
      */
     void WriteInfo(double time);
+    
+    /**
+     * Define what variables are written to the primary results file.
+     * Adds the extracellular potential.
+     */
+    virtual void DefineWriterColumns();
+
+    /**
+     * Write one timestep of output data to the primary results file.
+     * Adds the extracellular potential to the results.
+     * 
+     * @param time  the current time
+     * @param voltageVec  the solution vector to write
+     */
+    virtual void WriteOneStep(double time, Vec voltageVec);
+    
 };
 
 #endif /*MONODOMAINPROBLEM_HPP_*/
