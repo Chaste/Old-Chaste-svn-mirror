@@ -97,8 +97,16 @@ private:
 
         archive & mpDistributedVectorFactory;
     }
+    
+    /**
+     * Convenience method for intracellular conductivity tensor creation
+     */
+    void CreateIntracellularConductivityTensor();    
 
 protected:
+
+    /** It's handy to keep a pointer to the mesh object*/
+    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
 
     /** Intracellular conductivity tensors.  Not archived, since it's loaded from the HeartConfig singleton. */
     AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
@@ -178,6 +186,7 @@ public:
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
+                       AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                        const unsigned stride = 1);
 
     /** Virtual destructor */
@@ -247,7 +256,14 @@ public:
      *  Returns a reference to the vector of distributed cells. Needed for archiving.
      */
     const std::vector<AbstractCardiacCell*>& GetCellsDistributed() const;
-
+    
+    /**
+     *  Returns a pointer to the mesh object
+     * 
+     *  @return pointer to mesh object
+     */
+    const AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pGetMesh() const;
+    
 };
 
 // Declare identifier for the serializer

@@ -42,7 +42,8 @@ template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
             AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory,
             const unsigned stride)
-    : mStride(stride),
+    : mpMesh(pCellFactory->GetMesh()),
+      mStride(stride),
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
       mpDistributedVectorFactory(pCellFactory->GetMesh()->GetDistributedVectorFactory()),
@@ -71,6 +72,59 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
     mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
 
+    CreateIntracellularConductivityTensor();
+}
+
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
+                                                           AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                                                           const unsigned stride)
+    : mpMesh(pMesh),
+      mCellsDistributed(rCellsDistributed),
+      mStride(stride),      
+      mDoCacheReplication(true),
+      mDoOneCacheReplication(true),
+      mpDistributedVectorFactory(NULL),
+      mpFactoryWasUnarchived(true)
+{
+    /// \todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
+    //mpIntracellularConductivityTensors = NULL;
+    
+    
+    CreateIntracellularConductivityTensor();    
+}
+
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
+{
+    for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
+         cell_iterator != mCellsDistributed.end();
+         ++cell_iterator)
+    {
+        // Only delete real cells
+        FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(*cell_iterator);
+        if (p_fake == NULL)
+        {
+            delete (*cell_iterator);
+        }
+    }
+
+    /// \todo: #98 once the archiving constructor is creating the conductivity tensors properly we won't need this if statement
+    if (mpIntracellularConductivityTensors)
+    {
+        delete mpIntracellularConductivityTensors;
+    }
+    
+    // If the distributed vector factory was unarchived we need to free it explicitly. 
+    if (mpFactoryWasUnarchived)
+    {
+        delete mpDistributedVectorFactory;
+    }    
+}
+
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::CreateIntracellularConductivityTensor()
+{
     mpConfig = HeartConfig::Instance();
 
     if (mpConfig->IsMeshProvided() && mpConfig->GetLoadMesh())
@@ -107,7 +161,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
 
     // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep
     // a pointer to it and we don't want it to go out of scope before Init() is called
-    unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();
+    unsigned num_elements = mpMesh->GetNumElements();
     std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities(num_elements);
 
     if (mpConfig->GetConductivityHeterogeneitiesProvided())
@@ -124,7 +178,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
                 // if element centroid is contained in the region
-                ChastePoint<SPACE_DIM> element_centroid(pCellFactory->GetMesh()->GetElement(element_index)->CalculateCentroid());
+                ChastePoint<SPACE_DIM> element_centroid(mpMesh->GetElement(element_index)->CalculateCentroid());
                 if ( conductivities_heterogeneity_areas[region_index].DoesContain(element_centroid) )
                 {
                     hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];
@@ -143,50 +197,9 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
         mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
     }
 
-    mpIntracellularConductivityTensors->Init();
-}
+    mpIntracellularConductivityTensors->Init();       
+}    
 
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                                                      const unsigned stride)
-    : mCellsDistributed(rCellsDistributed),
-      mStride(stride),      
-      mDoCacheReplication(true),
-      mDoOneCacheReplication(true),
-      mpDistributedVectorFactory(NULL),
-      mpFactoryWasUnarchived(true)
-{
-    /// \todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
-    mpIntracellularConductivityTensors = NULL;    
-}
-
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
-{
-    for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
-         cell_iterator != mCellsDistributed.end();
-         ++cell_iterator)
-    {
-        // Only delete real cells
-        FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(*cell_iterator);
-        if (p_fake == NULL)
-        {
-            delete (*cell_iterator);
-        }
-    }
-
-    /// \todo: #98 once the archiving constructor is creating the conductivity tensors properly we won't need this if statement
-    if (mpIntracellularConductivityTensors)
-    {
-        delete mpIntracellularConductivityTensors;
-    }
-    
-    // If the distributed vector factory was unarchived we need to free it explicitly. 
-    if (mpFactoryWasUnarchived)
-    {
-        delete mpDistributedVectorFactory;
-    }    
-}
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SetCacheReplication(bool doCacheReplication)
@@ -283,6 +296,13 @@ const std::vector<AbstractCardiacCell*>& AbstractCardiacPde<ELEM_DIM,SPACE_DIM>:
 {
     return mCellsDistributed;    
 }
+
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+const AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::pGetMesh() const
+{
+    return mpMesh;
+}
+
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

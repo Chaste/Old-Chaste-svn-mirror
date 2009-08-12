@@ -104,7 +104,7 @@ public:
      *  Archiving constructor 
      *  @param rCellsDistributed  local cell models (recovered from archive)
      */
-    BidomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed);
+    BidomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Destructor
@@ -131,8 +131,10 @@ inline void save_construct_data(
 {
  
     const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
-    
+    const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
+
     ar << r_cells_distributed;
+    ar & p_mesh;
 }    
     
 /**
@@ -144,10 +146,12 @@ inline void load_construct_data(
     Archive & ar, BidomainPde<SPACE_DIM> * t, const unsigned int file_version)
 {
     std::vector<AbstractCardiacCell*> cells_distributed;
-
+    AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
+    
     ar >> cells_distributed;
+    ar >> p_mesh;
 
-    ::new(t)BidomainPde<SPACE_DIM>(cells_distributed);
+    ::new(t)BidomainPde<SPACE_DIM>(cells_distributed, p_mesh);
 }
 }
 } // namespace ...

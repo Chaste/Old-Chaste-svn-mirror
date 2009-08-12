@@ -114,8 +114,8 @@ BidomainPde<SPACE_DIM>::BidomainPde(
 }
 
 template <unsigned SPACE_DIM>
-BidomainPde<SPACE_DIM>::BidomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed)
-        :  AbstractCardiacPde<SPACE_DIM>(rCellsDistributed)
+BidomainPde<SPACE_DIM>::BidomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+        :  AbstractCardiacPde<SPACE_DIM>(rCellsDistributed, pMesh)
 {
     mpExtracellularConductivityTensors = NULL;
 }

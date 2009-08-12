@@ -36,8 +36,9 @@ MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed)
-        :  AbstractCardiacPde<ELEM_DIM, SPACE_DIM>(rCellsDistributed)
+MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,
+                                                 AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
+        :  AbstractCardiacPde<ELEM_DIM, SPACE_DIM>(rCellsDistributed, pMesh)
 {
 }
 

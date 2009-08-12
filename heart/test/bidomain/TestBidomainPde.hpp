@@ -72,13 +72,9 @@ public:
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
-        else if (node==1)
-        {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
-        }
         else
         {
-            NEVER_REACHED;
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
     }
 
@@ -157,8 +153,9 @@ public:
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("bidomain_pde.arch");
 
         {
+            TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
             TetrahedralMesh<1,1> mesh;
-            mesh.ConstructLinearMesh(1);
+            mesh.ConstructFromMeshReader(mesh_reader);
     
             MyCardiacCellFactory cell_factory;
             cell_factory.SetMesh(&mesh);

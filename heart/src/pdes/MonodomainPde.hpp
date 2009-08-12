@@ -87,7 +87,8 @@ public:
     /** Another constructor (for archiving) 
      *  @param rCellsDistributed  local cell models (recovered from archive)
      */
-    MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed);
+    MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
+                  AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
 
     //The following are hidden from the coverage test while it is waiting
     //for a re-factor. (Ticket #157)
@@ -121,6 +122,7 @@ public:
 
 
     double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& );
+    
 };
 
 // Declare identifier for the serializer
@@ -139,8 +141,10 @@ inline void save_construct_data(
 {
 
     const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
+    const AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
 
     ar << r_cells_distributed;
+    ar & p_mesh;
 }
 
 /**
@@ -152,10 +156,12 @@ inline void load_construct_data(
     Archive & ar, MonodomainPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     std::vector<AbstractCardiacCell*> cells_distributed;
+    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh;
 
     ar >> cells_distributed;
+    ar >> p_mesh;
 
-    ::new(t)MonodomainPde<ELEM_DIM, SPACE_DIM>(cells_distributed);
+    ::new(t)MonodomainPde<ELEM_DIM, SPACE_DIM>(cells_distributed, p_mesh);
 }
 }
 } // namespace ...
