@@ -895,6 +895,40 @@ void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_ve
     }
 }
 
+bool HeartConfig::GetOutputVariablesProvided() const
+{
+    try
+    {
+        DecideLocation( & mpUserParameters->Simulation().OutputVariables(),
+                        & mpDefaultParameters->Simulation().OutputVariables(),
+                        "OutputVariables");                        
+        return true;
+    }
+    catch (Exception& e)
+    {            
+        return false;
+    }        
+}
+
+void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) const
+{
+    XSD_SEQUENCE_TYPE(output_variables_type::Var)&
+         output_variables = DecideLocation( & mpUserParameters->Simulation().OutputVariables(),
+                           & mpDefaultParameters->Simulation().OutputVariables(),
+                           "OutputVariables")->get().Var();
+    
+    for (XSD_ITERATOR_TYPE(output_variables_type::Var) i = output_variables.begin();
+         i != output_variables.end();
+         ++i)
+    {
+        var_type var(*i);
+        
+        // Add to outputVariables the string returned by var.name() 
+        outputVariables.push_back(var.name());
+    }
+}
+
+
 
 /*
  *  Set methods

@@ -356,6 +356,18 @@ public:
      */
     void GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const;
 
+    /**
+     * @return true any extra output variables have been requested
+     */
+    bool GetOutputVariablesProvided() const;
+    
+    /**
+     * Get the extra output variables from the xml file
+     * 
+     * @param outputVariables reference to std::vector to contain the output variables requested
+     */
+    void GetOutputVariables(std::vector<std::string> &outputVariables) const;
+
 
     /*
      *  Set methods

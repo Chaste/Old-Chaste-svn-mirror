@@ -61,6 +61,8 @@ protected:
 
     /** Nodes at which the extracellular voltage is fixed to zero (replicated) */
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
+    /** List of extra variables to be written to HDF5 file */
+    std::vector<unsigned> mExtraVariablesId;
     /** Used by the writer */
     unsigned mExtracelluarColumnId;
     /**

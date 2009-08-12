@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "FaberRudy2000Version3.hpp"
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
 #include "Hdf5DataReader.hpp"
@@ -617,6 +618,50 @@ public:
             TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-7);
         }
     }
+    
+    // Test the functionality for outputing the values of requested cell state variables
+    void TestBidomainProblemPrintsMultipleVariables() throw (Exception)
+    {
+        // Set configuration file 
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/MultipleVariablesBidomain.xml");
+   
+        // Set up problem
+        PlaneStimulusCellFactory<FaberRudy2000Version3, 1> cell_factory;
+        BidomainProblem<1> bidomain_problem( &cell_factory );
+
+        // Solve
+        bidomain_problem.Initialise();
+        bidomain_problem.Solve();
+        bidomain_problem.ConvertOutputToMeshalyzerFormat();
+
+        // Get a reference to a reader object for the simulation results
+        Hdf5DataReader data_reader1=bidomain_problem.GetDataReader();
+        std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
+
+        // Check there is information about 101 timesteps (0, 0.01, 0.02, ...) 
+        TS_ASSERT_EQUALS( times.size(), 11u);
+        TS_ASSERT_DELTA( times[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA( times[1], 0.01, 1e-12);
+        TS_ASSERT_DELTA( times[2], 0.02, 1e-12);
+        TS_ASSERT_DELTA( times[3], 0.03, 1e-12);
+
+        // There should be 101 values per variable and node.
+        std::vector<double> node_5_v = data_reader1.GetVariableOverTime("V", 5);
+        TS_ASSERT_EQUALS( node_5_v.size(), 11u);
+
+        std::vector<double> node_5_phi = data_reader1.GetVariableOverTime("Phi_e", 5);
+        TS_ASSERT_EQUALS( node_5_phi.size(), 11u);
+
+        std::vector<double> node_5_cai = data_reader1.GetVariableOverTime("CaI", 5);
+        TS_ASSERT_EQUALS( node_5_cai.size(), 11U);
+
+        std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("Nai", 5);
+        TS_ASSERT_EQUALS( node_5_nai.size(), 11U);        
+
+        std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("Ki", 5);
+        TS_ASSERT_EQUALS( node_5_ki.size(), 11U);
+    }
+    
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/

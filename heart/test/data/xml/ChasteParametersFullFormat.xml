@@ -136,6 +136,13 @@
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
+		
+		<OutputVariables>
+		    <Var name="CaI"/>
+		    <Var name="Nai"/>
+		    <Var name="Ki"/>
+		</OutputVariables>
+				
 	</Simulation>
 	
 	<Physiological>

@@ -651,6 +651,33 @@ public :
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
     }
+    
+    void TestGetOuputVariables()
+    {
+        // Use the configuration file we just modified.
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
+
+        // We want a method to check if the user is interested in any extra variable
+        TS_ASSERT(HeartConfig::Instance()->GetOutputVariablesProvided());
+
+        // Get them
+        std::vector<std::string> output_variables;        
+        HeartConfig::Instance()->GetOutputVariables(output_variables);
+
+        bool three_variables_defined = (output_variables.size() == 3u); 
+
+        // Test three variables were provided
+        TS_ASSERT(three_variables_defined);
+        
+        // Test the actual names
+        if (three_variables_defined)
+        {
+            TS_ASSERT_EQUALS(output_variables[0],"CaI");
+            TS_ASSERT_EQUALS(output_variables[1],"Nai");
+            TS_ASSERT_EQUALS(output_variables[2],"Ki");
+        }        
+    }
+    
 };
 
 #endif /*TESTHEARTCONFIG_HPP_*/
