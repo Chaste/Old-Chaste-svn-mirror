@@ -40,7 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "OutputFileHandler.hpp"
 
-
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
 /////////////////////////////////////////////////////////////////////////////////////
@@ -334,6 +333,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mTotalNumElements;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+typename ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetPartitionType() const
+{
+    return mMetisPartitioning;   
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

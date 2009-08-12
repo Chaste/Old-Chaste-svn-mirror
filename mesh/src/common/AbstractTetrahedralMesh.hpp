@@ -110,7 +110,7 @@ private:
                  * in the ArchiveLocationInfo ??
                  */
                 TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
-                mesh_writer.WriteFilesUsingMeshReader(mesh_reader, this->rGetNodePermutation());
+                mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
             }
             catch(Exception& e)
             {

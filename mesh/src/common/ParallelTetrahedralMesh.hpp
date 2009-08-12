@@ -119,7 +119,7 @@ private:
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
-    {
+    {        
         archive & boost::serialization::base_object<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
     }
    
@@ -169,6 +169,13 @@ public:
      * Get the total number of elements that are actually in use (globally).
      */
     unsigned GetNumElements() const;
+    
+    /**
+     * Get the type of mesh partition ing that is being used...
+     * 
+     * serialization uses this method.
+     */
+     PartitionType GetPartitionType() const;
     
     /**
      * Get the total number of boundary elements that are actually in use (globally).
@@ -328,7 +335,9 @@ inline void save_construct_data(
     Archive & ar, const ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     unsigned num_procs = PetscTools::GetNumProcs();
+    const typename ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type = t->GetPartitionType();
     ar << num_procs;
+    ar << partition_type;
 }
 
 /**
@@ -340,13 +349,23 @@ inline void load_construct_data(
     Archive & ar, ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     unsigned num_procs;
+    typename ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type;
+
     ar >> num_procs;
+    ar >> partition_type;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
+    
+    /*
+     *  The exception needs to be thrown after the call to new(t). It's quite likely that
+     *  somebody is assuming that the object got created and will try to delete it.
+     */    
     if (num_procs != PetscTools::GetNumProcs())
     {
         EXCEPTION("This archive was written for a different number of processors");
     }
-    // Invoke inplace constructor to initialise instance
-    ::new(t)ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>( ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::DUMB );
+    
 }
 }
 } // namespace ...

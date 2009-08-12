@@ -544,6 +544,9 @@ public:
             // Check that each processor owns the number of nodes corresponding to its METIS partition
             unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
             TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
+
+            typedef ParallelTetrahedralMesh<3,3> MESH_TYPE; // To stop TS_ASSERT mistaking the comma for an argument            
+            TS_ASSERT_EQUALS(mesh.GetPartitionType(),MESH_TYPE::METIS_LIBRARY);
         }
 
         {
@@ -669,13 +672,22 @@ public:
         archive_filename = handler.GetOutputDirectoryFullPath() + "parallel_tetrahedral_mesh.arch";
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "parallel_tetrahedral_mesh");
 
-        AbstractTetrahedralMesh<2,2>* const p_mesh = new ParallelTetrahedralMesh<2,2>;
-
+        AbstractTetrahedralMesh<2,2>* const p_mesh = new ParallelTetrahedralMesh<2,2>(ParallelTetrahedralMesh<2,2>::DUMB);
+        //std::vector<unsigned> halo_node_indices;
+        std::vector<Node<2>*> halo_nodes;
+        unsigned num_nodes;
+        unsigned local_num_nodes;
+        unsigned num_elements;
         // archive
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
             p_mesh->ConstructFromMeshReader(mesh_reader);
+            num_nodes = p_mesh->GetNumNodes();
+            local_num_nodes = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetNumLocalNodes();
+            num_elements = p_mesh->GetNumElements();
+            
+            halo_nodes = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->mHaloNodes;
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -686,16 +698,19 @@ public:
         {
             // Should archive the most abstract class you can to check boost knows what individual classes are.
             // (but here AbstractMesh doesn't have the methods below).
-            AbstractTetrahedralMesh<2,2>* p_mesh2;
+            AbstractTetrahedralMesh<2,2>* p_mesh_abstract;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             // restore from the archive
-            input_arch >> p_mesh2;
+            input_arch >> p_mesh_abstract;
             // Check we have the right number of nodes & elements
-            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), 543u);
-            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), 984u);
+            ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract);
+            
+            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumLocalNodes(), local_num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), num_elements);
 
             // Check some node co-ordinates
 
@@ -744,7 +759,10 @@ public:
             {
                 TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
             }
-
+            
+            // Check the halo nodes are right
+            std::vector<Node<2>*> halo_nodes2 = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh2)->mHaloNodes;
+            TS_ASSERT_EQUALS(halo_nodes2.size(), halo_nodes.size());
             delete p_mesh2;
         }
 
@@ -761,10 +779,11 @@ public:
             }
             else
             {
-                /// Should not read this archive - \todo - broken, see #1089
-                // input_arch >> p_mesh3
-                //TS_ASSERT_THROWS_THIS(input_arch >> p_mesh3, "This archive was written for a different number of processors");
-            }
+
+                // Should not read this archive - \todo - broken, see #1089
+                TS_ASSERT_THROWS_THIS(input_arch >> p_mesh3, 
+                        "This archive was written for a different number of processors");
+            }            
             delete p_mesh3;
         }
 

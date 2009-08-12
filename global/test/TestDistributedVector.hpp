@@ -366,7 +366,8 @@ public:
             else
             {
                 //Should not read this archive
-                TS_ASSERT_THROWS_THIS(input_arch >> p_new_factory, "This archive was written for a different number of processors");
+                TS_ASSERT_THROWS_THIS(input_arch >> p_new_factory, 
+                        "This archive was written for a different number of processors");
             }
 
             delete p_new_factory;
