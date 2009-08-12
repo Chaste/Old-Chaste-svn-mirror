@@ -32,28 +32,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Hdf5DataReader.hpp"
 #include "PropagationPropertiesCalculator.hpp"
+#include <string>
 
 /** 
  * Write out physiological parameters at the end of a simulation
  * - APD map
  * - Upstroke time map
  * 
- * \todo - Needs to deal with the case where no upstroke is found.
+ * \todo proper documentation
  */
 class PostProcessingWriter
 {
     friend class TestPostProcessingWriter;
   
 private:
+    //std::string mOutputDirectory; /**< The directory to write the data */
+    Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to build the PropagationPropertiesCalculator */
     PropagationPropertiesCalculator* mpCalculator; /**< PropagationPropertiesCalculator based on HDF5 data reader*/
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
     
 public:
     /** 
      * Constructor
-     * @param pDataReader  an HDF5 reader from which to build the PropagationPropertiesCalculator
+     * 
+     * @directory The directory the data is in. The output is written to <directory>/output
+     * @hdf5File The file the data is in.
+     * @param isAbsolute Whether the directory is an absolute path
      */
-    PostProcessingWriter(Hdf5DataReader* pDataReader);
+    PostProcessingWriter(std::string directory, std::string hdf5File, bool isAbsolute);
+    
+    /**
+     *  Write out data files. The data that is written depends on which maps have been requested using
+     *  either the XML file or HeartConfig
+     */
+    void WritePostProcessingFiles();
     
     /**
      * Destructor
@@ -70,10 +82,10 @@ private:
      * Nodes where there is no APD are respresented by a single
      * 0
      * 
-     * @param  threshold - Vm used to signify the upstroke (mV)
      * @param  repolarisationPercentage eg. 90.0 for APD90
+     * @param  threshold - Vm used to signify the upstroke (mV)
      */
-    void WriteApdMapFile(double threshold, double repolarisationPercentage);
+    void WriteApdMapFile(double repolarisationPercentage, double threshold);
     
 
     /**
@@ -83,7 +95,7 @@ private:
      * line 2: <first upstroke time for node 1> <second upstroke time for node 1> ...
      * etc.
      * 
-     * If there is no upstroke then there will a ... /// \todo Allow this (see class description)
+     * If there is no upstroke then there will a blank line
      * 
      * @param threshold  - Vm used to signify the upstroke (mV) 
      */
@@ -96,7 +108,7 @@ private:
      * line 2: <first upstroke velocity for node 1> <second upstroke velocity for node 1> ...
      * etc.
      * 
-     * If there is no upstroke then there will a ... /// \todo Allow this (see class description)
+     * If there is no upstroke then there will a blank line
      * 
      * @param threshold  - Vm used to signify the upstroke (mV) 
      */

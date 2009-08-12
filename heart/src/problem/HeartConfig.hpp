@@ -325,7 +325,7 @@ public:
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100)
      */
-    void GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) const;
+    void GetApdMaps(std::vector<std::pair<double,double> >& apdMaps) const;
 
     /**
      * @return true if upstroke time maps have been requested
@@ -334,23 +334,19 @@ public:
     /**
      * @param upstroke_time_maps  each entry is a request for a map with
      *  - a threshold (in mV)
-     * \todo - no set method
      */
-    void GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const;
+    void GetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps) const;
 
     /**
      * @return true maximum upstroke velocity maps have been requested
-     * \todo - no set method
-     * \todo - This method has "Is" in the name, others do not.
      */
     bool IsMaxUpstrokeVelocityMapRequested() const;
     
     /**
      * @param upstroke_velocity_maps  each entry is a request for a map with
      *  - a threshold (in mV, defaulted to -30 mV)
-     * \todo - no set method
      */
-    void GetMaxUpstrokeVelocityMaps(std::vector<double>& upstroke_velocity_maps) const;
+    void GetMaxUpstrokeVelocityMaps(std::vector<double>& upstrokeVelocityMaps) const;
     
     /**
      * @return true if conduction velocity maps have been requested
@@ -360,9 +356,8 @@ public:
     /**
      * @param conduction_velocity_maps  each entry is a request for a map with
      *  - an index to treat as ths source for wave propagation
-     * \todo - no set method
      */
-    void GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const;
+    void GetConductionVelocityMaps(std::vector<unsigned>& conductionVelocityMaps) const;
 
     /**
      * @return true any extra output variables have been requested
@@ -573,20 +568,26 @@ public:
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation)
      */
-    void SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps);
+    void SetApdMaps(const std::vector<std::pair<double,double> >& apdMaps);
 
     /** Set the parameters of the upstroke time map requested
      *
      *  @param upstroke_time_maps  is the maps of upstroke velocities to set
      */
-    void SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps);
+    void SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps);
     
     /** Set the parameters of the maximal upstroke velocity map requested
      *
      *  @param max_upstroke_velocity_maps is the maps of upstroke velocities to set
      */
-    void SetMaxUpstrokeVelocityMaps (std::vector<double>& max_upstroke_velocity_maps);
+    void SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVelocityMaps);
 
+    /** Set the parameters of the conduction velocity map requested
+     *
+     *  @param conduction_velocity_maps is the maps of conduction velocities to set
+     */
+    void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
+    
     ~HeartConfig(); /**< Destructor*/
 protected:
     // Only to be accessed by the tests

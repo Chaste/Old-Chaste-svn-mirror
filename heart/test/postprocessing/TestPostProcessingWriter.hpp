@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "DistanceMapCalculator.hpp"
+#include "HeartConfig.hpp"
 
 class TestPostProcessingWriter : public CxxTest::TestSuite
 {
@@ -50,31 +51,28 @@ public:
 //    <ConductionVelocityMap origin_node="10"/>
 //    <ConductionVelocityMap origin_node="20"/>
         
-    void TestWriting() throw(Exception)
+    void TestWriterMethods() throw(Exception)
     {
-        Hdf5DataReader simulation_data("heart/test/data",
-                                       "postprocessingapd", false);
-                                       
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        PostProcessingWriter writer(&simulation_data);
+        PostProcessingWriter writer("heart/test/data", "postprocessingapd", false);
         
-        writer.WriteApdMapFile(-30.0, 60.0);
+        writer.WriteApdMapFile(60.0, -30.0);
                                    
         std::string command;
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
-                                    + output_dir + "/Apd60Map.dat "
+                                    + output_dir + "/Apd_60_-30_Map.dat "
                                     + "heart/test/data/good_apd_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         
         writer.WriteUpstrokeTimeMap(-30.0);
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
-                                    + output_dir + "/UpstrokeTimeMap.dat "
+                                    + output_dir + "/UpstrokeTimeMap_-30.dat "
                                     + "heart/test/data/good_upstroke_time_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         
         writer.WriteMaxUpstrokeVelocityMap(-30.0);
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
-                                    + output_dir + "/MaxUpstrokeVelocityMap.dat "
+                                    + output_dir + "/MaxUpstrokeVelocityMap_-30.dat "
                                     + "heart/test/data/good_upstroke_velocity_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
@@ -99,37 +97,62 @@ public:
     
     void TestApdWritingWithNoApdsPresent() throw(Exception)
     {
-        Hdf5DataReader simulation_data("heart/test/data/Monodomain1d",
-                                       "MonodomainLR91_1d", false);
-                                       
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        PostProcessingWriter writer(&simulation_data);  
+        PostProcessingWriter writer("heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
         
-        writer.WriteApdMapFile(-30.0, 90.0);
+        writer.WriteApdMapFile(90.0, -30.0);
         
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd90Map.dat " 
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-30_Map.dat " 
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
     
-    void xTestPostProcessWriting() throw (Exception)
+    void TestPostProcessWriting() throw (Exception)
     {
-        //HeartConfig::Instance()->Set...
+        std::vector<std::pair<double,double> > apd_maps;
+        apd_maps.push_back(std::pair<double, double>(80,-30));//reploarisation percentage first, as per schema
+        apd_maps.push_back(std::pair<double, double>(90,-20));//reploarisation percentage first, as per schema
+        HeartConfig::Instance()->SetApdMaps(apd_maps);
+
+        std::vector<double> upstroke_time_map;
+        upstroke_time_map.push_back(-70.0);
+        upstroke_time_map.push_back( 20.0);
+        HeartConfig::Instance()->SetUpstrokeTimeMaps(upstroke_time_map);
+ 
+        std::vector<double> upstroke_velocity_map;
+        upstroke_velocity_map.push_back(-50.0);
+        upstroke_velocity_map.push_back(50.0);
+        HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(upstroke_velocity_map);                                                
+                                                                              
+        PostProcessingWriter writer("heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);  
+
+        writer.WritePostProcessingFiles();
         
-        //Constructor writes info based on what's in the config
-        Hdf5DataReader simulation_data("heart/test/data/Monodomain1d",
-                                       "MonodomainLR91_1d", false);
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        PostProcessingWriter writer(&simulation_data);  
-        
-            std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd90Map.dat " 
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_80_-30_Map.dat " 
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);                         
-                                       
-    }
-    
-    
 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-20_Map.dat " 
+                  + "heart/test/data/101_zeroes.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);      
+
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_-70.dat " 
+                  + "heart/test/data/PostProcessorWriter/UpstrokeTimeMap_-70.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_20.dat " 
+                  + "heart/test/data/PostProcessorWriter/UpstrokeTimeMap_20.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_-50.dat " 
+                  + "heart/test/data/PostProcessorWriter/MaxUpstrokeVelocityMap_-50.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_50.dat " 
+                  + "heart/test/data/PostProcessorWriter/MaxUpstrokeVelocityMap_50.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+    }
 };
 
 

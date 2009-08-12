@@ -33,27 +33,77 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include <iostream>
 
-PostProcessingWriter::PostProcessingWriter(Hdf5DataReader* pDataReader)
+PostProcessingWriter::PostProcessingWriter(std::string directory, std::string hdf5File, bool isAbsolute)
 {
-    mpCalculator = new PropagationPropertiesCalculator(pDataReader);
-    mNumberOfNodes = pDataReader->GetNumberOfRows();
+ //   mOutputDirectory = directory + "/output";
+    mpDataReader = new Hdf5DataReader(directory, hdf5File, isAbsolute);
+    mpCalculator = new PropagationPropertiesCalculator(mpDataReader);
+    mNumberOfNodes = mpDataReader->GetNumberOfRows();
 }
+
+void PostProcessingWriter::WritePostProcessingFiles()
+{
+    if (HeartConfig::Instance()->IsApdMapsRequested()) 
+    {
+        std::vector<std::pair<double,double> > apd_maps;
+        HeartConfig::Instance()->GetApdMaps(apd_maps);
+        for (unsigned i=0; i<apd_maps.size(); i++) 
+        {
+            WriteApdMapFile(apd_maps[i].first, apd_maps[i].second);
+        }
+    }
+    
+    if (HeartConfig::Instance()->IsUpstrokeTimeMapsRequested()) 
+    {
+        std::vector<double> upstroke_time_maps;
+        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_maps);
+        for (unsigned i=0; i<upstroke_time_maps.size(); i++) 
+        {
+            WriteUpstrokeTimeMap(upstroke_time_maps[i]);
+        }
+    }
+    
+    if (HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested()) 
+    {
+        std::vector<double> upstroke_velocity_maps;
+        HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_maps);
+        for (unsigned i=0; i<upstroke_velocity_maps.size(); i++) 
+        {
+            WriteMaxUpstrokeVelocityMap(upstroke_velocity_maps[i]);
+        }
+    }
+
+///// unfinished..
+////    if (HeartConfig::Instance()->IsConductionVelocityMapsRequested()) 
+////    {
+////        std::vector<unsigned> conduction_velocity_maps;
+////        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps);
+////        for (unsigned i=0; i<conduction_velocity_maps.size(); i++) 
+////        {
+////            WriteConductionVelocityMap(conduction_velocity_maps[i]);
+////        }
+////    }
+} 
+    
+    
     
 PostProcessingWriter::~PostProcessingWriter()
 {
+    delete mpDataReader;
     delete mpCalculator;
 }
 
 
-void PostProcessingWriter::WriteApdMapFile(double threshold, double repolarisationPercentage)
+void PostProcessingWriter::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
         std::stringstream stream;
-        stream << repolarisationPercentage;
-        p_file = output_file_handler.OpenOutputFile("Apd" + stream.str() + "Map.dat");
+        stream << "Apd_" << repolarisationPercentage << "_" << threshold << "_Map.dat";
+        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+        p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         { 
             std::vector<double> apds;
@@ -79,17 +129,18 @@ void PostProcessingWriter::WriteApdMapFile(double threshold, double repolarisati
 
 
 void PostProcessingWriter::WriteUpstrokeTimeMap(double threshold)
-{
+{    
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
+        std::stringstream stream;
+        stream << "UpstrokeTimeMap_" << threshold << ".dat";
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-        p_file = output_file_handler.OpenOutputFile("UpstrokeTimeMap.dat");
+        p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         { 
             std::vector<double> upstroke_times;
             upstroke_times = mpCalculator->CalculateUpstrokeTimes(node_index, threshold);
-            assert(upstroke_times.size()!=0); /// \todo Allow this (see class description)
             for (unsigned i = 0; i < upstroke_times.size(); i++)
             {
                 *p_file << upstroke_times[i] << "\t";
@@ -105,13 +156,14 @@ void PostProcessingWriter::WriteMaxUpstrokeVelocityMap(double threshold)
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
+        std::stringstream stream;
+        stream << "MaxUpstrokeVelocityMap_" << threshold << ".dat";
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-        p_file = output_file_handler.OpenOutputFile("MaxUpstrokeVelocityMap.dat");
+        p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         { 
             std::vector<double> upstroke_velocities;
             upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
-            assert(upstroke_velocities.size()!=0); /// \todo Allow this (see class description)
             for (unsigned i = 0; i < upstroke_velocities.size(); i++)
             {
                 *p_file << upstroke_velocities[i] << "\t";
