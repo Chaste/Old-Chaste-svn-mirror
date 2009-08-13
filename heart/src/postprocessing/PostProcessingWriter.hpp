@@ -55,8 +55,8 @@ public:
     /** 
      * Constructor
      * 
-     * @directory The directory the data is in. The output is written to <directory>/output
-     * @hdf5File The file the data is in.
+     * @param directory The directory the data is in. The output is written to <directory>/output
+     * @param hdf5File The file the data is in.
      * @param isAbsolute Whether the directory is an absolute path
      */
     PostProcessingWriter(std::string directory, std::string hdf5File, bool isAbsolute);

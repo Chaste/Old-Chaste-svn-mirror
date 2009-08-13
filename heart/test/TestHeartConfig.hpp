@@ -563,17 +563,14 @@ public :
         TS_ASSERT_EQUALS(upstroke_velocity_map_get[0],25);
         TS_ASSERT_EQUALS(upstroke_velocity_map_get[1],55);
         
-//////////////////////////////////////////
-// To be uncommented when the code lost in r6773 will be recovered
-////////////////////////////////////////////
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), false);
-//        std::vector<unsigned> conduction_velocity_map, conduction_velocity_map_get;
-//        conduction_velocity_map.push_back(25.0);
-//        HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), true);
-//        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
-//        TS_ASSERT_EQUALS(conduction_velocity_map_get.size(),1u);
-//        TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), false);
+        std::vector<unsigned> conduction_velocity_map, conduction_velocity_map_get;
+        conduction_velocity_map.push_back(25.0);
+        HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), true);
+        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
+        TS_ASSERT_EQUALS(conduction_velocity_map_get.size(),1u);
+        TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
     }
 
     void TestWrite() throw(Exception)

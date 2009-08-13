@@ -1317,54 +1317,75 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     EXCEPTION("Unknown preconditioner type provided");
 }
 
-void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apd_maps)
+void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apdMaps)
 {
-    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
-    apd_maps_sequence= mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
+    XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)& apd_maps_sequence
+      = mpUserParameters->PostProcessing()->ActionPotentialDurationMap();
     //Erase or create a sequence
     apd_maps_sequence.clear();
 
-    for (unsigned i=0; i<apd_maps.size(); i++)
+    for (unsigned i=0; i<apdMaps.size(); i++)
     {
         XSD_CREATE_WITH_FIXED_ATTR2(apd_map_type, temp,
-                                    apd_maps[i].first, apd_maps[i].second,
+                                    apdMaps[i].first, apdMaps[i].second,
                                     "mV");
         apd_maps_sequence.push_back( temp);
     }
 }
 
 
-void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps)
+void HeartConfig::SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps)
 {
-    XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
-    var_type_sequence= mpUserParameters->PostProcessing()->UpstrokeTimeMap();
+    XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)& var_type_sequence 
+      = mpUserParameters->PostProcessing()->UpstrokeTimeMap();
+
     //Erase or create a sequence
     var_type_sequence.clear();
 
-    for (unsigned i=0; i<upstroke_time_maps.size(); i++)
+    for (unsigned i=0; i<upstrokeTimeMaps.size(); i++)
     {
         XSD_CREATE_WITH_FIXED_ATTR1(upstrokes_map_type, temp,
-                                    upstroke_time_maps[i],
+                                    upstrokeTimeMaps[i],
                                     "mV");
         var_type_sequence.push_back(temp);
     }
 }
 
-void HeartConfig::SetMaxUpstrokeVelocityMaps (std::vector<double>& max_upstroke_velocity_maps)
+void HeartConfig::SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVelocityMaps)
 {
-    XSD_SEQUENCE_TYPE(postprocessing_type::MaxUpstrokeVelocityMap)&
-    max_upstroke_velocity_maps_sequence= mpUserParameters->PostProcessing()->MaxUpstrokeVelocityMap();
+    XSD_SEQUENCE_TYPE(postprocessing_type::MaxUpstrokeVelocityMap)& max_upstroke_velocity_maps_sequence
+      = mpUserParameters->PostProcessing()->MaxUpstrokeVelocityMap();
+
     //Erase or create a sequence
     max_upstroke_velocity_maps_sequence.clear();
 
-    for (unsigned i=0; i<max_upstroke_velocity_maps.size(); i++)
+    for (unsigned i=0; i<maxUpstrokeVelocityMaps.size(); i++)
     {
         XSD_CREATE_WITH_FIXED_ATTR1(max_upstrokes_velocity_map_type, temp,
-                                    max_upstroke_velocity_maps[i],
+                                    maxUpstrokeVelocityMaps[i],
                                     "mV");
                                     
         
         max_upstroke_velocity_maps_sequence.push_back(temp);
+    }
+}
+
+void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps)
+{
+    XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)& conduction_velocity_maps_sequence
+      = mpUserParameters->PostProcessing()->ConductionVelocityMap();
+
+    //Erase or create a sequence
+    conduction_velocity_maps_sequence.clear();
+
+    for (unsigned i=0; i<conductionVelocityMaps.size(); i++)
+    {
+        XSD_CREATE_WITH_FIXED_ATTR1(conduction_velocity_map_type, temp,
+                                    conductionVelocityMaps[i],
+                                    "");
+                                    
+        
+        conduction_velocity_maps_sequence.push_back(temp);
     }
 }
 
