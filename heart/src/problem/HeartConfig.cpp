@@ -1380,11 +1380,7 @@ void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVe
 
     for (unsigned i=0; i<conductionVelocityMaps.size(); i++)
     {
-        XSD_CREATE_WITH_FIXED_ATTR1(conduction_velocity_map_type, temp,
-                                    conductionVelocityMaps[i],
-                                    "");
-                                    
-        
+        conduction_velocity_map_type temp(conductionVelocityMaps[i]);        
         conduction_velocity_maps_sequence.push_back(temp);
     }
 }
