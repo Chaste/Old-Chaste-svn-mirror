@@ -144,41 +144,57 @@ public:
         VecDestroy(monodomain_vec);
         VecDestroy(bidomain_vec);
     }
-    
+
     void TestSaveAndLoadCardiacPDE()
     {
-        //Archive                           
+        //Archive
         OutputFileHandler handler("archive", false);
         handler.SetArchiveDirectory();
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("bidomain_pde.arch");
+        bool cache_replication_saved = false;
+        double saved_printing_timestep = 2.0;
+        double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
 
         {
             TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
             TetrahedralMesh<1,1> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-    
+
             MyCardiacCellFactory cell_factory;
             cell_factory.SetMesh(&mesh);
-    
-            BidomainPde<1> bidomain_pde( &cell_factory );            
-            
+
+            BidomainPde<1> bidomain_pde( &cell_factory );
+            bidomain_pde.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
+
+            // Some checks to make sure HeartConfig is being saved and loaded by this too.
+            HeartConfig::Instance()->SetPrintingTimeStep(saved_printing_timestep);
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            BidomainPde<1>* const p_archive_bidomain_pde = &bidomain_pde;
-            output_arch << p_archive_bidomain_pde;  
-    
+            AbstractCardiacPde<1>* const p_archive_bidomain_pde = &bidomain_pde;
+            output_arch << p_archive_bidomain_pde;
+
             ofs.close();
+
+            HeartConfig::Reset();
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), default_printing_timestep, 1e-9);
+            TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep);
         }
 
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs); 
-            
-            BidomainPde<1> *p_bidomain_pde;
-            input_arch >> p_bidomain_pde; 
-            
+            boost::archive::text_iarchive input_arch(ifs);
+
+            AbstractCardiacPde<1> *p_bidomain_pde;
+            input_arch >> p_bidomain_pde;
+
+            TS_ASSERT_EQUALS(cache_replication_saved, p_bidomain_pde->GetDoCacheReplication());
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
+            TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
+
             delete p_bidomain_pde;
-            
+
             ifs.close();
         }
     }

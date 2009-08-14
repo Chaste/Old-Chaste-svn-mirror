@@ -189,56 +189,73 @@ public:
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
         }
     }
-    
+
     void TestSaveAndLoadCardiacPDE() throw (Exception)
     {
-        //Archive                           
+        //Archive
         OutputFileHandler handler("archive", false);
         handler.SetArchiveDirectory();
-        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("bidomain_pde.arch");
+        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("monodomain_pde.arch");
+        bool cache_replication_saved = false;
+        double saved_printing_timestep = 2.0;
+        double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
 
-        c_matrix<double, 1, 1> tensor_before_archiving;        
+        c_matrix<double, 1, 1> tensor_before_archiving;
         {
             TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
             TetrahedralMesh<1,1> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-    
+
             MyCardiacCellFactory cell_factory;
             cell_factory.SetMesh(&mesh);
-    
-            MonodomainPde<1> monodomain_pde( &cell_factory );            
+
+            MonodomainPde<1> monodomain_pde( &cell_factory );
+            monodomain_pde.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
 
             tensor_before_archiving = monodomain_pde.rGetIntracellularConductivityTensor(1);
-            
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            MonodomainPde<1>* const p_archive_monodomain_pde = &monodomain_pde;
+            AbstractCardiacPde<1>* const p_archive_monodomain_pde = &monodomain_pde;
+
+            // Some checks to make sure HeartConfig is being saved and loaded by this too.
+            HeartConfig::Instance()->SetPrintingTimeStep(saved_printing_timestep);
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
+
             output_arch << p_archive_monodomain_pde;
-            
+
             ofs.close();
-        }  
+            HeartConfig::Reset();
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), default_printing_timestep, 1e-9);
+            TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep);
+        }
+
 
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs); 
-            
-            MonodomainPde<1> *p_monodomain_pde;
+            boost::archive::text_iarchive input_arch(ifs);
+
+            AbstractCardiacPde<1> *p_monodomain_pde;
             input_arch >> p_monodomain_pde;
-                
+
             // Test rGetIntracellularConductivityTensor
-            const c_matrix<double, 1, 1>& tensor_after_archiving = p_monodomain_pde->rGetIntracellularConductivityTensor(1);            
+            const c_matrix<double, 1, 1>& tensor_after_archiving = p_monodomain_pde->rGetIntracellularConductivityTensor(1);
             TS_ASSERT(tensor_before_archiving(0,0) == tensor_after_archiving(0,0));
-            
+
+            TS_ASSERT_EQUALS(cache_replication_saved, p_monodomain_pde->GetDoCacheReplication());
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
+            TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
+
             // Test GetCardiacCell
             // Test rGetIionicCacheReplicated
             // Test rGetIntracellularStimulusCacheReplicated
-    
+
             delete p_monodomain_pde;
-            
+
             ifs.close();
-        }        
+        }
     }
-    
+
 };
 
 

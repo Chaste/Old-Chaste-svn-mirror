@@ -83,8 +83,8 @@ public:
     /// Constructor
     MonodomainPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
 
-    
-    /** Another constructor (for archiving) 
+
+    /** Another constructor (for archiving)
      *  @param rCellsDistributed  local cell models (recovered from archive)
      */
     MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
@@ -122,13 +122,13 @@ public:
 
 
     double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& );
-    
+
 };
 
 // Declare identifier for the serializer
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1)
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2)
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3);
 
 namespace boost
 {
@@ -139,12 +139,17 @@ template<class Archive, unsigned ELEM_DIM, unsigned SPACE_DIM>
 inline void save_construct_data(
     Archive & ar, const MonodomainPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
-
     const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
     const AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
 
-    ar << r_cells_distributed;
+    ar & r_cells_distributed;
     ar & p_mesh;
+
+    // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
+    // archived too (needs doing before construction so appears here instead of usual archive location).
+    HeartConfig *p_config = HeartConfig::Instance();
+    ar & *p_config;
+    ar & p_config;
 }
 
 /**
@@ -158,8 +163,14 @@ inline void load_construct_data(
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh;
 
-    ar >> cells_distributed;
-    ar >> p_mesh;
+    ar & cells_distributed;
+    ar & p_mesh;
+
+    // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.
+    // So make sure that it is archived too (needs doing before construction so appears here instead of usual archive location).
+    HeartConfig *p_config = HeartConfig::Instance();
+    ar & *p_config;
+    ar & p_config;
 
     ::new(t)MonodomainPde<ELEM_DIM, SPACE_DIM>(cells_distributed, p_mesh);
 }

@@ -69,9 +69,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Contains the cardiac cells (ODE systems for each node of the mesh),
  * conductivity tensors (dependent on fibre directions).
- * 
- * Also contains knowledge of parallelisation in the form of the 
- * distributed vector factory. 
+ *
+ * Also contains knowledge of parallelisation in the form of the
+ * distributed vector factory.
  */
 template <unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
 class AbstractCardiacPde
@@ -89,19 +89,22 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        //Archive vector factory?  Do we have one available?  (If not - do it in the test to guard against errors)
-
-        //Archive cells using handler.GetProcessUniqueFilePath("") and ArchiveLocationInfo
-
-        /// \todo #98 Check that mpIntracellularConductivityTensors is archived properly here.
-
+        // archive & mpMesh; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
+        // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
+        // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
+        // archive & mIionicCacheReplicated; Not archived since this is just a cache.
+        // archive & mIntracellularStimulusCacheReplicated; Not archived since this is just a cache.
+        // archive & mStride; // archiving constructor sets this.
+        archive & mDoCacheReplication;
+        archive & mDoOneCacheReplication;
         archive & mpDistributedVectorFactory;
+        // archive & mFactoryWasUnarchived; Not archived since set to true when archiving constructor is called.
     }
-    
+
     /**
      * Convenience method for intracellular conductivity tensor creation
      */
-    void CreateIntracellularConductivityTensor();    
+    void CreateIntracellularConductivityTensor();
 
 protected:
 
@@ -119,7 +122,7 @@ protected:
      *  replicated over all processes.
      */
     ReplicatableVector mIionicCacheReplicated;
-    
+
     /**
      *  Cache containing all the stimulus currents for each node,
      *  replicated over all processes.
@@ -147,7 +150,7 @@ protected:
      * Defaults to true.
      */
     bool mDoCacheReplication;
-    
+
     /**
      * This is to mark the conventional assembly on the first time step.
      *
@@ -161,11 +164,11 @@ protected:
      * Used to retrieve node ownership range when needed.
      */
     DistributedVectorFactory* mpDistributedVectorFactory;
-    
+
     /**
-     * Wether the distributed vector factory was unarchived or got from the cell factory.
+     * Whether the distributed vector factory was unarchived or got from the cell factory.
      */
-    bool mpFactoryWasUnarchived;
+    bool mFactoryWasUnarchived;
 public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.
@@ -187,7 +190,7 @@ public:
      */
     AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
                        AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                       const unsigned stride = 1);
+                       const unsigned stride);
 
     /** Virtual destructor */
     virtual ~AbstractCardiacPde();
@@ -199,6 +202,13 @@ public:
      * @param doCacheReplication - true if the cache needs to be replicated
      */
     void SetCacheReplication(bool doCacheReplication);
+
+    /**
+     * Get whether or not to replicate the caches across all processors.
+     *
+     * @return mDoCacheReplication - true if the cache needs to be replicated
+     */
+    bool GetDoCacheReplication();
 
     /** Get the intracellular conductivity tensor for the given element
      * @param elementIndex  index of the element of interest
@@ -256,14 +266,14 @@ public:
      *  Returns a reference to the vector of distributed cells. Needed for archiving.
      */
     const std::vector<AbstractCardiacCell*>& GetCellsDistributed() const;
-    
+
     /**
      *  Returns a pointer to the mesh object
-     * 
+     *
      *  @return pointer to mesh object
      */
     const AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pGetMesh() const;
-    
+
 };
 
 // Declare identifier for the serializer

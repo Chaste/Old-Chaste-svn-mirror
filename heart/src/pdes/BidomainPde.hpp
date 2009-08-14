@@ -69,6 +69,7 @@ template <unsigned SPACE_DIM>
 class BidomainPde : public virtual AbstractCardiacPde<SPACE_DIM>
 {
 private:
+    friend class TestBidomainPde; // for testing.
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -93,6 +94,11 @@ private:
      */
     ReplicatableVector mExtracellularStimulusCacheReplicated;
 
+    /**
+     * Convenience method for extracellular conductivity tensors creation
+     */
+    void CreateExtracellularConductivityTensors();
+
 public:
     /**
      * Constructor sets up extracellular conductivity tensors.
@@ -100,8 +106,8 @@ public:
      */
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
-    /** 
-     *  Archiving constructor 
+    /**
+     *  Archiving constructor
      *  @param rCellsDistributed  local cell models (recovered from archive)
      */
     BidomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
@@ -111,14 +117,15 @@ public:
      */
     ~BidomainPde();
 
-    /** Get the extracellular conductivity tensor for the given element
+    /**
+     * Get the extracellular conductivity tensor for the given element
      * @param elementIndex  index of the element of interest
      */
      const c_matrix<double, SPACE_DIM, SPACE_DIM>& rGetExtracellularConductivityTensor(unsigned elementIndex);
 };
 
 // Declare identifier for the serializer
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainPde) 
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainPde)
 
 namespace boost
 {
@@ -129,14 +136,20 @@ template<class Archive, unsigned SPACE_DIM>
 inline void save_construct_data(
     Archive & ar, const BidomainPde<SPACE_DIM> * t, const unsigned int file_version)
 {
- 
+
     const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
     const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
 
-    ar << r_cells_distributed;
+    ar & r_cells_distributed;
     ar & p_mesh;
-}    
-    
+
+    // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
+    // archived too (needs doing before construction so appears here instead of usual archive location).
+    HeartConfig *p_config = HeartConfig::Instance();
+    ar & *p_config;
+    ar & p_config;
+}
+
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
  * instantiate an instance (using existing constructor)
@@ -147,9 +160,16 @@ inline void load_construct_data(
 {
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
-    
-    ar >> cells_distributed;
-    ar >> p_mesh;
+
+    ar & cells_distributed;
+    ar & p_mesh;
+
+    // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.
+    // (as does CreateExtracellularConductivityTensor). So make sure that it is
+    // archived too (needs doing before construction so appears here instead of usual archive location).
+    HeartConfig *p_config = HeartConfig::Instance();
+    ar & *p_config;
+    ar & p_config;
 
     ::new(t)BidomainPde<SPACE_DIM>(cells_distributed, p_mesh);
 }

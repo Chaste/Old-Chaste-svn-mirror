@@ -341,13 +341,13 @@ public:
      * @return true maximum upstroke velocity maps have been requested
      */
     bool IsMaxUpstrokeVelocityMapRequested() const;
-    
+
     /**
      * @param upstroke_velocity_maps  each entry is a request for a map with
      *  - a threshold (in mV, defaulted to -30 mV)
      */
     void GetMaxUpstrokeVelocityMaps(std::vector<double>& upstrokeVelocityMaps) const;
-    
+
     /**
      * @return true if conduction velocity maps have been requested
      */
@@ -363,14 +363,14 @@ public:
      * @return true any extra output variables have been requested
      */
     bool GetOutputVariablesProvided() const;
-    
+
     /**
      * Get the extra output variables from the xml file
-     * 
+     *
      * @param outputVariables reference to std::vector to contain the output variables requested
      */
     void GetOutputVariables(std::vector<std::string> &outputVariables) const;
-    
+
      /*
      *  Set methods
      */
@@ -380,6 +380,7 @@ public:
      * @param spaceDimension 1, 2 or 3.
      */
     void SetSpaceDimension(unsigned spaceDimension);
+
     /** Set the configuration simulation duration
      * @param simulationDuration duration of the simulation (ms)
      */
@@ -458,12 +459,12 @@ public:
      * [path]/output/res_V.dat
      */
     void SetOutputFilenamePrefix(const std::string& rOutputFilenamePrefix);
-    
+
     /**
-     * @param rOutputVariables  a vector of std::strings of the names 
+     * @param rOutputVariables  a vector of std::strings of the names
      * of each variable that should be outputted at each time step.
-     * 
-     * USING THIS METHOD WILL OVERRIDE THE ANY OUTPUT VARIABLES SET IN THE XML FILE  
+     *
+     * USING THIS METHOD WILL OVERRIDE THE ANY OUTPUT VARIABLES SET IN THE XML FILE
      */
     void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
 
@@ -575,7 +576,7 @@ public:
      *  @param upstroke_time_maps  is the maps of upstroke velocities to set
      */
     void SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps);
-    
+
     /** Set the parameters of the maximal upstroke velocity map requested
      *
      *  @param max_upstroke_velocity_maps is the maps of upstroke velocities to set
@@ -587,7 +588,7 @@ public:
      *  @param conduction_velocity_maps is the maps of conduction velocities to set
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
-    
+
     ~HeartConfig(); /**< Destructor*/
 protected:
     // Only to be accessed by the tests
@@ -608,7 +609,7 @@ private:
 
     /** The single instance of the class */
     static std::auto_ptr<HeartConfig> mpInstance;
-    
+
     /**
      * Whether to read the schema location from the XML file (false) or use the schema
      * located at heart/src/io/ChasteParameters.xsd in the Chaste source tree (true).

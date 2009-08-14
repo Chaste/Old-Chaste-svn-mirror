@@ -41,7 +41,20 @@ BidomainPde<SPACE_DIM>::BidomainPde(
     : AbstractCardiacPde<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
 {
     mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
+    CreateExtracellularConductivityTensors();
+}
 
+template <unsigned SPACE_DIM>
+BidomainPde<SPACE_DIM>::BidomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+        :  AbstractCardiacPde<SPACE_DIM>(rCellsDistributed, pMesh, 2u) // The 2 tells it this is a bidomain
+{
+    mExtracellularStimulusCacheReplicated.resize( rCellsDistributed.size() );
+    CreateExtracellularConductivityTensors();
+}
+
+template <unsigned SPACE_DIM>
+void BidomainPde<SPACE_DIM>::CreateExtracellularConductivityTensors()
+{
     if (this->mpConfig->IsMeshProvided() && this->mpConfig->GetLoadMesh())
     {
         switch (this->mpConfig->GetConductivityMedia())
@@ -74,7 +87,7 @@ BidomainPde<SPACE_DIM>::BidomainPde(
 
     // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep
     // a pointer to it and we don't want it to go out of scope before Init() is called
-    unsigned num_elements = pCellFactory->GetMesh()->GetNumElements();
+    unsigned num_elements = this->mpMesh->GetNumElements();
     std::vector<c_vector<double, SPACE_DIM> > hetero_extra_conductivities(num_elements);
 
     if (this->mpConfig->GetConductivityHeterogeneitiesProvided())
@@ -91,7 +104,7 @@ BidomainPde<SPACE_DIM>::BidomainPde(
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
                 // if element centroid is contained in the region
-                ChastePoint<SPACE_DIM> element_centroid(pCellFactory->GetMesh()->GetElement(element_index)->CalculateCentroid());
+                ChastePoint<SPACE_DIM> element_centroid(this->mpMesh->GetElement(element_index)->CalculateCentroid());
                 if ( conductivities_heterogeneity_areas[region_index].DoesContain( element_centroid ) )
                 {
                     hetero_extra_conductivities[element_index] = extra_h_conductivities[region_index];
@@ -112,14 +125,6 @@ BidomainPde<SPACE_DIM>::BidomainPde(
 
     mpExtracellularConductivityTensors->Init();
 }
-
-template <unsigned SPACE_DIM>
-BidomainPde<SPACE_DIM>::BidomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
-        :  AbstractCardiacPde<SPACE_DIM>(rCellsDistributed, pMesh)
-{
-    mpExtracellularConductivityTensors = NULL;
-}
-
 
 template <unsigned SPACE_DIM>
 BidomainPde<SPACE_DIM>::~BidomainPde()

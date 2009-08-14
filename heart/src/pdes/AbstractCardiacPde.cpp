@@ -47,23 +47,23 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
       mpDistributedVectorFactory(pCellFactory->GetMesh()->GetDistributedVectorFactory()),
-      mpFactoryWasUnarchived(false)
+      mFactoryWasUnarchived(false)
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
     assert(pCellFactory!=NULL);
     assert(pCellFactory->GetMesh()!=NULL);
 
     unsigned num_local_nodes = mpDistributedVectorFactory->GetLocalOwnership();
-    unsigned ownership_range_low = mpDistributedVectorFactory->GetLow(); 
+    unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
     mCellsDistributed.resize(num_local_nodes);
-    
+
     for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
     {
         unsigned global_index = ownership_range_low + local_index;
         mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
     }
-        
-    
+
+
     pCellFactory->FinaliseCellCreation(&mCellsDistributed,
                                        pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetLow(),
                                        pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetHigh());
@@ -81,17 +81,13 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractC
                                                            const unsigned stride)
     : mpMesh(pMesh),
       mCellsDistributed(rCellsDistributed),
-      mStride(stride),      
+      mStride(stride),
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
       mpDistributedVectorFactory(NULL),
-      mpFactoryWasUnarchived(true)
+      mFactoryWasUnarchived(true)
 {
-    /// \todo: #98: The state of the object is inconsistent since mpIntracellularConductivityTensors has not been set.
-    //mpIntracellularConductivityTensors = NULL;
-    
-    
-    CreateIntracellularConductivityTensor();    
+      CreateIntracellularConductivityTensor();
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
@@ -114,12 +110,12 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
     {
         delete mpIntracellularConductivityTensors;
     }
-    
-    // If the distributed vector factory was unarchived we need to free it explicitly. 
-    if (mpFactoryWasUnarchived)
+
+    // If the distributed vector factory was unarchived we need to free it explicitly.
+    if (mFactoryWasUnarchived)
     {
         delete mpDistributedVectorFactory;
-    }    
+    }
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
@@ -197,14 +193,20 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::CreateIntracellularConductivityTens
         mpIntracellularConductivityTensors->SetConstantConductivities(intra_conductivities);
     }
 
-    mpIntracellularConductivityTensors->Init();       
-}    
+    mpIntracellularConductivityTensors->Init();
+}
 
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SetCacheReplication(bool doCacheReplication)
 {
     mDoCacheReplication = doCacheReplication;
+}
+
+template <unsigned ELEM_DIM,unsigned SPACE_DIM>
+bool AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::GetDoCacheReplication()
+{
+    return mDoCacheReplication;
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
@@ -257,7 +259,7 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSoluti
     PetscTools::ReplicateException(false);
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
-    if ((mDoCacheReplication)||mDoOneCacheReplication)
+    if ( mDoCacheReplication || mDoOneCacheReplication )
     {
         ReplicateCaches();
         mDoOneCacheReplication=false;
@@ -294,7 +296,7 @@ void AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::ReplicateCaches()
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
 const std::vector<AbstractCardiacCell*>& AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::GetCellsDistributed() const
 {
-    return mCellsDistributed;    
+    return mCellsDistributed;
 }
 
 template <unsigned ELEM_DIM,unsigned SPACE_DIM>
