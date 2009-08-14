@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -74,7 +73,7 @@ public:
     /**
      * Provides a reasonable test for the ghost node system...
      */
-    void noTest2DHoneycombMeshNotPeriodic() throw (Exception)
+    void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         // Create mesh
         int num_cells_depth = 11;
@@ -140,7 +139,7 @@ public:
         TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
     }
 
-    void noTestMonolayer() throw (Exception)
+    void TestMonolayer() throw (Exception)
     {
         // Create mesh
         int num_cells_depth = 11;
@@ -213,7 +212,7 @@ public:
      * differentiated, check that the number of cells at the end
      * of the simulation is as expected.
      */
-    void noTest2DCorrectCellNumbers() throw (Exception)
+    void Test2DCorrectCellNumbers() throw (Exception)
     {
         // Set up singleton class
         TissueConfig *p_params = TissueConfig::Instance();
@@ -331,9 +330,9 @@ public:
     void Test2DPeriodicNightly() throw (Exception)
     {
         // Create mesh
-        unsigned cells_across = 7;
-        unsigned cells_up = 9;
-        unsigned thickness_of_ghost_layer = 1;
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        unsigned thickness_of_ghost_layer = 4;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer);
         Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
@@ -343,7 +342,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        StochasticDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create tissue
@@ -357,18 +356,11 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
-        simulator.SetSamplingTimestepMultiple(10);
-        simulator.SetEndTime(200.0);
-        
-        // Make crypt shorter for sloughing 
-        TissueConfig::Instance()->SetCryptLength(8.0);
-        
+        simulator.SetEndTime(12.0);
+
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
-        
-        // Modified parameters to make cells equilibriate 
-        TissueConfig::Instance()->SetMaxTransitGenerations(2);
 
         // Run simulation
         simulator.Solve();
@@ -382,7 +374,7 @@ public:
         TS_ASSERT_EQUALS(number_of_nodes, 133u);
     }
 
-    void noTestCrypt2DPeriodicWntNightly() throw (Exception)
+    void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {
         CancerEventHandler::Enable();
 
@@ -532,7 +524,7 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-    void noTestRandomDeathWithPeriodicMesh() throw (Exception)
+    void TestRandomDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;
         unsigned cells_up = 12;
@@ -576,7 +568,7 @@ public:
      * Sloughing with a sloughing cell killer and not turning
      * into ghost nodes on a non-periodic mesh
      */
-    void noTestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
+    void TestSloughingCellKillerOnNonPeriodicCrypt() throw (Exception)
     {
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -612,7 +604,7 @@ public:
         simulator.Solve();
     }
 
-    void noTestSloughingDeathWithPeriodicMesh() throw (Exception)
+    void TestSloughingDeathWithPeriodicMesh() throw (Exception)
     {
         unsigned cells_across = 7;
         unsigned cells_up = 12;
@@ -668,7 +660,7 @@ public:
 
 
 
-    void noTestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
+    void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
     {
         int num_cells_depth = 11;
         int num_cells_width = 6;
