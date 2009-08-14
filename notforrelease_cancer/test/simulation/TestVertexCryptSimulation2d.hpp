@@ -263,8 +263,10 @@ public:
 
     void noTestCryptSimulationLong() throw (Exception)
     {
+        unsigned CryptWidth = 8;
+        unsigned CryptHeight = 10;
         // Create mesh
-        Cylindrical2dVertexMesh mesh(8, 8, 0.01, DBL_MAX, true);
+        Cylindrical2dVertexMesh mesh(CryptWidth, CryptHeight, 0.01, DBL_MAX, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -279,25 +281,31 @@ public:
             unsigned generation;
 
             // Cells 0 1 2 3 4 and 5 are stem cells
-            if (elem_index<8)
+            if (elem_index<CryptWidth)
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
                 generation=0;
             }
                // Cells 0 1 2 3 4 and 5 are stem cells
-            else if (elem_index<24)
+            else if ((elem_index>=CryptWidth)&&(elem_index<5*CryptWidth))
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
                 generation=1;
             }
-            else if (elem_index<40)
-            {
-                //birth_time = - 2.0*(double)elem_index;
-                cell_type = TRANSIT;
-                generation=2;
-            }
+//            else if ((elem_index>=5*CryptWidth)&&(elem_index<10*CryptWidth))
+//            {
+//                //birth_time = - 2.0*(double)elem_index;
+//                cell_type = TRANSIT;
+//                generation=2;
+//            }
+//            else if ((elem_index>=10*CryptWidth)&&(elem_index<15*CryptWidth))
+//            {
+//                //birth_time = - 2.0*(double)elem_index;
+//                cell_type = TRANSIT;
+//                generation=3;
+//            }
             else
             {
                 cell_type = DIFFERENTIATED;
@@ -322,23 +330,24 @@ public:
 
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
-        simulator.SetSamplingTimestepMultiple(10);
-        simulator.SetEndTime(10);
+        simulator.SetSamplingTimestepMultiple(50);
+        simulator.SetEndTime(100);
         simulator.SetOutputDirectory("TestVertexCryptLong");
 
         // Modified parameters to make cells equilibriate
-        simulator.SetDt(0.001);       
+        simulator.SetDt(0.002);       
         
-        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0001);//0.1
-        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);//1.0
-        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(10.0);//0.1
-        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(1.0);//0.1
-        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(1.0);//0.1
+        TissueConfig::Instance()->SetDampingConstantNormal(0.01); //this is set to 1 for cell centre based sims 
+        TissueConfig::Instance()->SetDampingConstantMutant(0.01); //this is set to 1 for cell centre based sims
+        TissueConfig::Instance()->SetDeformationEnergyParameter(1.0);//1.0
+        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(0.1);//0.1
+        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.1);//0.1
+        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.1);//0.1
         TissueConfig::Instance()->SetMaxTransitGenerations(2);
 
 
         // Make crypt shorter for sloughing
-        TissueConfig::Instance()->SetCryptLength(8.0);
+        TissueConfig::Instance()->SetCryptLength(10.0);
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
@@ -453,7 +462,6 @@ public:
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
         // Modified parameters to make cells equilibriate
-        TissueConfig::Instance()->SetAreaBasedDampingConstantParameter(0.0005);
         TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);
         TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);
         TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);

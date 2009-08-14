@@ -241,7 +241,7 @@ public:
     void noTestVertexMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 5, 0.1, 1.0);
+        VertexMesh<2,2> mesh(5, 5, 0.1, DBL_MAX);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
@@ -252,9 +252,9 @@ public:
             double birth_time = 0.0 - elem_index;
 
             // Cell 12 should divide at time t=0.5
-            if ((elem_index==6)||(elem_index==7)||(elem_index==8)||(elem_index==11)||(elem_index==12)||(elem_index==13)||(elem_index==17))
+            if ((elem_index==12))//||(elem_index==7)||(elem_index==8)||(elem_index==11)||(elem_index==12)||(elem_index==13)||(elem_index==17))
             {
-                cell_type = TRANSIT;
+                cell_type = STEM;
                 birth_time = -(double)elem_index; //-23.5;
             }
 //            else if (elem_index==15)
@@ -290,7 +290,13 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellBirth");
         simulator.SetSamplingTimestepMultiple(100);
-        simulator.SetEndTime(200.0);
+        simulator.SetEndTime(5.0);
+        
+        // Modified parameters to make cells equilibriate
+        simulator.SetDt(0.002); 
+        TissueConfig::Instance()->SetDampingConstantNormal(0.01); //this is set to 1 for cell centre based sims 
+        TissueConfig::Instance()->SetDampingConstantMutant(0.01); //this is set to 1 for cell centre based sims
+        TissueConfig::Instance()->SetMaxTransitGenerations(2);
 
         // Run simulation
         simulator.Solve();
@@ -436,67 +442,6 @@ public:
         TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 0.0065, 1e-4);
         TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 0.3701, 1e-3);
     }
-
-
-    void TestVertexCryptWithCellBirth() throw (Exception)
-    {
-        // Create a simple Cylindrical2d VertexMesh
-        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
-
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of -elem_index, so its age is elem_index
-        std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
-        {
-            CellType cell_type = DIFFERENTIATED;
-            double birth_time = 0.0 - elem_index;
-
-            // Cell 5 should divide at time t=0.5
-            if (elem_index==5)
-            {
-                cell_type = TRANSIT;
-                birth_time = -11.5;
-            }
-
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
-
-        unsigned old_num_nodes = tissue.GetNumNodes();
-        unsigned old_num_elements = tissue.GetNumElements();
-        unsigned old_num_cells = tissue.GetNumRealCells();
-
-        // Create a force system
-        NagaiHondaForce<2> force;
-        std::vector<AbstractForce<2>* > force_collection;
-        force_collection.push_back(&force);
-
-        // Set up tissue simulation
-        TissueSimulation<2> simulator(tissue, force_collection);
-
-        /*
-         * to visualise need to add "MeshWidth   3.46410162" to results.vizsetup.
-         */
-        simulator.SetOutputDirectory("TestVertexCryptWithCellBirth");
-        simulator.SetEndTime(1.0);
-
-        // Run simulation
-        simulator.Solve();
-
-        // Check that cell 5 divided successfully
-        unsigned new_num_nodes = simulator.rGetTissue().GetNumNodes();
-        unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
-        unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
-
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+2);
-        TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
-        TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
-    }
-
 
     /**
      * Test archiving of a TissueSimulation that uses a VertexBasedTissue.
