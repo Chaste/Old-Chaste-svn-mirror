@@ -155,6 +155,9 @@ public:
         double saved_printing_timestep = 2.0;
         double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
 
+
+        c_matrix<double, 1, 1> intra_tensor_before_archiving;
+        c_matrix<double, 1, 1> extra_tensor_before_archiving;
         {
             TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
             TetrahedralMesh<1,1> mesh;
@@ -169,6 +172,9 @@ public:
             // Some checks to make sure HeartConfig is being saved and loaded by this too.
             HeartConfig::Instance()->SetPrintingTimeStep(saved_printing_timestep);
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
+
+            intra_tensor_before_archiving = bidomain_pde.rGetIntracellularConductivityTensor(1);
+            extra_tensor_before_archiving = bidomain_pde.rGetExtracellularConductivityTensor(1);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -188,6 +194,11 @@ public:
 
             AbstractCardiacPde<1> *p_bidomain_pde;
             input_arch >> p_bidomain_pde;
+
+            const c_matrix<double, 1, 1>& intra_tensor_after_archiving = p_bidomain_pde->rGetIntracellularConductivityTensor(1);
+            TS_ASSERT_DELTA(intra_tensor_before_archiving(0,0), intra_tensor_after_archiving(0,0), 1e-9);
+            const c_matrix<double, 1, 1>& extra_tensor_after_archiving = dynamic_cast<BidomainPde<1>*>(p_bidomain_pde)->rGetExtracellularConductivityTensor(1); //Naughty Gary using dynamic cast, but only for testing...
+            TS_ASSERT_DELTA(extra_tensor_before_archiving(0,0), extra_tensor_after_archiving(0,0), 1e-9);
 
             TS_ASSERT_EQUALS(cache_replication_saved, p_bidomain_pde->GetDoCacheReplication());
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);

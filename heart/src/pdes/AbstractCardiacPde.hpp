@@ -92,8 +92,8 @@ private:
         // archive & mpMesh; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
         // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
-        // archive & mIionicCacheReplicated; Not archived since this is just a cache.
-        // archive & mIntracellularStimulusCacheReplicated; Not archived since this is just a cache.
+        // archive & mIionicCacheReplicated; /// \todo #98 archive or regenerate this ???????
+        // archive & mIntracellularStimulusCacheReplicated; /// \todo #98 archive or regenerate this ???????
         // archive & mStride; // archiving constructor sets this.
         archive & mDoCacheReplication;
         archive & mDoOneCacheReplication;

@@ -240,7 +240,7 @@ public:
 
             // Test rGetIntracellularConductivityTensor
             const c_matrix<double, 1, 1>& tensor_after_archiving = p_monodomain_pde->rGetIntracellularConductivityTensor(1);
-            TS_ASSERT(tensor_before_archiving(0,0) == tensor_after_archiving(0,0));
+            TS_ASSERT_DELTA(tensor_before_archiving(0,0), tensor_after_archiving(0,0), 1e-9);
 
             TS_ASSERT_EQUALS(cache_replication_saved, p_monodomain_pde->GetDoCacheReplication());
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
