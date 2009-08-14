@@ -34,33 +34,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMesh;
 
-#include <vector>
-#include <string>
 #include <fstream>
-#include <iostream>
 #include <sstream>
-#include <iomanip>
+#include <iostream>
 
 #include "Exception.hpp"
-#include "OutputFileHandler.hpp"
-#include "AbstractMeshReader.hpp"
+#include "AbstractMeshWriter.hpp"
 #include "NodeMap.hpp"
 
 /**
- * An abstract mesh writer class.
+ * An abstract tetrahedral mesh writer class.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class AbstractTetrahedralMeshWriter
+class AbstractTetrahedralMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
 
-    OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
-    std::string mBaseName; /**< Base name for the input files */
-
-    std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
-    std::vector< std::vector<unsigned> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
-    std::vector< std::vector<unsigned> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */
-
+    ///\todo The following three members aren't used anywhere - remove them? (#1076)
     std::vector< std::vector<double> >::iterator mpNodeIterator; /**< Is an iterator for the node data */
     std::vector< std::vector<unsigned> >::iterator mpElementIterator; /**< Is an iterator for the element data */
     std::vector< std::vector<unsigned> >::iterator mpBoundaryFaceIterator; /**< Is an iterator for the boundary face data */
@@ -82,63 +72,6 @@ public:
                        const bool clearOutputDir=true);
 
     /**
-     * Destructor.
-     */
-    virtual ~AbstractTetrahedralMeshWriter();
-
-    /**
-     * Return the full path to the directory where meshes will be written.
-     */
-    std::string GetOutputDirectory();
-
-    /**
-     * Add an entry to mNodeData.
-     *
-     * @param nextNode coordinates of the node to add
-     */
-    void SetNextNode(std::vector<double> nextNode);
-
-    /**
-     * Add an entry to mElementData.
-     *
-     * @param nextElement array of the nodes in the element to add
-     */
-    virtual void SetNextElement(std::vector<unsigned> nextElement);
-
-    /**
-     * Add an entry to mBoundaryFaceData.
-     *
-     * @param nextFace array of the nodes on the boundary face to add
-     */
-    void SetNextBoundaryFace(std::vector<unsigned> nextFace);
-
-    /**
-     * Write mesh data to files.
-     * This method must be overridden in concrete classes.
-     */
-    virtual void WriteFiles()=0;
-
-    /**
-     * Get the number of nodes in the mesh.
-     */
-    unsigned GetNumNodes();
-
-    /**
-     * Get the number of elements in the mesh.
-     */
-    unsigned GetNumElements();
-
-    /**
-     * Get the number of boundary elements in the mesh.
-     */
-    unsigned GetNumBoundaryFaces();
-
-    /**
-     * Get the number of boundary faces in the mesh.
-     */
-    unsigned GetNumBoundaryEdges();
-
-    /**
      * Write a mesh to file.
      *
      * @param rMesh the mesh
@@ -154,21 +87,6 @@ public:
      */
     void WriteFilesUsingMesh(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
-    /**
-     * Read in a mesh and write it to file.
-     *
-     * @param rMeshReader the mesh reader
-     */
-    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
-
-    /**
-     * Read in a mesh and a given permutation of the node indices, and write the permuted mesh to file.
-     *
-     * @param rMeshReader the mesh reader
-     * @param rNodePermutation the node permutation
-     */
-    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                   const std::vector<unsigned>& rNodePermutation);
 };
 
 #endif //_ABSTRACTTETRAHEDRALMESHWRITER_HPP_

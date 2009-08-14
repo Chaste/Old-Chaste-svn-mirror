@@ -47,31 +47,21 @@ class VertexMesh;
 #endif //CHASTE_VTK
 
 #include "VertexMesh.hpp"
-#include "OutputFileHandler.hpp"
-#include <iomanip>
+#include "AbstractMeshWriter.hpp"
 
 /**
  * A mesh writer class for vertex-based meshes.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class VertexMeshWriter
+class VertexMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-
-    /** Output file handler member. */
-    OutputFileHandler *mpOutputFileHandler;
-
-    /** Base name for results files. */
-    std::string mBaseName;
-
 
 #ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 ///\todo Merge into VtkWriter
     vtkUnstructuredGrid *mpVtkUnstructedMesh;
-
 #endif //CHASTE_VTK
-
 
 public:
 
@@ -113,6 +103,7 @@ public:
      * @param dataPayload a pay-load of length (number of elements)
      */
     void AddCellData(std::string dataName, std::vector<double> dataPayload);
+
     /**
      * Add data to a future VTK file.
      *
@@ -120,6 +111,12 @@ public:
      * @param dataPayload a pay-load of length (number of nodes)
      */
     void AddPointData(std::string dataName, std::vector<double> dataPayload);
+
+    /**
+     * Write mesh data to files.
+     * This method must be overridden in concrete classes.
+     */
+    void WriteFiles();
 
 };
 
