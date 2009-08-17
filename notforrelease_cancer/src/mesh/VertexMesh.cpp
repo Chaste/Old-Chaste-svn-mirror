@@ -1820,7 +1820,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
      * new element, so as to keep stem cells at the bottom.
      *
      * \todo Woah! Why does this comment refer to stem cells?
-     * Is this code crypt-dependent? It shouldn't be...
+     * Is this code crypt-dependent? It shouldn't be... see also #1099
      */
 
     // Find lowest element \todo this could be more efficient
