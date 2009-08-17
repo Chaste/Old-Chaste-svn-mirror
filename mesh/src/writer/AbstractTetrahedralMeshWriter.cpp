@@ -49,7 +49,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 {
     NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index = 0;
-    for (unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
     {
         Node<SPACE_DIM> *p_node = rMesh.GetNode(i);
 
@@ -68,7 +68,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             node_map.SetDeleted(i);
         }
     }
-    assert(new_index==rMesh.GetNumNodes());
+    assert(new_index==(unsigned)rMesh.GetNumNodes());
 
     // Get an iterator over the elements of the mesh
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
@@ -112,7 +112,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 {
     NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index = 0;
-    for (unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
     {
         Node<SPACE_DIM> *p_node = rMesh.GetNode(i);
 
@@ -131,9 +131,9 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             node_map.SetDeleted(i);
         }
     }
-    assert(new_index==rMesh.GetNumNodes());
+    assert(new_index==(unsigned)rMesh.GetNumNodes());
 
-    for (unsigned i=0; i<rMesh.GetNumAllElements(); i++)
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllElements(); i++)
     {
         Element<ELEMENT_DIM, SPACE_DIM> *p_element = rMesh.GetElement(i);
 
@@ -150,7 +150,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
     }
 
-    for (unsigned i=0; i<rMesh.GetNumAllBoundaryElements(); i++)
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllBoundaryElements(); i++)
     {
         BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *p_boundary_element = rMesh.GetBoundaryElement(i);
         if (p_boundary_element->IsDeleted() == false)
