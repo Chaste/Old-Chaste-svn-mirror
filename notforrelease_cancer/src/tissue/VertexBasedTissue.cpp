@@ -223,7 +223,6 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
     TissueCell *p_created_cell = &(this->mCells.back());
     this->mLocationCellMap[new_element_index] = p_created_cell;
     this->mCellLocationMap[p_created_cell] = new_element_index;
-
     return p_created_cell;
 }
 
@@ -395,18 +394,22 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
 
     // Write element data to file
     *mpElementFile << p_time->GetTime() << "\t";
-    for (typename VertexMesh<DIM,DIM>::VertexElementIterator iter = mrMesh.GetElementIteratorBegin();
-             iter != mrMesh.GetElementIteratorEnd();
-             ++iter)
+   
+    // Loop over cells and find associated elements so in the same order as the cells in output files 
+    for (std::list<TissueCell>::iterator cell_iter = this->mCells.begin();
+         cell_iter != this->mCells.end();
+         ++cell_iter)
     {
+        unsigned elem_index = this->GetLocationIndexUsingCell(&(*cell_iter));
+        
         // First write the number of Nodes belonging to this VertexElement
-        *mpElementFile << iter->GetNumNodes() << " ";
+        *mpElementFile <<  mrMesh.GetElement(elem_index)->GetNumNodes() << " ";
 
         // Then write the global index of each Node in this element
-        unsigned num_nodes_in_this_element = iter->GetNumNodes();
+        unsigned num_nodes_in_this_element = mrMesh.GetElement(elem_index)->GetNumNodes();
         for (unsigned i=0; i<num_nodes_in_this_element; i++)
         {
-            *mpElementFile << iter->GetNodeGlobalIndex(i) << " ";
+            *mpElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i) << " ";
         }
     }
     *mpElementFile << "\n";

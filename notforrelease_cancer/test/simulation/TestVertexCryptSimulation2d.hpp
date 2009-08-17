@@ -259,12 +259,13 @@ public:
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-    }
 
+    }
+    
     void noTestCryptSimulationLong() throw (Exception)
     {
-        unsigned CryptWidth = 8;
-        unsigned CryptHeight = 10;
+        unsigned CryptWidth = 18;
+        unsigned CryptHeight = 25;
         // Create mesh
         Cylindrical2dVertexMesh mesh(CryptWidth, CryptHeight, 0.01, DBL_MAX, true);
 
@@ -275,7 +276,7 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-
+            
             StochasticDurationGenerationBasedCellCycleModel *p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
             CellType cell_type;
             unsigned generation;
@@ -294,18 +295,18 @@ public:
                 cell_type = TRANSIT;
                 generation=1;
             }
-//            else if ((elem_index>=5*CryptWidth)&&(elem_index<10*CryptWidth))
-//            {
-//                //birth_time = - 2.0*(double)elem_index;
-//                cell_type = TRANSIT;
-//                generation=2;
-//            }
-//            else if ((elem_index>=10*CryptWidth)&&(elem_index<15*CryptWidth))
-//            {
-//                //birth_time = - 2.0*(double)elem_index;
-//                cell_type = TRANSIT;
-//                generation=3;
-//            }
+            else if ((elem_index>=5*CryptWidth)&&(elem_index<10*CryptWidth))
+            {
+                //birth_time = - 2.0*(double)elem_index;
+                cell_type = TRANSIT;
+                generation=2;
+            }
+            else if ((elem_index>=10*CryptWidth)&&(elem_index<15*CryptWidth))
+            {
+                //birth_time = - 2.0*(double)elem_index;
+                cell_type = TRANSIT;
+                generation=3;
+            }
             else
             {
                 cell_type = DIFFERENTIATED;
@@ -339,15 +340,9 @@ public:
         
         TissueConfig::Instance()->SetDampingConstantNormal(0.01); //this is set to 1 for cell centre based sims 
         TissueConfig::Instance()->SetDampingConstantMutant(0.01); //this is set to 1 for cell centre based sims
-        TissueConfig::Instance()->SetDeformationEnergyParameter(1.0);//1.0
-        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(0.1);//0.1
-        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.1);//0.1
-        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.1);//0.1
-        TissueConfig::Instance()->SetMaxTransitGenerations(2);
-
 
         // Make crypt shorter for sloughing
-        TissueConfig::Instance()->SetCryptLength(10.0);
+        TissueConfig::Instance()->SetCryptLength(20.0);
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
@@ -355,8 +350,7 @@ public:
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
-
-
+    
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
