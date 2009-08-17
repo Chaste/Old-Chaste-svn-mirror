@@ -186,6 +186,7 @@ public:
      * This constructor is called by the archiver
      *
      * @param rCellsDistributed  pointers to the cardiac cells.
+     * @param pMesh  a pointer to the AbstractTetrahedral mesh.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,

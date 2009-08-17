@@ -84,8 +84,11 @@ public:
     MonodomainPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
 
 
-    /** Another constructor (for archiving)
-     *  @param rCellsDistributed  local cell models (recovered from archive)
+    /**
+     * Another constructor (for archiving)
+     *
+     * @param rCellsDistributed  local cell models (recovered from archive)
+     * @param rCellsDistributed  local cell models (recovered from archive)
      */
     MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
                   AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);

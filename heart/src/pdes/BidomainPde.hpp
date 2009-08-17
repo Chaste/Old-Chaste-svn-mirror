@@ -108,7 +108,8 @@ public:
 
     /**
      *  Archiving constructor
-     *  @param rCellsDistributed  local cell models (recovered from archive)
+     * @param rCellsDistributed  local cell models (recovered from archive)
+     * @param pMesh  a pointer to the AbstractTetrahedral mesh (recovered from archive).
      */
     BidomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
