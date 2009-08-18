@@ -36,10 +36,18 @@ VertexCryptSimulation2d::VertexCryptSimulation2d(AbstractTissue<2>& rTissue,
     : TissueSimulation<2>(rTissue,
                           forceCollection,
                           deleteTissueAndForceCollection,
-                          initialiseCells)
+                          initialiseCells),
+      mUseJiggledBottomCells(false)
 {
     mpStaticCastTissue = static_cast<VertexBasedTissue<2>*>(&mrTissue);
 }
+
+
+void VertexCryptSimulation2d::UseJiggledBottomCells()
+{
+    mUseJiggledBottomCells = true;
+}
+
 
 void VertexCryptSimulation2d::WriteVisualizerSetupFile()
 {
@@ -68,19 +76,37 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
         WntConcentration<2>::Destroy();
     }
 
-    // Update node positions according to any tissue boundary conditions
-    VertexBasedTissue<2> *p_static_cast_tissue = static_cast<VertexBasedTissue<2>*>(&mrTissue);
-
-    for (AbstractTetrahedralMesh<2,2>::NodeIterator iter = p_static_cast_tissue->rGetMesh().GetNodeIteratorBegin();
-         iter != p_static_cast_tissue->rGetMesh().GetNodeIteratorEnd();
-         ++iter)
+    // Iterate over all nodes and update their positions according to the boundary conditions
+    for (unsigned node_index=0; node_index<this->mrTissue.GetNumNodes(); node_index++)
     {
-        // Any cell that has moved below the bottom of the crypt must be moved back up
-        if (iter->rGetLocation()[1] < 0.0)
+        Node<2> *p_node = this->mrTissue.GetNode(node_index);
+        c_vector<double, 2> old_location = rOldLocations[node_index];
+
+        if (!is_wnt_included)
         {
-            iter->rGetModifiableLocation()[1] = 0.0;
+            /**
+             * If WntConcentration is not set up then the stem cells must be pinned
+             * to y=0, so any node whose old hieght was close to zero is moved back
+             * to zero.
+             */
+            if ( rOldLocations[node_index][1] < DBL_EPSILON )
+            {
+                // Return node to old location
+//                node_iter->rGetModifiableLocation()[0] = old_node_location[0]; ///\todo let the node slide? (see #1099)
+                p_node->rGetModifiableLocation()[1] = rOldLocations[node_index][1];
+            }
         }
-        // \todo this will fail until deleted nodes are removed
-        //assert(p_node->rGetLocation()[1] >= 0.0);
+        // Any node that has moved below the bottom of the crypt must be moved back up
+        ///\todo Either do this, or use the 'no-flux' force law (see #1062 and #1100)
+        if (p_node->rGetLocation()[1] < 0.0)
+        {
+            p_node->rGetModifiableLocation()[1] = 0.0;
+            if (this->mUseJiggledBottomCells)
+            {
+                // Give the node a push upwards so that it doesn't get stuck on the bottom of the crypt.
+                p_node->rGetModifiableLocation()[1] = 0.05*mpRandomGenerator->ranf();
+            }
+        }
+        assert(p_node->rGetLocation()[1] >= 0.0);
     }
 }

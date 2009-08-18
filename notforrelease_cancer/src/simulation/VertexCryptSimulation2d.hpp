@@ -56,10 +56,14 @@ private :
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
         archive & boost::serialization::base_object<TissueSimulation<2> >(*this);
+        archive & mUseJiggledBottomCells;
     }
 
     /** Helper member that is a static cast of the tissue. */
     VertexBasedTissue<2> *mpStaticCastTissue;
+
+    /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
+    bool mUseJiggledBottomCells;
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
@@ -94,6 +98,11 @@ public :
                       std::vector<AbstractForce<2>*> forceCollection,
                       bool deleteTissueAndForceCollection=false,
                       bool initialiseCells=true);
+
+    /**
+     * Set method for mUseJiggledBottomCells.
+     */
+    void UseJiggledBottomCells();
 
     /**
      * Overridden ApplyTissueBoundaryConditions() method.

@@ -104,7 +104,7 @@ private:
 
 public:
 
-    void TestUpdatePositions() throw (Exception)
+    void TestBoundaryConditionsAtCryptBase() throw (Exception)
     {
         // Create mesh
         Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
@@ -157,11 +157,75 @@ public:
             c_vector<double, 2> node_location = simulator.rGetTissue().GetNode(node_index)->rGetLocation();
 
             TS_ASSERT_DELTA(node_location[0], old_node_locations[node_index][0] +   node_index*0.01*0.01, 1e-9);
-            TS_ASSERT_DELTA(node_location[1], old_node_locations[node_index][1] + 2*node_index*0.01*0.01, 1e-9);
+
+            if (old_node_locations[node_index][1] > 0.0)
+            {
+                TS_ASSERT_DELTA(node_location[1], old_node_locations[node_index][1] + 2*node_index*0.01*0.01, 1e-9);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(node_location[1], old_node_locations[node_index][1], 1e-9);
+            }
         }
     }
 
+    void TestUsingJiggledBottomSurface()
+    {
+        // Create mesh
+        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
 
+        // Set parameters
+        TissueConfig::Instance()->SetMaxTransitGenerations(UINT_MAX);
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+                                ( TissueConfig::Instance()->GetTransitCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
+
+            TissueCell cell(TRANSIT, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> crypt(mesh, cells);
+
+        // Create force law
+        NagaiHondaForce<2> force_law;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&force_law);
+
+        // Create crypt simulation from tissue and force law
+        VertexCryptSimulation2d simulator(crypt, force_collection);
+
+        simulator.SetOutputDirectory("VertexCrypt2DJiggledBottomCells");
+        simulator.SetEndTime(0.01);
+        simulator.UseJiggledBottomCells();
+
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
+        simulator.SetDt(0.002);
+
+        // Move the first node (which should be on y=0) down a bit
+        TS_ASSERT_DELTA(crypt.GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
+
+        // Move the node (can't use the iterator for this as it is const)
+        crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[1] = -1.0;
+        TS_ASSERT_LESS_THAN(crypt.GetNode(0)->rGetLocation()[1], 0.0);
+
+        // Run simulation
+        simulator.Solve();
+
+        // The node should have been pulled up, but not above y=0. However it should
+        // then been moved to above y=0 by the jiggling
+        TS_ASSERT_LESS_THAN(0.0, crypt.GetNode(0)->rGetLocation()[1]);
+    }
+
+    /**
+     * Test that a short crypt simulation without cell birth runs without throwing any errors.
+     */
     void TestCryptWithNoBirth() throw (Exception)
     {
         // Create mesh
@@ -190,7 +254,7 @@ public:
 
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(0.1);
         simulator.SetOutputDirectory("TestVertexCryptWithNoBirth");
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, false);
@@ -203,6 +267,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
 
+    /**
+     * Test that a short crypt simulation, in which cell birth occurs,
+     * runs without throwing any errors.
+     */
     void TestCryptWithBirth() throw (Exception)
     {
         // Create mesh
@@ -268,12 +336,16 @@ public:
 
     }
 
+    /**
+     * Commented test of a long crypt simulation. Used to generate attachment
+     * VertexSimulation.mpeg on #1095.
+     */
     void noTestCryptSimulationLong() throw (Exception)
     {
-        unsigned CryptWidth = 18;
-        unsigned CryptHeight = 25;
         // Create mesh
-        Cylindrical2dVertexMesh mesh(CryptWidth, CryptHeight, 0.01, DBL_MAX, true);
+        unsigned crypt_width = 18;
+        unsigned crypt_height = 25;
+        Cylindrical2dVertexMesh mesh(crypt_width, crypt_height, 0.01, DBL_MAX, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -288,41 +360,40 @@ public:
             unsigned generation;
 
             // Cells 0 1 2 3 4 and 5 are stem cells
-            if (elem_index<CryptWidth)
+            if (elem_index<crypt_width)
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
-                generation=0;
+                generation = 0;
             }
-               // Cells 0 1 2 3 4 and 5 are stem cells
-            else if ((elem_index>=CryptWidth)&&(elem_index<5*CryptWidth))
+            // Cells 0 1 2 3 4 and 5 are stem cells
+            else if ((elem_index>=crypt_width)&&(elem_index<5*crypt_width))
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
-                generation=1;
+                generation = 1;
             }
-            else if ((elem_index>=5*CryptWidth)&&(elem_index<10*CryptWidth))
+            else if ((elem_index>=5*crypt_width)&&(elem_index<10*crypt_width))
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
-                generation=2;
+                generation = 2;
             }
-            else if ((elem_index>=10*CryptWidth)&&(elem_index<15*CryptWidth))
+            else if ((elem_index>=10*crypt_width)&&(elem_index<15*crypt_width))
             {
                 //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
-                generation=3;
+                generation = 3;
             }
             else
             {
                 cell_type = DIFFERENTIATED;
-                generation=3;
+                generation = 3;
             }
 
             p_cell_cycle_model->SetGeneration(generation);
 
             TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
-
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -353,6 +424,9 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
 
+    /**
+     * Test that archiving a crypt simulation correctly archives its mesh.
+     */
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
@@ -407,6 +481,10 @@ public:
         delete p_simulator;
     }
 
+    /**
+     * Test a crypt simulation with a boundary force on the crypt base.
+     * \todo see #1100
+     */
     void TestCryptSimulationWithBoundaryForce() throw (Exception)
     {
         // Create mesh
@@ -454,7 +532,7 @@ public:
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
         simulator.SetSamplingTimestepMultiple(2);
-        simulator.SetEndTime(10);
+        simulator.SetEndTime(0.01);
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
         // Make crypt shorter for sloughing
@@ -475,8 +553,6 @@ public:
         p_simulator = TissueSimulationArchiver<2, VertexCryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", 10.0);
         delete p_simulator;
     }
-
-    /// \todo Add more tests (see #923)
 
 };
 
