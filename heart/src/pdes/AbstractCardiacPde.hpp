@@ -166,9 +166,10 @@ protected:
     DistributedVectorFactory* mpDistributedVectorFactory;
 
     /**
-     * Whether the distributed vector factory was unarchived or got from the cell factory.
+     * Whether the distributed vector factory and mesh were unarchived or got from elsewhere.
      */
-    bool mFactoryWasUnarchived;
+    bool mFactoryMeshUnarchived;
+
 public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.

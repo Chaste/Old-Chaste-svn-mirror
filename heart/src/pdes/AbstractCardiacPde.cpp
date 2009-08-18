@@ -47,7 +47,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
       mpDistributedVectorFactory(pCellFactory->GetMesh()->GetDistributedVectorFactory()),
-      mFactoryWasUnarchived(false)
+      mFactoryMeshUnarchived(false)
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
     assert(pCellFactory!=NULL);
@@ -85,7 +85,7 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractC
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
       mpDistributedVectorFactory(NULL),
-      mFactoryWasUnarchived(true)
+      mFactoryMeshUnarchived(true)
 {
       CreateIntracellularConductivityTensor();
 }
@@ -110,11 +110,12 @@ AbstractCardiacPde<ELEM_DIM,SPACE_DIM>::~AbstractCardiacPde()
     {
         delete mpIntracellularConductivityTensors;
     }
-
-    // If the distributed vector factory was unarchived we need to free it explicitly.
-    if (mFactoryWasUnarchived)
+    
+    // If the distributed vector factory was unarchived we need to free it explicitly. 
+    if (mFactoryMeshUnarchived)
     {
         delete mpDistributedVectorFactory;
+        delete mpMesh;
     }
 }
 
