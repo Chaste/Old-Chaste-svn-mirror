@@ -196,6 +196,9 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, false);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098 
+        simulator.SetDt(0.002); 
+        
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
@@ -256,6 +259,9 @@ public:
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098 
+        simulator.SetDt(0.002); 
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -332,20 +338,16 @@ public:
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
         simulator.SetSamplingTimestepMultiple(50);
-        simulator.SetEndTime(100);
+        simulator.SetEndTime(10);
         simulator.SetOutputDirectory("TestVertexCryptLong");
-
-        // Modified parameters to make cells equilibriate
-        simulator.SetDt(0.002);       
         
-        TissueConfig::Instance()->SetDampingConstantNormal(0.01); //this is set to 1 for cell centre based sims 
-        TissueConfig::Instance()->SetDampingConstantMutant(0.01); //this is set to 1 for cell centre based sims
-
         // Make crypt shorter for sloughing
         TissueConfig::Instance()->SetCryptLength(20.0);
-
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098// Modified parameters to make cells equilibriate \todo Make this the default timestep #1098 
+        simulator.SetDt(0.002); 
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -455,19 +457,15 @@ public:
         simulator.SetEndTime(10);
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
-        // Modified parameters to make cells equilibriate
-        TissueConfig::Instance()->SetDeformationEnergyParameter(10.0);
-        TissueConfig::Instance()->SetMembraneSurfaceEnergyParameter(5.0);
-        TissueConfig::Instance()->SetCellCellAdhesionEnergyParameter(0.0);
-        TissueConfig::Instance()->SetCellBoundaryAdhesionEnergyParameter(0.0);
-        TissueConfig::Instance()->SetMaxTransitGenerations(2);
-
         // Make crypt shorter for sloughing
         TissueConfig::Instance()->SetCryptLength(8.0);
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098 
+        simulator.SetDt(0.002); 
+       
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 

@@ -83,10 +83,10 @@ private:
         TS_ASSERT_DELTA(p_inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetAreaBasedDampingConstantParameter(), 0.1, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetDeformationEnergyParameter(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetMembraneSurfaceEnergyParameter(), 0.1, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetCellCellAdhesionEnergyParameter(), 0.01, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetCellBoundaryAdhesionEnergyParameter(), 0.01, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetDeformationEnergyParameter(), 100.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetMembraneSurfaceEnergyParameter(), 10.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetCellCellAdhesionEnergyParameter(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetCellBoundaryAdhesionEnergyParameter(), 1.0, 1e-12);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellIdData(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellMutationStates(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellAncestors(), false);
