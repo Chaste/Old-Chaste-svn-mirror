@@ -326,7 +326,7 @@ public:
      */
     bool IsApdMapsRequested() const;
     /**
-     * @param apd_maps  each entry is a request for a map with
+     * @param apdMaps  each entry is a request for a map with
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100)
      */
@@ -337,7 +337,7 @@ public:
      */
     bool IsUpstrokeTimeMapsRequested() const;
     /**
-     * @param upstroke_time_maps  each entry is a request for a map with
+     * @param upstrokeTimeMaps  each entry is a request for a map with
      *  - a threshold (in mV)
      */
     void GetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps) const;
@@ -359,7 +359,7 @@ public:
     bool IsConductionVelocityMapsRequested() const;
 
     /**
-     * @param conduction_velocity_maps  each entry is a request for a map with
+     * @param conductionVelocityMaps  each entry is a request for a map with
      *  - an index to treat as ths source for wave propagation
      */
     void GetConductionVelocityMaps(std::vector<unsigned>& conductionVelocityMaps) const;
@@ -570,7 +570,7 @@ public:
 
     /** Set the parameters of the apd map requested
      *
-     *  @param apd_maps  each entry is a request for a map with
+     *  @param apdMaps  each entry is a request for a map with
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation)
      */
@@ -578,19 +578,19 @@ public:
 
     /** Set the parameters of the upstroke time map requested
      *
-     *  @param upstroke_time_maps  is the maps of upstroke velocities to set
+     *  @param upstrokeTimeMaps  is the maps of upstroke velocities to set
      */
     void SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps);
 
     /** Set the parameters of the maximal upstroke velocity map requested
      *
-     *  @param max_upstroke_velocity_maps is the maps of upstroke velocities to set
+     *  @param maxUpstrokeVelocityMaps is the maps of upstroke velocities to set
      */
     void SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVelocityMaps);
 
     /** Set the parameters of the conduction velocity map requested
      *
-     *  @param conduction_velocity_maps is the maps of conduction velocities to set
+     *  @param conductionVelocityMaps is the maps of conduction velocities to set
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
 
