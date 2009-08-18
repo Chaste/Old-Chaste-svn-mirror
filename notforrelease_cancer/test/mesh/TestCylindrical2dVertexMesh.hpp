@@ -263,7 +263,7 @@ public:
         }
     }
 
-    void TestDivideElement()
+    void TestDivideElementAlongGivenAxis()
     {
         // Create mesh
         Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
@@ -276,7 +276,7 @@ public:
         axis_of_division(1)=1.0/sqrt(2.0);
 
         //Divide non periodic element
-        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(2), axis_of_division);
+        unsigned new_element_index = mesh.DivideElementAlongGivenAxis(mesh.GetElement(2), axis_of_division);
 
         TS_ASSERT_EQUALS(new_element_index, 16u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 17u);
@@ -306,7 +306,7 @@ public:
 
 
         // Divide periodic element
-        new_element_index = mesh.DivideElement(mesh.GetElement(3),axis_of_division);
+        new_element_index = mesh.DivideElementAlongGivenAxis(mesh.GetElement(3), axis_of_division);
 
         TS_ASSERT_EQUALS(new_element_index, 17u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 18u);

@@ -299,12 +299,12 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
                 if (box_index < mBoxes.size() - num_boxes_xy)
                 {
                     local_boxes.insert(box_index + num_boxes_xy);
-                    
+
                     // If we're also not on the far face (y max), then insert the above-far box
                     if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
                     {
                         local_boxes.insert(box_index + num_boxes_xy + mNumBoxesEachDirection(0));
-    
+
                         // If we're also not on the left face (x min), then insert the box to the above-left
                         if (box_index % mNumBoxesEachDirection(0) != 0)
                         {
@@ -315,7 +315,7 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
                     if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
                     {
                         local_boxes.insert(box_index + num_boxes_xy + 1);
-    
+
                         // If we're also not on the far face (y max) row, then insert the box to the above-far-right
                         if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
                         {
@@ -327,12 +327,12 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
                 if (box_index >= num_boxes_xy)
                 {
                     local_boxes.insert(box_index - num_boxes_xy);
-                    
+
                     // If we're also not on the far face (y max), then insert the below-far box
                     if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
                     {
                         local_boxes.insert(box_index - num_boxes_xy + mNumBoxesEachDirection(0));
-    
+
                         // If we're also not on the left face (x min), then insert the box to the below-left
                         if (box_index % mNumBoxesEachDirection(0) != 0)
                         {
@@ -343,7 +343,7 @@ void NodeBoxCollection<DIM>::CalculateLocalBoxes()
                     if (box_index % mNumBoxesEachDirection(0) != mNumBoxesEachDirection(0)-1)
                     {
                         local_boxes.insert(box_index - num_boxes_xy + 1);
-    
+
                         // If we're also not on the far face (y max) row, then insert the box to the below-far-right
                         if (box_index % num_boxes_xy < num_boxes_xy - mNumBoxesEachDirection(0))
                         {

@@ -1975,7 +1975,7 @@ public:
         axis_of_division(1)=0.0;
 
         // Divide element 0 along given axis
-        unsigned new_element_index = vertex_mesh.DivideElement(vertex_mesh.GetElement(0), axis_of_division);
+        unsigned new_element_index = vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division);
 
         TS_ASSERT_EQUALS(new_element_index, vertex_mesh.GetNumElements()-1);
 
@@ -2057,7 +2057,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
 
         // Divide element 0 along short axis
-        unsigned new_element_index = vertex_mesh.DivideElement(vertex_mesh.GetElement(0));
+        unsigned new_element_index = vertex_mesh.DivideElementAlongShortAxis(vertex_mesh.GetElement(0));
 
         TS_ASSERT_EQUALS(new_element_index, vertex_mesh.GetNumElements()-1);
 
@@ -2136,7 +2136,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
 
         // Divide element using two given nodes
-        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(0));
+        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0));
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
@@ -2194,7 +2194,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
 
         // Divide element
-        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(0));
+        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0));
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
@@ -2252,7 +2252,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
 
         // Divide element
-        unsigned new_element_index = mesh.DivideElement(mesh.GetElement(0));
+        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0));
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);

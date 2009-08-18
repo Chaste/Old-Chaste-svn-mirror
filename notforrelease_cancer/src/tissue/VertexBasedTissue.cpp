@@ -208,12 +208,12 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
     if ( norm_2(cellDivisionVector) < DBL_EPSILON )
     {
         // If the cell division vector is the default zero vector, divide the element along the short axis
-        new_element_index = mrMesh.DivideElement(p_element);
+        new_element_index = mrMesh.DivideElementAlongShortAxis(p_element);
     }
     else
     {
         // If the cell division vector has any non-zero component, divide the element along this axis
-        new_element_index = mrMesh.DivideElement(p_element, cellDivisionVector);
+        new_element_index = mrMesh.DivideElementAlongGivenAxis(p_element, cellDivisionVector);
     }
 
     // Associate the new cell with the element
@@ -394,14 +394,14 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
 
     // Write element data to file
     *mpElementFile << p_time->GetTime() << "\t";
-   
-    // Loop over cells and find associated elements so in the same order as the cells in output files 
+
+    // Loop over cells and find associated elements so in the same order as the cells in output files
     for (std::list<TissueCell>::iterator cell_iter = this->mCells.begin();
          cell_iter != this->mCells.end();
          ++cell_iter)
     {
         unsigned elem_index = this->GetLocationIndexUsingCell(&(*cell_iter));
-        
+
         // First write the number of Nodes belonging to this VertexElement
         *mpElementFile <<  mrMesh.GetElement(elem_index)->GetNumNodes() << " ";
 

@@ -119,13 +119,13 @@ protected:
     void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, std::set<unsigned> elementsContainingNodes);
 
     /**
-     * Method to divide an element given 2 nodes in which to divide the element with
+     * Divide an element along the axis passing through two of its nodes.
      *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
      * @param pElement the element to divide
-     * @param nodeAIndex the local index of node where to divide
-     * @param nodeBIndex the local index of node where to divide
+     * @param nodeAIndex the local index of one node within this element
+     * @param nodeBIndex the local index of another node within this element
      *
      * @return the index of the new element
      */
@@ -479,6 +479,9 @@ public:
      *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
+     * \todo This method is only called inside DivideElementAlongShortAxis() -
+     *       get rid of it and move the code into that method?
+     *
      * @param index  the global index of a specified vertex element
      *
      * @return (short_axis_x, short_axis_y).
@@ -545,7 +548,7 @@ public:
     void DeleteElementPriorToReMesh(unsigned index);
 
     /**
-     * Method to divide an element in half
+     * Divide an element along its short axis.
      *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
@@ -553,10 +556,10 @@ public:
      *
      * @return the index of the new element
      */
-    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
+    unsigned DivideElementAlongShortAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     * Method to divide an element in half using a specific axis.
+     * Divide an element along a specified axis.
      *
      * If the new nodes (intersections of axis with element) are within
      * mCellRearrangementThreshold of existing nodes then they are
@@ -569,8 +572,7 @@ public:
      *
      * @return the index of the new element
      */
-    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision);
-
+    unsigned DivideElementAlongGivenAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision);
 
     /**
      * Add an element to the mesh.

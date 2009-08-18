@@ -124,9 +124,8 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSolveThrowsNothing");
-        simulator.SetEndTime(1.0);
-        
-        
+        simulator.SetEndTime(0.1);
+
         // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
         simulator.SetDt(0.002); 
 
@@ -177,7 +176,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
-        simulator.SetEndTime(100.0);
+        simulator.SetEndTime(1.0);
 
         // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
         simulator.SetDt(0.002); 
@@ -186,8 +185,8 @@ public:
         simulator.Solve();
 
         // Test relaxes to circle (can be more stringent with more nodes and more time)
-        TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 1.0, 1e-2);
-        TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 1e-1);
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetAreaOfElement(0), 1.0, 0.05);
+        TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 0.1);
     }
 
     /*
@@ -391,12 +390,10 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
-        simulator.SetEndTime(1.5); // Any longer and cell needs to T2 Swap \todo implement T2 Swaps 
+        simulator.SetEndTime(1.0); // Any longer and cell needs to T2 Swap \todo implement T2 Swaps 
 
-        
         // Longer appoptosis time so cells shrink over a longer time
         TissueConfig::Instance()->SetApoptosisTime(1.5); 
-        
 
         // Create a cell killer and pass in to simulation (note we must account for element index changes following each kill)
         TargetedCellKiller cell0_killer(&tissue, 0);    // element on the bottom boundary
@@ -524,7 +521,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimulationWithVertexBasedTissueSaveAndLoad");
-        simulator.SetEndTime(0.5);
+        simulator.SetEndTime(0.1);
 
         // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098 
         simulator.SetDt(0.002); 
@@ -535,9 +532,9 @@ public:
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
 
         TissueSimulation<2> *p_simulator
-            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithVertexBasedTissueSaveAndLoad", 0.5);
+            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithVertexBasedTissueSaveAndLoad", 0.1);
 
-        p_simulator->SetEndTime(1.0);
+        p_simulator->SetEndTime(0.2);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());

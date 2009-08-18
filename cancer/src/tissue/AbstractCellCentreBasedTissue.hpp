@@ -123,14 +123,14 @@ public:
      *
      * Get the damping constant for the cell associated with this node,
      * i.e. d in drdt = F/d.
-     * 
+     *
      * If the cell is wild-type, then the normal damping constant is returned. If
      * the cell has a mutation, then the mutant damping constant is returned.
-     * 
+     *
      * Note that by default, the normal and mutant damping constants are the same.
      * To alter the damping constant for mutant cells, call the method
      * TissueConfig::SetDampingConstantMutant().
-     * 
+     *
      * @param nodeIndex the global index of this node
      * @return the damping constant at the TissueCell associated with this node
      */

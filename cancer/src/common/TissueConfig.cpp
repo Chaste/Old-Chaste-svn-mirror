@@ -124,14 +124,14 @@ void TissueConfig::Reset()
     mAreaBasedDampingConstantParameter = 0.1;
 
     mMatureCellTargetArea = 1.0;
-    
-    // These Vertex model parameters are rescalled so that mDampingConstantNormal (nu) = 1 where as its 0.01 in Nagai & Honda. 
+
+    // These Vertex model parameters are rescalled so that mDampingConstantNormal (nu) = 1 where as its 0.01 in Nagai & Honda.
     mDeformationEnergyParameter = 100.0; // This is 1.0 in Nagai & Honda.
     mMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 in Nagai & Honda.
     mCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
     mCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
-    
-    
+
+
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
     mOutputCellAncestors = false;

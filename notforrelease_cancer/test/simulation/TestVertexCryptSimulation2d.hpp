@@ -196,9 +196,9 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, false);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098 
-        simulator.SetDt(0.002); 
-        
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
+        simulator.SetDt(0.002);
+
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
@@ -260,14 +260,14 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098 
-        simulator.SetDt(0.002); 
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
+        simulator.SetDt(0.002);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
     }
-    
+
     void noTestCryptSimulationLong() throw (Exception)
     {
         unsigned CryptWidth = 18;
@@ -282,7 +282,7 @@ public:
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            
+
             StochasticDurationGenerationBasedCellCycleModel *p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
             CellType cell_type;
             unsigned generation;
@@ -340,19 +340,19 @@ public:
         simulator.SetSamplingTimestepMultiple(50);
         simulator.SetEndTime(10);
         simulator.SetOutputDirectory("TestVertexCryptLong");
-        
+
         // Make crypt shorter for sloughing
         TissueConfig::Instance()->SetCryptLength(20.0);
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098// Modified parameters to make cells equilibriate \todo Make this the default timestep #1098 
-        simulator.SetDt(0.002); 
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098// Modified parameters to make cells equilibriate \todo Make this the default timestep #1098
+        simulator.SetDt(0.002);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
-    
+
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
@@ -463,9 +463,9 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098 
-        simulator.SetDt(0.002); 
-       
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
+        simulator.SetDt(0.002);
+
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
