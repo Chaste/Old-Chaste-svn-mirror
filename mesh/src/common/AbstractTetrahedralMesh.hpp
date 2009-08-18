@@ -91,6 +91,12 @@ private:
     {
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
 
+        //Only the master process writes any meshes to disk
+        if (!PetscTools::AmMaster())
+        {
+            return;
+        }
+            
         // Create a mesh writer pointing to the correct file and directory.
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                                ArchiveLocationInfo::GetMeshFilename(),

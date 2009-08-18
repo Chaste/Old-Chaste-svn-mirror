@@ -81,7 +81,12 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        mpInstance->Write( true );
+        //Only the Master should be writing the coonfiguration file
+        if (PetscTools::AmMaster())
+        {
+            mpInstance->Write( true );
+        }
+        PetscTools::Barrier();
     }
 
     /**
