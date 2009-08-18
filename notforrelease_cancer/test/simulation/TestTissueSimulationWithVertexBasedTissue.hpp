@@ -356,7 +356,7 @@ public:
         VertexMesh<2,2> mesh(5, 5, 0.1, DBL_MAX);
 
         mesh.SetCellRearrangementThreshold(0.2);
-        mesh.SetT2Threshold(0.001); ///\todo this stops the T2swap
+        mesh.SetT2Threshold(sqrt(3.0)/1000.0); // so T2Swaps once it becomes a triangle
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
@@ -390,7 +390,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
-        simulator.SetEndTime(1.0); // Any longer and cell needs to T2 Swap \todo implement T2 Swaps
+        simulator.SetEndTime(4.5); // Any longer and cell needs to T2 Swap \todo implement T2 Swaps 
 
         // Longer appoptosis time so cells shrink over a longer time
         TissueConfig::Instance()->SetApoptosisTime(1.5);
@@ -415,10 +415,10 @@ public:
         unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
         unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
 
-        // There should be 3 nodes removed when element 0 is removed and 2 nodes removed when element 2 is removed
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-5);
-        TS_ASSERT_EQUALS(new_num_elements, old_num_elements-3);
-        TS_ASSERT_EQUALS(new_num_cells, old_num_cells-3);
+        // There should be 3 nodes removed when element 0 is removed, 2 nodes removed when element 2 is removed, and 2 nodes removed when element 18 is removed
+        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-7);
+        TS_ASSERT_EQUALS(new_num_elements, old_num_elements-4);
+        TS_ASSERT_EQUALS(new_num_cells, old_num_cells-3); //\todo this should match with the elements
     }
 
     void TestSingleCellRelaxationAndApoptosis() throw (Exception)

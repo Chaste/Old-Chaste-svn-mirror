@@ -282,7 +282,7 @@ public:
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements,
                double cellRearrangementThreshold=0.01,
-               double edgeDivisionThreshold=1.5,
+               double edgeDivisionThreshold=DBL_MAX,
                double t2Threshold=0.001);
 
     /**
@@ -595,6 +595,16 @@ public:
      * @param pNodeB a pointer to the other nodes
      */
     void DivideEdge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+
+    /**
+     * Helper method for ReMesh(). Removes the deleted nodes and elements from mesha dn updates the
+     * elementMap accordingly.
+     *
+     * @param elementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
+     *                   with indices of VertexElements in the new mesh.  This should be created
+     *                   with the correct size, GetNumElements()
+     */
+    void RemovedDeletedNodesAndElements(VertexElementMap& elementMap);
 
     /**
      * Re-mesh the mesh.
