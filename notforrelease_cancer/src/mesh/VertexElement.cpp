@@ -105,7 +105,6 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
 
     // Remove the node at rIndex (removes node from element)
     this->mNodes.erase(this->mNodes.begin() + rIndex);
-
 }
 
 

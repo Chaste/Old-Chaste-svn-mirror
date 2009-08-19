@@ -415,6 +415,15 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(6)->GetNode(0)->GetIndex(), 19u);
         TS_ASSERT_EQUALS(mesh.GetElement(6)->GetNode(3)->GetIndex(), 32u);
 
+        // Check that each node is contained in at least one element
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            std::set<unsigned> containing_elements = mesh.GetNode(node_index)->rGetContainingElementIndices();
+            unsigned num_containing_elements = containing_elements.size();
+
+            TS_ASSERT_LESS_THAN(0u, num_containing_elements);
+        }
+
         // Check that the nodes know which elements they are in
         std::set<unsigned> temp_list1;
         temp_list1.insert(0u);

@@ -1317,69 +1317,54 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
 {
-    // Find the sets of elements containing nodes A and B
-    std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
-    std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
+    // Sort the nodes by index
+    unsigned nodeA_index = pNodeA->GetIndex();
+    unsigned nodeB_index = pNodeB->GetIndex();
+    
+    unsigned lo_index = (nodeA_index < nodeB_index) ? nodeA_index : nodeB_index; // low index
+    unsigned hi_index = (nodeA_index < nodeB_index) ? nodeB_index : nodeA_index; // high index
 
-    // Move node with lowest index to midpoint
-    c_vector<double, SPACE_DIM> node_midpoint = pNodeA->rGetLocation() + 0.5*this->GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
+    // Get pointers to the nodes, sorted by index
+    Node<SPACE_DIM>* p_lo_node = this->GetNode(lo_index);
+    Node<SPACE_DIM>* p_hi_node = this->GetNode(hi_index);
 
-    if (pNodeA->GetIndex() < pNodeB->GetIndex()) // Remove node B
+    // Find the sets of elements containing each of the nodes, sorted by index
+    std::set<unsigned> lo_node_elem_indices = p_lo_node->rGetContainingElementIndices();
+    std::set<unsigned> hi_node_elem_indices = p_hi_node->rGetContainingElementIndices();
+
+    c_vector<double, SPACE_DIM> node_midpoint = p_lo_node->rGetLocation() + 0.5*this->GetVectorFromAtoB(p_lo_node->rGetLocation(), p_hi_node->rGetLocation());
+
+    // Move the low-index node to the mid-point
+    c_vector<double, SPACE_DIM>& r_lo_node_location = p_lo_node->rGetModifiableLocation();
+    r_lo_node_location = node_midpoint;
+
+    // Update the elements previously containing the high-index node to contain the low-index node
+    for (std::set<unsigned>::const_iterator it = hi_node_elem_indices.begin();
+         it != hi_node_elem_indices.end();
+         ++it)
     {
-        c_vector<double, SPACE_DIM>& r_nodeA_location = pNodeA->rGetModifiableLocation();
-        r_nodeA_location = node_midpoint;
+        // Find the local index of the high-index node in this element
+        unsigned hi_node_local_index =  mElements[*it]->GetNodeLocalIndex(hi_index);
+        assert(hi_node_local_index < UINT_MAX); // this element should contain the high-index node
 
-        // Replace node B with node A
-        for (std::set<unsigned>::const_iterator it = nodeB_elem_indices.begin();
-             it != nodeB_elem_indices.end();
-            ++it)
+        /*
+         * If this element already contains the low-index node, then just remove the high-index node.
+         * Otherwise replace it with the low-index node in the element and remove it from mNodes.
+         */
+        if (lo_node_elem_indices.count(*it) > 0)
         {
-            unsigned nodeB_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeB->GetIndex());
-            assert(nodeB_local_index < UINT_MAX); // this element should contain node B
-
-            if (nodeA_elem_indices.count(*it) > 0) // element contains node A
-            {
-                // Remove node B
-                mElements[*it]->DeleteNode(nodeB_local_index);
-            }
-            else
-            {
-                // Replace node B with node A
+            mElements[*it]->DeleteNode(hi_node_local_index); // tthink his method removes the high-index node from mNodes
+        }
+        else
+        {
+            // Replace the high-index node with the low-index node in this element
 #define COVERAGE_IGNORE ///\todo Fix coverage
-                mElements[*it]->UpdateNode(nodeB_local_index, pNodeA);
+            mElements[*it]->UpdateNode(hi_node_local_index, p_lo_node);
+//                this->mNodes.erase(this->mNodes.begin() + hi_node_local_index);
 #undef COVERAGE_IGNORE ///\todo Fix coverage
-            }
         }
-        // \todo Delete node B
-        // mDeletedNodeIndices.push_back(pNodeB->GetIndex());
     }
-    else // Remove node A
-    {
-        c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
-        r_nodeB_location = node_midpoint;
-
-        // Replace node A with node B
-        for (std::set<unsigned>::const_iterator it = nodeA_elem_indices.begin();
-             it != nodeA_elem_indices.end();
-            ++it)
-        {
-            unsigned nodeA_local_index =  mElements[*it]->GetNodeLocalIndex(pNodeA->GetIndex());
-            assert(nodeA_local_index < UINT_MAX); // this element should contain node A
-
-            if (nodeB_elem_indices.count(*it)>0) //Element contains nodeB
-            {
-                // Remove node A
-                mElements[*it]->DeleteNode(nodeA_local_index);
-            }
-            else
-            {
-                // Replace node A with node B
-                mElements[*it]->UpdateNode(nodeA_local_index, pNodeB);
-            }
-        }
-        // \todo Delete node A
-        // mDeletedNodeIndices.push_back(pNodeA->GetIndex());
-    }
+//        mDeletedNodeIndices.push_back(hi_index);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
