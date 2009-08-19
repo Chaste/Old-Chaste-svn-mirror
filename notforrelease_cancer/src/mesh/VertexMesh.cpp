@@ -787,7 +787,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexEl
 
     // Make sure the map is big enough
     elementMap.Resize(GetNumAllElements());
-   
+
     // Remove deleted elements
     std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> live_elements;
     for (unsigned i=0; i<mElements.size(); i++)
@@ -847,24 +847,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
 
     if (SPACE_DIM==2)
     {
-        // Remove deleted elements
+        // Remove deleted nodes and elements
         RemovedDeletedNodesAndElements(elementMap);
 
         /*
          * We do not need to call Clear() and remove all current data, since
          * cell birth, rearrangement and death result only in local remeshing
          * of a vertex-based mesh.
-         *
-         * Instead, we should now remove any deleted nodes and elements.
-         *
-         * We should then construct any new nodes, including boundary nodes;
-         * then new elements; then new edges.
-         *
-         * Finally (or should this be at the start?), we should perform any
-         * cell rearrangements.
          */
-
-        // Start of element rearrangement code...
 
         // Restart check after each T1/T2Swap as elements are changed
         bool recheck_mesh = true;
@@ -889,7 +879,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                         if (GetAreaOfElement(iter->GetIndex()) < GetT2Threshold())
                         {
                             PerformT2Swap(&(*iter));
-                            // Now remove the deleted nodes, if we dont do this then the search for T1Swap causes errors.
+                            // Now remove the deleted nodes (if we don't do this then the search for T1Swap causes errors)
                             RemovedDeletedNodesAndElements(elementMap);
                             recheck_mesh = true;
                             break;
@@ -926,7 +916,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                         // Find distance between nodes
                         double distance_between_nodes = this->GetDistanceBetweenNodes(p_current_node->GetIndex(), p_anticlockwise_node->GetIndex());
 
-                       
                         std::set<unsigned> elements_of_node_a = p_current_node->rGetContainingElementIndices();
                         std::set<unsigned> elements_of_node_b = p_anticlockwise_node->rGetContainingElementIndices();
 
@@ -934,11 +923,10 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                         std::set_union(elements_of_node_a.begin(), elements_of_node_a.end(),
                                        elements_of_node_b.begin(), elements_of_node_b.end(),
                                        std::inserter(all_elements, all_elements.begin()));
-                        
-                        
+
                         // Track if either node is in a trinagular element.
                         bool triangular_element = false;
-                        
+
                         for (std::set<unsigned>::const_iterator it = all_elements.begin();
                              it != all_elements.end();
                              ++it)
@@ -948,17 +936,20 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                                 triangular_element = true;
                             }
                         }
-                        
-                        // If the nodes are too close together and we dont have any triangular elements connected to the nodes, perform a swap                                               
-                        if ((!triangular_element)&&(distance_between_nodes < mCellRearrangementThreshold))
+
+                        // If the nodes are too close together and we don't have any triangular elements connected to the nodes, perform a swap
+                        if ((!triangular_element) && (distance_between_nodes < mCellRearrangementThreshold))
                         {
                             // Identify the type of node swap/merge needed then call method to perform swap/merge
                             IdentifySwapType(p_current_node, p_anticlockwise_node);
-                            
+
+                            // Remove any deleted nodes and elements
+                            RemovedDeletedNodesAndElements(elementMap);
+
                             recheck_mesh = true;
                             break;
                         }
-                        
+
                         if (distance_between_nodes > mEdgeDivisionThreshold)
                         {
                             // If the nodes are too far apart, divide the edge
@@ -1126,7 +1117,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
          *
          */
         EXCEPTION("A node is contained in more than three elements"); // the code can't handle this case
-        //PerformNodeMerge(pNodeA, pNodeB);
     }
     else // each node is contained in at most three elements
     {
@@ -1320,13 +1310,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
     // Sort the nodes by index
     unsigned nodeA_index = pNodeA->GetIndex();
     unsigned nodeB_index = pNodeB->GetIndex();
-    
-    unsigned lo_index = (nodeA_index < nodeB_index) ? nodeA_index : nodeB_index; // low index
-    unsigned hi_index = (nodeA_index < nodeB_index) ? nodeB_index : nodeA_index; // high index
+
+    unsigned lo_node_index = (nodeA_index < nodeB_index) ? nodeA_index : nodeB_index; // low index
+    unsigned hi_node_index = (nodeA_index < nodeB_index) ? nodeB_index : nodeA_index; // high index
 
     // Get pointers to the nodes, sorted by index
-    Node<SPACE_DIM>* p_lo_node = this->GetNode(lo_index);
-    Node<SPACE_DIM>* p_hi_node = this->GetNode(hi_index);
+    Node<SPACE_DIM>* p_lo_node = this->GetNode(lo_node_index);
+    Node<SPACE_DIM>* p_hi_node = this->GetNode(hi_node_index);
 
     // Find the sets of elements containing each of the nodes, sorted by index
     std::set<unsigned> lo_node_elem_indices = p_lo_node->rGetContainingElementIndices();
@@ -1344,7 +1334,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
          ++it)
     {
         // Find the local index of the high-index node in this element
-        unsigned hi_node_local_index =  mElements[*it]->GetNodeLocalIndex(hi_index);
+        unsigned hi_node_local_index =  mElements[*it]->GetNodeLocalIndex(hi_node_index);
         assert(hi_node_local_index < UINT_MAX); // this element should contain the high-index node
 
         /*
@@ -1353,18 +1343,22 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
          */
         if (lo_node_elem_indices.count(*it) > 0)
         {
-            mElements[*it]->DeleteNode(hi_node_local_index); // tthink his method removes the high-index node from mNodes
+            mElements[*it]->DeleteNode(hi_node_local_index); // think his method removes the high-index node from mNodes
         }
         else
         {
             // Replace the high-index node with the low-index node in this element
 #define COVERAGE_IGNORE ///\todo Fix coverage
             mElements[*it]->UpdateNode(hi_node_local_index, p_lo_node);
-//                this->mNodes.erase(this->mNodes.begin() + hi_node_local_index);
-#undef COVERAGE_IGNORE ///\todo Fix coverage
+#undef COVERAGE_IGNORE
         }
     }
-//        mDeletedNodeIndices.push_back(hi_index);
+    if (this->mNodes[hi_node_index]->IsDeleted())
+    {
+        EXCEPTION("Trying to delete a deleted node");
+    }
+    this->mNodes[hi_node_index]->MarkAsDeleted();
+    mDeletedNodeIndices.push_back(hi_node_index);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

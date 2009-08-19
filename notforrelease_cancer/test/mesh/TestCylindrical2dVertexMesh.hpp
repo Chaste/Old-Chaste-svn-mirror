@@ -70,9 +70,8 @@ public:
         Cylindrical2dVertexMesh flat_cylindrical_vertex_mesh(4, 4, 0.01, 2.0, true);
 
         // The flat bottomed periodic mesh should have the same number of elements and nodes
-        // \todo there should be 36 nodes but nodes are merged which doesn't delete them
         TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumElements(), 16u);
-        TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumNodes(), 40u);
+        TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumNodes(), 36u);
 
         // Create a vertex mesh writer with cylindrical mesh
         VertexMeshWriter<2,2> vertex_mesh_writer_2("TestFlatCylindrical2dVertexMesh", "flat_cylindrical_vertex_mesh");
@@ -87,7 +86,7 @@ public:
 
     }
 
-    void DONTTestEachNodeIsContainedInAtLeastOneElement()
+    void TestEachNodeIsContainedInAtLeastOneElement()
     {
         // Create mesh
         Cylindrical2dVertexMesh mesh(18, 25, 0.01, DBL_MAX, true);
@@ -253,7 +252,7 @@ public:
             TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(i), 3.4641, 1e-4);
         }
 
-        // Test centroid calculations for nonperiodic element
+        // Test centroid calculations for non-periodic element
         c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
         TS_ASSERT_DELTA(centroid(0), 2.0, 1e-4);
         TS_ASSERT_DELTA(centroid(1), 5.0*0.5/sqrt(3), 1e-4);
@@ -309,14 +308,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(3)->GetIndex(), 40u);
         TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNode(4)->GetIndex(), 41u);
 
-
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(0)->GetIndex(), 40u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(1)->GetIndex(), 14u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(2)->GetIndex(), 10u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(3)->GetIndex(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(16)->GetNode(4)->GetIndex(), 41u);
-
 
         // Divide periodic element
         new_element_index = mesh.DivideElementAlongGivenAxis(mesh.GetElement(3), axis_of_division);
@@ -338,7 +335,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(2)->GetIndex(), 8u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(3)->GetIndex(), 42u);
         TS_ASSERT_EQUALS(mesh.GetElement(3)->GetNode(4)->GetIndex(), 43u);
-
 
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(17)->GetNode(0)->GetIndex(), 42u);
@@ -447,7 +443,6 @@ public:
         // Create mesh
         unsigned num_cells_across = 6;
         unsigned num_cells_up = 12;
-
         Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
 
         // Remesh
@@ -457,7 +452,7 @@ public:
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumElements());
         TS_ASSERT_EQUALS(map.IsIdentityMap(), true);
 
-        // Check that there are the correct number of everything
+        // Check that there are the correct number of elements
         TS_ASSERT_EQUALS(mesh.GetNumElements(), num_cells_across*num_cells_up);
     }
 
@@ -482,7 +477,7 @@ public:
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
         TS_ASSERT_EQUALS(map.Size(), num_old_elements);
 
-        // Check that there are the correct number of everything
+        // Check that there are the correct number of elements and nodes
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_old_nodes);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), num_old_elements-1);
    }

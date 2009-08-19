@@ -43,7 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMeshWriter.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
 
-
 /**
  * Simple cell killer which at the fisrt timestep kills any cell
  * whose corresponding location index is a given number.
@@ -390,7 +389,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
-        simulator.SetEndTime(4.5); // Any longer and cell needs to T2 Swap \todo implement T2 Swaps 
+        simulator.SetEndTime(4.5); // Any longer and cell needs to T2 Swap \todo implement T2 Swaps
 
         // Longer appoptosis time so cells shrink over a longer time
         TissueConfig::Instance()->SetApoptosisTime(1.5);
@@ -439,8 +438,7 @@ public:
         double edge_division_threshold = 2.0;
         VertexMesh<2,2> mesh(nodes, elements, cell_swap_threshold, edge_division_threshold);
 
-        // Set up cells, one for each VertexElement. Give each cell
-        // a birth time of 0
+        // Set up cells, one for each VertexElement
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
@@ -476,10 +474,9 @@ public:
         TS_ASSERT_DELTA(tissue.rGetMesh().GetPerimeterOfElement(0), 3.5449077, 1e-1);
 
         TissueCell& r_cell = simulator.rGetTissue().rGetCellUsingLocationIndex(0);
-        bool set_death_time = false;
-        r_cell.StartApoptosis(set_death_time);
+        r_cell.StartApoptosis(false);
 
-        simulator.SetEndTime(2.25);// any longer and cell target area is zero but element cant be removed as its the only one.
+        simulator.SetEndTime(2.25); // any longer and cell target area is zero but element can't be removed as its the only one.
 
         // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
         simulator.SetDt(0.002);

@@ -132,9 +132,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
         }
     }
 
-    /*
-     * If the mesh has an imposed flat bottom remove unnessesary nodes.
-     */
+    // If the mesh has an imposed flat bottom delete unnessesary nodes
     if (isFlatBottom)
     {
         for (unsigned i=0; i<numAcross; i++)
@@ -148,10 +146,13 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
 
                 // Move node 0 to the same position as node 5 and then
                 // merge nodes 0 and 5 together.
-                SetNode(node_indices[0],mNodes[node_indices[5]]->GetPoint());
-                PerformNodeMerge(mNodes[node_indices[0]],mNodes[node_indices[5]]);
+                SetNode(node_indices[0], mNodes[node_indices[5]]->GetPoint());
+                PerformNodeMerge(mNodes[node_indices[0]], mNodes[node_indices[5]]);
         }
     }
+
+    // ReMesh to remove any deleted nodes and relabel
+    ReMesh();
 }
 
 
