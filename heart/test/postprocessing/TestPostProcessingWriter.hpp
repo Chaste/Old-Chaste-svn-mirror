@@ -61,19 +61,19 @@ public:
         std::string command;
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
                                     + output_dir + "/Apd_60_-30_Map.dat "
-                                    + "heart/test/data/good_apd_postprocessing.dat";
+                                    + "heart/test/data/PostProcessorWriter/good_apd_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         
         writer.WriteUpstrokeTimeMap(-30.0);
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
                                     + output_dir + "/UpstrokeTimeMap_-30.dat "
-                                    + "heart/test/data/good_upstroke_time_postprocessing.dat";
+                                    + "heart/test/data/PostProcessorWriter/good_upstroke_time_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         
         writer.WriteMaxUpstrokeVelocityMap(-30.0);
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
                                     + output_dir + "/MaxUpstrokeVelocityMap_-30.dat "
-                                    + "heart/test/data/good_upstroke_velocity_postprocessing.dat";
+                                    + "heart/test/data/PostProcessorWriter/good_upstroke_velocity_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -91,7 +91,7 @@ public:
         writer.WriteConductionVelocityMap(0u, distance_map_from_0);
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
                                     + output_dir + "/ConductionVelocityFromNode0.dat "
-                                    + "heart/test/data/good_conduction_velocity_postprocessing.dat";
+                                    + "heart/test/data/PostProcessorWriter/good_conduction_velocity_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
     
