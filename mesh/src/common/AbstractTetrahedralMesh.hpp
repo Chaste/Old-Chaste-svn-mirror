@@ -89,47 +89,48 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
-
         //Only the master process writes any meshes to disk
-        if (!PetscTools::AmMaster())
+        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
+        if (PetscTools::AmMaster())
         {
-            return;
-        }
-            
-        // Create a mesh writer pointing to the correct file and directory.
-        TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
-                                                               ArchiveLocationInfo::GetMeshFilename(),
-                                                               false);
-        if (this->IsMeshChanging())
-        {
-            mesh_writer.WriteFilesUsingMesh(*this);
-        }
-        else
-        {
-            try
+                
+            // Create a mesh writer pointing to the correct file and directory.
+            TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
+                                                                   ArchiveLocationInfo::GetMeshFilename(),
+                                                                   false);
+            if (this->IsMeshChanging())
             {
-                // If this mesh object has been constructed from a mesh reader we can get reference to it
-                /**
-                 * \todo #98 - what does this achieve? Overwrites existing mesh file or potentially
-                 * rewrites mesh with a different name, would it be better just to update the name
-                 * in the ArchiveLocationInfo ??
-                 */
-                TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
-                mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+                //#98 Why not do this everytime?  In the parallel case, then it means that we are saving with
+                //the permutation applied
+                mesh_writer.WriteFilesUsingMesh(*this);
             }
-            catch(Exception& e)
+            else
             {
-                /**
-                 * Caching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
-                 * That may mean it is a mesh constructed from a geometric description rather that read from file.
-                 *
-                 * \todo #98, you can use the line mesh_writer.WriteFilesUsingMesh(*this) from above here,
-                 *  but have to think about parallel meshes.
-                 */
-                NEVER_REACHED;
+                try
+                {
+                    // If this mesh object has been constructed from a mesh reader we can get reference to it
+                    /**
+                     * Rewrites mesh with a different name in its original format to the ArchiveLocationInfo.
+                     * This doesn't have the permutation applied.  It may be better to copy the mesh or to use
+                     * HeartConfig...
+                     */
+                    TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
+                    mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+                }
+                catch(Exception& e)
+                {
+                    /**
+                     * Caching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
+                     * That may mean it is a mesh constructed from a geometric description rather that read from file.
+                     *
+                     * \todo #98, you can use the line mesh_writer.WriteFilesUsingMesh(*this) from above here,
+                     *  but have to think about parallel meshes.
+                     */
+                    NEVER_REACHED;
+                }
             }
         }
+        PetscTools::Barrier();//Make sure that the files are written before slave processes proceed       
     }
 
     /**

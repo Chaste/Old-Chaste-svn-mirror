@@ -1,4 +1,5 @@
 bidomain/TestBidomainParallelMesh.hpp
+bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
 TestCardiacUneven.hpp
 TestElectrodes.hpp
