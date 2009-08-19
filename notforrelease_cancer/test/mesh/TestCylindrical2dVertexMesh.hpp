@@ -87,6 +87,19 @@ public:
 
     }
 
+    void DONTTestEachNodeIsContainedInAtLeastOneElement()
+    {
+        // Create mesh
+        Cylindrical2dVertexMesh mesh(18, 25, 0.01, DBL_MAX, true);
+
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            std::set<unsigned> containing_elements = mesh.GetNode(node_index)->rGetContainingElementIndices();
+            unsigned num_containing_elements = containing_elements.size();
+
+            TS_ASSERT_LESS_THAN(0u, num_containing_elements);
+        }
+    }
 
     void TestMeshGetWidth()
     {
