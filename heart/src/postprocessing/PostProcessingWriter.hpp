@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Hdf5DataReader.hpp"
 #include "PropagationPropertiesCalculator.hpp"
+#include "TetrahedralMesh.hpp"
 #include <string>
 
 /**
@@ -41,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * \todo proper documentation
  */
+ 
+template<unsigned SPACE_DIM>
 class PostProcessingWriter
 {
     friend class TestPostProcessingWriter;
@@ -50,16 +53,18 @@ private:
     Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to build the PropagationPropertiesCalculator */
     PropagationPropertiesCalculator* mpCalculator; /**< PropagationPropertiesCalculator based on HDF5 data reader*/
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
+    TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;/**< A mesh used to calculate the distance map to pass to the conduction velocity calculator*/
 
 public:
     /**
      * Constructor
      *
+     * @param rMesh A reference to the mesh used to calculate the distance map to pass to the conduction velocity calculator.
      * @param directory The directory the data is in. The output is written to \<directory\>/output
      * @param hdf5File The file the data is in.
      * @param isAbsolute Whether the directory is an absolute path
      */
-    PostProcessingWriter(std::string directory, std::string hdf5File, bool isAbsolute);
+    PostProcessingWriter(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool isAbsolute);
 
     /**
      *  Write out data files. The data that is written depends on which maps have been requested using

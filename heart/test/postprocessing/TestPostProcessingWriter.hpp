@@ -39,6 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "DistanceMapCalculator.hpp"
 #include "HeartConfig.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "TetrahedralMesh.hpp"
 
 class TestPostProcessingWriter : public CxxTest::TestSuite
 {
@@ -53,8 +55,12 @@ public:
         
     void TestWriterMethods() throw(Exception)
     {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements"); 
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        PostProcessingWriter writer("heart/test/data", "postprocessingapd", false);
+        PostProcessingWriter<1> writer(mesh, "heart/test/data", "postprocessingapd", false);
         
         writer.WriteApdMapFile(60.0, -30.0);
                                    
@@ -76,11 +82,7 @@ public:
                                     + "heart/test/data/PostProcessorWriter/good_upstroke_velocity_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        NonCachedTetrahedralMesh<1,1> cable_mesh;
-        cable_mesh.ConstructFromMeshReader(mesh_reader);
-
-        DistanceMapCalculator<1> dist_calculator(cable_mesh);
+        DistanceMapCalculator<1> dist_calculator(mesh);
         
         std::vector<unsigned> origin_node;
         origin_node.push_back(0);
@@ -91,24 +93,33 @@ public:
         writer.WriteConductionVelocityMap(0u, distance_map_from_0);
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
                                     + output_dir + "/ConductionVelocityFromNode0.dat "
-                                    + "heart/test/data/PostProcessorWriter/good_conduction_velocity_postprocessing.dat";
+                                    + "heart/test/data/PostProcessorWriter/conduction_velocity_10_nodes_from_node_0.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
     
     void TestApdWritingWithNoApdsPresent() throw(Exception)
     {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements"); 
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        PostProcessingWriter writer("heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
+        PostProcessingWriter<1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
         
         writer.WriteApdMapFile(90.0, -30.0);
         
         std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-30_Map.dat " 
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        
     }
     
     void TestPostProcessWriting() throw (Exception)
     {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements"); 
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
         std::vector<std::pair<double,double> > apd_maps;
         apd_maps.push_back(std::pair<double, double>(80,-30));//reploarisation percentage first, as per schema
         apd_maps.push_back(std::pair<double, double>(90,-20));//reploarisation percentage first, as per schema
@@ -123,8 +134,12 @@ public:
         upstroke_velocity_map.push_back(-50.0);
         upstroke_velocity_map.push_back(50.0);
         HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(upstroke_velocity_map);                                                
-                                                                              
-        PostProcessingWriter writer("heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);  
+        
+        std::vector<unsigned> conduction_velocity_map;
+        conduction_velocity_map.push_back(0u);
+        HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map); 
+                                                                            
+        PostProcessingWriter<1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);  
 
         writer.WritePostProcessingFiles();
         
@@ -152,6 +167,12 @@ public:
         command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_50.dat " 
                   + "heart/test/data/PostProcessorWriter/MaxUpstrokeVelocityMap_50.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ConductionVelocityFromNode0.dat " 
+                  + "heart/test/data/PostProcessorWriter/conduction_velocity_100_nodes_from_node_0.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        
+        
     }
 };
 
