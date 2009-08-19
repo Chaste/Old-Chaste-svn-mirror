@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexMeshWriter.hpp"
 #include "VtkWriter.hpp"
+#include "VertexMeshReader.hpp"
 
 class TestVertexMeshWriter : public CxxTest::TestSuite
 {
@@ -86,6 +87,7 @@ public:
         std::vector<double> cell_ids;
         cell_ids.push_back(0.0);
         cell_ids.push_back(1.0);
+
         vertex_mesh_writer.AddCellData("Cell IDs", cell_ids);
         // Add distance from origin into the node "point" data
         std::vector<double> distance;
@@ -104,8 +106,36 @@ public:
 #endif //CHASTE_VTK
     }
 
-void TestMeshVtkWriter3D() throw(Exception)
-    {           // Create 3D mesh
+    void TestMeshWriterWithDeletedNode() throw (Exception)
+    {
+        // Create mesh
+        VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 30u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 9u);
+
+        /*
+         * Delete element 0. This element contains 3 nodes that are
+         * not contained in any other element and so will be marked
+         * as deleted.
+         */
+        mesh.DeleteElementPriorToReMesh(0);
+
+        // Write mesh to file
+        VertexMeshWriter<2,2> mesh_writer("TestMeshWriterWithDeletedNode", "vertex_mesh");
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        // Read mesh back in from file
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        VertexMeshReader<2,2> mesh_reader(output_dir + "vertex_mesh");
+
+        // We should have one less element and three less nodes
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 27u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 8u);
+    }
+
+    void TestMeshVtkWriter3D() throw(Exception)
+    {
+        // Create 3D mesh
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
@@ -129,6 +159,7 @@ void TestMeshVtkWriter3D() throw(Exception)
         std::vector<double> cell_ids;
         cell_ids.push_back(0.0);
         vertex_mesh_writer.AddCellData("Cell IDs", cell_ids);
+
          // Add distance from origin into the node "point" data
         std::vector<double> distance;
         for (unsigned i=0; i<mesh3d.GetNumNodes(); i++)
