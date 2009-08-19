@@ -422,14 +422,14 @@ public:
 
         // Add new cell by dividing element 0 along short axis
 
-        c_vector<double,2> new_cell_location = zero_vector<double>(2);
+        c_vector<double,2> cell_division_vector = zero_vector<double>(2);
 
         TissueCell cell0 = tissue.rGetCellUsingLocationIndex(0);
 
         TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(-1);
 
-        TissueCell *p_new_cell = tissue.AddCell(new_cell, new_cell_location, &cell0);
+        TissueCell *p_new_cell = tissue.AddCell(new_cell, cell_division_vector, &cell0);
 
         // Check that the new cell was successfully added to the tissue
         TS_ASSERT_EQUALS(tissue.GetNumNodes(), old_num_nodes+2);
@@ -482,6 +482,76 @@ public:
         TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(p_new_cell), old_num_elements);
     }
 
+
+    void TestAddCellWithGivenDivisionVector() throw (Exception)
+    {
+        // Make a vertex mesh consisting of a single square element
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 2.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 2.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+
+        std::vector<Node<2>*> nodes_elem;
+        for (unsigned i=0; i<4; i++)
+        {
+            nodes_elem.push_back(nodes[i]);
+        }
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem));
+
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+
+        // Create a cell
+        std::vector<TissueCell> cells;
+        TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        cell.SetBirthTime(-20.0);
+        cells.push_back(cell);
+
+        // Create tissue
+        VertexBasedTissue<2> tissue(vertex_mesh, cells);
+
+        TS_ASSERT_EQUALS(tissue.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(tissue.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 1u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 1u);
+
+        // Add a new cell by dividing element 0 along the axis (1,0)
+        c_vector<double,2> cell_division_axis;
+        cell_division_axis[0] = 1.0;
+        cell_division_axis[1] = 0.0;
+
+        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        new_cell.SetBirthTime(-1.0);
+
+        TissueCell *p_new_cell = tissue.AddCell(new_cell, cell_division_axis, &cell);
+
+        // Check that the new cell was successfully added to the tissue
+        TS_ASSERT_EQUALS(tissue.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(tissue.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 2u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
+
+        // Check the location of the new nodes
+        TS_ASSERT_DELTA(tissue.GetNode(4)->rGetLocation()[0], 2.0, 1e-12);
+        TS_ASSERT_DELTA(tissue.GetNode(4)->rGetLocation()[1], 0.5, 1e-12);
+        TS_ASSERT_DELTA(tissue.GetNode(5)->rGetLocation()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(tissue.GetNode(5)->rGetLocation()[1], 0.5, 1e-12);
+
+        // Test ownership of the new nodes
+        std::set<unsigned> expected_elements_containing_node_4;
+        expected_elements_containing_node_4.insert(0);
+        expected_elements_containing_node_4.insert(1);
+        TS_ASSERT_EQUALS(tissue.GetNode(4)->rGetContainingElementIndices(), expected_elements_containing_node_4);
+
+        std::set<unsigned> expected_elements_containing_node_5;
+        expected_elements_containing_node_5.insert(0);
+        expected_elements_containing_node_5.insert(1);
+        TS_ASSERT_EQUALS(tissue.GetNode(5)->rGetContainingElementIndices(), expected_elements_containing_node_5);
+
+        // Check the index of the new cell
+        TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(p_new_cell), 1u);
+    }
 
     void TestAddCellWithHoneycombMesh() throw (Exception)
     {
