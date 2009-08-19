@@ -1608,7 +1608,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(vertex_mesh);
 
         // Test elements have correct nodes
-        ///\todo Fix the code so that these tests pass
+        ///\todo Fix the code so that these tests pass (see #1110)
 //        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 5u);
 //        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
 //        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
