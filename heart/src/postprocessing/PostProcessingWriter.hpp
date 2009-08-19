@@ -39,10 +39,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Write out physiological parameters at the end of a simulation
  * - APD map
  * - Upstroke time map
- *
- * \todo proper documentation
- */
- 
+ * - Upstroke Velocity map
+ * - Conduction Velocity map
+ * 
+ * If you want to use this class after doing a ParallelTetrahedralMesh simulation then you have
+ * to re-read the mesh as a NonCachedTetrahedralMesh (sequential low-memory representation), and pass
+ * that to this class instead. 
+ */ 
 template<unsigned SPACE_DIM>
 class PostProcessingWriter
 {

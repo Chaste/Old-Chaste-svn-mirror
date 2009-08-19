@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleStimulus.hpp"
 
 #include "TetrahedralMesh.hpp"
+#include "NonCachedTetrahedralMesh.hpp"
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
 #include "MeshalyzerMeshWriter.hpp"
@@ -66,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OrthotropicConductivityTensors.hpp"
 
 #include "Hdf5ToMeshalyzerConverter.hpp"
-
+#include "PostProcessingWriter.hpp"
 #include "Version.hpp"
 
 // Path to the parameter file
@@ -321,7 +322,15 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                         mono_problem.ConvertOutputToMeshalyzerFormat(true);
                         mono_problem.Initialise();
                         mono_problem.Solve();
-
+//                        
+//                        // POSTPROCESSING 
+//                        if (HeartConfig::Instance()->IsPostProcessingRequested())
+//                        {
+//                            AbstractTetrahedralMesh<3,3>& r_mesh = mono_problem.rGetMesh();
+//                            //TriangleMeshWriter<3,3> mesh_writer(
+//                            PostProcessingWriter<3> writer(static_cast<TetrahedralMesh<3,3>& >(r_mesh), HeartConfig::Instance()->GetOutputDirectory(),HeartConfig::Instance()->GetOutputFilenamePrefix() , true);  
+//                            writer.WritePostProcessingFiles();
+//                        } 
                         break;
                     }
 
@@ -398,11 +407,9 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                 }
                 break;
             }
-
             default :
                 EXCEPTION("Unknown domain type!!!");
         }
-
         HeartEventHandler::Headings();
         HeartEventHandler::Report();
     }
