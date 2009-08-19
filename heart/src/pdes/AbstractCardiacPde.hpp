@@ -98,6 +98,10 @@ private:
         archive & mDoCacheReplication;
         archive & mDoOneCacheReplication;
         archive & mpDistributedVectorFactory;
+        
+        ///\todo Fix assertion
+        //This may only work in sequential and in parallel with dumb partitioning (because the mesh isn't archiving the factory)
+        assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
         // archive & mFactoryWasUnarchived; Not archived since set to true when archiving constructor is called.
     }
 

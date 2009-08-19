@@ -230,7 +230,6 @@ public:
             TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep);
         }
 
-
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
@@ -254,33 +253,29 @@ public:
 
             ifs.close();
         }
-        
-//        //Restore from a single process archive
-//        {
-//            ///\todo #98
-//            //If this test fails during development then you'll need the new archive format:
-//            //cp /tmp/chaste/testoutput/archive/monodomain_pde.arch.0 heart/test/data/
-//            std::ifstream ifs("heart/test/data/monodomain_pde.arch.0", std::ios::binary);
-//            boost::archive::text_iarchive input_arch(ifs);
-//
-//            AbstractCardiacPde<1> *p_monodomain_pde;
-//
-//            if (PetscTools::IsSequential())
-//            {
-//                input_arch >> p_monodomain_pde;
-//                }
-//            else
-//            {
-//                //Should not read this archive
-//                input_arch >> p_monodomain_pde;
-//        //        TS_ASSERT_THROWS_THIS(input_arch >> p_new_factory, 
-//        //                "This archive was written for a different number of processors");
-//            }
-//
-//            delete p_monodomain_pde;
-//        }
-    }
+        //Restore from a single process archive
+        {
+            ///\todo #98
+            //If this test fails during development then you'll need the new archive format:
+            //cp /tmp/chaste/testoutput/archive/monodomain_pde.arch.0 heart/test/data/
+            std::ifstream ifs("heart/test/data/monodomain_pde.arch.0", std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
 
+            AbstractCardiacPde<1> *p_monodomain_pde = NULL;
+            if (PetscTools::IsSequential())
+            {
+                input_arch >> p_monodomain_pde;
+            }
+            else
+            {
+                //Should not read this archive
+                TS_ASSERT_THROWS_THIS(input_arch >> p_monodomain_pde, 
+                        "This archive was written for a different number of processors");
+            }
+            delete p_monodomain_pde;
+        }
+
+    }
 };
 
 
