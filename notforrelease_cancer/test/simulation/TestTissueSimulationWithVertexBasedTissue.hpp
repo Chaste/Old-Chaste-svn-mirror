@@ -493,6 +493,9 @@ public:
      */
     void TestArchiving() throw (Exception)
     {
+        // Set end time
+        double end_time = 0.1;
+
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(6, 6, 0.01, 2.0);
 
@@ -518,7 +521,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimulationWithVertexBasedTissueSaveAndLoad");
-        simulator.SetEndTime(0.1);
+        simulator.SetEndTime(end_time);
 
         // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
         simulator.SetDt(0.002);
@@ -529,7 +532,7 @@ public:
         TissueSimulationArchiver<2, TissueSimulation<2> >::Save(&simulator);
 
         TissueSimulation<2> *p_simulator
-            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithVertexBasedTissueSaveAndLoad", 0.1);
+            = TissueSimulationArchiver<2, TissueSimulation<2> >::Load("TestTissueSimulationWithVertexBasedTissueSaveAndLoad", end_time);
 
         p_simulator->SetEndTime(0.2);
 

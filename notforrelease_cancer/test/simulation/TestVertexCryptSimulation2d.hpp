@@ -487,6 +487,9 @@ public:
      */
     void TestCryptSimulationWithBoundaryForce() throw (Exception)
     {
+        // Set end time
+        double end_time = 0.01;
+
         // Create mesh
         Cylindrical2dVertexMesh mesh(6, 8, 0.01, DBL_MAX, true);
 
@@ -501,7 +504,7 @@ public:
             CellType cell_type;
 
             // Cells 0, 1, 2 and 3 are stem cells
-            if (elem_index<6)
+            if (elem_index < 6)
             {
                 birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
@@ -532,7 +535,7 @@ public:
         // Create crypt simulation from tissue and force law
         VertexCryptSimulation2d simulator(crypt, force_collection);
         simulator.SetSamplingTimestepMultiple(2);
-        simulator.SetEndTime(0.01);
+        simulator.SetEndTime(end_time);
         simulator.SetOutputDirectory("TestVertexCryptWithBoundaryForce");
 
         // Make crypt shorter for sloughing
@@ -550,7 +553,7 @@ public:
         // Coverage
         TissueSimulationArchiver<2, VertexCryptSimulation2d>::Save(&simulator);
         VertexCryptSimulation2d *p_simulator;
-        p_simulator = TissueSimulationArchiver<2, VertexCryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", 10.0);
+        p_simulator = TissueSimulationArchiver<2, VertexCryptSimulation2d>::Load("TestVertexCryptWithBoundaryForce", end_time);
         delete p_simulator;
     }
 
