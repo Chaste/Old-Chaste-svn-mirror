@@ -770,88 +770,7 @@ public:
         TS_ASSERT_EQUALS(map.IsDeleted(5), false);
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
     }
-
-    void TestNodesMergingOnEdge() throw(Exception)
-    {
-        // Make nodes to assign to 2 elements
-        std::vector<Node<2>*> nodes;
-        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
-        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
-        nodes.push_back(new Node<2>(4, false, 0.4, 0.0));
-        nodes.push_back(new Node<2>(5, false, 0.6, 0.0));
-        nodes.push_back(new Node<2>(6, false, 0.4, 0.4));
-        nodes.push_back(new Node<2>(7, false, 0.6, 0.6));
-
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
-
-        // Make two elements out of these nodes
-        nodes_elem_0.push_back(nodes[0]);
-        nodes_elem_0.push_back(nodes[4]);
-        nodes_elem_0.push_back(nodes[5]);
-        nodes_elem_0.push_back(nodes[1]);
-        nodes_elem_0.push_back(nodes[2]);
-        nodes_elem_0.push_back(nodes[7]);
-        nodes_elem_0.push_back(nodes[6]);
-
-        nodes_elem_1.push_back(nodes[0]);
-        nodes_elem_1.push_back(nodes[6]);
-        nodes_elem_1.push_back(nodes[7]);
-        nodes_elem_1.push_back(nodes[2]);
-        nodes_elem_1.push_back(nodes[3]);
-
-        std::vector<VertexElement<2,2>*> vertex_elements;
-        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-
-        // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
-
-        // Perform a merge on nodes 4 and 5
-        std::set<unsigned> containing_element_indices;
-        containing_element_indices.insert(0);
-        vertex_mesh.PerformNodeMerge(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
-
-        // Perform a merge on nodes 6 and 7
-        containing_element_indices.insert(1);
-        vertex_mesh.PerformNodeMerge(vertex_mesh.GetNode(7), vertex_mesh.GetNode(6));
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
-        // Test merged nodes are in the correct place
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.5, 1e-8);
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 0.0, 1e-8);
-
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[0], 0.5, 1e-3);
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[1], 0.5, 1e-3);
-
-        // Test elements have correct nodes
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 1u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(4)->GetIndex(), 6u);
-
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 6u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 3u);
-
-        // Test Areas and Perimeters of elements
-        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(0), 0.5, 1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(0), 2+sqrt(2), 1e-6);
-
-        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(1), 0.5,1e-6);
-        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 2.0+sqrt(2), 1e-6);
-    }
-
+    
     // This tests both PerformNodeMerge and IdentifySwapType
     void TestPerformNodeMerge() throw(Exception)
     {
@@ -936,7 +855,90 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(2), 0.5,1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(2), 1.0+sqrt(2.21)+sqrt(1.01), 1e-6);
     }
+    
+    // This tests both PerformNodeMerge and IdentifySwapType
+    void TestPerformNodeMergeOnEdge() throw(Exception)
+    {
+        // Make nodes to assign to 2 elements
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
+        nodes.push_back(new Node<2>(4, false, 0.4, 0.0));
+        nodes.push_back(new Node<2>(5, false, 0.6, 0.0));
+        nodes.push_back(new Node<2>(6, false, 0.4, 0.4));
+        nodes.push_back(new Node<2>(7, false, 0.6, 0.6));
 
+        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
+
+        // Make two elements out of these nodes
+        nodes_elem_0.push_back(nodes[0]);
+        nodes_elem_0.push_back(nodes[4]);
+        nodes_elem_0.push_back(nodes[5]);
+        nodes_elem_0.push_back(nodes[1]);
+        nodes_elem_0.push_back(nodes[2]);
+        nodes_elem_0.push_back(nodes[7]);
+        nodes_elem_0.push_back(nodes[6]);
+
+        nodes_elem_1.push_back(nodes[0]);
+        nodes_elem_1.push_back(nodes[6]);
+        nodes_elem_1.push_back(nodes[7]);
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[3]);
+
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
+
+        // Perform a merge on nodes 4 and 5
+        std::set<unsigned> containing_element_indices;
+        containing_element_indices.insert(0);
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
+
+        // Perform a merge on nodes 6 and 7
+        containing_element_indices.insert(1);
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(7), vertex_mesh.GetNode(6));
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+
+        // Test merged nodes are in the correct place
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.5, 1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 0.0, 1e-8);
+
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[0], 0.5, 1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[1], 0.5, 1e-3);
+
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(4)->GetIndex(), 6u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 3u);
+
+        // Test Areas and Perimeters of elements
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(0), 0.5, 1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(0), 2+sqrt(2), 1e-6);
+
+        TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(1), 0.5,1e-6);
+        TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 2.0+sqrt(2), 1e-6);
+    }
+
+    // This tests both PerformT1Swap and IdentifySwapType
     void TestPerformT1Swap() throw(Exception)
     {
         // Make 6 nodes to assign to four elements
@@ -998,13 +1000,7 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(3), 1.2+0.2*sqrt(41.0), 1e-6);
 
         // Perform a T1 swap on nodes 4 and 5
-        std::set<unsigned> containing_element_indices;
-        containing_element_indices.insert(0);
-        containing_element_indices.insert(1);
-        containing_element_indices.insert(2);
-        containing_element_indices.insert(3);
-
-        vertex_mesh.PerformT1Swap(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), containing_element_indices);
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
 
         // Test moved nodes are in the correct place
         TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 0.6, 1e-8);
@@ -1071,14 +1067,14 @@ public:
 
         /*
          *  Make Four trapezium elements with a central square element out of these nodes
-         *  ______
-         * |\ 2  /|
-         * | \__/ |
-         * | | 4| |
-         * |3|  |1|
-         * | |__| |
-         * | / 0\ |
-         * |/____\|
+         *  _______
+         * |\  2  /|
+         * | \___/ |
+         * | |   | |
+         * |3| 4 |1|
+         * | |___| |
+         * | / 0 \ |
+         * |/_____\|
          *
          */
 
@@ -1137,7 +1133,7 @@ public:
          * |\ 2  /|
          * | \__/ |
          * |  \/  |
-         * | 3 |1 |
+         * | 3 | 1|
          * |  /\  |
          * | / 0\ |
          * |/____\|
@@ -1189,12 +1185,11 @@ public:
 
         /*
          *  T2 swap occurs on Element 4, mesh now looks like.
-         *
          *  ______
          * |\ 2  /|
          * | \  / |
          * |  \/  |
-         * |3 | 1 |
+         * |3  | 1|
          * |  /\  |
          * | / 0\ |
          * |/____\|
@@ -1357,6 +1352,9 @@ public:
                 "dealing with this has not been implemented yet" );
     }
 
+    /**
+     * This tests the ReMesh method for preforming T2Swaps (element removal). 
+     */
     void TestRemeshForT2Swap() throw(Exception)
     {
         // Make 6 nodes to assign to four elements
@@ -1454,6 +1452,23 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 3u);
     }
 
+
+    /**
+     * This tests the ReMesh method for preforming T1Swaps, both internaly and on the boundary. 
+     * In this test we read in a vertex mesh that contains several pairs of nodes that
+     * are close enough for T1Swaps to be performed. The mesh consists of 6 elements and all 
+     * T1Swaps are performed on all horizontal edges.
+     * 
+     *      /\    /\
+     *     /  \__/  \
+     *    /   /  \   \
+     *    \__/\__/\__/
+     *    /  \/  \/  \
+     *    \   \__/   /
+     *     \  /  \  /
+     *      \/    \/
+     */
+    
     void TestReMeshForT1Swaps() throw(Exception)
     {
         // This also tests IdentifySwapType
@@ -1465,13 +1480,13 @@ public:
         vertex_mesh.SetCellRearrangementThreshold(0.1);
         vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
 
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 8u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 22u);
 
         // Calls ReMesh to identify all T1 swaps and perform them.
         vertex_mesh.ReMesh();
 
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 8u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 22u);
 
         std::string dirname = "vertex_remeshing_mesh";
@@ -1482,96 +1497,71 @@ public:
         mesh_writer.WriteFilesUsingMesh(vertex_mesh);
 
         // Test elements have correct nodes
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 20u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 21u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 20u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 21u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 0u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 20u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 21u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(0)->GetIndex(), 0u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(1)->GetIndex(), 13u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 1u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(0)->GetIndex(), 1u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(1)->GetIndex(), 14u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(2)->GetIndex(), 15u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(3)->GetIndex(), 2u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(0)->GetIndex(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(1)->GetIndex(), 16u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(2)->GetIndex(), 3u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(0)->GetIndex(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(1)->GetIndex(), 19u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(2)->GetIndex(), 18u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(3)->GetIndex(), 0u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(0)->GetIndex(), 0u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(1)->GetIndex(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(2)->GetIndex(), 12u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(8)->GetNode(3)->GetIndex(), 13u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(0)->GetIndex(), 1u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(1)->GetIndex(), 13u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(2)->GetIndex(), 12u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(9)->GetNode(3)->GetIndex(), 5u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(0)->GetIndex(), 1u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(1)->GetIndex(), 6u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(10)->GetNode(2)->GetIndex(), 14u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(0)->GetIndex(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(1)->GetIndex(), 15u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(11)->GetNode(2)->GetIndex(), 7u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(0)->GetIndex(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(1)->GetIndex(), 8u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(2)->GetIndex(), 17u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(12)->GetNode(3)->GetIndex(), 16u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNumNodes(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(0)->GetIndex(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(1)->GetIndex(), 16u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(2)->GetIndex(), 17u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(13)->GetNode(3)->GetIndex(), 9u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(0)->GetIndex(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(1)->GetIndex(), 10u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(14)->GetNode(2)->GetIndex(), 19u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(0)->GetIndex(), 0u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(1)->GetIndex(), 18u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(15)->GetNode(2)->GetIndex(), 11u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 13u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 20u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 14u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(4)->GetIndex(), 21u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(5)->GetIndex(), 20u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 21u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(1)->GetIndex(), 19u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(2)->GetIndex(), 18u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(3)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(4)->GetIndex(), 20u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(3)->GetNode(5)->GetIndex(), 21u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(0)->GetIndex(), 13u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(1)->GetIndex(), 12u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(2)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(3)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(4)->GetIndex(), 14u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(4)->GetNode(5)->GetIndex(), 1u);
+
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(1)->GetIndex(), 15u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(2)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(3)->GetIndex(), 8u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(4)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(5)->GetNode(5)->GetIndex(), 16u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(1)->GetIndex(), 16u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(2)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(3)->GetIndex(), 9u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(4)->GetIndex(), 10u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(6)->GetNode(5)->GetIndex(), 19u);
+        
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(1)->GetIndex(), 18u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(2)->GetIndex(), 11u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(3)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(4)->GetIndex(), 12u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(7)->GetNode(5)->GetIndex(), 13u);
     }
 
     /**
+     * This tests the ReMesh method for preforming node merges, both internaly and on the boundary.
+     * 
      * In this test we read in a vertex mesh that contains several pairs of nodes that
      * are close enough to be merged.
      */
@@ -1587,18 +1577,26 @@ public:
         vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 13u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 14u);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 9u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 10u);
 
         // Identify and perform any cell rearrangments
         vertex_mesh.ReMesh();
 
-        // We should have performed five node merges and nodes 7, 8, 10 and 11 should have been removed
+        /* We should have performed five node merges and nodes 7, 8, 10 and 11 should have been removed
+         * 1 and 12 merge to 1
+         * 5 and 11 merge to 5
+         * 9 and 10 merge to 9 becomes 7 on renumbering
+         * 4 and 8  merge to 4
+         * 6 and 7  merge to 6 
+         * 13 becomes 8 on renumbering
+         */
+        
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 10u); // this should be 8
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u); // this should be 8
 
         std::string dirname = "vertex_remeshing_mesh";
         std::string mesh_filename = "vertex_merge_mesh_all";
@@ -1609,25 +1607,26 @@ public:
 
         // Test elements have correct nodes
         ///\todo Fix the code so that these tests pass (see #1110)
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 5u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 5u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 9u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(4)->GetIndex(), 4u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 5u);
-//
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 6u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 6u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 3u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 4u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(), 9u);
-//        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(5)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(4)->GetIndex(), 4u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 8u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 5u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(4)->GetIndex(), 7u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(5)->GetIndex(), 5u);
     }
 
     void TestReMeshExceptions() throw(Exception)
@@ -1641,6 +1640,7 @@ public:
         Node<2> *p_node3 = new Node<2>(3, false, 0.0, 1.0);
         Node<2> *p_node4 = new Node<2>(4, false, 0.5, 0.5);
         Node<2> *p_node5 = new Node<2>(5, false, 0.49, 0.49);
+        Node<2> *p_node6 = new Node<2>(6, false, 0.75, 0.75); // so that all elements have at least 4 nodes 
 
         std::vector<Node<2>*> nodes_in_element0, nodes_in_element1,
                               nodes_in_element2, nodes_in_element3;
@@ -1652,11 +1652,13 @@ public:
 
         nodes_in_element1.push_back(p_node1);
         nodes_in_element1.push_back(p_node2);
+        nodes_in_element1.push_back(p_node6);
         nodes_in_element1.push_back(p_node4);
 
         nodes_in_element2.push_back(p_node2);
         nodes_in_element2.push_back(p_node3);
         nodes_in_element2.push_back(p_node4);
+        nodes_in_element2.push_back(p_node6);
 
         nodes_in_element3.push_back(p_node0);
         nodes_in_element3.push_back(p_node5);
@@ -1670,14 +1672,15 @@ public:
         nodes.push_back(p_node3);
         nodes.push_back(p_node4);
         nodes.push_back(p_node5);
+        nodes.push_back(p_node6);
 
-        /* Create 4 joined triangular elements with an extra node at 'o'.
+        /* Create 4 joined triangular elements with an extra nodes at 'o'.
          *  ______
          * |\    /|
-         * | \  / |
+         * | \  o |
          * |  \/  |
-         * |  /\  |
-         * | o  \ |
+         * |  o\  |
+         * | /  \ |
          * |/____\|
          *
          */
@@ -1697,13 +1700,11 @@ public:
         vertex_mesh.SetCellRearrangementThreshold(0.1);
         vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
 
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
 
         // Call remesh
-        ///\todo Fix the code so that this test passes
-//        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5));
-//        TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "A node is contained in more than three elements");
+        TS_ASSERT_THROWS_THIS(vertex_mesh.ReMesh(), "A node is contained in more than three elements");
     }
 
     void TestReMeshDivideEdgeIfTooBig() throw(Exception)
