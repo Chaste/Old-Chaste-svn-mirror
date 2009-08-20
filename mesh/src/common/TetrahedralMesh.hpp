@@ -278,7 +278,7 @@ public:
     void ConstructCuboid(unsigned width, unsigned height, unsigned depth, bool stagger=false);
 
     /**
-     * Return the element index for the first element that is known to contain a test point
+     * Return the element index for the first element that contains a test point
      *
      * @param testPoint
      * @param strict  Should the element returned contain the point in the interior and
@@ -287,6 +287,18 @@ public:
      *      first for potential efficiency improvements. (default = empty set)
      */
     unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict=false, std::set<unsigned> testElements=std::set<unsigned>());
+
+
+    /**
+     * Return the element index for the first element that contains a test point. Like GetContainingElementIndex
+     * but uses the user given element (M say) as the first element checked, and then checks M+1,M+2,..,Ne,0,1.. 
+     *
+     * @param testPoint
+     * @param startingElementGuess Which element to try first.
+     * @param strict  Should the element returned contain the point in the interior and
+     *      not on an edge/face/vertex (default = not strict)
+     */
+    unsigned GetContainingElementIndexWithInitialGuess(ChastePoint<SPACE_DIM> testPoint, unsigned startingElementGuess, bool strict=false);
 
     /**
      * Return the element index for an element is closest to the testPoint.

@@ -785,6 +785,38 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithInitialGuess(ChastePoint<SPACE_DIM> testPoint, unsigned startingElementGuess, bool strict)
+{
+    assert(startingElementGuess<this->GetNumElements());
+    
+    // let m=startingElementGuess, N=num_elem-1
+    // We search from in this order: m, m+1, m+2, .. , N, 0, 1, .., m-1.
+    // First, determine the last element (=m-1, unless m=0)
+    unsigned last_element = (startingElementGuess==0 ? this->GetNumElements()-1 : startingElementGuess-1);
+    
+    unsigned i=startingElementGuess;
+    while(i!=last_element)
+    {
+        ///\todo What if the element is deleted?
+        if (this->mElements[i]->IncludesPoint(testPoint, strict))
+        {
+            return i;
+        }
+        
+        // increment
+        i++;
+        if(i==this->GetNumElements())
+        {
+            i=0;
+        }
+    }
+
+    //If it's in none of the elements, then throw
+    EXCEPTION("Point is not in mesh");
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint)
 {
     ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)

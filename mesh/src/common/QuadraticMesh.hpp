@@ -147,12 +147,10 @@ private:
 
     /**
      * Helper method which runs triangle or tetgen and reads in the created mesh files.
-     *
-     * \todo document these parameters (also shouldn't they be references?)
      * 
-     * @param binary
-     * @param outputDir
-     * @param fileStem 
+     * @param binary "triangle" or "tetgen" etc
+     * @param outputDir Where to write the temporary files
+     * @param fileStem File stem to use for the temporary files
      */
     void RunMesherAndReadMesh(std::string binary, std::string outputDir, std::string fileStem);
 

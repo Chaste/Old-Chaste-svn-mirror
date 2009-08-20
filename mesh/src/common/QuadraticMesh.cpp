@@ -305,6 +305,8 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
     TrianglesMeshReader<DIM,DIM> mesh_reader(rFileName, 2, order_of_boundary_elements); // 2=quadratic mesh
 
     ConstructFromMeshReader(mesh_reader);
+    
+    assert(this->GetNumBoundaryElements()>0);
 
     // set up the information on whether a node is an internal node or not (if not,
     // it'll be a vertex)
@@ -392,23 +394,15 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements()
     // the elements, and add the extra nodes to the boundary element
     if (DIM>1)
     {
-//        unsigned total = 0;
-//        for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
-//              = this->GetBoundaryElementIteratorBegin();
-//            iter != this->GetBoundaryElementIteratorEnd();
-//            ++iter)
-//        {
-//            total++;
-//        }
-//        
+
 //        unsigned counter = 0;
 
         for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
-              = this->GetBoundaryElementIteratorBegin();
-            iter != this->GetBoundaryElementIteratorEnd();
-            ++iter)
+               = this->GetBoundaryElementIteratorBegin();
+             iter != this->GetBoundaryElementIteratorEnd();
+             ++iter)
         {
-//            std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << total << std::flush;
+//            std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << this->GetNumBoundaryElements() << std::flush;
             
             // collect the nodes of this boundary element in a set
             std::set<unsigned> boundary_element_node_indices;

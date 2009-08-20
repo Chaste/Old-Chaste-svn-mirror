@@ -1214,6 +1214,11 @@ public:
          * 3015, 3022, 3024, 3026
          */
 
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 0), 2992u);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2991), 2992u);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2992), 2992u);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2996), 2992u);
+
         // This should throw because vertex is not strictly contained in any element
         TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point3, true),"Point is not in mesh");
 
