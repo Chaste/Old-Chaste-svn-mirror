@@ -556,15 +556,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
 
             for (unsigned i=0; i<DIM; i++)
             {
-                /// \todo Vertex meshes output nans here if the node does not exist.
-                if (std::isnan(position[i]))
-                {
-                    *mpVizNodesFile << 0 << " ";
-                }
-                else
-                {
-                    *mpVizNodesFile << position[i] << " ";
-                }
+                *mpVizNodesFile << position[i] << " ";
             }
         }
     }
