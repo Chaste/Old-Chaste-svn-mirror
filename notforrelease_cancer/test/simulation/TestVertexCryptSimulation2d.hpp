@@ -547,6 +547,8 @@ public:
         // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
         simulator.SetDt(0.002);
 
+        //Make sure output directory is empty
+        OutputFileHandler file_handler(simulator.GetOutputDirectory(), true);
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
