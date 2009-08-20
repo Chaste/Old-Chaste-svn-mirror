@@ -348,7 +348,7 @@ public:
     bool IsMaxUpstrokeVelocityMapRequested() const;
 
     /**
-     * @param upstroke_velocity_maps  each entry is a request for a map with
+     * @param upstrokeVelocityMaps  each entry is a request for a map with
      *  - a threshold (in mV, defaulted to -30 mV)
      */
     void GetMaxUpstrokeVelocityMaps(std::vector<double>& upstrokeVelocityMaps) const;

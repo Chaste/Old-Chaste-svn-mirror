@@ -88,7 +88,7 @@ public:
      * Another constructor (for archiving)
      *
      * @param rCellsDistributed  local cell models (recovered from archive)
-     * @param rCellsDistributed  local cell models (recovered from archive)
+     * @param pMesh the mesh (also recovered from archive)
      */
     MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
                   AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
