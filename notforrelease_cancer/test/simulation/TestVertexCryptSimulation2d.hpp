@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptBoundaryForce.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "CancerEventHandler.hpp"
@@ -355,33 +356,28 @@ public:
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
 
-            StochasticDurationGenerationBasedCellCycleModel *p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
             CellType cell_type;
             unsigned generation;
 
             // Cells 0 1 2 3 4 and 5 are stem cells
             if (elem_index<crypt_width)
             {
-                //birth_time = - 2.0*(double)elem_index;
                 cell_type = STEM;
                 generation = 0;
             }
             // Cells 0 1 2 3 4 and 5 are stem cells
-            else if ((elem_index>=crypt_width)&&(elem_index<5*crypt_width))
+            else if ((elem_index>=crypt_width) && (elem_index<5*crypt_width))
             {
-                //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
                 generation = 1;
             }
-            else if ((elem_index>=5*crypt_width)&&(elem_index<10*crypt_width))
+            else if ((elem_index>=5*crypt_width) && (elem_index<10*crypt_width))
             {
-                //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
                 generation = 2;
             }
-            else if ((elem_index>=10*crypt_width)&&(elem_index<15*crypt_width))
+            else if ((elem_index>=10*crypt_width) && (elem_index<15*crypt_width))
             {
-                //birth_time = - 2.0*(double)elem_index;
                 cell_type = TRANSIT;
                 generation = 3;
             }
@@ -391,10 +387,9 @@ public:
                 generation = 3;
             }
 
-            p_cell_cycle_model->SetGeneration(generation);
-
-            TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
+            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
+            static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cells.push_back(cell);
         }
 
@@ -422,6 +417,64 @@ public:
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+    }
+
+    /**
+     * Set up and briefly solve a vertex crypt simulation in which
+     * cell proliferation is Wnt-based, to check that WntConcentration
+     * doesn't throw a wobbly.
+     */
+    void TestShortWntBasedCryptSimulation() throw (Exception)
+    {
+        // Create mesh
+        unsigned crypt_width = 18;
+        unsigned crypt_height = 25;
+        Cylindrical2dVertexMesh mesh(crypt_width, crypt_height, 0.01, DBL_MAX, true);
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        {
+            double birth_time = - RandomNumberGenerator::Instance()->ranf()*
+                                 ( TissueConfig::Instance()->GetTransitCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
+
+            TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel(2));
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        VertexBasedTissue<2> crypt(mesh, cells);
+
+        // Set up Wnt gradient
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
+
+        // Create force law
+        NagaiHondaForce<2> force_law;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&force_law);
+
+        // Create crypt simulation from tissue and force law
+        VertexCryptSimulation2d simulator(crypt, force_collection);
+        simulator.SetSamplingTimestepMultiple(50);
+        simulator.SetEndTime(0.5);
+        simulator.SetOutputDirectory("TestShortWntBasedCryptSimulation");
+
+        // Make crypt shorter for sloughing
+        TissueConfig::Instance()->SetCryptLength(20.0);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098// Modified parameters to make cells equilibriate \todo Make this the default timestep #1098
+        simulator.SetDt(0.002);
+
+        // Run simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+        // Tidy up
+        WntConcentration<2>::Destroy();
     }
 
     /**
