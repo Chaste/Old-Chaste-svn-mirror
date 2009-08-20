@@ -59,14 +59,20 @@ c_vector<double, 2> VertexCryptSimulation2d::CalculateCellDivisionVector(TissueC
 {
     c_vector<double, 2> axis_of_division = zero_vector<double>(2);
 
-    if (pParentCell->GetCellType() == STEM)
+    ///\todo We don't need to prescribe how 'stem' cells divide if Wnt is present - or do we? (see #1099)
+    bool is_wnt_included = WntConcentration<2>::Instance()->IsWntSetUp();
+    if (!is_wnt_included)
     {
-        axis_of_division(0) = 1.0;
-        axis_of_division(1) = 0.0;
+        WntConcentration<2>::Destroy();
+        if (pParentCell->GetCellType() == STEM)
+        {
+            axis_of_division(0) = 1.0;
+            axis_of_division(1) = 0.0;
+        }
     }
-
     return axis_of_division;
 }
+
 
 void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 2> >& rOldLocations)
 {
