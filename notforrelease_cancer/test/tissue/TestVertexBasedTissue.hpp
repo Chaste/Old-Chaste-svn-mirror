@@ -178,7 +178,7 @@ public:
         double apoptosis_time = TissueConfig::Instance()->GetApoptosisTime();
 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(apoptosis_time, 2);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.5*apoptosis_time, 3);
 
         // Create mesh
         VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
@@ -200,7 +200,6 @@ public:
 
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
-
             cell_location_indices.push_back(i);
         }
 
@@ -227,12 +226,11 @@ public:
             TS_ASSERT_DELTA(actual_area, expected_area, 1e-12);
         }
 
-        // Make 1 and 4 undergo apoptosis
-
         TissueCell cell_0 = tissue.rGetCellUsingLocationIndex(0);
         TissueCell cell_1 = tissue.rGetCellUsingLocationIndex(1);
         TissueCell cell_4 = tissue.rGetCellUsingLocationIndex(4);
 
+        // Make cell 1 and 4 undergo apoptosis
         cell_1.StartApoptosis();
         cell_4.StartApoptosis();
 
@@ -241,47 +239,53 @@ public:
         double actual_area_4 = tissue.GetTargetAreaOfCell(cell_4);
 
         double expected_area_0 = 0.5;
-
-        double expected_area_1 = TissueConfig::Instance()->GetMatureCellTargetArea();
-        expected_area_1 *= 0.5*(1.0 + 1.0/7.0);
-
+        double expected_area_1 = TissueConfig::Instance()->GetMatureCellTargetArea()*0.5*(1.0 + 1.0/7.0);
         double expected_area_4 = TissueConfig::Instance()->GetMatureCellTargetArea();
 
         TS_ASSERT_DELTA(actual_area_0, expected_area_0, 1e-12);
         TS_ASSERT_DELTA(actual_area_1, expected_area_1, 1e-12);
         TS_ASSERT_DELTA(actual_area_4, expected_area_4, 1e-12);
 
+        // Run for one time step
         p_simulation_time->IncrementTimeOneStep();
 
         double actual_area_0_after_dt = tissue.GetTargetAreaOfCell(cell_0);
         double actual_area_1_after_dt = tissue.GetTargetAreaOfCell(cell_1);
         double actual_area_4_after_dt = tissue.GetTargetAreaOfCell(cell_4);
 
-        // Have run on for half the apoptosis time therefore the target area should have halved
-
-        expected_area_0 = TissueConfig::Instance()->GetMatureCellTargetArea();
-        expected_area_0 *= 0.5*(1.0 + 0.5*apoptosis_time/2.0);
+        // The target areas of cells 1 and 4 should have halved
+        expected_area_0 = TissueConfig::Instance()->GetMatureCellTargetArea()*0.5*(1.0 + 0.5*apoptosis_time/2.0);
 
         TS_ASSERT_DELTA(actual_area_0_after_dt, expected_area_0, 1e-12);
         TS_ASSERT_DELTA(actual_area_1_after_dt, 0.5*expected_area_1, 1e-12);
         TS_ASSERT_DELTA(actual_area_4_after_dt, 0.5*expected_area_4, 1e-12);
 
+        // Make cell 0 undergo apoptosis
         cell_0.StartApoptosis();
 
-        // Now running on for a further half, i.e. the entire apoptosis time
-
+        // Now run on for a further time step
         p_simulation_time->IncrementTimeOneStep();
 
         double actual_area_0_after_2dt = tissue.GetTargetAreaOfCell(cell_0);
         double actual_area_1_after_2dt = tissue.GetTargetAreaOfCell(cell_1);
         double actual_area_4_after_2dt = tissue.GetTargetAreaOfCell(cell_4);
 
-        // Have run on for the further half of the apoptosis time therefore the target area
-        // should have gone to zero
-
+        // Cells 1 and 4 should now have zero target area and the target area of cell 0 should have halved 
         TS_ASSERT_DELTA(actual_area_0_after_2dt, 0.5*expected_area_0, 1e-12);
         TS_ASSERT_DELTA(actual_area_1_after_2dt, 0.0, 1e-12);
         TS_ASSERT_DELTA(actual_area_4_after_2dt, 0.0, 1e-12);
+
+        // Now run on for even further, for coverage
+        p_simulation_time->IncrementTimeOneStep();
+
+        double actual_area_0_after_3dt = tissue.GetTargetAreaOfCell(cell_0);
+        double actual_area_1_after_3dt = tissue.GetTargetAreaOfCell(cell_1);
+        double actual_area_4_after_3dt = tissue.GetTargetAreaOfCell(cell_4);
+
+        // All apoptotic cells should now have zero target area
+        TS_ASSERT_DELTA(actual_area_0_after_3dt, 0.0, 1e-12);
+        TS_ASSERT_DELTA(actual_area_1_after_3dt, 0.0, 1e-12);
+        TS_ASSERT_DELTA(actual_area_4_after_3dt, 0.0, 1e-12);
     }
 
 
