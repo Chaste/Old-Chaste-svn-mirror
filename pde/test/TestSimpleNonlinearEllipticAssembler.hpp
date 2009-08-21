@@ -171,7 +171,7 @@ public:
         assembler.PrepareForSolve();
 
         // cover VerifyJacobian
-        TS_ASSERT( assembler.VerifyJacobian(1e-3,true) );
+        TS_ASSERT( assembler.VerifyJacobian(1e-3) );
 
         // Set up initial solution guess for residuals
         std::vector<double> init_guess(mesh.GetNumNodes());

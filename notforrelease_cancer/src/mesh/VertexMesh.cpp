@@ -995,7 +995,10 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                         {
                             if (ElementIncludesPoint(p_current_node->rGetLocation(), other_iter->GetIndex()))
                             {
+                                #define COVERAGE_IGNORE
+                                ///\todo Fix this coverage
                                 MoveOverlappingNodeOntoEdgeOfElement(p_current_node, other_iter->GetIndex());
+                                #undef COVERAGE_IGNORE
                             }
                         }
                     }
@@ -1355,9 +1358,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
 #undef COVERAGE_IGNORE
         }
     }
-#define COVERAGE_IGNORE
     assert(!(this->mNodes[hi_node_index]->IsDeleted()));
-#undef COVERAGE_IGNORE
     this->mNodes[hi_node_index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(hi_node_index);
 }

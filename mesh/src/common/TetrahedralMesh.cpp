@@ -812,7 +812,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
     }
 
     //If it's in none of the elements, then throw
-    EXCEPTION("Point is not in mesh");
+    EXCEPTION("Point is not in mesh - all elements tested");
 }
 
 

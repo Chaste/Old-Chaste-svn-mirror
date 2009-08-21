@@ -259,14 +259,13 @@ public:
      *  ComputeVectorTerm and ComputeVectorSurfaceTerm) to verify the correctness of the code.
      *
      *  @param tol A tolerance which defaults to 1e-5
-     *  @param print  Whether to print the different matrix J_numerical-J_analytical
      *  @return true if the componentwise difference between the matrices is less than
      *    the tolerance, false otherwise.
      *
      *  This method should NOT be run in simulations - it is only to verify the correctness
      *  of the concrete assembler code.
      */
-    bool VerifyJacobian(double tol=1e-4, bool print=false);
+    bool VerifyJacobian(double tol=1e-4);
 
 }; //end of class AbstractNonlinearAssembler
 
@@ -531,7 +530,7 @@ Vec AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::C
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
-bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::VerifyJacobian(double tol, bool print)
+bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::VerifyJacobian(double tol)
 {
     unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
@@ -563,10 +562,6 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
 
     bool all_less_than_tol = true;
 
-    if (print)
-    {
-        std::cout << "Difference between numerical and analyical Jacobians:\n\n";
-    }
     for (unsigned i=0; i<size; i++)
     {
         for (unsigned j=0; j<size; j++)
@@ -577,28 +572,18 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
             PetscInt col[1];
             row[0] = i;
             col[0] = j;
-
+            ///\todo Get more than one value at a time
             MatGetValues(numerical_jacobian,1,row,1,col,val_n);
             MatGetValues(analytic_jacobian,1,row,1,col,val_a);
 
-            if (print)
-            {
-                std::cout << val_n[0] - val_a[0]<< " ";
-            }
-
-            if (fabs(val_n[0]-val_a[0]) > tol)
+            if(fabs(val_n[0]-val_a[0]) > tol)
             {
 #define COVERAGE_IGNORE // would have to write a bad concrete assembler class just to cover this line
                 all_less_than_tol = false;
 #undef COVERAGE_IGNORE
             }
         }
-        if (print)
-        {
-            std::cout << "\n" <<std::flush;
-        }
     }
-    std::cout << std::flush;
 
     MatDestroy(numerical_jacobian);
     MatDestroy(analytic_jacobian);

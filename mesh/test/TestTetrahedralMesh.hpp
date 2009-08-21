@@ -1219,8 +1219,15 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2992), 2992u);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2996), 2992u);
 
+        //Note from commemt above that point3 is on the boundary of multiple elements
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point3, 2000), 2044u);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point3, 2045), 2047u);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point3, 3025), 3026u);
+
+        // This should throw because vertex is not contained in any element
+        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndexWithInitialGuess(point2, 0), "Point is not in mesh - all elements tested");
         // This should throw because vertex is not strictly contained in any element
-        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point3, true),"Point is not in mesh");
+        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndexWithInitialGuess(point3, 0, true), "Point is not in mesh - all elements tested");
 
         std::vector<unsigned> indices;
         indices = mesh.GetContainingElementIndices(point1);
