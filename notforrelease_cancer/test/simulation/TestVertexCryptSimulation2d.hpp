@@ -108,7 +108,7 @@ public:
     void TestBoundaryConditionsAtCryptBase() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(6, 6);
 
         // Set parameters
         TissueConfig::Instance()->SetMaxTransitGenerations(UINT_MAX);
@@ -173,7 +173,7 @@ public:
     void TestUsingJiggledBottomSurface()
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 4);
 
         // Set parameters
         TissueConfig::Instance()->SetMaxTransitGenerations(UINT_MAX);
@@ -230,7 +230,7 @@ public:
     void TestCryptWithNoBirth() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 12, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(6, 12);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -275,7 +275,7 @@ public:
     void TestCryptWithBirth() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 6, 0.01, 2.0, true);
+        Cylindrical2dVertexMesh mesh(4, 6, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -346,7 +346,7 @@ public:
         // Create mesh
         unsigned crypt_width = 18;
         unsigned crypt_height = 25;
-        Cylindrical2dVertexMesh mesh(crypt_width, crypt_height, 0.01, DBL_MAX, true);
+        Cylindrical2dVertexMesh mesh(crypt_width, crypt_height, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -429,7 +429,7 @@ public:
         // Create mesh
         unsigned crypt_width = 18;
         unsigned crypt_height = 25;
-        Cylindrical2dVertexMesh mesh(crypt_width, crypt_height, 0.01, DBL_MAX, true);
+        Cylindrical2dVertexMesh mesh(crypt_width, crypt_height, true);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -483,7 +483,7 @@ public:
     void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 12, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(6, 12);
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -524,7 +524,7 @@ public:
         p_simulator = TissueSimulationArchiver<2, VertexCryptSimulation2d>::Load("VertexCrypt2DMeshArchive", 0.0);
 
         // Create an identical mesh for comparison purposes
-        Cylindrical2dVertexMesh mesh2(6, 12, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh2(6, 12);
 
         // Compare meshes
         VertexMesh<2,2>& r_mesh = (static_cast<VertexBasedTissue<2>*>(&(p_simulator->rGetTissue())))->rGetMesh();
@@ -544,7 +544,7 @@ public:
         double end_time = 0.01;
 
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 8, 0.01, DBL_MAX, true);
+        Cylindrical2dVertexMesh mesh(6, 8, true);
 
         // Create cells
         std::vector<TissueCell> cells;

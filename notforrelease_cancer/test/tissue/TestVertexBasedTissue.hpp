@@ -69,7 +69,7 @@ public:
     void TestCreateSmallVertexBasedTissue() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(5, 3);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -110,7 +110,7 @@ public:
     void TestValidate() throw (Exception)
     {
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(3, 3);
 
         // Set up cells, one for each element.
         // Give each a birth time of -element_index, so the age = element_index.
@@ -181,7 +181,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.5*apoptosis_time, 3);
 
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(3, 3);
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -294,7 +294,7 @@ public:
         TissueConfig::Instance()->SetDampingConstantMutant(8.0);
 
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(3, 3);
 
         // Set up cells
         std::vector<TissueCell> cells;
@@ -352,7 +352,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
+        VertexMesh<2,2> mesh(4, 6);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -560,7 +560,7 @@ public:
     void TestAddCellWithHoneycombMesh() throw (Exception)
     {
         // Create a mesh with 9 elements
-        VertexMesh<2,2> vertex_mesh(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> vertex_mesh(3, 3);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
@@ -689,7 +689,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
+        VertexMesh<2,2> mesh(4, 6);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -749,7 +749,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4, 6, 0.01, 2.0);
+        VertexMesh<2,2> mesh(4, 6);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);
@@ -895,7 +895,7 @@ public:
     void TestUpdateNodeLocations() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(5, 3);
 
         // Set up cells
         std::vector<TissueCell> cells = SetUpCells(mesh);

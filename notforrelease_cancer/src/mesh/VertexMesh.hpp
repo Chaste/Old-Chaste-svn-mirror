@@ -276,7 +276,7 @@ public:
      * @param nodes vector of pointers to nodes
      * @param vertexElements vector of pointers to VertexElements
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
-     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to 1.5)
+     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to DBL_MAX)
      * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
      */
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
@@ -290,11 +290,11 @@ public:
      *
      * @param numAcross number of VertexElements across
      * @param numUp number of VertexElements up
-     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment
-     * @param edgeDivisionThreshold the maximum threshold distance for edge division
-     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.01)
+     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to DBL_MAX)
+     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
      */
-    VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold, double edgeDivisionThreshold, double t2Threshold = 0.01);
+    VertexMesh(unsigned numAcross, unsigned numUp, double cellRearrangementThreshold =0.01 , double edgeDivisionThreshold = DBL_MAX, double t2Threshold = 0.001);
 
     /**
      * Default constructor for use by serializer.

@@ -63,9 +63,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh()
-    : mCellRearrangementThreshold(0.0), // Overwritten as soon as archiving is complete
-      mEdgeDivisionThreshold(0.0), // Overwritten as soon as archiving is complete
-      mT2Threshold(0.0) // Overwritten as soon as archiving is complete
+    : mCellRearrangementThreshold(0.01), // Overwritten as soon as archiving is complete
+      mEdgeDivisionThreshold(DBL_MAX), // Overwritten as soon as archiving is complete
+      mT2Threshold(0.001) // Overwritten as soon as archiving is complete
 {
     this->mMeshChangesDuringSimulation = true;
     Clear();
@@ -93,6 +93,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
         assert(numAcross >= 1);
         unsigned node_index = 0;
 
+        
         // Create the nodes
         for (unsigned j=0; j<=2*numUp+1; j++)
         {
@@ -218,6 +219,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 mElements.push_back(p_element);
             }
         }
+
         mAddedNodes = true;
         mAddedElements = true;
     }

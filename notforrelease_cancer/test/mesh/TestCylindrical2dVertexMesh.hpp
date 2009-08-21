@@ -43,13 +43,13 @@ public:
     void TestMeshGenerator()
     {
         // Create non-periodic mesh
-        VertexMesh<2,2> non_periodic_mesh(4, 4, 0.01, 2.0);
+        VertexMesh<2,2> non_periodic_mesh(4, 4);
 
         TS_ASSERT_EQUALS(non_periodic_mesh.GetNumElements(), 16u);
         TS_ASSERT_EQUALS(non_periodic_mesh.GetNumNodes(), 48u);
 
         // Create periodic mesh
-        Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4, 0.01, 2.0);
+        Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4);
 
         // The periodic mesh should have the same number of elements but fewer nodes
         TS_ASSERT_EQUALS(cylindrical_vertex_mesh.GetNumElements(), 16u);
@@ -67,7 +67,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cancer/test/data/TestCylindrical2dVertexMesh/cylindrical_vertex_mesh.cell").c_str()), 0);
 
         // Create periodic mesh with flat bottom
-        Cylindrical2dVertexMesh flat_cylindrical_vertex_mesh(4, 4, 0.01, 2.0, true);
+        Cylindrical2dVertexMesh flat_cylindrical_vertex_mesh(4, 4, true);
 
         // The flat bottomed periodic mesh should have the same number of elements and nodes
         TS_ASSERT_EQUALS(flat_cylindrical_vertex_mesh.GetNumElements(), 16u);
@@ -89,7 +89,7 @@ public:
     void TestEachNodeIsContainedInAtLeastOneElement()
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(18, 25, 0.01, DBL_MAX, true);
+        Cylindrical2dVertexMesh mesh(18, 25, true);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
@@ -103,7 +103,7 @@ public:
     void TestMeshGetWidth()
     {
         // Create mesh
-        Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4, 0.01, 2.0);
+        Cylindrical2dVertexMesh cylindrical_vertex_mesh(4, 4);
 
         // Test GetWidthExtremes() method
         c_vector<double,2> width_extremes = cylindrical_vertex_mesh.GetWidthExtremes(0u);
@@ -127,7 +127,7 @@ public:
     void TestGetVectorFromAtoB() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 4);
 
         c_vector<double, 2> node18_location = mesh.GetNode(18)->rGetLocation();
         c_vector<double, 2> node19_location = mesh.GetNode(19)->rGetLocation();
@@ -156,7 +156,7 @@ public:
     void TestSetNodeLocationForCylindricalMesh() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 4);
 
         // Move one of the nodes to near the periodic boundary
         c_vector<double, 2> new_point_location;
@@ -185,7 +185,7 @@ public:
     void TestAddNodeAndReMesh() throw (Exception)
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(6, 6, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(6, 6);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 84u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 36u);
@@ -241,7 +241,7 @@ public:
     void TestElementAreaPerimeterCentroidAndMoments()
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 4);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40u);
 
@@ -278,7 +278,7 @@ public:
     void TestDivideElementAlongGivenAxis()
     {
         // Create mesh
-        Cylindrical2dVertexMesh mesh(4, 4, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(4, 4);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 16u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40u);
@@ -357,7 +357,7 @@ public:
         unsigned num_cells_across = 4;
         unsigned num_cells_up = 7;
 
-        AbstractMesh<2,2>* const p_saved_mesh = new Cylindrical2dVertexMesh(num_cells_across, num_cells_up, 0.01, 2.0);
+        AbstractMesh<2,2>* const p_saved_mesh = new Cylindrical2dVertexMesh(num_cells_across, num_cells_up);
 
         double crypt_width = num_cells_across;
 
@@ -443,7 +443,7 @@ public:
         // Create mesh
         unsigned num_cells_across = 6;
         unsigned num_cells_up = 12;
-        Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up);
 
         // Remesh
         VertexElementMap map(mesh.GetNumElements());
@@ -463,7 +463,7 @@ public:
         unsigned num_cells_across = 6;
         unsigned num_cells_up = 12;
 
-        Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up, 0.01, 2.0);
+        Cylindrical2dVertexMesh mesh(num_cells_across, num_cells_up);
         unsigned num_old_nodes = mesh.GetNumNodes();
         unsigned num_old_elements = num_cells_across*num_cells_up;
 

@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexMeshWriter.hpp"
 #include "VertexMesh.hpp"
+#include "Debug.hpp"
 
 
 class TestVertexMesh : public CxxTest::TestSuite
@@ -45,7 +46,7 @@ public:
     void TestNodeIterator() throw (Exception)
     {
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
+        VertexMesh<2,2> mesh(3, 3);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 30u);
 
@@ -90,7 +91,7 @@ public:
     void TestVertexElementIterator() throw (Exception)
     {
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
+        VertexMesh<2,2> mesh(3, 3);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(),9u);
 
@@ -165,7 +166,7 @@ public:
         basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements, 0.15, 1.76);
+        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
 
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 7u);
@@ -191,14 +192,17 @@ public:
         TS_ASSERT_EQUALS(basic_nodes[5]->rGetContainingElementIndices(), temp_list2);
 
         // Test Set and Get methods
-        TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.15, 1e-4);
-        TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), 1.76, 1e-4);
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.01, 1e-4); // Default value
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), DBL_MAX, 1e-4); // Default value
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetT2Threshold(), 0.001, 1e-4); // Default value
 
         basic_vertex_mesh.SetCellRearrangementThreshold(0.03);
         basic_vertex_mesh.SetEdgeDivisionThreshold(3.0);
+        basic_vertex_mesh.SetT2Threshold(0.003);
 
         TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.03, 1e-4);
         TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), 3.0, 1e-4);
+        TS_ASSERT_DELTA(basic_vertex_mesh.GetT2Threshold(), 0.003, 1e-4);
 
         // Coverage
         TS_ASSERT_EQUALS(basic_vertex_mesh.SolveNodeMapping(0), 0u);
@@ -222,7 +226,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+        VertexMesh<2,2> mesh(nodes, elements);
 
         // Test GetCentroidOfElement() method
         c_vector<double, 2> centroid = mesh.GetCentroidOfElement(0);
@@ -245,7 +249,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+        VertexMesh<2,2> mesh(nodes, elements);
 
         // Test GetAreaGradientOfElementAtNode() method at each node
         VertexElement<2,2> *p_element = mesh.GetElement(0);
@@ -281,7 +285,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+        VertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
 
@@ -310,7 +314,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+        VertexMesh<2,2> mesh(nodes, elements);
 
         // Test gradient of area evaluated at each node
         VertexElement<2,2> *p_element = mesh.GetElement(0);
@@ -335,7 +339,7 @@ public:
     void TestMeshGetWidthAndWidthExtremes()
     {
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(3, 3);
 
         // Test GetWidthExtremes() method
         c_vector<double,2> width_extremes = mesh.GetWidthExtremes(0u);
@@ -371,7 +375,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+        VertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
 
@@ -390,7 +394,7 @@ public:
     void TestVertexMeshGenerator() throw(Exception)
     {
         // Create mesh
-        VertexMesh<2,2> mesh(5, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(5, 3);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 15u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46u);
@@ -436,6 +440,11 @@ public:
         VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Test Get methods
+        TS_ASSERT_DELTA(mesh.GetCellRearrangementThreshold(), 0.01, 1e-4); // Default value
+        TS_ASSERT_DELTA(mesh.GetEdgeDivisionThreshold(), DBL_MAX, 1e-4); // Default value
+        TS_ASSERT_DELTA(mesh.GetT2Threshold(), 0.001, 1e-4); // Default value
 
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
@@ -536,6 +545,7 @@ public:
         // Create mesh
         VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_mesh");
         VertexMesh<2,2> mesh;
+        
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
@@ -558,7 +568,6 @@ public:
         TS_ASSERT_EQUALS(new_index, old_num_nodes);
 
         // Remesh to update correspondences
-        mesh.SetEdgeDivisionThreshold(1000); // set high threshold to avoid more nodes appearing in the remesh
         VertexElementMap map(mesh.GetNumElements());
         mesh.ReMesh(map);
 
@@ -619,7 +628,7 @@ public:
         elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> mesh(nodes, elements, 0.05, 2.0);
+        VertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
@@ -661,7 +670,7 @@ public:
 
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "vertex_mesh");
 
-        AbstractMesh<2,2>* const p_mesh = new VertexMesh<2,2>(5, 3, 0.01, 2.0);
+        AbstractMesh<2,2>* const p_mesh = new VertexMesh<2,2>(5, 3);
         /*
          * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
          * This is because the serialization library only allows you to save tracked
@@ -978,7 +987,8 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1*2.0/1.5); // threshold distance is 0.1 to ease calculations
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements); 
+        vertex_mesh.SetCellRearrangementThreshold(0.1*2.0/1.5);// Threshold distance set to ease calculations.
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
@@ -1117,7 +1127,6 @@ public:
 
         // Make a vertex mesh
         VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
-
         vertex_mesh.SetCellRearrangementThreshold(0.25);// T1 threshold distance is 0.25 so inner edges are too short
         vertex_mesh.SetT2Threshold(0.001); //T2 threshold small so doesnt occur
 
@@ -1273,8 +1282,8 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
-
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        vertex_mesh.SetCellRearrangementThreshold(0.1);// Threshold distance set to ease calculations.
         vertex_mesh.SetT2Threshold(0.01);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
@@ -1342,8 +1351,9 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); // threshold distance is 0.1 to ease calculations
-
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1); 
+        vertex_mesh.SetCellRearrangementThreshold(0.1);// Threshold distance set to ease calculations.
+        
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
 
         // Attempt to perform a T2 swap on the middle triangle element
@@ -1434,7 +1444,8 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[0], 0.4999, 1e-4);
         TS_ASSERT_DELTA(vertex_mesh.GetNode(3)->rGetLocation()[1], 0.2496, 1e-4);
 
-        // Test elements have correct nodes // note nodes are renumbered as element 0 is deleted
+        // Test elements have correct nodes 
+        // note nodes are renumbered as element 0 is deleted
 
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 1u);
@@ -1476,10 +1487,10 @@ public:
         // LoadMesh
         VertexMeshReader<2,2> mesh_reader("notforrelease_cancer/test/data/TestVertexMesh/vertex_remesh_mesh_all");
         VertexMesh<2,2> vertex_mesh;
+        
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
+        
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 8u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 22u);
 
@@ -1574,8 +1585,7 @@ public:
         VertexMesh<2,2> vertex_mesh;
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
+        
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 14u);
 
@@ -1586,13 +1596,15 @@ public:
         // Identify and perform any cell rearrangments
         vertex_mesh.ReMesh();
 
-        /* We should have performed five node merges and nodes 7, 8, 10 and 11 should have been removed
+        /* We should have performed five node merges and
          * 1 and 12 merge to 1
          * 5 and 11 merge to 5
          * 9 and 10 merge to 9 becomes 7 on renumbering
          * 4 and 8  merge to 4
          * 6 and 7  merge to 6 
          * 13 becomes 8 on renumbering
+         * 
+         * Nodes 9, 10, 11, 12 and 13 should have been removed
          */
         
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
@@ -1698,8 +1710,7 @@ public:
         // Create mesh
         VertexMesh<2,2> vertex_mesh(nodes, elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
-        vertex_mesh.SetEdgeDivisionThreshold(DBL_MAX);
-
+        
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
 
@@ -1757,7 +1768,7 @@ public:
     void TestNeighbouringNodeMethods() throw(Exception)
     {
         // Create mesh
-        VertexMesh<2,2> mesh(2, 2, 0.01, 2.0);
+        VertexMesh<2,2> mesh(2, 2);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 16u);
@@ -2504,7 +2515,7 @@ public:
     void TestScaleAndTranslate()
     {
         // Create 2D mesh
-        VertexMesh<2,2> mesh2d(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh2d(3, 3);
 
         TS_ASSERT_DELTA(mesh2d.GetWidth(0), 2.8867, 1e-4);
         TS_ASSERT_DELTA(mesh2d.GetWidth(1), 3.5000, 1e-4);
@@ -2788,7 +2799,7 @@ public:
     void TestTranslation2DMethod() throw (Exception)
     {
         // Create 2D mesh
-        VertexMesh<2,2> mesh(3, 3, 0.01, 2.0);
+        VertexMesh<2,2> mesh(3, 3);
 
         // Pick a random node and store spatial position
         Node<2> *p_node = mesh.GetNode(10);
