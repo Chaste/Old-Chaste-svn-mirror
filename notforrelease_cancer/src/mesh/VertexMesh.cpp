@@ -1355,10 +1355,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
 #undef COVERAGE_IGNORE
         }
     }
-    if (this->mNodes[hi_node_index]->IsDeleted())
-    {
-        EXCEPTION("Trying to delete a deleted node");
-    }
+#define COVERAGE_IGNORE
+    assert(!(this->mNodes[hi_node_index]->IsDeleted()));
+#undef COVERAGE_IGNORE
     this->mNodes[hi_node_index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(hi_node_index);
 }
