@@ -39,6 +39,15 @@ python setup.py install --prefix=$CHASTE_LIBS
 cd ..
 rm -rf scons-1.2.0.tar.gz scons-1.2.0
 
+On a 64-bit machine you may find that an invocation of Scons
+($CHASTE_LIBS/bin/scons) produces the error "ImportError: No module named
+SCons.Script".
+This is a known bug with Scons and may be fixed by adding a symbolic link
+from the 64-bit library.  Do so like this:
+cd $CHASTE_LIBS
+ln -s lib64 lib
+
+
 ========MPI and PETSC:=======
 
 Note: while these instructions use the MPICH library to provide MPI
@@ -166,6 +175,10 @@ rm -rf tetgen1.4.2*
 
 =============== TRIANGLE =====================
 
+Note: From Release 1.1 installation of triangle/showme binaries is optional
+since all 2D re-meshing methods in Chaste use direct library calls to
+Triangle code which is bundled with Chaste.
+ 
 cd $CHASTE_LIBS
 wget http://www.netlib.org/voronoi/triangle.zip
 mkdir triangle
@@ -188,6 +201,15 @@ Edit the ~/.bashrc file in the home directory and append the following:
 export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
 export PATH=$CHASTE_LIBS/bin:$PATH
 export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu
+
+Note that the above settings assume that PATH already has a value but that
+LD_LIBRARY_PATH has not.  If LD_LIBRARY_PATH is set elsewhere in ~/.bashrc
+or in system-wide configuration then you will need:
+
+export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
+export PATH=$CHASTE_LIBS/bin:$PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu
+
 
 Note that test output will be put in the folder given by the environment variable CHASTE_TEST_OUTPUT. 
 If this has not been assigned to anything, it will be (temporarily) set to be the directory 
