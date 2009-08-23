@@ -42,29 +42,6 @@ class TestCylindrical2dMesh : public CxxTest::TestSuite
 {
 public:
 
-    void TestBasicFunctions() throw (Exception)
-    {
-        // Test IsThisIndexInList
-        Cylindrical2dMesh mesh(1.0);
-
-        std::vector<unsigned> list_of_nodes;
-        list_of_nodes.push_back(0u);
-        list_of_nodes.push_back(2u);
-        list_of_nodes.push_back(5u);
-        list_of_nodes.push_back(7u);
-
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(0u, list_of_nodes), true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(2u, list_of_nodes), true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(5u, list_of_nodes), true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(7u, list_of_nodes), true);
-
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(1u, list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(3u, list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u, list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u, list_of_nodes), false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u, list_of_nodes), false);
-    }
-
     void TestCreateMirrorCellsAndAlignmentTester() throw (Exception)
     {
         // Note that elements are not created (and boundary elements are not changed),
@@ -73,7 +50,7 @@ public:
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
-        unsigned thickness_of_ghost_layer = 0u;
+        unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
 
@@ -395,7 +372,7 @@ public:
 //        new_location[1] = -1.760;
 //        ChastePoint<2> boundary_point(new_location);
 //        // We just move one of the bottom boundary nodes and then...
-//        p_mesh->SetNode(0u, boundary_point,false);
+//        p_mesh->SetNode(0, boundary_point,false);
 //        // check that all the nodes on this boundary have moved down
 //        for (unsigned i=0; i<3; i++)
 //        {
@@ -406,7 +383,7 @@ public:
 //        new_location = p_mesh->GetNode(19)->rGetLocation();
 //        new_location[1] = 4.0;
 //        ChastePoint<2> boundary_point2(new_location);
-//        p_mesh->SetNode(19u, boundary_point2,false);
+//        p_mesh->SetNode(19, boundary_point2,false);
 //        // check that all the nodes on this boundary have moved up
 //        for (unsigned i=18; i<21; i++)
 //        {
@@ -420,20 +397,20 @@ public:
         ChastePoint<2> new_point(new_point_location);
         p_mesh->GetNode(5)->SetPoint(new_point);
 
-        new_point.SetCoordinate(0u, -0.0001);
+        new_point.SetCoordinate(0, -0.0001);
 
         // This node was on left and is now near the right
-        p_mesh->SetNode(0u, new_point, false);
+        p_mesh->SetNode(0, new_point, false);
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 2.9999, 1e-4);
 
-        new_point.SetCoordinate(0u, 1.0000);
-        p_mesh->SetNode(0u, new_point, false);
+        new_point.SetCoordinate(0, 1.0000);
+        p_mesh->SetNode(0, new_point, false);
 
         // This node has stayed close to where it was
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 1.0000, 1e-4);
 
-        new_point.SetCoordinate(0u, 3.0001);
-        p_mesh->SetNode(0u, new_point,false);
+        new_point.SetCoordinate(0, 3.0001);
+        p_mesh->SetNode(0, new_point,false);
 
         // This node was on right and is now on the left
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 0.0001, 1e-4);

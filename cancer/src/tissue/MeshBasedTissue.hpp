@@ -325,11 +325,7 @@ public:
      */
     unsigned GetNumNodes();
 
-    /**
-     * Sets the Ancestor index of all the cells at the bottom in order,
-     * can be used to trace clonal populations.
-     */
-    void SetBottomCellAncestors();
+
 
     /**
      * Write current results to mpVoronoiFile.

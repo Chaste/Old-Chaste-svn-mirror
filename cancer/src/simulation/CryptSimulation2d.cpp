@@ -255,3 +255,18 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
         assert(p_node->rGetLocation()[1] >= 0.0);
     }
 }
+
+
+void CryptSimulation2d::SetBottomCellAncestors()
+{
+    unsigned index = 0;
+    for (AbstractTissue<2>::Iterator cell_iter = mpStaticCastTissue->Begin();
+         cell_iter != mpStaticCastTissue->End();
+         ++cell_iter)
+    {
+        if (mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[1] < 0.5)
+        {
+            cell_iter->SetAncestor(index++);
+        }
+    }
+}

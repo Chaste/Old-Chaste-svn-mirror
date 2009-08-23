@@ -45,7 +45,7 @@ public:
     void TestSimpleNutrientPde()
     {
         // Set up mesh
-        HoneycombMeshGenerator generator(5, 5, 0u, false);
+        HoneycombMeshGenerator generator(5, 5, 0, false);
         TetrahedralMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up PDE
@@ -63,7 +63,7 @@ public:
     void TestCellwiseNutrientSinkPde()
     {
         // Set up tissue
-        HoneycombMeshGenerator generator(5, 5, 0u, false);
+        HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
@@ -99,7 +99,7 @@ public:
     void TestAveragedSinksPde()
     {
         // Set up tissue
-        HoneycombMeshGenerator generator(5, 5, 0u, false);
+        HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;

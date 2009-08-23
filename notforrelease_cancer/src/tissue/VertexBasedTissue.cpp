@@ -74,7 +74,7 @@ double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
     double average_damping_constant = 0.0;
 
     std::set<unsigned> containing_elements = GetNode(nodeIndex)->rGetContainingElementIndices();
-    unsigned num_containing_elements = containing_elements.size();
+    double temp = 1.0/((double) containing_elements.size());
 
     for (std::set<unsigned>::iterator iter = containing_elements.begin();
          iter != containing_elements.end();
@@ -82,11 +82,11 @@ double VertexBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
     {
         if (this->rGetCellUsingLocationIndex(*iter).GetMutationState() == HEALTHY)
         {
-            average_damping_constant += TissueConfig::Instance()->GetDampingConstantNormal()/((double) num_containing_elements);
+            average_damping_constant += TissueConfig::Instance()->GetDampingConstantNormal()*temp;
         }
         else
         {
-            average_damping_constant += TissueConfig::Instance()->GetDampingConstantMutant()/((double) num_containing_elements);
+            average_damping_constant += TissueConfig::Instance()->GetDampingConstantMutant()*temp;
         }
     }
 
@@ -230,8 +230,6 @@ TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<doubl
 template<unsigned DIM>
 unsigned VertexBasedTissue<DIM>::RemoveDeadCells()
 {
-    //std::cout << "time, apop = " << SimulationTime::Instance()->GetTime() << " " << this->rGetCellUsingLocationIndex(18).HasApoptosisBegun() << "\n";
-
     unsigned num_removed = 0;
 
     for (std::list<TissueCell>::iterator it = this->mCells.begin();
@@ -347,7 +345,7 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     double g1_duration = rCell.GetCellCycleModel()->GetG1Duration();
 
     // If the cell is differentiated then its G1 duration is infinite
-    if (g1_duration == DBL_MAX) // dont use magic number, compare to DBL_MAX
+    if (g1_duration == DBL_MAX) // don't use magic number, compare to DBL_MAX
     {
         // This is just for fixed cell cycle models, need to work out how to find the g1 duration
         g1_duration = TissueConfig::Instance()->GetTransitCellG1Duration();
@@ -356,8 +354,6 @@ double VertexBasedTissue<DIM>::GetTargetAreaOfCell(const TissueCell& rCell)
     if (rCell.GetCellType()==APOPTOTIC)
     {
         // Age of cell when apoptosis begins
-        //double cell_age_at_death = cell_age - TissueConfig::Instance()->GetApoptosisTime() + rCell.TimeUntilDeath();
-
         if (rCell.GetStartOfApoptosisTime() - rCell.GetBirthTime() < g1_duration)
         {
             cell_target_area *= 0.5*(1 + (rCell.GetStartOfApoptosisTime() - rCell.GetBirthTime())/g1_duration);

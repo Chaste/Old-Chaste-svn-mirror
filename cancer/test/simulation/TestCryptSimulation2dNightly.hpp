@@ -68,20 +68,18 @@ public:
 
 ///////// NON-PERIODIC TESTS - these test the spring system and cell birth etc. /////////
 
-
-
     /**
      * Provides a reasonable test for the ghost node system...
      */
     void Test2DHoneycombMeshNotPeriodic() throw (Exception)
     {
         // Create mesh
-        int num_cells_depth = 11;
-        int num_cells_width = 6;
+        unsigned num_cells_depth = 11;
+        unsigned num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -142,12 +140,12 @@ public:
     void TestMonolayer() throw (Exception)
     {
         // Create mesh
-        int num_cells_depth = 11;
-        int num_cells_width = 6;
+        unsigned num_cells_depth = 11;
+        unsigned num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -224,10 +222,10 @@ public:
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10, 1e-12);
 
         // Create mesh
-        int num_cells_width = 7;
-        int num_cells_depth = 5;
+        unsigned num_cells_width = 7;
+        unsigned num_cells_depth = 5;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Get location indices corresponding to real cells
@@ -662,12 +660,12 @@ public:
 
     void TestMonolayerWithCutoffPointAndNoGhosts() throw (Exception)
     {
-        int num_cells_depth = 11;
-        int num_cells_width = 6;
+        unsigned num_cells_depth = 11;
+        unsigned num_cells_width = 6;
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 

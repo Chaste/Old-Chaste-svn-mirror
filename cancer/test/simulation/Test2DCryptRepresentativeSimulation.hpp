@@ -77,7 +77,7 @@ public:
         double run_for = 10;
 
         // Create a new clean directory
-        OutputFileHandler file_handler(test_to_profile,true);
+        OutputFileHandler file_handler(test_to_profile, true);
 
         // The archive must be copied from cancer/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation

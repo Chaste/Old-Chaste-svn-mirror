@@ -327,7 +327,7 @@ std::vector<double> DiscreteSystemForceCalculator::GetExtremalAngles(unsigned in
             {
                 // If we find a jump through zero, then the local extremum is
                 // simply at the mid-point of the interval
-                next_extremal_angle = (samplingAngles[(i+1)%n] + samplingAngles[i%n])/2.0;
+                next_extremal_angle = 0.5*(samplingAngles[(i+1)%n] + samplingAngles[i%n]);
             }
             else
             {

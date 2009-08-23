@@ -356,7 +356,7 @@ public:
 
         for (unsigned i=0; i<max_length_of_crypt_section; i++)
         {
-            labelled_cells_counter[i] = 0u;
+            labelled_cells_counter[i] = 0;
         }
 
         TissueConfig *p_params = TissueConfig::Instance();
@@ -446,8 +446,7 @@ public:
             // Store information from this simulation in a global vector.
             for (unsigned cell_index=0; cell_index < labelled.size(); cell_index++)
             {
-                if (cell_index>=labelled_cells_counter.size())  std::cout << " " << labelled.size() << labelled_cells_counter.size() << std::endl << std::flush;
-                assert(cell_index<labelled_cells_counter.size());
+                TS_ASSERT(cell_index < labelled_cells_counter.size());
 
                 if (labelled[cell_index])
                 {

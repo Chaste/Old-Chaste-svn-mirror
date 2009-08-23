@@ -898,9 +898,7 @@ public:
             double time = p_simulation_time->GetTime();
             if (time>standard_tyson_duration)
             {
-                //std::cout << "Time = " << SimulationTime::Instance()->GetTime() << std::endl;
                 TS_ASSERT_EQUALS(tn_cell.ReadyToDivide(), true);
-                //std::cout << "Parent G1 duration = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
@@ -928,9 +926,7 @@ public:
             if (time >= standard_tyson_duration + time_of_birth)
             {
                 TS_ASSERT_EQUALS(result1, true);
-                //std::cout << "Parent G1 duration (post division) = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
                 TS_ASSERT_EQUALS(result2, true);
-                //std::cout << "Daughter G1 duration = " << tn_cell2.GetCellCycleModel()->GetG1Duration() << std::endl;
             }
             else
             {
@@ -960,12 +956,10 @@ public:
             }
             if (tn_cell.ReadyToDivide())
             {
-                //std::cout << "G1 duration = " << tn_cell.GetCellCycleModel()->GetG1Duration() << std::endl;
                 TissueCell tn_cell2 = tn_cell.Divide();
                 ++num_divisions;
             }
         }
-        //std::cout << "Did " << num_divisions << " divisions." << std::endl;
         TS_ASSERT_EQUALS(num_divisions, 268u);
     }
 

@@ -116,7 +116,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
  */
 std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double xTop, double yTop, bool periodic)
 {
-    //Fill in the default values - in a sequential manner
+    // Fill in the default values - in a sequential manner
     if (xBottom == DBL_MAX)
     {
         xBottom = RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth();
@@ -127,17 +127,16 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
         xTop = RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth();
     }
 
-
     assert(yTop>0.0);
     std::list<std::pair<TissueCell*, double> > cells_list; // the second entry is the y value (needed for sorting)
 
     if (fabs(xTop-xBottom)<0.5*TissueConfig::Instance()->GetCryptWidth())
     {
-        // the periodic version isn't needed, ignore even if periodic was set to true
+        // The periodic version isn't needed, ignore even if periodic was set to true
         periodic = false;
     }
 
-    // loop over cells and add to the store if they are within a cell's radius of the
+    // Loop over cells and add to the store if they are within a cell's radius of the
     // specified line
     for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
@@ -147,7 +146,7 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
         {
             if (CellIsInSectionPeriodic(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(&(*cell_iter))))
             {
-                // set up a pair, equal to (cell,y_val) and insert
+                // Set up a pair, equal to (cell,y_val) and insert
                 std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
                 cells_list.push_back(pair);
             }
@@ -156,17 +155,17 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
         {
             if (CellIsInSection(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(&(*cell_iter))))
             {
-                // set up a pair, equal to (cell,y_val) and insert
+                // Set up a pair, equal to (cell,y_val) and insert
                 std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
                 cells_list.push_back(pair);
             }
         }
     }
 
-    // sort the list
+    // Sort the list
     cells_list.sort(CellsHeightComparison);
 
-    // copy to a vector
+    // Copy to a vector
     std::vector<TissueCell*> ordered_cells;
     for (std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
         iter!=cells_list.end();

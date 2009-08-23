@@ -76,7 +76,7 @@ void AbstractSimpleCellCycleModel::ResetForDivision()
 void AbstractSimpleCellCycleModel::UpdateCellCyclePhase()
 {
     double time_since_birth = GetAge();
-    assert(time_since_birth>=0);
+    assert(time_since_birth >= 0);
 
     if (mpCell->GetCellType()==DIFFERENTIATED)
     {

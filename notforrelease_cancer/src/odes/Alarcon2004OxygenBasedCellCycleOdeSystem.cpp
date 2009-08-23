@@ -66,8 +66,8 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     }
 
     // Cell-specific initial conditions
-    SetInitialConditionsComponent(3u, mMstar/2.0);
-    SetInitialConditionsComponent(5u, oxygenConcentration);
+    SetInitialConditionsComponent(3, 0.5*mMstar);
+    SetInitialConditionsComponent(5, oxygenConcentration);
 }
 
 void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)

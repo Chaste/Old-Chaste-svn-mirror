@@ -708,7 +708,7 @@ public:
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.
-            unsigned counter = 0u;
+            unsigned counter = 0;
 
             for (AbstractTissue<2>::Iterator cell_iter = p_tissue->Begin();
                  cell_iter != p_tissue->End();

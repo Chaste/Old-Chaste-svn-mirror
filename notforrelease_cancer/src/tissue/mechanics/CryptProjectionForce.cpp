@@ -97,9 +97,10 @@ double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(c_vector<dou
 c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<2>& rTissue)
 {
     assert(rTissue.HasMesh());
+    MeshBasedTissue<2>* p_static_cast_tissue = static_cast<MeshBasedTissue<2>*>(&rTissue);
 
     // We should only ever calculate the force between two distinct nodes
-    assert(nodeAGlobalIndex!=nodeBGlobalIndex);
+    assert(nodeAGlobalIndex != nodeBGlobalIndex);
 
     // Get the node locations in 2D
     c_vector<double,2> node_a_location_2d = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
@@ -143,16 +144,17 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
-    // If the cells are both newly divided, then the rest length of the spring
-    // connecting them grows linearly with time, until 1 hour after division
+    /*
+     * If the cells are both newly divided, then the rest length of the spring
+     * connecting them grows linearly with time, until 1 hour after division.
+     */
     if (ageA<TissueConfig::Instance()->GetMDuration() && ageB<TissueConfig::Instance()->GetMDuration() )
     {
-        // The static_cast of rTissue to a MeshBasedTissue below should always be okay,
-        // since we have previously asserted that the tissue has a mesh
-
-        // The spring rest length increases from a predefined small parameter to a normal rest length of 1.0,
-        // over a period of one hour
-        if ( (static_cast<MeshBasedTissue<2>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
+        /*
+         * The spring rest length increases from a predefined small parameter
+         * to a normal rest length of 1.0, over a period of one hour.
+         */
+        if (p_static_cast_tissue->IsMarkedSpring(r_cell_A, r_cell_B))
         {
             double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
             rest_length = (lambda + (1.0 - lambda)*(ageA/(TissueConfig::Instance()->GetMDuration())));
@@ -161,15 +163,17 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
         if (ageA+SimulationTime::Instance()->GetTimeStep() >= TissueConfig::Instance()->GetMDuration())
         {
             // This spring is about to go out of scope
-            (static_cast<MeshBasedTissue<2>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
+            p_static_cast_tissue->UnmarkSpring(r_cell_A, r_cell_B);
         }
     }
 
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
-    // If either of the cells has begun apoptosis, then the length of the spring
-    // connecting them decreases linearly with time
+    /*
+     * If either of the cells has begun apoptosis, then the length of the spring
+     * connecting them decreases linearly with time.
+     */
     if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
         double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
@@ -193,8 +197,10 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
         is_closer_than_rest_length = false;
     }
 
-    // Although in this class the 'spring constant' is a constant parameter, in
-    // subclasses it can depend on properties of each of the cells
+    /*
+     * Although in this class the 'spring constant' is a constant parameter, in
+     * subclasses it can depend on properties of each of the cells.
+     */
     double multiplication_factor = 1.0;
     multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
 
@@ -232,8 +238,11 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
     // First work out the 3D location of each cell
     UpdateNode3dLocationMap(rTissue);
 
-    for (MeshBasedTissue<2>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<2>*>(&rTissue))->SpringsBegin();
-         spring_iterator!=(static_cast<MeshBasedTissue<2>*>(&rTissue))->SpringsEnd();
+    assert(rTissue.HasMesh());
+    MeshBasedTissue<2>* p_static_cast_tissue = static_cast<MeshBasedTissue<2>*>(&rTissue);
+
+    for (MeshBasedTissue<2>::SpringIterator spring_iterator = p_static_cast_tissue->SpringsBegin();
+         spring_iterator != p_static_cast_tissue->SpringsEnd();
          ++spring_iterator)
     {
         unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();

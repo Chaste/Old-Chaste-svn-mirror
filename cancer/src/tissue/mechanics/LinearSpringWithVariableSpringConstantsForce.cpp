@@ -199,8 +199,10 @@ void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(
     std::vector<c_vector<double, DIM> >& rForces,
     AbstractTissue<DIM>& rTissue)
 {
-    for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsBegin();
-        spring_iterator!=(static_cast<MeshBasedTissue<DIM>*>(&rTissue))->SpringsEnd();
+    MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+
+    for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator = p_static_cast_tissue->SpringsBegin();
+        spring_iterator != p_static_cast_tissue->SpringsEnd();
         ++spring_iterator)
     {
         unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();

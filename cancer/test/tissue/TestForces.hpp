@@ -238,7 +238,7 @@ public:
         }
 
         // Choose two interior neighbour nodes
-        c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(41u, 42u, tissue);
+        c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(41, 42, tissue);
         TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 4.34027778, 1e-3);
 
         // Now move node 42 a bit and check that the force calculation changes correctly
@@ -246,11 +246,11 @@ public:
         shift[0] = 0.1;
         shift[1] = 0.0;
         ChastePoint<2> new_point(p_mesh->GetNode(42u)->rGetLocation() + shift);
-        p_mesh->SetNode(21u, new_point, false);
+        p_mesh->SetNode(21, new_point, false);
 
         // Check that the new force between nodes is correctly calculated
         tissue.CreateVoronoiTessellation();
-        c_vector<double, 2> new_force = linear_force.CalculateForceBetweenNodes(41u, 42u, tissue);
+        c_vector<double, 2> new_force = linear_force.CalculateForceBetweenNodes(41, 42, tissue);
 
         // Force calculation: shift is along x-axis so we should have
         // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),

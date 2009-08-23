@@ -508,10 +508,6 @@ public:
              ++cell_iter)
         {
              TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
-             if (cell_iter->GetCellType() == DIFFERENTIATED)
-             {
-                std::cout << crypt.GetLocationIndexUsingCell(&(*cell_iter)) << "\n" << std::flush;
-             }
         }
 
         // Close the log file opened in this test
@@ -622,6 +618,7 @@ public:
 
         // Save
         TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+
         // Load
         CryptSimulation2d *p_simulator;
         p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0);
@@ -1586,7 +1583,6 @@ public:
 
         // Set up crypt
         MeshBasedTissueWithGhostNodes<2> *p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
-        p_crypt->SetBottomCellAncestors();
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -1610,6 +1606,7 @@ public:
         simulator.AddCellKiller(&killer);
 
         simulator.UseJiggledBottomCells();
+        simulator.SetBottomCellAncestors();
 
         // Run simulation
         simulator.Solve();

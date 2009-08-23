@@ -151,7 +151,7 @@ public:
 
         // Run through the cell cycle model for a certain duration
         // and test how many times it has stopped for division
-        unsigned num_divisions = 0u;
+        unsigned num_divisions = 0;
         for (unsigned i=0; i<num_timesteps; i++)
         {
             SimulationTime::Instance()->IncrementTimeOneStep();
@@ -172,7 +172,7 @@ public:
             }
         }
         std::cout << num_divisions << "\n" << std::flush;
-        TS_ASSERT_LESS_THAN(num_divisions,102u);
+        TS_ASSERT_LESS_THAN(num_divisions, 102u);
         TS_ASSERT_LESS_THAN(99u, num_divisions);
 //            out.close();
         /*

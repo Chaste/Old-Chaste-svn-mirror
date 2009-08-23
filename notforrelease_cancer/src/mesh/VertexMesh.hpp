@@ -333,7 +333,7 @@ public:
       * @param nodeIndex the index of the node to be moved
       * @param point the new target location of the node
       */
-    void SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point);
+    virtual void SetNode(unsigned nodeIndex, ChastePoint<SPACE_DIM> point);
 
     /**
      * @return mCellRearrangementThreshold

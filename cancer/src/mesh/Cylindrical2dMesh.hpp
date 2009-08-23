@@ -181,16 +181,6 @@ private:
      */
     void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
 
-    /**
-     * Returns true if an unsigned is contained in a vector of unsigneds
-     *
-     * @param rNodeIndex an unsigned value
-     * @param rListOfNodes a list of unsigned values
-     *
-     * @return whether the unsigned is in this std::vector
-     */
-    bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**

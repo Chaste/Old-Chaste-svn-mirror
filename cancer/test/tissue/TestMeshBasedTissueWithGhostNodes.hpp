@@ -106,8 +106,7 @@ public:
     {
         unsigned num_cells_depth = 11;
         unsigned num_cells_width = 6;
-
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2, false);
 
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();

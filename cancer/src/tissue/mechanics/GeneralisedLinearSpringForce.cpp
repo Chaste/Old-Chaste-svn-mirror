@@ -55,7 +55,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
                                                                                     AbstractTissue<DIM>& rTissue)
 {
     // We should only ever calculate the force between two distinct nodes
-    assert(nodeAGlobalIndex!=nodeBGlobalIndex);
+    assert(nodeAGlobalIndex != nodeBGlobalIndex);
 
     // Get the node locations
     c_vector<double, DIM> node_a_location = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
@@ -65,9 +65,12 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     c_vector<double, DIM> unit_difference;
     if (rTissue.HasMesh())
     {
-        // We use the mesh method GetVectorFromAtoB() to compute the direction of the unit vector
-        // along the line joining the two nodes, rather than simply subtract their positions,
-        // because this method can be overloaded, e.g. to enforce a periodic boundary in Cylindrical2dMesh
+        /*
+         * We use the mesh method GetVectorFromAtoB() to compute the direction of the
+         * unit vector along the line joining the two nodes, rather than simply subtract
+         * their positions, because this method can be overloaded (e.g. to enforce a
+         * periodic boundary in Cylindrical2dMesh).
+         */
         unit_difference = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
     }
     else
@@ -82,8 +85,10 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     unit_difference /= distance_between_nodes;
 
-    // If mUseCutoffPoint has been set, then there is zero force between
-    // two nodes located a distance apart greater than mUseCutoffPoint
+    /*
+     * If mUseCutoffPoint has been set, then there is zero force between
+     * two nodes located a distance apart greater than mUseCutoffPoint.
+     */
     if (this->mUseCutoffPoint)
     {
         if (distance_between_nodes >= TissueConfig::Instance()->GetMechanicsCutOffLength())
@@ -107,22 +112,27 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
     TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
-    // If the cells are both newly divided, then the rest length of the spring
-    // connecting them grows linearly with time, until 1 hour after division
+    /*
+     * If the cells are both newly divided, then the rest length of the spring
+     * connecting them grows linearly with time, until 1 hour after division.
+     */
     if ( ageA<TissueConfig::Instance()->GetMDuration() && ageB<TissueConfig::Instance()->GetMDuration() )
     {
         if (rTissue.HasMesh())
         {
-            if ( (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->IsMarkedSpring(r_cell_A, r_cell_B) )
+            MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+
+            if (p_static_cast_tissue->IsMarkedSpring(r_cell_A, r_cell_B))
             {
                 // Spring rest length increases from ???? to normal rest length, 1.0, over 1 hour
+                ///\todo fix the comment above
                 double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
                 rest_length = lambda + (1.0-lambda)*(ageA/(TissueConfig::Instance()->GetMDuration()));
             }
             if (ageA+SimulationTime::Instance()->GetTimeStep() >= TissueConfig::Instance()->GetMDuration())
             {
                 // This spring is about to go out of scope
-                (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->UnmarkSpring(r_cell_A, r_cell_B);
+                p_static_cast_tissue->UnmarkSpring(r_cell_A, r_cell_B);
             }
         }
         else
@@ -136,8 +146,10 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     double a_rest_length = rest_length*0.5;
     double b_rest_length = a_rest_length;
 
-    // If either of the cells has begun apoptosis, then the length of the spring
-    // connecting them decreases linearly with time
+    /*
+     * If either of the cells has begun apoptosis, then the length of the spring
+     * connecting them decreases linearly with time.
+     */
     if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
     {
         double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
@@ -151,11 +163,11 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     rest_length = a_rest_length + b_rest_length;
 
-    assert(rest_length<=1.0+1e-12);
+    assert(rest_length <= 1.0+1e-12);
 
     bool is_closer_than_rest_length = true;
 
-    if (distance_between_nodes - rest_length >0)
+    if (distance_between_nodes - rest_length > 0)
     {
         is_closer_than_rest_length = false;
     }

@@ -72,8 +72,9 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
                  cell_iter != this->mpTissue->End();
                  ++cell_iter)
             {
-                double x = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
-                double y = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
+                c_vector<double, 2> location = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter));
+                double x = location[0];
+                double y = location[1];
 
                 if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
                 {

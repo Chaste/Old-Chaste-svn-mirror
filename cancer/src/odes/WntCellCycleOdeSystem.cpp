@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutationState& rMutationState)
+WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CellMutationState& rMutationState)
     : AbstractOdeSystem(9),
       mMutationState(rMutationState)
 {
@@ -45,12 +45,12 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
      * 5. c = APC (Active)
      * 6. b1 = Beta-Catenin (1st allele's copy)
      * 7. b2 = Beta-Catenin (2nd allele's copy)
-     * 8. WntLevel
+     * 8. wntLevel
      */
 
     Init(); // set up parameter values
 
-    double destruction_level = ma5d/(ma4d*WntLevel+ma5d);
+    double destruction_level = ma5d/(ma4d*wntLevel+ma5d);
     double beta_cat_level_1 = -1.0;
     double beta_cat_level_2 = -1.0;
 
@@ -83,10 +83,10 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, const CellMutation
     }
 
     // Cell-specific initial conditions
-    SetInitialConditionsComponent(5u, destruction_level);
-    SetInitialConditionsComponent(6u, beta_cat_level_1);
-    SetInitialConditionsComponent(7u, beta_cat_level_2);
-    SetInitialConditionsComponent(8u, WntLevel);
+    SetInitialConditionsComponent(5, destruction_level);
+    SetInitialConditionsComponent(6, beta_cat_level_1);
+    SetInitialConditionsComponent(7, beta_cat_level_2);
+    SetInitialConditionsComponent(8, wntLevel);
 }
 
 void WntCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
@@ -176,7 +176,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     double c = rY[5];
     double b1 = rY[6];
     double b2 = rY[7];
-    double WntLevel = rY[8];
+    double wnt_level = rY[8];
 
     double dx1 = 0.0;
     double dx2 = 0.0;
@@ -204,20 +204,20 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     if (mMutationState==HEALTHY || mMutationState==LABELLED)    // HEALTHY CELL
     {
         // da
-        dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
+        dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
         // db
         dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
         dx8 = ma2d*(0.5-b2) - ma3d*b2*c;
     }
     else if (mMutationState==APC_ONE_HIT) // APC +/-
     {
-        dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
+        dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
         dx7 = ma2d*(0.5-b1) - 0.5*ma3d*b1*c;
         dx8 = ma2d*(0.5-b2) - 0.5*ma3d*b2*c;
     }
     else if (mMutationState==BETA_CATENIN_ONE_HIT) // Beta-Cat D45
     {
-        dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
+        dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
         dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
         dx8 = ma2d*(0.5-b2);
     }

@@ -100,8 +100,8 @@ public:
         wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system3(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
-        //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.750207,1e-6);
+
+        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7], 0.750207, 1e-6);
 
         wnt_cell_cycle_system3.EvaluateYDerivatives(time, initial_conditions, derivs);
 
@@ -125,22 +125,22 @@ public:
         wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system4(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
-        //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
-        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],0.8001,1e-4);
+
+        TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7], 0.8001, 1e-4);
 
         wnt_cell_cycle_system4.EvaluateYDerivatives(time, initial_conditions, derivs);
 
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from Matlab code)
-        TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],7.8190e+00, 1e-4);
-        TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[0], -1.586627673253325e-02, 1e-5);
+        TS_ASSERT_DELTA(derivs[1], -5.532201118824132e-05, 1e-5);
+        TS_ASSERT_DELTA(derivs[2], 7.8190e+00, 1e-4);
+        TS_ASSERT_DELTA(derivs[3], -7.449833887043188e-03, 1e-5);
+        TS_ASSERT_DELTA(derivs[4], 1.549680000000000e-02, 1e-5);
+        TS_ASSERT_DELTA(derivs[5], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[6], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[7], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[8], 0.0, 1e-5);
 
         /**
         * A test for the case mutation = 3
@@ -150,7 +150,6 @@ public:
         wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system5(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
-        //std::cout << "mutation " << mutation << " beta-cat = " << initial_conditions[6] << "\n";
 
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7],1.0,1e-6);
 
@@ -158,15 +157,15 @@ public:
 
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from Matlab code)
-        TS_ASSERT_DELTA(derivs[0],-1.586627673253325e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-5.532201118824132e-05, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],9.7928e+00, 1e-4);
-        TS_ASSERT_DELTA(derivs[3],-7.449833887043188e-03, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],1.549680000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[6],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[7],0.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[8],0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[0], -1.586627673253325e-02, 1e-5);
+        TS_ASSERT_DELTA(derivs[1], -5.532201118824132e-05, 1e-5);
+        TS_ASSERT_DELTA(derivs[2], 9.7928e+00, 1e-4);
+        TS_ASSERT_DELTA(derivs[3], -7.449833887043188e-03, 1e-5);
+        TS_ASSERT_DELTA(derivs[4], 1.549680000000000e-02, 1e-5);
+        TS_ASSERT_DELTA(derivs[5], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[6], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[7], 0.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[8], 0.0, 1e-5);
     }
 
     void TestWntCellCycleSolver() throw(Exception)
@@ -215,8 +214,6 @@ public:
 //        std::cout <<  "1. BackwardEuler Elapsed time = " << elapsed_time << "\n";
 
 
-
-
         // Testing RK4 solution
         // Test solutions are OK for a small time increase...
         int end = solutions_rk4.rGetSolutions().size() - 1;
@@ -225,14 +222,14 @@ public:
         TS_ASSERT_DELTA(solutions_rk4.rGetTimes()[end], 5.971, 1e-2);
 
         // Proper values from Matlab ode15s - shocking tolerances to pass though.
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][1],1.000220438771564, 1.02e-2);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][2],2.453870380958196, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][3],1.446185835615586, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][6]+solutions_rk4.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][8],1.00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][0], 2.880603485931000e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][1], 1.000220438771564, 1.02e-2);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][2], 2.453870380958196, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][3], 1.446185835615586, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][4], 1.383272155041549e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][5], 4.975124378109454e-03, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][6]+solutions_rk4.rGetSolutions()[end][7], 6.002649406788524e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rk4.rGetSolutions()[end][8], 1.00, 1e-3);
 
 
         // Testing RKF solution
@@ -241,14 +238,14 @@ public:
         // Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
         TS_ASSERT_DELTA(solutions_rkf.rGetTimes()[end], 5.971, 1e-2);
         // Proper values from Matlab ode15s - shocking tolerances to pass though.
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][0],2.880603485931000e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][1],1.000220438771564e+00, 1.02e-2);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][2],2.453870380958196e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][3],1.446185835615586e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][4],1.383272155041549e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][5],4.975124378109454e-03, 1e-3);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][6]+solutions_rkf.rGetSolutions()[end][7],6.002649406788524e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][8],1.00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][0], 2.880603485931000e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][1], 1.000220438771564e+00, 1.02e-2);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][2], 2.453870380958196e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][3], 1.446185835615586e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][4], 1.383272155041549e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][5], 4.975124378109454e-03, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][6]+solutions_rkf.rGetSolutions()[end][7], 6.002649406788524e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions_rkf.rGetSolutions()[end][8], 1.00, 1e-3);
     }
 
     void TestWntCellCycleSolverWithAPCSingleHit() throw(Exception)
@@ -315,15 +312,15 @@ public:
         // Tests the simulation is ending at the right time...(going into S phase at 7.8 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 7.835, 1e-2);
         // Proper values from Matlab ode15s - shocking tolerances to pass though.
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],3.242663439545868e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.999, 1e-2);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],2.153277726022381e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.145736207245425e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],1.234257806221668e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],1.0, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6],3.707764665147012e-03, 1e-5);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.5, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 3.242663439545868e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 0.999, 1e-2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 2.153277726022381e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3], 1.145736207245425e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4], 1.234257806221668e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5], 1.0, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6], 3.707764665147012e-03, 1e-5);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7], 0.5, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8], 0.00, 1e-3);
     }
 
     void TestWntCellCycleSolverWithAPCDoubleHit() throw(Exception)
@@ -352,15 +349,15 @@ public:
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 3.9435, 1e-2);
 
         // Proper values from Matlab ode15s - shocking tolerances to pass though.
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],2.058373151310055e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.999, 1e-2);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],3.699024514542648e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],2.687523235896298e+00, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],1.834144555072084e-01, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.0, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6],0.5, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7],0.5, 1e-3);
-        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8],0.00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 2.058373151310055e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 0.999, 1e-2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], 3.699024514542648e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3], 2.687523235896298e+00, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4], 1.834144555072084e-01, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5], 0.0, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][6], 0.5, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][7], 0.5, 1e-3);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8], 0.00, 1e-3);
     }
 
 };

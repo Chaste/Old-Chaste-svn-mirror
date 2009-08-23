@@ -105,9 +105,6 @@ public:
 
         // To start off with, set up all cells to be of type TRANSIT
         std::vector<TissueCell> cells;
-
-        std::cout << "num nodes = " << p_mesh->GetNumNodes() << "\n" << std::flush;
-
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             TissueCell cell(TRANSIT, HEALTHY, new SimpleWntCellCycleModel(2));

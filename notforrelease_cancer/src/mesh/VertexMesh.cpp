@@ -865,7 +865,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
             recheck_mesh = false;
 
             // Loop over elements to check for T2Swaps
-            // Seperate loops as need to check for T2Swaps first
+            // Separate loops as need to check for T2Swaps first
             for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
                  iter != GetElementIteratorEnd();
                  ++iter)
@@ -1109,7 +1109,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                    std::inserter(temp_set, temp_set.begin()));
     all_indices.swap(temp_set); // temp_set will be deleted
 
-    if ((nodeA_elem_indices.size()>3)||(nodeB_elem_indices.size()>3))
+    if ((nodeA_elem_indices.size()>3) || (nodeB_elem_indices.size()>3))
     {
         /*
          * Looks like
@@ -1125,186 +1125,187 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
     }
     else // each node is contained in at most three elements
     {
-        if (all_indices.size()==1)
+        switch (all_indices.size())
         {
-            /*
-             * In this case, each node is contained in a single element, so the nodes
-             * lie on the boundary of the tissue:
-             *
-             *    A   B
-             * ---o---o---
-             *
-             * We merge the nodes.
-             */
-            PerformNodeMerge(pNodeA, pNodeB);
-        }
-        else if (all_indices.size()==2)
-        {
-            if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
+            case 1:
             {
                 /*
-                 * In this case, each node is contained in two elements, so the nodes
-                 * lie on an internal edge:
+                 * In this case, each node is contained in a single element, so the nodes
+                 * lie on the boundary of the tissue:
                  *
                  *    A   B
                  * ---o---o---
                  *
-                 * We merge the nodes in this case.
+                 * We merge the nodes.
                  */
-                 PerformNodeMerge(pNodeA, pNodeB);
+                PerformNodeMerge(pNodeA, pNodeB);
+                break;
             }
-            else
+            case 2:
             {
-                /*
-                 * In this case, the node configuration looks like:
-                 *
-                 * Outside
-                 *         /
-                 *   --o--o (2)
-                 *     (1) \
-                 *
-                 * We merge the nodes in this case.
-                 */
-                 PerformNodeMerge(pNodeA, pNodeB);
+                if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
+                {
+                    /*
+                     * In this case, each node is contained in two elements, so the nodes
+                     * lie on an internal edge:
+                     *
+                     *    A   B
+                     * ---o---o---
+                     *
+                     * We merge the nodes in this case.
+                     */
+                     PerformNodeMerge(pNodeA, pNodeB);
+                }
+                else
+                {
+                    /*
+                     * In this case, the node configuration looks like:
+                     *
+                     * Outside
+                     *         /
+                     *   --o--o (2)
+                     *     (1) \
+                     *
+                     * We merge the nodes in this case.
+                     */
+                     PerformNodeMerge(pNodeA, pNodeB);
+                }
+                break;
             }
-        }
-        else if (all_indices.size()==3)
-        {
-           /* In this case, each node is contained in three elements. */
-
-           if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
-           {
-                  /*
-                   * In this case, the node configuration looks like:
-                *
-                   *     A  B                  A  B
-                *   \ empty/              \      /
-                *    \    /                \(1) /
-                * (3) o--o (1)  or      (2) o--o (3)    (element number in brackets)
-                *    / (2)\                /    \
-                *   /      \              /empty \
-                *
-                * We perform a Type 1 swap in this case.
-                */
-                PerformT1Swap(pNodeA, pNodeB, all_indices);
-           }
-           else
-           {
-                Node<SPACE_DIM> *p_node_alpha;
-                Node<SPACE_DIM> *p_node_beta;
-                if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
+            case 3:
+            {
+                if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
                 {
-                    p_node_alpha = pNodeA;
-                    p_node_beta = pNodeB;
-                }
-                else if (nodeA_elem_indices.size()==3 && nodeB_elem_indices.size()==2)
-                {
-                    p_node_alpha = pNodeB;
-                    p_node_beta = pNodeA;
-                }
-                else
-                {
-                    #define COVERAGE_IGNORE
-                    EXCEPTION("One of the nodes must be contained in three elements and the other must be contained in two elements");
-                    #undef  COVERAGE_IGNORE
-                }
-
-                std::set<unsigned> node_alpha_elem_indices = p_node_alpha->rGetContainingElementIndices();
-                assert(node_alpha_elem_indices.size() == 2u);
-
-                unsigned node_alpha_local_index = mElements[*node_alpha_elem_indices.begin()]->GetNodeLocalIndex(p_node_alpha->GetIndex());
-                assert(node_alpha_local_index < UINT_MAX); // this element should contain node alpha
-
-                unsigned node_alpha_local_index_before = (node_alpha_local_index+1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
-                unsigned node_alpha_local_index_after = (node_alpha_local_index-1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
-
-                Node<SPACE_DIM> *p_node_gamma;
-                if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before) == p_node_beta)
-                {
-                    p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after);
-                }
-                else if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after) == p_node_beta)
-                {
-                    p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before);
-                }
-                else
-                {
-                    #define COVERAGE_IGNORE
-                    EXCEPTION("At least one of node_alpha_local_index_before or .._after should be p_node_beta");
-                    #undef  COVERAGE_IGNORE
-                }
-
-                std::set<unsigned> node_beta_elem_indices = p_node_beta->rGetContainingElementIndices();
-                std::set<unsigned> node_gamma_elem_indices = p_node_gamma->rGetContainingElementIndices();
-
-                // Form the set intersection between gamma and beta
-                std::set<unsigned> intersection_indices, temp_set2;
-                std::set_intersection(node_beta_elem_indices.begin(), node_beta_elem_indices.end(),
-                               node_gamma_elem_indices.begin(), node_gamma_elem_indices.end(),
-                               std::inserter(temp_set2, temp_set2.begin()));
-                intersection_indices.swap(temp_set2); // temp_set2 will be deleted
-
-                if (intersection_indices.size() == 2)
-                {
-                   /*
-                    * In this case, the node configuration looks like:
-                    *
-                    *     A  B             A  B
-                    *   \                       /
-                    *    \  (1)           (1)  /
-                    * (3) o--o---   or  ---o--o (3)    (element number in brackets)
-                    *    /  (2)           (2)  \
-                    *   /                       \
-                    *
-                    * We perform a node merge in this case.
-                    */
-                    PerformNodeMerge(pNodeA, pNodeB);
-                }
-                else if (intersection_indices.size() == 1) // Correct set up for T1Swap
-                {
-                   /*
-                    * In this case, the node configuration looks like:
-                    *
-                    *     A  B                      A  B
-                    *   \      /                  \      /
-                    *    \ (1)/                    \(1) /
-                    * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
-                    *    / (2)\                    /(2) \
-                    *   /      \                  /      \
-                    *
-                    * We perform a Type 1 swap in this case.
-                    */
+                    /*
+                     * In this case, the node configuration looks like:
+                     *
+                     *     A  B                  A  B
+                     *   \ empty/              \      /
+                     *    \    /                \(1) /
+                     * (3) o--o (1)  or      (2) o--o (3)    (element number in brackets)
+                     *    / (2)\                /    \
+                     *   /      \              /empty \
+                     *
+                     * We perform a Type 1 swap in this case.
+                     */
                     PerformT1Swap(pNodeA, pNodeB, all_indices);
                 }
                 else
                 {
-        #define COVERAGE_IGNORE
-                    EXCEPTION("The intersection should be of length 1 or 2");
-        #undef  COVERAGE_IGNORE
+                    Node<SPACE_DIM> *p_node_alpha;
+                    Node<SPACE_DIM> *p_node_beta;
+                    if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
+                    {
+                        p_node_alpha = pNodeA;
+                        p_node_beta = pNodeB;
+                    }
+                    else if (nodeA_elem_indices.size()==3 && nodeB_elem_indices.size()==2)
+                    {
+                        p_node_alpha = pNodeB;
+                        p_node_beta = pNodeA;
+                    }
+                    else
+                    {
+                        #define COVERAGE_IGNORE
+                        EXCEPTION("One of the nodes must be contained in three elements and the other must be contained in two elements");
+                        #undef  COVERAGE_IGNORE
+                    }
+    
+                    std::set<unsigned> node_alpha_elem_indices = p_node_alpha->rGetContainingElementIndices();
+                    assert(node_alpha_elem_indices.size() == 2u);
+    
+                    unsigned node_alpha_local_index = mElements[*node_alpha_elem_indices.begin()]->GetNodeLocalIndex(p_node_alpha->GetIndex());
+                    assert(node_alpha_local_index < UINT_MAX); // this element should contain node alpha
+    
+                    unsigned node_alpha_local_index_before = (node_alpha_local_index+1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
+                    unsigned node_alpha_local_index_after = (node_alpha_local_index-1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
+    
+                    Node<SPACE_DIM> *p_node_gamma;
+                    if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before) == p_node_beta)
+                    {
+                        p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after);
+                    }
+                    else if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after) == p_node_beta)
+                    {
+                        p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before);
+                    }
+                    else
+                    {
+                        #define COVERAGE_IGNORE
+                        EXCEPTION("At least one of node_alpha_local_index_before or .._after should be p_node_beta");
+                        #undef  COVERAGE_IGNORE
+                    }
+    
+                    std::set<unsigned> node_beta_elem_indices = p_node_beta->rGetContainingElementIndices();
+                    std::set<unsigned> node_gamma_elem_indices = p_node_gamma->rGetContainingElementIndices();
+    
+                    // Form the set intersection between gamma and beta
+                    std::set<unsigned> intersection_indices, temp_set2;
+                    std::set_intersection(node_beta_elem_indices.begin(), node_beta_elem_indices.end(),
+                                   node_gamma_elem_indices.begin(), node_gamma_elem_indices.end(),
+                                   std::inserter(temp_set2, temp_set2.begin()));
+                    intersection_indices.swap(temp_set2); // temp_set2 will be deleted
+    
+                    if (intersection_indices.size() == 2)
+                    {
+                       /*
+                        * In this case, the node configuration looks like:
+                        *
+                        *     A  B             A  B
+                        *   \                       /
+                        *    \  (1)           (1)  /
+                        * (3) o--o---   or  ---o--o (3)    (element number in brackets)
+                        *    /  (2)           (2)  \
+                        *   /                       \
+                        *
+                        * We perform a node merge in this case.
+                        */
+                        PerformNodeMerge(pNodeA, pNodeB);
+                    }
+                    else if (intersection_indices.size() == 1) // Correct set up for T1Swap
+                    {
+                       /*
+                        * In this case, the node configuration looks like:
+                        *
+                        *     A  B                      A  B
+                        *   \      /                  \      /
+                        *    \ (1)/                    \(1) /
+                        * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
+                        *    / (2)\                    /(2) \
+                        *   /      \                  /      \
+                        *
+                        * We perform a Type 1 swap in this case.
+                        */
+                        PerformT1Swap(pNodeA, pNodeB, all_indices);
+                    }
+                    else
+                    {
+                        #define COVERAGE_IGNORE
+                        EXCEPTION("The intersection should be of length 1 or 2");
+                        #undef  COVERAGE_IGNORE
+                    }
                 }
-           }
-        }
-        else if (all_indices.size()==4)
-        {
-            /*
-             * In this case, the node configuration looks like:
-             *
-             *   \(1)/
-             *    \ / Node A
-             * (2) |   (4)      (element number in brackets)
-             *    / \ Node B
-             *   /(3)\
-             *
-             * We perform a Type 1 swap in this case.
-             */
-            PerformT1Swap(pNodeA, pNodeB, all_indices);
-        }
-        else
-        {
-            #define COVERAGE_IGNORE
-            /// \todo don't think this is needed?
-            EXCEPTION("Each node is contained in more than four elements, so a remesh cannot be performed");
-            #undef COVERAGE_IGNORE
+                break;
+            }
+            case 4:
+            {
+                /*
+                 * In this case, the node configuration looks like:
+                 *
+                 *   \(1)/
+                 *    \ / Node A
+                 * (2) |   (4)      (element number in brackets)
+                 *    / \ Node B
+                 *   /(3)\
+                 *
+                 * We perform a Type 1 swap in this case.
+                 */
+                PerformT1Swap(pNodeA, pNodeB, all_indices);
+                break;
+            }
+            default:
+                // This can't happen
+                NEVER_REACHED;
         }
     }
 }

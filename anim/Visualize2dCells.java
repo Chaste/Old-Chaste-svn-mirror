@@ -997,7 +997,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     
                     if (drawNutrient)
                     {
-                    	if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
+                    	if (cell_type[row][i] != canvas.INVISIBLE_COLOUR)	// if this is not a ghost cell
                     	{
                     		String skip; // skips past unnecessary information
                         	int index = Integer.parseInt(st_nutrient.nextToken()); // index
@@ -1312,10 +1312,13 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     BufferedImage buffered_image = null;
     Graphics g2 = null;
     
-    Color background_silver = new Color(238,238,238);
+    Color background_silver = Color.white; //new Color(238,238,238);
     Color spring_silver = new Color(200,200,200);
     Color apoptotic_grey = new Color(80,80,80);
-    Color purple = new Color(121,126,234);
+    Color light_blue = new Color(180,180,255);
+    Color mid_blue = new Color(140,140,255);
+    Color dark_blue = new Color(100,100,255);
+    Color light_green = new Color(130,255,130);
     
     public CustomCanvas2D(Visualize2dCells v) 
     {
@@ -1748,7 +1751,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         	if (!vis.drawNutrient)
         	{
         		// \todo: Larger simulations would be clearer with smaller nodes
-        		g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
+        		g2.fillOval(p.x - node_radius, p.y - node_radius, node_radius, node_radius);
         	}
 
         	if (vis.drawFibres)
@@ -2102,10 +2105,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     	            g2.setColor(Color.red); 
     	            break;
     	        case EARLY_CANCER_COLOUR: // early cancer
-    	            g2.setColor(Color.gray); 
+    	            g2.setColor(Color.blue); 
     	            break;
     	        case LATE_CANCER_COLOUR:  // late cancer
-    	            g2.setColor(Color.black);
+    	            g2.setColor(Color.blue);
     	            break;
     	        case LABELLED_COLOUR: // labelled cell
     	            g2.setColor(Color.blue); 
@@ -2173,8 +2176,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			break;	
         		default: // any other cell type
                 	int r = 0;
-                	int g = Math.min( Math.max((int)(255*conc),0) , 255 );            	
-                    int b = Math.min( Math.max( (int)(200 - 80*conc),0) , 255);                  
+                	int g = Math.min(Math.max((int)(255*conc),0), 255);            	
+                    int b = Math.min(Math.max((int)(200 - 80*conc),0), 255);                  
                     Color colour = new Color(r,g,b);
                     g2.setColor(colour);
         		    break;
@@ -2244,7 +2247,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     		}
     		else
     		{
-                        Color ancestor_colour = ancestorColourMap(vis.ancestor_values[vis.timeStep][index]);
+                Color ancestor_colour = ancestorColourMap(vis.ancestor_values[vis.timeStep][index]);
     			g2.setColor(ancestor_colour);
     		}
       	}
@@ -2253,7 +2256,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     		switch (vis.cell_type[vis.timeStep][index]) 
         	{
         		case STEM_COLOUR: // stem cell
-        			g2.setColor(Color.cyan); 
+        			g2.setColor(light_green); 
         			break;
         		case TRANSIT_COLOUR: // transit cell
         			g2.setColor(Color.yellow); 
@@ -2262,13 +2265,13 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(Color.pink); 
         			break;
         		case EARLY_CANCER_COLOUR: // early cancer
-        			g2.setColor(Color.lightGray); 
+        			g2.setColor(mid_blue); 
         			break;
         		case LATE_CANCER_COLOUR:  // late cancer
-        			g2.setColor(Color.gray);
+        			g2.setColor(dark_blue);
         			break;
         		case LABELLED_COLOUR: // labelled cell
-        			g2.setColor(purple); 
+        			g2.setColor(light_blue);
         			break;
         		case APOPTOSIS_COLOUR: // apoptotic cell
         			g2.setColor(apoptotic_grey); 
@@ -2286,9 +2289,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     public Color ancestorColourMap(int ancestor)
     {
         //Map the colour uniquely into [0, 255]
-        int r=hash32shiftmult(ancestor, 256);
-        int g=hash32shiftmult(ancestor+1, 256);
-        int b=hash32shiftmult(ancestor*2, 256);
+        int r = hash32shiftmult(ancestor, 256);
+        int g = hash32shiftmult(ancestor+1, 256);
+        int b = hash32shiftmult(ancestor*2, 256);
         return new Color(r,g,b);
     }
 

@@ -74,18 +74,18 @@ public:
         }
 
         c_vector<double, 2> location_48 = p_mesh->GetNode(48)->rGetLocation();
-        double common_edge_between_48_and_53 = tessellation.GetEdgeLength(48u, 53u);
+        double common_edge_between_48_and_53 = tessellation.GetEdgeLength(48, 53);
 
-        TS_ASSERT_DELTA(tessellation.GetEdgeLength(48u, 49u), pow(3.0, -0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(48, 49), pow(3.0, -0.5), 1e-4);
 
         TS_ASSERT_DELTA(common_edge_between_48_and_53,  pow(3.0, -0.5), 1e-4);
 
         //  Check that both cells have a reasonable sized area
-        TS_ASSERT_DELTA(tessellation.GetFaceArea(44u),  0.5 * pow(3.0, 0.5), 1e-4);
-        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(44u), 2 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetFaceArea(44),  0.5 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(44), 2 * pow(3.0, 0.5), 1e-4);
 
-        TS_ASSERT_DELTA(tessellation.GetFaceArea(48u),  0.5 * pow(3.0, 0.5), 1e-4);
-        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(48u), 2 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetFaceArea(48),  0.5 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(48), 2 * pow(3.0, 0.5), 1e-4);
     }
 };
 

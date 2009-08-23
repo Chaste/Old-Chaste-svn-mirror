@@ -165,18 +165,18 @@ public:
         ChastePoint<2> new_point(new_point_location);
 
         // This node was on left and is now near the right
-        mesh.SetNode(12u, new_point);
+        mesh.SetNode(12, new_point);
         TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[0], 3.99, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(12u)->rGetLocation()[1], 3.0*0.5/sqrt(3), 1e-4);
 
         // This node has stayed close to where it was
-        new_point.SetCoordinate(0u, 0.2);
-        mesh.SetNode(0u, new_point);
+        new_point.SetCoordinate(0, 0.2);
+        mesh.SetNode(0, new_point);
         TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[0], 0.2, 1e-4);
 
         // This node was on right and is now near the left
-        new_point.SetCoordinate(0u, 4.1);
-        mesh.SetNode(8u, new_point);
+        new_point.SetCoordinate(0, 4.1);
+        mesh.SetNode(8, new_point);
         TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[0], 0.1, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(8u)->rGetLocation()[1], 3.0*0.5/sqrt(3), 1e-4);
     }

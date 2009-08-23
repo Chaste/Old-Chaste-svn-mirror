@@ -80,7 +80,9 @@ bool MeshBasedTissue<DIM>::UseAreaBasedDampingConstant()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant)
 {
+    #define COVERAGE_IGNORE
     assert(DIM==2);
+    #undef COVERAGE_IGNORE
     mUseAreaBasedDampingConstant = useAreaBasedDampingConstant;
 }
 
@@ -204,8 +206,7 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
                      it2 != r_pair.end();
                      ++it2)
                 {
-                    TissueCell *p_cell = *it2;
-                    if (p_cell == &(*it))
+                    if (*it2 == &(*it))
                     {
                         // Remember to purge this spring
                         pairs_to_remove.push_back(&r_pair);
@@ -232,7 +233,6 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 
             // Update vector of cells
             it = this->mCells.erase(it);
-
             --it;
         }
     }
@@ -290,12 +290,11 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
 
         // For each element containing node1, if it also contains node2 then the cells are joined
         std::set<unsigned> node2_elements = p_node_2->rGetContainingElementIndices();
-        for (typename Node<DIM>::ContainingElementIterator elt_it = p_node_1->ContainingElementsBegin();
-             elt_it != p_node_1->ContainingElementsEnd();
-             ++elt_it)
+        for (typename Node<DIM>::ContainingElementIterator elem_iter = p_node_1->ContainingElementsBegin();
+             elem_iter != p_node_1->ContainingElementsEnd();
+             ++elem_iter)
         {
-            unsigned elt_index = *elt_it;
-            if (node2_elements.find(elt_index) != node2_elements.end())
+            if (node2_elements.find(*elem_iter) != node2_elements.end())
             {
                 joined = true;
                 break;
@@ -323,8 +322,8 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     if (DIM==2)
     {
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        if ( TissueConfig::Instance()->GetOutputVoronoiData() || UseAreaBasedDampingConstant() ||
-             TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
+        if (mUseAreaBasedDampingConstant || TissueConfig::Instance()->GetOutputVoronoiData() ||
+            TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
         {
             CreateVoronoiTessellation();
         }
@@ -342,19 +341,6 @@ template<unsigned DIM>
 unsigned MeshBasedTissue<DIM>::GetNumNodes()
 {
     return mrMesh.GetNumAllNodes();
-}
-
-template<unsigned DIM>
-void MeshBasedTissue<DIM>::SetBottomCellAncestors()
-{
-    unsigned index = 0;
-    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
-    {
-        if (this->GetNodeCorrespondingToCell(&(*cell_iter))->rGetLocation()[1] < 0.5)
-        {
-            cell_iter->SetAncestor(index++);
-        }
-    }
 }
 
 template<unsigned DIM>
@@ -444,30 +430,43 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
 
     *mpElementFile << "\n";
 
-    if (DIM==2)
+    switch (DIM)
     {
-        if (mpVoronoiTessellation!=NULL)
+        case 1:
         {
-            if (TissueConfig::Instance()->GetOutputVoronoiData())
+            // do nothing
+            break;
+        }
+        case 2:
+        {
+            if (mpVoronoiTessellation!=NULL)
             {
-                WriteVoronoiResultsToFile();
+                if (TissueConfig::Instance()->GetOutputVoronoiData())
+                {
+                    WriteVoronoiResultsToFile();
+                }
+                if (TissueConfig::Instance()->GetOutputTissueAreas())
+                {
+                    WriteTissueAreaResultsToFile();
+                }
+                if (TissueConfig::Instance()->GetOutputCellAreas())
+                {
+                    WriteCellAreaResultsToFile();
+                }
             }
+            break;
+        }
+        case 3:
+        {
             if (TissueConfig::Instance()->GetOutputTissueAreas())
             {
                 WriteTissueAreaResultsToFile();
             }
-            if (TissueConfig::Instance()->GetOutputCellAreas())
-            {
-                WriteCellAreaResultsToFile();
-            }
+            break;
         }
-    }
-    else if (DIM==3)
-    {
-        if (TissueConfig::Instance()->GetOutputTissueAreas())
-        {
-            WriteTissueAreaResultsToFile();
-        }
+        default:
+            // This can't happen
+            NEVER_REACHED;
     }
 }
 
@@ -497,28 +496,28 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 {
+    #define COVERAGE_IGNORE
+    assert(DIM==2);
+    #undef COVERAGE_IGNORE
+
     // Write time to file
     *mpTissueAreasFile << SimulationTime::Instance()->GetTime() << " ";
 
     // Don't use the Voronoi tessellation to calculate the total area
     // because it gives huge areas for boundary cells
     double total_area = mrMesh.GetVolume();
-
     double apoptotic_area = 0.0;
 
-    if (DIM==2)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
     {
-        for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
-             cell_iter != this->End();
-             ++cell_iter)
+        // Only bother calculating the cell area if it is apoptotic
+        if (cell_iter->GetCellType() == APOPTOTIC)
         {
-            // Only bother calculating the cell area if it is apoptotic
-            if (cell_iter->GetCellType() == APOPTOTIC)
-            {
-                unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-                double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
-                apoptotic_area += cell_area;
-            }
+            unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+            double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
+            apoptotic_area += cell_area;
         }
     }
     *mpTissueAreasFile << total_area << " " << apoptotic_area << "\n";
@@ -527,31 +526,32 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
 {
+    #define COVERAGE_IGNORE
+    assert(DIM==2);
+    #undef COVERAGE_IGNORE
+
     // Write time to file
     *mpCellAreasFile << SimulationTime::Instance()->GetTime() << " ";
 
-    if (DIM==2)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
     {
-        for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
-             cell_iter != this->End();
-             ++cell_iter)
+        // Write cell index
+        unsigned cell_index = cell_iter->GetCellId();
+        *mpCellAreasFile << cell_index << " ";
+
+        // Write cell location
+        c_vector<double, DIM> cell_location = this->GetLocationOfCellCentre(&(*cell_iter));
+        for (unsigned i=0; i<DIM; i++)
         {
-            // Write cell index
-            unsigned cell_index = cell_iter->GetCellId();
-            *mpCellAreasFile << cell_index << " ";
-
-            // Write cell location
-            c_vector<double, DIM> cell_location = this->GetLocationOfCellCentre(&(*cell_iter));
-            for (unsigned i=0; i<DIM; i++)
-            {
-                *mpCellAreasFile << cell_location[i] << " ";
-            }
-
-            // Write cell area
-            unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-            double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
-            *mpCellAreasFile << cell_area << " ";
+            *mpCellAreasFile << cell_location[i] << " ";
         }
+
+        // Write cell area
+        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+        double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
+        *mpCellAreasFile << cell_area << " ";
     }
     *mpCellAreasFile << "\n";
 }

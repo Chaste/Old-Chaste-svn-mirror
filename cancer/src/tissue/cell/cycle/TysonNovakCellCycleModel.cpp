@@ -76,7 +76,7 @@ void TysonNovakCellCycleModel::ResetForDivision()
      * When running with CVODE however we can use the halving the mass of the cell method.
      */
 #ifdef CHASTE_CVODE
-    mpOdeSystem->rGetStateVariables()[5] = mpOdeSystem->rGetStateVariables()[5]/2.0;
+    mpOdeSystem->rGetStateVariables()[5] = 0.5*mpOdeSystem->rGetStateVariables()[5];
 #else
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 #endif //CHASTE_CVODE

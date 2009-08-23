@@ -189,19 +189,20 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetVectorFromAtoB(const c_vector<do
     return vector;
 }
 
-
 void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
 {
+    double x_coord = point.rGetLocation()[0];
+
     // Perform a periodic movement if necessary
-    if (point.rGetLocation()[0] >= mWidth)
+    if (x_coord >= mWidth)
     {
         // Move point to the left
-        point.SetCoordinate(0u, point.rGetLocation()[0] - mWidth);
+        point.SetCoordinate(0, x_coord - mWidth);
     }
-    if (point.rGetLocation()[0] < 0.0)
+    if (x_coord < 0.0)
     {
         // Move point to the right
-        point.SetCoordinate(0u, point.rGetLocation()[0] + mWidth);
+        point.SetCoordinate(0, x_coord + mWidth);
     }
 
     // Update the node's location

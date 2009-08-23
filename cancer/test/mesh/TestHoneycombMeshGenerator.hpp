@@ -433,7 +433,7 @@ public:
         unsigned num_cells_width = 10;
         double radius = 3.5;
 
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
 
         MutableMesh<2,2> *p_mesh = generator.GetCircularMesh(radius);
 
@@ -447,7 +447,7 @@ public:
 
     void TestCircularMeshIsJacobian() throw(Exception)
     {
-        HoneycombMeshGenerator generator(20, 20, 0u, false);
+        HoneycombMeshGenerator generator(20, 20, 0, false);
         MutableMesh<2,2> *p_mesh = generator.GetCircularMesh(10);
 
         NodeMap map(p_mesh->GetNumAllNodes());

@@ -171,7 +171,7 @@ public:
         // Create a simple mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Create cells
@@ -211,7 +211,7 @@ public:
         // Create a simple mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0u, false);
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
         MutableMesh<2,2> *p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
@@ -593,7 +593,7 @@ public:
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.
-            unsigned counter = 0u;
+            unsigned counter = 0;
             for (AbstractTissue<2>::Iterator cell_iter=p_tissue->Begin();
                  cell_iter!=p_tissue->End();
                  ++cell_iter)

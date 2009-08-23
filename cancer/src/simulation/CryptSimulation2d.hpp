@@ -159,6 +159,11 @@ public :
      */
     void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
 
+    /**
+     * Sets the Ancestor index of all the cells at the bottom in order,
+     * can be used to trace clonal populations.
+     */
+    void SetBottomCellAncestors();
 };
 
 

@@ -72,7 +72,7 @@ public:
     void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateGivenLocationIndices() throw(Exception)
     {
         // Use a mesh generator to generate some location indices corresponding to real cells
-        HoneycombMeshGenerator generator(6, 7, 2u, false);
+        HoneycombMeshGenerator generator(6, 7, 2, false);
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
