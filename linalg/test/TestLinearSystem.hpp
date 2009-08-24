@@ -478,9 +478,9 @@ public:
 #else
         VecSet(bad_guess, too_big);
 #endif
+        ///\todo #1007 Does not throw with PETSc-3
         TS_ASSERT_THROWS_THIS(solution_vector = ls.Solve(bad_guess),
                 "DIVERGED_DTOL in function \'User provided function\' on line \xDB of file linalg/src/common/LinearSystem.cpp");
-
         VecDestroy(solution_vector);
         VecDestroy(good_guess);
         VecDestroy(bad_guess);
@@ -674,8 +674,14 @@ public:
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
 
+#if (PETSC_MAJOR_VERSION == 3)
+        const KSPType solver;
+        const PCType pc;
+#else
         KSPType solver;
         PCType pc;
+#endif
+
         PC prec;
         KSPGetType(ls.mKspSolver, &solver);
         KSPGetPC(ls.mKspSolver, &prec);
@@ -939,8 +945,14 @@ public:
             //Check archiving of KSP/PC types
             Vec solution_vector3;
             solution_vector3 = p_linear_system->Solve();
-            VecDestroy(solution_vector3);KSPType solver;
+            VecDestroy(solution_vector3);
+#if (PETSC_MAJOR_VERSION == 3)
+            const KSPType solver;
+            const PCType pc;
+#else
+            KSPType solver;
             PCType pc;
+#endif
             PC prec;
             KSPGetType(p_linear_system->mKspSolver, &solver);
             KSPGetPC(p_linear_system->mKspSolver, &prec);
@@ -968,8 +980,13 @@ public:
         solution_vector3 = ls.Solve();
         VecDestroy(solution_vector3);
 
+#if (PETSC_MAJOR_VERSION == 3)
+        const KSPType solver;
+        const PCType pc;
+#else
         KSPType solver;
         PCType pc;
+#endif
         PC prec;
         KSPGetType(ls.mKspSolver, &solver);
         KSPGetPC(ls.mKspSolver, &prec);

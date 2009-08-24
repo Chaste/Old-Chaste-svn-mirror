@@ -128,6 +128,7 @@ public:
     // see also TestPapillaryFibreCalculatorLong() for bigger test of the main method on a cylinder.
     void TestGetFibreOrientationsOnSimpleCube(void) throw(Exception)
     {
+        ///\todo #1007 This test fails with PETSc3
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/simple_cube");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);

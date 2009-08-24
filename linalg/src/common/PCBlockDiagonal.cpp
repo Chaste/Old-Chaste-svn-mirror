@@ -130,7 +130,8 @@ PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y)
     VecScatter A11_scatter_ctx;
     VecScatterCreate(x, A11_rows, x11, PETSC_NULL, &A11_scatter_ctx);
 
-#if (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)
+//PETSc-3.x.x or PETSc-2.3.3 
+#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
     VecScatterBegin(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
 #else
@@ -144,7 +145,8 @@ PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y)
     VecScatter A22_scatter_ctx;
     VecScatterCreate(x, A22_rows, x22, PETSC_NULL, &A22_scatter_ctx);
 
-#if (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)
+//PETSc-3.x.x or PETSc-2.3.3 
+#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
     VecScatterBegin(A22_scatter_ctx, x, x22, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(A22_scatter_ctx, x, x22, INSERT_VALUES, SCATTER_FORWARD);
 #else
@@ -158,7 +160,8 @@ PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y)
 
     ////////////////////
 
-#if (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)
+//PETSc-3.x.x or PETSc-2.3.3 
+#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
     VecScatterBegin(A11_scatter_ctx, y11, y, INSERT_VALUES, SCATTER_REVERSE);
     VecScatterEnd(A11_scatter_ctx, y11, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
@@ -166,7 +169,8 @@ PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y)
     VecScatterEnd(y11, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
 #endif    
 
-#if (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)
+//PETSc-3.x.x or PETSc-2.3.3 
+#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
     VecScatterBegin(A22_scatter_ctx, y22, y, INSERT_VALUES, SCATTER_REVERSE);
     VecScatterEnd(A22_scatter_ctx, y22, y, INSERT_VALUES, SCATTER_REVERSE);
 #else

@@ -146,10 +146,10 @@ public:
     {
         PetscInt n = 11;  // Mesh size
         Mat numerical_jacobian;
-        PetscTools::SetupMat(numerical_jacobian, n, n, MATSEQDENSE);
+        PetscTools::SetupMat(numerical_jacobian, n, n, (MatType) MATSEQDENSE);
 
         Mat analytic_jacobian;
-        PetscTools::SetupMat(analytic_jacobian, n, n, MATSEQDENSE);
+        PetscTools::SetupMat(analytic_jacobian,  n, n, (MatType) MATSEQDENSE);
 
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");

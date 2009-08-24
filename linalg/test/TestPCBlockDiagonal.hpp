@@ -100,7 +100,11 @@ public:
 
         // Coverage (setting PC type after first solve)
         ls.SetPcType("blockdiagonal");
+#if (PETSC_MAJOR_VERSION == 3)
+        const PCType pc;
+#else
         PCType pc;
+#endif
         PC prec;
         KSPGetPC(ls.mKspSolver, &prec);
         PCGetType(prec, &pc);

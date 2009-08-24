@@ -39,14 +39,26 @@ class TestPetscEvents : public CxxTest::TestSuite
 public:
     void TestEvents()
     {
+#if (PETSC_VERSION_MAJOR == 3)
+        PetscLogEvent my_event;
+        PetscLogEventRegister("My first event", 0, &my_event);
+#else
         PetscEvent my_event;
-        PetscLogEventRegister(&my_event,"My first event", 0);
+        PetscLogEventRegister(&my_event, "My first event", 0);
+
+#endif
         (void)PetscLogEventBegin(my_event,0,0,0,0);
         for (unsigned i=0; i<1000000; i++);
         (void)PetscLogEventEnd(my_event,0,0,0,0);
 
+#if (PETSC_VERSION_MAJOR == 3)
+        PetscLogEvent my_event2;
+        PetscLogEventRegister("My second event", 0, &my_event2);
+#else
         PetscEvent my_event2;
-        PetscLogEventRegister(&my_event2,"My second event", 0);
+        PetscLogEventRegister(&my_event2, "My second event", 0);
+#endif
+
         (void)PetscLogEventBegin(my_event2,0,0,0,0);
         for (unsigned i=0; i<1000000; i++);
         (void)PetscLogEventEnd(my_event2,0,0,0,0);

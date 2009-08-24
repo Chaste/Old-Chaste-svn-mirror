@@ -78,7 +78,8 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 //    VecGetSize(mConcentrated, &size2);
 //    std::cout << "Vector size=" << size << "," << size2 << std::endl << std::flush;
 
-#if (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)
+//PETSc-3.x.x or PETSc-2.3.3 
+#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
     VecScatterBegin(mToMaster, petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(mToMaster, petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD);
 #else

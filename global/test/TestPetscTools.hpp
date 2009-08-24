@@ -97,7 +97,11 @@ public:
         TS_ASSERT_EQUALS(m, 10);
         TS_ASSERT_EQUALS(n, 11);
 
+#if (PETSC_MAJOR_VERSION == 3)
+        const MatType type;
+#else
         MatType type;
+#endif
         MatGetType(mat,&type);
         //TS_ASSERT_EQUALS(type, MATMPIAIJ); // this does seem to work, but doesn't pass: it says "found (mpiaij != mpiaij)"
 
@@ -137,7 +141,7 @@ public:
         Mat matrix;
         Vec vector;
 
-        PetscTools::SetupMat(matrix, 10, 10, MATMPIAIJ);
+        PetscTools::SetupMat(matrix, 10, 10, (MatType)MATMPIAIJ);
 
         VecCreate(PETSC_COMM_WORLD, &vector);
         VecSetSizes(vector, PETSC_DECIDE, 10);

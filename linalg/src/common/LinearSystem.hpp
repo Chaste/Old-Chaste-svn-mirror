@@ -603,11 +603,16 @@ inline void load_construct_data(
      ar >> symm_set;
      if (symm_set == PETSC_TRUE)
      {
+ #if (PETSC_VERSION_MAJOR == 3)
+        MatSetOption(new_mat, MAT_SYMMETRIC, PETSC_TRUE);
+        MatSetOption(new_mat, MAT_SYMMETRY_ETERNAL, PETSC_TRUE);
+#else
         MatSetOption(new_mat, MAT_SYMMETRIC);
         MatSetOption(new_mat, MAT_SYMMETRY_ETERNAL);
+#endif
      }
 
-     ::new(t)LinearSystem(size, new_mat, new_vec, MATMPIMAIJ);
+     ::new(t)LinearSystem(size, new_mat, new_vec, (MatType)MATMPIMAIJ);
 }
 }
 } // namespace ...

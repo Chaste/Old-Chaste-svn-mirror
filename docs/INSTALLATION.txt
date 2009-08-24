@@ -70,7 +70,7 @@ rm -rf mpich-1.2.7p1/  mpich.tar.gz
 cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-2.3.3-p15.tar.gz
 tar -zxvf petsc-2.3.3-p15.tar.gz
-rm -rf petsc-2.3.3-p15.tar.gz
+rm -f petsc-2.3.3-p15.tar.gz
 cd petsc-2.3.3-p15/
 export PETSC_DIR=`pwd` 
 ./config/configure.py  --download-c-blas-lapack=1 --with-mpi-dir=$CHASTE_LIBS/mpi --with-x=false  -PETSC_ARCH=linux-gnu --with-clanguage=cxx

@@ -60,18 +60,21 @@ public:
         TS_ASSERT_THROWS_NOTHING(PETSCEXCEPT(err));
 
         Vec v;
-        err = VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v);
+        err = VecCreateMPI(PETSC_COMM_WORLD, 2, 1, &v);
         VecDestroy(v);
         //#define PETSC_ERR_ARG_WRONGSTATE   73   /* object in argument is in wrong */
+        //#define PETSC_ERR_ARG_INCOMP       75   /* two arguments are incompatible */
+        TS_ASSERT_EQUALS(err, PETSC_ERR_ARG_INCOMP);
         TS_ASSERT_THROWS(PETSCEXCEPT(err), Exception);
 
         err=PETSC_ERR_FILE_OPEN;
         //#define PETSC_ERR_FILE_OPEN        65   /* unable to open file */
+        TS_ASSERT_EQUALS(err, PETSC_ERR_FILE_OPEN);
         TS_ASSERT_THROWS(PETSCEXCEPT(err), Exception);
 
         //See if we can do it without a temporary
         TS_ASSERT_THROWS(
-            PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v)), Exception);
+            PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, 2, 1, &v)), Exception);
         VecDestroy(v);
 
         //This test give back an "unknown error" message
