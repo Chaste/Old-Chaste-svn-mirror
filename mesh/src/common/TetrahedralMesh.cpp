@@ -629,7 +629,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
 {
-    assert(SPACE_DIM == 1);
     assert(ELEMENT_DIM == 1);
 
     for (unsigned node_index=0; node_index<=width; node_index++)

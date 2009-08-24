@@ -247,6 +247,8 @@ public:
 
     /**
      * Construct a 1D linear grid on [0,width]
+     * 
+     * If SPACE_DIM > 1 then the y & z default to 0.0 for every node.
      *
      * @param width  width of the mesh (in the x-direction)
      */

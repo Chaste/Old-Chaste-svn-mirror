@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Helper class for constructing cuboidal meshes.
  */
-template<unsigned DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class CuboidMeshConstructor
 {
 private:
@@ -50,7 +50,7 @@ private:
      * @param rMesh  The mesh
      * @param width  Width of the mesh
      */
-    void ConstructHyperCube(TetrahedralMesh<1,1>& rMesh, unsigned width);
+    void ConstructHyperCube(TetrahedralMesh<1,SPACE_DIM>& rMesh, unsigned width);
 
     /**
      * Construct a two-dimensional rectangular mesh.

@@ -531,6 +531,23 @@ public:
         TrianglesMeshWriter<1,1> mesh_writer("","LineMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
+    
+    void TestConstructLineIn3D()
+    {
+        TetrahedralMesh<1,3> mesh;
+        unsigned width = 39;
+
+        mesh.ConstructLinearMesh(width);
+
+        TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 0u, 1e-7);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), width+1);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), width);
+
+        TrianglesMeshWriter<1,3> mesh_writer("","LineMeshIn3D");
+        mesh_writer.WriteFilesUsingMesh(mesh);        
+    }
 
     void TestSetOwnerships()
     {
@@ -1412,6 +1429,12 @@ public:
         TetrahedralMesh<3,3> mesh3;
         mesh3.ConstructFromMeshReader(mesh_reader3);
         TS_ASSERT_EQUALS(mesh3.GetNumNodes(), 9u*9u*9u);
+        
+        CuboidMeshConstructor<1,3> constructor4;
+        TrianglesMeshReader<1,3> mesh_reader4(constructor4.Construct(1, 1.0));
+        TetrahedralMesh<1,3> mesh4;
+        mesh4.ConstructFromMeshReader(mesh_reader4);
+        TS_ASSERT_EQUALS(mesh4.GetNumNodes(), 9u);
     }
 
     void TestMeshStoresFilename()
