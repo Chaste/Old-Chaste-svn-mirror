@@ -223,9 +223,10 @@ public:
      *
      * @param rCell the cell
      *
-     * @return whether a given cell is associated with a deleted node.
+     * @return whether a given cell is associated with a deleted
+     *         node (cell-centre models) or element (vertex models).
      */
-    virtual bool IsCellAssociatedWithADeletedNode(TissueCell& rCell)=0;
+    virtual bool IsCellAssociatedWithADeletedLocation(TissueCell& rCell)=0;
 
     /**
      * Update the location of each node in the tissue given
@@ -325,25 +326,15 @@ public:
     c_vector<unsigned, 5> GetCellCyclePhaseCount();
 
     /**
-     * Find if a given node is a ghost node. The abstract method always returns false
-     * but is overridden in subclasses.
-     *
-     * @param index the global index of a specified node
-     *
-     * @return whether the node is a ghost node
-     */
-    virtual bool IsGhostNode(unsigned index);
-
-    /**
      * Get the number of real cells.
      */
     unsigned GetNumRealCells();
 
     /**
      * Sets the Ancestor index of all the cells at this time to be the
-     * same as their node index, can be used to trace clonal populations.
+     * same as their location index, can be used to trace clonal populations.
      */
-    void SetCellAncestorsToNodeIndices();
+    void SetCellAncestorsToLocationIndices();
 
     /**
      * Write cell ID data to mpCellIdFile.
@@ -414,7 +405,7 @@ public:
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
-    void GenerateCellResults(unsigned locationIndex,
+    virtual void GenerateCellResults(unsigned locationIndex,
                              std::vector<unsigned>& rCellTypeCounter,
                              std::vector<unsigned>& rCellMutationStateCounter,
                              std::vector<unsigned>& rCellCyclePhaseCounter);
@@ -587,7 +578,7 @@ typename AbstractTissue<DIM>::Iterator& AbstractTissue<DIM>::Iterator::operator+
 template<unsigned DIM>
 bool AbstractTissue<DIM>::Iterator::IsRealCell()
 {
-    return !( mrTissue.IsCellAssociatedWithADeletedNode(*mCellIter) || (*this)->IsDead() );
+    return !( mrTissue.IsCellAssociatedWithADeletedLocation(*mCellIter) || (*this)->IsDead() );
 }
 
 template<unsigned DIM>

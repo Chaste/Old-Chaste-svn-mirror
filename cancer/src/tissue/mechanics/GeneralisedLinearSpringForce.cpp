@@ -101,8 +101,6 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     double rest_length = 1.0;
 
-    assert( !(rTissue.IsGhostNode(nodeAGlobalIndex)) && !(rTissue.IsGhostNode(nodeBGlobalIndex)) );
-
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
 

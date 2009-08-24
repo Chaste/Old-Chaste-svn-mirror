@@ -682,6 +682,35 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNode(30)->rGetContainingElementIndices(), expected_elements_containing_node_30);
     }
 
+    void TestIsCellAssociatedWithADeletedLocation() throw (Exception)
+    {
+    	// Create a simple vertex-based mesh
+        VertexMesh<2,2> mesh(4, 6);
+        mesh.GetElement(5)->MarkAsDeleted();
+
+        // Set up cells
+        std::vector<TissueCell> cells = SetUpCells(mesh);
+
+        // Create tissue but do not try to validate
+        VertexBasedTissue<2> tissue(mesh, cells, false, false);
+
+        // Test IsCellAssociatedWithADeletedLocation() method
+        for (VertexBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {
+        	bool is_deleted = tissue.IsCellAssociatedWithADeletedLocation(*cell_iter);
+        	
+        	if (tissue.GetLocationIndexUsingCell(&(*cell_iter)) == 5)
+        	{
+        		TS_ASSERT_EQUALS(is_deleted, true);
+        	}
+        	else
+        	{
+        		TS_ASSERT_EQUALS(is_deleted, false);
+        	}
+        }
+    }
 
     void TestRemoveDeadCellsAndUpdate() throw (Exception)
     {
@@ -767,7 +796,7 @@ public:
         tissue.rGetCellUsingLocationIndex(4).SetCellType(APOPTOTIC);
         tissue.rGetCellUsingLocationIndex(4).StartApoptosis();
         tissue.rGetCellUsingLocationIndex(5).SetCellType(STEM);
-        tissue.SetCellAncestorsToNodeIndices();
+        tissue.SetCellAncestorsToLocationIndices();
 
         std::string output_directory = "TestVertexBasedTissueOutputWriters";
         OutputFileHandler output_file_handler(output_directory, false);

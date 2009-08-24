@@ -700,7 +700,7 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Test that the tissue makes all cells fix the node index as ancestor
-        tissue.SetCellAncestorsToNodeIndices();
+        tissue.SetCellAncestorsToLocationIndices();
 
         unsigned counter = 0;
         for (AbstractTissue<2>::Iterator cell_iter=tissue.Begin();
@@ -728,6 +728,38 @@ public:
         TS_ASSERT_EQUALS(remaining_ancestors.size(), 1u);
     }
 
+    void TestIsCellAssociatedWithADeletedLocation() throw (Exception)
+    {
+    	// Create a simple mesh
+    	HoneycombMeshGenerator generator(4, 4, 0, false);
+        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        p_mesh->GetNode(0)->MarkAsDeleted();
+        
+        // Set up cells
+        std::vector<TissueCell> cells;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+
+        // Create tissue but do not try to validate
+        MeshBasedTissue<2> tissue(*p_mesh, cells, std::vector<unsigned>(), false, false);
+
+        // Test IsCellAssociatedWithADeletedLocation() method 
+        for (MeshBasedTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {
+        	bool is_deleted = tissue.IsCellAssociatedWithADeletedLocation(*cell_iter);
+        	
+        	if (tissue.GetLocationIndexUsingCell(&(*cell_iter)) == 0)
+        	{
+        		TS_ASSERT_EQUALS(is_deleted, true);
+        	}
+        	else
+        	{
+        		TS_ASSERT_EQUALS(is_deleted, false);
+        	}
+        }
+    }
 };
 
 

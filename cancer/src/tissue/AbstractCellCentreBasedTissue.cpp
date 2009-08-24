@@ -78,7 +78,7 @@ TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_
 
 
 template<unsigned DIM>
-bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell& rCell)
+bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedLocation(TissueCell& rCell)
 {
     return GetNodeCorrespondingToCell(&rCell)->IsDeleted();
 }

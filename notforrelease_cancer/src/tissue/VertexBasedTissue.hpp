@@ -57,6 +57,7 @@ private:
 
     /** A cache of where the results are going (used for VTK writer). */
     std::string mDirPath;
+
     /** Meta results file for VTK. */
     out_stream mpVtkMetaFile;
 
@@ -262,12 +263,12 @@ public:
     unsigned RemoveDeadCells();
 
     /**
-     * Overridden IsCellAssociatedWithADeletedNode() method.
+     * Overridden IsCellAssociatedWithADeletedLocation() method.
      *
      * @param rCell the cell
-     * @return whether a given cell is associated with a deleted node.
+     * @return whether a given cell is associated with a deleted element.
      */
-    bool IsCellAssociatedWithADeletedNode(TissueCell& rCell);
+    bool IsCellAssociatedWithADeletedLocation(TissueCell& rCell);
 
     /**
      * Remove the VertexElements which have been marked as deleted, perform

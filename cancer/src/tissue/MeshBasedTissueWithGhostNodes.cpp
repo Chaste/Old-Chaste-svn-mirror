@@ -269,6 +269,26 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
 }
 
 template<unsigned DIM>
+void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResults(unsigned locationIndex,
+                                              std::vector<unsigned>& rCellTypeCounter,
+                                              std::vector<unsigned>& rCellMutationStateCounter,
+                                              std::vector<unsigned>& rCellCyclePhaseCounter)
+{
+	if (IsGhostNode(locationIndex) == true)
+    {
+        *(this->mpVizCellTypesFile) << INVISIBLE_COLOUR << " ";
+    }
+	else
+	{
+		AbstractTissue<DIM>::GenerateCellResults(locationIndex,
+		                                         rCellTypeCounter,
+		                                         rCellMutationStateCounter,
+		                                         rCellCyclePhaseCounter);
+	}
+	
+}
+
+template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles()
 {
     // Set up cell type counter

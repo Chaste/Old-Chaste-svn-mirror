@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexMeshWriter.hpp"
 #include "VertexMesh.hpp"
-#include "Debug.hpp"
 
 
 class TestVertexMesh : public CxxTest::TestSuite

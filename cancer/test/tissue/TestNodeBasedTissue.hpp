@@ -455,7 +455,7 @@ public:
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
 
         // Test that the tissue makes all cells fix the node index as ancestor
-        node_based_tissue.SetCellAncestorsToNodeIndices();
+        node_based_tissue.SetCellAncestorsToLocationIndices();
 
         unsigned counter = 0;
 
@@ -535,7 +535,7 @@ public:
         node_based_tissue.rGetCellUsingLocationIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
         node_based_tissue.rGetCellUsingLocationIndex(4).SetCellType(APOPTOTIC);
         node_based_tissue.rGetCellUsingLocationIndex(4).StartApoptosis();
-        node_based_tissue.SetCellAncestorsToNodeIndices();
+        node_based_tissue.SetCellAncestorsToLocationIndices();
 
         std::string output_directory = "TestNodeBasedTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);

@@ -102,13 +102,13 @@ public:
     TissueCell* AddCell(TissueCell& rNewCell, c_vector<double,DIM> cellDivisionVector, TissueCell* pParentCell=NULL);
 
     /**
-     * Overridden IsCellAssociatedWithADeletedNode() method.
+     * Overridden IsCellAssociatedWithADeletedLocation() method.
      *
      * @param rCell the cell
      *
      * @return whether a given cell is associated with a deleted node.
      */
-    bool IsCellAssociatedWithADeletedNode(TissueCell& rCell);
+    bool IsCellAssociatedWithADeletedLocation(TissueCell& rCell);
 
     /**
      * Overridden UpdateNodeLocations() method.

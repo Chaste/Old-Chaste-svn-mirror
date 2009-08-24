@@ -133,8 +133,6 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
 
     double rest_length = 1.0;
 
-    assert( !(rTissue.IsGhostNode(nodeAGlobalIndex)) && !(rTissue.IsGhostNode(nodeBGlobalIndex)) );
-
     double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
     double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
 

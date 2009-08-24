@@ -271,9 +271,9 @@ void VertexBasedTissue<DIM>::UpdateNodeLocations(const std::vector< c_vector<dou
 
 
 template<unsigned DIM>
-bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedNode(TissueCell& rCell)
+bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedLocation(TissueCell& rCell)
 {
-    return false;
+    return GetElementCorrespondingToCell(&rCell)->IsDeleted();;
 }
 
 
