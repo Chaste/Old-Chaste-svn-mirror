@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+#define H5_USE_16_API
 #include <hdf5.h>
 #include <petscvec.h>
 

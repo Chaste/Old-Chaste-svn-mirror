@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef HDF5DATAREADER_HPP_
 #define HDF5DATAREADER_HPP_
 
+#define H5_USE_16_API
 #include <hdf5.h>
 #include <petscvec.h>
 #include <string>
