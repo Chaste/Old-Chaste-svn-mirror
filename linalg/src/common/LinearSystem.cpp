@@ -498,6 +498,7 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 {
     if (isSymmetric)
     {
+
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
     }
