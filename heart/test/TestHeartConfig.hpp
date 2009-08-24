@@ -565,7 +565,7 @@ public :
         
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), false);
         std::vector<unsigned> conduction_velocity_map, conduction_velocity_map_get;
-        conduction_velocity_map.push_back(25.0);
+        conduction_velocity_map.push_back(25u);
         HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), true);
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
