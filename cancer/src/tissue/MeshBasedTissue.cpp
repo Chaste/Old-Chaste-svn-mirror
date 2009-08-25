@@ -434,7 +434,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
     {
         case 1:
         {
-            // do nothing
+            ///\todo implement writing of tissue/cell lengths in 1D
             break;
         }
         case 2:
@@ -458,10 +458,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
         }
         case 3:
         {
-            if (TissueConfig::Instance()->GetOutputTissueAreas())
-            {
-                WriteTissueAreaResultsToFile();
-            }
+        	///\todo implement writing of tissue/cell volumes in 3D (see also #738)
             break;
         }
         default:
