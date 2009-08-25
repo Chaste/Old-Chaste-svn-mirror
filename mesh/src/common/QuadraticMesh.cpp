@@ -38,9 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef VOID
 
 template<unsigned DIM>
-QuadraticMesh<DIM>::QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic)
+QuadraticMesh<DIM>::QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo)
 {
-    LoadFromFile(rFileName, boundaryElemFileIsQuadratic);
+    if(boundaryElemFileIsQuadratic && boundaryElemFileHasContainingElementInfo)
+    {
+        EXCEPTION("Boundary element file should not have containing element info if it is quadratic");
+    }
+    LoadFromFile(rFileName, boundaryElemFileIsQuadratic, boundaryElemFileHasContainingElementInfo);
 
     // Check each boundary element has a quadratic number of nodes    
 #ifndef NDEBUG
@@ -183,7 +187,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     
     this->RefreshJacobianCachedData();
     
-    AddNodesToBoundaryElements();
+    AddNodesToBoundaryElements(false, NULL);
     
     free(triangle_input.pointlist);
 
@@ -286,7 +290,10 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     return_value = system(command.c_str());
 
     // load
-    LoadFromFile( fileStem + ".1", false); // false as tetgen/triangle has been used and therefore boundary elems will be linear
+    LoadFromFile( fileStem + ".1", false, false); // false as tetgen/triangle has been used and therefore boundary elems will be linear
+    ///\todo: Could use the '-nn' flag when calling tetgen and then face file would have containing element info and second false
+    // could be a true instead. Currently though there is the intermediate step of having to delete manually the attribute values 
+    // column after using this flag.
 
     // delete the temporary files
     command = "rm -f " + outputDir + "/" + fileStem + ".node";
@@ -298,14 +305,13 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundaryElemFileIsQuadratic)
+void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo)
 {
     unsigned order_of_boundary_elements = boundaryElemFileIsQuadratic ? 2 : 1;
-    
-    TrianglesMeshReader<DIM,DIM> mesh_reader(rFileName, 2, order_of_boundary_elements); // 2=quadratic mesh
+
+    TrianglesMeshReader<DIM,DIM> mesh_reader(rFileName, 2, order_of_boundary_elements, boundaryElemFileHasContainingElementInfo); // 2=quadratic mesh
 
     ConstructFromMeshReader(mesh_reader);
-    
     assert(this->GetNumBoundaryElements()>0);
 
     // set up the information on whether a node is an internal node or not (if not,
@@ -319,7 +325,6 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
             mIsInternalNode[ node_index ] = false;
         }
     }
-
     // count the number of vertices, and also check all vertices come before the
     // rest of the nodes (as this is assumed in other parts of the code)
     mNumVertices = 0;
@@ -340,8 +345,9 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
             vertices_mode = false;
         }
     }
-
+    
     mesh_reader.Reset();
+
 
     // add the extra nodes (1 extra node in 1D, 3 in 2D, 6 in 3D) to the element
     // data.
@@ -357,7 +363,6 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
             this->GetNode(nodes[j])->AddElement(this->GetElement(i)->GetIndex());
         }
     }
-
     if (DIM > 1)
     {
         // if boundaryElemFileIsQuadratic can read in the extra nodes for each boundary element, other have to compute them.
@@ -382,27 +387,32 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
         }
         else
         {
-            AddNodesToBoundaryElements();
+            AddNodesToBoundaryElements(boundaryElemFileHasContainingElementInfo, &mesh_reader);
         }
     }
 }
  
 template<unsigned DIM>
-void QuadraticMesh<DIM>::AddNodesToBoundaryElements()
+void QuadraticMesh<DIM>::AddNodesToBoundaryElements(bool boundaryElemFileHasContainingElementInfo,
+                                                    TrianglesMeshReader<DIM,DIM>* pMeshReader)
  {
     // Loop over all boundary elements, find the equivalent face from all
     // the elements, and add the extra nodes to the boundary element
     if (DIM>1)
     {
-
-//        unsigned counter = 0;
-
+        if(boundaryElemFileHasContainingElementInfo)
+        {
+            assert(pMeshReader != NULL);
+            pMeshReader->Reset();
+        }
+        
+        //unsigned counter = 0;
         for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
                = this->GetBoundaryElementIteratorBegin();
              iter != this->GetBoundaryElementIteratorEnd();
              ++iter)
         {
-//            std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << this->GetNumBoundaryElements() << std::flush;
+            //std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << this->GetNumBoundaryElements() << std::flush;
             
             // collect the nodes of this boundary element in a set
             std::set<unsigned> boundary_element_node_indices;
@@ -413,10 +423,19 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements()
 
             bool found_this_boundary_element = false;
 
-            // loop over elements
-            for (unsigned i=0; i<this->GetNumElements(); i++)
-            {
-                Element<DIM,DIM> *p_element = this->GetElement(i);
+            // Loop over elements, then loop over each face of that element, and see if it matches
+            // this boundary element.
+            // Note, if we know what elem it should be in (boundaryElemFileHasContainingElementInfo==true)
+            // we will reset elem_index immediately (below)
+            for (unsigned elem_index=0; elem_index<this->GetNumElements(); elem_index++)
+            {   
+                // we know what elem it should be in 
+                if(boundaryElemFileHasContainingElementInfo)
+                {
+                    elem_index = pMeshReader->GetNextFaceData().ContainingElement;
+                }
+                
+                Element<DIM,DIM> *p_element = this->GetElement(elem_index);
 
                 // for each element, loop over faces (the opposites to a node)
                 for (unsigned face=0; face<DIM+1; face++)
@@ -442,6 +461,21 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements()
                         found_this_boundary_element = true;
                         break;
                     }
+                }
+
+                // if the containing element info was given, we should certainly have found the
+                // face first time.  
+                if(boundaryElemFileHasContainingElementInfo && !found_this_boundary_element)
+                {
+                    #define COVERAGE_IGNORE
+                    std::cout << (*iter)->GetIndex() << " " <<  pMeshReader->GetNextFaceData().ContainingElement << "\n";
+                    std::stringstream ss;
+                    ss << "Boundary element " << (*iter)->GetIndex() 
+                       << "wasn't found in the containing element given for it " 
+                       << elem_index; 
+
+                    EXCEPTION(ss.str());
+                    #undef COVERAGE_IGNORE
                 }
 
                 if (found_this_boundary_element)

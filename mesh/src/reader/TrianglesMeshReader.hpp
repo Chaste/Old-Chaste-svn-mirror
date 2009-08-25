@@ -73,6 +73,17 @@ private:
     unsigned mOrderOfBoundaryElements; /**< The order of each element (1 for linear, 2 for quadratic). */
     unsigned mNodesPerElement;      /**< The number of nodes contained in each element. */
     unsigned mNodesPerBoundaryElement; /**< The number of nodes in each boundary element. */
+    
+    bool mEofException; /**< Set to true when end-of-file exception is thrown (for use in a try-catch) */
+
+    bool mReadContainingElementOfBoundaryElement; /**< Whether to read containing element info for each boundary element (obtaining by doing tetgen with the -nn flag) */
+
+//    /** The containing element for each boundary element (obtaining by doing tetgen with the -nn flag).
+//     *  In a std::vector rather than the struct to save space if not read.
+//     */
+//    std::vector<unsigned> mContainingElementsOfBoundaryElement;
+//   
+//    unsigned mIndexIntoContainingElementsVector; /**< Which index to use when GetNextContainingElementOfBoundaryElement() is called */
 
 public:
 
@@ -84,9 +95,13 @@ public:
      * @param orderOfBoundaryElements the order of each boundary element: 1 for linear, 2 for quadratic (defaults to 1. May
      *  or may not be different to orderOfElements (Note tetgen with the -o2 flag creates quadratic elements but doesn't 
      *  create quadratic faces, hence the need for this third parameter)
-     *   
+     * @param readContainingElementsForBoundaryElements Whether to read in the containing element infomation 
+     *  for each boundary element (in the .face file if tetgen was run with '-nn').
      */
-    TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements=1, unsigned orderOfBoundaryElements=1);
+    TrianglesMeshReader(std::string pathBaseName, 
+                        unsigned orderOfElements=1, 
+                        unsigned orderOfBoundaryElements=1, 
+                        bool readContainingElementsForBoundaryElements=false);
 
     /** Returns the number of elements in the mesh */
     unsigned GetNumElements() const;
@@ -120,6 +135,9 @@ public:
 
     /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()). */
     ElementData GetNextEdgeData();
+    
+//    /** Returns the next containing element for each face in turn */
+//    unsigned GetNextContainingElementOfBoundaryElement();
 
 private:
 

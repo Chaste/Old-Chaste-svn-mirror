@@ -386,6 +386,22 @@ public:
         }
     }
 
+    void TestWritingReadingBoundaryElementsWithContainingElementInfo() throw(Exception)
+    {
+        // This mesh has quadratic node and ele files, a linear face file that has containing element
+        // info
+        QuadraticMesh<3> mesh("mesh/test/data/cube_2mm_152_elements_v3", false, true);
+
+        for (QuadraticMesh<3>::BoundaryElementIterator iter
+               = mesh.GetBoundaryElementIteratorBegin();
+             iter != mesh.GetBoundaryElementIteratorEnd();
+             ++iter)
+        {
+            TS_ASSERT_EQUALS( (*iter)->GetNumNodes(), 6u );
+        }
+    }
+
+
     void TestExceptions() throw(Exception)
     {
         TS_ASSERT_THROWS_THIS(QuadraticMesh<1> mesh("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", false),

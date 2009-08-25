@@ -127,14 +127,11 @@ public:
         {
             ElementData data = mesh_reader.GetNextFaceData();
             TS_ASSERT_EQUALS(data.AttributeValue, 1u);
+            
         }
 
-        TrianglesMeshReader<2,2> mesh_reader2("mesh/test/data/baddata/bad_faces_disk_522_elements");
-
         // First boundary face is #20, on its way through the file there's a gap between face 1 and face 10
-        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextFaceData(),"Data for face 2 missing");
-        /// \todo: the exception thrown here is thrown in the constructor as well. In that case, it's wrongly
-        /// caught considering it an end of file exception and therefore setting an inconsistent number of faces.
+        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader2("mesh/test/data/baddata/bad_faces_disk_522_elements"),"Data for face 2 missing");
     }
 
     /**
@@ -153,7 +150,7 @@ public:
         {
             ElementData data = mesh_reader.GetNextFaceData();
             //Attributes are 1, 2, 3 or 4.
-            TS_ASSERT_LESS_THAN(0u, data.AttributeValue);
+            TS_ASSERT_LESS_THAN(-1, (int)data.AttributeValue);
             TS_ASSERT_LESS_THAN(data.AttributeValue, 5u);
         }
     }
@@ -178,8 +175,7 @@ public:
      */
     void TestPermutedNodesFail() throw(Exception)
     {
-        TrianglesMeshReader<2,2> reader("mesh/test/data/baddata/permuted_nodes_disk_522_elements");
-        TS_ASSERT_THROWS_THIS(for(unsigned i=0;i<reader.GetNumNodes();i++){reader.GetNextNode();},"Data for node 5 missing")
+        TS_ASSERT_THROWS_THIS(READER_2D reader("mesh/test/data/baddata/permuted_nodes_disk_522_elements"),"Data for face 0 missing")
     }
 
     /**
@@ -411,7 +407,19 @@ public:
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5+1);
         }
     }
+    
+    void TestReadingContainingElementsOfBoundaryElements() throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_152_elements_v2", 1, 1, true);
 
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 116u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[0], 3u);     //face 0
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 36u); //face 1 
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[1], 36u);    //face 2
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 74u); //face 3 
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[2], 16u);    //face 4
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 4u);  //face 5 
+    }
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

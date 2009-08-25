@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include <cassert>
 #include <sstream>
+#include <iostream>
 
 const static char* NODES_FILE_EXTENSION = ".node";
 const static char* ELEMENTS_FILE_EXTENSION = ".ele";
@@ -41,7 +42,10 @@ const static char* EDGES_FILE_EXTENSION = ".edge";
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, unsigned orderOfElements, unsigned orderOfBoundaryElements)
+TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, 
+                                                                 unsigned orderOfElements, 
+                                                                 unsigned orderOfBoundaryElements,
+                                                                 bool readContainingElementForBoundaryElements)
     : mFilesBaseName(pathBaseName),
       mNumNodes(0),
       mNumElements(0),
@@ -53,7 +57,9 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
       mNumElementAttributes(0),
       mNumFaceAttributes(0),
       mOrderOfElements(orderOfElements),
-      mOrderOfBoundaryElements(orderOfBoundaryElements)
+      mOrderOfBoundaryElements(orderOfBoundaryElements),
+      mEofException(false),
+      mReadContainingElementOfBoundaryElement(readContainingElementForBoundaryElements)
 {
     // Only linear and quadratic elements
     assert(orderOfElements==1 || orderOfElements==2);
@@ -127,13 +133,15 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 {
     CloseFiles();
-    OpenFiles();
-    ReadHeaders();
 
     mNodesRead = 0;
     mElementsRead = 0;
     mFacesRead = 0;
     mBoundaryFacesRead = 0;
+    mEofException = false;
+
+    OpenFiles();
+    ReadHeaders();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -217,7 +225,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
-{
+{    
     ElementData face_data;
     std::vector<unsigned> ret_indices;
 
@@ -276,6 +284,14 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
             else
             {
                 face_data.AttributeValue = 0u;
+            }
+            
+            if (mReadContainingElementOfBoundaryElement)
+            {
+                unsigned containing_element_index;
+                buffer_stream >> containing_element_index;
+                
+                face_data.ContainingElement = containing_element_index;
             }
 
             mFacesRead++;
@@ -454,7 +470,6 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
         buffer_stream3 >> mNumFaces >> mNumFaceAttributes;
         assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
-
         // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
         // the number of faces which are marked as boundary faces
         if ((mNumFaceAttributes==1) && (SPACE_DIM!=1))
@@ -470,10 +485,24 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
                 }
                 catch(Exception& e)
                 {
-                    end_of_file = true;
+                    if(mEofException)
+                    {
+                        end_of_file = true;
+                    }
+                    else
+                    {
+                        throw e;
+                    }
                 }
             }
             mNumFaces = num_boundary_faces;
+
+//// This exception would be helpful to have until #1116 is done, unfortunately some meshes do
+//// actually have no boundary elements (eg closed 2d meshes in 3d space).
+//            if(mNumFaces==0)
+//            {
+//                EXCEPTION("No boundary elements found. NOTE: elements in face/edge file with an attribute value of 0 are considered to be internal (non-boundary) elements");
+//            }
 
             // close the file, reopen, and skip the header again
             mFacesFile.close();
@@ -498,13 +527,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifstream& fileStream, std::string& rRawLine)
 {
     bool line_is_blank;
-
+    mEofException = false;
     do
     {
         getline(fileStream, rRawLine);
-
         if (fileStream.eof())
         {
+            mEofException = true;
             /// \todo: improve this error message
             EXCEPTION("File contains incomplete data");
         }

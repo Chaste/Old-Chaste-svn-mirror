@@ -57,14 +57,18 @@ private:
      * @param boundaryElemFileIsQuadratic Whether the boundary element file has a quadratic number of nodes (eg 3 in 2d)
      *  or linear number. Note tetgen with '-o2' creates files with quadratic elements but linear boundary elements.
      *  QuadraticMesh will compute the extra info in boundaryElemFileIsQuadratic==false (slow).
+     * @param boundaryElemFileHasContainingElementInfo Whether the (linear) boundary element file has the containing element info
+     *  in which case the conversion to quadratic is more efficient. Must be false if boundaryElemFileIsQuadratic==true. 
      */
-    void LoadFromFile(const std::string& rFileName, bool boundaryElemFileIsQuadratic);
+    void LoadFromFile(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo);
     
     /**
-     * Top level method for making 2D edges have 3 nodes not 2
-     * and making 3D faces have 6 nodes not 3.
+     * Top level method for making 2D edges have 3 nodes not 2 and making 3D faces have 6 nodes not 3  (ie linear to quadratic).
+     * @param boundaryElemFileHasContainingElementInfo Whether the mesh reader also has info on which element each boundary element is in.
+     * @param pMeshReader Pointer to the reader. Only used if boundaryElemFileHasContainElementInfo==true (can be null if not).
      */
-    void AddNodesToBoundaryElements();
+    void AddNodesToBoundaryElements(bool boundaryElemFileHasContainingElementInfo,
+                                    TrianglesMeshReader<DIM,DIM>* pMeshReader);
 
     /**
      * This method adds the given node (defined by an element and a node index)
@@ -163,8 +167,10 @@ public:
      * @param boundaryElemFileIsQuadratic Whether the boundary element file has a quadratic number of nodes (eg 3 in 2d)
      *  or linear number. Note tetgen with '-o2' creates files with quadratic elements but linear boundary elements.
      *  The AddExtraBoundaryNodes method will compute the extra info in boundaryElemFileIsQuadratic==false (slow).  
+     * @param boundaryElemFileHasContainingElementInfo Whether the (linear) boundary element file has the containing element info
+     *  in which case the conversion to quadratic is more efficient. Must be false if boundaryElemFileIsQuadratic==true. 
      */
-    QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic);
+    QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo=false);
 
     ///\todo 1d constructor
 
