@@ -95,8 +95,11 @@ protected:
      *
      * @param pNodeA one of the nodes to perform the swap with
      * @param pNodeB the other node to perform the swap
+     * @param rElementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
+     *                   with indices of VertexElements in the new mesh.  This should be created
+     *                   with the correct size, GetNumElements()
      */
-    void IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
+    void IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, VertexElementMap& rElementMap);
 
     /**
      * Helper method for ReMesh to merge nodes when needed.
@@ -598,22 +601,22 @@ public:
 
     /**
      * Helper method for ReMesh(). Removes the deleted nodes and elements from mesha dn updates the
-     * elementMap accordingly.
+     * rElementMap accordingly.
      *
-     * @param elementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
+     * @param rElementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
      *                   with indices of VertexElements in the new mesh.  This should be created
      *                   with the correct size, GetNumElements()
      */
-    void RemovedDeletedNodesAndElements(VertexElementMap& elementMap);
+    void RemovedDeletedNodesAndElements(VertexElementMap& rElementMap);
 
     /**
      * Re-mesh the mesh.
      *
-     * @param elementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
+     * @param rElementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
      *                   with indices of VertexElements in the new mesh.  This should be created
      *                   with the correct size, GetNumElements()
      */
-    void ReMesh(VertexElementMap& elementMap);
+    void ReMesh(VertexElementMap& rElementMap);
 
     /**
      * Alternative version of remesh which takes no parameters does not require a VertexElementMap.

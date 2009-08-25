@@ -779,7 +779,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexElementMap& elementMap)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexElementMap& rElementMap)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -788,7 +788,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexEl
     #undef COVERAGE_IGNORE
 
     // Make sure the map is big enough
-    elementMap.Resize(GetNumAllElements());
+    rElementMap.Resize(GetNumAllElements());
 
     // Remove deleted elements
     std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> live_elements;
@@ -801,7 +801,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexEl
         else
         {
             live_elements.push_back(mElements[i]);
-            elementMap.SetNewIndex(i, (unsigned)(live_elements.size()-1));
+            rElementMap.SetNewIndex(i, (unsigned)(live_elements.size()-1));
         }
     }
 
@@ -839,7 +839,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexEl
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -850,7 +850,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
     if (SPACE_DIM==2)
     {
         // Remove deleted nodes and elements
-        RemovedDeletedNodesAndElements(elementMap);
+        RemovedDeletedNodesAndElements(rElementMap);
 
         /*
          * We do not need to call Clear() and remove all current data, since
@@ -882,7 +882,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                         {
                             PerformT2Swap(&(*iter));
                             // Now remove the deleted nodes (if we don't do this then the search for T1Swap causes errors)
-                            RemovedDeletedNodesAndElements(elementMap);
+                            RemovedDeletedNodesAndElements(rElementMap);
                             recheck_mesh = true;
                             break;
                         }
@@ -943,11 +943,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& elementMap)
                         if ((!triangular_element) && (distance_between_nodes < mCellRearrangementThreshold))
                         {
                             // Identify the type of node swap/merge needed then call method to perform swap/merge
-                            IdentifySwapType(p_current_node, p_anticlockwise_node);
-
-                            // Remove any deleted nodes and elements
-                            RemovedDeletedNodesAndElements(elementMap);
-
+                            IdentifySwapType(p_current_node, p_anticlockwise_node, rElementMap);
                             recheck_mesh = true;
                             break;
                         }
@@ -1090,7 +1086,7 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAls
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, VertexElementMap& rElementMap)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1139,6 +1135,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                  * We merge the nodes.
                  */
                 PerformNodeMerge(pNodeA, pNodeB);
+                // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
+                RemovedDeletedNodesAndElements(rElementMap);
                 break;
             }
             case 2:
@@ -1155,6 +1153,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                      * We merge the nodes in this case.
                      */
                      PerformNodeMerge(pNodeA, pNodeB);
+                     // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
+                     RemovedDeletedNodesAndElements(rElementMap);
                 }
                 else
                 {
@@ -1169,6 +1169,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                      * We merge the nodes in this case.
                      */
                      PerformNodeMerge(pNodeA, pNodeB);
+                     // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
+                     RemovedDeletedNodesAndElements(rElementMap);
                 }
                 break;
             }
@@ -1261,6 +1263,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                         * We perform a node merge in this case.
                         */
                         PerformNodeMerge(pNodeA, pNodeB);
+                        // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
+                        RemovedDeletedNodesAndElements(rElementMap);
                     }
                     else if (intersection_indices.size() == 1) // Correct set up for T1Swap
                     {
