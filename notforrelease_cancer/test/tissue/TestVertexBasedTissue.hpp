@@ -324,21 +324,21 @@ public:
         double damping_constant_at_node_0 = tissue.GetDampingConstant(0);
         TS_ASSERT_DELTA(damping_constant_at_node_0, mutant_damping_constant, 1e-6);
 
-        // Node 3 is contained in cell 2 only, therefore should have a normal damping constant
-        double damping_constant_at_node_3 = tissue.GetDampingConstant(3);
-        TS_ASSERT_DELTA(damping_constant_at_node_3, normal_damping_constant, 1e-6);
+        // Node 1 is contained in cell 2 only, therefore should have a normal damping constant
+        double damping_constant_at_node_1 = tissue.GetDampingConstant(1);
+        TS_ASSERT_DELTA(damping_constant_at_node_1, normal_damping_constant, 1e-6);
 
-        // Node 5 is contained in cells 0 and 1, therefore should an averaged damping constant
-        double damping_constant_at_node_5 = tissue.GetDampingConstant(5);
-        TS_ASSERT_DELTA(damping_constant_at_node_5, (normal_damping_constant+mutant_damping_constant)/2.0, 1e-6);
+        // Node 4 is contained in cells 0 and 1, therefore should an averaged damping constant
+        double damping_constant_at_node_4 = tissue.GetDampingConstant(4);
+        TS_ASSERT_DELTA(damping_constant_at_node_4, (normal_damping_constant+mutant_damping_constant)/2.0, 1e-6);
 
-        // Node 9 is contained in cells 0, 1, 3, therefore should an averaged damping constant
-        double damping_constant_at_node_9 = tissue.GetDampingConstant(9);
-        TS_ASSERT_DELTA(damping_constant_at_node_9, (2*normal_damping_constant+mutant_damping_constant)/3.0, 1e-6);
+        // Node 8 is contained in cells 0, 1, 3, therefore should an averaged damping constant
+        double damping_constant_at_node_8 = tissue.GetDampingConstant(8);
+        TS_ASSERT_DELTA(damping_constant_at_node_8, (2*normal_damping_constant+mutant_damping_constant)/3.0, 1e-6);
 
-        // Node 20 is contained in cell 6 only, therefore should have a mutant damping constant
-        double damping_constant_at_node_20 = tissue.GetDampingConstant(20);
-        TS_ASSERT_DELTA(damping_constant_at_node_20, mutant_damping_constant, 1e-6);
+        // Node 27 is contained in cell 6 only, therefore should have a mutant damping constant
+        double damping_constant_at_node_27 = tissue.GetDampingConstant(27);
+        TS_ASSERT_DELTA(damping_constant_at_node_27, mutant_damping_constant, 1e-6);
 
         // Node 25 is contained in cells 6 and 7, therefore should have a mutant damping constant
         double damping_constant_at_node_25 = tissue.GetDampingConstant(25);
@@ -611,11 +611,11 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), old_num_elements+1);
 
         // Check the location of the new nodes
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[0], 1.8639, 1e-4);
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[1], 2.2714, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[0], 2.4721, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes)->rGetLocation()[1], 1.7481, 1e-4);
 
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[0], 1.0227, 1e-4);
-        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[1], 1.7285, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[0], 1.5278, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetNode(old_num_nodes+1)->rGetLocation()[1], 1.1386, 1e-4);
 
         // Now test the nodes in each element
         for (unsigned i=0; i<tissue.GetNumElements(); i++)
@@ -625,7 +625,7 @@ public:
                 // Elements 4 and 9 should each have one less node
                 TS_ASSERT_EQUALS(tissue.GetElement(i)->GetNumNodes(), 5u);
             }
-            else if (i==3 || i==8)
+            else if (i==1 || i==8)
             {
                 // Elements 3 and 8 should each have one extra node
                 TS_ASSERT_EQUALS(tissue.GetElement(i)->GetNumNodes(), 7u);
@@ -639,38 +639,38 @@ public:
         // Check node ownership for a few elements
 
         TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(0), 0u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(1), 1u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(2), 5u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(3), 9u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(4), 8u);
-        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(5), 4u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(1), 4u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(2), 8u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(3), 11u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(4), 7u);
+        TS_ASSERT_EQUALS(tissue.GetElement(0)->GetNodeGlobalIndex(5), 3u);
 
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(0), 13u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(1), 14u);
-        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(2), 18u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(0), 9u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(1), 13u);
+        TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(2), 17u);
         TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(3), 30u);
         TS_ASSERT_EQUALS(tissue.GetElement(4)->GetNodeGlobalIndex(4), 31u);
 
-        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(0), 18u);
-        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(1), 19u);
-        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(2), 23u);
-        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(3), 27u);
-        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(4), 26u);
-        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(5), 22u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(0), 17u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(1), 22u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(2), 26u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(3), 29u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(4), 25u);
+        TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(5), 21u);
         TS_ASSERT_EQUALS(tissue.GetElement(8)->GetNodeGlobalIndex(6), 30u);
 
         // Test element ownership for a few nodes
 
         std::set<unsigned> expected_elements_containing_node_5;
-        expected_elements_containing_node_5.insert(0);
         expected_elements_containing_node_5.insert(1);
+        expected_elements_containing_node_5.insert(2);
 
         TS_ASSERT_EQUALS(tissue.GetNode(5)->rGetContainingElementIndices(), expected_elements_containing_node_5);
 
         std::set<unsigned> expected_elements_containing_node_13;
-        expected_elements_containing_node_13.insert(1);
-        expected_elements_containing_node_13.insert(3);
+        expected_elements_containing_node_13.insert(2);
         expected_elements_containing_node_13.insert(4);
+        expected_elements_containing_node_13.insert(5);
 
         TS_ASSERT_EQUALS(tissue.GetNode(13)->rGetContainingElementIndices(), expected_elements_containing_node_13);
 

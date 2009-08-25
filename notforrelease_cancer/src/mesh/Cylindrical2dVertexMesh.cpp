@@ -44,8 +44,8 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
     assert(numAcross > 1);
     assert(numAcross%2==0); // numAcross should be even.
 
-    unsigned node_index = 0;
     // Create the nodes
+    unsigned node_index = 0;
     for (unsigned j=0; j<=2*numUp+1; j++)
     {
         if (isFlatBottom && (j==1))
@@ -94,7 +94,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
             if (j%2 == 0) // even
             {
                 node_indices[0] = 2*j*(numAcross)+i;
-                node_indices[1] = node_indices[0] + numAcross +1;
+                node_indices[1] = node_indices[0] + numAcross + 1;
                 node_indices[2] = node_indices[0] + 2*numAcross + 1;
                 node_indices[3] = node_indices[0] + 3*numAcross;
                 node_indices[4] = node_indices[0] + 2*numAcross;

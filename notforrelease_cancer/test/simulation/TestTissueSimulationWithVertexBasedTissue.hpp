@@ -229,7 +229,7 @@ public:
         unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
         unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
 
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+7); // as division of element is longer than threshold so is divided
+        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes+9); // as division of element is longer than threshold so is divided
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements+1);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells+1);
     }
@@ -399,8 +399,7 @@ public:
         unsigned new_num_elements = (static_cast<VertexBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNumElements();
         unsigned new_num_cells = simulator.rGetTissue().GetNumRealCells();
 
-        // There should be 3 nodes removed when element 0 is removed, 2 nodes removed when element 2 is removed, and 2 nodes removed when element 18 is removed
-        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-7);
+        TS_ASSERT_EQUALS(new_num_nodes, old_num_nodes-6);
         TS_ASSERT_EQUALS(new_num_elements, old_num_elements-4);
         TS_ASSERT_EQUALS(new_num_cells, old_num_cells-3); //\todo this should match with the elements
     }

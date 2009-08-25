@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMeshWriter.hpp"
 #include "VertexMesh.hpp"
 
-
 class TestVertexMesh : public CxxTest::TestSuite
 {
 public:
@@ -345,17 +344,17 @@ public:
         c_vector<double,2> height_extremes = mesh.GetWidthExtremes(1u);
 
         TS_ASSERT_DELTA(width_extremes[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(width_extremes[1], 2.8867, 1e-4);
+        TS_ASSERT_DELTA(width_extremes[1], 3.5000, 1e-4);
 
         TS_ASSERT_DELTA(height_extremes[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(height_extremes[1], 3.5000, 1e-4);
+        TS_ASSERT_DELTA(height_extremes[1], 2.8867, 1e-4);
 
         // Test GetWidth() method
         double width = mesh.GetWidth(0);
         double height = mesh.GetWidth(1);
 
-        TS_ASSERT_DELTA(width, 2.8867, 1e-4);
-        TS_ASSERT_DELTA(height, 3.5000, 1e-4);
+        TS_ASSERT_DELTA(height, 2.8867, 1e-4);
+        TS_ASSERT_DELTA(width, 3.5000, 1e-4);
     }
 
     void TestVertexElementAreaAndPerimeterOnCircle()
@@ -398,15 +397,11 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46u);
 
         // Test some random nodes are in the correct place
-        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[0], 4.3301, 1e-3);
-        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[1], 0.0, 1e-3);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[0], 0.00000, 1e-3);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->rGetLocation()[1], 0.28867, 1e-3);
 
-        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[0], 1.732, 1e-3);
-        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[1], 3.5, 1e-3);
-
-        // Test random element has correct nodes
-        TS_ASSERT_EQUALS(mesh.GetElement(6)->GetNode(0)->GetIndex(), 19u);
-        TS_ASSERT_EQUALS(mesh.GetElement(6)->GetNode(3)->GetIndex(), 32u);
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[0], 2.5, 1e-3);
+        TS_ASSERT_DELTA(mesh.GetNode(43)->rGetLocation()[1], 2.8867, 1e-3);
 
         // Check that each node is contained in at least one element
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
@@ -417,19 +412,58 @@ public:
             TS_ASSERT_LESS_THAN(0u, num_containing_elements);
         }
 
-        // Check that the nodes know which elements they are in
-        std::set<unsigned> temp_list1;
-        temp_list1.insert(0u);
+        // Check that some elements contain the correct nodes
 
-        // Nodes 0 and 1 are only in element 0
-        TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetContainingElementIndices(), temp_list1);
+        // Element 2 contains nodes 2, 8, 14, 19, 13 and 7
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(0), 2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(1), 8u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(2), 14u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(3), 19u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(4), 13u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(5), 7u);
 
-        // Node 13 is in elements 0 and 1 and 5
-        temp_list1.insert(1u);
-        temp_list1.insert(5u);
+        // Element 9 contains nodes 16, 22, 28, 34, 27 and 21
+        TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNodeGlobalIndex(0), 16u);
+        TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNodeGlobalIndex(1), 22u);
+        TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNodeGlobalIndex(2), 28u);
+        TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNodeGlobalIndex(3), 34u);
+        TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNodeGlobalIndex(4), 27u);
+        TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNodeGlobalIndex(5), 21u);
 
-        TS_ASSERT_EQUALS(mesh.GetNode(13)->rGetContainingElementIndices(), temp_list1);
+        // Element 10 contains nodes 23, 30, 36, 41, 35 and 29
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNodeGlobalIndex(0), 23u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNodeGlobalIndex(1), 30u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNodeGlobalIndex(2), 36u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNodeGlobalIndex(3), 41u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNodeGlobalIndex(4), 35u);
+        TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNodeGlobalIndex(5), 29u);
+  
+        // Element 14 contains nodes 27, 34, 40, 45, 39 and 33
+        TS_ASSERT_EQUALS(mesh.GetElement(14)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(14)->GetNodeGlobalIndex(0), 27u);
+        TS_ASSERT_EQUALS(mesh.GetElement(14)->GetNodeGlobalIndex(1), 34u);
+        TS_ASSERT_EQUALS(mesh.GetElement(14)->GetNodeGlobalIndex(2), 40u);
+        TS_ASSERT_EQUALS(mesh.GetElement(14)->GetNodeGlobalIndex(3), 45u);
+        TS_ASSERT_EQUALS(mesh.GetElement(14)->GetNodeGlobalIndex(4), 39u);
+        TS_ASSERT_EQUALS(mesh.GetElement(14)->GetNodeGlobalIndex(5), 33u);
+
+        // Check that some nodes are contained in the correct elements
+
+        // Node 0 is only in element 3
+        std::set<unsigned> temp_list;
+        temp_list.insert(0u);
+        TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetContainingElementIndices(), temp_list);
+
+        // Node 6 is in elements 0 and 1
+        temp_list.insert(1u);
+        TS_ASSERT_EQUALS(mesh.GetNode(6)->rGetContainingElementIndices(), temp_list);
+
+        // Node 12 is in elements 0 and 1 and 5
+        temp_list.insert(5u);
+        TS_ASSERT_EQUALS(mesh.GetNode(12)->rGetContainingElementIndices(), temp_list);
     }
 
     void TestMeshConstructionFromMeshReader()
@@ -1772,13 +1806,29 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 16u);
 
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(0), 0u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(1), 3u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(2), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(3), 8u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(4), 5u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(5), 2u);
+
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(0), 6u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(1), 9u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(2), 12u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(3), 14u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(4), 11u);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNodeGlobalIndex(5), 8u);
+
         // Check we have the correct neighbours for node 6
         std::set<unsigned> neighbours = mesh.GetNeighbouringNodeIndices(6);
 
         std::set<unsigned> expected_neighbours;
         expected_neighbours.insert(3);
+        expected_neighbours.insert(8);
         expected_neighbours.insert(9);
-        expected_neighbours.insert(5);
 
         TS_ASSERT_EQUALS(neighbours, expected_neighbours);
 
@@ -2376,24 +2426,25 @@ public:
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 48u);
 
-        // Test area and perimeter calculations for  all  elements
+        // Test area and perimeter calculations for all elements
         for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
         {
             unsigned elem_index = iter->GetIndex();
+
             TS_ASSERT_DELTA(mesh.GetAreaOfElement(elem_index), 0.8660, 1e-4);
             TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(elem_index), 3.4641, 1e-4);
         }
 
         // Test centroid calculations for random elements
         c_vector<double, 2> centroid = mesh.GetCentroidOfElement(5);
-        TS_ASSERT_DELTA(centroid(0), 1.4433, 1e-4);
-        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(0), 2.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 1.4433, 1e-4);
 
         centroid = mesh.GetCentroidOfElement(7);
-        TS_ASSERT_DELTA(centroid(0), 3.1754, 1e-4);
-        TS_ASSERT_DELTA(centroid(1), 2.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(0), 4.0, 1e-4);
+        TS_ASSERT_DELTA(centroid(1), 1.4433, 1e-4);
 
         // Test CalculateMomentOfElement() for all elements
         // all elements are regular hexagons with edge 1/sqrt(3)
@@ -2401,9 +2452,9 @@ public:
         {
             moments = mesh.CalculateMomentsOfElement(i);
 
-            TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16/9, 1e-6);    // Ixx
-            TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16/9, 1e-6);    // Iyy
-            TS_ASSERT_DELTA(moments(2), 0.0, 1e-6);    // Ixy
+            TS_ASSERT_DELTA(moments(0), 5*sqrt(3)/16/9, 1e-6); // Ixx
+            TS_ASSERT_DELTA(moments(1), 5*sqrt(3)/16/9, 1e-6); // Iyy
+            TS_ASSERT_DELTA(moments(2), 0.0, 1e-6); // Ixy
         }
     }
 
@@ -2467,8 +2518,6 @@ public:
          */
         nodes3.push_back(new Node<2>(0, false,  1.0, 0.0));
         nodes3.push_back(new Node<2>(1, false,  2.0, sqrt(3.0)));
-        //nodes3.push_back(new Node<2>(1, false,  0.5, sqrt(3.0)/2.0));
-        //nodes3.push_back(new Node<2>(2, false, -1.0, 0.0));
         nodes3.push_back(new Node<2>(2, false, -2.5, -sqrt(3.0)/2.0));
         nodes3.push_back(new Node<2>(3, false, -0.5, -sqrt(3.0)/2.0));
 
@@ -2515,21 +2564,21 @@ public:
     {
         // Create 2D mesh
         VertexMesh<2,2> mesh2d(3, 3);
-
-        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 2.8867, 1e-4);
-        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 3.5000, 1e-4);
+        
+        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 3.5000, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 2.8867, 1e-4);
 
         // Squash in the x direction by a factor of 2
         mesh2d.Scale(0.5);
 
-        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 1.4433, 1e-4);
-        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 3.5000, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 1.7500, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 2.8867, 1e-4);
 
         // Stretch in the x and y directions by a factor of 2
         mesh2d.Scale(2.0, 2.0);
 
-        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 2.8867, 1e-4);
-        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 7.0000, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(0), 3.5000, 1e-4);
+        TS_ASSERT_DELTA(mesh2d.GetWidth(1), 5.7735, 1e-4);
 
         // Create 3D mesh
         std::vector<Node<3>*> nodes;
@@ -2746,11 +2795,7 @@ public:
         // Test boundary property of nodes
         for (unsigned i=0; i<mesh2.GetNumNodes(); i++)
         {
-            bool expected_boundary_node = true;
-            if (i==6 || i==9)
-            {
-                expected_boundary_node = false;
-            }
+            bool expected_boundary_node = (i==6 || i==9) ? false : true;
             TS_ASSERT_EQUALS(mesh2.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
         }
 
@@ -2761,10 +2806,11 @@ public:
         for (unsigned i=0; i<mesh3.GetNumNodes(); i++)
         {
             bool expected_boundary_node = true;
-            if (i==9 || i==10 || i==13 || i==14 || i==17 || i==18 || i==21 || i==22)
+            if (i==8 || i==9 || i==12 || i==13 || i==16 || i==17 || i==20 || i==21)
             {
                 expected_boundary_node = false;
             }
+
             TS_ASSERT_EQUALS(mesh3.GetNode(i)->IsBoundaryNode(), expected_boundary_node);
         }
     }

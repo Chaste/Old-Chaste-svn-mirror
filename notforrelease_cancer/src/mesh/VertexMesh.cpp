@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
@@ -90,57 +91,99 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
 
     if (SPACE_DIM==2)
     {
-        assert(numAcross >= 1);
+        assert(numAcross > 0);
+
+        // Create the nodes, row by row, from the bottom
         unsigned node_index = 0;
-
-
-        // Create the nodes
         for (unsigned j=0; j<=2*numUp+1; j++)
         {
-            if (j%2 == 0)
-            {
-                for (unsigned i=1; i<=3*numAcross+1; i+=2)
-                {
-                    if (j!=0 || i!= 3*numAcross+1)
-                    {
-                        if (i%3 != 2)
-                        {
-                            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
-
-                            if (j==0 || j==2*numUp || i==1 || i==3*numAcross || i==3*numAcross+1)
-                            {
-                                p_node->SetAsBoundaryNode(true);
-                            }
-                            this->mNodes.push_back(p_node);
-                            node_index++;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (unsigned i=0; i<=3*numAcross+1; i+=2)
-                {
-                    if ((j!=2*numUp+1 || i != 0) && (j!=2*numUp+1 || i!= 3*numAcross+1))
-                    {
-                        if (i%3 != 2)
-                        {
-                            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, false, i/(2.0*sqrt(3)), j/2.0);
-                            if (j==1 || j==2*numUp+1 || i==0 || i==3*numAcross || i==3*numAcross+1)
-                            {
-                                p_node->SetAsBoundaryNode(true);
-                            }
-                            this->mNodes.push_back(p_node);
-                            node_index++;
-                        }
-                    }
-                }
-            }
+        	if (j==0)
+        	{
+            	/*
+            	 * On the first row we have numAcross nodes, all of which are boundary nodes.
+            	 */
+        		for (unsigned i=0; i<numAcross; i++)
+	        	{
+	        		Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
+	                this->mNodes.push_back(p_node);
+	                node_index++;
+	            }
+        	}
+        	else if (j < 2*numUp+1)
+        	{
+            	/*
+            	 * On each interior row we have numAcross+1 nodes. On the second and penultimate
+            	 * row all nodes are boundary nodes. On other rows the first and last nodes only
+            	 * are boundary nodes.
+            	 */
+            	for (unsigned i=0; i<=numAcross; i++)
+            	{
+	        		bool is_boundary_node = (j==1 || j==2*numUp || i==0 || i==numAcross) ? true : false;
+	
+		        	if ((j%4 == 0)||(j%4 == 3))
+		        	{
+	                    Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
+	                    this->mNodes.push_back(p_node);
+	                    node_index++;
+		        	}
+		        	else
+		        	{
+		        		Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, i, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
+	                    this->mNodes.push_back(p_node);
+	                    node_index++;
+	                }
+            	}
+        	}
+        	else
+        	{
+        		/*
+        		 * On the first row we have numAcross nodes, all of which are boundary nodes.
+        		 */
+        		for (unsigned i=0; i<=numAcross; i++)
+	        	{
+        			if (i==0)
+        			{
+        				// Deal with the case i=0 separately
+        				if ((j%4 == 0)||(j%4 == 3))
+        				{
+        					Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
+        				    this->mNodes.push_back(p_node);
+        					node_index++;
+        				}
+        			}
+        			else if (i<numAcross)
+        			{
+			        	if ((j%4 == 0)||(j%4 == 3))
+			        	{
+		                    Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
+		                    this->mNodes.push_back(p_node);
+		                    node_index++;
+			        	}
+			        	else
+			        	{
+			        		Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
+		                    this->mNodes.push_back(p_node);
+		                    node_index++;
+		                }
+        			}
+        			else
+        			{
+        				// Deal with the case i=numAcross separately
+        				if ((j%4 == 1)||(j%4 == 2))
+        				{
+        					Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
+        				    this->mNodes.push_back(p_node);
+        					node_index++;
+        				}
+        			}
+	            }
+        	}
         }
 
-        // Create the elements. The array node_indices contains the
-        // global node indices from bottom left, going anticlockwise.
-
+        /*
+         * Create the elements. The array node_indices contains the
+         * global node indices from bottom, going anticlockwise.
+         */
         unsigned node_indices[6];
         unsigned element_index;
 
@@ -149,73 +192,27 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
             for (unsigned i=0; i<numAcross; i++)
             {
                 element_index = j*numAcross + i;
-
-                if (numAcross%2==0) // numAcross is even
+                if (j==0)
                 {
-                    if (j == 0)     // bottom row
-                    {
-                        if (i%2 == 0) // even
-                        {
-                            node_indices[0] = i;
-                        }
-                        else // odd
-                        {
-                            node_indices[0] = numAcross+i;
-                        }
-                    }
-                    else    // not on the bottom row
-                    {
-                        if (i%2 == 0) // even
-                        {
-                            node_indices[0] = (2*numAcross+1)+2*(j-1)*(numAcross+1)+i;
-                        }
-                        else // odd
-                        {
-                            node_indices[0] = (2*numAcross+1)+(2*j-1)*(numAcross+1)+i;
-                        }
-                    }
+                	node_indices[0] = i;
                 }
-                else // numAcross is odd
+                else
                 {
-                    if (i%2 == 0) // even
-                    {
-                        node_indices[0] = 2*j*(numAcross+1)+i;
-                    }
-                    else // odd
-                    {
-                        node_indices[0] = (2*j+1)*(numAcross+1)+i;
-                    }
+                	node_indices[0] = 2*j*(numAcross+1) - 1*(j%2==0) + i; // different for even/odd rows
                 }
-                node_indices[1] = node_indices[0] + 1;
-                node_indices[2] = node_indices[0] + numAcross + 2;
-                node_indices[3] = node_indices[0] + 2*numAcross + 3;
-                node_indices[4] = node_indices[0] + 2*numAcross + 2;
-                node_indices[5] = node_indices[0] + numAcross + 1;
-
-                if ((j==numUp-1)&&(i%2 == 1))
-                {
-                    // On top row and its an odd column nodes
-                    node_indices[3] -= 1;
-                    node_indices[4] -= 1;
-                }
-
-                if ((j==0)&&(i%2 == 0)&&(numAcross%2==0))
-                {
-                    // On bottom row and its an even column and there is
-                    // an even number of columns in total, (i.e. the very bottom)
-                    node_indices[2] -= 1;
-                    node_indices[3] -= 1;
-                    node_indices[4] -= 1;
-                    node_indices[5] -= 1;
-                }
+                node_indices[1] = node_indices[0] + numAcross + 1 + 1*(j%2==0 && j>0);
+                node_indices[2] = node_indices[1] + numAcross + 1;
+                node_indices[3] = node_indices[2] + numAcross + 1*(j%2==1 && j<numUp-1);
+                node_indices[4] = node_indices[2] - 1;
+                node_indices[5] = node_indices[1] - 1;
 
                 std::vector<Node<SPACE_DIM>*> element_nodes;
-
                 for (unsigned i=0; i<6; i++)
                 {
                    element_nodes.push_back(this->mNodes[node_indices[i]]);
                 }
-                VertexElement<ELEMENT_DIM,SPACE_DIM> *p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(element_index, element_nodes);
+
+                VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = new VertexElement<ELEMENT_DIM, SPACE_DIM>(element_index, element_nodes);
                 mElements.push_back(p_element);
             }
         }
@@ -472,7 +469,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientO
     unsigned num_nodes_in_element = pElement->GetNumNodes();
     unsigned next_local_index = (localIndex+1)%num_nodes_in_element;
 
-    // We add an extra localIndex-1 in the line below as otherwise this term can be negative, which breaks the % operator
+    // We add an extra num_nodes_in_element in the line below as otherwise this term can be negative, which breaks the % operator
     unsigned previous_local_index = (num_nodes_in_element+localIndex-1)%num_nodes_in_element;
 
     c_vector<double, SPACE_DIM> previous_node_location = pElement->GetNodeLocation(previous_local_index);
@@ -1039,7 +1036,7 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndice
 
         // Find the global indices of the preceding and successive nodes in this element
         unsigned num_nodes = GetElement(*elem_iter)->GetNumNodes();
-        unsigned previous_local_index = (local_index - 1)%num_nodes;
+        unsigned previous_local_index = (local_index + num_nodes - 1)%num_nodes;
         unsigned next_local_index = (local_index + 1)%num_nodes;
 
         // Add the global indices of these two nodes to the set of neighbouring node indices
@@ -1219,8 +1216,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                     unsigned node_alpha_local_index = mElements[*node_alpha_elem_indices.begin()]->GetNodeLocalIndex(p_node_alpha->GetIndex());
                     assert(node_alpha_local_index < UINT_MAX); // this element should contain node alpha
 
-                    unsigned node_alpha_local_index_before = (node_alpha_local_index+1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
-                    unsigned node_alpha_local_index_after = (node_alpha_local_index-1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
+                    unsigned temp = mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
+                    unsigned node_alpha_local_index_before = (node_alpha_local_index+1)%temp;
+
+                    // // We add an extra temp in the line below as otherwise this term can be negative, which breaks the % operator
+                    unsigned node_alpha_local_index_after = (node_alpha_local_index+temp-1)%temp;
 
                     Node<SPACE_DIM> *p_node_gamma;
                     if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before) == p_node_beta)
