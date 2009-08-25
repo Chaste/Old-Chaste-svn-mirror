@@ -206,15 +206,15 @@ public:
         simulator.SetEndTime(0.01);
         simulator.UseJiggledBottomCells();
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Move the first node (which should be on y=0) down a bit
         TS_ASSERT_DELTA(crypt.GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
 
         // Move the node (can't use the iterator for this as it is const)
         crypt.rGetMesh().GetNode(0)->rGetModifiableLocation()[1] = -1.0;
         TS_ASSERT_LESS_THAN(crypt.GetNode(0)->rGetLocation()[1], 0.0);
+
+        // The time step should have been modified in the constructor
+        TS_ASSERT_DELTA(simulator.GetDt(), 0.002, 1e-12);
 
         // Run simulation
         simulator.Solve();
@@ -260,9 +260,6 @@ public:
 
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, false);
         simulator.AddCellKiller(&sloughing_cell_killer);
-
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -329,12 +326,8 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
     }
 
     /**
@@ -412,9 +405,6 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098// Modified parameters to make cells equilibriate \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
@@ -466,9 +456,6 @@ public:
         TissueConfig::Instance()->SetCryptLength(20.0);
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
-
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098// Modified parameters to make cells equilibriate \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -597,11 +584,9 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         //Make sure output directory is empty
         OutputFileHandler file_handler(simulator.GetOutputDirectory(), true);
+
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 

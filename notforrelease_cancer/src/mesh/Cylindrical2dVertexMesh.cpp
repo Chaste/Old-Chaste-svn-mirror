@@ -38,7 +38,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
     this->mCellRearrangementThreshold = cellRearrangementThreshold;
     this->mEdgeDivisionThreshold = edgeDivisionThreshold;
     this->mT2Threshold = t2Threshold;
-    
+
     mWidth = numAcross;   // This accounts for numAcross Elements
     mAddedNodes = true;
     assert(numAcross > 1);

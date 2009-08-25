@@ -123,6 +123,9 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TissueSimulationWritingProteins");
         simulator.SetEndTime(0.5);
+
+        TS_ASSERT_DELTA(simulator.GetDt(), 1.0/120.0, 1e-12);
+
         TissueConfig::Instance()->SetOutputCellVariables(true);
         TissueConfig::Instance()->SetOutputCellCyclePhases(true);
         TissueConfig::Instance()->SetOutputCellAges(true);

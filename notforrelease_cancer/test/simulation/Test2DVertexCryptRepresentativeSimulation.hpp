@@ -96,9 +96,6 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&crypt);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098// Modified parameters to make cells equilibriate \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Run simulation
         simulator.Solve();
 

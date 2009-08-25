@@ -458,7 +458,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
         }
         case 3:
         {
-        	///\todo implement writing of tissue/cell volumes in 3D (see also #738)
+            ///\todo implement writing of tissue/cell volumes in 3D (see also #738)
             break;
         }
         default:

@@ -270,7 +270,7 @@ public:
         double actual_area_1_after_2dt = tissue.GetTargetAreaOfCell(cell_1);
         double actual_area_4_after_2dt = tissue.GetTargetAreaOfCell(cell_4);
 
-        // Cells 1 and 4 should now have zero target area and the target area of cell 0 should have halved 
+        // Cells 1 and 4 should now have zero target area and the target area of cell 0 should have halved
         TS_ASSERT_DELTA(actual_area_0_after_2dt, 0.5*expected_area_0, 1e-12);
         TS_ASSERT_DELTA(actual_area_1_after_2dt, 0.0, 1e-12);
         TS_ASSERT_DELTA(actual_area_4_after_2dt, 0.0, 1e-12);
@@ -684,7 +684,7 @@ public:
 
     void TestIsCellAssociatedWithADeletedLocation() throw (Exception)
     {
-    	// Create a simple vertex-based mesh
+        // Create a simple vertex-based mesh
         VertexMesh<2,2> mesh(4, 6);
         mesh.GetElement(5)->MarkAsDeleted();
 
@@ -699,16 +699,16 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-        	bool is_deleted = tissue.IsCellAssociatedWithADeletedLocation(*cell_iter);
-        	
-        	if (tissue.GetLocationIndexUsingCell(&(*cell_iter)) == 5)
-        	{
-        		TS_ASSERT_EQUALS(is_deleted, true);
-        	}
-        	else
-        	{
-        		TS_ASSERT_EQUALS(is_deleted, false);
-        	}
+            bool is_deleted = tissue.IsCellAssociatedWithADeletedLocation(*cell_iter);
+
+            if (tissue.GetLocationIndexUsingCell(&(*cell_iter)) == 5)
+            {
+                TS_ASSERT_EQUALS(is_deleted, true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(is_deleted, false);
+            }
         }
     }
 
@@ -741,11 +741,19 @@ public:
 
         // We should now have one less real cell, since one cell has been
         // marked as dead, so is skipped by the tissue iterator
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 23u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 23u);
-
-        /// \todo Need some more tests here, on the new number of elements/nodes
+        TS_ASSERT_EQUALS(tissue.GetNumElements(), 23u);
+        TS_ASSERT_EQUALS(tissue.GetNumElements(), 23u);
+        TS_ASSERT_EQUALS(tissue.GetNumNodes(), 68u);
 
         tissue.Update();
+
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), 23u);
+        TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 23u);
+        TS_ASSERT_EQUALS(tissue.GetNumElements(), 23u);
+        TS_ASSERT_EQUALS(tissue.GetNumElements(), 23u);
+        TS_ASSERT_EQUALS(tissue.GetNumNodes(), 68u);
 
         // Finally, check the cells' element indices have updated
 

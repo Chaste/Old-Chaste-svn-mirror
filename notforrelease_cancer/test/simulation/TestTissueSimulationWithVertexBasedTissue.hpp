@@ -125,8 +125,7 @@ public:
         simulator.SetOutputDirectory("TestSolveThrowsNothing");
         simulator.SetEndTime(0.1);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
+        TS_ASSERT_DELTA(simulator.GetDt(), 0.002, 1e-12);
 
         // Run simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
@@ -177,9 +176,6 @@ public:
         simulator.SetOutputDirectory("TestSingleCellRelaxation");
         simulator.SetEndTime(1.0);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Run simulation
         simulator.Solve();
 
@@ -189,9 +185,9 @@ public:
     }
 
     /*
-     * In this test edges can divide if too long
-     * \todo This isn't dealt with by ReMesh() so will fall over at later times when
-     * a t1swap occurs.
+     * In this test edges can divide if they become too long.
+     * \todo This isn't dealt with by ReMesh() so will fall
+     * over at later times when a T1 swap occurs (see #1110)
      */
     void TestSimpleVertexMonolayerWithCellBirth() throw (Exception)
     {
@@ -223,11 +219,7 @@ public:
         // Set up tissue simulation
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestSimpleVertexMonolayerWithCellBirth");
-        simulator.SetEndTime(1);
-
-
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
+        simulator.SetEndTime(1.0);
 
         // Run simulation
         simulator.Solve();
@@ -285,9 +277,6 @@ public:
         simulator.SetSamplingTimestepMultiple(100);
         simulator.SetEndTime(1.0);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Run simulation
         simulator.Solve();
 
@@ -306,7 +295,7 @@ public:
         // Create a simple 2D VertexMesh
         VertexMesh<2,2> mesh(3, 3);
         //mesh.SetCellRearrangementThreshold(0.1);
-        
+
         // Set up cells, one for each VertexElement.
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
@@ -339,9 +328,6 @@ public:
 
         // Adjust Max Generations so cells keep proliferating
         TissueConfig::Instance()->SetMaxTransitGenerations(8u);
-
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
 
         // Run simulation
         simulator.Solve();
@@ -405,9 +391,6 @@ public:
         simulator.AddCellKiller(&cell2_killer);
         simulator.AddCellKiller(&cell12_killer);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Run simulation
         simulator.Solve();
 
@@ -438,7 +421,7 @@ public:
 
         VertexMesh<2,2> mesh(nodes, elements);
         mesh.SetCellRearrangementThreshold(0.1);
-        
+
         // Set up cells, one for each VertexElement
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
@@ -464,9 +447,6 @@ public:
         simulator.SetOutputDirectory("TestVertexSingleCellApoptosis");
         simulator.SetEndTime(2.0);
 
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
-
         // Run simulation
         simulator.Solve();
 
@@ -478,9 +458,6 @@ public:
         r_cell.StartApoptosis(false);
 
         simulator.SetEndTime(2.25); // any longer and cell target area is zero but element can't be removed as its the only one.
-
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
 
         // Run simulation
         simulator.Solve();
@@ -523,9 +500,6 @@ public:
         TissueSimulation<2> simulator(tissue, force_collection);
         simulator.SetOutputDirectory("TestTissueSimulationWithVertexBasedTissueSaveAndLoad");
         simulator.SetEndTime(end_time);
-
-        // Modified timestep to ensure convergence/stability  \todo Make this the default timestep #1098
-        simulator.SetDt(0.002);
 
         // Run simulation
         simulator.Solve();

@@ -93,7 +93,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
         assert(numAcross >= 1);
         unsigned node_index = 0;
 
-        
+
         // Create the nodes
         for (unsigned j=0; j<=2*numUp+1; j++)
         {
@@ -1212,16 +1212,16 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                         EXCEPTION("One of the nodes must be contained in three elements and the other must be contained in two elements");
                         #undef  COVERAGE_IGNORE
                     }
-    
+
                     std::set<unsigned> node_alpha_elem_indices = p_node_alpha->rGetContainingElementIndices();
                     assert(node_alpha_elem_indices.size() == 2u);
-    
+
                     unsigned node_alpha_local_index = mElements[*node_alpha_elem_indices.begin()]->GetNodeLocalIndex(p_node_alpha->GetIndex());
                     assert(node_alpha_local_index < UINT_MAX); // this element should contain node alpha
-    
+
                     unsigned node_alpha_local_index_before = (node_alpha_local_index+1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
                     unsigned node_alpha_local_index_after = (node_alpha_local_index-1)%mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
-    
+
                     Node<SPACE_DIM> *p_node_gamma;
                     if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before) == p_node_beta)
                     {
@@ -1237,17 +1237,17 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                         EXCEPTION("At least one of node_alpha_local_index_before or .._after should be p_node_beta");
                         #undef  COVERAGE_IGNORE
                     }
-    
+
                     std::set<unsigned> node_beta_elem_indices = p_node_beta->rGetContainingElementIndices();
                     std::set<unsigned> node_gamma_elem_indices = p_node_gamma->rGetContainingElementIndices();
-    
+
                     // Form the set intersection between gamma and beta
                     std::set<unsigned> intersection_indices, temp_set2;
                     std::set_intersection(node_beta_elem_indices.begin(), node_beta_elem_indices.end(),
                                    node_gamma_elem_indices.begin(), node_gamma_elem_indices.end(),
                                    std::inserter(temp_set2, temp_set2.begin()));
                     intersection_indices.swap(temp_set2); // temp_set2 will be deleted
-    
+
                     if (intersection_indices.size() == 2)
                     {
                        /*

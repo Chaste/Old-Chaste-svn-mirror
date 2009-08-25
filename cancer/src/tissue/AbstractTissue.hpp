@@ -160,7 +160,7 @@ public:
      * \todo This method returns true if the tissue is a MeshBasedTissue or a
      *       VertexBasedTissue, but is actually used to tell force laws whether
      *       the tissue is a MeshBasedTissue.
-     * 
+     *
      * @return whether the tissue contains a mesh.
      */
     bool HasMesh();

@@ -138,7 +138,6 @@ public:
      * Get the adhesion parameter for the edge between two given nodes.
      *
      * \todo This method should be changed/overridden if we require differential adhesion
-     * \todo Check parameter value validity (#861)
      *
      * @param pNodeA one node
      * @param pNodeB the other node

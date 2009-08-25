@@ -88,7 +88,7 @@ public:
      * @param cellRearrangementThreshold  The minimum threshold distance for element rearrangement. (defaults to 0.01)
      * @param edgeDivisionThreshold  The maximum threshold distance for edge division. (defaults to DBL_MAX)
      * @param t2Threshold  The minimum threshold distance for vertex removal (t2Swap) (defaults to 0.001)
-     * 
+     *
      */
     Cylindrical2dVertexMesh(unsigned numAcross, unsigned numUp, bool isFlatBottom=false, double cellRearrangementThreshold = 0.01, double edgeDivisionThreshold = DBL_MAX, double t2Threshold =0.001);
 

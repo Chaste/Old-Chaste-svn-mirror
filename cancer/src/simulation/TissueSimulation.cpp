@@ -41,8 +41,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
                                         std::vector<AbstractForce<DIM>*> forceCollection,
                                         bool deleteTissueAndForceCollection,
                                         bool initialiseCells)
-    : mDt(1.0/120.0), // Timestep of 30 seconds (as per Meineke)
-      mEndTime(0.0),  // hours - this is set later on
+    : mEndTime(0.0),  // hours - this is set later on
       mrTissue(rTissue),
       mDeleteTissue(deleteTissueAndForceCollection),
       mAllocatedMemoryForForceCollection(deleteTissueAndForceCollection),
@@ -60,6 +59,16 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
 
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
+
+    // Different time steps are used for cell-centre and vertex-based tissue simulations
+    if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&rTissue))
+    {
+    	mDt = 1.0/120.0; // 30 seconds
+    }
+    else
+    {
+    	mDt = 0.002; // smaller time step required for convergence/stability
+    }
 
     if (mInitialiseCells)
     {
