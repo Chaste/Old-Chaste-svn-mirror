@@ -192,7 +192,7 @@ public :
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
 
-        TS_ASSERT(HeartConfig::Instance()->IsPostProcessingRequested());
+        TS_ASSERT(HeartConfig::Instance()->IsPostProcessingSectionPresent());
 
         TS_ASSERT(HeartConfig::Instance()->IsApdMapsRequested());
         std::vector<std::pair<double,double> > apd_maps_requested;
@@ -327,6 +327,7 @@ public :
     void TestSetFunctions() throw(Exception)
     {
         HeartConfig::Instance()->Reset();
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
 
@@ -522,10 +523,12 @@ public :
         // Tests for set functions of postprocessing
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
         std::vector<std::pair<double,double> > apds, apd_maps;
         apds.push_back(std::pair<double, double>(90,-30));//reploarisation percentage first, as per schema
         HeartConfig::Instance()->SetApdMaps(apds);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsApdMapsRequested(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), true);
         HeartConfig::Instance()->GetApdMaps(apd_maps);
         TS_ASSERT_EQUALS(apd_maps.size(),1u);
         TS_ASSERT_EQUALS(apd_maps[0].first,90);

@@ -322,15 +322,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                         mono_problem.ConvertOutputToMeshalyzerFormat(true);
                         mono_problem.Initialise();
                         mono_problem.Solve();
-//                        
-//                        // POSTPROCESSING 
-//                        if (HeartConfig::Instance()->IsPostProcessingRequested())
-//                        {
-//                            AbstractTetrahedralMesh<3,3>& r_mesh = mono_problem.rGetMesh();
-//                            //TriangleMeshWriter<3,3> mesh_writer(
-//                            PostProcessingWriter<3> writer(static_cast<TetrahedralMesh<3,3>& >(r_mesh), HeartConfig::Instance()->GetOutputDirectory(),HeartConfig::Instance()->GetOutputFilenamePrefix() , true);  
-//                            writer.WritePostProcessingFiles();
-//                        } 
+
                         break;
                     }
 

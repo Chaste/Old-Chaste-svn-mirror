@@ -317,10 +317,14 @@ public:
     // Post processing
     /**
      * @return true if there is a post-processing section
-     * \todo - no set method
+     */
+    bool IsPostProcessingSectionPresent() const;
+
+    /**
+     * @return true if any post-processing information has been requested
      */
     bool IsPostProcessingRequested() const;
-
+    
     /**
      * @return true if APD maps have been requested
      */
@@ -578,19 +582,19 @@ public:
 
     /** Set the parameters of the upstroke time map requested
      *
-     *  @param upstrokeTimeMaps  is the maps of upstroke velocities to set
+     *  @param upstrokeTimeMaps  is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke time maps are calculated.
      */
     void SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps);
 
     /** Set the parameters of the maximal upstroke velocity map requested
      *
-     *  @param maxUpstrokeVelocityMaps is the maps of upstroke velocities to set
+     *  @param maxUpstrokeVelocityMaps is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke velocity maps are calculated. 
      */
     void SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVelocityMaps);
 
     /** Set the parameters of the conduction velocity map requested
      *
-     *  @param conductionVelocityMaps is the maps of conduction velocities to set
+     *  @param conductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
 

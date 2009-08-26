@@ -45,7 +45,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        DistanceMapCalculator<3> distance_calculator(mesh);
+        DistanceMapCalculator<3,3> distance_calculator(mesh);
 
         std::vector<unsigned> map_origin;
         map_origin.push_back(0u);
@@ -79,7 +79,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        DistanceMapCalculator<3> distance_calculator(mesh);
+        DistanceMapCalculator<3,3> distance_calculator(mesh);
 
         std::vector<unsigned> map_origin;
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)

@@ -49,7 +49,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SP
                                                               std::string mEndoFile)
    : mrMesh(rMesh)
 {  
-    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
 
     // Get nodes defining each surface
     GetNodesAtSurface(mEpiFile, mEpiSurface);
@@ -69,7 +69,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::string mRVFile)
     : mrMesh(rMesh)
 {
-    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
     
     // Get nodes defining each surface
     GetNodesAtSurface(mEpiFile, mEpiSurface);
@@ -91,7 +91,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
     : mrMesh(rMesh)
       
 {
-    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
@@ -107,7 +107,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::vector<unsigned>& rNodesAtRv)
     : mrMesh(rMesh)
 {
-    DistanceMapCalculator<SPACE_DIM> distance_calculator(mrMesh);   
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);

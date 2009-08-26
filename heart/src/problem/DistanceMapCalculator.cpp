@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <queue>
 
 
-template<unsigned SPACE_DIM>
-double DistanceMapCalculator<SPACE_DIM>::EuclideanDistanceTwoPoints(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::EuclideanDistanceTwoPoints(
         const c_vector<double, SPACE_DIM>& pointA,
         const c_vector<double, SPACE_DIM>& pointB) const
 {
@@ -46,8 +46,8 @@ double DistanceMapCalculator<SPACE_DIM>::EuclideanDistanceTwoPoints(
     return sqrt(dist);
 }
 
-template<unsigned SPACE_DIM>
-double DistanceMapCalculator<SPACE_DIM>::CartToEucliDistance(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::CartToEucliDistance(
         c_vector<double, SPACE_DIM>& cartDistance) const
 {
     double dist=0.0;
@@ -61,16 +61,16 @@ double DistanceMapCalculator<SPACE_DIM>::CartToEucliDistance(
 }
 
 
-template<unsigned SPACE_DIM>
-DistanceMapCalculator<SPACE_DIM>::DistanceMapCalculator(
-            TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
+            TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
     : mrMesh(rMesh)
 {
     mNumNodes = mrMesh.GetNumNodes();
 }
 
-template<unsigned SPACE_DIM>
-void DistanceMapCalculator<SPACE_DIM>::ComputeDistanceMap(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         const std::vector<unsigned>& rOriginSurface,
         std::vector<double>& rNodeDistances)
 {
@@ -117,7 +117,7 @@ void DistanceMapCalculator<SPACE_DIM>::ComputeDistanceMap(
             ++element_iterator)
         {
             // Get a pointer to the container element
-            Element<SPACE_DIM,SPACE_DIM>* p_containing_element = mrMesh.GetElement(*element_iterator);
+            Element<ELEMENT_DIM, SPACE_DIM>* p_containing_element = mrMesh.GetElement(*element_iterator);
 
            // Loop over the nodes of the element
            for(unsigned node_local_index=0;
@@ -158,6 +158,9 @@ void DistanceMapCalculator<SPACE_DIM>::ComputeDistanceMap(
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class DistanceMapCalculator<1>;
-template class DistanceMapCalculator<2>;
-template class DistanceMapCalculator<3>;
+template class DistanceMapCalculator<1, 1>;
+template class DistanceMapCalculator<1, 2>;
+template class DistanceMapCalculator<2, 2>;
+template class DistanceMapCalculator<1, 3>;
+//template class DistanceMapCalculator<2, 3>;
+template class DistanceMapCalculator<3, 3>;

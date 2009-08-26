@@ -29,6 +29,8 @@
     <KSPPreconditioner>bjacobi</KSPPreconditioner>
   </Numerical>
 
-  <PostProcessing/>
+  <PostProcessing>
+    <ConductionVelocityMap origin_node="0"/>
+  </PostProcessing>
 
 </ChasteParameters>

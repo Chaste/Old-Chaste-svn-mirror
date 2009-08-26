@@ -60,7 +60,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        PostProcessingWriter<1> writer(mesh, "heart/test/data", "postprocessingapd", false);
+        PostProcessingWriter<1,1> writer(mesh, "heart/test/data", "postprocessingapd", false);
         
         writer.WriteApdMapFile(60.0, -30.0);
                                    
@@ -82,7 +82,7 @@ public:
                                     + "heart/test/data/PostProcessorWriter/good_upstroke_velocity_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        DistanceMapCalculator<1> dist_calculator(mesh);
+        DistanceMapCalculator<1,1> dist_calculator(mesh);
         
         std::vector<unsigned> origin_node;
         origin_node.push_back(0);
@@ -104,7 +104,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        PostProcessingWriter<1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
+        PostProcessingWriter<1,1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
         
         writer.WriteApdMapFile(90.0, -30.0);
         
@@ -139,7 +139,7 @@ public:
         conduction_velocity_map.push_back(0u);
         HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map); 
                                                                             
-        PostProcessingWriter<1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);  
+        PostProcessingWriter<1,1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);  
 
         writer.WritePostProcessingFiles();
         

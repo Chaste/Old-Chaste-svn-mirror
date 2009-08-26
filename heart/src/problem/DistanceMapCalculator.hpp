@@ -40,13 +40,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The mesh is specified in the constructor, and the ComputeDistanceMap computes
  * (and returns by reference) the map.
  */
-template<unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class DistanceMapCalculator
 {
 private:
 
     /** The mesh*/
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
+    TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& mrMesh;
     /** Number of nodes in the mesh*/
     unsigned mNumNodes;
 
@@ -74,7 +74,7 @@ public:
      * 
      * @param rMesh the mesh to compute maps for
      */
-    DistanceMapCalculator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);
+    DistanceMapCalculator(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
     /**
      *  Generates a distance map of all the nodes of the mesh to the given surface

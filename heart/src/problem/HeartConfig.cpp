@@ -791,16 +791,23 @@ const char* HeartConfig::GetKSPPreconditioner() const
  * PostProcessing
  */
 
-bool HeartConfig::IsPostProcessingRequested() const
+bool HeartConfig::IsPostProcessingSectionPresent() const
 {
     return DecideLocation( & mpUserParameters->PostProcessing(),
                            & mpDefaultParameters->PostProcessing(),
                            "PostProcessing")->present();
 }
 
+bool HeartConfig::IsPostProcessingRequested() const
+{
+    return(IsApdMapsRequested() || 
+           IsUpstrokeTimeMapsRequested() || 
+           IsMaxUpstrokeVelocityMapRequested() || 
+           IsConductionVelocityMapsRequested());
+}
 bool HeartConfig::IsApdMapsRequested() const
 {
-    assert(IsPostProcessingRequested());
+    assert(IsPostProcessingSectionPresent());
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ActionPotentialDurationMap)&
         apd_maps = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -831,7 +838,7 @@ void HeartConfig::GetApdMaps(std::vector<std::pair<double,double> >& apd_maps) c
 
 bool HeartConfig::IsUpstrokeTimeMapsRequested() const
 {
-    assert(IsPostProcessingRequested());
+    assert(IsPostProcessingSectionPresent());
 
     XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
         upstroke_map = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -841,7 +848,7 @@ bool HeartConfig::IsUpstrokeTimeMapsRequested() const
 }
 void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) const
 {
-    assert(IsApdMapsRequested());
+    assert(IsUpstrokeTimeMapsRequested());
     assert(upstroke_time_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::UpstrokeTimeMap)&
@@ -859,7 +866,7 @@ void HeartConfig::GetUpstrokeTimeMaps (std::vector<double>& upstroke_time_maps) 
 
 bool HeartConfig::IsMaxUpstrokeVelocityMapRequested() const
 {
-    assert(IsPostProcessingRequested());
+    assert(IsPostProcessingSectionPresent());
     
     XSD_SEQUENCE_TYPE(postprocessing_type::MaxUpstrokeVelocityMap)&
     max_upstroke_velocity_map = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -871,7 +878,7 @@ bool HeartConfig::IsMaxUpstrokeVelocityMapRequested() const
 
 void HeartConfig::GetMaxUpstrokeVelocityMaps(std::vector<double>& upstroke_velocity_maps) const
 {
-     assert(IsMaxUpstrokeVelocityMapRequested());
+    assert(IsMaxUpstrokeVelocityMapRequested());
     assert(upstroke_velocity_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::MaxUpstrokeVelocityMap)&
@@ -889,7 +896,7 @@ void HeartConfig::GetMaxUpstrokeVelocityMaps(std::vector<double>& upstroke_veloc
 
 bool HeartConfig::IsConductionVelocityMapsRequested() const
 {
-    assert(IsPostProcessingRequested());
+    assert(IsPostProcessingSectionPresent());
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&
         cond_vel_maps = DecideLocation( & mpUserParameters->PostProcessing(),
@@ -900,7 +907,7 @@ bool HeartConfig::IsConductionVelocityMapsRequested() const
 
 void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_velocity_maps) const
 {
-    assert(IsApdMapsRequested());
+    assert(IsConductionVelocityMapsRequested());
     assert(conduction_velocity_maps.size() == 0);
 
     XSD_SEQUENCE_TYPE(postprocessing_type::ConductionVelocityMap)&
@@ -1368,6 +1375,7 @@ void HeartConfig::SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVe
         
         max_upstroke_velocity_maps_sequence.push_back(temp);
     }
+    
 }
 
 void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps)

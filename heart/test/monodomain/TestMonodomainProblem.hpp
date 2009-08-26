@@ -539,6 +539,11 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(0.1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("Monodomain2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
+        
+        //set the postprocessing information we want
+        std::vector<unsigned> origin_nodes;
+        origin_nodes.push_back(0u);
+        HeartConfig::Instance()->SetConductionVelocityMaps(origin_nodes);
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
 
@@ -562,9 +567,9 @@ public:
         PetscTools::Barrier();
 
         // Checking that the following files don't exist in the output directory before calling Solve()
-        unsigned num_files=5;
-        std::string test_file_names[5]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat",
-              "ChasteParameters.xml", "ChasteDefaults.xml"};
+        unsigned num_files=6;
+        std::string test_file_names[6]={"monodomain2d_mesh.pts", "monodomain2d_mesh.tri", "monodomain2d_V.dat",
+              "ChasteParameters.xml", "ChasteDefaults.xml", "ConductionVelocityFromNode0.dat"};
         for (unsigned i=0; i<num_files; i++)
         {
             std::string compare_command = "cmp -s ";
@@ -574,7 +579,7 @@ public:
             compare_command += test_file_names[i];
             TS_ASSERT_EQUALS(system(compare_command.c_str()), 512);//Not there
         }
-
+        
         // now solve
         monodomain_problem.Solve();
 

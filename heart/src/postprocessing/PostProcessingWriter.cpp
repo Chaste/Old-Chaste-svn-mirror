@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-template<unsigned SPACE_DIM>
-PostProcessingWriter<SPACE_DIM>::PostProcessingWriter(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool isAbsolute)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::PostProcessingWriter(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool isAbsolute)
                                 : mrMesh(rMesh)
 {
  //   mOutputDirectory = directory + "/output";
@@ -47,8 +47,8 @@ PostProcessingWriter<SPACE_DIM>::PostProcessingWriter(TetrahedralMesh<SPACE_DIM,
     assert(mNumberOfNodes==mrMesh.GetNumNodes());
 }
 
-template<unsigned SPACE_DIM>
-void PostProcessingWriter<SPACE_DIM>::WritePostProcessingFiles()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WritePostProcessingFiles()
 {
 // Please note that only the master processor should write to file. 
 // Each of the private methods called here takes care of checking.
@@ -89,7 +89,7 @@ void PostProcessingWriter<SPACE_DIM>::WritePostProcessingFiles()
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps);
         
         //get the mesh here
-        DistanceMapCalculator<SPACE_DIM> dist_map_calculator(mrMesh);
+        DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM> dist_map_calculator(mrMesh);
         
         for (unsigned i=0; i<conduction_velocity_maps.size(); i++) 
         {
@@ -103,15 +103,15 @@ void PostProcessingWriter<SPACE_DIM>::WritePostProcessingFiles()
 } 
     
     
-template<unsigned SPACE_DIM>
-PostProcessingWriter<SPACE_DIM>::~PostProcessingWriter()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::~PostProcessingWriter()
 {
     delete mpDataReader;
     delete mpCalculator;
 }
 
-template<unsigned SPACE_DIM>
-void PostProcessingWriter<SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
     
     if(PetscTools::AmMaster())
@@ -144,8 +144,8 @@ void PostProcessingWriter<SPACE_DIM>::WriteApdMapFile(double repolarisationPerce
     }
 }
 
-template<unsigned SPACE_DIM>
-void PostProcessingWriter<SPACE_DIM>::WriteUpstrokeTimeMap(double threshold)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double threshold)
 {    
     if(PetscTools::AmMaster())
     {
@@ -168,8 +168,8 @@ void PostProcessingWriter<SPACE_DIM>::WriteUpstrokeTimeMap(double threshold)
     }
 }
 
-template<unsigned SPACE_DIM>
-void PostProcessingWriter<SPACE_DIM>::WriteMaxUpstrokeVelocityMap(double threshold)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(double threshold)
 {
     if(PetscTools::AmMaster())
     {
@@ -192,8 +192,8 @@ void PostProcessingWriter<SPACE_DIM>::WriteMaxUpstrokeVelocityMap(double thresho
     }
 }
 
-template<unsigned SPACE_DIM>
-void PostProcessingWriter<SPACE_DIM>::WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode)
 {
     if(PetscTools::AmMaster())
     {
@@ -230,6 +230,9 @@ void PostProcessingWriter<SPACE_DIM>::WriteConductionVelocityMap(unsigned origin
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class PostProcessingWriter<1>;
-template class PostProcessingWriter<2>;
-template class PostProcessingWriter<3>;
+template class PostProcessingWriter<1,1>;
+template class PostProcessingWriter<1,2>;
+template class PostProcessingWriter<2,2>;
+template class PostProcessingWriter<1,3>;
+//template class PostProcessingWriter<2,3>;
+template class PostProcessingWriter<3,3>;

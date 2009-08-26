@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ProgressReporter.hpp"
 #include "LinearSystem.hpp"
-
+#include "PostProcessingWriter.hpp"
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
@@ -535,6 +535,28 @@ void AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPostPr
             HeartConfig::Instance()->Write();
         }
     }
+    if(HeartConfig::Instance()->IsPostProcessingRequested())
+    {
+        //Test that we have a tetrahedral mesh
+        TetrahedralMesh<ELEM_DIM, SPACE_DIM> *p_tetmesh= dynamic_cast<TetrahedralMesh<ELEM_DIM, SPACE_DIM>*>(mpMesh);
+        
+//        if (p_tetmesh == NULL)
+//        {
+//            //Assume that it's a parallel tetrahedral mesh - Note that every process throws together 
+//            ///\todo need to sort out issues with parallel meshes
+//            EXCEPTION("Cannot post-process on a parallel mesh yet");
+//        }
+        assert(p_tetmesh != NULL);
+        
+        if (PetscTools::AmMaster())
+        {
+            PostProcessingWriter<ELEM_DIM, SPACE_DIM> post_writer(*p_tetmesh, HeartConfig::Instance()->GetOutputDirectory(),
+                 HeartConfig::Instance()->GetOutputFilenamePrefix(), true);
+            post_writer.WritePostProcessingFiles();
+        }        
+        
+    }
+    
     HeartEventHandler::EndEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
 }
 
