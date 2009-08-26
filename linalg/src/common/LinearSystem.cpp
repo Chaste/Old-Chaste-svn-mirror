@@ -498,14 +498,25 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 {
     if (isSymmetric)
     {
+#if (PETSC_VERSION_MAJOR == 3)
+        MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_TRUE); 
+        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_TRUE); 
+#else
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
+#endif
     }
     else
     {
+#if (PETSC_VERSION_MAJOR == 3) 
+        MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_FALSE); 
+        MatSetOption(mLhsMatrix, MAT_STRUCTURALLY_SYMMETRIC, PETSC_FALSE); 
+        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_FALSE); 
+#else
         MatSetOption(mLhsMatrix, MAT_NOT_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_NOT_STRUCTURALLY_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_NOT_SYMMETRY_ETERNAL);
+#endif
     }        
 }
 

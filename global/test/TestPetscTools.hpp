@@ -97,13 +97,13 @@ public:
         TS_ASSERT_EQUALS(m, 10);
         TS_ASSERT_EQUALS(n, 11);
 
-#if (PETSC_MAJOR_VERSION == 3)
+#if (PETSC_VERSION_MAJOR == 3)
         const MatType type;
 #else
         MatType type;
 #endif
         MatGetType(mat,&type);
-        //TS_ASSERT_EQUALS(type, MATMPIAIJ); // this does seem to work, but doesn't pass: it says "found (mpiaij != mpiaij)"
+        TS_ASSERT(strcmp(type, MATMPIAIJ)==0);
 
         VecDestroy(vec1);
         VecDestroy(vec2);

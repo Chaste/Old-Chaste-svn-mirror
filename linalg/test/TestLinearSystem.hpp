@@ -478,7 +478,6 @@ public:
 #else
         VecSet(bad_guess, too_big);
 #endif
-        ///\todo #1007 Does not throw with PETSc-3
         TS_ASSERT_THROWS_CONTAINS(solution_vector = ls.Solve(bad_guess),
                 "DIVERGED_DTOL in function");
         VecDestroy(solution_vector);
@@ -674,7 +673,7 @@ public:
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
 
-#if (PETSC_MAJOR_VERSION == 3)
+#if (PETSC_VERSION_MAJOR == 3)
         const KSPType solver;
         const PCType pc;
 #else
@@ -946,7 +945,7 @@ public:
             Vec solution_vector3;
             solution_vector3 = p_linear_system->Solve();
             VecDestroy(solution_vector3);
-#if (PETSC_MAJOR_VERSION == 3)
+#if (PETSC_VERSION_MAJOR == 3)
             const KSPType solver;
             const PCType pc;
 #else
@@ -980,7 +979,7 @@ public:
         solution_vector3 = ls.Solve();
         VecDestroy(solution_vector3);
 
-#if (PETSC_MAJOR_VERSION == 3)
+#if (PETSC_VERSION_MAJOR == 3)
         const KSPType solver;
         const PCType pc;
 #else
