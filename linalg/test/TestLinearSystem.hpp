@@ -479,8 +479,8 @@ public:
         VecSet(bad_guess, too_big);
 #endif
         ///\todo #1007 Does not throw with PETSc-3
-        TS_ASSERT_THROWS_THIS(solution_vector = ls.Solve(bad_guess),
-                "DIVERGED_DTOL in function \'User provided function\' on line \xDB of file linalg/src/common/LinearSystem.cpp");
+        TS_ASSERT_THROWS_CONTAINS(solution_vector = ls.Solve(bad_guess),
+                "DIVERGED_DTOL in function");
         VecDestroy(solution_vector);
         VecDestroy(good_guess);
         VecDestroy(bad_guess);
