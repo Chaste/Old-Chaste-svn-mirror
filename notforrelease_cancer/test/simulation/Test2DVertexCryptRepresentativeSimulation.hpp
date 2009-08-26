@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptBoundaryForce.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
-#include "AbstractCancerTestSuite.hpp"
 #include "CancerEventHandler.hpp"
 
 /**
@@ -55,6 +54,9 @@ public:
 
     void Test2DVertexCryptRepresentativeSimulationForProfiling() throw (Exception)
     {
+        // Set start time
+        SimulationTime::Instance()->SetStartTime(0.0);
+        
         // Create mesh
         unsigned crypt_width = 18;
         unsigned crypt_height = 25;
