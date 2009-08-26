@@ -137,8 +137,8 @@ def do_petsc(version, optimised, profile=False, production=False, includes_only=
             build_name = conf.petsc_build_name_optimized
         else:
             build_name = conf.petsc_build_name
-        libpath = os.path.join(petsc_base, 'lib', build_name)
-        incpaths.append(os.path.join(petsc_base, 'bmake', build_name))
+        libpath = os.path.join(petsc_base, build_name, 'lib')
+        incpaths.append(os.path.join(petsc_base, build_name, 'include'))
     incpaths.append(os.path.join(petsc_base, 'include'))
     if not includes_only:
         libpaths.append(libpath)

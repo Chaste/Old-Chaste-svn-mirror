@@ -83,7 +83,7 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
     assert(info==0);
 
     // if this fails a complex eigenvalue was found
-    assert(norm_2(eigenvalues_imaginary_part) == 0.0);
+    assert(norm_2(eigenvalues_imaginary_part) < DBL_EPSILON);
 
     unsigned index_of_smallest=UINT_MAX;
     double min_eigenvalue = DBL_MAX;
