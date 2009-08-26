@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractCellCycleModel.hpp"
@@ -172,6 +172,6 @@ public:
     virtual void ResetForDivision();
 };
 
-BOOST_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)
+CLASS_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)
 
 #endif /*ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_*/

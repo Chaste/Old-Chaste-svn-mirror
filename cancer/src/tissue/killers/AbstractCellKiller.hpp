@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTissue.hpp"
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 
 
 /**
@@ -103,25 +103,6 @@ const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() cons
     return mpTissue;
 }
 
-namespace boost
-{
-namespace serialization
-{
-/**
- * Since this abstract class is templated, we cannot use
- * the preprocessor macro BOOST_IS_ABSTRACT, and instead
- * must drop down to the underlying source code.
- */
-template<unsigned DIM>
-struct is_abstract<AbstractCellKiller<DIM> >
-{
-    /** The type that is an abstract class. */
-    typedef mpl::bool_<true> type;
-    /** The type is an abstract class, so value=true. */
-    BOOST_STATIC_CONSTANT(bool, value=true);
-};
-}
-}
-
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractCellKiller);
 
 #endif /*ABSTRACTCELLKILLER_HPP_*/

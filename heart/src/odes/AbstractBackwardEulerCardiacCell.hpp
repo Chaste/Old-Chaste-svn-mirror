@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractCardiacCell.hpp"
@@ -259,25 +259,6 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
     }
 }
 
-namespace boost
-{
-namespace serialization
-{
-/**
- * Since this abstract class is templated, we cannot use
- * the preprocessor macro BOOST_IS_ABSTRACT, and instead
- * must drop down to the underlying source code.
- */
-template<unsigned SIZE>
-struct is_abstract<AbstractBackwardEulerCardiacCell<SIZE> >
-{
-    /** The type that is an abstract class. */
-    typedef mpl::bool_<true> type;
-    /** The type is an abstract class, so value=true. */
-    BOOST_STATIC_CONSTANT(bool, value=true);
-};
-}
-}
-
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractBackwardEulerCardiacCell);
 
 #endif /*ABSTRACTBACKWARDEULERCARDIACCELL_HPP_*/

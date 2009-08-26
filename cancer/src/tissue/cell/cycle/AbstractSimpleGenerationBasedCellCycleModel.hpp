@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTSIMPLEGENERATIONBASEDCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractSimpleCellCycleModel.hpp"
@@ -105,6 +105,6 @@ public:
     unsigned GetGeneration() const;
 };
 
-BOOST_IS_ABSTRACT(AbstractSimpleGenerationBasedCellCycleModel)
+CLASS_IS_ABSTRACT(AbstractSimpleGenerationBasedCellCycleModel)
 
 #endif /*ABSTRACTSIMPLEGENERATIONBASEDCYCLEMODEL_HPP_*/

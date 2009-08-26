@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _ABSTRACTONESTEPIVPODESOLVER_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractIvpOdeSolver.hpp"
@@ -173,6 +173,6 @@ public:
     {}
 };
 
-BOOST_IS_ABSTRACT(AbstractOneStepIvpOdeSolver)
+CLASS_IS_ABSTRACT(AbstractOneStepIvpOdeSolver)
 
 #endif //_ABSTRACTONESTEPIVPODESOLVER_HPP_

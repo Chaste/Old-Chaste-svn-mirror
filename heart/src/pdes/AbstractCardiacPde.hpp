@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <climits> // Work around a boost bug - see #1024.
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -282,8 +282,8 @@ public:
 
 };
 
-// Declare identifier for the serializer
-EXPORT_ABSTRACT_TEMPLATE_CLASS_ALL_DIMS(AbstractCardiacPde);
+
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde);
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
 

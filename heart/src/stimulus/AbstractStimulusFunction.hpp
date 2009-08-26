@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _ABSTRACTSTIMULUSFUNCTION_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 
 #include <cfloat>
 
@@ -84,7 +84,7 @@ public:
     }
 };
 
-BOOST_IS_ABSTRACT(AbstractStimulusFunction)
+CLASS_IS_ABSTRACT(AbstractStimulusFunction)
 
 #endif //_ABSTRACTSTIMULUSFUNCTION_HPP_
 

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCARDIACCELL_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -323,6 +323,6 @@ public:
 
 };
 
-BOOST_IS_ABSTRACT(AbstractCardiacCell)
+CLASS_IS_ABSTRACT(AbstractCardiacCell)
 
 #endif /*ABSTRACTCARDIACCELL_HPP_*/

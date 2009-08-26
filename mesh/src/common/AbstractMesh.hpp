@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTMESH_HPP_
 
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 
 #include <vector>
 #include <string>
@@ -332,25 +332,7 @@ public:
 
 };
 
-namespace boost
-{
-namespace serialization
-{
-/**
- * Since this abstract class is templated, we cannot use
- * the preprocessor macro BOOST_IS_ABSTRACT, and instead
- * must drop down to the underlying source code.
- */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-struct is_abstract<AbstractMesh<ELEMENT_DIM, SPACE_DIM> >
-{
-    /** The type that is an abstract class. */
-    typedef mpl::bool_<true> type;
-    /** The type is an abstract class, so value=true. */
-    BOOST_STATIC_CONSTANT(bool, value=true);
-};
-}
-}
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractMesh);
 
 //////////////////////////////////////////////////////////////////////////////
 //      NodeIterator class implementation - most methods are inlined        //

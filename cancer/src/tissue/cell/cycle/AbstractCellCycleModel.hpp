@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasIncludes.hpp"
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include <vector>
@@ -287,7 +287,7 @@ public:
 };
 
 
-BOOST_IS_ABSTRACT(AbstractCellCycleModel)
+CLASS_IS_ABSTRACT(AbstractCellCycleModel)
 
 
 #endif /*ABSTRACTCELLCYCLEMODEL_HPP_*/

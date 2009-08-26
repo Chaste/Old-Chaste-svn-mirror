@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <climits> // work around boost bug
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/is_abstract.hpp>
+#include "ClassIsAbstract.hpp"
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 
@@ -519,25 +519,7 @@ enum cell_colours
     INVISIBLE_COLOUR, // visualizer treats '7' as invisible
 };
 
-namespace boost
-{
-namespace serialization
-{
-/**
- * Since this abstract class is templated, we cannot use
- * the preprocessor macro BOOST_IS_ABSTRACT, and instead
- * must drop down to the underlying source code.
- */
-template<unsigned DIM>
-struct is_abstract<AbstractTissue<DIM> >
-{
-    /** The type that is an abstract class. */
-    typedef mpl::bool_<true> type;
-    /** The type is an abstract class, so value=true. */
-    BOOST_STATIC_CONSTANT(bool, value=true);
-};
-}
-}
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractTissue);
 
 //////////////////////////////////////////////////////////////////////////////
 //         Iterator class implementation - most methods are inlined         //
