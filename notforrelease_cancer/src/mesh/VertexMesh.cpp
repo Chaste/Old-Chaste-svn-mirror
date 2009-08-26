@@ -40,25 +40,37 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
       mEdgeDivisionThreshold(edgeDivisionThreshold),
       mT2Threshold(t2Threshold)
 {
-    this->mMeshChangesDuringSimulation = true;
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
     assert(t2Threshold > 0.0);
 
+    // Reset member variables and clear mNodes and mElements 
     Clear();
+
+    // Populate mNodes and mElements
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
     {
         Node<SPACE_DIM> *p_temp_node = nodes[node_index];
         this->mNodes.push_back(p_temp_node);
     }
-
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
         VertexElement<ELEMENT_DIM,SPACE_DIM> *p_temp_vertex_element = vertexElements[elem_index];
         mElements.push_back(p_temp_vertex_element);
     }
 
-    SetupVertexElementsOwnedByNodes();
+    // Register elements with nodes
+    for (unsigned index=0; index<mElements.size(); index++)
+    {
+        VertexElement<ELEMENT_DIM,SPACE_DIM> *p_temp_vertex_element = mElements[index];
+        for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
+        {
+            Node<SPACE_DIM> *p_temp_node = p_temp_vertex_element->GetNode(node_index);
+            p_temp_node->AddElement(p_temp_vertex_element->GetIndex());
+        }
+    }
+
+    this->mMeshChangesDuringSimulation = true;
 }
 
 
@@ -74,8 +86,8 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh()
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
-                                               unsigned numUp,
+VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numElementsAcross,
+                                               unsigned numElementsUp,
                                                double cellRearrangementThreshold,
                                                double edgeDivisionThreshold,
                                                double t2Threshold)
@@ -83,11 +95,14 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
       mEdgeDivisionThreshold(edgeDivisionThreshold),
       mT2Threshold(t2Threshold)
 {
-    Clear();
-    this->mMeshChangesDuringSimulation = true;
+    assert(numElementsAcross > 0);
+    assert(numElementsUp > 0);
     assert(cellRearrangementThreshold > 0.0);
     assert(edgeDivisionThreshold > 0.0);
     assert(t2Threshold > 0.0);
+
+    Clear();
+    this->mMeshChangesDuringSimulation = true;
 
     if (SPACE_DIM==2)
     {
@@ -95,12 +110,10 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
         unsigned node_indices[6];
         unsigned element_index;
 
-        assert(numAcross > 0);
-
         // Create the nodes, row by row, from the bottom up
 
-        // On the first row we have numAcross nodes, all of which are boundary nodes
-        for (unsigned i=0; i<numAcross; i++)
+        // On the first row we have numElementsAcross nodes, all of which are boundary nodes
+        for (unsigned i=0; i<numElementsAcross; i++)
         {
             Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, 0);
             this->mNodes.push_back(p_node);
@@ -108,17 +121,17 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
         }
 
         /*
-         * On each interior row we have numAcross+1 nodes. On the second and penultimate
+         * On each interior row we have numElementsAcross+1 nodes. On the second and penultimate
          * row all nodes are boundary nodes. On other rows the first and last nodes only
          * are boundary nodes.
          */
-        for (unsigned j=1; j<2*numUp+1; j++)
+        for (unsigned j=1; j<2*numElementsUp+1; j++)
         {
-            for (unsigned i=0; i<=numAcross; i++)
+            for (unsigned i=0; i<=numElementsAcross; i++)
             {
                 double x_coord = ((j%4 == 0)||(j%4 == 3)) ? i+0.5 : i;
                 double y_coord = (1.5*j - 0.5*(j%2))*0.5/sqrt(3);
-                bool is_boundary_node = (j==1 || j==2*numUp || i==0 || i==numAcross) ? true : false;
+                bool is_boundary_node = (j==1 || j==2*numElementsUp || i==0 || i==numElementsAcross) ? true : false;
 
                 Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, x_coord, y_coord);
                 this->mNodes.push_back(p_node);
@@ -127,26 +140,26 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
         }
 
         /*
-         * On the last row we have numAcross nodes, all of which are boundary nodes.
+         * On the last row we have numElementsAcross nodes, all of which are boundary nodes.
          */
-        double y_coord = (1.5*(2*numUp+1) - 0.5*((2*numUp+1)%2))*0.5/sqrt(3);
-        if (((2*numUp+1)%4 == 0)||((2*numUp+1)%4 == 3))
+        double y_coord = (1.5*(2*numElementsUp+1) - 0.5*((2*numElementsUp+1)%2))*0.5/sqrt(3);
+        if (((2*numElementsUp+1)%4 == 0)||((2*numElementsUp+1)%4 == 3))
         {
             Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, 0.5, y_coord);
             this->mNodes.push_back(p_node);
             node_index++;
         }
-        for (unsigned i=1; i<numAcross; i++)
+        for (unsigned i=1; i<numElementsAcross; i++)
         {
-            double x_coord = (((2*numUp+1)%4 == 0)||((2*numUp+1)%4 == 3)) ? i+0.5 : i;
+            double x_coord = (((2*numElementsUp+1)%4 == 0)||((2*numElementsUp+1)%4 == 3)) ? i+0.5 : i;
 
             Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, x_coord, y_coord);
             this->mNodes.push_back(p_node);
             node_index++;
         }
-        if (((2*numUp+1)%4 == 1)||((2*numUp+1)%4 == 2))
+        if (((2*numElementsUp+1)%4 == 1)||((2*numElementsUp+1)%4 == 2))
         {
-            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, numAcross, y_coord);
+            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, numElementsAcross, y_coord);
             this->mNodes.push_back(p_node);
             node_index++;
         }
@@ -155,9 +168,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
          * Create the elements. The array node_indices contains the
          * global node indices from bottom, going anticlockwise.
          */
-        for (unsigned j=0; j<numUp; j++)
+        for (unsigned j=0; j<numElementsUp; j++)
         {
-            for (unsigned i=0; i<numAcross; i++)
+            for (unsigned i=0; i<numElementsAcross; i++)
             {
                 if (j==0)
                 {
@@ -165,11 +178,11 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 }
                 else
                 {
-                    node_indices[0] = 2*j*(numAcross+1) - 1*(j%2==0) + i; // different for even/odd rows
+                    node_indices[0] = 2*j*(numElementsAcross+1) - 1*(j%2==0) + i; // different for even/odd rows
                 }
-                node_indices[1] = node_indices[0] + numAcross + 1 + 1*(j%2==0 && j>0);
-                node_indices[2] = node_indices[1] + numAcross + 1;
-                node_indices[3] = node_indices[2] + numAcross + 1*(j%2==1 && j<numUp-1);
+                node_indices[1] = node_indices[0] + numElementsAcross + 1 + 1*(j%2==0 && j>0);
+                node_indices[2] = node_indices[1] + numElementsAcross + 1;
+                node_indices[3] = node_indices[2] + numElementsAcross + 1*(j%2==1 && j<numElementsUp-1);
                 node_indices[4] = node_indices[2] - 1;
                 node_indices[5] = node_indices[1] - 1;
 
@@ -179,7 +192,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                    element_nodes.push_back(this->mNodes[node_indices[k]]);
                 }
 
-                element_index = j*numAcross + i;
+                element_index = j*numElementsAcross + i;
                 VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = new VertexElement<ELEMENT_DIM, SPACE_DIM>(element_index, element_nodes);
                 mElements.push_back(p_element);
             }
@@ -259,21 +272,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetT2Threshold(double t2Threshold)
 {
     mT2Threshold = t2Threshold;
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::SetupVertexElementsOwnedByNodes()
-{
-    for (unsigned index=0; index<mElements.size(); index++)
-    {
-        VertexElement<ELEMENT_DIM,SPACE_DIM> *p_temp_vertex_element = mElements[index];
-        for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
-        {
-            Node<SPACE_DIM> *p_temp_node = p_temp_vertex_element->GetNode(node_index);
-            p_temp_node->AddElement(p_temp_vertex_element->GetIndex());
-        }
-    }
 }
 
 
