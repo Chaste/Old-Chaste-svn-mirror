@@ -793,17 +793,34 @@ const char* HeartConfig::GetKSPPreconditioner() const
 
 bool HeartConfig::IsPostProcessingSectionPresent() const
 {
-    return DecideLocation( & mpUserParameters->PostProcessing(),
+    try
+    {
+        DecideLocation( & mpUserParameters->PostProcessing(),
                            & mpDefaultParameters->PostProcessing(),
                            "PostProcessing")->present();
+        //If there's a section
+        return true;
+    }
+    catch (Exception &e)
+    {
+        //No section
+        return false;
+    }
 }
 
 bool HeartConfig::IsPostProcessingRequested() const
 {
-    return(IsApdMapsRequested() || 
-           IsUpstrokeTimeMapsRequested() || 
-           IsMaxUpstrokeVelocityMapRequested() || 
-           IsConductionVelocityMapsRequested());
+    if (IsPostProcessingSectionPresent() == false)
+    {
+        return false;
+    }
+    else 
+    {
+        return(IsApdMapsRequested() || 
+               IsUpstrokeTimeMapsRequested() || 
+               IsMaxUpstrokeVelocityMapRequested() || 
+               IsConductionVelocityMapsRequested());
+    }
 }
 bool HeartConfig::IsApdMapsRequested() const
 {

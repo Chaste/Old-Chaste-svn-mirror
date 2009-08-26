@@ -6,3 +6,6 @@ base_monodomain
 
 # bidomain with baseline parameters
 base_bidomain
+
+# monodomain with baseline parameters and some post-processing output
+postprocess_monodomain

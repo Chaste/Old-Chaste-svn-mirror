@@ -671,7 +671,9 @@ public :
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
-
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        
         // Can release 1 xml be loaded with release 1 schema?
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
