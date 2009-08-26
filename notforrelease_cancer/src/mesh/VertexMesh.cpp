@@ -91,114 +91,81 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
 
     if (SPACE_DIM==2)
     {
+        unsigned node_index = 0;
+        unsigned node_indices[6];
+        unsigned element_index;
+
         assert(numAcross > 0);
 
-        // Create the nodes, row by row, from the bottom
-        unsigned node_index = 0;
-        for (unsigned j=0; j<=2*numUp+1; j++)
+        // Create the nodes, row by row, from the bottom up
+
+        // On the first row we have numAcross nodes, all of which are boundary nodes
+        for (unsigned i=0; i<numAcross; i++)
         {
-        	if (j==0)
-        	{
-            	/*
-            	 * On the first row we have numAcross nodes, all of which are boundary nodes.
-            	 */
-        		for (unsigned i=0; i<numAcross; i++)
-	        	{
-	        		Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-	                this->mNodes.push_back(p_node);
-	                node_index++;
-	            }
-        	}
-        	else if (j < 2*numUp+1)
-        	{
-            	/*
-            	 * On each interior row we have numAcross+1 nodes. On the second and penultimate
-            	 * row all nodes are boundary nodes. On other rows the first and last nodes only
-            	 * are boundary nodes.
-            	 */
-            	for (unsigned i=0; i<=numAcross; i++)
-            	{
-	        		bool is_boundary_node = (j==1 || j==2*numUp || i==0 || i==numAcross) ? true : false;
-	
-		        	if ((j%4 == 0)||(j%4 == 3))
-		        	{
-	                    Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-	                    this->mNodes.push_back(p_node);
-	                    node_index++;
-		        	}
-		        	else
-		        	{
-		        		Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, i, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-	                    this->mNodes.push_back(p_node);
-	                    node_index++;
-	                }
-            	}
-        	}
-        	else
-        	{
-        		/*
-        		 * On the first row we have numAcross nodes, all of which are boundary nodes.
-        		 */
-        		for (unsigned i=0; i<=numAcross; i++)
-	        	{
-        			if (i==0)
-        			{
-        				// Deal with the case i=0 separately
-        				if ((j%4 == 0)||(j%4 == 3))
-        				{
-        					Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-        				    this->mNodes.push_back(p_node);
-        					node_index++;
-        				}
-        			}
-        			else if (i<numAcross)
-        			{
-			        	if ((j%4 == 0)||(j%4 == 3))
-			        	{
-		                    Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-		                    this->mNodes.push_back(p_node);
-		                    node_index++;
-			        	}
-			        	else
-			        	{
-			        		Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-		                    this->mNodes.push_back(p_node);
-		                    node_index++;
-		                }
-        			}
-        			else
-        			{
-        				// Deal with the case i=numAcross separately
-        				if ((j%4 == 1)||(j%4 == 2))
-        				{
-        					Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-        				    this->mNodes.push_back(p_node);
-        					node_index++;
-        				}
-        			}
-	            }
-        	}
+            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, 0);
+            this->mNodes.push_back(p_node);
+            node_index++;
+        }
+
+        /*
+         * On each interior row we have numAcross+1 nodes. On the second and penultimate
+         * row all nodes are boundary nodes. On other rows the first and last nodes only
+         * are boundary nodes.
+         */
+        for (unsigned j=1; j<2*numUp+1; j++)
+        {
+            for (unsigned i=0; i<=numAcross; i++)
+            {
+                double x_coord = ((j%4 == 0)||(j%4 == 3)) ? i+0.5 : i;
+                double y_coord = (1.5*j - 0.5*(j%2))*0.5/sqrt(3);
+                bool is_boundary_node = (j==1 || j==2*numUp || i==0 || i==numAcross) ? true : false;
+
+                Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, x_coord, y_coord);
+                this->mNodes.push_back(p_node);
+                node_index++;
+            }
+        }
+
+        /*
+         * On the last row we have numAcross nodes, all of which are boundary nodes.
+         */
+        double y_coord = (1.5*(2*numUp+1) - 0.5*((2*numUp+1)%2))*0.5/sqrt(3);
+        if (((2*numUp+1)%4 == 0)||((2*numUp+1)%4 == 3))
+        {
+            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, 0.5, y_coord);
+            this->mNodes.push_back(p_node);
+            node_index++;
+        }
+        for (unsigned i=1; i<numAcross; i++)
+        {
+            double x_coord = (((2*numUp+1)%4 == 0)||((2*numUp+1)%4 == 3)) ? i+0.5 : i;
+
+            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, x_coord, y_coord);
+            this->mNodes.push_back(p_node);
+            node_index++;
+        }
+        if (((2*numUp+1)%4 == 1)||((2*numUp+1)%4 == 2))
+        {
+            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, numAcross, y_coord);
+            this->mNodes.push_back(p_node);
+            node_index++;
         }
 
         /*
          * Create the elements. The array node_indices contains the
          * global node indices from bottom, going anticlockwise.
          */
-        unsigned node_indices[6];
-        unsigned element_index;
-
         for (unsigned j=0; j<numUp; j++)
         {
             for (unsigned i=0; i<numAcross; i++)
             {
-                element_index = j*numAcross + i;
                 if (j==0)
                 {
-                	node_indices[0] = i;
+                    node_indices[0] = i;
                 }
                 else
                 {
-                	node_indices[0] = 2*j*(numAcross+1) - 1*(j%2==0) + i; // different for even/odd rows
+                    node_indices[0] = 2*j*(numAcross+1) - 1*(j%2==0) + i; // different for even/odd rows
                 }
                 node_indices[1] = node_indices[0] + numAcross + 1 + 1*(j%2==0 && j>0);
                 node_indices[2] = node_indices[1] + numAcross + 1;
@@ -207,18 +174,16 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numAcross,
                 node_indices[5] = node_indices[1] - 1;
 
                 std::vector<Node<SPACE_DIM>*> element_nodes;
-                for (unsigned i=0; i<6; i++)
+                for (unsigned k=0; k<6; k++)
                 {
-                   element_nodes.push_back(this->mNodes[node_indices[i]]);
+                   element_nodes.push_back(this->mNodes[node_indices[k]]);
                 }
 
+                element_index = j*numAcross + i;
                 VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = new VertexElement<ELEMENT_DIM, SPACE_DIM>(element_index, element_nodes);
                 mElements.push_back(p_element);
             }
         }
-
-        mAddedNodes = true;
-        mAddedElements = true;
     }
 }
 
@@ -317,8 +282,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
     mDeletedNodeIndices.clear();
     mDeletedElementIndices.clear();
-    mAddedNodes = false;
-    mAddedElements = false;
 
     for (unsigned i=0; i<mElements.size(); i++)
     {
@@ -662,7 +625,6 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>* pNewNode)
         delete this->mNodes[index];
         this->mNodes[index] = pNewNode;
     }
-    mAddedNodes = true;
     return pNewNode->GetIndex();
 }
 
@@ -680,9 +642,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(VertexElement<ELEMENT_DI
     {
         mElements[new_element_index] = pNewElement;
     }
-    mAddedElements = true;
     pNewElement->RegisterWithNodes();
-
     return pNewElement->GetIndex();
 }
 

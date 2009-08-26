@@ -118,7 +118,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     {
         if (rTissue.HasMesh())
         {
-            MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+            MeshBasedTissue<DIM> *p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
 
             if (p_static_cast_tissue->IsMarkedSpring(r_cell_A, r_cell_B))
             {

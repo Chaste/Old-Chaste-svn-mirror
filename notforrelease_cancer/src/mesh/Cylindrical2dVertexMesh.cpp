@@ -35,14 +35,14 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
                                                  double edgeDivisionThreshold,
                                                  double t2Threshold)
 {
+    assert(numAcross > 1);
+    assert(numAcross%2==0); // numAcross should be even.
+
     this->mCellRearrangementThreshold = cellRearrangementThreshold;
     this->mEdgeDivisionThreshold = edgeDivisionThreshold;
     this->mT2Threshold = t2Threshold;
 
     mWidth = numAcross;   // This accounts for numAcross Elements
-    mAddedNodes = true;
-    assert(numAcross > 1);
-    assert(numAcross%2==0); // numAcross should be even.
 
     // Create the nodes
     unsigned node_index = 0;
@@ -62,18 +62,12 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
         {
             for (unsigned i=0; i<=numAcross-1; i++)
             {
-                if ((j%4 == 0)||(j%4 == 3))
-                {
-                    Node<2> *p_node = new Node<2>(node_index, false, i+0.5, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-                    mNodes.push_back(p_node);
-                    node_index++;
-                }
-                else
-                {
-                    Node<2> *p_node = new Node<2>(node_index, false, i, (1.5*j-0.5*(j%2))/(2.0*sqrt(3)));
-                    mNodes.push_back(p_node);
-                    node_index++;
-                }
+            	double x_coord = ((j%4 == 0)||(j%4 == 3)) ? i+0.5 : i;
+            	double y_coord = (1.5*j - 0.5*(j%2))*0.5/sqrt(3);
+
+                Node<2> *p_node = new Node<2>(node_index, false, x_coord, y_coord);
+                mNodes.push_back(p_node);
+                node_index++;
             }
         }
     }
@@ -91,44 +85,25 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
         {
             element_index = j*numAcross + i;
 
-            if (j%2 == 0) // even
+            node_indices[0] = 2*j*(numAcross) + i + 1*(j%2==1);
+            node_indices[1] = node_indices[0] + numAcross + 1*(j%2==0);
+            node_indices[2] = node_indices[0] + 2*numAcross + 1*(j%2==0);
+            node_indices[3] = node_indices[0] + 3*numAcross;
+            node_indices[4] = node_indices[0] + 2*numAcross - 1*(j%2==1);
+            node_indices[5] = node_indices[0] + numAcross - 1*(j%2==1);
+
+            if (i==numAcross-1) // on far right
             {
-                node_indices[0] = 2*j*(numAcross)+i;
-                node_indices[1] = node_indices[0] + numAcross + 1;
-                node_indices[2] = node_indices[0] + 2*numAcross + 1;
-                node_indices[3] = node_indices[0] + 3*numAcross;
-                node_indices[4] = node_indices[0] + 2*numAcross;
-                node_indices[5] = node_indices[0] + numAcross;
-                if (i==numAcross-1) // on far right
-                {
-                    node_indices[1] = node_indices[0] + 1;
-                    node_indices[2] = node_indices[0] + numAcross + 1;
-                }
-            }
-            else // odd
-            {
-                node_indices[0] = 2*j*(numAcross)+i+1;
-                node_indices[1] = node_indices[0] + numAcross;
-                node_indices[2] = node_indices[0] + 2*numAcross;
-                node_indices[3] = node_indices[0] + 3*numAcross;
-                node_indices[4] = node_indices[0] + 2*numAcross-1;
-                node_indices[5] = node_indices[0] + numAcross-1;
-                if (i==numAcross-1) // on far right
-                {
-                    node_indices[0] = 2*j*(numAcross) + i + 1 - numAcross;
-                    node_indices[1] = node_indices[0] + numAcross;
-                    node_indices[2] = node_indices[0] + 2*numAcross;
-                    node_indices[3] = node_indices[0] + 3*numAcross;
-                    node_indices[4] = node_indices[0] + 3*numAcross-1;
-                    node_indices[5] = node_indices[0] + 2*numAcross-1;
-                }
+                node_indices[0] -= numAcross*(j%2==1);
+                node_indices[1] -= numAcross;
+                node_indices[2] -= numAcross;
+                node_indices[3] -= numAcross*(j%2==1);
             }
 
             std::vector<Node<2>*> element_nodes;
-
-            for (unsigned i=0; i<6; i++)
+            for (unsigned k=0; k<6; k++)
             {
-               element_nodes.push_back(mNodes[node_indices[i]]);
+               element_nodes.push_back(mNodes[node_indices[k]]);
             }
             VertexElement<2,2> *p_element = new VertexElement<2,2>(element_index, element_nodes);
             mElements.push_back(p_element);
@@ -140,19 +115,16 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numAcross,
     {
         for (unsigned i=0; i<numAcross; i++)
         {
-                node_indices[0] = i; // j=0 as on bottom row
-                node_indices[1] = node_indices[0] + 1;
-                node_indices[2] = node_indices[0] + numAcross + 1;
-                node_indices[3] = node_indices[0] + 2*numAcross + 1;
-                node_indices[4] = node_indices[0] + 2*numAcross;
-                node_indices[5] = node_indices[0] + numAcross;
+            node_indices[0] = i; // j=0 as on bottom row
+            node_indices[1] = node_indices[0] + 1;
+            node_indices[2] = node_indices[0] + numAcross + 1;
+            node_indices[3] = node_indices[0] + 2*numAcross + 1;
+            node_indices[4] = node_indices[0] + 2*numAcross;
+            node_indices[5] = node_indices[0] + numAcross;
 
-                /*
-                 * Move node 0 to the same position as node 5 and then
-                 * merge nodes 0 and 5.
-                 */
-                SetNode(node_indices[0], mNodes[node_indices[5]]->GetPoint());
-                PerformNodeMerge(mNodes[node_indices[0]], mNodes[node_indices[5]]);
+            // Move node 0 to the same position as node 5 then merge the nodes
+            SetNode(node_indices[0], mNodes[node_indices[5]]->GetPoint());
+            PerformNodeMerge(mNodes[node_indices[0]], mNodes[node_indices[5]]);
         }
     }
 

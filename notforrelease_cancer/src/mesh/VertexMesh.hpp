@@ -79,12 +79,6 @@ protected:
     /** Indices of elements that have been deleted. These indices can be reused when adding new elements. */
     std::vector<unsigned> mDeletedElementIndices;
 
-    /** Whether nodes have been added to the mesh. */
-    bool mAddedNodes;
-
-    /** Whether Elements have been added to the mesh. */
-    bool mAddedElements;
-
     /** Create correspondences between VertexElements and Nodes in the mesh. */
     void SetupVertexElementsOwnedByNodes();
 
@@ -215,8 +209,6 @@ protected:
         archive & mT2Threshold;
         archive & mDeletedNodeIndices;
         archive & mDeletedElementIndices;
-        archive & mAddedNodes;
-        archive & mAddedElements;
 
         // Create a mesh writer pointing to the correct file and directory
         VertexMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
@@ -240,8 +232,6 @@ protected:
         archive & mT2Threshold;
         archive & mDeletedNodeIndices;
         archive & mDeletedElementIndices;
-        archive & mAddedNodes;
-        archive & mAddedElements;
 
         VertexMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
         this->ConstructFromMeshReader(mesh_reader);
