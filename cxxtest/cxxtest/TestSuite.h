@@ -405,7 +405,7 @@ namespace CxxTest
             _TS_CATCH_ABORT( { throw; } ) \
             _TS_LAST_CATCH( { _ts_threw_else = true; } ) \
             if ( !_ts_threw_expected ) { CxxTest::doFailAssertThrows( (f), (l), #e, #t, _ts_threw_else, (m) ); } }
-
+    
 #   define _TS_ASSERT_THROWS_ASSERT(f,l,e,t,a) ___TS_ASSERT_THROWS_ASSERT(f,l,e,t,a,0)
 #   define TS_ASSERT_THROWS_ASSERT(e,t,a) _TS_ASSERT_THROWS_ASSERT(__FILE__,__LINE__,e,t,a)
 
@@ -417,8 +417,17 @@ namespace CxxTest
 #   define TSM_ASSERT_THROWS_EQUALS(m,e,t,x,y) TSM_ASSERT_THROWS_ASSERT(m,e,t,TSM_ASSERT_EQUALS(m,x,y))
 
     // Chaste-specific TS_ASSERT_THROWS_THIS shorthand for our Exception class.
-#   define TS_ASSERT_THROWS_THIS(e,y) TS_ASSERT_THROWS_ASSERT(e,const Exception &err,TS_ASSERT(err.GetShortMessage()==y || err.GetShortMessage()=="Another process threw an exception; bailing out."))
-#   define TS_ASSERT_THROWS_CONTAINS(e,y) TS_ASSERT_THROWS_ASSERT(e,const Exception &err, TS_ASSERT((int)(err.GetShortMessage().find(y))!=-1 || err.GetShortMessage()=="Another process threw an exception; bailing out."))
+#    define CHASTE_ASSERT_EXCEPTION_MESSAGE(f,l,e,method,y) { \
+        bool _ts_threw_expected = false, _ts_threw_else = false; \
+            _TS_TRY { e; } \
+            _TS_CATCH_TYPE( (const Exception& err), { TSM_ASSERT(err.method(y), err.method(y) == ""); _ts_threw_expected = true; } ) \
+            _TS_CATCH_ABORT( { throw; } ) \
+            _TS_LAST_CATCH( { _ts_threw_else = true; } ) \
+            if ( !_ts_threw_expected ) { CxxTest::doFailAssertThrows( (f), (l), #e, "const Exception& err", _ts_threw_else, 0 ); } }
+//This version would remove the need for CHASTE_ASSERT_EXCEPTION_MESSAGE, but is uglier:
+//#   define TS_ASSERT_THROWS_THIS(e,y) TS_ASSERT_THROWS_EQUALS(e,const Exception &err,err.CheckShortMessage(y),"")
+#   define TS_ASSERT_THROWS_THIS(e,y) CHASTE_ASSERT_EXCEPTION_MESSAGE(__FILE__,__LINE__,e,CheckShortMessage,y)
+#   define TS_ASSERT_THROWS_CONTAINS(e,y) CHASTE_ASSERT_EXCEPTION_MESSAGE(__FILE__,__LINE__,e,CheckShortMessageContains,y)
 
     // TS_ASSERT_THROWS_DIFFERS
 #   define TS_ASSERT_THROWS_DIFFERS(e,t,x,y) TS_ASSERT_THROWS_ASSERT(e,t,TS_ASSERT_DIFFERS(x,y))

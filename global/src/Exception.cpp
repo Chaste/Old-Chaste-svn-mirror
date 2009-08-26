@@ -59,3 +59,23 @@ std::string Exception::GetShortMessage() const
 {
     return mShortMessage;
 }
+
+std::string Exception::CheckShortMessage(std::string expected) const
+{
+    std::string error;
+    if (mShortMessage != expected && mShortMessage != "Another process threw an exception; bailing out.")
+    {
+        error = "Incorrect exception message thrown: expected (" + expected + "); got (" + mShortMessage + ").";
+    }
+    return error;
+}
+
+std::string Exception::CheckShortMessageContains(std::string expected) const
+{
+    std::string error;
+    if (mShortMessage.find(expected) == std::string::npos && mShortMessage != "Another process threw an exception; bailing out.")
+    {
+        error = "Incorrect exception message thrown: expected it to contain (" + expected + "); got (" + mShortMessage + ").";
+    }
+    return error;
+}

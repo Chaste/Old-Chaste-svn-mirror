@@ -75,6 +75,28 @@ public:
      * @return The message text set when the exception was thrown.
      **/
     std::string GetShortMessage() const;
+    
+    /**
+     * Helper method for checking we have the right exception.
+     * 
+     * Checks that #mShortMessage matches that given, and returns
+     * a suitable error message string if not.  If they do match,
+     * returns the empty string.
+     * 
+     * @param expected  the expected value of #mShortMessage
+     */
+    std::string CheckShortMessage(std::string expected) const;
+    
+    /**
+     * Helper method for checking we have the right exception.
+     * 
+     * Checks that #mShortMessage contains the given string, and
+     * returns a suitable error message string if not.  If it does,
+     * returns the empty string.
+     * 
+     * @param expected  some expected substring of #mShortMessage
+     */
+    std::string CheckShortMessageContains(std::string expected) const;
 };
 
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
