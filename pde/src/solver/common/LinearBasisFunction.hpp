@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Linear basis functions for the finite element method,
  * computed on a canonical element.
  */
-template <unsigned ELEM_DIM>
+template <unsigned ELEMENT_DIM>
 class LinearBasisFunction
 {
 public:
@@ -49,7 +49,7 @@ public:
      *     within a canonical element.
      * @return The value of the basis function.
      */
-    static double ComputeBasisFunction(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex);
+    static double ComputeBasisFunction(const ChastePoint<ELEMENT_DIM>& rPoint, unsigned basisIndex);
 
     /**
      * Compute the derivative of a basis function at a point within a
@@ -60,18 +60,18 @@ public:
      * @param basisIndex Which basis function to compute. This is a local index
      *     within a canonical element.
      * @return The derivative of the basis function. This is a vector
-     *     (c_vector<double, ELEM_DIM> instance) giving the derivative
+     *     (c_vector<double, ELEMENT_DIM> instance) giving the derivative
      *     along each axis.
      */
-    static c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex);
+    static c_vector<double, ELEMENT_DIM> ComputeBasisFunctionDerivative(const ChastePoint<ELEMENT_DIM>& rPoint, unsigned basisIndex);
 
-    static void ComputeBasisFunctions(const ChastePoint<ELEM_DIM>& rPoint, c_vector<double, ELEM_DIM+1>& rReturnValue);
-    static void ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
-                                                c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue);
+    static void ComputeBasisFunctions(const ChastePoint<ELEMENT_DIM>& rPoint, c_vector<double, ELEMENT_DIM+1>& rReturnValue);
+    static void ComputeBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM>& rPoint,
+                                                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rReturnValue);
 
-    static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
-                                                           const c_matrix<double, ELEM_DIM, ELEM_DIM>& rInverseJacobian,
-                                                           c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rReturnValue);
+    static void ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM>& rPoint,
+                                                           const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>& rInverseJacobian,
+                                                           c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rReturnValue);
 };
 
 /**

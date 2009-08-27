@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartRegionCodes.hpp"
 #include "FakeBathCell.hpp"
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractCardiacCell*  AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::CreateCardiacCellForNode(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractCardiacCell*  AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::CreateCardiacCellForNode(
     unsigned nodeIndex)
 {
     if (mpMesh->GetNode(nodeIndex)->GetRegion() == HeartRegionCode::BATH)
@@ -44,23 +44,23 @@ AbstractCardiacCell*  AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::CreateCard
     }
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::FinaliseCellCreation(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::FinaliseCellCreation(
     std::vector< AbstractCardiacCell* >* pCellsDistributed,
     unsigned lo,
     unsigned hi)
 {
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-unsigned AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::GetNumberOfCells()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::GetNumberOfCells()
 {
     assert(mpMesh != NULL);
     return mpMesh->GetNumNodes();
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
         boost::shared_ptr<AbstractIvpOdeSolver> pSolver)
     : mpMesh(NULL),
       mpZeroStimulus(new ZeroStimulus),
@@ -69,20 +69,20 @@ AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
 {
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::~AbstractCardiacCellFactory()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacCellFactory()
 {
     delete mpFakeCell;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::SetMesh(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
 {
     mpMesh = pMesh;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>::GetMesh()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::GetMesh()
 {
     assert(mpMesh != NULL);
     return mpMesh;

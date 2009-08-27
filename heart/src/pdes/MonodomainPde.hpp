@@ -58,8 +58,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Note that default values of A, C and sigma_i are stored in the parent class
  */
-template <unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
-class MonodomainPde : public virtual AbstractCardiacPde<ELEM_DIM,SPACE_DIM>, public AbstractLinearParabolicPde<ELEM_DIM, SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
+class MonodomainPde : public virtual AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>, public AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>
 {
 private:
     friend class TestMonodomainPde;
@@ -81,7 +81,7 @@ private:
 
 public:
     /// Constructor
-    MonodomainPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
+    MonodomainPde(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
 
 
     /**
@@ -91,7 +91,7 @@ public:
      * @param pMesh the mesh (also recovered from archive)
      */
     MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                  AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     //The following are hidden from the coverage test while it is waiting
     //for a re-factor. (Ticket #157)
@@ -118,7 +118,7 @@ public:
      */
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(
                 const ChastePoint<SPACE_DIM>& rX,
-                Element<ELEM_DIM,SPACE_DIM>* pElement);
+                Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
 
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double );
@@ -138,12 +138,12 @@ namespace boost
 namespace serialization
 {
 
-template<class Archive, unsigned ELEM_DIM, unsigned SPACE_DIM>
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void save_construct_data(
-    Archive & ar, const MonodomainPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, const MonodomainPde<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
-    const AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
+    const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
 
     ar & r_cells_distributed;
     ar & p_mesh;
@@ -159,12 +159,12 @@ inline void save_construct_data(
  * Allow us to not need a default constructor, by specifying how Boost should
  * instantiate an instance (using existing constructor)
  */
-template<class Archive, unsigned ELEM_DIM, unsigned SPACE_DIM>
+template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void load_construct_data(
-    Archive & ar, MonodomainPde<ELEM_DIM, SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, MonodomainPde<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     std::vector<AbstractCardiacCell*> cells_distributed;
-    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh;
 
     ar & cells_distributed;
     ar & p_mesh;
@@ -175,7 +175,7 @@ inline void load_construct_data(
     ar & *p_config;
     ar & p_config;
 
-    ::new(t)MonodomainPde<ELEM_DIM, SPACE_DIM>(cells_distributed, p_mesh);
+    ::new(t)MonodomainPde<ELEMENT_DIM, SPACE_DIM>(cells_distributed, p_mesh);
 }
 }
 } // namespace ...

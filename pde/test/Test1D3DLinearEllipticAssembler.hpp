@@ -52,23 +52,23 @@ public:
     void TestWithPoissonsEquation1dMeshIn2dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 2;
-        const unsigned ELEM_DIM = 1;
+        const unsigned ELEMENT_DIM = 1;
 
         // Create mesh from mesh reader
-        TrianglesMeshReader<ELEM_DIM,SPACE_DIM> mesh_reader("pde/test/data/trivial_1d_in_2d_mesh");
-        TetrahedralMesh<ELEM_DIM,SPACE_DIM> mesh;
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("pde/test/data/trivial_1d_in_2d_mesh");
+        TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<ELEM_DIM,SPACE_DIM> pde;
+        SimplePoissonEquation<ELEMENT_DIM,SPACE_DIM> pde;
 
         // Boundary conditions (u=0 on one end, u'=0 on other end)
-        BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1> bcc;
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1> bcc;
         ConstBoundaryCondition<SPACE_DIM> *p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
 
         // Assembler
-        SimpleLinearEllipticAssembler<ELEM_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+        SimpleLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
@@ -87,24 +87,24 @@ public:
     void TestWithPoissonsEquation1dMeshIn3dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 3;
-        const unsigned ELEM_DIM = 1;
+        const unsigned ELEMENT_DIM = 1;
 
         // Create mesh from mesh reader
-        TrianglesMeshReader<ELEM_DIM,SPACE_DIM> mesh_reader("pde/test/data/trivial_1d_in_3d_mesh");
-        TetrahedralMesh<ELEM_DIM,SPACE_DIM> mesh;
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("pde/test/data/trivial_1d_in_3d_mesh");
+        TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
         
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<ELEM_DIM,SPACE_DIM> pde;
+        SimplePoissonEquation<ELEMENT_DIM,SPACE_DIM> pde;
 
         // Boundary conditions (u=0 on one end, u'=0 on other end)
-        BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1> bcc;
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1> bcc;
         ConstBoundaryCondition<SPACE_DIM> *p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
 
         // Assembler
-        SimpleLinearEllipticAssembler<ELEM_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+        SimpleLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
@@ -123,26 +123,26 @@ public:
     void TestBranchedPoissonsEquation1dMeshIn3dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 3;
-        const unsigned ELEM_DIM = 1;
+        const unsigned ELEMENT_DIM = 1;
 
         // Create mesh from mesh reader
-        TrianglesMeshReader<ELEM_DIM,SPACE_DIM> mesh_reader("pde/test/data/branched_1d_in_3d_mesh");
-        TetrahedralMesh<ELEM_DIM,SPACE_DIM> mesh;
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("pde/test/data/branched_1d_in_3d_mesh");
+        TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
-        SimplePoissonEquation<ELEM_DIM,SPACE_DIM> pde;
+        SimplePoissonEquation<ELEMENT_DIM,SPACE_DIM> pde;
 
         // Boundary conditions (u=0 on one end, u'=0 on other end)
-        BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1> bcc;
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1> bcc;
         ConstBoundaryCondition<SPACE_DIM> *p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(20), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(30), p_boundary_condition);
 
         // Assembler
-        SimpleLinearEllipticAssembler<ELEM_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+        SimpleLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);

@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * See tutorials for usage.
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
 friend class TestBidomainWithBathAssembler;
@@ -87,18 +87,18 @@ protected:
     unsigned mNodeColumnId;
 
     /** The monodomain or bidomain pde */
-    AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* mpCardiacPde;
+    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* mpCardiacPde;
 
     /** Boundary conditions container used in the simulation */
-    BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
     /** It is convenient to also have a separate variable for default (zero-Neumann) boundary conditions */
-    BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* mpDefaultBoundaryConditionsContainer;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpDefaultBoundaryConditionsContainer;
     /** The PDE solver */
-    AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
+    AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
     /** The cell factory creates the cells for each node */
-    AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* mpCellFactory;
+    AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* mpCellFactory;
     /** The mesh. Can either by passed in, or the mesh filename can be set */
-    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
     /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and
      *  [V_0 phi_0 .. V_N phi_N] for bidomain */
@@ -112,14 +112,14 @@ protected:
      *
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* CreateCardiacPde() =0;
+    virtual AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* CreateCardiacPde() =0;
 
     /**
      * Subclasses must override this method to create a suitable assembler object.
      *
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
+    virtual AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
 public:
     /**
@@ -139,7 +139,7 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      * create cells.
      */
-    AbstractCardiacProblem(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
+    AbstractCardiacProblem(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
     
     /**
      *  Destructor
@@ -162,7 +162,7 @@ public:
      *  Set the boundary conditions container.
      *  @param pbcc is a pointer to a boundary conditions container
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM> *pbcc);
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pbcc);
 
     /**
      *  Performs a series of checks before solving.
@@ -195,7 +195,7 @@ public:
      * 
      * @param pMesh  the mesh object to use
      */
-    void SetMesh(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+    void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      *  Set whether the simulation will generate results files.
@@ -233,12 +233,12 @@ public:
     /**
      * @return the mesh used
      */
-    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM> & rGetMesh();
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> & rGetMesh();
 
     /**
      * @return the cardiac PDE used
      */
-    AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* GetPde();
+    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* GetPde();
 
     /**
      *  First performs some checks by calling  the PreSolveChecks method.

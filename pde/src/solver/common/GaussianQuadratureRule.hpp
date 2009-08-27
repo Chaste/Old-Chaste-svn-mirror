@@ -39,13 +39,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * with between 1 and 3 (inclusive) gauss points in each dimension.
  * The values are computed when an object is instantiated.
  */
-template<unsigned ELEM_DIM>
+template<unsigned ELEMENT_DIM>
 class GaussianQuadratureRule
 {
     /** The total number of gauss points. */
     unsigned mNumQuadPoints;
     /** The gaussian quadrature points. */
-    std::vector<ChastePoint<ELEM_DIM> > mPoints;
+    std::vector<ChastePoint<ELEMENT_DIM> > mPoints;
     /** The associated weights. */
     std::vector<double> mWeights;
 
@@ -69,7 +69,7 @@ public:
      * @param index The index of the point to return.
      * @return A gaussian quadrature point.
      */
-    const ChastePoint<ELEM_DIM>& rGetQuadPoint(unsigned index) const;
+    const ChastePoint<ELEMENT_DIM>& rGetQuadPoint(unsigned index) const;
 
     /**
      * Get the weight associated with a quadrature point.

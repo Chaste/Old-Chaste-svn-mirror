@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // of the member variables in A
 
 
-template <unsigned ELEM_DIM, unsigned SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractLinearEllipticPde
 {
 public:
@@ -81,7 +81,7 @@ public:
      * @param pElement
      */
     virtual double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<SPACE_DIM>& rX,
-                                                     Element<ELEM_DIM,SPACE_DIM>* pElement)=0;
+                                                     Element<ELEMENT_DIM,SPACE_DIM>* pElement)=0;
 
     /**
      * Compute the diffusion term at a given point.
@@ -120,14 +120,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-template <unsigned ELEM_DIM, unsigned SPACE_DIM>
-double AbstractLinearEllipticPde<ELEM_DIM, SPACE_DIM>::ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& rNode)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double AbstractLinearEllipticPde<ELEMENT_DIM, SPACE_DIM>::ComputeConstantInUSourceTermAtNode(const Node<SPACE_DIM>& rNode)
 {
     return ComputeConstantInUSourceTerm(rNode.GetPoint());
 }
 
-template <unsigned ELEM_DIM, unsigned SPACE_DIM>
-double AbstractLinearEllipticPde<ELEM_DIM, SPACE_DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& rNode)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double AbstractLinearEllipticPde<ELEMENT_DIM, SPACE_DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<SPACE_DIM>& rNode)
 {
     return ComputeLinearInUCoeffInSourceTerm(rNode.GetPoint(), NULL);
 }

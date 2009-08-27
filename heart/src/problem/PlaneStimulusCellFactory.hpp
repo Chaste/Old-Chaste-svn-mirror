@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * PlaneStimulusCellFactory provides cells within 1e-5 of x=0 with a SimpleStimulus.
  */
-template<class CELL, unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
-class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>
+template<class CELL, unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
+class PlaneStimulusCellFactory : public AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
     /** The stimulus to apply at stimulated nodes */
@@ -50,7 +50,7 @@ public:
      * @param stimulusDuration  The duration of the simple stimulus to be applied (defaults to 0.5ms).
      */
     PlaneStimulusCellFactory(double stimulusMagnitude=-600, double stimulusDuration=0.5)
-        : AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>()
+        : AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>()
     {
         mpStimulus = boost::shared_ptr<SimpleStimulus>(new SimpleStimulus(stimulusMagnitude, stimulusDuration));
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<","<< stimulusDuration<< ")\n");

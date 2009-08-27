@@ -40,19 +40,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Class which specifies and solves a monodomain problem.
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
-class MonodomainProblem : public AbstractCardiacProblem<ELEM_DIM, SPACE_DIM, 1>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
+class MonodomainProblem : public AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>
 {
 protected:
     /** The monodomain PDE object */
-    MonodomainPde<ELEM_DIM,SPACE_DIM>* mpMonodomainPde;
+    MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
 
 public:
     /** Create our monodomain PDE */
-    AbstractCardiacPde<ELEM_DIM, SPACE_DIM>* CreateCardiacPde();
+    AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM>* CreateCardiacPde();
 
     /** Create an suitable assembler for monodomain problems */
-    AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, 1>* CreateAssembler();
+    AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* CreateAssembler();
 
 public:
     /**
@@ -60,7 +60,7 @@ public:
      * @param pCellFactory User defined cell factory which shows how the pde should
      *   create cells.
      */
-    MonodomainProblem(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory);
+    MonodomainProblem(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
 
     /**
      * Destructor
@@ -68,7 +68,7 @@ public:
     ~MonodomainProblem();
 
     /** Get the monodomain PDE */
-    MonodomainPde<ELEM_DIM,SPACE_DIM> * GetMonodomainPde();
+    MonodomainPde<ELEMENT_DIM,SPACE_DIM> * GetMonodomainPde();
 
     /**
      *  Print out time and max/min voltage values at current time.

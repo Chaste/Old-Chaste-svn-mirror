@@ -149,9 +149,9 @@ public:
          * format. The path given is the relative to the main Chaste directory. The reader
          * will look for three datafiles, [name].nodes, [name].ele and (in 2d or 3d)
          * [name].edge. Note that the first template argument here is the dimension of the
-         * elements in the mesh ({{{ELEM_DIM}}}), and the second is the dimension of the nodes,
+         * elements in the mesh ({{{ELEMENT_DIM}}}), and the second is the dimension of the nodes,
          * i.e. the dimension of the space the mesh lives in ({{{SPACE_DIM}}}). Usually
-         * {{{ELEM_DIM}}} and {{{SPACE_DIM}}} will be equal. */
+         * {{{ELEMENT_DIM}}} and {{{SPACE_DIM}}} will be equal. */
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         /* Now declare a tetrahedral mesh with the same dimensions */
         TetrahedralMesh<2,2> mesh;
@@ -162,7 +162,7 @@ public:
         MyPde pde;
 
         /* A set of boundary conditions are stored in a {{{BoundaryConditionsContainer}}}. The
-         * three template arguments are ELEM_DIM, SPACE_DIM and PROBLEM_DIM, the latter being
+         * three template arguments are ELEMENT_DIM, SPACE_DIM and PROBLEM_DIM, the latter being
          * the number of unknowns we are solving for. We have one unknown (ie u is a scalar, not
          * a vector), so in this case {{{PROBLEM_DIM}}}=1. */
         BoundaryConditionsContainer<2,2,1> bcc;
@@ -245,7 +245,7 @@ public:
          * misnomer - assemblers both assemble the finite element equations, and solve them.
          * To solve {{{AbstractLinearEllipticPde}}} (which is the type of pde {{{MyPde}}} is),
          * we use a {{{SimpleLinearEllipticAssembler}}}. The assembler, again templated over
-         * {{{ELEM_DIM}}} and {{{SPACE_DIM}}}, needs to be given (pointers to) the mesh,
+         * {{{ELEMENT_DIM}}} and {{{SPACE_DIM}}}, needs to be given (pointers to) the mesh,
          * pde and boundary conditions.
          */
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);

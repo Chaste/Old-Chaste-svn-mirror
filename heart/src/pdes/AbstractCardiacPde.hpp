@@ -73,7 +73,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Also contains knowledge of parallelisation in the form of the
  * distributed vector factory.
  */
-template <unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class AbstractCardiacPde
 {
 private:
@@ -113,7 +113,7 @@ private:
 protected:
 
     /** It's handy to keep a pointer to the mesh object*/
-    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
     /** Intracellular conductivity tensors.  Not archived, since it's loaded from the HeartConfig singleton. */
     AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
@@ -184,7 +184,7 @@ public:
      * @param pCellFactory  factory to use to create cells.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacPde(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory,
+    AbstractCardiacPde(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
                        const unsigned stride=1);
 
     /**
@@ -195,7 +195,7 @@ public:
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                       AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                       AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                        const unsigned stride);
 
     /** Virtual destructor */
@@ -278,7 +278,7 @@ public:
      *
      *  @return pointer to mesh object
      */
-    const AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pGetMesh() const;
+    const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pGetMesh() const;
 
 };
 

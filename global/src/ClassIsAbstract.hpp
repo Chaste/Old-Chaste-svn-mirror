@@ -71,8 +71,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // In Boost since 1.36.0, we need to use assume_abstract...
 #include <boost/serialization/assume_abstract.hpp>
 
+///Macro for 1.36 and later
 #define CLASS_IS_ABSTRACT(T) BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
+///Macro for 1.36 and later
 #define TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
     : boost::true_type {};
 
@@ -81,8 +83,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // In Boost before 1.36.0, we use is_abstract...
 #include <boost/serialization/is_abstract.hpp>
 
+///Macro for 1.35 and previous
 #define CLASS_IS_ABSTRACT(T) BOOST_IS_ABSTRACT(T)
 
+///Macro for 1.35 and previous
 #define TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
     { \
         typedef mpl::bool_<true> type; \
@@ -91,7 +95,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #endif // BOOST_VERSION >= 103600
 
-
+///Helper macro for an abstract class templated over two unsigneds
 #define TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(T) \
     namespace boost { \
     namespace serialization { \
@@ -103,6 +107,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
     }}
 
+///Helper macro for an abstract class templated over a single unsigned
 #define TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(T) \
     namespace boost { \
     namespace serialization { \

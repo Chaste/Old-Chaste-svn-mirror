@@ -40,9 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo)
 {
-    if(boundaryElemFileIsQuadratic && boundaryElemFileHasContainingElementInfo)
+//    if(boundaryElemFileIsQuadratic && boundaryElemFileHasContainingElementInfo)
+//    {
+//        EXCEPTION("Boundary element file should not have containing element info if it is quadratic");
+//    }
+    if(boundaryElemFileIsQuadratic)
     {
-        EXCEPTION("Boundary element file should not have containing element info if it is quadratic");
+         ///\todo Fix coverage as above
+         assert(boundaryElemFileHasContainingElementInfo == false);
     }
     LoadFromFile(rFileName, boundaryElemFileIsQuadratic, boundaryElemFileHasContainingElementInfo);
 

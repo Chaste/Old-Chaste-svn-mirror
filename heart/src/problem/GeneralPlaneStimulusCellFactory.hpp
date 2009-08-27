@@ -38,8 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Applied to cells within 1e-5 of x=0.
  */
-template <class CELL, unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
-class GeneralPlaneStimulusCellFactory : public PlaneStimulusCellFactory<CELL,ELEM_DIM,SPACE_DIM>
+template <class CELL, unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
+class GeneralPlaneStimulusCellFactory : public PlaneStimulusCellFactory<CELL,ELEMENT_DIM,SPACE_DIM>
 {
 
 public:
@@ -59,7 +59,7 @@ public:
      * @param stimulusDuration  Duration of the applied stimulus (defaults to 0.5ms).
      */
     GeneralPlaneStimulusCellFactory(unsigned numEleAcross, double meshWidth, bool useMeshWidthAsMag=false, double stimulusMagnitude=-1e7, double stimulusDuration=0.5)
-        : PlaneStimulusCellFactory<CELL,ELEM_DIM, SPACE_DIM>(stimulusMagnitude,stimulusDuration) // These values are overridden below anyway.
+        : PlaneStimulusCellFactory<CELL,ELEMENT_DIM, SPACE_DIM>(stimulusMagnitude,stimulusDuration) // These values are overridden below anyway.
     {
         if (useMeshWidthAsMag)
         {
@@ -70,9 +70,9 @@ public:
         else
         {
             stimulusMagnitude*=numEleAcross/(64.0);
-            // ELEM_DIM==1 Justification: elements go half size with each refinement
-            // ELEM_DIM==2 Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on boundary
-            // ELEM_DIM==3 Hypothesis: Triangles go eighth size with each refinement, but there are four-times as many nodes on boundary
+            // ELEMENT_DIM==1 Justification: elements go half size with each refinement
+            // ELEMENT_DIM==2 Justification: Triangles go quarter size with each refinement, but there are twice as many nodes on boundary
+            // ELEMENT_DIM==3 Hypothesis: Triangles go eighth size with each refinement, but there are four-times as many nodes on boundary
             stimulusMagnitude*=meshWidth/(0.2);
 
             //std::cout<<"Mag is "<<stimulusMagnitude<<"\n";

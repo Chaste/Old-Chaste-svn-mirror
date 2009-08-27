@@ -50,13 +50,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This class saves the user having to create cells in parallel, that work is done
  * by the pde instead.
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class AbstractCardiacCellFactory
 {
 private:
     /** The mesh is automatically set in MonodomainProblem and BidomainProblem.
      *  This member variable should be accessed through GetMesh(), which will check if it has been set before.*/
-    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
 protected:
     /** For use at un-stimulated cells. */
@@ -116,12 +116,12 @@ public:
     /**
      * @param pMesh  the mesh for which to create cardiac cells.
      */
-    void SetMesh(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+    void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      * @return  the mesh used to create the cells.
      */
-    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* GetMesh();
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* GetMesh();
 
 };
 

@@ -28,17 +28,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MonodomainPde.hpp"
 
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(
-            AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory)
-    :  AbstractCardiacPde<ELEM_DIM, SPACE_DIM>(pCellFactory)
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+MonodomainPde<ELEMENT_DIM,SPACE_DIM>::MonodomainPde(
+            AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
+    :  AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM>(pCellFactory)
 {
 }
 
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,
-                                                 AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
-        :  AbstractCardiacPde<ELEM_DIM, SPACE_DIM>(rCellsDistributed, pMesh, 1u) // 1 for monodomain
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+MonodomainPde<ELEMENT_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,
+                                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+        :  AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM>(rCellsDistributed, pMesh, 1u) // 1 for monodomain
 {
 }
 
@@ -46,14 +46,14 @@ MonodomainPde<ELEM_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacCell
 //The following are hidden from the coverage test while it is waiting
 //for a re-factor. (Ticket #157)
 #define COVERAGE_IGNORE
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEM_DIM,SPACE_DIM>::ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
 {
     NEVER_REACHED;
     return 0.0;
 }
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEM_DIM,SPACE_DIM>::ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
 {
     NEVER_REACHED;
     return 0.0;
@@ -61,17 +61,17 @@ double MonodomainPde<ELEM_DIM,SPACE_DIM>::ComputeNonlinearSourceTerm(const Chast
 #undef COVERAGE_IGNORE
 
 
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-c_matrix<double, SPACE_DIM, SPACE_DIM> MonodomainPde<ELEM_DIM,SPACE_DIM>::ComputeDiffusionTerm(
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+c_matrix<double, SPACE_DIM, SPACE_DIM> MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeDiffusionTerm(
             const ChastePoint<SPACE_DIM>& ,
-            Element<ELEM_DIM,SPACE_DIM>* pElement)
+            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     return (*this->mpIntracellularConductivityTensors)[pElement->GetIndex()];
 }
 
 
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEM_DIM,SPACE_DIM>::ComputeNonlinearSourceTermAtNode(
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeNonlinearSourceTermAtNode(
             const Node<SPACE_DIM>& node,
             double /* unused */)
 {
@@ -81,8 +81,8 @@ double MonodomainPde<ELEM_DIM,SPACE_DIM>::ComputeNonlinearSourceTermAtNode(
 }
 
 
-template <unsigned ELEM_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEM_DIM,SPACE_DIM>::ComputeDuDtCoefficientFunction(
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeDuDtCoefficientFunction(
             const ChastePoint<SPACE_DIM>& /* unused */)
 {
     return (this->mpConfig->GetSurfaceAreaToVolumeRatio())*(this->mpConfig->GetCapacitance());

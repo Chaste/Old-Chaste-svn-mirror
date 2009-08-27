@@ -67,12 +67,12 @@ void QuadraticBasisFunction<0>::ComputeBasisFunctions(const ChastePoint<0>& rPoi
  *     within a canonical element.
  * @return The value of the basis function.
  */
-template <unsigned ELEM_DIM>
-double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex)
+template <unsigned ELEMENT_DIM>
+double QuadraticBasisFunction<ELEMENT_DIM>::ComputeBasisFunction(const ChastePoint<ELEMENT_DIM>& rPoint, unsigned basisIndex)
 {
-    assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
+    assert(ELEMENT_DIM < 4 && ELEMENT_DIM >= 0);
     double x, y, z;
-    switch (ELEM_DIM)
+    switch (ELEMENT_DIM)
     {
     case 0:
         assert(basisIndex == 0);
@@ -179,14 +179,14 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(const ChastePoint<
  * @return The derivative of the basis function. This is a vector (c_vector
  *     instance) giving the derivative along each axis.
  */
-template <unsigned ELEM_DIM>
-c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(const ChastePoint<ELEM_DIM>& rPoint, unsigned basisIndex)
+template <unsigned ELEMENT_DIM>
+c_vector<double, ELEMENT_DIM> QuadraticBasisFunction<ELEMENT_DIM>::ComputeBasisFunctionDerivative(const ChastePoint<ELEMENT_DIM>& rPoint, unsigned basisIndex)
 {
-    c_vector<double, ELEM_DIM> gradN;
-    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    c_vector<double, ELEMENT_DIM> gradN;
+    assert(ELEMENT_DIM < 4 && ELEMENT_DIM > 0);
 
     double x, y, z;
-    switch (ELEM_DIM)
+    switch (ELEMENT_DIM)
     {
     case 1:
         x = rPoint[0];
@@ -311,13 +311,13 @@ c_vector<double, ELEM_DIM> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
  *     are undefined if this is not within the canonical element.
  * @param rReturnValue The values of the basis functions, in local index order.
  */
-template <unsigned ELEM_DIM>
-void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<ELEM_DIM>& rPoint,
-                                                             c_vector<double, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
+template <unsigned ELEMENT_DIM>
+void QuadraticBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(const ChastePoint<ELEMENT_DIM>& rPoint,
+                                                             c_vector<double, (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2>& rReturnValue)
 {
-    assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
+    assert(ELEMENT_DIM < 4 && ELEMENT_DIM >= 0);
 
-    for (unsigned i=0; i<(ELEM_DIM+1)*(ELEM_DIM+2)/2; i++)
+    for (unsigned i=0; i<(ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2; i++)
     {
         rReturnValue(i) = ComputeBasisFunction(rPoint, i);
     }
@@ -332,15 +332,15 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const ChastePoint<E
  *     column of the matrix gives the derivative along
  *     each axis.
  */
-template <unsigned ELEM_DIM>
-void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
-                                                                    c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
+template <unsigned ELEMENT_DIM>
+void QuadraticBasisFunction<ELEMENT_DIM>::ComputeBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM>& rPoint,
+                                                                    c_matrix<double, ELEMENT_DIM, (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2>& rReturnValue)
 {
-    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(ELEMENT_DIM < 4 && ELEMENT_DIM > 0);
 
-    for (unsigned j=0; j<(ELEM_DIM+1)*(ELEM_DIM+2)/2; j++)
+    for (unsigned j=0; j<(ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2; j++)
     {
-        matrix_column<c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2> > column(rReturnValue, j);
+        matrix_column<c_matrix<double, ELEMENT_DIM, (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2> > column(rReturnValue, j);
         column = ComputeBasisFunctionDerivative(rPoint, j);
     }
 }
@@ -358,12 +358,12 @@ void QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Cha
  *     entry is a vector (VectorDouble instance) giving the derivative along
  *     each axis.
  */
-template <unsigned ELEM_DIM>
-void QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEM_DIM>& rPoint,
-                                                                                  const c_matrix<double, ELEM_DIM, ELEM_DIM>& rInverseJacobian,
-                                                                                  c_matrix<double, ELEM_DIM, (ELEM_DIM+1)*(ELEM_DIM+2)/2>& rReturnValue)
+template <unsigned ELEMENT_DIM>
+void QuadraticBasisFunction<ELEMENT_DIM>::ComputeTransformedBasisFunctionDerivatives(const ChastePoint<ELEMENT_DIM>& rPoint,
+                                                                                  const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>& rInverseJacobian,
+                                                                                  c_matrix<double, ELEMENT_DIM, (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2>& rReturnValue)
 {
-    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(ELEMENT_DIM < 4 && ELEMENT_DIM > 0);
 
     ComputeBasisFunctionDerivatives(rPoint, rReturnValue);
     rReturnValue = prod(trans(rInverseJacobian), rReturnValue);

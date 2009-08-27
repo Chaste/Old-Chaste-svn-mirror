@@ -33,22 +33,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainDg0Assembler.hpp"
 #include "MonodomainMatrixBasedAssembler.hpp"
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractCardiacPde<ELEM_DIM,SPACE_DIM>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateCardiacPde()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateCardiacPde()
 {
-    mpMonodomainPde = new MonodomainPde<ELEM_DIM,SPACE_DIM>(this->mpCellFactory);
+    mpMonodomainPde = new MonodomainPde<ELEMENT_DIM,SPACE_DIM>(this->mpCellFactory);
     return mpMonodomainPde;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_DIM, SPACE_DIM>::CreateAssembler()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateAssembler()
 {
     assert(mpMonodomainPde);
 
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        MonodomainDg0Assembler<ELEM_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainDg0Assembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,
+        MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
                                                 mpMonodomainPde,
                                                 this->mpBoundaryConditionsContainer,
                                                 2);
@@ -56,8 +56,8 @@ AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_DI
     }
     else
     {
-        MonodomainMatrixBasedAssembler<ELEM_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainMatrixBasedAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,
+        MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
                                                         mpMonodomainPde,
                                                         this->mpBoundaryConditionsContainer,
                                                         2);
@@ -65,27 +65,27 @@ AbstractDynamicAssemblerMixin<ELEM_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM_DI
     }
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainProblem<ELEM_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCellFactory<ELEM_DIM,SPACE_DIM>* pCellFactory)
-        : AbstractCardiacProblem<ELEM_DIM, SPACE_DIM, 1>(pCellFactory),
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
+        : AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>(pCellFactory),
           mpMonodomainPde(NULL)
 {
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainProblem<ELEM_DIM, SPACE_DIM>::~MonodomainProblem()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::~MonodomainProblem()
 {
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainPde<ELEM_DIM,SPACE_DIM> * MonodomainProblem<ELEM_DIM, SPACE_DIM>::GetMonodomainPde()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MonodomainPde<ELEMENT_DIM,SPACE_DIM> * MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::GetMonodomainPde()
 {
     assert(mpMonodomainPde != NULL);
     return mpMonodomainPde;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MonodomainProblem<ELEM_DIM, SPACE_DIM>::WriteInfo(double time)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
     ReplicatableVector voltage_replicated;
@@ -112,19 +112,19 @@ void MonodomainProblem<ELEM_DIM, SPACE_DIM>::WriteInfo(double time)
     std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MonodomainProblem<ELEM_DIM, SPACE_DIM>::DefineWriterColumns()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::DefineWriterColumns()
 {
-    AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,1>::DefineWriterColumns();
-    AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,1>::DefineExtraVariablesWriterColumns();
+    AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,1>::DefineWriterColumns();
+    AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,1>::DefineExtraVariablesWriterColumns();
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MonodomainProblem<ELEM_DIM, SPACE_DIM>::WriteOneStep(double time, Vec voltageVec)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::WriteOneStep(double time, Vec voltageVec)
 {
     this->mpWriter->PutUnlimitedVariable(time);
     this->mpWriter->PutVector(this->mVoltageColumnId, voltageVec);
-    AbstractCardiacProblem<ELEM_DIM,SPACE_DIM,1>::WriteExtraVariablesOneStep();
+    AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,1>::WriteExtraVariablesOneStep();
 }
 
 

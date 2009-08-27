@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * c(x) du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
  *
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM = ELEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class AbstractLinearParabolicPde
 {
 public:
@@ -84,7 +84,7 @@ public:
      * @param pElement The mesh element that x is contained in (optional).
      * @return A matrix.
      */
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, Element<ELEM_DIM,SPACE_DIM>* pElement=NULL)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(const ChastePoint<SPACE_DIM>& rX, Element<ELEMENT_DIM,SPACE_DIM>* pElement=NULL)=0;
 
     /**
      * Compute linear source term at a node.
@@ -106,14 +106,14 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-double AbstractLinearParabolicPde<ELEM_DIM, SPACE_DIM>::ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& rNode)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>::ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& rNode)
 {
     return ComputeLinearSourceTerm(rNode.GetPoint());
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-double AbstractLinearParabolicPde<ELEM_DIM, SPACE_DIM>::ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>::ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& rNode, double u)
 {
     return ComputeNonlinearSourceTerm(rNode.GetPoint(), u);
 }

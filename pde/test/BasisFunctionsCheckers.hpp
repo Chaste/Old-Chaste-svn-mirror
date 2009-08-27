@@ -40,15 +40,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  NOTE: This is a badly written test, because it assumes evaluationPoints are the nodes in the canonical element, in the correct
  *  order.
  */
-template <unsigned ELEM_DIM>
+template <unsigned ELEMENT_DIM>
 class BasisFunctionsCheckers
 {
 public:
-    void checkLinearBasisFunctions(std::vector<ChastePoint<ELEM_DIM>*> evaluationPoints)
+    void checkLinearBasisFunctions(std::vector<ChastePoint<ELEMENT_DIM>*> evaluationPoints)
     {
         unsigned size = evaluationPoints.size();        // number of evalutation points and basis functions too
 
-        assert(size==ELEM_DIM+1);
+        assert(size==ELEMENT_DIM+1);
 
         std::vector<double> basis_function_vector; // store results of evalutation
 
@@ -56,8 +56,8 @@ public:
 
         for (unsigned point_index=0; point_index<size; point_index++)
         {
-            c_vector<double, ELEM_DIM+1> basis_function_vector;
-            LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
+            c_vector<double, ELEMENT_DIM+1> basis_function_vector;
+            LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
 
             for (unsigned func_index=0; func_index<size; func_index ++)
             {
@@ -74,18 +74,18 @@ public:
                                 1e-12);
 
 
-                TS_ASSERT_DELTA(LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
+                TS_ASSERT_DELTA(LinearBasisFunction<ELEMENT_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
                                 expected_evaluation,
                                 1e-12);
             }
         }
     }
 
-    void checkQuadraticBasisFunctions(std::vector<ChastePoint<ELEM_DIM>*> evaluationPoints)
+    void checkQuadraticBasisFunctions(std::vector<ChastePoint<ELEMENT_DIM>*> evaluationPoints)
     {
         unsigned size = evaluationPoints.size();        // number of evalutation points and basis functions too
 
-        assert(size==(ELEM_DIM+1)*(ELEM_DIM+2)/2);
+        assert(size==(ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
 
         std::vector<double> basis_function_vector; // store results of evalutation
 
@@ -93,8 +93,8 @@ public:
 
         for (unsigned point_index=0; point_index<size; point_index++)
         {
-            c_vector<double, (ELEM_DIM+1)*(ELEM_DIM+2)/2> basis_function_vector;
-            QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
+            c_vector<double, (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2> basis_function_vector;
+            QuadraticBasisFunction<ELEMENT_DIM>::ComputeBasisFunctions(*(evaluationPoints[point_index]), basis_function_vector);
 
             for (unsigned func_index=0; func_index<size; func_index ++)
             {
@@ -111,7 +111,7 @@ public:
                                 1e-12);
 
 
-                TS_ASSERT_DELTA(QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
+                TS_ASSERT_DELTA(QuadraticBasisFunction<ELEMENT_DIM>::ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
                                 expected_evaluation,
                                 1e-12);
             }

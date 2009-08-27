@@ -59,7 +59,7 @@ struct LessThanNode
 /**
  * Abstract boundary conditions container.
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractBoundaryConditionsContainer
 {
 protected:

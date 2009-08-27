@@ -53,18 +53,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Various operations are currently very inefficient - there is certainly scope for
  * optimisation here!
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 public:
 
     /** Type of a read-only iterator over Neumann boundary conditions. */
-    typedef typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM>*, const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
+    typedef typename std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>*, const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         NeumannMapIterator;
 
 private:
 
-    std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >
+    std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >
         *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions. */
 
     /**
@@ -129,7 +129,7 @@ public:
      * @param pBoundaryCondition Pointer to the Neumann boundary condition on that element
      * @param indexOfUnknown defaults to 0
      */
-    void AddNeumannBoundaryCondition(const BoundaryElement<ELEM_DIM-1, SPACE_DIM>* pBoundaryElement,
+    void AddNeumannBoundaryCondition(const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* pBoundaryElement,
                                      const AbstractBoundaryCondition<SPACE_DIM>* pBoundaryCondition,
                                      unsigned indexOfUnknown = 0);
 
@@ -140,7 +140,7 @@ public:
      * @param pMesh Pointer to a mesh object, from which we extract the boundary
      * @param indexOfUnknown defaults to 0
      */
-    void DefineZeroDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineZeroDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                            unsigned indexOfUnknown = 0);
 
     /**
@@ -151,7 +151,7 @@ public:
      * @param value the value of the constant Dirichlet boundary condition
      * @param indexOfUnknown defaults to 0
      */
-    void DefineConstantDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineConstantDirichletOnMeshBoundary(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                                double value,
                                                unsigned indexOfUnknown = 0);
 
@@ -162,7 +162,7 @@ public:
      * @param pMesh Pointer to a mesh object, from which we extract the boundary
      * @param indexOfUnknown defaults to 0
      */
-    void DefineZeroNeumannOnMeshBoundary(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+    void DefineZeroNeumannOnMeshBoundary(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                          unsigned indexOfUnknown = 0);
 
     /**
@@ -221,7 +221,7 @@ public:
      * @param pMesh Pointer to the mesh to check for validity.
      * @return true iff all boundaries have boundary conditions defined.
      */
-    bool Validate(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh);
+    bool Validate(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Obtain value of Neumann boundary condition at a specified point in a given surface element
@@ -232,7 +232,7 @@ public:
      * @param rX a point
      * @param indexOfUnknown defaults to 0
      */
-    double GetNeumannBCValue(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
+    double GetNeumannBCValue(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* pSurfaceElement,
                              const ChastePoint<SPACE_DIM>& rX,
                              unsigned indexOfUnknown = 0);
 
@@ -246,7 +246,7 @@ public:
      * @param pSurfaceElement pointer to a boundary element
      * @param indexOfUnknown defaults to 0
      */
-    bool HasNeumannBoundaryCondition(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement,
+    bool HasNeumannBoundaryCondition(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* pSurfaceElement,
                                      unsigned indexOfUnknown = 0);
 
     /**
