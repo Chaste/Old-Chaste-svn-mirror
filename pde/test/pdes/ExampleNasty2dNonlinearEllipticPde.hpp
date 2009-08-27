@@ -46,7 +46,8 @@ public:
 
     double ComputeNonlinearSourceTerm(const ChastePoint<2>& p, double u)
     {
-        double x = p[0], y = p[1];
+        double x = p[0];
+        double y = p[1];
         return -4*(u*cos(x)*cos(x) + sin(x)*sin(x)*cos(x)*cos(x) + y*y);
     }
 

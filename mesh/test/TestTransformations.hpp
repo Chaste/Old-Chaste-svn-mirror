@@ -152,7 +152,9 @@ public:
 
         double mesh_volume = mesh.GetVolume();
 
-        const double x_movement = 1.0, y_movement = 2.5, z_movement = -3.75;
+        const double x_movement = 1.0;
+        const double y_movement = 2.5;
+        const double z_movement = -3.75;
         mesh.Translate(x_movement, y_movement, z_movement);
 
         ChastePoint<3>  new_coordinate = p_node->GetPoint();

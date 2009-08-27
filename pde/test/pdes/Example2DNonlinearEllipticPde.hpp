@@ -40,7 +40,8 @@ class Example2DNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
 public:
     double ComputeLinearSourceTerm(const ChastePoint<2>& p)
     {
-        double x = p[0], y = p[1];
+        double x = p[0];
+        double y = p[1];
         return -( 4 + 8*x*x + 8*y*y );
     }
 
