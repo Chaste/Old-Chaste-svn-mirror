@@ -355,7 +355,7 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,
     TissueCell* p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(rNewCell, cellDivisionVector, pParentCell);
 
     // Mark spring between parent cell and new cell
-    MarkSpring(*pParentCell,* p_created_cell);
+    MarkSpring(*pParentCell, *p_created_cell);
 
     // Return pointer to new cell
     return p_created_cell;

@@ -374,7 +374,7 @@ public:
 
         std::vector<TissueCell> cells2;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator2;
-        cells_generator2.GenerateForCrypt(cells2,* p_mesh, location_indices, true);
+        cells_generator2.GenerateForCrypt(cells2, *p_mesh, location_indices, true);
 
         MeshBasedTissueWithGhostNodes<2> tissue2(*p_mesh, cells2, location_indices);
 

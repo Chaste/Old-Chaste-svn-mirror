@@ -209,7 +209,7 @@ public:
         fixed_nodes[1] = 5;
 
         ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicityCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
-        QuadraturePointsGroup<2> quad_points(mesh,*(assembler.GetQuadratureRule()));
+        QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
         for(unsigned i=0; i<calcium_conc.size(); i++)
