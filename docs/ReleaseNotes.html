@@ -7,6 +7,24 @@
 
 <h1>Chaste Release Notes</h1>
 
+<h2>THIS_RELEASE (changes since Release 1.1)</h2>
+
+<h3>Library compatibility</h3>
+We have improved Chaste compatibility with its library dependencies:
+<ul>
+<li> MPI - Chaste is known to work with MPICH1 (mpich-1.2.7p1), MPICH2
+(mpich2-1.1.1p1) and OpenMPI (1.2.7).  mpich-1.2.7p1 is recommended.  Note
+that PETSc and HDF5 must be compiled with the same MPI that is used in the
+Chaste configuration.</li>
+<li> HDF5 - Chaste is known to work with version 1.6.6 (recommended) and
+version 1.8.3.</li>
+<li> PETSc - Chaste is known to work with version 2.2, version 2.3
+(recommended) and version 3.0.</li>
+<li> Boost - Chaste is known to work with Boost 1_33 (where there may be
+back-compatibility issues with minor tests), Boost 1_34 (recommended) and
+Boost 1_37.</li>
+</ul>
+
 <h2>Release 1.1 (changes since Release 1.0)</h2>
 
 <h3>General</h3>

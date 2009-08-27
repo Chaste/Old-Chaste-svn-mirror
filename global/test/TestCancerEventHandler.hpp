@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 #include "CancerEventHandler.hpp"
+
+///\todo MPICH2 doesn't like MPI_Wtime used in sequential
 #define MPISLEEP(secs) {double _start=MPI_Wtime(); while (MPI_Wtime()-_start < (secs));}
 /**
  * This class consists of a single test for the CancerEventHandler
