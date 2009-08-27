@@ -51,7 +51,7 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& rFileName, bool boundaryEle
     }
     LoadFromFile(rFileName, boundaryElemFileIsQuadratic, boundaryElemFileHasContainingElementInfo);
 
-    // Check each boundary element has a quadratic number of nodes    
+    // Check each boundary element has a quadratic number of nodes
 #ifndef NDEBUG
     unsigned expected_num_nodes = DIM*(DIM+1)/2;
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
@@ -74,7 +74,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     assert(yEnd>0);
     assert(numElemX>0);
     assert(numElemY>0);
- 
+
     unsigned num_nodes=(numElemX+1)*(numElemY+1);
     struct triangulateio triangle_input;
     triangle_input.pointlist = (double *) malloc( num_nodes * 2 * sizeof(double));
@@ -135,7 +135,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     }
 
     mIsInternalNode.resize(this->GetNumNodes(), true);
-    
+
     // Construct the elements
     this->mElements.reserve(triangle_output.numberoftriangles);
     for (unsigned element_index=0; element_index<(unsigned)triangle_output.numberoftriangles; element_index++)
@@ -189,11 +189,11 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
             this->mBoundaryElements.push_back(new BoundaryElement<DIM-1, DIM>(next_boundary_element_index++, nodes));
         }
     }
-    
+
     this->RefreshJacobianCachedData();
-    
+
     AddNodesToBoundaryElements(false, NULL);
-    
+
     free(triangle_input.pointlist);
 
     free(triangle_output.pointlist);
@@ -227,7 +227,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
     OutputFileHandler handler("");
     out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
 
-   * p_file << (numElemX+1)*(numElemY+1)*(numElemZ+1) << " 3 0 0\n";
+    *p_file << (numElemX+1)*(numElemY+1)*(numElemZ+1) << " 3 0 0\n";
     unsigned node_index = 0;
     for (unsigned k=0; k<=numElemZ; k++)
     {
@@ -240,7 +240,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
                 double z = zEnd*k/numElemZ; //Not yEnd!
 
                 //bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemY) || (k==0) || (k==numElemZ) );
-               * p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
+                *p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
             }
         }
     }
@@ -267,10 +267,10 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
                                               std::string outputDir,
                                               std::string fileStem)
 {
-    
+
     assert(DIM == 3);
     std::string args = "-Qo2";
-    
+
 
     std::string command =  binary + " " + args + " " + outputDir
                            + "/" + fileStem + ".node" + " > /dev/null";
@@ -297,7 +297,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     // load
     LoadFromFile( fileStem + ".1", false, false); // false as tetgen/triangle has been used and therefore boundary elems will be linear
     ///\todo: Could use the '-nn' flag when calling tetgen and then face file would have containing element info and second false
-    // could be a true instead. Currently though there is the intermediate step of having to delete manually the attribute values 
+    // could be a true instead. Currently though there is the intermediate step of having to delete manually the attribute values
     // column after using this flag.
 
     // delete the temporary files
@@ -350,7 +350,7 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
             vertices_mode = false;
         }
     }
-    
+
     mesh_reader.Reset();
 
 
@@ -380,14 +380,14 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
                  ++iter)
             {
                 std::vector<unsigned> nodes = mesh_reader.GetNextFaceData().NodeIndices;
-    
-                assert((*iter)->GetNumNodes()==DIM); // so far just the vertices 
+
+                assert((*iter)->GetNumNodes()==DIM); // so far just the vertices
                 assert(nodes.size()==DIM*(DIM+1)/2); // the reader should have got 6 nodes (3d) for each face
-                
+
                 for (unsigned j=DIM; j<DIM*(DIM+1)/2; j++)
                 {
                     (*iter)->AddNode( this->GetNode(nodes[j]) );
-                } 
+                }
             }
         }
         else
@@ -396,7 +396,7 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
         }
     }
 }
- 
+
 template<unsigned DIM>
 void QuadraticMesh<DIM>::AddNodesToBoundaryElements(bool boundaryElemFileHasContainingElementInfo,
                                                     TrianglesMeshReader<DIM,DIM>* pMeshReader)
@@ -410,7 +410,7 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(bool boundaryElemFileHasCont
             assert(pMeshReader != NULL);
             pMeshReader->Reset();
         }
-        
+
         //unsigned counter = 0;
         for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
                = this->GetBoundaryElementIteratorBegin();
@@ -418,7 +418,7 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(bool boundaryElemFileHasCont
              ++iter)
         {
             //std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << this->GetNumBoundaryElements() << std::flush;
-            
+
             // collect the nodes of this boundary element in a set
             std::set<unsigned> boundary_element_node_indices;
             for (unsigned i=0; i<DIM; i++)
@@ -433,13 +433,13 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(bool boundaryElemFileHasCont
             // Note, if we know what elem it should be in (boundaryElemFileHasContainingElementInfo==true)
             // we will reset elem_index immediately (below)
             for (unsigned elem_index=0; elem_index<this->GetNumElements(); elem_index++)
-            {   
-                // we know what elem it should be in 
+            {
+                // we know what elem it should be in
                 if(boundaryElemFileHasContainingElementInfo)
                 {
                     elem_index = pMeshReader->GetNextFaceData().ContainingElement;
                 }
-                
+
                 Element<DIM,DIM>* p_element = this->GetElement(elem_index);
 
                 // for each element, loop over faces (the opposites to a node)
@@ -469,15 +469,15 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(bool boundaryElemFileHasCont
                 }
 
                 // if the containing element info was given, we should certainly have found the
-                // face first time.  
+                // face first time.
                 if(boundaryElemFileHasContainingElementInfo && !found_this_boundary_element)
                 {
                     #define COVERAGE_IGNORE
                     std::cout << (*iter)->GetIndex() << " " <<  pMeshReader->GetNextFaceData().ContainingElement << "\n";
                     std::stringstream ss;
-                    ss << "Boundary element " << (*iter)->GetIndex() 
-                       << "wasn't found in the containing element given for it " 
-                       << elem_index; 
+                    ss << "Boundary element " << (*iter)->GetIndex()
+                       << "wasn't found in the containing element given for it "
+                       << elem_index;
 
                     EXCEPTION(ss.str());
                     #undef COVERAGE_IGNORE
@@ -588,7 +588,7 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
         expected_num_nodes = 6;
     }
 
-    unsigned num_elements = 0; 
+    unsigned num_elements = 0;
 
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
           = this->GetBoundaryElementIteratorBegin();
@@ -599,7 +599,7 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
         num_elements++;
     }
 
-   * p_file << num_elements << " 0\n";
+    *p_file << num_elements << " 0\n";
 
     unsigned counter = 0;
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
@@ -607,12 +607,12 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
           iter != this->GetBoundaryElementIteratorEnd();
           ++iter)
     {
-       * p_file << counter++ << " ";
+        *p_file << counter++ << " ";
         for (unsigned i=0; i<(*iter)->GetNumNodes(); i++)
         {
-           * p_file << (*iter)->GetNodeGlobalIndex(i) << " ";
+            *p_file << (*iter)->GetNodeGlobalIndex(i) << " ";
         }
-       * p_file << "\n";
+        *p_file << "\n";
     }
 
     p_file->close();

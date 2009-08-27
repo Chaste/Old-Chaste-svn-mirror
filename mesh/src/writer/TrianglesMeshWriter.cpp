@@ -61,26 +61,26 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned max_bdy_marker = 0;
     unsigned num_nodes = this->GetNumNodes();
 
-   * p_node_file << num_nodes << "\t";
-   * p_node_file << SPACE_DIM << "\t";
-   * p_node_file << num_attr << "\t";
-   * p_node_file << max_bdy_marker << "\n";
-   * p_node_file << std::setprecision(20);
+    *p_node_file << num_nodes << "\t";
+    *p_node_file << SPACE_DIM << "\t";
+    *p_node_file << num_attr << "\t";
+    *p_node_file << max_bdy_marker << "\n";
+    *p_node_file << std::setprecision(20);
 
     // Write each node's data
     unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
-       * p_node_file << item_num;
+        *p_node_file << item_num;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
-           * p_node_file << "\t" << current_item[i];
+            *p_node_file << "\t" << current_item[i];
         }
-       * p_node_file << "\t" << default_marker << "\n";
+        *p_node_file << "\t" << default_marker << "\n";
 
     }
-   * p_node_file << comment << "\n";
+    *p_node_file << comment << "\n";
     p_node_file->close();
 
     if (ELEMENT_DIM < SPACE_DIM)
@@ -98,23 +98,23 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned num_elements = this->GetNumElements();
     unsigned nodes_per_element = ELEMENT_DIM+1;
 
-   * p_element_file << num_elements << "\t";
-   * p_element_file << nodes_per_element << "\t";
-   * p_element_file << num_attr << "\n";
+    *p_element_file << num_elements << "\t";
+    *p_element_file << nodes_per_element << "\t";
+    *p_element_file << num_attr << "\n";
 
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->mElementData[item_num];
-       * p_element_file << item_num;
+        *p_element_file << item_num;
         for (unsigned i=0; i<nodes_per_element; i++)
         {
-           * p_element_file << "\t" << current_item[i];
+            *p_element_file << "\t" << current_item[i];
         }
-       * p_element_file << "\n";
+        *p_element_file << "\n";
 
     }
-   * p_element_file << comment << "\n";
+    *p_element_file << comment << "\n";
     p_element_file->close();
 
     // Write boundary face file
@@ -138,22 +138,22 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write the boundary face header
     unsigned num_faces = this->GetNumBoundaryFaces();
 
-   * p_face_file << num_faces << "\t";
-   * p_face_file << max_bdy_marker << "\n";
+    *p_face_file << num_faces << "\t";
+    *p_face_file << max_bdy_marker << "\n";
 
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
         std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
-       * p_face_file << item_num;
+        *p_face_file << item_num;
         for (unsigned i=0; i<ELEMENT_DIM; i++)
         {
-           * p_face_file << "\t" << current_item[i];
+            *p_face_file << "\t" << current_item[i];
         }
-       * p_face_file << "\t" << default_marker << "\n";
+        *p_face_file << "\t" << default_marker << "\n";
 
     }
-   * p_face_file << comment << "\n";
+    *p_face_file << comment << "\n";
     p_face_file->close();
 }
 
@@ -187,23 +187,23 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteElementsAsFaces()
     unsigned nodes_per_element = ELEMENT_DIM+1;
     unsigned num_attr = 0;
 
-   * p_element_file << num_elements << "\t";
+    *p_element_file << num_elements << "\t";
     //*p_element_file << nodes_per_element << "\t";
-   * p_element_file << num_attr << "\n";
+    *p_element_file << num_attr << "\n";
 
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->mElementData[item_num];
-       * p_element_file << item_num;
+        *p_element_file << item_num;
         for (unsigned i=0; i<nodes_per_element; i++)
         {
-           * p_element_file << "\t" << current_item[i];
+            *p_element_file << "\t" << current_item[i];
         }
-       * p_element_file << "\n";
+        *p_element_file << "\n";
 
     }
-   * p_element_file << comment << "\n";
+    *p_element_file << comment << "\n";
     p_element_file->close();
 
 }
@@ -233,22 +233,22 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     unsigned max_bdy_marker = 0;
     unsigned default_marker = 0;
 
-   * p_face_file << num_faces << "\t";
-   * p_face_file << max_bdy_marker << "\n";
+    *p_face_file << num_faces << "\t";
+    *p_face_file << max_bdy_marker << "\n";
 
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
         std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
-       * p_face_file << item_num;
+        *p_face_file << item_num;
         for (unsigned i=0; i<ELEMENT_DIM; i++)
         {
-           * p_face_file << "\t" << current_item[i];
+            *p_face_file << "\t" << current_item[i];
         }
-       * p_face_file << "\t" << default_marker << "\n";
+        *p_face_file << "\t" << default_marker << "\n";
 
     }
-   * p_face_file << comment << "\n";
+    *p_face_file << comment << "\n";
     p_face_file->close();
 }
 

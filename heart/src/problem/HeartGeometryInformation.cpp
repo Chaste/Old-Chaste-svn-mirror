@@ -48,8 +48,8 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SP
                                                               std::string mEpiFile,
                                                               std::string mEndoFile)
    : mrMesh(rMesh)
-{  
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
+{
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
 
     // Get nodes defining each surface
     GetNodesAtSurface(mEpiFile, mEpiSurface);
@@ -59,7 +59,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SP
     distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
     distance_calculator.ComputeDistanceMap(mEndoSurface, mDistMapEndocardium);
 
-    mNumberOfSurfacesProvided = 2; 
+    mNumberOfSurfacesProvided = 2;
 }
 
 template<unsigned SPACE_DIM>
@@ -69,8 +69,8 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::string mRVFile)
     : mrMesh(rMesh)
 {
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
-    
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
+
     // Get nodes defining each surface
     GetNodesAtSurface(mEpiFile, mEpiSurface);
     GetNodesAtSurface(mLVFile, mLVSurface);
@@ -81,7 +81,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
     distance_calculator.ComputeDistanceMap(mLVSurface, mDistMapLeftVentricle);
     distance_calculator.ComputeDistanceMap(mRVSurface, mDistMapRightVentricle);
 
-    mNumberOfSurfacesProvided = 3; 
+    mNumberOfSurfacesProvided = 3;
 }
 
 template<unsigned SPACE_DIM>
@@ -89,16 +89,16 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::vector<unsigned>& rNodesAtEpi,
                                                                std::vector<unsigned>& rNodesAtEndo)
     : mrMesh(rMesh)
-      
+
 {
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
     distance_calculator.ComputeDistanceMap(rNodesAtEndo, mDistMapEndocardium);
 
-    mNumberOfSurfacesProvided = 2; 
-}   
+    mNumberOfSurfacesProvided = 2;
+}
 
 template<unsigned SPACE_DIM>
 HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
@@ -107,14 +107,14 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::vector<unsigned>& rNodesAtRv)
     : mrMesh(rMesh)
 {
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);   
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
     distance_calculator.ComputeDistanceMap(rNodesAtLv, mDistMapLeftVentricle);
     distance_calculator.ComputeDistanceMap(rNodesAtRv, mDistMapRightVentricle);
-    mNumberOfSurfacesProvided = 3; 
-}                                           
+    mNumberOfSurfacesProvided = 3;
+}
 
 
 template<unsigned SPACE_DIM>
@@ -220,7 +220,7 @@ HeartRegionType HeartGeometryInformation<SPACE_DIM>::GetHeartRegion(unsigned nod
 template<unsigned SPACE_DIM>
 double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned nodeIndex)
 {
-    // General case where you provide 3 surfaces: LV, RV, epicardium 
+    // General case where you provide 3 surfaces: LV, RV, epicardium
     if ( mNumberOfSurfacesProvided == 3)
     {
         HeartRegionType node_region = GetHeartRegion(nodeIndex);
@@ -243,7 +243,7 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned nodeIndex
             case HeartRegionCode::RIGHT_SEPTUM:
                 return mDistMapRightVentricle[nodeIndex] ;
                 break;
-    
+
             case HeartRegionCode::UNKNOWN:
                 #define COVERAGE_IGNORE
                 std::cerr << "Wrong distances node: " << nodeIndex << "\t"
@@ -251,13 +251,13 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned nodeIndex
                           << "RV " << mDistMapRightVentricle[nodeIndex] << "\t"
                           << "LV " << mDistMapLeftVentricle[nodeIndex]
                           << std::endl;
-    
+
                 // Make wall_thickness=0 as in Martin's code
                 return 0.0;
                 break;
                 #undef COVERAGE_IGNORE
 
-            default:        
+            default:
                 NEVER_REACHED;
         }
     }
@@ -266,7 +266,7 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned nodeIndex
     {
         return mDistMapEndocardium[nodeIndex];
     }
-    
+
     // gcc wants to see a return statement at the end of the method.
     NEVER_REACHED;
     return 0.0;
@@ -282,12 +282,12 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEpi(unsigned nodeIndex)
 template<unsigned SPACE_DIM>
 double HeartGeometryInformation<SPACE_DIM>::CalculateRelativeWallPosition(unsigned nodeIndex)
 {
-        
+
     double dist_endo = GetDistanceToEndo(nodeIndex);
     double dist_epi = GetDistanceToEpi(nodeIndex);
 
     double relative_position;
-        
+
     if ( (dist_endo + dist_epi) != 0 )
     {
        relative_position = dist_endo / (dist_endo + dist_epi);
@@ -309,7 +309,7 @@ void HeartGeometryInformation<SPACE_DIM>::DetermineLayerForEachNode(double epiFr
     assert(epiFraction+endoFraction<1);
     assert(endoFraction>0);
     assert(epiFraction>0);
-    
+
     mLayerForEachNode.resize(mrMesh.GetNumNodes());
     for(unsigned i=0; i<mrMesh.GetNumNodes(); i++)
     {
@@ -328,7 +328,7 @@ void HeartGeometryInformation<SPACE_DIM>::DetermineLayerForEachNode(double epiFr
         }
     }
 }
-   
+
 
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outputDir, std::string file)
@@ -337,24 +337,24 @@ void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outp
     {
         OutputFileHandler handler(outputDir,false);
         out_stream p_file = handler.OpenOutputFile(file);
-        
+
         assert(mLayerForEachNode.size()>0);
         for(unsigned i=0; i<mrMesh.GetNumNodes(); i++)
         {
             if(mLayerForEachNode[i]==EPI)
             {
-               * p_file << "0\n";
+                *p_file << "0\n";
             }
             else if(mLayerForEachNode[i]==MID)
             {
-               * p_file << "1\n";
+                *p_file << "1\n";
             }
             else // endo
             {
-               * p_file << "2\n";
+                *p_file << "2\n";
             }
         }
-        
+
         p_file->close();
     }
     PetscTools::Barrier(); // Make other processes wait until we're done

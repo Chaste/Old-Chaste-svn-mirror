@@ -80,7 +80,11 @@ private:
 
 
 public:
-    /// Constructor
+    /**
+     *  Constructor
+     *
+     *  @param pCellFactory  Provides the mesh and cells
+     */
     MonodomainPde(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
 
 

@@ -67,7 +67,7 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
         {
             for(unsigned i=0; i<num_nodes; i++)
             {
-               * p_file << repl_data[i] << "\n";
+                *p_file << repl_data[i] << "\n";
             }
         }
     }
@@ -124,7 +124,7 @@ Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
         //Note that we don't want the child processes to create
         //a fresh directory if it doesn't already exist
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-        
+
         out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_times.info");
         unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
        * p_file << "Number of timesteps "<<num_timesteps<<"\n";

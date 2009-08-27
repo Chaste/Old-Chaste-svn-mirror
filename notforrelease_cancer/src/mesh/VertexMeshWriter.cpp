@@ -224,26 +224,26 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned max_bdy_marker = 0;
     unsigned num_nodes = this->GetNumNodes();
 
-   * p_node_file << num_nodes << "\t";
-   * p_node_file << SPACE_DIM << "\t";
-   * p_node_file << num_attr << "\t";
-   * p_node_file << max_bdy_marker << "\n";
-   * p_node_file << std::setprecision(6);
+    *p_node_file << num_nodes << "\t";
+    *p_node_file << SPACE_DIM << "\t";
+    *p_node_file << num_attr << "\t";
+    *p_node_file << max_bdy_marker << "\n";
+    *p_node_file << std::setprecision(6);
 
     // Write each node's data
     unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
-       * p_node_file << item_num;
+        *p_node_file << item_num;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
-           * p_node_file << "\t" << current_item[i];
+            *p_node_file << "\t" << current_item[i];
         }
-       * p_node_file << "\t" << default_marker << "\n";
+        *p_node_file << "\t" << default_marker << "\n";
 
     }
-   * p_node_file << comment << "\n";
+    *p_node_file << comment << "\n";
     p_node_file->close();
 
     // Write element file
@@ -253,22 +253,22 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write the element header
     unsigned num_elements = this->GetNumElements();
 
-   * p_element_file << num_elements << "\t";
-   * p_element_file << num_attr << "\n";
+    *p_element_file << num_elements << "\t";
+    *p_element_file << num_attr << "\n";
 
     // Write each element's data
     /// \todo need to think about how best to do this in 3D (see #866)
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->mElementData[item_num];
-       * p_element_file << item_num;
+        *p_element_file << item_num;
         for (unsigned i=0; i<current_item.size(); i++)
         {
-           * p_element_file << "\t" << current_item[i];
+            *p_element_file << "\t" << current_item[i];
         }
-       * p_element_file << "\n";
+        *p_element_file << "\n";
     }
-   * p_element_file << comment << "\n";
+    *p_element_file << comment << "\n";
     p_element_file->close();
 }
 

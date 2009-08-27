@@ -80,7 +80,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);// true = mature cells
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);

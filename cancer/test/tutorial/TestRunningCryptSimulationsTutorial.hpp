@@ -119,7 +119,7 @@ public:
          * {{{GenerateForCrypt}}} is called. */
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
          * we can create a ''Tissue''. In general, this class associates a collection
@@ -207,7 +207,7 @@ public:
          * Wnt based cell-cycle. This is an ODE based cell cycle. */
         std::vector<TissueCell> cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         /* Create the tissue, as before. */
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);

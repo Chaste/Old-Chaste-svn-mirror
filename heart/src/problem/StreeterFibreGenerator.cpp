@@ -100,7 +100,7 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
             case HeartRegionCode::LEFT_SEPTUM:
                 lv++;
                 break;
-            
+
             case HeartRegionCode::RIGHT_VENTRICLE_SURFACE:
             case HeartRegionCode::RIGHT_VENTRICLE_WALL:
             case HeartRegionCode::RIGHT_SEPTUM:
@@ -172,7 +172,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
     // First line of the fibre file: number of elements of the mesh
     unsigned num_elements = mrMesh.GetNumElements();
-   * p_fibre_file << num_elements << std::endl;
+    *p_fibre_file << num_elements << std::endl;
     // Compute the distance map of each surface
 
 
@@ -194,7 +194,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
                 dist_epi = mpGeometryInfo->rGetDistanceMapEpicardium()[node_index];
                 dist_endo = mpGeometryInfo->rGetDistanceMapLeftVentricle()[node_index];
                 break;
-                
+
             case HeartRegionCode::RIGHT_VENTRICLE_SURFACE:
             case HeartRegionCode::RIGHT_VENTRICLE_WALL:
                 dist_epi = mpGeometryInfo->rGetDistanceMapEpicardium()[node_index];
@@ -224,8 +224,8 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
                 dist_endo = 0;
                 break;
                 #undef COVERAGE_IGNORE
-                
-            default:        
+
+            default:
                 NEVER_REACHED;
         }
 
@@ -244,8 +244,8 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
         if (logInfo)
         {
-           * p_regions_file << node_region*100 << "\n";
-           * p_thickness_file << wall_thickness[node_index] << "\n";
+            *p_regions_file << node_region*100 << "\n";
+            *p_thickness_file << wall_thickness[node_index] << "\n";
         }
     }
 
@@ -259,7 +259,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
         if (logInfo)
         {
-           * p_ave_thickness_file << averaged_wall_thickness[node_index] << "\n";
+            *p_ave_thickness_file << averaged_wall_thickness[node_index] << "\n";
         }
 
     }
@@ -324,7 +324,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
 
         if (logInfo)
         {
-           * p_grad_thickness_file << grad_ave_wall_thickness[0] << " " << grad_ave_wall_thickness[1] << " " << grad_ave_wall_thickness[2] << std::endl;
+            *p_grad_thickness_file << grad_ave_wall_thickness[0] << " " << grad_ave_wall_thickness[1] << " " << grad_ave_wall_thickness[2] << std::endl;
         }
 
         /*
@@ -396,7 +396,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
          *  See Fig. 1 "Laminar Structure of the Heart: a mathematical model" LeGrice et al. 97
          *
          */
-       * p_fibre_file << rotated_fibre_direction[0]     << " " << rotated_fibre_direction[1]     << " "  << rotated_fibre_direction[2]     << " "
+        *p_fibre_file << rotated_fibre_direction[0]     << " " << rotated_fibre_direction[1]     << " "  << rotated_fibre_direction[2]     << " "
                       << grad_ave_wall_thickness[0]     << " " << grad_ave_wall_thickness[1]     << " "  << grad_ave_wall_thickness[2]     << " "
                       << rotated_longitude_direction[0] << " " << rotated_longitude_direction[1] << " "  << rotated_longitude_direction[2] << std::endl;
     }

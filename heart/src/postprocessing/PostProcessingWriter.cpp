@@ -50,48 +50,48 @@ PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::PostProcessingWriter(TetrahedralMe
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WritePostProcessingFiles()
 {
-// Please note that only the master processor should write to file. 
+// Please note that only the master processor should write to file.
 // Each of the private methods called here takes care of checking.
 
-    if (HeartConfig::Instance()->IsApdMapsRequested()) 
+    if (HeartConfig::Instance()->IsApdMapsRequested())
     {
         std::vector<std::pair<double,double> > apd_maps;
         HeartConfig::Instance()->GetApdMaps(apd_maps);
-        for (unsigned i=0; i<apd_maps.size(); i++) 
+        for (unsigned i=0; i<apd_maps.size(); i++)
         {
             WriteApdMapFile(apd_maps[i].first, apd_maps[i].second);
         }
     }
-    
-    if (HeartConfig::Instance()->IsUpstrokeTimeMapsRequested()) 
+
+    if (HeartConfig::Instance()->IsUpstrokeTimeMapsRequested())
     {
         std::vector<double> upstroke_time_maps;
         HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_maps);
-        for (unsigned i=0; i<upstroke_time_maps.size(); i++) 
+        for (unsigned i=0; i<upstroke_time_maps.size(); i++)
         {
             WriteUpstrokeTimeMap(upstroke_time_maps[i]);
         }
     }
-    
-    if (HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested()) 
+
+    if (HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested())
     {
         std::vector<double> upstroke_velocity_maps;
         HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_maps);
-        for (unsigned i=0; i<upstroke_velocity_maps.size(); i++) 
+        for (unsigned i=0; i<upstroke_velocity_maps.size(); i++)
         {
             WriteMaxUpstrokeVelocityMap(upstroke_velocity_maps[i]);
         }
     }
 
-    if (HeartConfig::Instance()->IsConductionVelocityMapsRequested()) 
+    if (HeartConfig::Instance()->IsConductionVelocityMapsRequested())
     {
         std::vector<unsigned> conduction_velocity_maps;
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps);
-        
+
         //get the mesh here
         DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM> dist_map_calculator(mrMesh);
-        
-        for (unsigned i=0; i<conduction_velocity_maps.size(); i++) 
+
+        for (unsigned i=0; i<conduction_velocity_maps.size(); i++)
         {
             std::vector<double> distance_map;
             std::vector<unsigned> origin_surface;
@@ -100,9 +100,9 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WritePostProcessingFiles()
             WriteConductionVelocityMap(conduction_velocity_maps[i], distance_map);
         }
     }
-} 
-    
-    
+}
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::~PostProcessingWriter()
 {
@@ -113,7 +113,7 @@ PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::~PostProcessingWriter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
-    
+
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
@@ -122,7 +122,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
-        { 
+        {
             std::vector<double> apds;
             try
             {
@@ -130,15 +130,15 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
                 assert(apds.size() != 0);
             }
             catch(Exception& e)
-            {                    
+            {
                 apds.push_back(0);
                 assert(apds.size() == 1);
             }
             for (unsigned i = 0; i < apds.size(); i++)
             {
-               * p_file << apds[i] << "\t";
+                *p_file << apds[i] << "\t";
             }
-           * p_file << std::endl;
+            *p_file << std::endl;
         }
         p_file->close();
     }
@@ -146,7 +146,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double threshold)
-{    
+{
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
@@ -155,14 +155,14 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double t
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
-        { 
+        {
             std::vector<double> upstroke_times;
             upstroke_times = mpCalculator->CalculateUpstrokeTimes(node_index, threshold);
             for (unsigned i = 0; i < upstroke_times.size(); i++)
             {
-               * p_file << upstroke_times[i] << "\t";
+                *p_file << upstroke_times[i] << "\t";
             }
-           * p_file << std::endl;
+            *p_file << std::endl;
         }
         p_file->close();
     }
@@ -179,14 +179,14 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(d
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
-        { 
+        {
             std::vector<double> upstroke_velocities;
             upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
             for (unsigned i = 0; i < upstroke_velocities.size(); i++)
             {
-               * p_file << upstroke_velocities[i] << "\t";
+                *p_file << upstroke_velocities[i] << "\t";
             }
-           * p_file << std::endl;
+            *p_file << std::endl;
          }
          p_file->close();
     }
@@ -199,12 +199,12 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(un
     {
         out_stream p_file=out_stream(NULL);
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-        
+
         std::stringstream filename;
-        filename << "ConductionVelocityFromNode" << originNode << ".dat";               
+        filename << "ConductionVelocityFromNode" << originNode << ".dat";
         p_file = output_file_handler.OpenOutputFile(filename.str());
         for (unsigned dest_node = 0; dest_node < mNumberOfNodes; dest_node++)
-        { 
+        {
             std::vector<double> conduction_velocities;
             try
             {
@@ -212,18 +212,18 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(un
                 assert(conduction_velocities.size() != 0);
             }
             catch(Exception& e)
-            {                    
+            {
                 conduction_velocities.push_back(0);
                 assert(conduction_velocities.size() == 1);
             }
             for (unsigned i = 0; i < conduction_velocities.size(); i++)
             {
-               * p_file << conduction_velocities[i] << "\t";
+                *p_file << conduction_velocities[i] << "\t";
             }
-           * p_file << std::endl;
+            *p_file << std::endl;
          }
          p_file->close();
-    }        
+    }
 }
 
 /////////////////////////////////////////////////////////////////////

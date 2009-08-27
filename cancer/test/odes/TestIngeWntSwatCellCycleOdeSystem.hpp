@@ -617,7 +617,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
-        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         for (unsigned i=0; i<cells.size(); i++)
         {

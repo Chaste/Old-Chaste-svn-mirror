@@ -104,7 +104,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         StochasticWntCellCycleModelCellsGenerator<2> cell_generator;
-        cell_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
+        cell_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
@@ -224,7 +224,7 @@ public:
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);

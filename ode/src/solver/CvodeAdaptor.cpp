@@ -62,7 +62,7 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData)
     CvodeData* p_data = (CvodeData*) pData;
     // Get y, ydot into std::vector<>s
     static std::vector<realtype> ydot_vec;
-    CopyToStdVector(y, * p_data->pY);
+    CopyToStdVector(y, *p_data->pY);
     CopyToStdVector(ydot, ydot_vec);
     // Call our function
     try
@@ -85,11 +85,11 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
     assert(pData != NULL);
     CvodeData* p_data = (CvodeData*) pData;
     // Get y into a std::vector
-    CopyToStdVector(y, * p_data->pY);
+    CopyToStdVector(y, *p_data->pY);
     // Call our function
     try
     {
-       * pGOut = p_data->pSystem->CalculateRootFunction(t, * p_data->pY);
+        *pGOut = p_data->pSystem->CalculateRootFunction(t, *p_data->pY);
     }
     catch (Exception &e)
     {
