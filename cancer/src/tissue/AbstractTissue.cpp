@@ -163,7 +163,7 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
     // Unless this pointer is null, return a reference to the cell
     if (p_cell)
     {
-        return* p_cell;
+        return *p_cell;
     }
     else
     {
