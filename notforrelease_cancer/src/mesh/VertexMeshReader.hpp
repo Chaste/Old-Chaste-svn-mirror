@@ -138,7 +138,6 @@ public:
      */
     unsigned GetNumElementAttributes() const;
 
-#define COVERAGE_IGNORE /// \todo Implement methods and remove coverage ignore
     /**
      * Returns the number of faces in the mesh (synonym of GetNumEdges()).
      */
@@ -151,7 +150,6 @@ public:
 
     /** Returns the number of edges in the mesh (synonym of GetNumFaces()) */
     unsigned GetNumEdges() const;
-#undef COVERAGE_IGNORE
 
     /**
      * Reset pointers to beginning.

@@ -946,10 +946,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
                         {
                             if (ElementIncludesPoint(p_current_node->rGetLocation(), other_iter->GetIndex()))
                             {
-                                #define COVERAGE_IGNORE
-                                ///\todo Fix this coverage
                                 MoveOverlappingNodeOntoEdgeOfElement(p_current_node, other_iter->GetIndex());
-                                #undef COVERAGE_IGNORE
                             }
                         }
                     }
@@ -1163,9 +1160,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                     }
                     else
                     {
-                        #define COVERAGE_IGNORE
                         EXCEPTION("One of the nodes must be contained in three elements and the other must be contained in two elements");
-                        #undef  COVERAGE_IGNORE
                     }
 
                     std::set<unsigned> node_alpha_elem_indices = p_node_alpha->rGetContainingElementIndices();
@@ -1191,9 +1186,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                     }
                     else
                     {
-                        #define COVERAGE_IGNORE
                         EXCEPTION("At least one of node_alpha_local_index_before or .._after should be p_node_beta");
-                        #undef  COVERAGE_IGNORE
                     }
 
                     std::set<unsigned> node_beta_elem_indices = p_node_beta->rGetContainingElementIndices();
@@ -1242,9 +1235,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                     }
                     else
                     {
-                        #define COVERAGE_IGNORE
                         EXCEPTION("The intersection should be of length 1 or 2");
-                        #undef  COVERAGE_IGNORE
                     }
                 }
                 break;
@@ -1316,9 +1307,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
         else
         {
             // Replace the high-index node with the low-index node in this element
-#define COVERAGE_IGNORE ///\todo Fix coverage
             mElements[*it]->UpdateNode(hi_node_local_index, p_lo_node);
-#undef COVERAGE_IGNORE
         }
     }
     assert(!(this->mNodes[hi_node_index]->IsDeleted()));
@@ -1611,9 +1600,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(VertexE
     // If the axis of division doesn not cross two edges then we cannot proceed
     if (intersecting_nodes.size() != 2)
     {
-        #define COVERAGE_IGNORE
         EXCEPTION("Cannot proceed with element division: the given axis of division does not cross two edges of the element");
-        #undef COVERAGE_IGNORE
     }
 
     std::vector<unsigned> division_node_global_indices;
