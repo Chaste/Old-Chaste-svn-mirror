@@ -71,10 +71,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // In Boost since 1.36.0, we need to use assume_abstract...
 #include <boost/serialization/assume_abstract.hpp>
 
-///Macro for 1.36 and later
+/**
+ * Explicitly mark a non-templated class as being abstract
+ * (Boost 1.36 and later).
+ * @param T  the class
+ */
 #define CLASS_IS_ABSTRACT(T) BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
-///Macro for 1.36 and later
+/**
+ * Content of the is_abstract type to mark a templated class as abstract
+ * (Boost 1.36 and later).
+ */
 #define TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
     : boost::true_type {};
 
@@ -83,10 +90,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // In Boost before 1.36.0, we use is_abstract...
 #include <boost/serialization/is_abstract.hpp>
 
-///Macro for 1.35 and previous
+/**
+ * Explicitly mark a non-templated class as being abstract
+ * (Boost 1.35 and earlier).
+ * @param T  the class
+ */
 #define CLASS_IS_ABSTRACT(T) BOOST_IS_ABSTRACT(T)
 
-///Macro for 1.35 and previous
+/**
+ * Content of the is_abstract type to mark a templated class as abstract
+ * (Boost 1.35 and earlier).
+ */
 #define TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
     { \
         typedef mpl::bool_<true> type; \
@@ -95,7 +109,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #endif // BOOST_VERSION >= 103600
 
-///Helper macro for an abstract class templated over two unsigneds
+/**
+ * Convenience macro to declare a class templated over a single unsigned
+ * as abstract.
+ * @param T  the class
+ */
+#define TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(T) \
+    namespace boost { \
+    namespace serialization { \
+    template<unsigned U> \
+    struct is_abstract<T<U> > \
+        TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
+    template<unsigned U> \
+    struct is_abstract<const T<U> > \
+        TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
+    }}
+
+/**
+ * Convenience macro to declare a class templated over 2 unsigneds
+ * as abstract.
+ * @param T  the class
+ */
 #define TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(T) \
     namespace boost { \
     namespace serialization { \
@@ -107,15 +141,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
     }}
 
-///Helper macro for an abstract class templated over a single unsigned
-#define TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(T) \
+/**
+ * Convenience macro to declare a class templated over 3 unsigneds
+ * as abstract.
+ * @param T  the class
+ */
+#define TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(T) \
     namespace boost { \
     namespace serialization { \
-    template<unsigned U> \
-    struct is_abstract<T<U> > \
+    template<unsigned U1, unsigned U2, unsigned U3> \
+    struct is_abstract<T<U1, U2, U3> > \
         TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
-    template<unsigned U> \
-    struct is_abstract<const T<U> > \
+    template<unsigned U1, unsigned U2, unsigned U3> \
+    struct is_abstract<const T<U1, U2, U3> > \
         TEMPLATED_CLASS_IS_ABSTRACT_DEFN \
     }}
 
