@@ -36,6 +36,7 @@ specifying where to find libraries and tools.  In each case, if the library or
 tool is not present, the variable should be set to None.  These variables are:
  * petsc_2_2_path - path to PETSc 2.2 install
  * petsc_2_3_path - path to PETSc 2.3 install
+ * petsc_3_0_path - path to PETSc 3.0 install
  * dealii_path    - path to Deal.II install
  * metis_path     - path to METIS install
  * intel_path     - path to Intel compiler installation
@@ -99,14 +100,20 @@ def do_petsc(version, optimised, profile=False, production=False, includes_only=
     The locations vary depending on the version of PETSc, and possibly
     whether optimised libraries are to be used.
 
-    The version can be given as 2_2 or 2_3 to choose PETSc minor version.
-    If a host doesn't support 2.3, we attempt to use 2.2 instead.  A
-    ValueError is raised if 2.2 isn't present when asked for.
+    The version can be given as 2_2, 2_3 or 3_0 to choose PETSc version.
+    If a host doesn't support 3.0 we attempt to use 2.3 or 2.2 respectively.
+    A ValueError is raised if 2.2 isn't present when asked for.
 
     Set optimised to True to use optimised builds of the libraries rather
     than debug builds.
     Set profile to True to use profile builds of PETSc.
     """
+    conf.petsc_2_2_path = getattr(conf, 'petsc_2_2_path', None)
+    conf.petsc_2_3_path = getattr(conf, 'petsc_2_3_path', None)
+    conf.petsc_3_0_path = getattr(conf, 'petsc_3_0_path', None)
+    if version == '3_0' and conf.petsc_3_0_path is None:
+        # Use 2.3 instead
+        version = '2_3'
     if version == '2_3' and conf.petsc_2_3_path is None:
         # Use 2.2 instead
         version = '2_2'
@@ -126,7 +133,7 @@ def do_petsc(version, optimised, profile=False, production=False, includes_only=
         else:
             raise ValueError('No PETSc 2.2 libraries found.')
         incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
-    else:
+    elif version == '2_3':
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
         if production:
             build_name = conf.petsc_build_name_production
@@ -139,6 +146,19 @@ def do_petsc(version, optimised, profile=False, production=False, includes_only=
             build_name = conf.petsc_build_name
         libpath = os.path.join(petsc_base, 'lib', build_name)
         incpaths.append(os.path.join(petsc_base, 'bmake', build_name))
+    else: #version == '3_0'
+        petsc_base = os.path.abspath(conf.petsc_3_0_path)
+        if production:
+            build_name = conf.petsc_build_name_production
+        elif profile:
+            optimised = False
+            build_name = conf.petsc_build_name_profile
+        elif optimised:
+            build_name = conf.petsc_build_name_optimized
+        else:
+            build_name = conf.petsc_build_name
+        libpath = os.path.join(petsc_base, build_name, 'lib')
+        incpaths.append(os.path.join(petsc_base, build_name, 'include'))
     incpaths.append(os.path.join(petsc_base, 'include'))
     if not includes_only:
         libpaths.append(libpath)
@@ -205,7 +225,7 @@ def configure(build):
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
-        do_petsc('2_3', build.is_optimised, build.is_profile, build.is_production) # PETSc links against some objects defined in "other_libraries"
+        do_petsc('3_0', build.is_optimised, build.is_profile, build.is_production) # PETSc links against some objects defined in "other_libraries"
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         if build.is_production:
             libraries.extend(conf.blas_lapack_production)
