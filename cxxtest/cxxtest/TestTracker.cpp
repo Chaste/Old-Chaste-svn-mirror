@@ -185,7 +185,7 @@ namespace CxxTest
     }
 
     void TestTracker::failedAssertPredicate( const char *file, unsigned line,
-                                             const char *predicate, const char *xStr, const char *x )
+                                             const char* predicate, const char *xStr, const char *x )
     {
         countFailure();
         _l->failedAssertPredicate( file, line, predicate, xStr, x );

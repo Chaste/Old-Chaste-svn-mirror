@@ -1236,7 +1236,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('#include "AbstractCardiacCells.hpp"')
             base_class_name = 'AbstractCardiacCells'
             # Keep the same constructor signature as normal
-            solver1 = 'AbstractIvpOdeSolver *pSolver /* unused; should be NULL */, '
+            solver1 = 'AbstractIvpOdeSolver* pSolver /* unused; should be NULL */, '
             solver2 = ''
         elif self.use_backward_euler:
             self.writeln('#include "AbstractBackwardEulerCardiacCell.hpp"')

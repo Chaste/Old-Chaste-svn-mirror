@@ -108,7 +108,7 @@ public :
     virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec initialGuess,
-                      void *pContext);
+                      void* pContext);
 
     /**
      * Set a tolerance other than the default.

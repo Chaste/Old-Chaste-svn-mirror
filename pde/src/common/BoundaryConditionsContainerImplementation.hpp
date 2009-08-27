@@ -143,7 +143,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineConst
     //In applying a condition to the boundary, we need to be sure that the boundary exists
     assert(pMesh->GetNumBoundaryNodes() > 0);
 
-    ConstBoundaryCondition<SPACE_DIM> *p_boundary_condition =
+    ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition =
         new ConstBoundaryCondition<SPACE_DIM>( value );
 
     typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
@@ -156,13 +156,13 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineConst
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeumannOnMeshBoundary(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh,
+void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroNeumannOnMeshBoundary(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                          unsigned indexOfUnknown)
 {
     assert(indexOfUnknown < PROBLEM_DIM);
     //In applying a condition to the boundary, we need to be sure that the boundary exists
     assert(pMesh->GetNumBoundaryElements() > 0);
-    ConstBoundaryCondition<SPACE_DIM> *p_zero_boundary_condition =
+    ConstBoundaryCondition<SPACE_DIM>* p_zero_boundary_condition =
         new ConstBoundaryCondition<SPACE_DIM>( 0.0 );
 
     typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator iter;

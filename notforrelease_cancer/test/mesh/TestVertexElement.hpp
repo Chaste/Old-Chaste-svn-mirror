@@ -74,7 +74,7 @@ public:
         TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
 
         // Add new node
-        Node<2> *p_new_node = new Node<2>(4, false, 0.0, 0.0);
+        Node<2>* p_new_node = new Node<2>(4, false, 0.0, 0.0);
         vertex_element.AddNode(3, p_new_node); // Add node at (0,0) between nodes 3 and 0
 
         // Test node is added
@@ -155,7 +155,7 @@ public:
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.0, 1e-12);
 
         // Update location of node 2
-        Node<2> *p_node = new Node<2>(4, false, 1.2, 1.3);
+        Node<2>* p_node = new Node<2>(4, false, 1.2, 1.3);
         vertex_element.UpdateNode(2, p_node);
 
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.2, 1e-12);

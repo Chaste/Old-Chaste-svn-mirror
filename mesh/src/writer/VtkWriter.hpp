@@ -111,7 +111,7 @@ template <unsigned DIM>
 void VtkWriter<DIM>::MakeVtkMesh()
 {
     assert(DIM==3 || DIM == 2);
-    vtkPoints *p_pts = vtkPoints::New(VTK_DOUBLE);
+    vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
     //p_pts->SetDataTypeToDouble();
     p_pts->GetData()->SetName("Vertex positions");
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
@@ -132,7 +132,7 @@ void VtkWriter<DIM>::MakeVtkMesh()
     {
         std::vector<unsigned> current_element = this->mElementData[item_num];
         assert(current_element.size() == DIM + 1);
-        vtkCell *p_cell;
+        vtkCell* p_cell;
         if (DIM == 3)
         {
             p_cell = vtkTetra::New();
@@ -141,7 +141,7 @@ void VtkWriter<DIM>::MakeVtkMesh()
         {
             p_cell = vtkTriangle::New();
         }
-        vtkIdList *p_cell_id_list = p_cell->GetPointIds();
+        vtkIdList* p_cell_id_list = p_cell->GetPointIds();
         for (unsigned j = 0; j < DIM+1; ++j)
         {
             p_cell_id_list->SetId(j, current_element[j]);
@@ -156,7 +156,7 @@ void VtkWriter<DIM>::WriteFiles()
 {
     MakeVtkMesh();
     assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
-    vtkXMLUnstructuredGridWriter *p_writer = vtkXMLUnstructuredGridWriter::New();
+    vtkXMLUnstructuredGridWriter* p_writer = vtkXMLUnstructuredGridWriter::New();
     p_writer->SetInput(mpVtkUnstructedMesh);
     //Uninitialised stuff arises (see #1079), but you can remove
     //valgrind problems by removing compression:
@@ -173,14 +173,14 @@ void VtkWriter<DIM>::WriteFiles()
 template <unsigned DIM>
 void VtkWriter<DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
 {
-    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
     for (unsigned i=0; i<dataPayload.size(); i++)
     {
         p_scalars->InsertNextValue(dataPayload[i]);
     }
 
-    vtkCellData *p_cell_data = mpVtkUnstructedMesh->GetCellData();
+    vtkCellData* p_cell_data = mpVtkUnstructedMesh->GetCellData();
     p_cell_data->AddArray(p_scalars);
     p_scalars->Delete(); //Reference counted
 }
@@ -188,14 +188,14 @@ void VtkWriter<DIM>::AddCellData(std::string dataName, std::vector<double> dataP
 template <unsigned DIM>
 void VtkWriter<DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
 {
-    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
     for (unsigned i=0; i<dataPayload.size(); i++)
     {
         p_scalars->InsertNextValue(dataPayload[i]);
     }
 
-    vtkPointData *p_point_data = mpVtkUnstructedMesh->GetPointData();
+    vtkPointData* p_point_data = mpVtkUnstructedMesh->GetPointData();
     p_point_data->AddArray(p_scalars);
     p_scalars->Delete(); //Reference counted
 

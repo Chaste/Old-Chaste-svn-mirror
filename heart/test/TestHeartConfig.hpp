@@ -623,7 +623,7 @@ public :
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
         boost::archive::text_iarchive input_arch(ifs);
 
-        HeartConfig *p_heart_config = HeartConfig::Instance();
+        HeartConfig* p_heart_config = HeartConfig::Instance();
         input_arch >> (*p_heart_config);
 
         TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());

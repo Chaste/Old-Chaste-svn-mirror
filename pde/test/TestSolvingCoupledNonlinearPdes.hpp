@@ -417,8 +417,8 @@ public:
 
         // du/dn = -0.5 on r=1
         TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2> *p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
-        ConstBoundaryCondition<2> *p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition,0);
@@ -510,11 +510,11 @@ public:
             double y = (*iter)->GetPoint()[1];
 
             // apply bc u=x^2
-            ConstBoundaryCondition<2> *p_boundary_condition = new ConstBoundaryCondition<2>(x*x);
+            ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(x*x);
             bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition, 0);
 
             // apply bc v=x^2
-            ConstBoundaryCondition<2> *p_boundary_condition1 = new ConstBoundaryCondition<2>(y);
+            ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(y);
             bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition1, 1);
             iter++;
         }

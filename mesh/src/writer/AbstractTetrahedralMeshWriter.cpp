@@ -51,7 +51,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     unsigned new_index = 0;
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
     {
-        Node<SPACE_DIM> *p_node = rMesh.GetNode(i);
+        Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
 
         if (p_node->IsDeleted() == false)
         {
@@ -114,7 +114,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     unsigned new_index = 0;
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
     {
-        Node<SPACE_DIM> *p_node = rMesh.GetNode(i);
+        Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
 
         if (p_node->IsDeleted() == false)
         {
@@ -135,7 +135,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllElements(); i++)
     {
-        Element<ELEMENT_DIM, SPACE_DIM> *p_element = rMesh.GetElement(i);
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element = rMesh.GetElement(i);
 
         if (p_element->IsDeleted() == false)
         {
@@ -152,7 +152,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllBoundaryElements(); i++)
     {
-        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *p_boundary_element = rMesh.GetBoundaryElement(i);
+        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = rMesh.GetBoundaryElement(i);
         if (p_boundary_element->IsDeleted() == false)
         {
             std::vector<unsigned> indices(ELEMENT_DIM);

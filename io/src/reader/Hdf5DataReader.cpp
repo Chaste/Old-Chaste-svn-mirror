@@ -291,7 +291,7 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data,
     hid_t hyperslab_space = H5Dget_space(mVariablesDatasetId);
     H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, offset, NULL, count, NULL);
 
-    double *p_petsc_vector;
+    double* p_petsc_vector;
     VecGetArray(data, &p_petsc_vector);
     herr_t err;
     err=H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, H5P_DEFAULT, p_petsc_vector);

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include "RunAndCheckIonicModels.hpp"
 
-void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
+void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
                                 double endTime,
                                 std::string filename,
                                 int stepPerRow,

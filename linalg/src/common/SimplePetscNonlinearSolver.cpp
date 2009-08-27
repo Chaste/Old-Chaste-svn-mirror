@@ -72,7 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                                       Vec initialGuess,
-                                      void *pContext)
+                                      void* pContext)
 {
     SNES snes;
 

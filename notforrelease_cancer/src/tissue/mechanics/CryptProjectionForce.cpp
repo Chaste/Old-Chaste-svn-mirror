@@ -97,7 +97,7 @@ double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(c_vector<dou
 c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<2>& rTissue)
 {
     assert(rTissue.HasMesh());
-    MeshBasedTissue<2> *p_static_cast_tissue = static_cast<MeshBasedTissue<2>*>(&rTissue);
+    MeshBasedTissue<2>* p_static_cast_tissue = static_cast<MeshBasedTissue<2>*>(&rTissue);
 
     // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex != nodeBGlobalIndex);
@@ -237,7 +237,7 @@ void CryptProjectionForce::AddForceContribution(std::vector<c_vector<double,2> >
     UpdateNode3dLocationMap(rTissue);
 
     assert(rTissue.HasMesh());
-    MeshBasedTissue<2> *p_static_cast_tissue = static_cast<MeshBasedTissue<2>*>(&rTissue);
+    MeshBasedTissue<2>* p_static_cast_tissue = static_cast<MeshBasedTissue<2>*>(&rTissue);
 
     for (MeshBasedTissue<2>::SpringIterator spring_iterator = p_static_cast_tissue->SpringsBegin();
          spring_iterator != p_static_cast_tissue->SpringsEnd();

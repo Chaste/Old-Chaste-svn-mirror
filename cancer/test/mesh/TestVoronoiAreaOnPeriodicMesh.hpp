@@ -41,7 +41,7 @@ class TestVoronoiAreaOnPeriodicMesh : public CxxTest::TestSuite
 public:
     void TestTessellation2NodesOn2dPeriodic() throw (Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -49,7 +49,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         TS_ASSERT(p_mesh->CheckVoronoi());
         TS_ASSERT_DELTA(p_params->GetCryptWidth(),6.0,1e-6);

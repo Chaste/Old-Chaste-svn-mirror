@@ -80,7 +80,7 @@ public:
          * The cxxtest_argc and cxxtest_argv variables are global, and filled in
          * from the arguments passed to the cxxtest test suite runner.
          */
-        PetscArguments *p_args = PetscArguments::Instance();
+        PetscArguments* p_args = PetscArguments::Instance();
         PETSCEXCEPT(PetscInitialize(p_args->p_argc, p_args->p_argv,
                                     PETSC_NULL, PETSC_NULL) );
 

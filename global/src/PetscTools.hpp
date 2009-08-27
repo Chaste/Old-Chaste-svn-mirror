@@ -180,7 +180,7 @@ public:
 //        VecGetSize(vec, &size);
 //        assert((int)index<size);
 //
-//        double *p_data;
+//        double* p_data;
 //        VecGetArray(vec, &p_data);
 //        double ret = p_data[(int)index];
 //        VecRestoreArray(vec, &p_data);

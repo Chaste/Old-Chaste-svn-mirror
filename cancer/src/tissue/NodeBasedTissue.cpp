@@ -67,7 +67,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
     // Copy the actual node objects from mesh to this (mesh-less) tissue.
     for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
-        Node<DIM> *p_node = new Node<DIM>(*(rMesh.GetNode(i)));
+        Node<DIM>* p_node = new Node<DIM>(*(rMesh.GetNode(i)));
         mNodes.push_back(p_node);
     }
     mAddedNodes = true;
@@ -240,7 +240,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         for (unsigned i=0; i<old_nodes.size(); i++)
         {
             // Get the living cell associated with the old node
-            TissueCell *p_live_cell = old_map[old_nodes[i]->GetIndex()];
+            TissueCell* p_live_cell = old_map[old_nodes[i]->GetIndex()];
 
             // Set the node up
             mNodes.push_back(old_nodes[i]);

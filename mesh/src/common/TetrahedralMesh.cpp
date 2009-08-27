@@ -107,7 +107,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
         }
 
-        Element<ELEMENT_DIM,SPACE_DIM> *p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
+        Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
         this->mElements.push_back(p_element);
 
         if (rMeshReader.GetNumElementAttributes() > 0)
@@ -205,7 +205,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
 
             // The added elements will be deleted in our destructor
-            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> *p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
+            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
             this->mBoundaryElements.push_back(p_boundary_element);
 
             if (rMeshReader.GetNumFaceAttributes() > 0)
@@ -449,7 +449,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(double theta)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
-    RandomNumberGenerator *p_rng = RandomNumberGenerator::Instance();
+    RandomNumberGenerator* p_rng = RandomNumberGenerator::Instance();
 
     // Working from the back, each node is swapped with a random node that precedes it in the array
     for (unsigned index=this->mNodes.size()-1; index>0; index--)
@@ -633,7 +633,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width
 
     for (unsigned node_index=0; node_index<=width; node_index++)
     {
-        Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, node_index==0 || node_index==width, node_index);
+        Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, node_index==0 || node_index==width, node_index);
         this->mNodes.push_back(p_node); // create node
         if (node_index==0) // create left boundary node and boundary element
         {
@@ -674,7 +674,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
             {
                 is_boundary=true;
             }
-            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j);
             this->mNodes.push_back(p_node);
             if (is_boundary)
             {
@@ -866,7 +866,7 @@ std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElem
 //    assert(hi>=lo);
 //    for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
 //    {
-//        Element<ELEMENT_DIM, SPACE_DIM> *p_element=this->mElements[element_index];
+//        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
 //        p_element->SetOwnership(false);
 //        for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
 //        {
@@ -904,7 +904,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                     is_boundary = true;
                 }
 
-                Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j, k);
+                Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j, k);
 
                 this->mNodes.push_back(p_node);
                 if (is_boundary)
@@ -1280,7 +1280,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::GetNodeA()
 {
     assert((*this) != mrMesh.EdgesEnd());
-    Element<ELEMENT_DIM,SPACE_DIM> *p_element = mrMesh.GetElement(mElemIndex);
+    Element<ELEMENT_DIM,SPACE_DIM>* p_element = mrMesh.GetElement(mElemIndex);
     return p_element->GetNode(mNodeALocalIndex);
 }
 
@@ -1288,7 +1288,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::GetNodeB()
 {
     assert((*this) != mrMesh.EdgesEnd());
-    Element<ELEMENT_DIM,SPACE_DIM> *p_element = mrMesh.GetElement(mElemIndex);
+    Element<ELEMENT_DIM,SPACE_DIM>* p_element = mrMesh.GetElement(mElemIndex);
     return p_element->GetNode(mNodeBLocalIndex);
 }
 

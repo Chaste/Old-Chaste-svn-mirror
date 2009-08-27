@@ -538,7 +538,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
     if(HeartConfig::Instance()->IsPostProcessingRequested())
     {
         //Test that we have a tetrahedral mesh
-        TetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *p_tetmesh= dynamic_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh);
+        TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_tetmesh= dynamic_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh);
         
 //        if (p_tetmesh == NULL)
 //        {

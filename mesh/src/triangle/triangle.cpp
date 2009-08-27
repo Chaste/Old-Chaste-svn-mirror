@@ -571,7 +571,7 @@ struct badtriang {
 
 struct flipstacker {
   triangle flippedtri;                       /* A recently flipped triangle. */
-  struct flipstacker *prevflip;               /* Previous flip in the stack. */
+  struct flipstacker* prevflip;               /* Previous flip in the stack. */
 };
 
 /* A node in a heap used to store events for the sweepline Delaunay          */
@@ -635,7 +635,7 @@ struct memorypool {
   VOID *nextitem;
   VOID *deaditemstack;
   VOID **pathblock;
-  VOID *pathitem;
+  VOID* pathitem;
   int alignbytes;
   int itembytes;
   int itemsperblock;
@@ -3857,10 +3857,10 @@ struct osub *s;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void poolzero(struct memorypool *pool)
+void poolzero(struct memorypool* pool)
 #else /* not ANSI_DECLARATORS */
 void poolzero(pool)
-struct memorypool *pool;
+struct memorypool* pool;
 #endif /* not ANSI_DECLARATORS */
 
 {
@@ -3891,10 +3891,10 @@ struct memorypool *pool;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void poolrestart(struct memorypool *pool)
+void poolrestart(struct memorypool* pool)
 #else /* not ANSI_DECLARATORS */
 void poolrestart(pool)
-struct memorypool *pool;
+struct memorypool* pool;
 #endif /* not ANSI_DECLARATORS */
 
 {
@@ -3937,11 +3937,11 @@ struct memorypool *pool;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void poolinit(struct memorypool *pool, int bytecount, int itemcount,
+void poolinit(struct memorypool* pool, int bytecount, int itemcount,
               int firstitemcount, unsigned alignment)
 #else /* not ANSI_DECLARATORS */
 void poolinit(pool, bytecount, itemcount, firstitemcount, alignment)
-struct memorypool *pool;
+struct memorypool* pool;
 int bytecount;
 int itemcount;
 int firstitemcount;
@@ -3985,10 +3985,10 @@ unsigned alignment;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void pooldeinit(struct memorypool *pool)
+void pooldeinit(struct memorypool* pool)
 #else /* not ANSI_DECLARATORS */
 void pooldeinit(pool)
-struct memorypool *pool;
+struct memorypool* pool;
 #endif /* not ANSI_DECLARATORS */
 
 {
@@ -4006,10 +4006,10 @@ struct memorypool *pool;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-VOID *poolalloc(struct memorypool *pool)
+VOID* poolalloc(struct memorypool* pool)
 #else /* not ANSI_DECLARATORS */
-VOID *poolalloc(pool)
-struct memorypool *pool;
+VOID* poolalloc(pool)
+struct memorypool* pool;
 #endif /* not ANSI_DECLARATORS */
 
 {
@@ -4069,10 +4069,10 @@ struct memorypool *pool;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void pooldealloc(struct memorypool *pool, VOID *dyingitem)
+void pooldealloc(struct memorypool* pool, VOID *dyingitem)
 #else /* not ANSI_DECLARATORS */
 void pooldealloc(pool, dyingitem)
-struct memorypool *pool;
+struct memorypool* pool;
 VOID *dyingitem;
 #endif /* not ANSI_DECLARATORS */
 
@@ -4092,10 +4092,10 @@ VOID *dyingitem;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void traversalinit(struct memorypool *pool)
+void traversalinit(struct memorypool* pool)
 #else /* not ANSI_DECLARATORS */
 void traversalinit(pool)
-struct memorypool *pool;
+struct memorypool* pool;
 #endif /* not ANSI_DECLARATORS */
 
 {
@@ -4128,10 +4128,10 @@ struct memorypool *pool;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-VOID *traverse(struct memorypool *pool)
+VOID *traverse(struct memorypool* pool)
 #else /* not ANSI_DECLARATORS */
 VOID *traverse(pool)
-struct memorypool *pool;
+struct memorypool* pool;
 #endif /* not ANSI_DECLARATORS */
 
 {
@@ -11122,15 +11122,15 @@ int numberofsegments;
 
 #ifdef ANSI_DECLARATORS
 long reconstruct(struct mesh *m, struct behavior *b, char *elefilename,
-                 char *areafilename, char *polyfilename, FILE *polyfile)
+                 char *areafilename, char* polyfilename, FILE* polyfile)
 #else /* not ANSI_DECLARATORS */
 long reconstruct(m, b, elefilename, areafilename, polyfilename, polyfile)
 struct mesh *m;
 struct behavior *b;
 char *elefilename;
 char *areafilename;
-char *polyfilename;
-FILE *polyfile;
+char* polyfilename;
+FILE* polyfile;
 #endif /* not ANSI_DECLARATORS */
 
 #endif /* not TRILIBRARY */
@@ -11153,7 +11153,7 @@ FILE *polyfile;
   struct otri checkneighbor;
   struct osub subsegloop;
   triangle *vertexarray;
-  triangle *prevlink;
+  triangle* prevlink;
   triangle nexttri;
   vertex tdest, tapex;
   vertex checkdest, checkapex;
@@ -11519,7 +11519,7 @@ FILE *polyfile;
           dest(checktri, checkdest);
           if (shorg == checkdest) {
             /* We have a match.  Remove this triangle from the list. */
-            *prevlink = checktri.tri[6 + checktri.orient];
+           * prevlink = checktri.tri[6 + checktri.orient];
             /* Bond the subsegment to the triangle. */
             tsbond(checktri, subsegloop);
             /* Check if this is a boundary edge. */
@@ -12428,13 +12428,13 @@ int numberofsegments;
 
 #ifdef ANSI_DECLARATORS
 void formskeleton(struct mesh *m, struct behavior *b,
-                  FILE *polyfile, char *polyfilename)
+                  FILE* polyfile, char* polyfilename)
 #else /* not ANSI_DECLARATORS */
 void formskeleton(m, b, polyfile, polyfilename)
 struct mesh *m;
 struct behavior *b;
-FILE *polyfile;
-char *polyfilename;
+FILE* polyfile;
+char* polyfilename;
 #endif /* not ANSI_DECLARATORS */
 
 #endif /* not TRILIBRARY */
@@ -13893,13 +13893,13 @@ char *string;
 
 #ifdef ANSI_DECLARATORS
 void readnodes(struct mesh *m, struct behavior *b, char *nodefilename,
-               char *polyfilename, FILE **polyfile)
+               char* polyfilename, FILE **polyfile)
 #else /* not ANSI_DECLARATORS */
 void readnodes(m, b, nodefilename, polyfilename, polyfile)
 struct mesh *m;
 struct behavior *b;
 char *nodefilename;
-char *polyfilename;
+char* polyfilename;
 FILE **polyfile;
 #endif /* not ANSI_DECLARATORS */
 
@@ -13920,14 +13920,14 @@ FILE **polyfile;
     if (!b->quiet) {
       printf("Opening %s.\n", polyfilename);
     }
-    *polyfile = fopen(polyfilename, "r");
+   * polyfile = fopen(polyfilename, "r");
     if (*polyfile == (FILE *) NULL) {
       printf("  Error:  Cannot access file %s.\n", polyfilename);
       triexit(1);
     }
     /* Read number of vertices, number of dimensions, number of vertex */
     /*   attributes, and number of boundary markers.                   */
-    stringptr = readline(inputline, *polyfile, polyfilename);
+    stringptr = readline(inputline,* polyfile, polyfilename);
     m->invertices = (int) strtol(stringptr, &stringptr, 0);
     stringptr = findfield(stringptr);
     if (*stringptr == '\0') {
@@ -13948,7 +13948,7 @@ FILE **polyfile;
       nodemarkers = (int) strtol(stringptr, &stringptr, 0);
     }
     if (m->invertices > 0) {
-      infile = *polyfile;
+      infile =* polyfile;
       infilename = polyfilename;
       m->readnodefile = 0;
     } else {
@@ -13960,7 +13960,7 @@ FILE **polyfile;
   } else {
     m->readnodefile = 1;
     infilename = nodefilename;
-    *polyfile = (FILE *) NULL;
+   * polyfile = (FILE *) NULL;
   }
 
   if (m->readnodefile) {
@@ -14089,17 +14089,17 @@ FILE **polyfile;
 #ifdef TRILIBRARY
 
 #ifdef ANSI_DECLARATORS
-void transfernodes(struct mesh *m, struct behavior *b, REAL *pointlist,
-                   REAL *pointattriblist, int *pointmarkerlist,
+void transfernodes(struct mesh *m, struct behavior *b, REAL* pointlist,
+                   REAL* pointattriblist, int* pointmarkerlist,
                    int numberofpoints, int numberofpointattribs)
 #else /* not ANSI_DECLARATORS */
 void transfernodes(m, b, pointlist, pointattriblist, pointmarkerlist,
                    numberofpoints, numberofpointattribs)
 struct mesh *m;
 struct behavior *b;
-REAL *pointlist;
-REAL *pointattriblist;
-int *pointmarkerlist;
+REAL* pointlist;
+REAL* pointattriblist;
+int* pointmarkerlist;
 int numberofpoints;
 int numberofpointattribs;
 #endif /* not ANSI_DECLARATORS */
@@ -14175,14 +14175,14 @@ int numberofpointattribs;
 
 #ifdef ANSI_DECLARATORS
 void readholes(struct mesh *m, struct behavior *b,
-               FILE *polyfile, char *polyfilename, REAL **hlist, int *holes,
+               FILE* polyfile, char* polyfilename, REAL **hlist, int *holes,
                REAL **rlist, int *regions)
 #else /* not ANSI_DECLARATORS */
 void readholes(m, b, polyfile, polyfilename, hlist, holes, rlist, regions)
 struct mesh *m;
 struct behavior *b;
-FILE *polyfile;
-char *polyfilename;
+FILE* polyfile;
+char* polyfilename;
 REAL **hlist;
 int *holes;
 REAL **rlist;
@@ -14356,9 +14356,9 @@ char **argv;
 
 {
 #ifdef TRILIBRARY
-  REAL *plist;
-  REAL *palist;
-  int *pmlist;
+  REAL* plist;
+  REAL* palist;
+  int* pmlist;
   int coordindex;
   int attribindex;
 #else /* not TRILIBRARY */
@@ -14381,20 +14381,20 @@ char **argv;
   }
   /* Allocate memory for output vertices if necessary. */
   if (*pointlist == (REAL *) NULL) {
-    *pointlist = (REAL *) trimalloc((int) (outvertices * 2 * sizeof(REAL)));
+   * pointlist = (REAL *) trimalloc((int) (outvertices * 2 * sizeof(REAL)));
   }
   /* Allocate memory for output vertex attributes if necessary. */
   if ((m->nextras > 0) && (*pointattriblist == (REAL *) NULL)) {
-    *pointattriblist = (REAL *) trimalloc((int) (outvertices * m->nextras *
+   * pointattriblist = (REAL *) trimalloc((int) (outvertices * m->nextras *
                                                  sizeof(REAL)));
   }
   /* Allocate memory for output vertex markers if necessary. */
   if (!b->nobound && (*pointmarkerlist == (int *) NULL)) {
-    *pointmarkerlist = (int *) trimalloc((int) (outvertices * sizeof(int)));
+   * pointmarkerlist = (int *) trimalloc((int) (outvertices * sizeof(int)));
   }
-  plist = *pointlist;
-  palist = *pointattriblist;
-  pmlist = *pointmarkerlist;
+  plist =* pointlist;
+  palist =* pointattriblist;
+  pmlist =* pointmarkerlist;
   coordindex = 0;
   attribindex = 0;
 #else /* not TRILIBRARY */
@@ -14653,7 +14653,7 @@ int **segmentmarkerlist;
 #else /* not TRILIBRARY */
 
 #ifdef ANSI_DECLARATORS
-void writepoly(struct mesh *m, struct behavior *b, char *polyfilename,
+void writepoly(struct mesh *m, struct behavior *b, char* polyfilename,
                REAL *holelist, int holes, REAL *regionlist, int regions,
                int argc, char **argv)
 #else /* not ANSI_DECLARATORS */
@@ -14661,7 +14661,7 @@ void writepoly(m, b, polyfilename, holelist, holes, regionlist, regions,
                argc, argv)
 struct mesh *m;
 struct behavior *b;
-char *polyfilename;
+char* polyfilename;
 REAL *holelist;
 int holes;
 REAL *regionlist;
@@ -14975,8 +14975,8 @@ char **argv;
 
 {
 #ifdef TRILIBRARY
-  REAL *plist;
-  REAL *palist;
+  REAL* plist;
+  REAL* palist;
   int *elist;
   REAL *normlist;
   int coordindex;
@@ -15701,7 +15701,7 @@ char **argv;
   REAL *holearray;                                        /* Array of holes. */
   REAL *regionarray;   /* Array of regional attributes and area constraints. */
 #ifndef TRILIBRARY
-  FILE *polyfile;
+  FILE* polyfile;
 #endif /* not TRILIBRARY */
 #ifndef NO_TIMER
   /* Variables for timing the performance of Triangle.  The types are */

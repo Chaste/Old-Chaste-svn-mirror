@@ -362,7 +362,7 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
 
 void LinearSystem::ZeroRhsVector()
 {
-    double *p_rhs_vector_array;
+    double* p_rhs_vector_array;
     VecGetArray(mRhsVector, &p_rhs_vector_array);
     for (PetscInt local_index=0; local_index<mOwnershipRangeHi - mOwnershipRangeLo; local_index++)
     {
@@ -449,7 +449,7 @@ double LinearSystem::GetRhsVectorElement(PetscInt row)
 {
     assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
 
-    double *p_rhs_vector;
+    double* p_rhs_vector;
     PetscInt local_index=row-mOwnershipRangeLo;
     VecGetArray(mRhsVector, &p_rhs_vector);
     double answer=p_rhs_vector[local_index];
@@ -555,7 +555,7 @@ void LinearSystem::SetKspType(const char *kspType)
     }
 }
 
-void LinearSystem::SetPcType(const char *pcType)
+void LinearSystem::SetPcType(const char* pcType)
 {
     mPcType=pcType;
     if (mKspIsSetup)
@@ -691,7 +691,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     }
     HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 //    //Double check that the mRhsVector contains sensible values
-//    double *p_rhs, *p_guess;
+//    double* p_rhs,* p_guess;
 //    VecGetArray(mRhsVector, &p_rhs);
 //    VecGetArray(lhsGuess, &p_guess);
 //    for (int global_index=mOwnershipRangeLo; global_index<mOwnershipRangeHi; global_index++)
@@ -712,7 +712,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 //    Vec temp;
 //    VecDuplicate(mRhsVector, &temp);
 //    MatMult(mLhsMatrix, lhs_vector, temp);
-//    double *p_temp;
+//    double* p_temp;
 //    VecGetArray(temp, &p_temp);
 //    std::cout << "temp[0] = " << p_temp[0] << "\n";
 //    VecRestoreArray(temp, &p_temp);

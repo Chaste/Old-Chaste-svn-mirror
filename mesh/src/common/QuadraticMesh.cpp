@@ -120,7 +120,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
         if (triangle_output.pointmarkerlist[node_index] == 1)
         {
             // Boundary node
-            Node<DIM> *p_node = new Node<DIM>(node_index, true,
+            Node<DIM>* p_node = new Node<DIM>(node_index, true,
               triangle_output.pointlist[node_index * 2],
               triangle_output.pointlist[node_index * 2+1]);
             this->mNodes.push_back(p_node);
@@ -227,7 +227,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
     OutputFileHandler handler("");
     out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
 
-    *p_file << (numElemX+1)*(numElemY+1)*(numElemZ+1) << " 3 0 0\n";
+   * p_file << (numElemX+1)*(numElemY+1)*(numElemZ+1) << " 3 0 0\n";
     unsigned node_index = 0;
     for (unsigned k=0; k<=numElemZ; k++)
     {
@@ -240,7 +240,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, double zEnd,
                 double z = zEnd*k/numElemZ; //Not yEnd!
 
                 //bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemY) || (k==0) || (k==numElemZ) );
-                *p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
+               * p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
             }
         }
     }
@@ -440,7 +440,7 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(bool boundaryElemFileHasCont
                     elem_index = pMeshReader->GetNextFaceData().ContainingElement;
                 }
                 
-                Element<DIM,DIM> *p_element = this->GetElement(elem_index);
+                Element<DIM,DIM>* p_element = this->GetElement(elem_index);
 
                 // for each element, loop over faces (the opposites to a node)
                 for (unsigned face=0; face<DIM+1; face++)
@@ -508,7 +508,7 @@ void QuadraticMesh<DIM>::AddNodeToBoundaryElement(BoundaryElement<DIM-1,DIM>* pB
     assert(DIM>1);
     assert(internalNode >= DIM+1);
     assert(internalNode < (DIM+1)*(DIM+2)/2);
-    Node<DIM> *p_internal_node = pElement->GetNode(internalNode);
+    Node<DIM>* p_internal_node = pElement->GetNode(internalNode);
 
     // add node to the boundary node list
     if (!p_internal_node->IsBoundaryNode())
@@ -599,7 +599,7 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
         num_elements++;
     }
 
-    *p_file << num_elements << " 0\n";
+   * p_file << num_elements << " 0\n";
 
     unsigned counter = 0;
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
@@ -607,12 +607,12 @@ void QuadraticMesh<DIM>::WriteBoundaryElementFile(std::string directory, std::st
           iter != this->GetBoundaryElementIteratorEnd();
           ++iter)
     {
-        *p_file << counter++ << " ";
+       * p_file << counter++ << " ";
         for (unsigned i=0; i<(*iter)->GetNumNodes(); i++)
         {
-            *p_file << (*iter)->GetNodeGlobalIndex(i) << " ";
+           * p_file << (*iter)->GetNodeGlobalIndex(i) << " ";
         }
-        *p_file << "\n";
+       * p_file << "\n";
     }
 
     p_file->close();

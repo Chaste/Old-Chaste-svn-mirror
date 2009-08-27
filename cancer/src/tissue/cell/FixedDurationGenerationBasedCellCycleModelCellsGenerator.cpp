@@ -71,7 +71,7 @@ void FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GenerateGive
 
     for (unsigned i=0; i<num_cells; i++)
     {
-        AbstractCellCycleModel *p_cell_cycle_model = CreateCellCycleModel();
+        AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
         TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
         double birth_time = 0.0 - locationIndices[i];
         cell.SetBirthTime(birth_time);

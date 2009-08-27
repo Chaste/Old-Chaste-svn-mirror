@@ -56,13 +56,13 @@ void CopyToStdVector(N_Vector src, std::vector<realtype>& rDest)
     }
 }
 
-int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pData)
+int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData)
 {
     assert(pData != NULL);
-    CvodeData *p_data = (CvodeData*) pData;
+    CvodeData* p_data = (CvodeData*) pData;
     // Get y, ydot into std::vector<>s
     static std::vector<realtype> ydot_vec;
-    CopyToStdVector(y,  *p_data->pY);
+    CopyToStdVector(y, * p_data->pY);
     CopyToStdVector(ydot, ydot_vec);
     // Call our function
     try
@@ -80,16 +80,16 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pData)
     return 0;
 }
 
-int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData)
+int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
 {
     assert(pData != NULL);
-    CvodeData *p_data = (CvodeData*) pData;
+    CvodeData* p_data = (CvodeData*) pData;
     // Get y into a std::vector
-    CopyToStdVector(y,  *p_data->pY);
+    CopyToStdVector(y, * p_data->pY);
     // Call our function
     try
     {
-        *pGOut = p_data->pSystem->CalculateRootFunction(t,  *p_data->pY);
+       * pGOut = p_data->pSystem->CalculateRootFunction(t, * p_data->pY);
     }
     catch (Exception &e)
     {
@@ -101,7 +101,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData)
 
 // int CvodeDenseJacobianAdaptor(long int numberOfStateVariables, DenseMat J,
 //                               realtype t, N_Vector y, N_Vector fy,
-//                               void *pData,
+//                               void* pData,
 //                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 // {
 //     AbstractOdeSystemWithAnalyticJacobian* pSystem
@@ -128,7 +128,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData)
 
 
 void CvodeErrorHandler(int errorCode, const char *module, const char *function,
-                       char *message, void *pData)
+                       char *message, void* pData)
 {
     std::stringstream err;
     err << "CVODE Error " << errorCode << " in module " << module

@@ -77,7 +77,7 @@ public:
 
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
-        PetscScalar *p_solution_elements_array;
+        PetscScalar* p_solution_elements_array;
         VecGetArray(solution_vector, &p_solution_elements_array);
 
         for (int global_index=0; global_index<3; global_index++)
@@ -275,7 +275,7 @@ public:
 
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
-        PetscScalar *p_solution_elements_array;
+        PetscScalar* p_solution_elements_array;
         VecGetArray(solution_vector, &p_solution_elements_array);
 
         for (int global_index=0; global_index<2; global_index++)
@@ -455,7 +455,7 @@ public:
         solution_vector = ls.Solve(good_guess);
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
-        PetscScalar *p_solution_elements_array;
+        PetscScalar* p_solution_elements_array;
         VecGetArray(solution_vector, &p_solution_elements_array);
 
         for (int global_index=0; global_index<3; global_index++)
@@ -566,7 +566,7 @@ public:
         double expected_solution[3]={25.0,0.0,7.0};
         PetscInt lo, hi;
         ls.GetOwnershipRange(lo, hi);
-        double *p_solution_elements_array;
+        double* p_solution_elements_array;
         VecGetArray(solution_vector, &p_solution_elements_array);
         for (int global_index=0; global_index<3; global_index++)
         {
@@ -629,7 +629,7 @@ public:
         double expected_solution[3]={-68.0,6.0,80.0};
         PetscInt lo, hi;
         ls.GetOwnershipRange(lo, hi);
-        double *p_solution_elements_array, *p_solution_elements_array2;
+        double* p_solution_elements_array,* p_solution_elements_array2;
         VecGetArray(solution_vector, &p_solution_elements_array);
         VecGetArray(solution_vector2, &p_solution_elements_array2);
         for (int global_index=0; global_index<3; global_index++)
@@ -791,7 +791,7 @@ public:
             answer.push_back(32.0);
             answer.push_back(50.0);
 
-            double *p_vec_values;
+            double* p_vec_values;
             VecGetArray(new_vec, &p_vec_values);
 
             for ( int i = lo; i < hi; i++ )
@@ -909,7 +909,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
 
             //LinearSystem linear_system(3);
-            LinearSystem *p_linear_system;//=&linear_system;
+            LinearSystem* p_linear_system;//=&linear_system;
             input_arch >> p_linear_system;
 
             //Check that structural symmetry is preserved

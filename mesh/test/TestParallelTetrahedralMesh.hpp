@@ -159,7 +159,7 @@ public:
         {
             unsigned element_index = iter->GetIndex();
 
-            Element<2,2> *p_sequ_element = seq_mesh.GetElement(element_index);
+            Element<2,2>* p_sequ_element = seq_mesh.GetElement(element_index);
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
 
             for (unsigned node_local_index=0; node_local_index < iter->GetNumNodes(); node_local_index++)
@@ -176,10 +176,10 @@ public:
              it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
-            BoundaryElement<1,2> *p_para_boundary_element = *it;
+            BoundaryElement<1,2>* p_para_boundary_element = *it;
             unsigned boundary_element_index = p_para_boundary_element->GetIndex();
 
-            BoundaryElement<1,2> *p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
+            BoundaryElement<1,2>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
             TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
 
             for (unsigned node_local_index=0; node_local_index < p_para_boundary_element->GetNumNodes(); node_local_index++)
@@ -219,7 +219,7 @@ public:
         {
             unsigned element_index = iter->GetIndex();
 
-            Element<3,3> *p_sequ_element = seq_mesh.GetElement(element_index);
+            Element<3,3>* p_sequ_element = seq_mesh.GetElement(element_index);
 
             // The elements have the same index and the nodes are located in the same position.
             TS_ASSERT_EQUALS(element_index, p_sequ_element->GetIndex());
@@ -237,10 +237,10 @@ public:
              it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
-            BoundaryElement<2,3> *p_para_boundary_element = *it;
+            BoundaryElement<2,3>* p_para_boundary_element = *it;
             unsigned boundary_element_index = p_para_boundary_element->GetIndex();
 
-            BoundaryElement<2,3> *p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
+            BoundaryElement<2,3>* p_sequ_boundary_element = seq_mesh.GetBoundaryElement(boundary_element_index);
 
             // The boundary elements have the same index and the nodes are located in the same position.
             TS_ASSERT_EQUALS(boundary_element_index, p_sequ_boundary_element->GetIndex());
@@ -634,7 +634,7 @@ public:
             try
             {
                 ElementData file_nodes = permuted_mesh_reader.GetNextElementData();
-                Element<3,3> *p_mem_element = mesh.GetElement(element_index);
+                Element<3,3>* p_mem_element = mesh.GetElement(element_index);
 
                 for (unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
                 {
@@ -651,7 +651,7 @@ public:
             try
             {
                 ElementData file_nodes = permuted_mesh_reader.GetNextFaceData();
-                BoundaryElement<2,3> *p_mem_face = mesh.GetBoundaryElement(face_index);
+                BoundaryElement<2,3>* p_mem_face = mesh.GetBoundaryElement(face_index);
 
                 for (unsigned node_index=0; node_index<file_nodes.NodeIndices.size(); node_index++)
                 {
@@ -716,8 +716,8 @@ public:
 
             try
             {
-                Node<2> *p_node1 = p_mesh->GetNode(0);
-                Node<2> *p_node2 = p_mesh2->GetNode(0);
+                Node<2>* p_node1 = p_mesh->GetNode(0);
+                Node<2>* p_node2 = p_mesh2->GetNode(0);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[1], p_node2->GetPoint()[1], 1e-6);
             }
@@ -728,8 +728,8 @@ public:
 
             try
             {
-                Node<2> *p_node1 = p_mesh->GetNode(500);
-                Node<2> *p_node2 = p_mesh2->GetNode(500);
+                Node<2>* p_node1 = p_mesh->GetNode(500);
+                Node<2>* p_node2 = p_mesh2->GetNode(500);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
             }
             catch(Exception& e)
@@ -740,8 +740,8 @@ public:
             // Check first element has the right nodes
             try
             {
-                Element<2,2> *p_element = p_mesh->GetElement(0);
-                Element<2,2> *p_element2 = p_mesh2->GetElement(0);
+                Element<2,2>* p_element = p_mesh->GetElement(0);
+                Element<2,2>* p_element2 = p_mesh2->GetElement(0);
                 TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
             }
             catch(Exception& e)
@@ -751,8 +751,8 @@ public:
 
             try
             {
-                Element<2,2> *p_element = p_mesh->GetElement(500);
-                Element<2,2> *p_element2 = p_mesh2->GetElement(500);
+                Element<2,2>* p_element = p_mesh->GetElement(500);
+                Element<2,2>* p_element2 = p_mesh2->GetElement(500);
                 TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
             }
             catch(Exception& e)
@@ -771,7 +771,7 @@ public:
             std::ifstream ifs("mesh/test/data/parallel_tetrahedral_mesh.arch", std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            AbstractTetrahedralMesh<2,2> *p_mesh3 = NULL;
+            AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
 
             if ( PetscTools::IsSequential() )
             {

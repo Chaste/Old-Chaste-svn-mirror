@@ -193,7 +193,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
             RegisterElement(element_index);
 
-            Element<ELEMENT_DIM,SPACE_DIM> *p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
+            Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
             this->mElements.push_back(p_element);
 
             if (rMeshReader.GetNumElementAttributes() > 0)
@@ -273,7 +273,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
 
             RegisterBoundaryElement(actual_face_index);
-            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> *p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
+            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
             this->mBoundaryElements.push_back(p_boundary_element);
 
             if (rMeshReader.GetNumFaceAttributes() > 0)
@@ -357,7 +357,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsig
     assert(hi>=lo);
     for (unsigned element_index=0; element_index<this->mElements.size(); element_index++)
     {
-        Element<ELEMENT_DIM, SPACE_DIM> *p_element=this->mElements[element_index];
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element=this->mElements[element_index];
         p_element->SetOwnership(true);
     }
 }

@@ -105,7 +105,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
-            AbstractCellCycleModel *p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+            AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
             TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -116,7 +116,7 @@ public:
         TS_ASSERT_THROWS_THIS(MeshBasedTissue<2> tissue2(mesh, cells),"Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
-        AbstractCellCycleModel *p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+        AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
         double birth_time = -4.0;
         cell.SetBirthTime(birth_time);
@@ -155,11 +155,11 @@ public:
         // Check the cell pair was created correctly
         std::set<TissueCell*>::iterator cell_pair_iter = cell_pair.begin();
 
-        TissueCell *p_cell0 = *cell_pair_iter;
+        TissueCell* p_cell0 = *cell_pair_iter;
         TS_ASSERT_EQUALS(p_cell0->GetMutationState(), LABELLED);
 
         ++cell_pair_iter;
-        TissueCell *p_cell1 = *cell_pair_iter;
+        TissueCell* p_cell1 = *cell_pair_iter;
         TS_ASSERT_EQUALS(p_cell1->GetMutationState(), APC_ONE_HIT);
     }
 
@@ -172,7 +172,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create cells
         std::vector<TissueCell> cells;
@@ -212,7 +212,7 @@ public:
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
@@ -310,7 +310,7 @@ public:
 
     void TestRemoveDeadCellsAndUpdate()
     {
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple mesh
@@ -530,7 +530,7 @@ public:
         {
             // Need to set up time
             unsigned num_steps=10;
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
 
             // Create a simple mesh
@@ -577,12 +577,12 @@ public:
         {
             // Need to set up time
             unsigned num_steps=10;
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
 
-            MeshBasedTissue<2> *p_tissue;
+            MeshBasedTissue<2>* p_tissue;
 
             // Restore the tissue
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -732,7 +732,7 @@ public:
     {
         // Create a simple mesh
         HoneycombMeshGenerator generator(4, 4, 0, false);
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
         p_mesh->GetNode(0)->MarkAsDeleted();
 
         // Set up cells

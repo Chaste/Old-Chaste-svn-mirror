@@ -135,8 +135,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         assert(rTissue.HasMesh());
         // If using beta-cat dependent springs, both cell-cycle models has better be IngeWntSwatCellCycleModel
-        IngeWntSwatCellCycleModel *p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
-        IngeWntSwatCellCycleModel *p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
+        IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
+        IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
 
         assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
         double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();
@@ -199,7 +199,7 @@ void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(
     std::vector<c_vector<double, DIM> >& rForces,
     AbstractTissue<DIM>& rTissue)
 {
-    MeshBasedTissue<DIM> *p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+    MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
 
     for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator = p_static_cast_tissue->SpringsBegin();
         spring_iterator != p_static_cast_tissue->SpringsEnd();

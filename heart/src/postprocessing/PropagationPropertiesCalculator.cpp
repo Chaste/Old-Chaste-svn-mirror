@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellProperties.hpp"
 #include <sstream>
 
-PropagationPropertiesCalculator::PropagationPropertiesCalculator(Hdf5DataReader *pDataReader,
+PropagationPropertiesCalculator::PropagationPropertiesCalculator(Hdf5DataReader* pDataReader,
         const std::string voltageName)
         : mpDataReader(pDataReader),
         mVoltageName(voltageName)

@@ -59,7 +59,7 @@ public:
      * @param voltageName  Optionally the name of the variable representing the
      *     membrane potential.  Defaults to "V".
      */
-    PropagationPropertiesCalculator(Hdf5DataReader *pDataReader,
+    PropagationPropertiesCalculator(Hdf5DataReader* pDataReader,
                                     const std::string voltageName = "V");
     virtual ~PropagationPropertiesCalculator();
 

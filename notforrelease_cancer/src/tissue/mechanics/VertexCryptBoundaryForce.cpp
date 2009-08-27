@@ -47,7 +47,7 @@ void VertexCryptBoundaryForce<DIM>::AddForceContribution(std::vector<c_vector<do
                                                          AbstractTissue<DIM>& rTissue)
 {
     // Helper variable that is a static cast of the tissue
-    VertexBasedTissue<DIM> *p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
+    VertexBasedTissue<DIM>* p_tissue = static_cast<VertexBasedTissue<DIM>*>(&rTissue);
 
     // Iterate over nodes
     for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = p_tissue->rGetMesh().GetNodeIteratorBegin();

@@ -106,7 +106,7 @@ public:
         // = 4/3
         ExampleFunctionalOne calculator;
 
-        DistributedVectorFactory *p_factory = mesh.GetDistributedVectorFactory();
+        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
         Vec petsc_vec = p_factory->CreateVec(2);
         DistributedVector vec1 = p_factory->CreateDistributedVector(petsc_vec);
         DistributedVector::Stripe u1(vec1, 0);
@@ -115,7 +115,7 @@ public:
              index != vec1.End();
              ++index)
         {
-            Node<2> *p_node = mesh.GetNode(index.Global);
+            Node<2>* p_node = mesh.GetNode(index.Global);
             u1[index] = p_node->rGetLocation()[0];
             v1[index] = 2.0;
         }
@@ -136,7 +136,7 @@ public:
              index != vec2.End();
              ++index)
         {
-            Node<2> *p_node = mesh.GetNode(index.Global);
+            Node<2>* p_node = mesh.GetNode(index.Global);
             u2[index] = p_node->rGetLocation()[0];
             v2[index] = p_node->rGetLocation()[1];
         }

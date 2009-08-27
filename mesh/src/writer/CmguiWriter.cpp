@@ -49,21 +49,21 @@ void CmguiWriter::WriteFiles()
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
     
     // Write the node header
-    *p_node_file << "Group name: " << this->mBaseName << "\n";
-    *p_node_file << CmguiNodeFileHeader;
+   * p_node_file << "Group name: " << this->mBaseName << "\n";
+   * p_node_file << CmguiNodeFileHeader;
 
     // Write each node's data
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
 
-        *p_node_file << "Node:\t" << item_num+1 << "\t";
+       * p_node_file << "Node:\t" << item_num+1 << "\t";
         for (unsigned i=0; i<3; i++)
         {
-            *p_node_file << current_item[i] << "\t";
+           * p_node_file << current_item[i] << "\t";
         }
 
-        *p_node_file << "\n";
+       * p_node_file << "\n";
     }
     p_node_file->close();
 
@@ -74,8 +74,8 @@ void CmguiWriter::WriteFiles()
     out_stream p_elem_file = this->mpOutputFileHandler->OpenOutputFile(elem_file_name);
 
     // Write the elem header
-    *p_elem_file << "Group name: " << this->mBaseName << "\n";
-    *p_elem_file << CmguiElementFileHeader;
+   * p_elem_file << "Group name: " << this->mBaseName << "\n";
+   * p_elem_file << CmguiElementFileHeader;
 
     //now we need to figure out how many additional fields we have 
     unsigned number_of_fields = mAdditionalFieldNames.size();
@@ -83,10 +83,10 @@ void CmguiWriter::WriteFiles()
     //we write the number of additional fields + 1 because the coordinates field gets written anyway
     string_of_number_of_fields << number_of_fields+1;
     //and write accordingly the total number of fields
-    *p_elem_file << " #Fields="<<string_of_number_of_fields.str()<<"\n"; 
+   * p_elem_file << " #Fields="<<string_of_number_of_fields.str()<<"\n"; 
     
     //first field (the coordinates field is fixed and always there
-    *p_elem_file << CmguiCoordinatesFileHeader;
+   * p_elem_file << CmguiCoordinatesFileHeader;
     
     //now write the specification for each additional field
     for (unsigned i = 0; i <  number_of_fields; i++)
@@ -94,8 +94,8 @@ void CmguiWriter::WriteFiles()
         //unsigned to string
         std::stringstream i_string;
         i_string << i+2;
-        *p_elem_file<<i_string.str()<<")  "<<mAdditionalFieldNames[i]<<" ,";
-        *p_elem_file << CmguiAdditonalFieldHeader;
+       * p_elem_file<<i_string.str()<<")  "<<mAdditionalFieldNames[i]<<" ,";
+       * p_elem_file << CmguiAdditonalFieldHeader;
     }
     
     // Write each elements's data
@@ -103,13 +103,13 @@ void CmguiWriter::WriteFiles()
     {
         std::vector<unsigned> current_element = this->mElementData[item_num];
 
-        *p_elem_file << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
+       * p_elem_file << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
         for (unsigned i=0; i<4; i++)
         {
-            *p_elem_file << current_element[i]+1 << "\t";
+           * p_elem_file << current_element[i]+1 << "\t";
         }
 
-        *p_elem_file << "\n";
+       * p_elem_file << "\n";
     }
     p_elem_file->close();
 }

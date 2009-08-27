@@ -60,7 +60,7 @@ public:
         nodes.push_back(new Node<3>(4, false, 0.5,  0.5,  0.5));
 
         MutableMesh<3,3> mesh(nodes);
-        Element<3,3> *p_element = mesh.GetElement(0);
+        Element<3,3>* p_element = mesh.GetElement(0);
 
         //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 0u);//Older tetgen
         //TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 3u);//Older tetgen

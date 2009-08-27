@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Usage (in test):
  *
  *  // begining of test
- *  LogFile *p_log = LogFile::Instance();
+ *  LogFile* p_log = LogFile::Instance();
  *  p_log->Set(level, "dir","file");
  *  p_log->WriteHeader("type_of_sim"); // optional
  *

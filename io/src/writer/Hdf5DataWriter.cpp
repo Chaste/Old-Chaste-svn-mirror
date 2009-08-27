@@ -373,7 +373,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 
     H5Sselect_hyperslab(file_dataspace, H5S_SELECT_SET, offset_dims, NULL, count, NULL);
 
-    double *p_petsc_vector;
+    double* p_petsc_vector;
     VecGetArray(petscVector, &p_petsc_vector);
 
     if (mIsDataComplete)
@@ -449,7 +449,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     hid_t property_list_id = H5Pcreate(H5P_DATASET_XFER);
     H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
 
-    double *p_petsc_vector;
+    double* p_petsc_vector;
     VecGetArray(petscVector, &p_petsc_vector);
 
     if (mIsDataComplete)

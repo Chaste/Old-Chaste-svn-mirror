@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  @param x unpreconditioned residual.
  *  @param y preconditioned residual. y = inv(M)*x
  */
-PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y);
+PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y);
 
 /**
  *  This class defines a PETSc-compliant purpouse-build preconditioner.

@@ -60,7 +60,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numElementsAcross,
             // Flat bottom to cylindrical mesh
             for (unsigned i=0; i<=numElementsAcross-1; i++)
             {
-                Node<2> *p_node = new Node<2>(node_index, false, i, 0.0);
+                Node<2>* p_node = new Node<2>(node_index, false, i, 0.0);
                 mNodes.push_back(p_node);
                 node_index++;
             }
@@ -72,7 +72,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numElementsAcross,
             	double x_coord = ((j%4 == 0)||(j%4 == 3)) ? i+0.5 : i;
             	double y_coord = (1.5*j - 0.5*(j%2))*0.5/sqrt(3);
 
-                Node<2> *p_node = new Node<2>(node_index, false, x_coord, y_coord);
+                Node<2>* p_node = new Node<2>(node_index, false, x_coord, y_coord);
                 mNodes.push_back(p_node);
                 node_index++;
             }
@@ -109,7 +109,7 @@ Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numElementsAcross,
             {
                element_nodes.push_back(mNodes[node_indices[k]]);
             }
-            VertexElement<2,2> *p_element = new VertexElement<2,2>(element_index, element_nodes);
+            VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index, element_nodes);
             mElements.push_back(p_element);
         }
     }
@@ -211,7 +211,7 @@ unsigned Cylindrical2dVertexMesh::AddNode(Node<2>* pNewNode)
 
 double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
 {
-    VertexElement<2, 2> *p_element = GetElement(index);
+    VertexElement<2, 2>* p_element = GetElement(index);
 
     c_vector<double, 2> first_node = p_element->GetNodeLocation(0);
     c_vector<double, 2> current_node;
@@ -247,7 +247,7 @@ double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
 
 c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index)
 {
-    VertexElement<2, 2> *p_element = GetElement(index);
+    VertexElement<2, 2>* p_element = GetElement(index);
 
     c_vector<double, 2> centroid;
     c_vector<double, 2> transformed_centroid = zero_vector<double>(2);

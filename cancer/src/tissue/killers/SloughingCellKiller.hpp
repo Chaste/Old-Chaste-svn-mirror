@@ -69,7 +69,7 @@ private:
         //archive & mSloughSides; // done in load_construct_data
 
         // Make sure Tissue configuration archived
-        TissueConfig *p_config = TissueConfig::Instance();
+        TissueConfig* p_config = TissueConfig::Instance();
         archive & *p_config;
         archive & p_config;
     }
@@ -125,7 +125,7 @@ inline void load_construct_data(
     Archive & ar, SloughingCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<DIM> *p_crypt;
+    AbstractTissue<DIM>* p_crypt;
     ar >> p_crypt;
     bool slough_sides;
     ar >> slough_sides;

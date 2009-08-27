@@ -61,7 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * @param pData  a pointer to the AbstractOdeSystem to evaluate
  * @return 0 on success, -1 for an unrecoverable error
  */
-int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pData);
+int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData);
 
 /**
  * CVODE root-finder function adaptor.
@@ -83,7 +83,7 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pData);
  * @param pData  a pointer to the AbstractOdeSystem to use
  * @return 0 on success, negative on error
  */
-int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData);
+int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData);
 
 // /**
 //  * Jacobian computation adaptor function.
@@ -95,7 +95,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData);
 //  */
 // int CvodeDenseJacobianAdaptor(long int numberOfStateVariables, DenseMat J,
 //                               realtype t, N_Vector y, N_Vector fy,
-//                               void *pData,
+//                               void* pData,
 //                               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /**
@@ -105,7 +105,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype *pGOut, void *pData);
  * return codes.
  */
 void CvodeErrorHandler(int errorCode, const char *module, const char *function,
-                       char *message, void *pData);
+                       char *message, void* pData);
 
 
 typedef struct CvodeData_ {

@@ -54,7 +54,7 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ResetInterpolatedQuantities(
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(
-            double phiI, const Node<SPACE_DIM> *pNode)
+            double phiI, const Node<SPACE_DIM>* pNode)
 {
     mSourceTerm += phiI * mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionOrGuessReplicated[ pNode->GetIndex() ] );
 }

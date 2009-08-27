@@ -106,7 +106,7 @@ class BuildType(object):
         """
         return self._test_packs
 
-    def AddTestPacks(self, *packs):
+    def AddTestPacks(self,* packs):
         """
         Adds each string argument to the list of test packs to be run.
         """

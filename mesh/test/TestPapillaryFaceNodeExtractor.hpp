@@ -82,7 +82,7 @@ public:
             coords[i] = new double[3];
         }
         // Defines list of all papillary face nodes
-        int *pap_face;
+        int* pap_face;
         pap_face = new int [num_pap_face];
 
 

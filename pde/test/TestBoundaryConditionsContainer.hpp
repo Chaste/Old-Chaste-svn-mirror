@@ -55,7 +55,7 @@ public:
         for (int i=0; i<num_nodes; i++)
         {
             nodes[i] = new Node<1>(i,true,0);
-            ConstBoundaryCondition<1> *p_boundary_condition =
+            ConstBoundaryCondition<1>* p_boundary_condition =
                 new ConstBoundaryCondition<1>((double)i);
             bcc1.AddDirichletBoundaryCondition(nodes[i], p_boundary_condition);
         }
@@ -86,7 +86,7 @@ public:
         }
         for (int i=0; i<num_elem; i++)
         {
-            ConstBoundaryCondition<1> *p_boundary_condition =
+            ConstBoundaryCondition<1>* p_boundary_condition =
                 new ConstBoundaryCondition<1>((double)i);
             bcc1.AddNeumannBoundaryCondition(&elements[i], p_boundary_condition);
         }
@@ -108,7 +108,7 @@ public:
         for (int i=0; i<num_nodes; i++)
         {
             nodes2[i] = new Node<2>(i,true,0,0);
-            ConstBoundaryCondition<2> *p_boundary_condition =
+            ConstBoundaryCondition<2>* p_boundary_condition =
                 new ConstBoundaryCondition<2>((double)i);
             bcc2.AddDirichletBoundaryCondition(nodes2[i], p_boundary_condition);
         }
@@ -140,7 +140,7 @@ public:
         }
         for (int i=0; i<num_elem; i++)
         {
-            ConstBoundaryCondition<2> *p_boundary_condition =
+            ConstBoundaryCondition<2>* p_boundary_condition =
                 new ConstBoundaryCondition<2>((double)i);
             bcc2.AddNeumannBoundaryCondition(&elements2[i], p_boundary_condition);
         }
@@ -163,7 +163,7 @@ public:
         for (int i=0; i<num_nodes; i++)
         {
             nodes3[i] = new Node<3>(i,true,0,0);
-            ConstBoundaryCondition<3> *p_boundary_condition =
+            ConstBoundaryCondition<3>* p_boundary_condition =
                 new ConstBoundaryCondition<3>((double)i);
             bcc3.AddDirichletBoundaryCondition(nodes3[i], p_boundary_condition);
         }
@@ -195,7 +195,7 @@ public:
         }
         for (int i=0; i<num_elem; i++)
         {
-            ConstBoundaryCondition<3> *p_boundary_condition =
+            ConstBoundaryCondition<3>* p_boundary_condition =
                 new ConstBoundaryCondition<3>((double)i);
             bcc3.AddNeumannBoundaryCondition(&elements3[i], p_boundary_condition);
         }
@@ -234,7 +234,7 @@ public:
         for (int i=0; i<SIZE-1; i++)
         {
             nodes_array[i] = new Node<3>(i,true);
-            ConstBoundaryCondition<3> *p_boundary_condition =
+            ConstBoundaryCondition<3>* p_boundary_condition =
                 new ConstBoundaryCondition<3>(-1);
             bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
         }
@@ -304,7 +304,7 @@ public:
         for (int i = 0; i < SIZE-1; i++)
         {
             nodes_array[i] = new Node<3>(i, true);
-            ConstBoundaryCondition<3> *p_boundary_condition =
+            ConstBoundaryCondition<3>* p_boundary_condition =
                 new ConstBoundaryCondition<3>(-1);
             bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
         }
@@ -387,7 +387,7 @@ public:
 
         iter = mesh.GetBoundaryElementIteratorBegin();
 
-        ConstBoundaryCondition<2> *p_boundary_condition2 =
+        ConstBoundaryCondition<2>* p_boundary_condition2 =
             new ConstBoundaryCondition<2>(-1);
 
         bcc_2unknowns.AddNeumannBoundaryCondition(*iter, p_boundary_condition2);
@@ -493,10 +493,10 @@ public:
         {
             nodes_array[i] = new Node<3>(i,true);
 
-            ConstBoundaryCondition<3> *p_boundary_condition0 =
+            ConstBoundaryCondition<3>* p_boundary_condition0 =
                 new ConstBoundaryCondition<3>(-1);
 
-            ConstBoundaryCondition<3> *p_boundary_condition1 =
+            ConstBoundaryCondition<3>* p_boundary_condition1 =
                 new ConstBoundaryCondition<3>(-2);
 
             bcc32.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition0, 0);
@@ -574,13 +574,13 @@ public:
         {
             nodes_array[i] = new Node<3>(i,true);
 
-            ConstBoundaryCondition<3> *p_boundary_condition0 =
+            ConstBoundaryCondition<3>* p_boundary_condition0 =
                 new ConstBoundaryCondition<3>(-1);
 
-            ConstBoundaryCondition<3> *p_boundary_condition1 =
+            ConstBoundaryCondition<3>* p_boundary_condition1 =
                 new ConstBoundaryCondition<3>(-2);
 
-            ConstBoundaryCondition<3> *p_boundary_condition2 =
+            ConstBoundaryCondition<3>* p_boundary_condition2 =
                 new ConstBoundaryCondition<3>( 0);
 
             bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition0, 0);
@@ -626,10 +626,10 @@ public:
         Vec solution = factory.CreateVec(3);
         Vec residual = factory.CreateVec(3);
 
-        double *p_solution;
+        double* p_solution;
         VecGetArray(solution, &p_solution);
 
-        double *p_residual;
+        double* p_residual;
         VecGetArray(residual, &p_residual);
 
         int lo, hi;
@@ -652,13 +652,13 @@ public:
         {
             nodes_array[i] = new Node<3>(i,true);
 
-            ConstBoundaryCondition<3> *p_boundary_condition0 =
+            ConstBoundaryCondition<3>* p_boundary_condition0 =
                 new ConstBoundaryCondition<3>(-1);
 
-            ConstBoundaryCondition<3> *p_boundary_condition1 =
+            ConstBoundaryCondition<3>* p_boundary_condition1 =
                 new ConstBoundaryCondition<3>(-2);
 
-            ConstBoundaryCondition<3> *p_boundary_condition2 =
+            ConstBoundaryCondition<3>* p_boundary_condition2 =
                 new ConstBoundaryCondition<3>(-3);
 
             bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition0, 0);

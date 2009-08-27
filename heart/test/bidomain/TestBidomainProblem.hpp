@@ -279,7 +279,7 @@ public:
         }
 
         // Coverage of the exception in the assembler itself
-        BoundaryConditionsContainer<1, 1, 2> *p_container = new BoundaryConditionsContainer<1, 1, 2>;
+        BoundaryConditionsContainer<1, 1, 2>* p_container = new BoundaryConditionsContainer<1, 1, 2>;
 
         BidomainDg0Assembler<1,1>* p_bidomain_assembler
                 = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),

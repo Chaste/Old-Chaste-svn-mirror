@@ -238,7 +238,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
 
     // get the material law
-    AbstractIncompressibleMaterialLaw<DIM> *p_material_law;
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
     if (this->mMaterialLaws.size()==1)
     {
         // homogeneous

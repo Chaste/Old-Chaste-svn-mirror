@@ -85,7 +85,7 @@ void VertexCryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c
     // Iterate over all nodes and update their positions according to the boundary conditions
     for (unsigned node_index=0; node_index<this->mrTissue.GetNumNodes(); node_index++)
     {
-        Node<2> *p_node = this->mrTissue.GetNode(node_index);
+        Node<2>* p_node = this->mrTissue.GetNode(node_index);
         c_vector<double, 2> old_location = rOldLocations[node_index];
 
         if (!is_wnt_included)

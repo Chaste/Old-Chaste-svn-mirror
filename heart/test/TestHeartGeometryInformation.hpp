@@ -50,9 +50,9 @@ private:
         {
             for (unsigned j=0; j<spaceDim; j++)
             {
-                *p_file << (j == 0 ? "" : "  ") << (1+rNodeLayers[i]);
+               * p_file << (j == 0 ? "" : "  ") << (1+rNodeLayers[i]);
             }
-            *p_file << std::endl;
+           * p_file << std::endl;
         }
         
         p_file->close();

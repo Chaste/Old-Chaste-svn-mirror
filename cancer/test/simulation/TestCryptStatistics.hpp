@@ -72,7 +72,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -80,7 +80,7 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
+        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);// true = mature cells
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -153,7 +153,7 @@ public:
 
     void TestMakeMeinekeGraphs() throw (Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         std::string output_directory = "MakeMeinekeGraphs";
 
@@ -164,7 +164,7 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -172,7 +172,7 @@ public:
         // Set up cells
         std::vector<TissueCell> temp_cells;
         StochasticDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
+        cells_generator.GenerateForCrypt(temp_cells,* p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
         // This awkward way of setting up the cells is a result of #430
         std::vector<TissueCell> cells;
@@ -359,7 +359,7 @@ public:
             labelled_cells_counter[i] = 0;
         }
 
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         p_params->SetDampingConstantNormal(1.0);    // normally 1
         // Do not give mutant cells any different movement properties to normal ones
@@ -367,19 +367,19 @@ public:
         p_params->SetSpringStiffness(30.0); //normally 15.0;
 
         double time_of_each_run;
-        AbstractCellKiller<2> *p_cell_killer;
+        AbstractCellKiller<2>* p_cell_killer;
         std::vector<bool> labelled;
 
-        CryptStatistics *p_crypt_statistics;
+        CryptStatistics* p_crypt_statistics;
 
         // Create tissue
-        MeshBasedTissueWithGhostNodes<2> *p_crypt;
+        MeshBasedTissueWithGhostNodes<2>* p_crypt;
 
         HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         std::vector<unsigned> location_indices;
 
-        Cylindrical2dMesh *p_mesh;
-        SimulationTime *p_simulation_time;
+        Cylindrical2dMesh* p_mesh;
+        SimulationTime* p_simulation_time;
 
         // Loop over the number of simulations
         for (unsigned simulation_index=0; simulation_index<num_simulations; simulation_index++)
@@ -396,7 +396,7 @@ public:
             // Set up cells
             std::vector<TissueCell> temp_cells;
             StochasticDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-            cells_generator.GenerateForCrypt(temp_cells, *p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
+            cells_generator.GenerateForCrypt(temp_cells,* p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
             // This awkward way of setting up the cells is a result of #430
             std::vector<TissueCell> cells;

@@ -51,8 +51,8 @@ void SimpleWntCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
 
-    TissueConfig *p_params = TissueConfig::Instance();
-    RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+    TissueConfig* p_params = TissueConfig::Instance();
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     switch (mpCell->GetCellType())
     {
@@ -149,7 +149,7 @@ WntConcentrationType SimpleWntCellCycleModel::GetWntType()
 
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
-    TissueConfig *p_params = TissueConfig::Instance();
+    TissueConfig* p_params = TissueConfig::Instance();
 
     // The cell can divide if the Wnt concentration >= wnt_division_threshold
     double wnt_division_threshold = DBL_MAX;

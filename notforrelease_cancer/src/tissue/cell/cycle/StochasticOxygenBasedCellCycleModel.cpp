@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 void StochasticOxygenBasedCellCycleModel::SetG2Duration()
 {
-    TissueConfig *p_params = TissueConfig::Instance();
-    RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+    TissueConfig* p_params = TissueConfig::Instance();
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     double mean = p_params->GetG2Duration();
     double standard_deviation = 1.0;

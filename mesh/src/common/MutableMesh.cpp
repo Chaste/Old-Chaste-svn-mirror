@@ -55,7 +55,7 @@ MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh(std::vector<Node<SPACE_DIM> *> 
     Clear();
     for (unsigned index=0; index<nodes.size(); index++)
     {
-        Node<SPACE_DIM> *p_temp_node = nodes[index];
+        Node<SPACE_DIM>* p_temp_node = nodes[index];
         this->mNodes.push_back(p_temp_node);
     }
     mAddedNodes = true;
@@ -209,7 +209,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
          !found_target && it != this->mNodes[index]->ContainingElementsEnd();
          ++it)
     {
-        Element <ELEMENT_DIM,SPACE_DIM> *p_element = GetElement(*it);
+        Element <ELEMENT_DIM,SPACE_DIM>* p_element = GetElement(*it);
         for (unsigned i=0; i<=ELEMENT_DIM && !found_target; i++)
         {
             target_index = p_element->GetNodeGlobalIndex(i);
@@ -425,7 +425,7 @@ unsigned MutableMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
             mDeletedElementIndices.pop_back();
         }
 
-        Element<ELEMENT_DIM,SPACE_DIM> *p_new_element=
+        Element<ELEMENT_DIM,SPACE_DIM>* p_new_element=
             new Element<ELEMENT_DIM,SPACE_DIM>(*pElement, new_elt_index);
 
         // Second, update the node in the element with the new one
@@ -470,7 +470,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
     std::set<unsigned>::const_iterator boundary_element_indices_iterator = boundary_element_indices.begin();
     while (boundary_element_indices_iterator != boundary_element_indices.end())
     {
-        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *p_boundary_element = this->GetBoundaryElement(*boundary_element_indices_iterator);
+        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = this->GetBoundaryElement(*boundary_element_indices_iterator);
         p_boundary_element->MarkAsDeleted();
         mDeletedBoundaryElementIndices.push_back(*boundary_element_indices_iterator);
         boundary_element_indices_iterator++;
@@ -481,10 +481,10 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
     std::set<unsigned>::const_iterator element_indices_iterator = element_indices.begin();
     while (element_indices_iterator != element_indices.end())
     {
-        Element<ELEMENT_DIM, SPACE_DIM> *p_element = this->GetElement(*element_indices_iterator);
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element = this->GetElement(*element_indices_iterator);
         for (unsigned i=0; i<p_element->GetNumNodes(); i++)
         {
-            Node<SPACE_DIM> *p_node = p_element->GetNode(i);
+            Node<SPACE_DIM>* p_node = p_element->GetNode(i);
             if (!p_node->IsDeleted())
             {
                 p_node->SetAsBoundaryNode();
@@ -658,7 +658,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         // Construct the nodes and boundary nodes
         for (unsigned node_index=0; node_index<old_node_locations.size(); node_index++)
         {
-            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, old_node_locations[node_index], false);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, old_node_locations[node_index], false);
             this->mNodes.push_back(p_node);
 
             // As we're in 1D, the boundary nodes are simply at either end of the mesh
@@ -760,7 +760,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             if (triangle_output.pointmarkerlist[node_index] == 1)
             {
                 // Boundary node
-                Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true,
+                Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true,
                   triangle_output.pointlist[node_index * 2],
                   triangle_output.pointlist[node_index * 2+1]);
                 this->mNodes.push_back(p_node);
@@ -935,7 +935,7 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPAC
     // Form a set of neighbouring elements via the nodes
     for (unsigned i=0; i<num_nodes; i++)
     {
-        Node<SPACE_DIM> *p_node = pElement->GetNode(i);
+        Node<SPACE_DIM>* p_node = pElement->GetNode(i);
         neighbouring_elements_indices = p_node->rGetContainingElementIndices();
         ///\todo Should use a set union operation here
         for (std::set<unsigned>::const_iterator it = neighbouring_elements_indices.begin();

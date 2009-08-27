@@ -299,7 +299,7 @@ public:
     {
         {
             // With ghost nodes - 56 ghosts 8 real cells.
-            TissueSimulation<3> *p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
+            TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 8u);
@@ -314,7 +314,7 @@ public:
 
         {
             // Without ghost nodes - all 65 are real cells
-            TissueSimulation<3> *p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
+            TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3DNoGhosts", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 
             TS_ASSERT_EQUALS(num_cells, 65u);

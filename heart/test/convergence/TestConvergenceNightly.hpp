@@ -57,7 +57,7 @@ class TestConvergenceNightly : public CxxTest::TestSuite
 
 public:
 
-    void RunConvergenceTester(AbstractUntemplatedConvergenceTester *pTester, StimulusType stimulusType)
+    void RunConvergenceTester(AbstractUntemplatedConvergenceTester* pTester, StimulusType stimulusType)
     {
         pTester->Stimulus = stimulusType;
         if ( stimulusType == REGION )

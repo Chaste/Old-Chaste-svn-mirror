@@ -332,7 +332,7 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     CellType cell_type;
     CellMutationState mutation_state;
-    AbstractCellCycleModel *p_cell_cycle_model;
+    AbstractCellCycleModel* p_cell_cycle_model;
     ar >> cell_type;
     ar >> mutation_state;
     ar >> p_cell_cycle_model;

@@ -51,7 +51,7 @@ public:
 
     void TestNoWnt() throw(Exception)
     {
-        WntConcentration<2> *p_wnt = WntConcentration<2>::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(NONE);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // NONE does not register as a set up Wnt Gradient (so stem cells are not moved)
@@ -77,11 +77,11 @@ public:
 
     void TestLinearWntConcentration() throw(Exception)
     {
-        WntConcentration<2> *p_wnt = WntConcentration<2>::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
 
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         double height = 100;
         double wnt_level = 0.0;
@@ -120,10 +120,10 @@ public:
 
     void TestOffsetLinearWntConcentration() throw(Exception)
     {
-        WntConcentration<2> *p_wnt = WntConcentration<2>::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetTopOfLinearWntConcentration(1.0/3.0);
 
         double height = 100;
@@ -160,13 +160,13 @@ public:
 
     void TestRadialWntConcentration() throw(Exception)
     {
-        WntConcentration<2> *p_wnt = WntConcentration<2>::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
 
         p_wnt->SetType(RADIAL);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a tissue is assigned.
 
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Test GetWntLevel(double) method
         double height = 100;
@@ -206,7 +206,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            WntCellCycleModel *p_model = new WntCellCycleModel(2);
+            WntCellCycleModel* p_model = new WntCellCycleModel(2);
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -279,7 +279,7 @@ public:
         }
 
         {
-            WntConcentration<2> *p_wnt = WntConcentration<2>::Instance();
+            WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -300,9 +300,9 @@ public:
 
     void TestSingletonnessOfWntConcentration()
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
-        WntConcentration<2> *p_wnt = WntConcentration<2>::Instance();
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         p_wnt->SetType(NONE);
 
         double height = 5;
@@ -356,7 +356,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            WntCellCycleModel *p_model = new WntCellCycleModel(2);
+            WntCellCycleModel* p_model = new WntCellCycleModel(2);
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -380,7 +380,7 @@ public:
 
         while (iter!=crypt.End())
         {
-            const WntCellCycleModel *p_model = (WntCellCycleModel*) iter->GetCellCycleModel();
+            const WntCellCycleModel* p_model = (WntCellCycleModel*) iter->GetCellCycleModel();
             std::vector<double> proteins = p_model->GetProteinConcentrations();
 
             if (crypt.GetLocationOfCellCentre(&(*iter))[1]==0.0)

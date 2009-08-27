@@ -56,7 +56,7 @@ public:
      */
     void TestGenerateSteadyStateCryptArchives() throw (Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         std::string output_directory = "SteadyStateCrypt";
 
         double end_of_simulation = 150.0; // hours
@@ -69,18 +69,18 @@ public:
         unsigned thickness_of_ghost_layer = 3;
 
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Get location indices corresponding to real cells
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
         // Set up cells
         std::vector<TissueCell> cells;
         StochasticWntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
@@ -123,7 +123,7 @@ public:
 
         for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
         {
-            CryptSimulation2d *p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("SteadyStateCrypt",t);
+            CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("SteadyStateCrypt",t);
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
             TissueSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator);

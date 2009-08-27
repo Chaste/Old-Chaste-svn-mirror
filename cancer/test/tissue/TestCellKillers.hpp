@@ -51,8 +51,8 @@ public:
     void TestRandomCellKiller() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig *p_params = TissueConfig::Instance();
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(32.0, 32);
 
         // Create mesh
@@ -123,7 +123,7 @@ public:
         {
             if (!cell_iter->IsDead())
             {
-                Node<2> *p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
@@ -139,7 +139,7 @@ public:
              ++cell_iter)
         {
             TS_ASSERT(!cell_iter->IsDead());
-            Node<2> *p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }
@@ -151,7 +151,7 @@ public:
     void TestSloughingCellKillerTopAndSides() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -210,7 +210,7 @@ public:
     void TestSloughingCellKillerTopOnly() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -269,7 +269,7 @@ public:
     void TestSloughingCellKillerIn1d() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create 1D mesh
         unsigned num_cells = 14;
@@ -378,7 +378,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            RandomCellKiller<2> *p_cell_killer;
+            RandomCellKiller<2>* p_cell_killer;
 
             // Restore from the archive
             input_arch >> p_cell_killer;
@@ -397,7 +397,7 @@ public:
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
 
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         p_params->SetCryptLength(10.0);
         p_params->SetCryptWidth(5.0);
@@ -425,7 +425,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            SloughingCellKiller<2> *p_cell_killer;
+            SloughingCellKiller<2>* p_cell_killer;
 
             // Restore from the archive
             input_arch >> p_cell_killer;

@@ -373,7 +373,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         /////////////////////////////////////////////////////////////
         for (unsigned i=0; i<num_nodes; i++)
         {
-            const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
+            const Node<SPACE_DIM>* p_node = rElement.GetNode(i);
 
             if (NON_HEART)
             {

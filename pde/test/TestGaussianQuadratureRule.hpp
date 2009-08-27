@@ -199,7 +199,7 @@ public :
                         const ChastePoint<2>& quad_point = quad_rule.rGetQuadPoint(quad_index);
 
                         integral += pow(quad_point[0], poly_degree_x)
-                                    *pow(quad_point[1], poly_degree_y)
+                                   * pow(quad_point[1], poly_degree_y)
                                     *quad_rule.GetWeight(quad_index);
                     }
 
@@ -287,8 +287,8 @@ public :
                             const ChastePoint<3>& quad_point = quad_rule.rGetQuadPoint(quad_index);
 
                             integral += pow(quad_point[0], poly_degree_x)
-                                        *pow(quad_point[1], poly_degree_y)
-                                        *pow(quad_point[2], poly_degree_z)
+                                       * pow(quad_point[1], poly_degree_y)
+                                       * pow(quad_point[2], poly_degree_z)
                                         *quad_rule.GetWeight(quad_index);
                         }
 

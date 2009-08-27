@@ -162,7 +162,7 @@ public:
      *  Set the boundary conditions container.
      *  @param pbcc is a pointer to a boundary conditions container
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pbcc);
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pbcc);
 
     /**
      *  Performs a series of checks before solving.

@@ -250,7 +250,7 @@ public:
         VertexMesh<2,2> mesh(nodes, elements);
 
         // Test GetAreaGradientOfElementAtNode() method at each node
-        VertexElement<2,2> *p_element = mesh.GetElement(0);
+        VertexElement<2,2>* p_element = mesh.GetElement(0);
 
         c_vector<double, 2> element_area_gradient = mesh.GetAreaGradientOfElementAtNode(p_element, 0);
         TS_ASSERT_DELTA(element_area_gradient[0], -0.5, 1e-6);
@@ -315,7 +315,7 @@ public:
         VertexMesh<2,2> mesh(nodes, elements);
 
         // Test gradient of area evaluated at each node
-        VertexElement<2,2> *p_element = mesh.GetElement(0);
+        VertexElement<2,2>* p_element = mesh.GetElement(0);
 
         c_vector<double, 2> element_perimeter_gradient = mesh.GetPerimeterGradientOfElementAtNode(p_element, 0);
         TS_ASSERT_DELTA(element_perimeter_gradient[0], -1.0, 1e-6);
@@ -591,7 +591,7 @@ public:
         // Create a new node close to this node
         point.SetCoordinate(0, 1.1);
         point.SetCoordinate(1, 2.1);
-        Node<2> *p_node = new Node<2>(mesh.GetNumNodes(), point);
+        Node<2>* p_node = new Node<2>(mesh.GetNumNodes(), point);
 
         unsigned old_num_nodes = mesh.GetNumNodes();
 
@@ -622,7 +622,7 @@ public:
         ChastePoint<2> point2;
         point2.SetCoordinate(0, 0.9);
         point2.SetCoordinate(1, 1.9);
-        Node<2> *p_node2 = new Node<2>(mesh.GetNumNodes(), point);
+        Node<2>* p_node2 = new Node<2>(mesh.GetNumNodes(), point);
 
         // Add this new node to the mesh
         new_index = mesh.AddNode(p_node2);
@@ -655,7 +655,7 @@ public:
         nodes_elem_1.push_back(nodes[6]);
 
         std::vector<VertexElement<2,2>*> elements;
-        VertexElement<2,2> *p_replaced_vertex_element = new VertexElement<2,2>(0, nodes_elem_0);
+        VertexElement<2,2>* p_replaced_vertex_element = new VertexElement<2,2>(0, nodes_elem_0);
         elements.push_back(p_replaced_vertex_element);
         elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
@@ -729,7 +729,7 @@ public:
 
         {
             // De-serialize and compare
-            AbstractMesh<2,2> *p_mesh2;
+            AbstractMesh<2,2>* p_mesh2;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -738,8 +738,8 @@ public:
             // Restore from the archive
             input_arch >> p_mesh2;
 
-            VertexMesh<2,2> *p_mesh_original = static_cast<VertexMesh<2,2>*>(p_mesh2);
-            VertexMesh<2,2> *p_mesh_loaded = static_cast<VertexMesh<2,2>*>(p_mesh);
+            VertexMesh<2,2>* p_mesh_original = static_cast<VertexMesh<2,2>*>(p_mesh2);
+            VertexMesh<2,2>* p_mesh_loaded = static_cast<VertexMesh<2,2>*>(p_mesh);
 
             // Compare the loaded mesh against the original
 
@@ -747,8 +747,8 @@ public:
 
             for (unsigned node_index=0; node_index<p_mesh_original->GetNumNodes(); node_index++)
             {
-                Node<2> *p_node = p_mesh_original->GetNode(node_index);
-                Node<2> *p_node2 = p_mesh_loaded->GetNode(node_index);
+                Node<2>* p_node = p_mesh_original->GetNode(node_index);
+                Node<2>* p_node2 = p_mesh_loaded->GetNode(node_index);
 
                 TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
@@ -1679,13 +1679,13 @@ public:
         // This also tests IdentifySwapType
 
         // Create some nodes
-        Node<2> *p_node0 = new Node<2>(0, false, 0.0, 0.0);
-        Node<2> *p_node1 = new Node<2>(1, false, 1.0, 0.0);
-        Node<2> *p_node2 = new Node<2>(2, false, 1.0, 1.0);
-        Node<2> *p_node3 = new Node<2>(3, false, 0.0, 1.0);
-        Node<2> *p_node4 = new Node<2>(4, false, 0.5, 0.5);
-        Node<2> *p_node5 = new Node<2>(5, false, 0.49, 0.49);
-        Node<2> *p_node6 = new Node<2>(6, false, 0.75, 0.75); // so that all elements have at least 4 nodes
+        Node<2>* p_node0 = new Node<2>(0, false, 0.0, 0.0);
+        Node<2>* p_node1 = new Node<2>(1, false, 1.0, 0.0);
+        Node<2>* p_node2 = new Node<2>(2, false, 1.0, 1.0);
+        Node<2>* p_node3 = new Node<2>(3, false, 0.0, 1.0);
+        Node<2>* p_node4 = new Node<2>(4, false, 0.5, 0.5);
+        Node<2>* p_node5 = new Node<2>(5, false, 0.49, 0.49);
+        Node<2>* p_node6 = new Node<2>(6, false, 0.75, 0.75); // so that all elements have at least 4 nodes
 
         std::vector<Node<2>*> nodes_in_element0, nodes_in_element1,
                               nodes_in_element2, nodes_in_element3;
@@ -1729,10 +1729,10 @@ public:
          * |/____\|
          *
          */
-        VertexElement<2,2> *p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
-        VertexElement<2,2> *p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
-        VertexElement<2,2> *p_element2 = new VertexElement<2,2>(2, nodes_in_element2);
-        VertexElement<2,2> *p_element3 = new VertexElement<2,2>(3, nodes_in_element3);
+        VertexElement<2,2>* p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
+        VertexElement<2,2>* p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
+        VertexElement<2,2>* p_element2 = new VertexElement<2,2>(2, nodes_in_element2);
+        VertexElement<2,2>* p_element3 = new VertexElement<2,2>(3, nodes_in_element3);
 
         std::vector<VertexElement<2,2>* > elements;
         elements.push_back(p_element0);
@@ -1754,10 +1754,10 @@ public:
     void TestReMeshDivideEdgeIfTooBig() throw(Exception)
     {
         // Create some nodes
-        Node<2> *p_node0 = new Node<2>(0, false, 0.0, 0.0);
-        Node<2> *p_node1 = new Node<2>(1, false, 0.5, -1.0);
-        Node<2> *p_node2 = new Node<2>(2, false, 1.0, 0.0);
-        Node<2> *p_node3 = new Node<2>(3, false, 0.5, 1.0);
+        Node<2>* p_node0 = new Node<2>(0, false, 0.0, 0.0);
+        Node<2>* p_node1 = new Node<2>(1, false, 0.5, -1.0);
+        Node<2>* p_node2 = new Node<2>(2, false, 1.0, 0.0);
+        Node<2>* p_node3 = new Node<2>(3, false, 0.5, 1.0);
 
         std::vector<Node<2>*> nodes_in_element0, nodes_in_element1;
         nodes_in_element0.push_back(p_node0);
@@ -1774,8 +1774,8 @@ public:
         nodes.push_back(p_node3);
 
         // Create 2 joined triangular elements
-        VertexElement<2,2> *p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
-        VertexElement<2,2> *p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
+        VertexElement<2,2>* p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
+        VertexElement<2,2>* p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
         std::vector<VertexElement<2,2>* > elements;
         elements.push_back(p_element0);
         elements.push_back(p_element1);
@@ -1854,12 +1854,12 @@ public:
          */
 
         // Create nodes
-        Node<2> *p_node0 = new Node<2>(0, false, 1.0, 1.0);
-        Node<2> *p_node1 = new Node<2>(1, false, 2.0, 1.0);
-        Node<2> *p_node2 = new Node<2>(2, false, 2.0, 2.0);
-        Node<2> *p_node3 = new Node<2>(3, false, 1.0, 2.0);
-        Node<2> *p_node4 = new Node<2>(4, false, 0.5, 1.5);
-        Node<2> *p_node5 = new Node<2>(5, false, 2.5, 1.5);
+        Node<2>* p_node0 = new Node<2>(0, false, 1.0, 1.0);
+        Node<2>* p_node1 = new Node<2>(1, false, 2.0, 1.0);
+        Node<2>* p_node2 = new Node<2>(2, false, 2.0, 2.0);
+        Node<2>* p_node3 = new Node<2>(3, false, 1.0, 2.0);
+        Node<2>* p_node4 = new Node<2>(4, false, 0.5, 1.5);
+        Node<2>* p_node5 = new Node<2>(5, false, 2.5, 1.5);
 
         std::vector<Node<2>*> nodes_in_element0;
         nodes_in_element0.push_back(p_node0);
@@ -1890,9 +1890,9 @@ public:
          *  and elements 1 and 2 share nodes 1 and 2
          */
 
-        VertexElement<2,2> *p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
-        VertexElement<2,2> *p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
-        VertexElement<2,2> *p_element2 = new VertexElement<2,2>(2, nodes_in_element2);
+        VertexElement<2,2>* p_element0 = new VertexElement<2,2>(0, nodes_in_element0);
+        VertexElement<2,2>* p_element1 = new VertexElement<2,2>(1, nodes_in_element1);
+        VertexElement<2,2>* p_element2 = new VertexElement<2,2>(2, nodes_in_element2);
         TS_ASSERT_EQUALS(p_element0->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(p_element1->GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(p_element2->GetNumNodes(), 4u);
@@ -2609,7 +2609,7 @@ public:
 
         // Test the translate method
         // Pick a certain node and store spatial position
-        Node<3> *p_node = mesh3d.GetNode(7);
+        Node<3>* p_node = mesh3d.GetNode(7);
         ChastePoint<3> original_coordinate = p_node->GetPoint();
 
         const double x_movement = 1.0;
@@ -2847,7 +2847,7 @@ public:
         VertexMesh<2,2> mesh(3, 3);
 
         // Pick a random node and store spatial position
-        Node<2> *p_node = mesh.GetNode(10);
+        Node<2>* p_node = mesh.GetNode(10);
         ChastePoint<2> original_coordinate = p_node->GetPoint();
 
         const double x_movement = 1.0;

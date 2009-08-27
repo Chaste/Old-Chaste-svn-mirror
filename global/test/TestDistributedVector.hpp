@@ -129,9 +129,9 @@ public:
         Vec striped;
         VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*vec_size, &striped);
         // write some values
-        double *p_vec;
+        double* p_vec;
         VecGetArray(vec, &p_vec);
-        double *p_striped;
+        double* p_striped;
         VecGetArray(striped, &p_striped);
         for (unsigned global_index=lo; global_index<hi; global_index++)
         {
@@ -236,11 +236,11 @@ public:
         unsigned lo=(unsigned)petsc_lo;
         unsigned hi=(unsigned)petsc_hi;
         // read some values
-        double *p_striped;
+        double* p_striped;
         VecGetArray(striped, &p_striped);
-        double *p_chunked;
+        double* p_chunked;
         VecGetArray(chunked, &p_chunked);
-        double *p_vec;
+        double* p_vec;
         VecGetArray(petsc_vec, &p_vec);
         for (unsigned global_index=lo; global_index<hi; global_index++)
         {
@@ -336,7 +336,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            DistributedVectorFactory *p_new_factory;
+            DistributedVectorFactory* p_new_factory;
             input_arch >> p_new_factory;
 
             TS_ASSERT_EQUALS(p_new_factory->GetProblemSize(), TOTAL);
@@ -352,7 +352,7 @@ public:
             std::ifstream ifs("global/test/data/distributed_vector_factory.arch", std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            DistributedVectorFactory *p_new_factory = NULL;
+            DistributedVectorFactory* p_new_factory = NULL;
 
             if (PetscTools::IsSequential())
             {

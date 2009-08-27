@@ -42,10 +42,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,void *pContext);
-PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
-PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void *pContext);
-PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
+PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,void* pContext);
+PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat* pJacobian ,Mat* pPreconditioner,MatStructure* pMatStructure ,void* pContext);
+PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void* pContext);
+PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat* pJacobian ,Mat* pPreconditioner,MatStructure* pMatStructure ,void* pContext);
 
 class TestNonlinearSolvers : public CxxTest::TestSuite
 {
@@ -192,7 +192,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // global functions called by nonlinear solvers
 ///////////////////////////////////////////////////////////////////////////////////////////////
-PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,void *pContext)
+PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,void* pContext)
 {
     double x,y;
 
@@ -208,7 +208,7 @@ PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,voi
     return 0;
 }
 
-PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
+PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat* pJacobian ,Mat* pPreconditioner,MatStructure* pMatStructure ,void* pContext)
 {
     double x, y;
 
@@ -227,7 +227,7 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPre
     return 0;
 }
 
-PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void *pContext)
+PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void* pContext)
 {
     double x,y,z;
 
@@ -246,7 +246,7 @@ PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,v
     return 0;
 }
 
-PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
+PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat* pJacobian ,Mat* pPreconditioner,MatStructure* pMatStructure ,void* pContext)
 {
     double x, y, z;
 

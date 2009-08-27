@@ -163,7 +163,7 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
     Vec force_term_at_nodes = this->mpMesh->GetDistributedVectorFactory()->CreateVec();
     PetscInt lo, hi;
     VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
-    double *p_force_term;
+    double* p_force_term;
     VecGetArray(force_term_at_nodes, &p_force_term);
     for (int global_index=lo; global_index<hi; global_index++)
     {

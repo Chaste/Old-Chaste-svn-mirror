@@ -59,7 +59,7 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
 {
     if (rTissue.HasMesh())
     {
-        MeshBasedTissue<DIM> *p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+        MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
 
         // Iterate over all springs and add force contributions
         for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator = p_static_cast_tissue->SpringsBegin();

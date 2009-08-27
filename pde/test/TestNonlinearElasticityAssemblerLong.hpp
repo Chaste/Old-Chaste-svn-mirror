@@ -184,7 +184,7 @@ public:
         {
             if (fabs((*iter)->CalculateCentroid()[0])>1e-6)
             {
-                BoundaryElement<2,3> *p_element = *iter;
+                BoundaryElement<2,3>* p_element = *iter;
                 boundary_elems.push_back(p_element);
             }
         }

@@ -54,7 +54,7 @@ public:
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
 
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Reset the mesh
         p_mesh = generator.GetCylindricalMesh();
@@ -107,7 +107,7 @@ public:
 
         // Set up a mesh which can be mirrored (no ghost nodes in this case)
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Create a mirrored load of nodes for the normal remesher to work with
         p_mesh->CreateMirrorNodes();
@@ -219,7 +219,7 @@ public:
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ReMesh(map);
@@ -241,7 +241,7 @@ public:
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         unsigned num_old_nodes = p_mesh->GetNumNodes();
 
@@ -278,7 +278,7 @@ public:
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ReMesh(map);
@@ -297,7 +297,7 @@ public:
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         c_vector<double, 2> location1 = p_mesh->GetNode(1)->rGetLocation();
         c_vector<double, 2> location2 = p_mesh->GetNode(4)->rGetLocation();
@@ -361,7 +361,7 @@ public:
         unsigned thickness_of_ghost_layer = 2;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         /*
          * New test to check that the top and bottom rows move together
@@ -424,7 +424,7 @@ public:
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), cells_across*cells_up);
@@ -434,7 +434,7 @@ public:
         c_vector<double,2> point;
         point[0] = -0.05;
         point[1] = 1.0;
-        Node<2> *p_node = new Node<2>(p_mesh->GetNumNodes(), point);
+        Node<2>* p_node = new Node<2>(p_mesh->GetNumNodes(), point);
 
         unsigned new_index = p_mesh->AddNode(p_node);
         NodeMap map(p_mesh->GetNumNodes());
@@ -466,7 +466,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         c_vector<double,2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
         rLocation1[1] -= 0.5;
@@ -516,7 +516,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         c_vector<double,2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
         rLocation1[1] -= 0.5;
@@ -586,7 +586,7 @@ public:
 
         {
             // De-serialize and compare
-            AbstractTetrahedralMesh<2,2> *p_mesh2;
+            AbstractTetrahedralMesh<2,2>* p_mesh2;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -606,8 +606,8 @@ public:
 
             for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
             {
-                Node<2> *p_node = p_mesh->GetNode(i);
-                Node<2> *p_node2 = p_mesh2->GetNode(i);
+                Node<2>* p_node = p_mesh->GetNode(i);
+                Node<2>* p_node2 = p_mesh2->GetNode(i);
                 TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
                 TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
@@ -750,7 +750,7 @@ public:
             std::vector<unsigned> indices;
 
             // Get the forward star from each node that isn't at the top or bottom boundary
-            Node<2> *p_node = mesh.GetNode(node_index);
+            Node<2>* p_node = mesh.GetNode(node_index);
             if (p_node->rGetLocation()[1] < -2.5)
             {
                 continue;
@@ -765,7 +765,7 @@ public:
                 it != p_node->ContainingElementsEnd();
                 ++it)
             {
-                Element <2,2> *p_element = mesh.GetElement(*it);
+                Element <2,2>* p_element = mesh.GetElement(*it);
                 for (unsigned j=0; j<3; j++)
                 {
                     unsigned index=p_element->GetNodeGlobalIndex(j);

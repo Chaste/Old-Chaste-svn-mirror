@@ -162,7 +162,7 @@ Vec PetscTools::CreateVec(std::vector<double> data)
     assert(data.size() > 0);
     Vec ret = CreateVec(data.size());
 
-    double *p_ret;
+    double* p_ret;
     VecGetArray(ret, &p_ret);
     int lo, hi;
     VecGetOwnershipRange(ret, &lo, &hi);

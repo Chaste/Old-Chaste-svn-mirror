@@ -51,7 +51,7 @@ private:
      */
     void CheckValuesAreTheDefaultValues()
     {
-        TissueConfig *p_inst = TissueConfig::Instance();
+        TissueConfig* p_inst = TissueConfig::Instance();
 
         TS_ASSERT_DELTA(p_inst->GetSG2MDuration(), 10.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetSDuration(), 5.0, 1e-12);
@@ -108,7 +108,7 @@ public:
 
     void TestReset()
     {
-        TissueConfig *p_inst = TissueConfig::Instance();
+        TissueConfig* p_inst = TissueConfig::Instance();
 
         p_inst->SetSDuration(11.0);
         p_inst->SetG2Duration(11.0);
@@ -159,7 +159,7 @@ public:
 
     void TestGettersAndSetters()
     {
-        TissueConfig *p_inst1 = TissueConfig::Instance();
+        TissueConfig* p_inst1 = TissueConfig::Instance();
 
         p_inst1->SetSDuration(4.0);
         p_inst1->SetG2Duration(3.0);
@@ -205,7 +205,7 @@ public:
         p_inst1->SetOutputVoronoiData(true);
         p_inst1->SetOutputTissueAreas(true);
 
-        TissueConfig *p_inst2 = TissueConfig::Instance();
+        TissueConfig* p_inst2 = TissueConfig::Instance();
 
         TS_ASSERT_DELTA(p_inst2->GetSG2MDuration(), 9.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetSDuration(), 4.0, 1e-12);
@@ -259,7 +259,7 @@ public:
 
         // Create an output archive
         {
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             // Change the cancer parameter values
             p_inst1->SetSDuration(4.0);
@@ -314,7 +314,7 @@ public:
         }
 
         {
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             // Restore the cancer parameters to their default values
             p_inst1->SetSDuration(5.0);

@@ -191,7 +191,7 @@ public:
                  * object that it should associate this boundary condition with this node
                  * ({{{*iter}}} being a pointer to a {{{Node<2>}}}).
                  */
-                ConstBoundaryCondition<2> *p_dirichlet_boundary_condition = new ConstBoundaryCondition<2>(0.0);
+                ConstBoundaryCondition<2>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<2>(0.0);
                 bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             }
             iter++;
@@ -217,7 +217,7 @@ public:
          * its {{{AbstractBoundaryCondition}}} objects), and then loop over surface elements, using the
          * iterator provided by the mesh class.
          */
-        ConstBoundaryCondition<2> *p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
+        ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
 
         TetrahedralMesh<2,2>::BoundaryElementIterator surf_iter
           = mesh.GetBoundaryElementIteratorBegin();

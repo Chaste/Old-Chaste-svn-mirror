@@ -156,7 +156,7 @@ public:
          * condition, u=0 on x=0, using the boundary node iterator
          */
         BoundaryConditionsContainer<2,2,1> bcc;
-        ConstBoundaryCondition<2> *p_zero_bc = new ConstBoundaryCondition<2>(0.0);
+        ConstBoundaryCondition<2>* p_zero_bc = new ConstBoundaryCondition<2>(0.0);
         for ( TetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
              node_iter != mesh.GetBoundaryNodeIteratorEnd();
              node_iter++)
@@ -173,7 +173,7 @@ public:
          * object, which contains a pointer to a function, and just returns the value
          * of that function for the required point when the {{{GetValue}}} method is called.
          */
-        FunctionalBoundaryCondition<2> *p_functional_bc
+        FunctionalBoundaryCondition<2>* p_functional_bc
           = new FunctionalBoundaryCondition<2>( &MyNeummanFunction );
         /* Next, loop over surface elements */
         for ( TetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();

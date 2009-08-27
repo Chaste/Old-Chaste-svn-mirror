@@ -55,7 +55,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Node<3> *p_node = mesh.GetNode(i);
+            Node<3>* p_node = mesh.GetNode(i);
             ChastePoint<3> point = p_node->GetPoint();
             point.SetCoordinate(0, point[0]*2.0);
             point.SetCoordinate(1, point[1]*2.0);
@@ -77,9 +77,9 @@ public:
 
         double volume = mesh.GetVolume();
         double surface_area = mesh.GetSurfaceArea();
-        Node<3> *p_node1 = mesh.GetNode(36);
+        Node<3>* p_node1 = mesh.GetNode(36);
         ChastePoint<3> point1 = p_node1->GetPoint();
-        Node<3> *p_node2 = mesh.GetNode(23);
+        Node<3>* p_node2 = mesh.GetNode(23);
         ChastePoint<3> point2 = p_node2->GetPoint();
 
         c_vector<double, 3> old_location1 = point1.rGetLocation();
@@ -113,9 +113,9 @@ public:
 
         double volume = mesh.GetVolume();
         double surface_area = mesh.GetSurfaceArea();
-        Node<2> *p_node1 = mesh.GetNode(36);
+        Node<2>* p_node1 = mesh.GetNode(36);
         ChastePoint<2> point1 = p_node1->GetPoint();
-        Node<2> *p_node2 = mesh.GetNode(23);
+        Node<2>* p_node2 = mesh.GetNode(23);
         ChastePoint<2> point2 = p_node2->GetPoint();
 
         c_vector<double, 2> old_location1 = point1.rGetLocation();
@@ -147,7 +147,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Pick a random node and store spatial position
-        Node<3> *p_node = mesh.GetNode(10);
+        Node<3>* p_node = mesh.GetNode(10);
         ChastePoint<3> original_coordinate = p_node->GetPoint();
 
         double mesh_volume = mesh.GetVolume();
@@ -186,11 +186,11 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             // Find new coordinates of the translated node
-            Node<3> *p_node = mesh.GetNode(i);
+            Node<3>* p_node = mesh.GetNode(i);
             ChastePoint<3> new_coordinate = p_node->GetPoint();
 
             // Get original node
-            Node<3> *p_original_node = original_mesh.GetNode(i);
+            Node<3>* p_original_node = original_mesh.GetNode(i);
             ChastePoint<3> original_coordinate = p_original_node->GetPoint();
 
             // Run a test to make sure the node has gone to the correct place
@@ -234,7 +234,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Node<3> *p_node = mesh.GetNode(i);
+            Node<3>* p_node = mesh.GetNode(i);
             ChastePoint<3> point = p_node->GetPoint();
 
             c_vector<double, 4> point_location;
@@ -378,7 +378,7 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Node<3> *p_node = mesh.GetNode(i);
+            Node<3>* p_node = mesh.GetNode(i);
             ChastePoint<3> point = p_node->GetPoint();
 
             c_vector<double, 4> point_location;
@@ -459,11 +459,11 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            Node<3> *p_node = mesh.GetNode(i);
+            Node<3>* p_node = mesh.GetNode(i);
             ChastePoint<3> new_coordinate = p_node->GetPoint();
 
             // Get original node
-            Node<3> *p_original_node = original_mesh.GetNode(i);
+            Node<3>* p_original_node = original_mesh.GetNode(i);
             ChastePoint<3>  original_coordinate = p_original_node->GetPoint();
 
             // Run a test to make sure the node has gone to the correct place
@@ -496,11 +496,11 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             // Find new coordinates of the translated node
-            Node<2> *p_node = mesh.GetNode(i);
+            Node<2>* p_node = mesh.GetNode(i);
             ChastePoint<2> new_coordinate = p_node->GetPoint();
 
             // Get original node
-            Node<2> *p_original_node = original_mesh.GetNode(i);
+            Node<2>* p_original_node = original_mesh.GetNode(i);
             ChastePoint<2> original_coordinate = p_original_node->GetPoint();
 
             // Run a test to make sure the node has gone to the correct place

@@ -92,7 +92,7 @@ public:
         // Note: converges very slowly so large tolerance of 0.1
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
-            Node<1> *p_node = mesh.GetNode(index);
+            Node<1>* p_node = mesh.GetNode(index);
 
             TS_ASSERT(!p_node->IsDeleted());
 
@@ -179,8 +179,8 @@ public:
     void Test1dCryptWithBirthButNoDeath() throw (Exception)
     {
         // Get pointers to singleton objects
-        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
-        TissueConfig *p_params = TissueConfig::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -319,8 +319,8 @@ public:
     void Test1dCryptWithBirthAndDeath() throw (Exception)
     {
         // Get pointers to singleton objects
-        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
-        TissueConfig *p_params = TissueConfig::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -400,8 +400,8 @@ public:
     void Test1DChainWithTysonNovakCellsAndNoDeath() throw (Exception)
     {
         // Get pointers to singleton objects
-        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
-        TissueConfig *p_params = TissueConfig::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -491,7 +491,7 @@ public:
     void Test1dChainCorrectCellNumbers()
     {
         // Get pointers to singleton object
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // The stem cell cycle time must still be 24 h, otherwise this test may not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -599,7 +599,7 @@ public:
     void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         // Get pointers to singleton object
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // The stem cell cycle time must still be 24 h, otherwise this test may not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -689,8 +689,8 @@ public:
     void TestSave() throw (Exception)
     {
         // Get pointers to singleton object
-        TissueConfig *p_params = TissueConfig::Instance();
-        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -762,7 +762,7 @@ public:
     {
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
-        CryptSimulation1d *p_simulator1;
+        CryptSimulation1d* p_simulator1;
 
         p_simulator1 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.1);
 
@@ -773,7 +773,7 @@ public:
         MutableMesh<1,1>& r_mesh1 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
         TissueSimulationArchiver<1, CryptSimulation1d>::Save(p_simulator1);
 
-        CryptSimulation1d *p_simulator2 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
+        CryptSimulation1d* p_simulator2 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
         MutableMesh<1,1>& r_mesh2 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
 
         TS_ASSERT_EQUALS(r_mesh1.GetNumAllNodes(), r_mesh2.GetNumAllNodes());
@@ -782,8 +782,8 @@ public:
 
         for (unsigned i=0; i<r_mesh1.GetNumAllNodes(); i++)
         {
-            Node<1> *p_node = r_mesh1.GetNode(i);
-            Node<1> *p_node2 = r_mesh2.GetNode(i);
+            Node<1>* p_node = r_mesh1.GetNode(i);
+            Node<1>* p_node2 = r_mesh2.GetNode(i);
             TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
             TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
             TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());

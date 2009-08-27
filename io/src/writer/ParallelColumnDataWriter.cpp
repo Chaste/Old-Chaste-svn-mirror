@@ -105,7 +105,7 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector::Stripe& rStripe)
 {
     // Put the stripe into its own 'unstriped' vector
-    DistributedVectorFactory *p_factory = rStripe.GetFactory();
+    DistributedVectorFactory* p_factory = rStripe.GetFactory();
     Vec unstriped_petsc = p_factory->CreateVec();
     DistributedVector unstriped = p_factory->CreateDistributedVector(unstriped_petsc);
     for (DistributedVector::Iterator index = unstriped.Begin();

@@ -46,7 +46,7 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2>* > nodes)
     assert(width > 0.0);
     for (unsigned index=0; index<nodes.size(); index++)
     {
-        Node<2> *p_temp_node = nodes[index];
+        Node<2>* p_temp_node = nodes[index];
         double x = p_temp_node->rGetLocation()[0];
         x = x; // Fix optimised build
         assert( 0 <= x && x < width);
@@ -243,14 +243,14 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     unsigned elem_index = 0;
     while (elem_index<GetNumAllElements() && !boundary_element_made)
     {
-        Element<2,2> *p_element = GetElement(elem_index);
+        Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
             boundary_element_made = true;
             std::vector<Node<2>*> nodes;
             nodes.push_back(p_element->GetNode(0));
             nodes.push_back(p_element->GetNode(1));
-            BoundaryElement<1,2> *p_boundary_element = new BoundaryElement<1,2>(0, nodes);
+            BoundaryElement<1,2>* p_boundary_element = new BoundaryElement<1,2>(0, nodes);
             p_boundary_element->RegisterWithNodes();
             mBoundaryElements.push_back(p_boundary_element);
             this->mBoundaryElementWeightedDirections.push_back(zero_vector<double>(2));
@@ -362,7 +362,7 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
      */
     for (unsigned elem_index = 0; elem_index<GetNumAllBoundaryElements(); elem_index++)
     {
-        BoundaryElement<1,2> *p_boundary_element = GetBoundaryElement(elem_index);
+        BoundaryElement<1,2>* p_boundary_element = GetBoundaryElement(elem_index);
         if (!p_boundary_element->IsDeleted())
         {
             unsigned number_of_image_nodes = 0;
@@ -535,7 +535,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
          ++left_iter)
     {
         unsigned elem_index = *left_iter;
-        Element<2,2> *p_element = GetElement(elem_index);
+        Element<2,2>* p_element = GetElement(elem_index);
 
         /*
          * Make lists of the nodes which the elements on the left contain and
@@ -555,7 +555,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
              ++right_iter)
         {
             unsigned corresponding_elem_index = *right_iter;
-            Element<2,2> *p_corresponding_element = GetElement(corresponding_elem_index);
+            Element<2,2>* p_corresponding_element = GetElement(corresponding_elem_index);
 
             bool is_corresponding_node = true;
 
@@ -627,7 +627,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
          ++left_iter)
     {
         unsigned elem_index = *left_iter;
-        Element<2,2> *p_element = GetElement(elem_index);
+        Element<2,2>* p_element = GetElement(elem_index);
         for (unsigned i=0; i<3; i++)
         {
             unsigned index = p_element->GetNodeGlobalIndex(i);
@@ -673,7 +673,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
          iter != mainSideElements.end();
          ++iter)
     {
-        Element<2,2> *p_main_element = GetElement(*iter);
+        Element<2,2>* p_main_element = GetElement(*iter);
         std::vector<Node<2>*> nodes;
 
         // Put corresponding nodes into a std::vector
@@ -684,7 +684,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
         }
 
         // Make a new element.
-        Element<2,2> *p_new_element = new Element<2,2>(GetNumAllElements(), nodes);
+        Element<2,2>* p_new_element = new Element<2,2>(GetNumAllElements(), nodes);
         this->mElements.push_back(p_new_element);
         this->mElementJacobians.push_back(zero_matrix<double>(2,2));
         this->mElementInverseJacobians.push_back(zero_matrix<double>(2,2));

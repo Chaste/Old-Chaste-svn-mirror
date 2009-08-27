@@ -21,7 +21,7 @@ namespace CxxTest
 #else // _CXXTEST_FACTOR
     char *WorldDescription::strTotalTests( char *s ) const
     {
-        char *p = numberToString( numTotalTests(), s );
+        char* p = numberToString( numTotalTests(), s );
 
         if ( numTotalTests() <= 1 )
             return s;

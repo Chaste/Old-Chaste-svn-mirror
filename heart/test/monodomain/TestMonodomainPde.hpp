@@ -234,7 +234,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            AbstractCardiacPde<1> *p_monodomain_pde;
+            AbstractCardiacPde<1>* p_monodomain_pde;
             input_arch >> p_monodomain_pde;
 
             // Test rGetIntracellularConductivityTensor
@@ -261,7 +261,7 @@ public:
             std::ifstream ifs("heart/test/data/monodomain_pde.arch.0", std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            AbstractCardiacPde<1> *p_monodomain_pde = NULL;
+            AbstractCardiacPde<1>* p_monodomain_pde = NULL;
             if (PetscTools::IsSequential())
             {
                 input_arch >> p_monodomain_pde;
@@ -293,7 +293,7 @@ public:
                 boost::archive::text_iarchive input_arch(ifs);
             
                 
-                AbstractCardiacPde<1> *p_monodomain_pde = NULL;
+                AbstractCardiacPde<1>* p_monodomain_pde = NULL;
                 if (PetscTools::GetNumProcs() == 2)
                 {
                     input_arch >> p_monodomain_pde;

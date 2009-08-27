@@ -192,7 +192,7 @@ public:
 
         // Write to file with parallel data writer
 
-        ParallelColumnDataWriter *p_parallel_writer = new ParallelColumnDataWriter("TestParallelColumnDataWriterStripe","Stripe");
+        ParallelColumnDataWriter* p_parallel_writer = new ParallelColumnDataWriter("TestParallelColumnDataWriterStripe","Stripe");
         unsigned time_var_id = p_parallel_writer->DefineUnlimitedDimension("Time","msecs");
         unsigned var1_id = p_parallel_writer->DefineVariable("Var1","LightYears");
         p_parallel_writer->DefineFixedDimension("Node","dimensionless", problem_size);

@@ -198,7 +198,7 @@ public:
         // Create a new node close to this node
         point.SetCoordinate(0, -0.01);
         point.SetCoordinate(1, 4.5);
-        Node<2> *p_node = new Node<2>(mesh.GetNumNodes(), point);
+        Node<2>* p_node = new Node<2>(mesh.GetNumNodes(), point);
 
         unsigned old_num_nodes = mesh.GetNumNodes();
 
@@ -230,7 +230,7 @@ public:
         ChastePoint<2> point2;
         point2.SetCoordinate(0, 2.0);
         point2.SetCoordinate(1, 2.1);
-        Node<2> *p_node2 = new Node<2>(mesh.GetNumNodes(), point);
+        Node<2>* p_node2 = new Node<2>(mesh.GetNumNodes(), point);
 
         // Add this new node to the mesh
         new_index = mesh.AddNode(p_node2);
@@ -384,7 +384,7 @@ public:
 
         {
             // De-serialize and compare
-            AbstractMesh<2,2> *p_loaded_mesh;
+            AbstractMesh<2,2>* p_loaded_mesh;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -394,8 +394,8 @@ public:
             input_arch >> p_loaded_mesh;
 
             // Compare the loaded mesh against the original
-            Cylindrical2dVertexMesh *p_mesh2 = static_cast<Cylindrical2dVertexMesh*>(p_loaded_mesh);
-            Cylindrical2dVertexMesh *p_mesh = static_cast<Cylindrical2dVertexMesh*>(p_saved_mesh);
+            Cylindrical2dVertexMesh* p_mesh2 = static_cast<Cylindrical2dVertexMesh*>(p_loaded_mesh);
+            Cylindrical2dVertexMesh* p_mesh = static_cast<Cylindrical2dVertexMesh*>(p_saved_mesh);
             // Compare width
             TS_ASSERT_DELTA(p_mesh2->GetWidth(0), crypt_width, 1e-7);
             TS_ASSERT_DELTA(p_mesh->GetWidth(0), crypt_width, 1e-7);
@@ -405,8 +405,8 @@ public:
 
             for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
             {
-                Node<2> *p_node = p_mesh->GetNode(i);
-                Node<2> *p_node2 = p_mesh2->GetNode(i);
+                Node<2>* p_node = p_mesh->GetNode(i);
+                Node<2>* p_node2 = p_mesh2->GetNode(i);
                 TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
                 TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
                 TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
@@ -422,8 +422,8 @@ public:
 
             for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
             {
-                VertexElement<2,2> *p_elt = p_mesh->GetElement(i);
-                VertexElement<2,2> *p_elt2 = p_mesh2->GetElement(i);
+                VertexElement<2,2>* p_elt = p_mesh->GetElement(i);
+                VertexElement<2,2>* p_elt2 = p_mesh2->GetElement(i);
                 TS_ASSERT_EQUALS(p_elt->GetNumNodes(), p_elt2->GetNumNodes());
                 for (unsigned i=0; i<p_elt->GetNumNodes(); i++)
                 {

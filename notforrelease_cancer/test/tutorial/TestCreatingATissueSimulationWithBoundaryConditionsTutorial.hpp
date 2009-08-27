@@ -124,7 +124,7 @@ public:
             c_vector<double, 2> cell_location = mrTissue.GetLocationOfCellCentre(&(*cell_iter));
 
             unsigned node_index = mrTissue.GetLocationIndexUsingCell(&(*cell_iter));
-            Node<2> *p_node = mrTissue.GetNode(node_index);
+            Node<2>* p_node = mrTissue.GetNode(node_index);
 
             if (cell_location[1] > 5.0)
             {
@@ -158,7 +158,7 @@ namespace boost
             Archive & ar, const MyTissueSimulation * t, const BOOST_PFTO unsigned int file_version)
         {
             // Save data required to construct instance
-            const AbstractTissue<2>  *p_tissue = &(t->rGetTissue());
+            const AbstractTissue<2> * p_tissue = &(t->rGetTissue());
             ar & p_tissue;
             const std::vector<AbstractForce<2>*> force_collection = t->rGetForceCollection();
             ar & force_collection;
@@ -169,7 +169,7 @@ namespace boost
             Archive & ar, MyTissueSimulation * t, const unsigned int file_version)
         {
             // Retrieve data from archive required to construct new instance
-            AbstractTissue<2> *p_tissue;
+            AbstractTissue<2>* p_tissue;
             ar >> p_tissue;
             std::vector<AbstractForce<2>*> force_collection;
             ar >> force_collection;
@@ -217,7 +217,7 @@ public:
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(5, 5, 0, false);
         /* Get the mesh using the {{{GetMesh()}}} method. */
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
          * To do this, we can use a static method on the
@@ -266,7 +266,7 @@ public:
              ++cell_iter)
         {
             unsigned node_index = simulator.rGetTissue().GetLocationIndexUsingCell(&(*cell_iter));
-            Node<2> *p_node = simulator.rGetTissue().GetNode(node_index);
+            Node<2>* p_node = simulator.rGetTissue().GetNode(node_index);
 
             TS_ASSERT_LESS_THAN_EQUALS(p_node->rGetModifiableLocation()[1], 5.0);
             TS_ASSERT_LESS_THAN_EQUALS(0.0, p_node->rGetModifiableLocation()[1]);

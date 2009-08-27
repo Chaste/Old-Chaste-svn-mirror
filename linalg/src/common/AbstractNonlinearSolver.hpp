@@ -68,7 +68,7 @@ public:
     virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec initialGuess,
-                      void *pContext)=0;
+                      void* pContext)=0;
     /**
      * Destructor.
      */

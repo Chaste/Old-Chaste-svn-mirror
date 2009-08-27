@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCell.hpp"
 
-void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
+void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
                                 double endTime,
                                 std::string filename,
                                 int stepPerRow=100,

@@ -77,7 +77,7 @@ public:
 //        boost::archive::text_iarchive input_arch(ifs); 
 //        
 //        //LinearSystem linear_system(3);
-//        LinearSystem *p_linear_system;
+//        LinearSystem* p_linear_system;
 //        input_arch >> p_linear_system;
 //        
 //        delete p_linear_system;

@@ -75,7 +75,7 @@ void VoronoiTessellation<2>::Initialise(TetrahedralMesh<2,2>& rMesh)
     for (unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
     {
         // This edge is on the boundary
-        Face<2> *p_face = new Face<2>;
+        Face<2>* p_face = new Face<2>;
         mFaces.push_back(p_face);
     }
 
@@ -92,7 +92,7 @@ void VoronoiTessellation<2>::Initialise(TetrahedralMesh<2,2>& rMesh)
 
         c_vector<double,3> circumsphere = mrMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
 
-        c_vector<double,2> *p_circumcentre = new c_vector<double, 2>;
+        c_vector<double,2>* p_circumcentre = new c_vector<double, 2>;
         for (unsigned j=0; j<2; j++)
         {
             (*p_circumcentre)(j) = circumsphere(j);
@@ -121,7 +121,7 @@ void VoronoiTessellation<2>::Initialise(TetrahedralMesh<2,2>& rMesh)
         std::sort(vertices_and_angles.begin(), vertices_and_angles.end());
 
         // Create face
-        Face<2> *p_face = new Face<2>;
+        Face<2>* p_face = new Face<2>;
         for (std::vector<VertexAndAngle<2> >::iterator vertex_iterator = vertices_and_angles.begin();
              vertex_iterator != vertices_and_angles.end();
              vertex_iterator++)
@@ -148,13 +148,13 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
          edge_iterator != mrMesh.EdgesEnd();
          ++edge_iterator)
     {
-        Node<3> *p_node_a = edge_iterator.GetNodeA();
-        Node<3> *p_node_b = edge_iterator.GetNodeB();
+        Node<3>* p_node_a = edge_iterator.GetNodeA();
+        Node<3>* p_node_b = edge_iterator.GetNodeB();
 
         if ( p_node_a->IsBoundaryNode() && p_node_b->IsBoundaryNode() )
         {
             // This edge is on the boundary
-            Face<3> *p_null_face = new Face<3>;
+            Face<3>* p_null_face = new Face<3>;
             mFaces.push_back(p_null_face);
         }
         else
@@ -205,7 +205,7 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
             std::sort(vertices.begin(), vertices.end());
 
             // Create face
-            Face<3> *p_face = new Face<3>;
+            Face<3>* p_face = new Face<3>;
             for (std::vector<VertexAndAngle<3> >::iterator vertex_iterator = vertices.begin();
                  vertex_iterator != vertices.end();
                  vertex_iterator++)

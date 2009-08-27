@@ -472,7 +472,7 @@ inline void save_construct_data(
     Archive & ar, const MeshBasedTissue<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const MutableMesh<DIM,DIM> *p_mesh = &(t->rGetMesh());
+    const MutableMesh<DIM,DIM>* p_mesh = &(t->rGetMesh());
     ar & p_mesh;
 }
 
@@ -485,7 +485,7 @@ inline void load_construct_data(
     Archive & ar, MeshBasedTissue<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    MutableMesh<DIM,DIM> *p_mesh;
+    MutableMesh<DIM,DIM>* p_mesh;
     ar >> p_mesh;
 
     // Invoke inplace constructor to initialise instance

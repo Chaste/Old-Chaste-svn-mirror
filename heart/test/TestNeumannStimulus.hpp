@@ -71,7 +71,7 @@ public:
 
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,1> bcc;
-        ConstBoundaryCondition<1> *p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
+        ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
 
         // get mesh
         AbstractTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
@@ -124,7 +124,7 @@ public:
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,1> bcc;
         SimpleStimulus stim(4*1.75/0.0005, 0.5);
-        StimulusBoundaryCondition<1> *p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
+        StimulusBoundaryCondition<1>* p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
 
         // get mesh
         AbstractTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();
@@ -178,7 +178,7 @@ public:
 
         // create boundary conditions container
         BoundaryConditionsContainer<1,1,1> bcc;
-        ConstBoundaryCondition<1> *p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
+        ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
 
         // get mesh
         AbstractTetrahedralMesh<1,1> &mesh = monodomain_problem.rGetMesh();

@@ -81,29 +81,29 @@ void Hdf5ToCmguiConverter::Write(std::string type)
         if(PetscTools::AmMaster())
         {
             //The header first
-            *p_file << "Group name: " << this->mFileBaseName << "\n";
+           * p_file << "Group name: " << this->mFileBaseName << "\n";
             
             //we need two fields for bidomain and one only for monodomain
             if(type=="Mono")
             {
-                *p_file << "#Fields=1" << "\n" << " 1) " << "V , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+               * p_file << "#Fields=1" << "\n" << " 1) " << "V , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
             }
             else
             {
-                *p_file << "#Fields=2" << "\n" << " 1) " << "V , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+               * p_file << "#Fields=2" << "\n" << " 1) " << "V , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
                 //the details of the second field
-                *p_file << "\n" << " 2) " << "Phi_e , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+               * p_file << "\n" << " 2) " << "Phi_e , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
             }
             
             //write the data 
             for(unsigned i=0; i<num_nodes; i++)
             {
                 //cmgui counts nodes from 1
-                *p_file << "Node: "<< i+1 << "\n" << repl_data[i] << "\n";
+               * p_file << "Node: "<< i+1 << "\n" << repl_data[i] << "\n";
                 //if it is a bidomain simulation, write the data for phie
                 if (type=="Bi")
                 {
-                    *p_file <<  repl_data_phie[i] << "\n";
+                   * p_file <<  repl_data_phie[i] << "\n";
                 }
             }
         }

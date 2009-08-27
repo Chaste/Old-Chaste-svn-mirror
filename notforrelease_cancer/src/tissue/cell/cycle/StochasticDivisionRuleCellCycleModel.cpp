@@ -38,8 +38,8 @@ void StochasticDivisionRuleCellCycleModel::SetG1Duration()
 {
     assert(mpCell!=NULL);
 
-    TissueConfig *p_params = TissueConfig::Instance();
-    RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+    TissueConfig* p_params = TissueConfig::Instance();
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     switch (mpCell->GetCellType())
     {

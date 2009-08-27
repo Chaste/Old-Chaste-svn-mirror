@@ -182,7 +182,7 @@ inline void save_construct_data(
     Archive & ar, const CryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<2> *p_tissue = &(t->rGetTissue());
+    const AbstractTissue<2>* p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     const std::vector<AbstractForce<2>*> force_collection = t->rGetForceCollection();
     ar & force_collection;

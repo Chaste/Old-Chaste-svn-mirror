@@ -136,9 +136,9 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
             }
             for (unsigned i = 0; i < apds.size(); i++)
             {
-                *p_file << apds[i] << "\t";
+               * p_file << apds[i] << "\t";
             }
-            *p_file << std::endl;
+           * p_file << std::endl;
         }
         p_file->close();
     }
@@ -160,9 +160,9 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double t
             upstroke_times = mpCalculator->CalculateUpstrokeTimes(node_index, threshold);
             for (unsigned i = 0; i < upstroke_times.size(); i++)
             {
-                *p_file << upstroke_times[i] << "\t";
+               * p_file << upstroke_times[i] << "\t";
             }
-            *p_file << std::endl;
+           * p_file << std::endl;
         }
         p_file->close();
     }
@@ -184,9 +184,9 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(d
             upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
             for (unsigned i = 0; i < upstroke_velocities.size(); i++)
             {
-                *p_file << upstroke_velocities[i] << "\t";
+               * p_file << upstroke_velocities[i] << "\t";
             }
-            *p_file << std::endl;
+           * p_file << std::endl;
          }
          p_file->close();
     }
@@ -218,9 +218,9 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(un
             }
             for (unsigned i = 0; i < conduction_velocities.size(); i++)
             {
-                *p_file << conduction_velocities[i] << "\t";
+               * p_file << conduction_velocities[i] << "\t";
             }
-            *p_file << std::endl;
+           * p_file << std::endl;
          }
          p_file->close();
     }        

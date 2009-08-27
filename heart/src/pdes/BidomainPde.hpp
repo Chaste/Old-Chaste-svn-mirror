@@ -146,7 +146,7 @@ inline void save_construct_data(
 
     // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
-    HeartConfig *p_config = HeartConfig::Instance();
+    HeartConfig* p_config = HeartConfig::Instance();
     ar & *p_config;
     ar & p_config;
 }
@@ -168,7 +168,7 @@ inline void load_construct_data(
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.
     // (as does CreateExtracellularConductivityTensor). So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
-    HeartConfig *p_config = HeartConfig::Instance();
+    HeartConfig* p_config = HeartConfig::Instance();
     ar & *p_config;
     ar & p_config;
 

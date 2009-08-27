@@ -78,7 +78,7 @@ private:
         std::set< std::set<unsigned> > expected_node_pairs;
         for (unsigned i=0; i<mesh.GetNumAllElements(); i++)
         {
-            Element<DIM,DIM> *p_element = mesh.GetElement(i);
+            Element<DIM,DIM>* p_element = mesh.GetElement(i);
             if (!p_element->IsDeleted())
             {
                 for (unsigned j=0; j<DIM+1; j++)
@@ -184,12 +184,12 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         const int node_index = 3;
-        Node<1> *p_node = mesh.GetNode(node_index);
+        Node<1>* p_node = mesh.GetNode(node_index);
 
         ChastePoint<1> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.3, 1e-6);
 
-        Element<1,1> *p_element;
+        Element<1,1>* p_element;
         Node<1>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
         p_element = mesh.GetElement(*elt_iter);
         c_matrix<double,1,1> jacobian;
@@ -258,10 +258,10 @@ public:
 
         const int node_index = 234;
         const int boundary_node_index = 99;
-        Node<2> *p_node = mesh.GetNode(node_index);
+        Node<2>* p_node = mesh.GetNode(node_index);
 
         // Just focus on one element
-        Element<2,2> *p_element;
+        Element<2,2>* p_element;
         Node<2>::ContainingElementIterator elt_iter = p_node->ContainingElementsBegin();
         p_element = mesh.GetElement(*elt_iter);
 
@@ -310,7 +310,7 @@ public:
         TS_ASSERT_DELTA(boundary_point[1], -0.12533323360000001, 1e-6);
 
         Node<2>::ContainingBoundaryElementIterator b_elt_iter = p_node->ContainingBoundaryElementsBegin();
-        const BoundaryElement<1,2> *p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
+        const BoundaryElement<1,2>* p_boundary_element = mesh.GetBoundaryElement(*b_elt_iter);
 
         c_vector<double,2> weighted_dir;
         mesh.GetWeightedDirectionForBoundaryElement(p_boundary_element->GetIndex(), weighted_dir, jacobian_det);
@@ -331,11 +331,11 @@ public:
         double reference_volume = mesh.GetVolume();
 
         const int interior_node_index = 34;
-        Node<3> *p_node = mesh.GetNode(interior_node_index);
+        Node<3>* p_node = mesh.GetNode(interior_node_index);
 
         // Just focus on one element
-        Element<3,3> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
-        BoundaryElement<2,3> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
+        Element<3,3>* p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
+        BoundaryElement<2,3>* p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
 
         ChastePoint<3> point = p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 1, 1e-6);
@@ -419,11 +419,11 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         const int boundary_node_index = 50;
-        Node<2> *p_node = mesh.GetNode(boundary_node_index);
+        Node<2>* p_node = mesh.GetNode(boundary_node_index);
 
         // Just focus on one element
-        Element<1,2> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
-        BoundaryElement<0,2> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
+        Element<1,2>* p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
+        BoundaryElement<0,2>* p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
 
         ChastePoint<2> point = p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], -1.0, 1e-6);
@@ -470,11 +470,11 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         const int boundary_node_index = 99;
-        Node<3> *p_node = mesh.GetNode(boundary_node_index);
+        Node<3>* p_node = mesh.GetNode(boundary_node_index);
 
         //Just focus on one element
-        Element<2,3> *p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
-        BoundaryElement<1,3> *p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
+        Element<2,3>* p_element = mesh.GetElement(*p_node->ContainingElementsBegin());
+        BoundaryElement<1,3>* p_boundary_element = mesh.GetBoundaryElement(*p_node->ContainingBoundaryElementsBegin());
 
         ChastePoint<3> point = p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0.99211470130000001, 1e-6);
@@ -538,8 +538,8 @@ public:
         MutableMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        Node<1> *p_old_rhs_node = mesh.GetNode(10);
-        Node<1> *p_old_lhs_node = mesh.GetNode(0);
+        Node<1>* p_old_rhs_node = mesh.GetNode(10);
+        Node<1>* p_old_lhs_node = mesh.GetNode(0);
 
         MutableMesh<1,1>::BoundaryElementIterator b_elt_iter;
         MutableMesh<1,1>::BoundaryNodeIterator b_node_iter;
@@ -570,7 +570,7 @@ public:
         TS_ASSERT_EQUALS((*b_elt_iter++)->GetNode(0)->GetIndex(), 0u);
 
         // Check the new boundary node
-        Node<1> *p_new_rhs_node = mesh.GetNode(9);
+        Node<1>* p_new_rhs_node = mesh.GetNode(9);
         TS_ASSERT(p_new_rhs_node->IsBoundaryNode());
         TS_ASSERT_EQUALS(p_new_rhs_node->GetNumContainingElements(), 1u);
 
@@ -596,7 +596,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0u);
 
         // Check the new boundary node
-        Node<1> *p_new_lhs_node = mesh.GetNode(1);
+        Node<1>* p_new_lhs_node = mesh.GetNode(1);
         TS_ASSERT(p_new_lhs_node->IsBoundaryNode());
         TS_ASSERT_EQUALS(p_new_lhs_node->GetNumContainingElements(), 1u);
 
@@ -630,7 +630,7 @@ public:
 
         // Add a node at position 0.01
         ChastePoint<1> new_point(0.01);
-        Element<1,1> *p_first_element = mesh.GetElement(0);
+        Element<1,1>* p_first_element = mesh.GetElement(0);
 
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_first_element, new_point));
         TS_ASSERT_EQUALS(p_first_element->GetNode(1)->GetIndex(), 11u);
@@ -643,7 +643,7 @@ public:
 
         // Add a node
         ChastePoint<1> new_point2(0.55);
-        Element<1,1> *p_sixth_element = mesh.GetElement(5);
+        Element<1,1>* p_sixth_element = mesh.GetElement(5);
 
         mesh.RefineElement(p_sixth_element, new_point2);
 
@@ -682,7 +682,7 @@ public:
         // Merge node 3 with node 4
         mesh.MoveMergeNode(node_index, target_index);
 
-        Element<1,1> *p_element;
+        Element<1,1>* p_element;
         p_element = mesh.GetElement(2);
 
         c_matrix<double,1,1> jacobian;
@@ -903,7 +903,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1,1);
 
-        Node<2> *p_node = mesh.GetNode(1);
+        Node<2>* p_node = mesh.GetNode(1);
         ChastePoint<2> point = p_node->GetPoint();
 
         for (double x=1.1; x>=0.9; x-=0.01)
@@ -982,7 +982,7 @@ public:
         c_vector<double,2> point;
         point[0] = 2.0;
         point[1] = 0.0;
-        Node<2> *p_node = new Node<2>(4u, point);
+        Node<2>* p_node = new Node<2>(4u, point);
         unsigned new_index = mesh.AddNode(p_node);
 
         TS_ASSERT_EQUALS(new_index, 4u);
@@ -993,7 +993,7 @@ public:
 
         point[0] = 2.0;
         point[1] = 1.0;
-        Node<2> *p_node2 = new Node<2>(5u, point);
+        Node<2>* p_node2 = new Node<2>(5u, point);
 
         NodeMap map(mesh.GetNumNodes());
         new_index = mesh.AddNode(p_node2);

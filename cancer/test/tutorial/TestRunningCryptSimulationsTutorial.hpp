@@ -107,7 +107,7 @@ public:
          * and below the mesh, since it is periodic).
          */
         HoneycombMeshGenerator generator(6, 9, 2, true); // params are: cells across, cells up, thickness of ghost layer, whether to be cylindrical
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
@@ -119,7 +119,7 @@ public:
          * {{{GenerateForCrypt}}} is called. */
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
          * we can create a ''Tissue''. In general, this class associates a collection
@@ -199,7 +199,7 @@ public:
 
         /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
         HoneycombMeshGenerator generator(6, 9, 2, true);
-        Cylindrical2dMesh *p_mesh = generator.GetCylindricalMesh();
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Create the cells, using the same method as before. Here, though, we pass
@@ -207,7 +207,7 @@ public:
          * Wnt based cell-cycle. This is an ODE based cell cycle. */
         std::vector<TissueCell> cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        cells_generator.GenerateForCrypt(cells,* p_mesh, location_indices, true);
 
         /* Create the tissue, as before. */
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);

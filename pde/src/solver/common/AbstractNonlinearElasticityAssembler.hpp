@@ -726,9 +726,9 @@ void AbstractNonlinearElasticityAssembler<DIM>::WriteOutput(unsigned counter)
     {
         for (unsigned j=0; j<DIM; j++)
         {
-            *p_file << r_deformed_position[i](j) << " ";
+           * p_file << r_deformed_position[i](j) << " ";
         }
-        *p_file << "\n";
+       * p_file << "\n";
     }
     p_file->close();
 }

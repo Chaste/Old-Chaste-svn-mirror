@@ -163,7 +163,7 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
     // Unless this pointer is null, return a reference to the cell
     if (p_cell)
     {
-        return *p_cell;
+        return* p_cell;
     }
     else
     {
@@ -265,7 +265,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
 {
     unsigned colour = STEM_COLOUR;
 
-    TissueCell *p_cell = mLocationCellMap[locationIndex];
+    TissueCell* p_cell = mLocationCellMap[locationIndex];
 
     if (TissueConfig::Instance()->GetOutputCellCyclePhases())
     {

@@ -49,8 +49,8 @@ public:
 
     void TestFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
@@ -59,7 +59,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(FixedDurationGenerationBasedCellCycleModel model3);
 
-        FixedDurationGenerationBasedCellCycleModel *p_stem_model = new FixedDurationGenerationBasedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell stem_cell(STEM, HEALTHY, p_stem_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -68,14 +68,14 @@ public:
 
         TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
 
-        FixedDurationGenerationBasedCellCycleModel *p_transit_model = new FixedDurationGenerationBasedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_transit_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell transit_cell(TRANSIT, HEALTHY, p_transit_model);
         transit_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(transit_cell.GetCellType(),TRANSIT);
         TS_ASSERT_EQUALS(p_transit_model->GetGeneration(), 0u);
 
-        FixedDurationGenerationBasedCellCycleModel *p_diff_model = new FixedDurationGenerationBasedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_diff_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
         diff_cell.InitialiseCellCycleModel();
 
@@ -98,7 +98,7 @@ public:
         double hepa_one_cell_birth_time = p_simulation_time->GetTime();
 
         p_params->SetHepaOneParameters();
-        FixedDurationGenerationBasedCellCycleModel *p_hepa_one_model = new FixedDurationGenerationBasedCellCycleModel;
+        FixedDurationGenerationBasedCellCycleModel* p_hepa_one_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
 
@@ -115,18 +115,18 @@ public:
 
     void TestStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
             2.0*(p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration()), num_steps);
 
         TS_ASSERT_THROWS_NOTHING(StochasticDurationGenerationBasedCellCycleModel cell_model3);
 
-        StochasticDurationGenerationBasedCellCycleModel *p_stem_model = new StochasticDurationGenerationBasedCellCycleModel;
-        StochasticDurationGenerationBasedCellCycleModel *p_transit_model = new StochasticDurationGenerationBasedCellCycleModel;
-        StochasticDurationGenerationBasedCellCycleModel *p_diff_model = new StochasticDurationGenerationBasedCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_stem_model = new StochasticDurationGenerationBasedCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_transit_model = new StochasticDurationGenerationBasedCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_diff_model = new StochasticDurationGenerationBasedCellCycleModel;
 
         TissueCell stem_cell(STEM, HEALTHY,  p_stem_model);
         stem_cell.InitialiseCellCycleModel();
@@ -149,7 +149,7 @@ public:
         }
 
         p_params->SetHepaOneParameters();
-        StochasticDurationGenerationBasedCellCycleModel *p_hepa_one_model = new StochasticDurationGenerationBasedCellCycleModel;
+        StochasticDurationGenerationBasedCellCycleModel* p_hepa_one_model = new StochasticDurationGenerationBasedCellCycleModel;
         TissueCell hepa_one_cell(STEM, HEALTHY, p_hepa_one_model);
         hepa_one_cell.InitialiseCellCycleModel();
 
@@ -163,10 +163,10 @@ public:
 
     void TestSimpleWntCellCycleModel() throw(Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Set up the simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         double end_time = 60.0;
         unsigned num_timesteps = 1000*(unsigned)end_time;
@@ -176,7 +176,7 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        SimpleWntCellCycleModel *p_cycle_model = new SimpleWntCellCycleModel(2);
+        SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel(2);
         TissueCell cell(STEM, HEALTHY, p_cycle_model);
         cell.InitialiseCellCycleModel();
 
@@ -196,7 +196,7 @@ public:
         TissueCell cell2 = cell.Divide();
         cell.SetMutationState(LABELLED);
 
-        SimpleWntCellCycleModel *p_cycle_model2 = static_cast<SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());
+        SimpleWntCellCycleModel* p_cycle_model2 = static_cast<SimpleWntCellCycleModel*> (cell2.GetCellCycleModel());
 
         // Now reduce the Wnt concentration
         wnt_level = 0.7;
@@ -255,11 +255,11 @@ public:
         TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
 
         // For coverage...
-        SimpleWntCellCycleModel *p_cycle_model1 = new SimpleWntCellCycleModel(2);
+        SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel(2);
         TissueCell cell1(DIFFERENTIATED, HEALTHY, p_cycle_model1);
         cell1.InitialiseCellCycleModel();
 
-        SimpleWntCellCycleModel *p_another_cycle_model = new SimpleWntCellCycleModel(true);
+        SimpleWntCellCycleModel* p_another_cycle_model = new SimpleWntCellCycleModel(true);
         TissueCell another_cell(STEM, HEALTHY, p_another_cycle_model);
         another_cell.InitialiseCellCycleModel();
         // ...end of coverage
@@ -278,7 +278,7 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Set up a cell cycle model and cell
-        SimpleWntCellCycleModel *p_cycle_model4 = new SimpleWntCellCycleModel(2);
+        SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel(2);
         TissueCell cell4(STEM, HEALTHY,  p_cycle_model4);
         cell4.InitialiseCellCycleModel();
 
@@ -329,7 +329,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(30.0, 2);
 
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        SimpleWntCellCycleModel *p_cell_model_1d = new SimpleWntCellCycleModel(1, true);
+        SimpleWntCellCycleModel* p_cell_model_1d = new SimpleWntCellCycleModel(1, true);
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
@@ -351,7 +351,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
 
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        SimpleWntCellCycleModel *p_cell_model_3d = new SimpleWntCellCycleModel(3);
+        SimpleWntCellCycleModel* p_cell_model_3d = new SimpleWntCellCycleModel(3);
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
@@ -380,9 +380,9 @@ public:
 
         // Create an output archive
         {
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 4);
-            FixedDurationGenerationBasedCellCycleModel *p_model = new FixedDurationGenerationBasedCellCycleModel;
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel;
 
             TissueCell cell(TRANSIT, HEALTHY, p_model);
             cell.InitialiseCellCycleModel();
@@ -407,11 +407,11 @@ public:
         }
 
         {
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueCell *p_cell;
+            TissueCell* p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -420,7 +420,7 @@ public:
             // Restore from the archive
             input_arch >> p_cell;
 
-            AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
 
             // Check private data has been restored correctly.
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
@@ -441,10 +441,10 @@ public:
 
         // Create an output archive
         {
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
-            StochasticDurationGenerationBasedCellCycleModel *p_model = new StochasticDurationGenerationBasedCellCycleModel;
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel;
 
             TissueCell cell(TRANSIT,  HEALTHY, p_model);
             cell.InitialiseCellCycleModel();
@@ -467,26 +467,26 @@ public:
             TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
 
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
             SimulationTime::Destroy();
         }
 
         {
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(128);
 
-            TissueCell *p_cell;
+            TissueCell* p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
@@ -495,7 +495,7 @@ public:
 
             TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(), random_number_test, 1e-7);
 
-            AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
 
             // Check
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
@@ -512,7 +512,7 @@ public:
 
     void TestArchiveSimpleWntCellCycleModel()
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "simple_wnt_cell_cycle.arch";
@@ -526,7 +526,7 @@ public:
         // Create an output archive
         {
             // Set up the simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
 
             // The number for the G1 duration is taken from
             // the first random number generated
@@ -541,7 +541,7 @@ public:
             WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
 
             // Create cell cycle model and associated cell
-            SimpleWntCellCycleModel *p_cell_model = new SimpleWntCellCycleModel(1);
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel(1);
             p_cell_model->SetBirthTime(-1.0);
 
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
@@ -573,22 +573,22 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT(stem_cell.GetCellCycleModel()->ReadyToDivide());
 
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
             SimulationTime::Destroy();
         }
         {
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
-            TissueCell *p_cell;
+            TissueCell* p_cell;
 
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(36);
 
             // Create an input archive
@@ -599,7 +599,7 @@ public:
             input_arch >> p_cell;
 
             // Check
-            AbstractCellCycleModel *p_cell_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
 
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
@@ -637,7 +637,7 @@ public:
         // Create an output archive
         {
             // Set up the simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
 
             // The number for the G1 duration is taken from
             // the first random number generated
@@ -649,7 +649,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
-            SimpleWntCellCycleModel *p_cell_model = new SimpleWntCellCycleModel(2);
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel(2);
 
             p_cell_model->SetBirthTime(-1.0);
 
@@ -683,24 +683,24 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT(cell.GetCellCycleModel()->ReadyToDivide());
 
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
 
             RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }
         {
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
-            TissueCell *p_cell;
+            TissueCell* p_cell;
 
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(36);
 
             // Create an input archive
@@ -711,7 +711,7 @@ public:
             input_arch >> p_cell;
 
             // Check
-            AbstractCellCycleModel *p_cell_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
 
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);

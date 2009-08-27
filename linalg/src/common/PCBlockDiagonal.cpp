@@ -106,7 +106,7 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
     PCSetUp(mPCContext.PC_amg_A22);        
 }
 
-PetscErrorCode PCBlockDiagonalApply(void *pc_context, Vec x, Vec y)
+PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 {
     /// \todo refactoring: create a method for scattering and another for reversing
     /// \todo optimisation: don't create x11, x22, y11, y22 everytime the method is called. Store them in the PC context.

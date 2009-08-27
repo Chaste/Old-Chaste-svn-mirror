@@ -47,10 +47,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * Since we need to pass function pointers to the PETSc SNES routines, we can't
  * make these functions below methods. This is a pain, since it also means we
- * need to pass round a pointer to our assembler object as the void *pContext,
+ * need to pass round a pointer to our assembler object as the void* pContext,
  * and cast it within the function to access data members.
  *
- * All the functions are defined as stubs which call methods on *pContext.
+ * All the functions are defined as stubs which call methods on* pContext.
  *
  * Note: these are global functions, hence the need for long names to avoid
  * potential conflicting names later
@@ -61,15 +61,15 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class C
 PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes,
         Vec currentGuess,
         Vec residualVector,
-        void *pContext);
+        void* pContext);
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes,
         Vec currentGuess,
-        Mat *pGlobalJacobian,
-        Mat *pPreconditioner,
-        MatStructure *pMatStructure,
-        void *pContext);
+        Mat* pGlobalJacobian,
+        Mat* pPreconditioner,
+        MatStructure* pMatStructure,
+        void* pContext);
 
 
 /**
@@ -308,14 +308,14 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
-PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::AssembleJacobian(const Vec currentGuess, Mat *pGlobalJacobian)
+PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::AssembleJacobian(const Vec currentGuess, Mat* pGlobalJacobian)
 {
     if (mUseAnalyticalJacobian)
     {
         // call assemble system with the current guess and the jacobian to
         // be assembled
         delete this->mpLinearSystem;
-        this->mpLinearSystem = new LinearSystem(NULL, *pGlobalJacobian);
+        this->mpLinearSystem = new LinearSystem(NULL,* pGlobalJacobian);
         this->AssembleSystem(false, true, currentGuess, 0.0);
         return 0; // no error
     }
@@ -327,7 +327,7 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
-PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::AssembleJacobianNumerically(const Vec currentGuess, Mat *pJacobian)
+PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::AssembleJacobianNumerically(const Vec currentGuess, Mat* pJacobian)
 {
     unsigned num_nodes = PROBLEM_DIM*this->mpMesh->GetNumNodes();
 
@@ -385,7 +385,7 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
         PETSCEXCEPT( VecScale(result, one_over_h) );
 #endif
 
-        double *p_result;
+        double* p_result;
         PETSCEXCEPT( VecGetArray(result, &p_result) );
         for (unsigned global_index=lo; global_index < hi; global_index++)
         {
@@ -617,10 +617,10 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes, Vec currentGuess,
-        Vec residualVector, void *pContext)
+        Vec residualVector, void* pContext)
 {
     // Extract an assembler from the void*
-    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE> *pAssembler =
+    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>* pAssembler =
         (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>*) pContext;
 
     PetscErrorCode ierr = pAssembler->AssembleResidual(currentGuess, residualVector);
@@ -651,13 +651,13 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleResidual(SNES snes, Vec curren
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes, Vec currentGuess,
-        Mat *pGlobalJacobian, Mat *pPreconditioner,
-        MatStructure *pMatStructure, void *pContext)
+        Mat* pGlobalJacobian, Mat* pPreconditioner,
+        MatStructure* pMatStructure, void* pContext)
 {
     //std::cout << "begin assemble jacobian\n";
 
     // Extract an assembler from the void*
-    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE> *pAssembler =
+    AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>* pAssembler =
         (AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>*) pContext;
 
     PetscErrorCode ierr = pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);

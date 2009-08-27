@@ -116,7 +116,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
         VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->size(), &mDistributed);
     }
 
-    double *p_distributed;
+    double* p_distributed;
     VecGetArray(mDistributed, &p_distributed);
     for (unsigned global_index=lo; global_index<hi; global_index++)
     {
@@ -159,7 +159,7 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
 
     // Information is now in mReplicated PETSc vector
     // Copy into mData
-    double *p_replicated;
+    double* p_replicated;
     VecGetArray(mReplicated, &p_replicated);
     for (unsigned i=0; i<size; i++)
     {

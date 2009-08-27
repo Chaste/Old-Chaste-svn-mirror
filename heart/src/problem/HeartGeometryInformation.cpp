@@ -343,15 +343,15 @@ void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outp
         {
             if(mLayerForEachNode[i]==EPI)
             {
-                *p_file << "0\n";
+               * p_file << "0\n";
             }
             else if(mLayerForEachNode[i]==MID)
             {
-                *p_file << "1\n";
+               * p_file << "1\n";
             }
             else // endo
             {
-                *p_file << "2\n";
+               * p_file << "2\n";
             }
         }
         

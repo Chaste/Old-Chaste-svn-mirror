@@ -48,7 +48,7 @@ public:
         srandom(0);
         ran1=(double)random()/RAND_MAX;
 
-        RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
         double ran2=p_gen->ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
@@ -58,7 +58,7 @@ public:
 
     void TestNewMethodSeed()
     {
-        RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         double ran2=p_gen->ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
 
@@ -71,7 +71,7 @@ public:
         srandom(36);
         ran1=(double)random()/RAND_MAX;
 
-        RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         p_gen->Reseed(36);
 
 
@@ -92,7 +92,7 @@ public:
 
         // Create and archive random number generator
         {    // Save random number generator
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(5);
 
             std::ofstream ofs(archive_filename.c_str());
@@ -124,8 +124,8 @@ public:
 
         // Restore
         {
-            RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
-            p_gen->Reseed(25);    // any old seed.
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+            p_gen->Reseed(25);    // any seed.
             for (unsigned i=0; i<7; i++)    // generate some numbers
             {
                 p_gen->ranf();
@@ -150,7 +150,7 @@ public:
 
     void TestShuffle() throw(Exception)
     {
-        RandomNumberGenerator *p_gen = RandomNumberGenerator::Instance();
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         p_gen->Reseed(0);
 
         std::vector<unsigned> shuffled_results;

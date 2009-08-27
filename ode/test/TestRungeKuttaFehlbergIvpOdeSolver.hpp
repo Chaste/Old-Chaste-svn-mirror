@@ -395,7 +395,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
 
             // Create a pointer
-            AbstractIvpOdeSolver *p_rkf;
+            AbstractIvpOdeSolver* p_rkf;
             input_arch >> p_rkf;
 
             std::vector<double> state_variables = ode_system.GetInitialConditions();

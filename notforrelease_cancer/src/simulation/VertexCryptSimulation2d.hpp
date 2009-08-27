@@ -144,7 +144,7 @@ inline void save_construct_data(
     Archive & ar, const VertexCryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<2>  *p_tissue = &(t->rGetTissue());
+    const AbstractTissue<2> * p_tissue = &(t->rGetTissue());
     ar & p_tissue;
     const std::vector<AbstractForce<2>*> force_collection = t->rGetForceCollection();
     ar & force_collection;
@@ -158,7 +158,7 @@ inline void load_construct_data(
     Archive & ar, VertexCryptSimulation2d * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<2> *p_tissue;
+    AbstractTissue<2>* p_tissue;
     ar >> p_tissue;
     std::vector<AbstractForce<2>*> force_collection;
     ar >> force_collection;

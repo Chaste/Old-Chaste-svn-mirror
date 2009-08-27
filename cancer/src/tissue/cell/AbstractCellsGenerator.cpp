@@ -53,11 +53,11 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
     assert(DIM==2);
     #undef COVERAGE_IGNORE
 
-    RandomNumberGenerator *p_random_num_gen = RandomNumberGenerator::Instance();
+    RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
     unsigned num_cells = locationIndices.empty() ? rMesh.GetNumNodes() : locationIndices.size();
 
-    AbstractCellCycleModel *p_cell_cycle_model = NULL;
+    AbstractCellCycleModel* p_cell_cycle_model = NULL;
     double typical_transit_cycle_time;
     double typical_stem_cycle_time;
 
@@ -159,7 +159,7 @@ void AbstractCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
 
     for (unsigned i=0; i<numCells; i++)
     {
-        AbstractCellCycleModel *p_cell_cycle_model = CreateCellCycleModel();
+        AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
         TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
         double birth_time = 0.0 - i;
         cell.SetBirthTime(birth_time);

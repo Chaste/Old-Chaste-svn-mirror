@@ -54,14 +54,14 @@ public:
     void TestTysonNovakCellCycleModel() throw(Exception)
     {
         // Set up
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_timesteps = 50;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);
 
         double standard_divide_time = 75.19/60.0;
 
         // Test TysonNovakCellCycleModel methods for a healthy cell
-        TysonNovakCellCycleModel *p_cell_model = new TysonNovakCellCycleModel;
+        TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel;
         p_cell_model->SetBirthTime(p_simulation_time->GetTime());
         TissueCell cell(STEM, HEALTHY, p_cell_model);
 
@@ -95,7 +95,7 @@ public:
 
         // For coverage, we also test TysonNovakCellCycleModel methods for a mutant cell
         p_cell_model->ResetForDivision();
-        TysonNovakCellCycleModel *p_cell_model2 = static_cast<TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        TysonNovakCellCycleModel* p_cell_model2 = static_cast<TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
         TissueCell stem_cell_2(STEM, APC_ONE_HIT, p_cell_model2);
 
         // Test the cell is ready to divide at the right time
@@ -146,7 +146,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(100.1*standard_divide_time, num_timesteps);
 
         // Create cell cycle model and associated cell
-        TysonNovakCellCycleModel *p_repeating_cell_model = new TysonNovakCellCycleModel;
+        TysonNovakCellCycleModel* p_repeating_cell_model = new TysonNovakCellCycleModel;
         TissueCell tyson_novak_cell(STEM, APC_ONE_HIT, p_repeating_cell_model);
 
         // Run through the cell cycle model for a certain duration
@@ -197,7 +197,7 @@ public:
     void TestWntCellCycleModelForVaryingWntStimulus() throw(Exception)
     {
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 10.0 + TissueConfig::Instance()->GetMDuration(); // hours
         unsigned num_timesteps = 1000*(unsigned)end_time;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
@@ -207,7 +207,7 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -280,7 +280,7 @@ public:
     void TestIngeWntSwatCellCycleModel() throw(Exception)
     {
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 30; // hours
         unsigned num_timesteps = 100*(unsigned)end_time;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
@@ -294,7 +294,7 @@ public:
         TS_ASSERT_THROWS_THIS(IngeWntSwatCellCycleModel model(0,2), "Model must be set up with argument(hypothesis) = 1u or 2u");
 
         // Create cell cycle model and associated cell
-        IngeWntSwatCellCycleModel *p_cell_model = new IngeWntSwatCellCycleModel(1,2);
+        IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1,2);
 
         // Test that member variables are set correctly
         TS_ASSERT_EQUALS(p_cell_model->GetHypothesis(), 1u);
@@ -370,7 +370,7 @@ public:
         // is fine as the cell cycle model dictates the division time, not when
         // the cell is actually divided.
         TissueCell daughter_cell = stem_cell.Divide();
-        AbstractCellCycleModel *p_cell_model2 = daughter_cell.GetCellCycleModel();
+        AbstractCellCycleModel* p_cell_model2 = daughter_cell.GetCellCycleModel();
 
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), M_PHASE);
         TS_ASSERT_EQUALS(p_cell_model2->GetCurrentCellCyclePhase(), M_PHASE);
@@ -478,7 +478,7 @@ public:
         // Coverage of 1D
 
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        IngeWntSwatCellCycleModel *p_cell_model_1d = new IngeWntSwatCellCycleModel(1,1);
+        IngeWntSwatCellCycleModel* p_cell_model_1d = new IngeWntSwatCellCycleModel(1,1);
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
@@ -494,7 +494,7 @@ public:
         // Coverage of 3D
 
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        IngeWntSwatCellCycleModel *p_cell_model_3d = new IngeWntSwatCellCycleModel(1,3);
+        IngeWntSwatCellCycleModel* p_cell_model_3d = new IngeWntSwatCellCycleModel(1,3);
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
@@ -517,7 +517,7 @@ public:
     void TestWntCellCycleModelForAPCSingleHit() throw(Exception)
     {
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_timesteps = 500;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
 
@@ -526,7 +526,7 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -534,7 +534,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, APC_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
@@ -574,7 +574,7 @@ public:
     void TestWntCellCycleModelForBetaCatSingleHit() throw(Exception)
     {
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_timesteps = 500;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
 
@@ -583,14 +583,14 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
         TissueCell stem_cell(STEM, BETA_CATENIN_ONE_HIT, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, BETA_CATENIN_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
@@ -632,7 +632,7 @@ public:
     void TestWntCellCycleModelForAPCDoubleHit() throw(Exception)
     {
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_timesteps = 500;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps); // 15.971 hours to go into S phase
 
@@ -641,12 +641,12 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, APC_TWO_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model_2 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(2);
         TissueCell stem_cell_2(STEM, APC_TWO_HIT, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
@@ -689,7 +689,7 @@ public:
     void TestWntCellCycleModelForConstantWntStimulusHealthyCell() throw(Exception)
     {
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_timesteps = 500;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase
 
@@ -698,12 +698,12 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
         TissueCell stem_cell_1(STEM, HEALTHY, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel *p_cell_model_2 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(2);
         TissueCell stem_cell_2(STEM, HEALTHY, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
@@ -745,7 +745,7 @@ public:
     void TestStochasticWntCellCycleModel() throw (Exception)
     {
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_timesteps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20, num_timesteps);// 15.971 hours to go into S phase
 
@@ -754,7 +754,7 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        StochasticWntCellCycleModel *p_cell_model = new StochasticWntCellCycleModel(2);
+        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -797,11 +797,11 @@ public:
 
         {
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(100.0, 1);
 
             // Create cell cycle model and associated cell
-            TysonNovakCellCycleModel *p_model = new TysonNovakCellCycleModel;
+            TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel;
 
             p_simulation_time->IncrementTimeOneStep();
 
@@ -825,11 +825,11 @@ public:
 
         {
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueCell *p_cell;
+            TissueCell* p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -838,7 +838,7 @@ public:
             // Restore from the archive
             input_arch >> p_cell;
 
-            AbstractCellCycleModel *p_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
 
             // Test archiving
             TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);
@@ -858,11 +858,11 @@ public:
 
         {
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
 
             // Create cell cycle model and associated cell
-            WntCellCycleModel *p_cell_model = new WntCellCycleModel(3);
+            WntCellCycleModel* p_cell_model = new WntCellCycleModel(3);
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
@@ -889,15 +889,15 @@ public:
 
         {
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
-            TissueCell *p_cell;
+            TissueCell* p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -907,7 +907,7 @@ public:
             input_arch >> p_cell;
 
             // Test archiving
-            AbstractCellCycleModel *p_cell_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
 
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
@@ -935,11 +935,11 @@ public:
 
         {
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
 
             // Create cell cycle model and associated cell
-            IngeWntSwatCellCycleModel *p_cell_model = new IngeWntSwatCellCycleModel(1,2);
+            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1,2);
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
@@ -963,15 +963,15 @@ public:
 
         {
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
-            TissueCell *p_cell;
+            TissueCell* p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -981,7 +981,7 @@ public:
             input_arch >> p_cell;
 
             // Test archiving
-            AbstractCellCycleModel *p_cell_model = p_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
 
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
@@ -1013,16 +1013,16 @@ public:
             // In this test the RandomNumberGenerator in existence
 
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
 
             // Create cell cycle model and associated cell
-            StochasticWntCellCycleModel *p_stoc_model = new StochasticWntCellCycleModel(2);
+            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel(2);
             TissueCell stoc_cell(STEM, HEALTHY, p_stoc_model);
             stoc_cell.InitialiseCellCycleModel();
 
             // Create another cell cycle model and associated cell
-            WntCellCycleModel *p_wnt_model = new WntCellCycleModel(2);
+            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(2);
             TissueCell wnt_cell(STEM, HEALTHY, p_wnt_model);
             wnt_cell.InitialiseCellCycleModel();
 
@@ -1056,16 +1056,16 @@ public:
 
         {
             // Set up simulation time
-            SimulationTime *p_simulation_time = SimulationTime::Instance();
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 2);
 
-            TissueConfig *p_inst1 = TissueConfig::Instance();
+            TissueConfig* p_inst1 = TissueConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
-            TissueCell *p_stoc_cell;
-            TissueCell *p_wnt_cell;
+            TissueCell* p_stoc_cell;
+            TissueCell* p_wnt_cell;
 
             std::vector<double> cell_cycle_influence1;
             cell_cycle_influence1.push_back(1.0);
@@ -1118,7 +1118,7 @@ public:
 
     void TestCopyingCells() throw(Exception)
     {
-        TysonNovakCellCycleModel *p_original_cell_cycle= new TysonNovakCellCycleModel;
+        TysonNovakCellCycleModel* p_original_cell_cycle= new TysonNovakCellCycleModel;
         TissueCell cell(STEM, HEALTHY, p_original_cell_cycle);
 
         // These changed from default
@@ -1132,7 +1132,7 @@ public:
         p_original_cell_cycle->mReadyToDivide = true;
 
         TissueCell cell2 = cell;
-        TysonNovakCellCycleModel *p_new_cell_cycle = static_cast<TysonNovakCellCycleModel* > (cell2.GetCellCycleModel());
+        TysonNovakCellCycleModel* p_new_cell_cycle = static_cast<TysonNovakCellCycleModel* > (cell2.GetCellCycleModel());
         TS_ASSERT_EQUALS(&cell2, p_new_cell_cycle->GetCell() );
         TS_ASSERT_DIFFERS(&cell, &cell2);
         TS_ASSERT_DIFFERS(p_original_cell_cycle, p_new_cell_cycle);

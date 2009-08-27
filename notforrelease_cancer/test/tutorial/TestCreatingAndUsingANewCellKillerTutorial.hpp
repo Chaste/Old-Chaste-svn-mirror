@@ -166,7 +166,7 @@ namespace boost
             Archive & ar, MyCellKiller * t, const unsigned int file_version)
         {
             // Retrieve data from archive required to construct new instance
-            AbstractTissue<2> *p_tissue;
+            AbstractTissue<2>* p_tissue;
             ar >> p_tissue;
 
             // Invoke inplace constructor to initialise instance
@@ -212,7 +212,7 @@ public:
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0, false);
         /* Get the mesh using the {{{GetMesh()}}} method. */
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
          * To do this, we can use a static method on the
@@ -293,7 +293,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            MyCellKiller *p_cell_killer;
+            MyCellKiller* p_cell_killer;
 
             // Restore from the archive
             input_arch >> p_cell_killer;
@@ -325,7 +325,7 @@ public:
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0, false);
         /* Get the mesh using the {{{GetMesh()}}} method. */
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
          * To do this, we can use a static method on the
@@ -369,7 +369,7 @@ public:
         simulator.SetEndTime(10.0);
 
         /* We now pass the cell killer into the tissue simulation. */
-        MyCellKiller *p_killer = new MyCellKiller(&tissue);
+        MyCellKiller* p_killer = new MyCellKiller(&tissue);
         simulator.AddCellKiller(p_killer);
 
         /* Test that the Solve() method does not throw any exceptions. */

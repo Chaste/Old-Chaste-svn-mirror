@@ -188,24 +188,24 @@ void InventorVoronoiWriter::Write(const VoronoiTessellation<3>& rTessellation)
     out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(file_name);
 
     // Write out header part of file
-    *p_file << INVENTOR_HEADER;
+   * p_file << INVENTOR_HEADER;
 
     // Write out vertices and construct map from pointer to vertex to vertex number
     std::map< c_vector<double, 3>*, unsigned> vertex_number_map;
     for (unsigned vertex_number=0; vertex_number<rTessellation.GetNumVertices(); vertex_number++)
     {
         c_vector<double ,3>& vertex = *(rTessellation.mVertices[vertex_number]);
-        *p_file << "        " << vertex(0) << " " << vertex(1) << " " << vertex(2) << ",\n";
+       * p_file << "        " << vertex(0) << " " << vertex(1) << " " << vertex(2) << ",\n";
 
         vertex_number_map[rTessellation.mVertices[vertex_number]] = vertex_number;
     }
 
-    *p_file << INVENTOR_MID; //  CHANGE this to: *p_file << "\n";
+   * p_file << INVENTOR_MID; //  CHANGE this to:* p_file << "\n";
 
     // Write out faces
     for (unsigned face_number=0; face_number<rTessellation.GetNumFaces(); face_number++)
     {
-        *p_file << "        ";
+       * p_file << "        ";
         Face<3>& face = *(rTessellation.mFaces[face_number]);
         for (unsigned vertex_local_number = 0;
              vertex_local_number < face.GetNumVertices();
@@ -213,11 +213,11 @@ void InventorVoronoiWriter::Write(const VoronoiTessellation<3>& rTessellation)
         {
             // Note this assumes we can definitely find the vertex in the map
             unsigned vertex_number = vertex_number_map[&(face.rGetVertex(vertex_local_number))];
-            *p_file << vertex_number << ", ";
+           * p_file << vertex_number << ", ";
         }
-        *p_file << "\n";
+       * p_file << "\n";
     }
-    *p_file << INVENTOR_FOOTER;
+   * p_file << INVENTOR_FOOTER;
 }
 
 void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation, double scaleFactor)
@@ -232,7 +232,7 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
     out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(file_name);
 
     // Write out header part of file
-    *p_file << INVENTOR_HEADER;
+   * p_file << INVENTOR_HEADER;
 
     unsigned global_vertex_number = 0;
 
@@ -279,7 +279,7 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
                     c_vector<double, 3> new_vertex = face.rGetVertex(face_vertex_number);
                     new_vertex = scaleFactor*(new_vertex - r_cell_centre) + r_cell_centre;
 
-                    *p_file << "        " << new_vertex(0) << " " << new_vertex(1) << " " << new_vertex(2) << ",\n";
+                   * p_file << "        " << new_vertex(0) << " " << new_vertex(1) << " " << new_vertex(2) << ",\n";
                 }
 
                 // Store this vertex's global number as a vertex for this face
@@ -302,17 +302,17 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
     {
         if (number_faces_per_cell[i] > 0)
         {
-            *p_file << INVENTOR_MID;
+           * p_file << INVENTOR_MID;
             // Loop over faces
             for (unsigned j=0; j<number_faces_per_cell[i]; j++)
             {
-                *p_file << "        ";
+               * p_file << "        ";
                 assert(index<new_faces_data.size());
                 if ( rTessellation.rGetCell(i).FaceIsOrientatedClockwise(j) )
                 {
                     for (unsigned k=0; k<new_faces_data[index].size(); k++)
                     {
-                        *p_file << new_faces_data[index][k] << ", ";
+                       * p_file << new_faces_data[index][k] << ", ";
                     }
                  }
                  else
@@ -320,15 +320,15 @@ void InventorVoronoiWriter::ScaleAndWrite(VoronoiTessellation<3>& rTessellation,
                     for (unsigned k=0; k<new_faces_data[index].size(); k++)
                     {
                         unsigned l = new_faces_data[index].size() - k - 1;
-                        *p_file << new_faces_data[index][l] << ", ";
+                       * p_file << new_faces_data[index][l] << ", ";
                     }
                  }
-                 *p_file << "\n";
+                * p_file << "\n";
                  index++;
             }
         }
     }
-    *p_file << INVENTOR_FOOTER;
+   * p_file << INVENTOR_FOOTER;
 }
 
 #endif /*INVENTORVORONOIWRITER_HPP_*/

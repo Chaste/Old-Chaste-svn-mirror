@@ -283,7 +283,7 @@ public:
         // Add a node
         c_vector<double,1> point;
         point[0] = 2.5;
-        Node<1> *p_node = new Node<1>(10u, point);
+        Node<1>* p_node = new Node<1>(10u, point);
         unsigned new_index = mesh2.AddNode(p_node);
 
         TS_ASSERT_EQUALS(new_index, 11u);

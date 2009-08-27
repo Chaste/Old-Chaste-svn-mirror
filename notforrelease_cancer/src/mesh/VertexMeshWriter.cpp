@@ -63,7 +63,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
 #ifdef CHASTE_VTK
     //Make the Vtk mesh
     assert(SPACE_DIM==3 || SPACE_DIM == 2);
-    vtkPoints *p_pts = vtkPoints::New(VTK_DOUBLE);
+    vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
     p_pts->GetData()->SetName("Vertex positions");
     for (unsigned node_num=0; node_num<rMesh.GetNumNodes(); node_num++)
     {
@@ -84,7 +84,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
              iter != rMesh.GetElementIteratorEnd();
              ++iter)
     {
-        vtkCell *p_cell;
+        vtkCell* p_cell;
         if (SPACE_DIM == 2)
         {
             p_cell = vtkPolygon::New();
@@ -93,7 +93,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
         {
             p_cell = vtkConvexPointSet::New();
         }
-        vtkIdList *p_cell_id_list = p_cell->GetPointIds();
+        vtkIdList* p_cell_id_list = p_cell->GetPointIds();
         p_cell_id_list->SetNumberOfIds(iter->GetNumNodes());
         for (unsigned j = 0; j < iter->GetNumNodes(); ++j)
         {
@@ -105,7 +105,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
 
     //Vtk mesh is now made
     assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
-    vtkXMLUnstructuredGridWriter *p_writer = vtkXMLUnstructuredGridWriter::New();
+    vtkXMLUnstructuredGridWriter* p_writer = vtkXMLUnstructuredGridWriter::New();
     p_writer->SetInput(mpVtkUnstructedMesh);
     //Uninitialised stuff arises (see #1079), but you can remove
     //valgrind problems by removing compression:
@@ -132,14 +132,14 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
 {
 #ifdef CHASTE_VTK
-    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
     for (unsigned i=0; i<dataPayload.size(); i++)
     {
         p_scalars->InsertNextValue(dataPayload[i]);
     }
 
-    vtkCellData *p_cell_data = mpVtkUnstructedMesh->GetCellData();
+    vtkCellData* p_cell_data = mpVtkUnstructedMesh->GetCellData();
     p_cell_data->AddArray(p_scalars);
     p_scalars->Delete(); //Reference counted
 #endif //CHASTE_VTK
@@ -150,14 +150,14 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
 {
 #ifdef CHASTE_VTK
-    vtkDoubleArray *p_scalars = vtkDoubleArray::New();
+    vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
     for (unsigned i=0; i<dataPayload.size(); i++)
     {
         p_scalars->InsertNextValue(dataPayload[i]);
     }
 
-    vtkPointData *p_point_data = mpVtkUnstructedMesh->GetPointData();
+    vtkPointData* p_point_data = mpVtkUnstructedMesh->GetPointData();
     p_point_data->AddArray(p_scalars);
     p_scalars->Delete(); //Reference counted
 #endif //CHASTE_VTK
@@ -170,7 +170,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(const VertexM
     unsigned new_index = 0;
     for (unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
     {
-        Node<SPACE_DIM> *p_node = rMesh.GetNode(i);
+        Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
 
         if (p_node->IsDeleted() == false)
         {
@@ -191,7 +191,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(const VertexM
 
     for (unsigned i=0; i<rMesh.GetNumAllElements(); i++) // can't use an element interator as the mesh is const
     {
-        VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = rMesh.GetElement(i);
+        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = rMesh.GetElement(i);
         if (!p_element->IsDeleted())
         {
             std::vector<unsigned> indices(p_element->GetNumNodes()+1);
@@ -224,26 +224,26 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned max_bdy_marker = 0;
     unsigned num_nodes = this->GetNumNodes();
 
-    *p_node_file << num_nodes << "\t";
-    *p_node_file << SPACE_DIM << "\t";
-    *p_node_file << num_attr << "\t";
-    *p_node_file << max_bdy_marker << "\n";
-    *p_node_file << std::setprecision(6);
+   * p_node_file << num_nodes << "\t";
+   * p_node_file << SPACE_DIM << "\t";
+   * p_node_file << num_attr << "\t";
+   * p_node_file << max_bdy_marker << "\n";
+   * p_node_file << std::setprecision(6);
 
     // Write each node's data
     unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
-        *p_node_file << item_num;
+       * p_node_file << item_num;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
-            *p_node_file << "\t" << current_item[i];
+           * p_node_file << "\t" << current_item[i];
         }
-        *p_node_file << "\t" << default_marker << "\n";
+       * p_node_file << "\t" << default_marker << "\n";
 
     }
-    *p_node_file << comment << "\n";
+   * p_node_file << comment << "\n";
     p_node_file->close();
 
     // Write element file
@@ -253,22 +253,22 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write the element header
     unsigned num_elements = this->GetNumElements();
 
-    *p_element_file << num_elements << "\t";
-    *p_element_file << num_attr << "\n";
+   * p_element_file << num_elements << "\t";
+   * p_element_file << num_attr << "\n";
 
     // Write each element's data
     /// \todo need to think about how best to do this in 3D (see #866)
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->mElementData[item_num];
-        *p_element_file << item_num;
+       * p_element_file << item_num;
         for (unsigned i=0; i<current_item.size(); i++)
         {
-            *p_element_file << "\t" << current_item[i];
+           * p_element_file << "\t" << current_item[i];
         }
-        *p_element_file << "\n";
+       * p_element_file << "\n";
     }
-    *p_element_file << comment << "\n";
+   * p_element_file << comment << "\n";
     p_element_file->close();
 }
 

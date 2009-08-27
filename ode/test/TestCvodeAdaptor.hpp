@@ -366,7 +366,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
 
             // Create a pointer
-            AbstractIvpOdeSolver *p_cvode_solver;
+            AbstractIvpOdeSolver* p_cvode_solver;
             input_arch >> p_cvode_solver;
 
             delete p_cvode_solver;

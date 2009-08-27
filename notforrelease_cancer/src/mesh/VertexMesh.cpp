@@ -50,22 +50,22 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     // Populate mNodes and mElements
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
     {
-        Node<SPACE_DIM> *p_temp_node = nodes[node_index];
+        Node<SPACE_DIM>* p_temp_node = nodes[node_index];
         this->mNodes.push_back(p_temp_node);
     }
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM> *p_temp_vertex_element = vertexElements[elem_index];
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = vertexElements[elem_index];
         mElements.push_back(p_temp_vertex_element);
     }
 
     // Register elements with nodes
     for (unsigned index=0; index<mElements.size(); index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM> *p_temp_vertex_element = mElements[index];
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = mElements[index];
         for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
         {
-            Node<SPACE_DIM> *p_temp_node = p_temp_vertex_element->GetNode(node_index);
+            Node<SPACE_DIM>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
             p_temp_node->AddElement(p_temp_vertex_element->GetIndex());
         }
     }
@@ -115,7 +115,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numElementsAcross,
         // On the first row we have numElementsAcross nodes, all of which are boundary nodes
         for (unsigned i=0; i<numElementsAcross; i++)
         {
-            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, 0);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true, i+0.5, 0);
             this->mNodes.push_back(p_node);
             node_index++;
         }
@@ -133,7 +133,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numElementsAcross,
                 double y_coord = (1.5*j - 0.5*(j%2))*0.5/sqrt(3);
                 bool is_boundary_node = (j==1 || j==2*numElementsUp || i==0 || i==numElementsAcross) ? true : false;
 
-                Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, x_coord, y_coord);
+                Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, is_boundary_node, x_coord, y_coord);
                 this->mNodes.push_back(p_node);
                 node_index++;
             }
@@ -145,7 +145,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numElementsAcross,
         double y_coord = (1.5*(2*numElementsUp+1) - 0.5*((2*numElementsUp+1)%2))*0.5/sqrt(3);
         if (((2*numElementsUp+1)%4 == 0)||((2*numElementsUp+1)%4 == 3))
         {
-            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, 0.5, y_coord);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true, 0.5, y_coord);
             this->mNodes.push_back(p_node);
             node_index++;
         }
@@ -153,13 +153,13 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numElementsAcross,
         {
             double x_coord = (((2*numElementsUp+1)%4 == 0)||((2*numElementsUp+1)%4 == 3)) ? i+0.5 : i;
 
-            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, x_coord, y_coord);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true, x_coord, y_coord);
             this->mNodes.push_back(p_node);
             node_index++;
         }
         if (((2*numElementsUp+1)%4 == 1)||((2*numElementsUp+1)%4 == 2))
         {
-            Node<SPACE_DIM> *p_node = new Node<SPACE_DIM>(node_index, true, numElementsAcross, y_coord);
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true, numElementsAcross, y_coord);
             this->mNodes.push_back(p_node);
             node_index++;
         }
@@ -193,7 +193,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(unsigned numElementsAcross,
                 }
 
                 element_index = j*numElementsAcross + i;
-                VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = new VertexElement<ELEMENT_DIM, SPACE_DIM>(element_index, element_nodes);
+                VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM, SPACE_DIM>(element_index, element_nodes);
                 mElements.push_back(p_element);
             }
         }
@@ -331,7 +331,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
     assert(SPACE_DIM == 2);
     #undef COVERAGE_IGNORE
 
-    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = GetElement(index);
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
     c_vector<double, SPACE_DIM> first_node;
     c_vector<double, SPACE_DIM> current_node;
@@ -361,7 +361,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
     assert(SPACE_DIM == 2);
     #undef COVERAGE_IGNORE
 
-    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = GetElement(index);
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
     unsigned current_node_index;
     unsigned anticlockwise_node_index;
@@ -389,7 +389,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
     assert(SPACE_DIM == 2);
     #undef COVERAGE_IGNORE
 
-    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = GetElement(index);
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
     c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
     c_vector<double, SPACE_DIM> current_node;
@@ -512,7 +512,7 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
     assert(SPACE_DIM == 2);
     #undef COVERAGE_IGNORE
 
-    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = GetElement(index);
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
     unsigned num_nodes_in_element = p_element->GetNumNodes();
     c_vector<double, 2> centroid = GetCentroidOfElement(index);
 
@@ -662,7 +662,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DeleteElementPriorToReMesh(unsigned ind
     // Mark any nodes that are contained only in this element as deleted
     for (unsigned i=0; i<this->mElements[index]->GetNumNodes(); i++)
     {
-        Node<SPACE_DIM> *p_node = this->mElements[index]->GetNode(i);
+        Node<SPACE_DIM>* p_node = this->mElements[index]->GetNode(i);
 
         if (p_node->rGetContainingElementIndices().size()==1)
         {
@@ -696,7 +696,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
     assert(shared_elements.size() > 0);
 
     // Create a new node (position is not important as it will be changed)
-    Node<SPACE_DIM> *p_new_node = new Node<SPACE_DIM>(GetNumNodes(), false, 0.0, 0.0);
+    Node<SPACE_DIM>* p_new_node = new Node<SPACE_DIM>(GetNumNodes(), false, 0.0, 0.0);
 
     // Update the node location
     c_vector<double, SPACE_DIM> new_node_position = pNodeA->rGetLocation() + 0.5*GetVectorFromAtoB(pNodeA->rGetLocation(), pNodeB->rGetLocation());
@@ -866,9 +866,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
                     for (unsigned local_index=0; local_index<num_nodes; local_index++)
                     {
                         // Find locations of current node and anticlockwise node
-                        Node<SPACE_DIM> *p_current_node = iter->GetNode(local_index);
+                        Node<SPACE_DIM>* p_current_node = iter->GetNode(local_index);
                         unsigned local_index_plus_one = (local_index+1)%new_num_nodes; /// \todo Should use iterators to tidy this up
-                        Node<SPACE_DIM> *p_anticlockwise_node = iter->GetNode(local_index_plus_one);
+                        Node<SPACE_DIM>* p_anticlockwise_node = iter->GetNode(local_index_plus_one);
 
                         // Find distance between nodes
                         double distance_between_nodes = this->GetDistanceBetweenNodes(p_current_node->GetIndex(), p_anticlockwise_node->GetIndex());
@@ -934,7 +934,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
             for (unsigned local_index=0; local_index<num_nodes; local_index++)
             {
                 // Find locations of current node and anticlockwise node
-                Node<SPACE_DIM> *p_current_node = iter->GetNode(local_index);
+                Node<SPACE_DIM>* p_current_node = iter->GetNode(local_index);
 
                 if (p_current_node->IsBoundaryNode())
                 {
@@ -1146,8 +1146,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 }
                 else
                 {
-                    Node<SPACE_DIM> *p_node_alpha;
-                    Node<SPACE_DIM> *p_node_beta;
+                    Node<SPACE_DIM>* p_node_alpha;
+                    Node<SPACE_DIM>* p_node_beta;
                     if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
                     {
                         p_node_alpha = pNodeA;
@@ -1175,7 +1175,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                     // // We add an extra temp in the line below as otherwise this term can be negative, which breaks the % operator
                     unsigned node_alpha_local_index_after = (node_alpha_local_index+temp-1)%temp;
 
-                    Node<SPACE_DIM> *p_node_gamma;
+                    Node<SPACE_DIM>* p_node_gamma;
                     if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before) == p_node_beta)
                     {
                         p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after);
@@ -1528,9 +1528,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
      }
 
      // Extract the neighbouring elements
-     VertexElement<ELEMENT_DIM,SPACE_DIM> *p_neighbouring_element_0 = this->GetElement(neighbouring_elem_nums(0));
-     VertexElement<ELEMENT_DIM,SPACE_DIM> *p_neighbouring_element_1 = this->GetElement(neighbouring_elem_nums(1));
-     VertexElement<ELEMENT_DIM,SPACE_DIM> *p_neighbouring_element_2 = this->GetElement(neighbouring_elem_nums(2));
+     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_0 = this->GetElement(neighbouring_elem_nums(0));
+     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_1 = this->GetElement(neighbouring_elem_nums(1));
+     VertexElement<ELEMENT_DIM,SPACE_DIM>* p_neighbouring_element_2 = this->GetElement(neighbouring_elem_nums(2));
 
      // Need to check that none of the neighbouring elements are triangles
      if (    (p_neighbouring_element_0->GetNumNodes() > 3u)
@@ -1616,8 +1616,8 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(VertexE
          * we change the local index of the second entry of intersecting_nodes in
          * pElement, so must account for this by moving one entry further on.
          */
-        Node<SPACE_DIM> *p_node_A = pElement->GetNode((intersecting_nodes[i]+nodes_added)%pElement->GetNumNodes());
-        Node<SPACE_DIM> *p_node_B = pElement->GetNode((intersecting_nodes[i]+nodes_added+1)%pElement->GetNumNodes());
+        Node<SPACE_DIM>* p_node_A = pElement->GetNode((intersecting_nodes[i]+nodes_added)%pElement->GetNumNodes());
+        Node<SPACE_DIM>* p_node_B = pElement->GetNode((intersecting_nodes[i]+nodes_added+1)%pElement->GetNumNodes());
 
         c_vector<double, SPACE_DIM> position_a = p_node_A->rGetLocation();
         c_vector<double, SPACE_DIM> position_b = p_node_B->rGetLocation();
@@ -1885,7 +1885,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
             nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
         }
 
-        VertexElement<ELEMENT_DIM,SPACE_DIM> *p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
+        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
         mElements.push_back(p_element);
 
         if (rMeshReader.GetNumElementAttributes() > 0)
@@ -1911,7 +1911,7 @@ bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<dou
     bool element_includes_point = false;
 
     // Get the element
-    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = GetElement(elementIndex);
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
     unsigned num_nodes = p_element->GetNumNodes();
 
     // Loop over edges of the element
@@ -1969,7 +1969,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
     #undef COVERAGE_IGNORE
 
     // Get the element
-    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = GetElement(elementIndex);
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
     unsigned num_nodes = p_element->GetNumNodes();
 
     double min_squared_distance = DBL_MAX;
@@ -2017,7 +2017,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::MoveOverlappingNodeOntoEdgeOfElement(No
     c_vector<double, SPACE_DIM> node_location = pNode->rGetModifiableLocation();
 
     // Get element
-    VertexElement<ELEMENT_DIM, SPACE_DIM> *p_element = GetElement(elementIndex);
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
     unsigned num_nodes = p_element->GetNumNodes();
 
     c_vector<double, SPACE_DIM> vertexA = p_element->GetNodeLocation(local_index);

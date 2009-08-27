@@ -61,7 +61,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
@@ -75,7 +75,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
         // Set up cellwise data and associate it with the tissue
-        CellwiseData<2> *p_data = CellwiseData<2>::Instance();
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
         p_data->SetTissue(tissue);
 
@@ -153,7 +153,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            ChemotacticForce<2> *p_chemotactic_force;
+            ChemotacticForce<2>* p_chemotactic_force;
 
             // Restore from the archive
             input_arch >> p_chemotactic_force;
@@ -168,7 +168,7 @@ public:
 
     void TestCryptProjectionForceMethods() throw (Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh
         unsigned num_cells_width = 10;
@@ -178,7 +178,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Centre the mesh at (0,0)
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -265,7 +265,7 @@ public:
         new_point2.rGetLocation()[1] = new_point[1] + 0.01;
 
         unsigned elem_index = p_mesh->GetContainingElementIndex(new_point2, false);
-        Element<2,2> *p_element = p_mesh->GetElement(elem_index);
+        Element<2,2>* p_element = p_mesh->GetElement(elem_index);
 
         force_on_spring = crypt_projection_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),
                                                                             p_element->GetNodeGlobalIndex(0),
@@ -349,7 +349,7 @@ public:
      */
     void TestCryptProjectionForceWithWntBasedChemotaxis() throw (Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         // Create a mesh
         unsigned num_cells_width = 10;
@@ -359,7 +359,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, thickness_of_ghost_layer, false);
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Centre the mesh at (0,0)
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -435,7 +435,7 @@ public:
 
     void TestCryptProjectionForceWithArchiving() throw (Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "crypt_projection_spring_system.arch";
@@ -479,7 +479,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            CryptProjectionForce *p_crypt_projection_force;
+            CryptProjectionForce* p_crypt_projection_force;
 
             // Restore from the archive
             input_arch >> p_crypt_projection_force;
@@ -495,7 +495,7 @@ public:
 
     void TestForceCollection() throw (Exception)
     {
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
 
         unsigned cells_across = 7;
         unsigned cells_up = 5;
@@ -504,7 +504,7 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, false);
-        MutableMesh<2,2> *p_mesh = generator.GetMesh();
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
@@ -655,7 +655,7 @@ public:
         double normal_target_area = tissue.GetTargetAreaOfCell(tissue.rGetCellUsingLocationIndex(0));
 
         // Set up simulation time
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.25, 2);
 
         // Set the cell to be necrotic

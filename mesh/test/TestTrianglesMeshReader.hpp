@@ -185,7 +185,7 @@ public:
      */
     void TestOrder2ElementsFail() throw(Exception)
     {
-        TrianglesMeshReader<2,2> *p_mesh_reader;
+        TrianglesMeshReader<2,2>* p_mesh_reader;
         TS_ASSERT_THROWS_THIS(p_mesh_reader = new READER_2D("mesh/test/data/baddata/disk_522_order_2_elements"),
                 "Number of nodes per elem, 6, does not match expected number, 3 "
                 "(which is calculated given the order of elements chosen, 1 (1=linear, 2=quadratics)");
@@ -280,7 +280,7 @@ public:
 
     void Test0DMeshIn1DSpaceFails() throw(Exception)
     {
-        TrianglesMeshReader<0,1> *p_mesh_reader;
+        TrianglesMeshReader<0,1>* p_mesh_reader;
         TS_ASSERT_THROWS_THIS(p_mesh_reader = new READER_0D_IN_1D("mesh/test/data/trivial_1d_mesh"),
                 "Can\'t have a zero-dimensional mesh in a one-dimensional space");
     }

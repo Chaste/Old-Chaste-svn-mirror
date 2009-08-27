@@ -280,7 +280,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
 
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
-    ConstBoundaryCondition<DIM> *p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
+    ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
     for (typename TetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
          node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
          ++node_iter)
@@ -367,7 +367,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 
     // Set up boundary conditions
     BoundaryConditionsContainer<DIM,DIM,1> bcc;
-    ConstBoundaryCondition<DIM> *p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
+    ConstBoundaryCondition<DIM>* p_boundary_condition = new ConstBoundaryCondition<DIM>(1.0);
 
     // Get the set of coarse element indices that contain tissue cells
     std::set<unsigned> coarse_element_indices_in_map;
@@ -388,7 +388,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
         {
             // ... then get the element...
-            Element<DIM,DIM> *p_element = r_mesh.GetElement(i);
+            Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
 
             // ... and add its associated nodes to coarse_mesh_boundary_node_indices
             for (unsigned local_index=0; local_index<DIM+1; local_index++)
@@ -461,7 +461,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         // Find coarse mesh element containing cell
         unsigned elem_index = FindElementContainingCell(*cell_iter);
 
-        Element<DIM,DIM> *p_element = mpCoarseNutrientMesh->GetElement(elem_index);
+        Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(elem_index);
 
         const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(&(*cell_iter));
 
@@ -488,7 +488,7 @@ unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCel
     std::set<unsigned> test_elements;
     test_elements.insert(old_element_index);
 
-    Element<DIM,DIM> *p_element = mpCoarseNutrientMesh->GetElement(old_element_index);
+    Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(old_element_index);
 
     for (unsigned local_index=0; local_index<DIM+1; local_index++)
     {
@@ -518,7 +518,7 @@ void TissueSimulationWithNutrients<DIM>::PostSolve()
     SolveNutrientPde();
 
     // Save results to file
-    SimulationTime *p_time = SimulationTime::Instance();
+    SimulationTime* p_time = SimulationTime::Instance();
 
     double time_next_step = p_time->GetTime() + p_time->GetTimeStep();
 

@@ -192,7 +192,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            AbstractCardiacPde<1> *p_bidomain_pde;
+            AbstractCardiacPde<1>* p_bidomain_pde;
             input_arch >> p_bidomain_pde;
 
             const c_matrix<double, 1, 1>& intra_tensor_after_archiving = p_bidomain_pde->rGetIntracellularConductivityTensor(1);

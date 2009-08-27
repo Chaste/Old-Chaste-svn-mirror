@@ -40,7 +40,7 @@ class PetscArguments
 public:
 
     /** The number of command line arguments. */
-    int *p_argc;
+    int* p_argc;
 
     /** The arguments themselves. */
     char*** p_argv;

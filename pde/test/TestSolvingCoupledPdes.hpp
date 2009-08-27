@@ -346,8 +346,8 @@ public:
 
         // du/dn = -0.5 on r=1
         TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2> *p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
-        ConstBoundaryCondition<2> *p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc_2unknowns.AddNeumannBoundaryCondition(*iter, p_boundary_condition,0);

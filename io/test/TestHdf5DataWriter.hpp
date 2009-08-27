@@ -285,7 +285,7 @@ public:
     {
         // Initialise a PETSc vector
         Vec a_vec = PetscTools::CreateVec(data_size);
-        double *p_a_vec;
+        double* p_a_vec;
         VecGetArray(a_vec, &p_a_vec);
         int lo, hi;
         VecGetOwnershipRange(a_vec, &lo, &hi);

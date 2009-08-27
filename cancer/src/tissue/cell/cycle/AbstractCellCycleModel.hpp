@@ -72,10 +72,10 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         // Make sure the simulation and cancer parameters get saved too
-        SimulationTime *p_time = SimulationTime::Instance();
+        SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
         archive & p_time;
-        TissueConfig *p_params = TissueConfig::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
         archive & *p_params;
         archive & p_params;
 

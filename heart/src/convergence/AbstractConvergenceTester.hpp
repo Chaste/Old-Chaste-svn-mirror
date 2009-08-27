@@ -384,7 +384,7 @@ public:
             if (Stimulus==NEUMANN)
             {
 
-                StimulusBoundaryCondition<DIM> *p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
+                StimulusBoundaryCondition<DIM>* p_bc_stim = new StimulusBoundaryCondition<DIM>(&stim);
 
                 // get mesh
                 AbstractTetrahedralMesh<DIM, DIM> &r_mesh = cardiac_problem.rGetMesh();

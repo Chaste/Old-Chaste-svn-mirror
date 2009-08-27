@@ -109,12 +109,12 @@ public:
         BoundaryConditionsContainer<1,1,1> bcc;
         //Adding Dirichlet BC at node 0
         double DirichletBCValue = 5.0;
-        ConstBoundaryCondition<1> *pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
+        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), pBoundaryCondition);
 
         // adding von Neumann BC at the last node
         double VonNeumannBCValue = 9.0;
-        ConstBoundaryCondition<1> *pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
+        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
         TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--; // to be consistent with c++ :))), GetBoundaryElementIteratorEnd points to one element passed it
         bcc.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
@@ -161,7 +161,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
@@ -241,7 +241,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
@@ -278,7 +278,7 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(0) = 0
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         // u(1)*u'(1) = 1
         p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
@@ -323,7 +323,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(exp(1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
@@ -365,7 +365,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(2.0));
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(2.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
@@ -409,7 +409,7 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = exp(1.0)
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
         // u(0)^2*u'(0) = 0.0
         p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
@@ -455,7 +455,7 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = exp(-1.0)
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
         // u(0)^2*u'(0) = -1.0
         // Note that we specify 1 as the value, since figuring out which direction
@@ -505,7 +505,7 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = sqrt(3)
-        ConstBoundaryCondition<1> *p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(3));
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(3));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
         // u(0)*u'(0) = 2
         // Note that we specify -2 as the value, since figuring out which direction
@@ -555,7 +555,7 @@ public:
         BoundaryConditionsContainer<2,2,1> bcc;
         // du/dn = -0.5 on r=1
         TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2> *p_boundary_condition;
+        ConstBoundaryCondition<2>* p_boundary_condition;
         p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
@@ -614,7 +614,7 @@ public:
 
         TetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         FunctionalBoundaryCondition<2>* one_boundary_condition = new FunctionalBoundaryCondition<2>(&one_bc);
-        AbstractBoundaryCondition<2> *p_boundary_condition;
+        AbstractBoundaryCondition<2>* p_boundary_condition;
         while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             double y = (*iter)->GetNodeLocation(0,1);
@@ -667,7 +667,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
-        ConstBoundaryCondition<2> *p_boundary_condition;
+        ConstBoundaryCondition<2>* p_boundary_condition;
         TetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
         while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
         {
@@ -691,7 +691,7 @@ public:
 
             node_iter++;
         }
-        FunctionalBoundaryCondition<2> *p_functional_bc;
+        FunctionalBoundaryCondition<2>* p_functional_bc;
         TetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
         while (elt_iter != mesh.GetBoundaryElementIteratorEnd())
         {
@@ -766,7 +766,7 @@ public:
 
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
-        ConstBoundaryCondition<2> *p_boundary_condition;
+        ConstBoundaryCondition<2>* p_boundary_condition;
         TetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
         while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
         {
@@ -790,7 +790,7 @@ public:
 
             node_iter++;
         }
-        FunctionalBoundaryCondition<2> *p_functional_bc;
+        FunctionalBoundaryCondition<2>* p_functional_bc;
         TetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
         while (elt_iter != mesh.GetBoundaryElementIteratorEnd())
         {
