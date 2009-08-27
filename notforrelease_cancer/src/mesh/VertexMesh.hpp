@@ -284,7 +284,7 @@ public:
      * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to DBL_MAX)
      * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
      */
-    VertexMesh(unsigned numElementsAcross, unsigned numElementsUp, double cellRearrangementThreshold =0.01 , double edgeDivisionThreshold = DBL_MAX, double t2Threshold = 0.001);
+    VertexMesh(unsigned numElementsAcross, unsigned numElementsUp, double cellRearrangementThreshold = 0.01 , double edgeDivisionThreshold = DBL_MAX, double t2Threshold = 0.001);
 
     /**
      * Default constructor for use by serializer.
@@ -587,14 +587,19 @@ public:
     void DivideEdge(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB);
 
     /**
-     * Helper method for ReMesh(). Removes the deleted nodes and elements from mesha dn updates the
+     * Helper method for ReMesh(). Removes the deleted nodes and elements from the mesh and updates the
      * rElementMap accordingly.
      *
      * @param rElementMap a VertexElementMap which associates the indices of VertexElements in the old mesh
      *                   with indices of VertexElements in the new mesh.  This should be created
      *                   with the correct size, GetNumElements()
      */
-    void RemovedDeletedNodesAndElements(VertexElementMap& rElementMap);
+    void RemoveDeletedNodesAndElements(VertexElementMap& rElementMap);
+
+    /**
+     * Helper method for ReMesh(). Removes the deleted nodes from the mesh and relabels the node indices.
+     */
+    void RemoveDeletedNodes();
 
     /**
      * Re-mesh the mesh.

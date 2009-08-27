@@ -980,6 +980,67 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 2.0+sqrt(2), 1e-6);
     }
 
+    void TestReMeshFailure() throw(Exception)
+    {
+    	// Create nodes
+    	std::vector<Node<2>*> nodes;
+    	nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+    	nodes.push_back(new Node<2>(1, false, 2.0, 0.0));
+    	nodes.push_back(new Node<2>(2, false, 3.0, 0.0));
+    	nodes.push_back(new Node<2>(3, false, 3.0, 1.0));
+    	nodes.push_back(new Node<2>(4, false, 3.0, 2.0));
+    	nodes.push_back(new Node<2>(5, false, 2.0, 2.0));
+    	nodes.push_back(new Node<2>(6, false, 1.0, 1.0));
+    	nodes.push_back(new Node<2>(7, false, 0.99, 1.0));
+    	nodes.push_back(new Node<2>(7, false, 0.0, 1.0));
+
+    	// Create three elements containing nodes
+    	std::vector<Node<2>*> nodes_elem_0;
+    	nodes_elem_0.push_back(nodes[0]);
+    	nodes_elem_0.push_back(nodes[1]);
+    	nodes_elem_0.push_back(nodes[6]);
+    	nodes_elem_0.push_back(nodes[7]);
+    	nodes_elem_0.push_back(nodes[8]);
+
+    	std::vector<Node<2>*> nodes_elem_1;
+    	nodes_elem_1.push_back(nodes[1]);
+    	nodes_elem_1.push_back(nodes[2]);
+    	nodes_elem_1.push_back(nodes[3]);
+    	nodes_elem_1.push_back(nodes[6]);
+
+    	std::vector<Node<2>*> nodes_elem_2;
+    	nodes_elem_2.push_back(nodes[3]);
+    	nodes_elem_2.push_back(nodes[4]);
+    	nodes_elem_2.push_back(nodes[5]);
+    	nodes_elem_2.push_back(nodes[6]);
+
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
+
+        // Create a mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        vertex_mesh.SetCellRearrangementThreshold(0.1);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
+
+        // Try remeshing
+        VertexElementMap map(vertex_mesh.GetNumElements());
+        TS_ASSERT_THROWS_THIS(vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), map),
+                              "One of the nodes is contained in one element, the other in three");
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
+
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[0], 1.0, 1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[1], 1.0, 1e-3);
+
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(7)->rGetLocation()[0], 0.99, 1e-3);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(7)->rGetLocation()[1], 1.0, 1e-3);
+    }
+
     // This tests both PerformT1Swap and IdentifySwapType
     void TestPerformT1Swap() throw(Exception)
     {

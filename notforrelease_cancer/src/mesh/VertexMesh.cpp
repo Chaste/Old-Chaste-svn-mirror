@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements,
@@ -734,7 +733,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideEdge(Node<SPACE_DIM>* pNodeA, Nod
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexElementMap& rElementMap)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemoveDeletedNodesAndElements(VertexElementMap& rElementMap)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -764,7 +763,18 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexEl
     mDeletedElementIndices.clear();
     mElements = live_elements;
 
+    for (unsigned i=0; i<mElements.size(); i++)
+    {
+        mElements[i]->ResetIndex(i);
+    }
+
     // Remove deleted nodes
+    RemoveDeletedNodes();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemoveDeletedNodes()
+{
     std::vector<Node<SPACE_DIM>*> live_nodes;
     for (unsigned i=0; i<this->mNodes.size(); i++)
     {
@@ -782,10 +792,6 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::RemovedDeletedNodesAndElements(VertexEl
     this->mNodes = live_nodes;
     mDeletedNodeIndices.clear();
 
-    for (unsigned i=0; i<mElements.size(); i++)
-    {
-        mElements[i]->ResetIndex(i);
-    }
     for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         this->mNodes[i]->SetIndex(i);
@@ -805,7 +811,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
     if (SPACE_DIM==2)
     {
         // Remove deleted nodes and elements
-        RemovedDeletedNodesAndElements(rElementMap);
+        RemoveDeletedNodesAndElements(rElementMap);
 
         /*
          * We do not need to call Clear() and remove all current data, since
@@ -830,14 +836,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
                     if (iter->GetNumNodes() == 3u)
                     {
                         /*
-                         *  Perform T2 swaps where necesary
+                         * Perform T2 swaps where necesary
                          * Check there are only 3 nodes and the element is small enough
                          */
                         if (GetAreaOfElement(iter->GetIndex()) < GetT2Threshold())
                         {
                             PerformT2Swap(&(*iter));
                             // Now remove the deleted nodes (if we don't do this then the search for T1Swap causes errors)
-                            RemovedDeletedNodesAndElements(rElementMap);
+                            RemoveDeletedNodesAndElements(rElementMap);
                             recheck_mesh = true;
                             break;
                         }
@@ -1048,6 +1054,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
 
     // Find the sets of elements containing nodes A and B
     std::set<unsigned> nodeA_elem_indices = pNodeA->rGetContainingElementIndices();
+
     std::set<unsigned> nodeB_elem_indices = pNodeB->rGetContainingElementIndices();
 
     // Form the set union
@@ -1079,7 +1086,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
             {
                 /*
                  * In this case, each node is contained in a single element, so the nodes
-                 * lie on the boundary of the tissue:
+                 * lie on the boundary of the mesh:
                  *
                  *    A   B
                  * ---o---o---
@@ -1087,8 +1094,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                  * We merge the nodes.
                  */
                 PerformNodeMerge(pNodeA, pNodeB);
-                // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
-                RemovedDeletedNodesAndElements(rElementMap);
+
+                // Remove the deleted node and re-index
+                RemoveDeletedNodes();
                 break;
             }
             case 2:
@@ -1105,8 +1113,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                      * We merge the nodes in this case.
                      */
                      PerformNodeMerge(pNodeA, pNodeB);
-                     // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
-                     RemovedDeletedNodesAndElements(rElementMap);
+
+                     // Remove the deleted node and re-index
+                     RemoveDeletedNodes();
                 }
                 else
                 {
@@ -1121,8 +1130,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                      * We merge the nodes in this case.
                      */
                      PerformNodeMerge(pNodeA, pNodeB);
-                     // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
-                     RemovedDeletedNodesAndElements(rElementMap);
+
+                     // Remove the deleted node and re-index
+                     RemoveDeletedNodes();
                 }
                 break;
             }
@@ -1146,53 +1156,68 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 }
                 else
                 {
-                    Node<SPACE_DIM>* p_node_alpha;
-                    Node<SPACE_DIM>* p_node_beta;
-                    if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
+                    /*
+                     * In this case, we assume that one of the nodes is contained in
+                     * two elements and the other node is contained in three elements.
+                     * 
+                     * \todo We do not consider the case where one node is contained
+                     * in one element and the other node is contained in three elements:
+                     *
+                     *    A   B 
+                     * 
+                     *  empty   /
+                     *         / (3)
+                     * ---o---o-----
+                     *  (1)    \ (2)
+                     *          \
+                     * 
+                   	 */
+                    if (nodeA_elem_indices.size()==1 || nodeB_elem_indices.size()==1)
                     {
-                        p_node_alpha = pNodeA;
-                        p_node_beta = pNodeB;
-                    }
-                    else if (nodeA_elem_indices.size()==3 && nodeB_elem_indices.size()==2)
-                    {
-                        p_node_alpha = pNodeB;
-                        p_node_beta = pNodeA;
-                    }
-                    else
-                    {
-                        EXCEPTION("One of the nodes must be contained in three elements and the other must be contained in two elements");
+                        EXCEPTION("One of the nodes is contained in one element, the other in three");
                     }
 
+                    assert (   (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
+                            || (nodeA_elem_indices.size()==3 && nodeB_elem_indices.size()==2) );
+                    /*
+                     * Let node alpha be the node contained in two elements and node beta
+                     * the node contained in three elements.
+                     */
+                    Node<SPACE_DIM>* p_node_alpha = (nodeA_elem_indices.size()==2) ? pNodeA : pNodeB;
+                    Node<SPACE_DIM>* p_node_beta = (nodeA_elem_indices.size()==2) ? pNodeB : pNodeA;
+
+                    // Get the set of elements containing node alpha and assert there are two such elements)
                     std::set<unsigned> node_alpha_elem_indices = p_node_alpha->rGetContainingElementIndices();
                     assert(node_alpha_elem_indices.size() == 2u);
 
-                    unsigned node_alpha_local_index = mElements[*node_alpha_elem_indices.begin()]->GetNodeLocalIndex(p_node_alpha->GetIndex());
-                    assert(node_alpha_local_index < UINT_MAX); // this element should contain node alpha
+                    // Get a pointer to the first of these elements and assert it contains node alpha
+                    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = mElements[*node_alpha_elem_indices.begin()];
 
-                    unsigned temp = mElements[*node_alpha_elem_indices.begin()]->GetNumNodes();
+                    unsigned node_alpha_local_index = p_element->GetNodeLocalIndex(p_node_alpha->GetIndex());
+                    assert(node_alpha_local_index < UINT_MAX);
+
+                    /*
+                     * Get the local indices of the nodes neighbouring node alpha in this element.
+                     * We add an extra temp in the second call to the % operator term to ensure we
+                     * are operating on a positive number (otherwise the % operator may break).
+                     */
+                    unsigned temp = p_element->GetNumNodes();
                     unsigned node_alpha_local_index_before = (node_alpha_local_index+1)%temp;
-
-                    // // We add an extra temp in the line below as otherwise this term can be negative, which breaks the % operator
                     unsigned node_alpha_local_index_after = (node_alpha_local_index+temp-1)%temp;
 
-                    Node<SPACE_DIM>* p_node_gamma;
-                    if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before) == p_node_beta)
-                    {
-                        p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after);
-                    }
-                    else if (mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_after) == p_node_beta)
-                    {
-                        p_node_gamma = mElements[*node_alpha_elem_indices.begin()]->GetNode(node_alpha_local_index_before);
-                    }
-                    else
-                    {
-                        EXCEPTION("At least one of node_alpha_local_index_before or .._after should be p_node_beta");
-                    }
+                    // Get pointers to these nodes and assert one of them is p_node_beta
+                    Node<SPACE_DIM>* p_node1 = p_element->GetNode(node_alpha_local_index_before);
+                    Node<SPACE_DIM>* p_node2 = p_element->GetNode(node_alpha_local_index_after);
+                    assert(p_node1 == p_node_beta || p_node2 == p_node_beta);
 
+                    // Get whichever of the nodes is NOT p_node_beta, call it node gamma
+                    Node<SPACE_DIM>* p_node_gamma = (p_node1 == p_node_beta) ? p_node2 : p_node1;
+
+                    // Get the set of elements containing nodes beta and gamma
                     std::set<unsigned> node_beta_elem_indices = p_node_beta->rGetContainingElementIndices();
                     std::set<unsigned> node_gamma_elem_indices = p_node_gamma->rGetContainingElementIndices();
 
-                    // Form the set intersection between gamma and beta
+                    // Form the set intersection
                     std::set<unsigned> intersection_indices, temp_set2;
                     std::set_intersection(node_beta_elem_indices.begin(), node_beta_elem_indices.end(),
                                    node_gamma_elem_indices.begin(), node_gamma_elem_indices.end(),
@@ -1214,8 +1239,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                         * We perform a node merge in this case.
                         */
                         PerformNodeMerge(pNodeA, pNodeB);
-                        // Remove any deleted nodes and elements ///\todo make this more efficient! (see also #1101 and #1109)
-                        RemovedDeletedNodesAndElements(rElementMap);
+
+                        // Remove the deleted node and re-index
+                        RemoveDeletedNodes();
                     }
                     else if (intersection_indices.size() == 1) // Correct set up for T1Swap
                     {
@@ -1771,8 +1797,10 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
      */
 
     // Find lowest element \todo this could be more efficient
-    double height_midpoint_1 = 0.0, height_midpoint_2 = 0.0;
-    unsigned counter_1=0, counter_2=0;
+    double height_midpoint_1 = 0.0;
+    double height_midpoint_2 = 0.0;
+    unsigned counter_1 = 0;
+    unsigned counter_2 = 0;
 
     for (unsigned i=0; i<num_nodes; i++)
     {
@@ -1790,55 +1818,31 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     height_midpoint_1 /= (double)counter_1;
     height_midpoint_2 /= (double)counter_2;
 
-    if  (height_midpoint_1 < height_midpoint_2)
+    for (unsigned i=num_nodes; i>0; i--)
     {
-        // Remove nodes  # < node1 and # > node2 from pElement
-        // Remove nodes node1 < # < node2 from new_element
-        for (unsigned i=num_nodes; i>0; i--)
+        if (i-1 < node1_index || i-1 > node2_index)
         {
-            if (i-1<node1_index || i-1>node2_index)
+            if (height_midpoint_1 < height_midpoint_2)
             {
                 pElement->DeleteNode(i-1);
             }
-            else if (i-1>node1_index && i-1<node2_index)
+            else
             {
                 mElements[new_element_index]->DeleteNode(i-1);
             }
         }
-    }
-    else
-    {
-        // Remove nodes  # < node1 and # > node2 from new_element
-        // Remove nodes node1 < # < node2 from pElement
-        for (unsigned i=num_nodes; i>0; i--)
+        else if (i-1 > node1_index && i-1 < node2_index)
         {
-            if (i-1 < node1_index || i-1 > node2_index)
+            if (height_midpoint_1 < height_midpoint_2)
             {
                 mElements[new_element_index]->DeleteNode(i-1);
             }
-            else if (i-1 > node1_index && i-1 < node2_index)
+            else
             {
                 pElement->DeleteNode(i-1);
             }
         }
     }
-
-    // \todo This can be removed if we like.
-    /// Check New element is above Old Element
-    double new_height_midpoint = 0.0, old_height_midpoint = 0.0;
-
-    for (unsigned i=0; i<pElement->GetNumNodes(); i++)
-    {
-        old_height_midpoint += pElement->GetNode(i)->rGetLocation()[1];
-    }
-    old_height_midpoint /= (double)pElement->GetNumNodes();
-    for (unsigned i=0; i<mElements[new_element_index]->GetNumNodes(); i++)
-    {
-        new_height_midpoint += mElements[new_element_index]->GetNode(i)->rGetLocation()[1];
-    }
-    new_height_midpoint /= (double)mElements[new_element_index]->GetNumNodes();
-
-    assert(old_height_midpoint<=new_height_midpoint);
 
     return new_element_index;
 }
