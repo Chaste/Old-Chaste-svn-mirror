@@ -175,14 +175,14 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
     VecAssemblyBegin(force_term_at_nodes);
     VecAssemblyEnd(force_term_at_nodes);
 
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    NEVER_REACHED;///\todo in PETSc 2.2
+#else
     double one=1.0;
     double scaling=  this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
                     *this->mDtInverse;
 
-#if (PETSC_VERSION_MINOR == 2) //Old API
-    // VecAXPBY(a,b,x,y) does y = ax + by
-    VecAXPBY(&one, &scaling, force_term_at_nodes, this->mVectorForMatrixBasedRhsAssembly);
-#else
+
     // VecAXPBY(y,a,b,x) does y = ax + by
     VecAXPBY(this->mVectorForMatrixBasedRhsAssembly,
              one,

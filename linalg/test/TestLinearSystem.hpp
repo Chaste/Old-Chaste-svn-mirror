@@ -473,7 +473,7 @@ public:
         Vec bad_guess;
         VecDuplicate(good_guess, &bad_guess);
         PetscScalar too_big = 1e5;
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
         VecSet(&too_big, bad_guess);
 #else
         VecSet(bad_guess, too_big);
@@ -673,7 +673,7 @@ public:
         TS_ASSERT_EQUALS(dtol, 10000.0);
         TS_ASSERT_EQUALS(maxits, 10000);
 
-#if (PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         const KSPType solver;
         const PCType pc;
 #else
@@ -764,13 +764,18 @@ public:
         // SAVE
         {
             PetscViewer vec_viewer;
-            PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_rhs.c_str(),FILE_MODE_WRITE, &vec_viewer);
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+            PetscViewerFileType type = PETSC_FILE_CREATE;
+#else
+            PetscFileMode type = FILE_MODE_WRITE;
+#endif
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), type, &vec_viewer);
 
             VecView(ls.GetRhsVector(), vec_viewer);
             PetscViewerDestroy(vec_viewer);
 
             PetscViewer mat_viewer;
-            PetscViewerBinaryOpen(PETSC_COMM_WORLD,archive_filename_lhs.c_str(),FILE_MODE_WRITE, &mat_viewer);
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), type, &mat_viewer);
 
             MatView(ls.GetLhsMatrix(), mat_viewer);
             PetscViewerDestroy(mat_viewer);
@@ -779,7 +784,12 @@ public:
         {
 
             PetscViewer vec_viewer;
-            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), FILE_MODE_READ, &vec_viewer);
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+            PetscViewerFileType type = PETSC_FILE_RDONLY;
+#else
+            PetscFileMode type = FILE_MODE_READ;
+#endif
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_rhs.c_str(), type, &vec_viewer);
             Vec new_vec;
             VecLoad(vec_viewer, PETSC_NULL, &new_vec);
             PetscViewerDestroy(vec_viewer);
@@ -802,7 +812,7 @@ public:
             VecDestroy(new_vec);
 
             PetscViewer mat_viewer;
-            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), FILE_MODE_READ, &mat_viewer);
+            PetscViewerBinaryOpen(PETSC_COMM_WORLD, archive_filename_lhs.c_str(), type, &mat_viewer);
             Mat new_mat;
             MatLoad(mat_viewer, PETSC_NULL, &new_mat);
             PetscViewerDestroy(mat_viewer);
@@ -945,7 +955,7 @@ public:
             Vec solution_vector3;
             solution_vector3 = p_linear_system->Solve();
             VecDestroy(solution_vector3);
-#if (PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
             const KSPType solver;
             const PCType pc;
 #else
@@ -979,7 +989,7 @@ public:
         solution_vector3 = ls.Solve();
         VecDestroy(solution_vector3);
 
-#if (PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         const KSPType solver;
         const PCType pc;
 #else

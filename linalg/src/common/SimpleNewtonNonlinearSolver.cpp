@@ -102,7 +102,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
         // smallest residual
         for (unsigned i=0; i<mTestDampingValues.size(); i++)
         {
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
             // VecWAXPY(&a, x, y, w) computes w = ax + y
             PetscScalar alpha = -mTestDampingValues[i];
             VecWAXPY(&alpha, negative_update, current_solution, test_vec);
@@ -145,7 +145,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
 
 
         // update solution: current_guess = current_solution - best_damping_factor*negative_update
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
         double minus_test_value = -best_damping_factor;
         VecAXPY(&minus_test_value, negative_update, current_solution);
 #else

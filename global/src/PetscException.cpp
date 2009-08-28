@@ -77,7 +77,7 @@ void KspException(PetscInt kspError,
     {
         std::string err_string;
 
-  #if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
         switch (kspError)
         {
             case KSP_DIVERGED_ITS:

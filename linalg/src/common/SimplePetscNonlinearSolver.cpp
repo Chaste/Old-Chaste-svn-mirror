@@ -100,7 +100,7 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     VecCopy(initialGuess, x);
 
 
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     SNESSolve(snes, x);
 #else
     SNESSolve(snes, PETSC_NULL, x);

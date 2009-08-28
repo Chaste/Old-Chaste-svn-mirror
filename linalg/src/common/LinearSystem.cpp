@@ -308,7 +308,7 @@ void LinearSystem::ZeroMatrixRow(PetscInt row)
     // MatZeroRows allows a non-zero value to be placed on the diagonal
     // diag_zero is the value to put in the diagonal
 
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     IS is;
     ISCreateGeneral(PETSC_COMM_WORLD,1,&row,&is);
     MatZeroRows(mLhsMatrix, is, &diag_zero);
@@ -325,10 +325,10 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
 
-//#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
    // hello Joe.
    // Hello
-//#else
+#else
     // determine which rows in this column are non-zero (and
     // therefore need to be zeroed)
     std::vector<unsigned> nonzero_rows;
@@ -357,7 +357,7 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
     MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
     delete [] rows;
     delete [] zeros;
-//#endif
+#endif
 }
 
 void LinearSystem::ZeroRhsVector()
@@ -407,8 +407,11 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
         // The strategy is to check the (i-1)-th vector against vectors from i to n with VecMDot. This should be the most efficient way of doing it.
         unsigned num_vectors_ahead = numberOfBases-vec_index;
         PetscScalar dot_products[num_vectors_ahead];
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+        VecMDot(num_vectors_ahead, nullBasis[vec_index-1], &nullBasis[vec_index], dot_products); 
+#else
         VecMDot(nullBasis[vec_index-1], num_vectors_ahead, &nullBasis[vec_index], dot_products); 
-
+#endif
         for (unsigned index=0; index<num_vectors_ahead; index++)
         {            
             if (fabs(dot_products[index]) > 1e-08 )
@@ -498,7 +501,7 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 {
     if (isSymmetric)
     {
-#if (PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_TRUE); 
         MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_TRUE); 
 #else
@@ -508,7 +511,7 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
     }
     else
     {
-#if (PETSC_VERSION_MAJOR == 3) 
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_FALSE); 
         MatSetOption(mLhsMatrix, MAT_STRUCTURALLY_SYMMETRIC, PETSC_FALSE); 
         MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_FALSE); 
@@ -687,7 +690,6 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     if (lhsGuess)
     {
         VecCopy(lhsGuess, lhs_vector);
-        //VecZeroEntries(lhs_vector);
     }
     HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 //    //Double check that the mRhsVector contains sensible values

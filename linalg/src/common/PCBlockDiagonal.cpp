@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PCBlockDiagonal.hpp"
+#include "Exception.hpp"
 
 PCBlockDiagonal::PCBlockDiagonal(KSP& rKspObject)
 {    
@@ -58,7 +59,12 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
     PCSetType(mPetscPCObject, PCSHELL);
     
     // Register PC context so it gets passed to PCBlockDiagonalApply
+    //Don't know how to do this with PETSc 2.2
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    NEVER_REACHED;///\todo in PETSc 2.2
+#else
     PCShellSetContext(mPetscPCObject, &mPCContext);
+#endif
         
     // Get matrix sublock A11
     IS A11_rows, A11_columns;    
@@ -81,7 +87,12 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
     ISDestroy(A22_columns);    
 
     // Register call-back function
+
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    NEVER_REACHED;///\todo in PETSc 2.2
+#else
     PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply);
+#endif
 }
 
 void PCBlockDiagonal::PCBlockDiagonalSetUp()
@@ -131,7 +142,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     VecScatterCreate(x, A11_rows, x11, PETSC_NULL, &A11_scatter_ctx);
 
 //PETSc-3.x.x or PETSc-2.3.3 
-#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
+#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
 #else
@@ -146,7 +157,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     VecScatterCreate(x, A22_rows, x22, PETSC_NULL, &A22_scatter_ctx);
 
 //PETSc-3.x.x or PETSc-2.3.3 
-#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
+#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(A22_scatter_ctx, x, x22, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(A22_scatter_ctx, x, x22, INSERT_VALUES, SCATTER_FORWARD);
 #else
@@ -161,7 +172,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     ////////////////////
 
 //PETSc-3.x.x or PETSc-2.3.3 
-#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
+#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(A11_scatter_ctx, y11, y, INSERT_VALUES, SCATTER_REVERSE);
     VecScatterEnd(A11_scatter_ctx, y11, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
@@ -170,7 +181,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 #endif    
 
 //PETSc-3.x.x or PETSc-2.3.3 
-#if ( (PETSC_VERSION_MAJOR ==3) || (PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3))
+#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(A22_scatter_ctx, y22, y, INSERT_VALUES, SCATTER_REVERSE);
     VecScatterEnd(A22_scatter_ctx, y22, y, INSERT_VALUES, SCATTER_REVERSE);
 #else

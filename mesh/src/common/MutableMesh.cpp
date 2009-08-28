@@ -871,7 +871,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             }
         }
         // Wait for the new mesh to be available and communicate its name
-    #ifndef SPECIAL_SERIAL
+#ifndef SPECIAL_SERIAL
         if (!PetscTools::IsSequential())
         {
             char full_name_comm[200]; ///\todo communicate the length first
@@ -879,7 +879,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
             full_name = full_name_comm;
         }
-    #endif //SPECIAL_SERIAL
+#endif //SPECIAL_SERIAL
 
         // Clear all current data
         Clear();

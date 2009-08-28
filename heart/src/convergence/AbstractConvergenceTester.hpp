@@ -367,7 +367,7 @@ public:
 
             cardiac_problem.Initialise();
 
-            #ifndef NDEBUG
+#ifndef NDEBUG
             Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
             Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
             assert(fqn->rGetLocation()[0]==0.25*mesh_width);
@@ -377,7 +377,7 @@ public:
                 assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
                 assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
             }
-            #endif
+#endif
 
             BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
             SimpleStimulus stim(NeumannStimulus, 0.5);

@@ -215,8 +215,11 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         //that they can be reapplied at each time step.
         //Make a new vector to store the Dirichlet offsets in
         VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+                NEVER_REACHED;///\todo in PETSc 2.2
+#else
         VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
-
+#endif
 
 
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
@@ -235,8 +238,11 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 // the index of the row (and column) to be altered for the boundary condition
                 Vec matrix_col;
                 VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+                NEVER_REACHED;///\todo in PETSc 2.2
+#else
                 VecZeroEntries(matrix_col);
-
+#endif
                 rLinearSystem.AssembleFinalLinearSystem();
                 Mat& r_mat = rLinearSystem.rGetLhsMatrix();
                 MatGetColumnVector(r_mat, matrix_col, col);
@@ -250,7 +256,13 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
                 //   -value*[0 a_21 a_31 .. a_N1]
                 // and will be added to the RHS.
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+                double minus_value = -value;
+                VecAXPY(&minus_value, matrix_col, rLinearSystem.rGetDirichletBoundaryConditionsVector());
+#else
+                //[note: VecAXPY(y,a,x) computes y = ax+y]
                 VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);
+#endif
 
                 VecDestroy(matrix_col);
 
@@ -269,7 +281,12 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     //Apply the RHS boundary conditions modification if required.
     if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
     {
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+        double one = 1.0;
+        VecAXPY(&one, rLinearSystem.rGetDirichletBoundaryConditionsVector(), rLinearSystem.rGetRhsVector());
+#else
         VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
+#endif
     }
 
     //Apply the actual boundary condition to the RHS, note this must be done after the modification to the

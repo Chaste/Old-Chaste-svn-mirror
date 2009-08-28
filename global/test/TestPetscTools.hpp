@@ -98,7 +98,7 @@ public:
         TS_ASSERT_EQUALS(m, 10);
         TS_ASSERT_EQUALS(n, 11);
 
-#if (PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         const MatType type;
 #else
         MatType type;

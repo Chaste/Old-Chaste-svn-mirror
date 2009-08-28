@@ -146,11 +146,11 @@ Vec PetscTools::CreateVec(int size, double value)
     assert(size>0);
     Vec ret = CreateVec(size);
 
-    #if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     VecSet(&value, ret);
-    #else
+#else
     VecSet(ret, value);
-    #endif
+#endif
 
     VecAssemblyBegin(ret);
     VecAssemblyEnd(ret);
@@ -188,12 +188,12 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     assert(numRows>0);
     assert(numColumns>0);
 
-    #if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     MatCreate(PETSC_COMM_WORLD,numLocalRows,numLocalColumns,numRows,numColumns,&rMat);
-    #else //New API
+#else //New API
     MatCreate(PETSC_COMM_WORLD,&rMat);
     MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
-    #endif
+#endif
 
     MatSetType(rMat, matType);
 
@@ -208,8 +208,8 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
 void PetscTools::DumpPetscObject(const Mat& rMat, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-    PetscViewerFileType type = PETSC_FILE_WRONLY;
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    PetscViewerFileType type = PETSC_FILE_CREATE;
 #else
     PetscFileMode type = FILE_MODE_WRITE;
 #endif
@@ -223,8 +223,8 @@ void PetscTools::DumpPetscObject(const Mat& rMat, const std::string& rOutputFile
 void PetscTools::DumpPetscObject(const Vec& rVec, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-    PetscViewerFileType type = PETSC_FILE_WRONLY;
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    PetscViewerFileType type = PETSC_FILE_CREATE;
 #else
     PetscFileMode type = FILE_MODE_WRITE;
 #endif
@@ -238,7 +238,7 @@ void PetscTools::DumpPetscObject(const Vec& rVec, const std::string& rOutputFile
 void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     PetscViewerFileType type = PETSC_FILE_RDONLY;
 #else
     PetscFileMode type = FILE_MODE_READ;
@@ -253,7 +253,7 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
 void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath)
 {
     PetscViewer view;
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     PetscViewerFileType type = PETSC_FILE_RDONLY;
 #else
     PetscFileMode type = FILE_MODE_READ;

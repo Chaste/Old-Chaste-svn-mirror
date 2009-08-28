@@ -100,7 +100,7 @@ public:
 
         // Coverage (setting PC type after first solve)
         ls.SetPcType("blockdiagonal");
-#if (PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         const PCType pc;
 #else
         PCType pc;

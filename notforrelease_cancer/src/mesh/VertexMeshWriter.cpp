@@ -50,7 +50,7 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rD
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 {
- #ifdef CHASTE_VTK
+#ifdef CHASTE_VTK
      // Dubious, since we shouldn't yet know what any details of the mesh are.
      mpVtkUnstructedMesh->Delete(); // Reference counted
 #endif //CHASTE_VTK

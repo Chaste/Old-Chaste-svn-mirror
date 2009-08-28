@@ -90,7 +90,7 @@ public:
         EXPECT0(chdir, GetChasteRoot());
         std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
        
- #ifdef TEST_FOR_FPE
+#ifdef TEST_FOR_FPE
         //Give all PETSc enabled tests the ability to trap for divide-by-zero
         feenableexcept(FE_DIVBYZERO | FE_INVALID );
         //Catch all SIGFPE signals and convert them to exceptions (before PETSc gets to them).
@@ -99,7 +99,7 @@ public:
         sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
         sa.sa_restorer = 0;
         sigaction(SIGFPE, &sa, NULL);
- #endif       
+#endif       
         return true;
     }
     /** Clean up PETSc after running all tests. */

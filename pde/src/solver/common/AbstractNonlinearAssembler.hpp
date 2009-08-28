@@ -377,7 +377,7 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
         AssembleResidual(current_guess_copy, perturbed_residual);
 
         // result = (perturbed_residual - residual) / h
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
         PETSCEXCEPT( VecWAXPY(&subtract, residual, perturbed_residual, result) );
         PETSCEXCEPT( VecScale(&one_over_h, result) );
 #else

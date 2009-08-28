@@ -410,7 +410,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
     }
     *mpElementFile << "\n";
 
- #ifdef CHASTE_VTK
+#ifdef CHASTE_VTK
     VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);
     std::stringstream time;
     time << p_time->GetTimeStepsElapsed();
@@ -455,7 +455,7 @@ void VertexBasedTissue<DIM>::CloseOutputFiles()
 {
     AbstractTissue<DIM>::CloseOutputFiles();
     mpElementFile->close();
- #ifdef CHASTE_VTK
+#ifdef CHASTE_VTK
     *mpVtkMetaFile << "    </Collection>\n";
     *mpVtkMetaFile << "</VTKFile>\n";
 

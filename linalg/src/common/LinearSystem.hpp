@@ -603,7 +603,7 @@ inline void load_construct_data(
      ar >> symm_set;
      if (symm_set == PETSC_TRUE)
      {
- #if (PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         MatSetOption(new_mat, MAT_SYMMETRIC, PETSC_TRUE);
         MatSetOption(new_mat, MAT_SYMMETRY_ETERNAL, PETSC_TRUE);
 #else

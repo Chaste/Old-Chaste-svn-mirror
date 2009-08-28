@@ -39,13 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "petscblaslapack.h"
 //Promote universal LAPACK name if it's an old version of PETSc
-#if (PETSC_VERSION_MINOR == 2) //Old API
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
 #define LAPACKgeev_ LAgeev_
 #endif
-
-//#include <iostream>
-//#include <fstream>
-//#include <vector>
 
 #include <cfloat>
 #define TINY DBL_EPSILON
