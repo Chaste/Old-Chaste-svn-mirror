@@ -1171,7 +1171,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                      *  (1)    \ (2)
                      *          \
                      * 
-                   	 */
+                     */
                     if (nodeA_elem_indices.size()==1 || nodeB_elem_indices.size()==1)
                     {
                         EXCEPTION("One of the nodes is contained in one element, the other in three");
@@ -1186,7 +1186,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                     Node<SPACE_DIM>* p_node_alpha = (nodeA_elem_indices.size()==2) ? pNodeA : pNodeB;
                     Node<SPACE_DIM>* p_node_beta = (nodeA_elem_indices.size()==2) ? pNodeB : pNodeA;
 
-                    // Get the set of elements containing node alpha and assert there are two such elements)
+                    // Get the set of elements containing node alpha and assert there are two such elements
                     std::set<unsigned> node_alpha_elem_indices = p_node_alpha->rGetContainingElementIndices();
                     assert(node_alpha_elem_indices.size() == 2u);
 
@@ -1224,44 +1224,48 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                                    std::inserter(temp_set2, temp_set2.begin()));
                     intersection_indices.swap(temp_set2); // temp_set2 will be deleted
 
-                    if (intersection_indices.size() == 2)
+                    // The number of intersecting indices must be 1 or 2
+                    switch (intersection_indices.size())
                     {
-                       /*
-                        * In this case, the node configuration looks like:
-                        *
-                        *     A  B             A  B
-                        *   \                       /
-                        *    \  (1)           (1)  /
-                        * (3) o--o---   or  ---o--o (3)    (element number in brackets)
-                        *    /  (2)           (2)  \
-                        *   /                       \
-                        *
-                        * We perform a node merge in this case.
-                        */
-                        PerformNodeMerge(pNodeA, pNodeB);
-
-                        // Remove the deleted node and re-index
-                        RemoveDeletedNodes();
-                    }
-                    else if (intersection_indices.size() == 1) // Correct set up for T1Swap
-                    {
-                       /*
-                        * In this case, the node configuration looks like:
-                        *
-                        *     A  B                      A  B
-                        *   \      /                  \      /
-                        *    \ (1)/                    \(1) /
-                        * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
-                        *    / (2)\                    /(2) \
-                        *   /      \                  /      \
-                        *
-                        * We perform a Type 1 swap in this case.
-                        */
-                        PerformT1Swap(pNodeA, pNodeB, all_indices);
-                    }
-                    else
-                    {
-                        EXCEPTION("The intersection should be of length 1 or 2");
+                        case 1:
+                        {
+                            /*
+                             * In this case, the node configuration looks like:
+                             *
+                             *     A  B                      A  B
+                             *   \      /                  \      /
+                             *    \ (1)/                    \(1) /
+                             * (3) o--o (empty)  or  (empty) o--o (3)    (element number in brackets)
+                             *    / (2)\                    /(2) \
+                             *   /      \                  /      \
+                             *
+                             * We perform a Type 1 swap in this case.
+                             */
+                            PerformT1Swap(pNodeA, pNodeB, all_indices);
+                            break;
+                        }
+                        case 2:
+                        {
+                            /*
+                             * In this case, the node configuration looks like:
+                             *
+                             *     A  B             A  B
+                             *   \                       /
+                             *    \  (1)           (1)  /
+                             * (3) o--o---   or  ---o--o (3)    (element number in brackets)
+                             *    /  (2)           (2)  \
+                             *   /                       \
+                             *
+                             * We perform a node merge in this case.
+                             */
+                            PerformNodeMerge(pNodeA, pNodeB);
+    
+                            // Remove the deleted node and re-index
+                            RemoveDeletedNodes();
+                            break;
+                        }              
+                        default:
+                            NEVER_REACHED;
                     }
                 }
                 break;
@@ -1307,9 +1311,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
     std::set<unsigned> lo_node_elem_indices = p_lo_node->rGetContainingElementIndices();
     std::set<unsigned> hi_node_elem_indices = p_hi_node->rGetContainingElementIndices();
 
-    c_vector<double, SPACE_DIM> node_midpoint = p_lo_node->rGetLocation() + 0.5*this->GetVectorFromAtoB(p_lo_node->rGetLocation(), p_hi_node->rGetLocation());
-
     // Move the low-index node to the mid-point
+    c_vector<double, SPACE_DIM> node_midpoint = p_lo_node->rGetLocation() + 0.5*this->GetVectorFromAtoB(p_lo_node->rGetLocation(), p_hi_node->rGetLocation());
     c_vector<double, SPACE_DIM>& r_lo_node_location = p_lo_node->rGetModifiableLocation();
     r_lo_node_location = node_midpoint;
 
@@ -1328,7 +1331,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
          */
         if (lo_node_elem_indices.count(*it) > 0)
         {
-            mElements[*it]->DeleteNode(hi_node_local_index); // think his method removes the high-index node from mNodes
+            mElements[*it]->DeleteNode(hi_node_local_index); // think this method removes the high-index node from mNodes
         }
         else
         {
@@ -1584,7 +1587,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
      }
      else
      {
-        EXCEPTION("One of the neighbours of a apoptosing triangular element is also a triangle - dealing with this has not been implemented yet");
+        EXCEPTION("One of the neighbours of a small triangular element is also a triangle - dealing with this has not been implemented yet");
      }
 }
 
@@ -1623,7 +1626,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(VertexE
         }
     }
 
-    // If the axis of division doesn not cross two edges then we cannot proceed
+    // If the axis of division does not cross two edges then we cannot proceed
     if (intersecting_nodes.size() != 2)
     {
         EXCEPTION("Cannot proceed with element division: the given axis of division does not cross two edges of the element");

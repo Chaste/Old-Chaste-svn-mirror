@@ -888,7 +888,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
 
-        // Test Areas and Perimeters of elements
+        // Test areas and perimeters of elements
         TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(0), 0.95, 1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(0), 2.9+sqrt(1.01), 1e-6);
 
@@ -897,6 +897,73 @@ public:
 
         TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(2), 0.5,1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(2), 1.0+sqrt(2.21)+sqrt(1.01), 1e-6);
+    }
+
+    /*
+     * This test provides coverage of the case in which, when the elements
+     * previously containing the high-index node are updated to contain the
+     * low-index node, at least one of these elements did not already contain
+     * the low-index node.
+     */
+    void TestPerformNodeMergeWhenLowIndexNodeMustBeAddedToElement() throw(Exception)
+    {
+        // Create nodes
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        nodes.push_back(new Node<2>(2, false, 2.0, 0.0));
+        nodes.push_back(new Node<2>(3, false, 2.0, 1.0));
+        nodes.push_back(new Node<2>(4, false, 1.01, 1.0));
+        nodes.push_back(new Node<2>(5, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(6, false, 0.0, 2.0));
+
+        // Create two elements containing nodes
+        std::vector<Node<2>*> nodes_elem_0;
+        nodes_elem_0.push_back(nodes[0]);
+        nodes_elem_0.push_back(nodes[1]);
+        nodes_elem_0.push_back(nodes[5]);
+        nodes_elem_0.push_back(nodes[6]);
+
+        std::vector<Node<2>*> nodes_elem_1;
+        nodes_elem_1.push_back(nodes[1]);
+        nodes_elem_1.push_back(nodes[2]);
+        nodes_elem_1.push_back(nodes[3]);
+        nodes_elem_1.push_back(nodes[4]);
+        nodes_elem_1.push_back(nodes[5]);
+
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
+        vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+
+        // Make a vertex mesh
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 7u);
+
+        // Merge nodes 4 and 5
+        VertexElementMap map(vertex_mesh.GetNumElements());
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(4), vertex_mesh.GetNode(5), map);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
+
+        // Test nodes are in the correct place
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[0], 1.005, 1e-8);
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(4)->rGetLocation()[1], 1.0, 1e-8);
+
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 5u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 4u);
     }
 
     // This tests both PerformNodeMerge and IdentifySwapType
@@ -913,9 +980,8 @@ public:
         nodes.push_back(new Node<2>(6, false, 0.4, 0.4));
         nodes.push_back(new Node<2>(7, false, 0.6, 0.6));
 
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
-
         // Create two elements containing nodes
+        std::vector<Node<2>*> nodes_elem_0;
         nodes_elem_0.push_back(nodes[0]);
         nodes_elem_0.push_back(nodes[4]);
         nodes_elem_0.push_back(nodes[5]);
@@ -924,6 +990,7 @@ public:
         nodes_elem_0.push_back(nodes[7]);
         nodes_elem_0.push_back(nodes[6]);
 
+        std::vector<Node<2>*> nodes_elem_1;
         nodes_elem_1.push_back(nodes[0]);
         nodes_elem_1.push_back(nodes[6]);
         nodes_elem_1.push_back(nodes[7]);
@@ -1053,22 +1120,24 @@ public:
         nodes.push_back(new Node<2>(4, false, 0.5, 0.4));
         nodes.push_back(new Node<2>(5, false, 0.5, 0.6));
 
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
-
         // Make two triangular and two rhomboid elements out of these nodes
+        std::vector<Node<2>*> nodes_elem_0;
         nodes_elem_0.push_back(nodes[2]);
         nodes_elem_0.push_back(nodes[3]);
         nodes_elem_0.push_back(nodes[5]);
 
+        std::vector<Node<2>*> nodes_elem_1;
         nodes_elem_1.push_back(nodes[2]);
         nodes_elem_1.push_back(nodes[5]);
         nodes_elem_1.push_back(nodes[4]);
         nodes_elem_1.push_back(nodes[1]);
 
+        std::vector<Node<2>*> nodes_elem_2;
         nodes_elem_2.push_back(nodes[1]);
         nodes_elem_2.push_back(nodes[4]);
         nodes_elem_2.push_back(nodes[0]);
 
+        std::vector<Node<2>*> nodes_elem_3;
         nodes_elem_3.push_back(nodes[0]);
         nodes_elem_3.push_back(nodes[4]);
         nodes_elem_3.push_back(nodes[5]);
@@ -1167,9 +1236,6 @@ public:
         nodes.push_back(new Node<2>(6, false,  0.1,  0.1));
         nodes.push_back(new Node<2>(7, false, -0.1,  0.1));
 
-
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3, nodes_elem_4;
-
         /*
          *  Make Four trapezium elements with a central square element out of these nodes
          *  _______
@@ -1184,30 +1250,35 @@ public:
          */
 
         // Trapezium element
+        std::vector<Node<2>*> nodes_elem_0;
         nodes_elem_0.push_back(nodes[0]);
         nodes_elem_0.push_back(nodes[1]);
         nodes_elem_0.push_back(nodes[5]);
         nodes_elem_0.push_back(nodes[4]);
 
         // Trapezium element
+        std::vector<Node<2>*> nodes_elem_1;
         nodes_elem_1.push_back(nodes[1]);
         nodes_elem_1.push_back(nodes[2]);
         nodes_elem_1.push_back(nodes[6]);
         nodes_elem_1.push_back(nodes[5]);
 
         // Trapezium element
+        std::vector<Node<2>*> nodes_elem_2;
         nodes_elem_2.push_back(nodes[2]);
         nodes_elem_2.push_back(nodes[3]);
         nodes_elem_2.push_back(nodes[7]);
         nodes_elem_2.push_back(nodes[6]);
 
         // Trapezium element
+        std::vector<Node<2>*> nodes_elem_3;
         nodes_elem_3.push_back(nodes[0]);
         nodes_elem_3.push_back(nodes[4]);
         nodes_elem_3.push_back(nodes[7]);
         nodes_elem_3.push_back(nodes[3]);
 
-        // Central Square element
+        // Central square element
+        std::vector<Node<2>*> nodes_elem_4;
         nodes_elem_4.push_back(nodes[4]);
         nodes_elem_4.push_back(nodes[5]);
         nodes_elem_4.push_back(nodes[6]);
@@ -1343,28 +1414,30 @@ public:
         nodes.push_back(new Node<2>(4, false, 0.6, 0.25));
         nodes.push_back(new Node<2>(5, false, 0.5, 0.3));
 
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
-
         // Make one triangular and three trapezium elements out of these nodes
 
         // Triangle element
+        std::vector<Node<2>*> nodes_elem_0;
         nodes_elem_0.push_back(nodes[3]);
         nodes_elem_0.push_back(nodes[4]);
         nodes_elem_0.push_back(nodes[5]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_1;
         nodes_elem_1.push_back(nodes[1]);
         nodes_elem_1.push_back(nodes[2]);
         nodes_elem_1.push_back(nodes[5]);
         nodes_elem_1.push_back(nodes[4]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_2;
         nodes_elem_2.push_back(nodes[2]);
         nodes_elem_2.push_back(nodes[0]);
         nodes_elem_2.push_back(nodes[3]);
         nodes_elem_2.push_back(nodes[5]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_3;
         nodes_elem_3.push_back(nodes[0]);
         nodes_elem_3.push_back(nodes[1]);
         nodes_elem_3.push_back(nodes[4]);
@@ -1413,27 +1486,29 @@ public:
         nodes.push_back(new Node<2>(4, false, 0.6, 0.25));
         nodes.push_back(new Node<2>(5, false, 0.5, 0.3));
 
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
-
         // Make two triangles and two trapezium elements out of these nodes
 
         // Triangle element
+        std::vector<Node<2>*> nodes_elem_0;
         nodes_elem_0.push_back(nodes[3]);
         nodes_elem_0.push_back(nodes[4]);
         nodes_elem_0.push_back(nodes[5]);
 
         // Triangle element
+        std::vector<Node<2>*> nodes_elem_1;
         nodes_elem_1.push_back(nodes[2]);
         nodes_elem_1.push_back(nodes[5]);
         nodes_elem_1.push_back(nodes[4]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_2;
         nodes_elem_2.push_back(nodes[2]);
         nodes_elem_2.push_back(nodes[0]);
         nodes_elem_2.push_back(nodes[3]);
         nodes_elem_2.push_back(nodes[5]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_3;
         nodes_elem_3.push_back(nodes[0]);
         nodes_elem_3.push_back(nodes[1]);
         nodes_elem_3.push_back(nodes[4]);
@@ -1453,7 +1528,7 @@ public:
 
         // Attempt to perform a T2 swap on the middle triangle element
         TS_ASSERT_THROWS_THIS( vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0)),
-                "One of the neighbours of a apoptosing triangular element is also a triangle - "
+                "One of the neighbours of a small triangular element is also a triangle - "
                 "dealing with this has not been implemented yet" );
     }
 
@@ -1471,28 +1546,30 @@ public:
         nodes.push_back(new Node<2>(4, false, 0.9, 0.05));
         nodes.push_back(new Node<2>(5, false, 0.5, 0.475));
 
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1, nodes_elem_2, nodes_elem_3;
-
         // Make one triangular and three trapezium elements out of these nodes
 
         // Triangle element
+        std::vector<Node<2>*> nodes_elem_0;
         nodes_elem_0.push_back(nodes[3]);
         nodes_elem_0.push_back(nodes[4]);
         nodes_elem_0.push_back(nodes[5]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_1;
         nodes_elem_1.push_back(nodes[1]);
         nodes_elem_1.push_back(nodes[2]);
         nodes_elem_1.push_back(nodes[5]);
         nodes_elem_1.push_back(nodes[4]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_2;
         nodes_elem_2.push_back(nodes[2]);
         nodes_elem_2.push_back(nodes[0]);
         nodes_elem_2.push_back(nodes[3]);
         nodes_elem_2.push_back(nodes[5]);
 
         // Trapezium
+        std::vector<Node<2>*> nodes_elem_3;
         nodes_elem_3.push_back(nodes[0]);
         nodes_elem_3.push_back(nodes[1]);
         nodes_elem_3.push_back(nodes[4]);
@@ -1748,24 +1825,25 @@ public:
         Node<2>* p_node5 = new Node<2>(5, false, 0.49, 0.49);
         Node<2>* p_node6 = new Node<2>(6, false, 0.75, 0.75); // so that all elements have at least 4 nodes
 
-        std::vector<Node<2>*> nodes_in_element0, nodes_in_element1,
-                              nodes_in_element2, nodes_in_element3;
-
+        std::vector<Node<2>*> nodes_in_element0;
         nodes_in_element0.push_back(p_node0);
         nodes_in_element0.push_back(p_node1);
         nodes_in_element0.push_back(p_node4);
         nodes_in_element0.push_back(p_node5);
 
+        std::vector<Node<2>*> nodes_in_element1;
         nodes_in_element1.push_back(p_node1);
         nodes_in_element1.push_back(p_node2);
         nodes_in_element1.push_back(p_node6);
         nodes_in_element1.push_back(p_node4);
 
+        std::vector<Node<2>*> nodes_in_element2;
         nodes_in_element2.push_back(p_node2);
         nodes_in_element2.push_back(p_node3);
         nodes_in_element2.push_back(p_node4);
         nodes_in_element2.push_back(p_node6);
 
+        std::vector<Node<2>*> nodes_in_element3;
         nodes_in_element3.push_back(p_node0);
         nodes_in_element3.push_back(p_node5);
         nodes_in_element3.push_back(p_node4);
@@ -1820,10 +1898,12 @@ public:
         Node<2>* p_node2 = new Node<2>(2, false, 1.0, 0.0);
         Node<2>* p_node3 = new Node<2>(3, false, 0.5, 1.0);
 
-        std::vector<Node<2>*> nodes_in_element0, nodes_in_element1;
+        std::vector<Node<2>*> nodes_in_element0;
         nodes_in_element0.push_back(p_node0);
         nodes_in_element0.push_back(p_node1);
         nodes_in_element0.push_back(p_node3);
+
+        std::vector<Node<2>*> nodes_in_element1;
         nodes_in_element1.push_back(p_node1);
         nodes_in_element1.push_back(p_node2);
         nodes_in_element1.push_back(p_node3);
@@ -2077,9 +2157,8 @@ public:
         basic_nodes.push_back(new Node<2>(2, false, -2.0, 1.0));
         basic_nodes.push_back(new Node<2>(3, false, -2.0, -1.0));
 
-        std::vector<Node<2>*> nodes_elem;
-
         // Make one rectangular element out of these nodes. Ordering for coverage.
+        std::vector<Node<2>*> nodes_elem;
         nodes_elem.push_back(basic_nodes[2]);
         nodes_elem.push_back(basic_nodes[3]);
         nodes_elem.push_back(basic_nodes[0]);
@@ -2152,8 +2231,8 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
 
         c_vector<double, 2> axis_of_division;
-        axis_of_division(0)=1.0;
-        axis_of_division(1)=0.0;
+        axis_of_division(0) = 1.0;
+        axis_of_division(1) = 0.0;
 
         // Divide element 0 along given axis
         unsigned new_element_index = vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division);
@@ -2201,6 +2280,44 @@ public:
         expected_elements_containing_node_6.insert(2);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
+    }
+
+    /**
+     * Test that in the case where the given axis of division does not
+     * cross two edges of the element, an exception is thrown.
+     */
+    void TestDivideVertexElementGivenAxisOfDivisionFailsForBadElement() throw(Exception)
+    {
+        // Create a mesh consisting of a single non-convex element
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.4, 0.0));
+        nodes.push_back(new Node<2>(2, false, 1.4, 1.0));
+        nodes.push_back(new Node<2>(3, false, 1.2, 1.0));
+        nodes.push_back(new Node<2>(4, false, 1.2, 0.2));
+        nodes.push_back(new Node<2>(5, false, 1.0, 0.2));
+        nodes.push_back(new Node<2>(6, false, 1.0, 1.0));
+        nodes.push_back(new Node<2>(7, false, 0.0, 1.0));
+
+        std::vector<Node<2>*> nodes_elem;
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            nodes_elem.push_back(nodes[i]);
+        }
+
+        std::vector<VertexElement<2,2>*> vertex_elements;
+        vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem));
+
+        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+
+        // Provide an axis of division that does not cross two edges of the element (it crosses four)
+        c_vector<double, 2> axis_of_division;
+        axis_of_division(0) = 1.0;
+        axis_of_division(1) = 0.0;
+
+        // Divide element 0 along given axis
+        TS_ASSERT_THROWS_THIS(vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division),
+                              "Cannot proceed with element division: the given axis of division does not cross two edges of the element");
     }
 
     void TestDivideVertexElementAlongShortAxis() throw(Exception)
@@ -2296,9 +2413,8 @@ public:
         nodes.push_back(new Node<2>(3, false, 3.0, 3.0));
         nodes.push_back(new Node<2>(4, false, 1.0, 2.0));
 
-        std::vector<Node<2>*> nodes_elem;
-
         // Make one element out of these nodes
+        std::vector<Node<2>*> nodes_elem;
         nodes_elem.push_back(nodes[0]);
         nodes_elem.push_back(nodes[1]);
         nodes_elem.push_back(nodes[2]);
@@ -2352,9 +2468,9 @@ public:
         nodes.push_back(new Node<2>(3, false, 1.0, 1.0));
         nodes.push_back(new Node<2>(4, false, 0.5, 1.0));
         nodes.push_back(new Node<2>(5, false, -1.0, 1.0));
-        std::vector<Node<2>*> nodes_elem;
 
         // Make one rectangular element out of these nodes
+        std::vector<Node<2>*> nodes_elem;
         nodes_elem.push_back(nodes[0]);
         nodes_elem.push_back(nodes[1]);
         nodes_elem.push_back(nodes[2]);
@@ -2410,9 +2526,9 @@ public:
         nodes.push_back(new Node<2>(3, false, 1.0, 1.0));
         nodes.push_back(new Node<2>(4, false, 0.5, 1.0));
         nodes.push_back(new Node<2>(5, false, -1.0, 1.0));
-        std::vector<Node<2>*> nodes_elem;
 
         // Make one rectangular element out of these nodes
+        std::vector<Node<2>*> nodes_elem;
         nodes_elem.push_back(nodes[0]);
         nodes_elem.push_back(nodes[1]);
         nodes_elem.push_back(nodes[2]);
@@ -2460,10 +2576,8 @@ public:
 
     void TestCalculateMomentOfElement() throw(Exception)
     {
-        // Single irregular triangular element
         // Create nodes
         std::vector<Node<2>*> nodes;
-
         nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         nodes.push_back(new Node<2>(1, false, 2.0, 0.0));
         nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
@@ -2523,10 +2637,8 @@ public:
     {
         // First test
 
-        // Create nodes
+        // Create nodes: this is a rectangle, centre (0,0), width 4, height 2, parallel to x axis
         std::vector<Node<2>*> nodes1;
-
-        // This is a rectangle, centre (0,0), width 4, height 2, parallel to x axis
         nodes1.push_back(new Node<2>(0, false,  2.0,  1.0));
         nodes1.push_back(new Node<2>(1, false, -2.0,  1.0));
         nodes1.push_back(new Node<2>(2, false, -2.0, -1.0));
@@ -2546,10 +2658,8 @@ public:
 
         // Second test
 
-        // Create nodes
+        // Create nodes: this is a rectangle, centre (0,0), width 2, height 4, parallel to x axis
         std::vector<Node<2>*> nodes2;
-
-        // This is a rectangle, centre (0,0), width 2, height 4, parallel to x axis
         nodes2.push_back(new Node<2>(0, false,  1.0,  2.0));
         nodes2.push_back(new Node<2>(1, false, -1.0,  2.0));
         nodes2.push_back(new Node<2>(2, false, -1.0, -2.0));
@@ -2570,13 +2680,11 @@ public:
 
         // Third test
 
-        // Create nodes
-        std::vector<Node<2>*> nodes3;
-
         /*
-         * This is a trapezoid, width 1, top length 3*sqrt(3), bottom length sqrt(3),
+         * Create nodes: this is a trapezoid, width 1, top length 3*sqrt(3), bottom length sqrt(3),
          * rotated by 30 degrees anticlockwise
          */
+        std::vector<Node<2>*> nodes3;
         nodes3.push_back(new Node<2>(0, false,  1.0, 0.0));
         nodes3.push_back(new Node<2>(1, false,  2.0, sqrt(3.0)));
         nodes3.push_back(new Node<2>(2, false, -2.5, -sqrt(3.0)/2.0));
@@ -2815,7 +2923,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetLocalIndexForElementEdgeClosestToPoint(mesh.GetNode(6)->rGetLocation(), 0), 1u);
 
         // Call method to update mesh in this situation
-        mesh.MoveOverlappingNodeOntoEdgeOfElement(mesh.GetNode(6), 0);
+        mesh.ReMesh();//MoveOverlappingNodeOntoEdgeOfElement(mesh.GetNode(6), 0);
 
         // Check that node 6 has been moved onto the edge and added to element 0
 
