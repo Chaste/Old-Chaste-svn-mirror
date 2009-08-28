@@ -325,10 +325,10 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
 
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+//#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
    // hello Joe.
    // Hello
-#else
+//#else
     // determine which rows in this column are non-zero (and
     // therefore need to be zeroed)
     std::vector<unsigned> nonzero_rows;
@@ -357,7 +357,7 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
     MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
     delete [] rows;
     delete [] zeros;
-#endif
+//#endif
 }
 
 void LinearSystem::ZeroRhsVector()

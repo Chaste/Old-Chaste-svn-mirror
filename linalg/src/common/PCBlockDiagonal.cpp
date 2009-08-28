@@ -57,13 +57,13 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
     assert(num_rows==num_columns);  
     
     PCSetType(mPetscPCObject, PCSHELL);
-    
-    // Register PC context so it gets passed to PCBlockDiagonalApply
-    //Don't know how to do this with PETSc 2.2
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    NEVER_REACHED;///\todo in PETSc 2.2
+    PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply, (void*) &mPCContext);
 #else
+    // Register PC context so it gets passed to PCBlockDiagonalApply
     PCShellSetContext(mPetscPCObject, &mPCContext);
+    // Register call-back function
+    PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply);
 #endif
         
     // Get matrix sublock A11
@@ -85,14 +85,6 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
 
     ISDestroy(A22_rows);
     ISDestroy(A22_columns);    
-
-    // Register call-back function
-
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    NEVER_REACHED;///\todo in PETSc 2.2
-#else
-    PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply);
-#endif
 }
 
 void PCBlockDiagonal::PCBlockDiagonalSetUp()

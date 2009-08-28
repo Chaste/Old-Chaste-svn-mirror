@@ -216,7 +216,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         //Make a new vector to store the Dirichlet offsets in
         VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                NEVER_REACHED;///\todo in PETSc 2.2
+        PetscScalar zero = 0.0;
+        VecSet(&zero, rLinearSystem.rGetDirichletBoundaryConditionsVector());
 #else
         VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
 #endif
@@ -239,7 +240,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 Vec matrix_col;
                 VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                NEVER_REACHED;///\todo in PETSc 2.2
+                // as above... PetscScalar zero = 0.0;
+                VecSet(&zero, matrix_col);
 #else
                 VecZeroEntries(matrix_col);
 #endif

@@ -94,12 +94,13 @@ public:
             TS_ASSERT_DELTA(phi_i[index] - phi_e[index], 1.0, 1e-6);
         }
 
+        // Coverage (setting PC type after first solve)
+        ls.SetPcType("blockdiagonal");
+
         MatDestroy(system_matrix);
         VecDestroy(rhs);
         VecDestroy(solution);
 
-        // Coverage (setting PC type after first solve)
-        ls.SetPcType("blockdiagonal");
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
         const PCType pc;
 #else
