@@ -208,7 +208,7 @@ public:
     /**
      * Constructor.
      *
-     * @param width the width of the crypt (circumference)
+     * @param width the width of the mesh (circumference)
      */
     Cylindrical2dMesh(double width);
 

@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulationArchiver.hpp"
 
 #include "VertexCryptSimulation2d.hpp"
-#include "Cylindrical2dVertexMesh.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "NagaiHondaForce.hpp"
 #include "VertexCryptBoundaryForce.hpp"
 #include "SimpleWntCellCycleModel.hpp"
@@ -60,11 +60,12 @@ public:
         // Create mesh
         unsigned crypt_width = 18;
         unsigned crypt_height = 25;
-        Cylindrical2dVertexMesh mesh(crypt_width, crypt_height, true);
+        HoneycombVertexMeshGenerator generator(crypt_width, crypt_height, true, true);
+        Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Create cells
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
@@ -76,7 +77,7 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> crypt(mesh, cells);
+        VertexBasedTissue<2> crypt(*p_mesh, cells);
 
         // Set up Wnt gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);

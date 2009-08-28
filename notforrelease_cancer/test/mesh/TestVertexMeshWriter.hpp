@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VtkWriter.hpp"
 #include "VertexMeshReader.hpp"
@@ -109,20 +110,22 @@ public:
     void TestMeshWriterWithDeletedNode() throw (Exception)
     {
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3, 0.1, 2.0);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 30u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 9u);
+        HoneycombVertexMeshGenerator generator(3, 3, false, false, 0.1, 2.0);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 30u);
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
 
         /*
          * Delete element 0. This element contains 3 nodes that are
          * not contained in any other element and so will be marked
          * as deleted.
          */
-        mesh.DeleteElementPriorToReMesh(0);
+        p_mesh->DeleteElementPriorToReMesh(0);
 
         // Write mesh to file
         VertexMeshWriter<2,2> mesh_writer("TestMeshWriterWithDeletedNode", "vertex_mesh");
-        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(*p_mesh));
 
         // Read mesh back in from file
         std::string output_dir = mesh_writer.GetOutputDirectory();

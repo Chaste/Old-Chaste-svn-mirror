@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NagaiHondaForce.hpp"
 #include "AbstractCellKiller.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
-#include "Cylindrical2dVertexMesh.hpp"
 
 /**
  * Simple cell killer which at the fisrt timestep kills any cell
@@ -99,12 +99,13 @@ public:
     void TestSolveThrowsNothing() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(6, 6);
+        HoneycombVertexMeshGenerator generator(6, 6);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - elem_index;
@@ -113,7 +114,7 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a force system
         NagaiHondaForce<2> force;
@@ -192,8 +193,9 @@ public:
     void TestSimpleVertexMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh with only one cell
-        VertexMesh<2,2> mesh(1, 1);
-        mesh.SetEdgeDivisionThreshold(0.5);
+        HoneycombVertexMeshGenerator generator(1, 1);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        p_mesh->SetEdgeDivisionThreshold(0.5);
 
         // Set up cell.
         std::vector<TissueCell> cells;
@@ -205,7 +207,7 @@ public:
         cells.push_back(cell);
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         unsigned old_num_nodes = tissue.GetNumNodes();
         unsigned old_num_elements = tissue.GetNumElements();
@@ -237,12 +239,13 @@ public:
     void TestVertexMonolayerWithCellBirth() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 5);
+        HoneycombVertexMeshGenerator generator(5, 5);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             CellType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
@@ -260,7 +263,7 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         unsigned old_num_nodes = tissue.GetNumNodes();
         unsigned old_num_elements = tissue.GetNumElements();
@@ -293,12 +296,12 @@ public:
     void noTestVertexMonolayerLong() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(3, 3);
-        //mesh.SetCellRearrangementThreshold(0.1);
+        HoneycombVertexMeshGenerator generator(3, 3);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each VertexElement.
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             CellType cell_type = TRANSIT;
 
@@ -313,7 +316,7 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a force system
         NagaiHondaForce<2> force;
@@ -336,19 +339,21 @@ public:
 
     void TestVertexMonolayerWithCellDeath() throw (Exception)
     {
-        // we don't want apoptosing cells to be labelled as dead after a certain time in
-        // vertex simulations, so set the apoptosis time to something large
+        /*
+         * We don't want apoptosing cells to be labelled as dead after a certain time in
+         * vertex simulations, so set the apoptosis time to something large.
+         */
 
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 5);
-
-        mesh.SetCellRearrangementThreshold(0.2);
-        mesh.SetT2Threshold(sqrt(3.0)/1000.0); // so T2Swaps once it becomes a triangle
+        HoneycombVertexMeshGenerator generator(5, 5);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        p_mesh->SetCellRearrangementThreshold(0.2);
+        p_mesh->SetT2Threshold(sqrt(3.0)/1000.0); // so T2Swaps once it becomes a triangle
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             double birth_time = 0.0 - elem_index;
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -363,7 +368,7 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         unsigned old_num_nodes = tissue.GetNumNodes();
         unsigned old_num_elements = tissue.GetNumElements();
@@ -474,12 +479,13 @@ public:
         double end_time = 0.1;
 
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(6, 6);
+        HoneycombVertexMeshGenerator generator(6, 6);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - elem_index;
@@ -488,7 +494,7 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a force system
         NagaiHondaForce<2> force;

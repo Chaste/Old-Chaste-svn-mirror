@@ -276,17 +276,6 @@ public:
                double t2Threshold=0.001);
 
     /**
-     * Helper constructor, creates a rectangular vertex-based mesh.
-     *
-     * @param numElementsAcross number of VertexElements across
-     * @param numElementsUp number of VertexElements up
-     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
-     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to DBL_MAX)
-     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
-     */
-    VertexMesh(unsigned numElementsAcross, unsigned numElementsUp, double cellRearrangementThreshold = 0.01 , double edgeDivisionThreshold = DBL_MAX, double t2Threshold = 0.001);
-
-    /**
      * Default constructor for use by serializer.
      */
     VertexMesh();

@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "VertexBasedTissue.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
@@ -69,16 +70,17 @@ public:
     void TestCreateSmallVertexBasedTissue() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 3);
+        HoneycombVertexMeshGenerator generator(5, 3);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells = SetUpCells(mesh);
+        std::vector<TissueCell> cells = SetUpCells(*p_mesh);
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Test we have the correct number of cells and elements
-        TS_ASSERT_EQUALS(tissue.GetNumElements(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(tissue.GetNumElements(), p_mesh->GetNumElements());
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), cells.size());
 
         unsigned counter = 0;
@@ -94,7 +96,7 @@ public:
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
 
-            TS_ASSERT_EQUALS(counter, mesh.GetElement(counter)->GetIndex());
+            TS_ASSERT_EQUALS(counter, p_mesh->GetElement(counter)->GetIndex());
 
             counter++;
         }
@@ -103,20 +105,21 @@ public:
         TS_ASSERT_EQUALS(counter, tissue.GetNumRealCells());
 
         // Test GetNumNodes() method
-        TS_ASSERT_EQUALS(tissue.GetNumNodes(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(tissue.GetNumNodes(), p_mesh->GetNumNodes());
     }
 
 
     void TestValidate() throw (Exception)
     {
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(3, 3);
+        HoneycombVertexMeshGenerator generator(3, 3);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each element.
         // Give each a birth time of -element_index, so the age = element_index.
         std::vector<TissueCell> cells;
         std::vector<unsigned> cell_location_indices;
-        for (unsigned i=0; i<mesh.GetNumElements()-1; i++)
+        for (unsigned i=0; i<p_mesh->GetNumElements()-1; i++)
         {
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - i;
@@ -127,25 +130,25 @@ public:
 
         // This should throw an exception as the number of cells
         // does not equal the number of elements
-        TS_ASSERT_THROWS_THIS(VertexBasedTissue<2> tissue(mesh, cells),
+        TS_ASSERT_THROWS_THIS(VertexBasedTissue<2> tissue(*p_mesh, cells),
                 "Element 8 does not appear to have a cell associated with it");
 
         TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-        double birth_time = 0.0 - mesh.GetNumElements()-1;
+        double birth_time = 0.0 - p_mesh->GetNumElements()-1;
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);
-        cell_location_indices.push_back(mesh.GetNumElements()-1);
+        cell_location_indices.push_back(p_mesh->GetNumElements()-1);
 
         // This should pass as the number of cells equals the number of elements
-        TS_ASSERT_THROWS_NOTHING(VertexBasedTissue<2> tissue(mesh, cells));
+        TS_ASSERT_THROWS_NOTHING(VertexBasedTissue<2> tissue(*p_mesh, cells));
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Check correspondence between elements and cells
 
-        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
-             iter != mesh.GetElementIteratorEnd();
+        for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+             iter != p_mesh->GetElementIteratorEnd();
              ++iter)
         {
             std::set<unsigned> expected_node_indices;
@@ -181,12 +184,13 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.5*apoptosis_time, 3);
 
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3);
+        HoneycombVertexMeshGenerator generator(3, 3);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
         std::vector<unsigned> cell_location_indices;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
         {
             CellType cell_type = STEM;
 
@@ -204,12 +208,12 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
         tissue.InitialiseCells(); // this method must be called explicitly as there is no simulation
 
         // Check GetTargetAreaOfCell()
-        for (VertexMesh<2,2>::VertexElementIterator iter = mesh.GetElementIteratorBegin();
-             iter != mesh.GetElementIteratorEnd();
+        for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+             iter != p_mesh->GetElementIteratorEnd();
              ++iter)
         {
             unsigned elem_index = iter->GetIndex();
@@ -294,12 +298,13 @@ public:
         TissueConfig::Instance()->SetDampingConstantMutant(8.0);
 
         // Create mesh
-        VertexMesh<2,2> mesh(3, 3);
+        HoneycombVertexMeshGenerator generator(3, 3);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
         std::vector<TissueCell> cells;
         std::vector<unsigned> cell_location_indices;
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
         {
             TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - i;
@@ -313,7 +318,7 @@ public:
         cells[8].SetMutationState(LABELLED);
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
         tissue.InitialiseCells(); // this method must be called explicitly as there is no simulation
 
         // Test GetDampingConstant()
@@ -352,13 +357,14 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4, 6);
+        HoneycombVertexMeshGenerator generator(4, 6);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells = SetUpCells(mesh);
+        std::vector<TissueCell> cells = SetUpCells(*p_mesh);
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         unsigned num_cells_removed = tissue.RemoveDeadCells();
         TS_ASSERT_EQUALS(num_cells_removed, 0u);
@@ -560,12 +566,13 @@ public:
     void TestAddCellWithHoneycombMesh() throw (Exception)
     {
         // Create a mesh with 9 elements
-        VertexMesh<2,2> vertex_mesh(3, 3);
+        HoneycombVertexMeshGenerator generator(3, 3);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<vertex_mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             CellType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
@@ -583,13 +590,13 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(vertex_mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Initialise cells (usually called in tissue simulation constructor)
         tissue.InitialiseCells();
 
-        unsigned old_num_nodes = vertex_mesh.GetNumNodes();
-        unsigned old_num_elements = vertex_mesh.GetNumElements();
+        unsigned old_num_nodes = p_mesh->GetNumNodes();
+        unsigned old_num_elements = p_mesh->GetNumElements();
         unsigned old_num_cells = tissue.rGetCells().size();
 
         // Add a new cell by dividing cell 4
@@ -685,14 +692,15 @@ public:
     void TestIsCellAssociatedWithADeletedLocation() throw (Exception)
     {
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4, 6);
-        mesh.GetElement(5)->MarkAsDeleted();
+        HoneycombVertexMeshGenerator generator(4, 6);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        p_mesh->GetElement(5)->MarkAsDeleted();
 
         // Set up cells
-        std::vector<TissueCell> cells = SetUpCells(mesh);
+        std::vector<TissueCell> cells = SetUpCells(*p_mesh);
 
         // Create tissue but do not try to validate
-        VertexBasedTissue<2> tissue(mesh, cells, false, false);
+        VertexBasedTissue<2> tissue(*p_mesh, cells, false, false);
 
         // Test IsCellAssociatedWithADeletedLocation() method
         for (VertexBasedTissue<2>::Iterator cell_iter = tissue.Begin();
@@ -718,19 +726,20 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4, 6);
+        HoneycombVertexMeshGenerator generator(4, 6);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells = SetUpCells(mesh);
+        std::vector<TissueCell> cells = SetUpCells(*p_mesh);
         cells[5].StartApoptosis();
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 24u);
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 24u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 24u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 24u);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 68u);
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 68u);
 
         p_simulation_time->IncrementTimeOneStep();
 
@@ -786,13 +795,14 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
         // Create a simple vertex-based mesh
-        VertexMesh<2,2> mesh(4, 6);
+        HoneycombVertexMeshGenerator generator(4, 6);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells = SetUpCells(mesh);
+        std::vector<TissueCell> cells = SetUpCells(*p_mesh);
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // For coverage of WriteResultsToFiles()
         tissue.rGetCellUsingLocationIndex(0).SetCellType(TRANSIT);
@@ -868,8 +878,8 @@ public:
 
             // Cells have been given birth times of 0 and -1.
             // Loop over them to run to time 0.0;
-            for (AbstractTissue<2>::Iterator cell_iter=p_tissue->Begin();
-                 cell_iter!=p_tissue->End();
+            for (AbstractTissue<2>::Iterator cell_iter = p_tissue->Begin();
+                 cell_iter != p_tissue->End();
                  ++cell_iter)
             {
                 cell_iter->ReadyToDivide();
@@ -932,13 +942,14 @@ public:
     void TestUpdateNodeLocations() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 3);
+        HoneycombVertexMeshGenerator generator(5, 3);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells = SetUpCells(mesh);
+        std::vector<TissueCell> cells = SetUpCells(*p_mesh);
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Make up some forces
         std::vector<c_vector<double, 2> > old_posns(tissue.GetNumNodes());
@@ -946,8 +957,8 @@ public:
 
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
-            old_posns[i][0] = mesh.GetNode(i)->rGetLocation()[0];
-            old_posns[i][1] = mesh.GetNode(i)->rGetLocation()[1];
+            old_posns[i][0] = p_mesh->GetNode(i)->rGetLocation()[0];
+            old_posns[i][1] = p_mesh->GetNode(i)->rGetLocation()[1];
 
             forces_on_nodes[i][0] = i*0.01;
             forces_on_nodes[i][1] = 2*i*0.01;

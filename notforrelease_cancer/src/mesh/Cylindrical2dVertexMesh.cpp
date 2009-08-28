@@ -27,113 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Cylindrical2dVertexMesh.hpp"
 
-
-Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(unsigned numElementsAcross,
-                                                 unsigned numElementsUp,
-                                                 bool isFlatBottom,
+Cylindrical2dVertexMesh::Cylindrical2dVertexMesh(double width,
+                                                 std::vector<Node<2>*> nodes,
+                                                 std::vector<VertexElement<2, 2>*> vertexElements,
                                                  double cellRearrangementThreshold,
                                                  double edgeDivisionThreshold,
                                                  double t2Threshold)
+    : VertexMesh<2,2>(nodes, vertexElements, cellRearrangementThreshold, edgeDivisionThreshold, t2Threshold),
+      mWidth(width)
 {
-    assert(numElementsAcross > 1);
-    assert(numElementsAcross%2==0); // numElementsAcross must be even for cylindrical meshes ///\todo why?
-    assert(numElementsUp > 0);
-    assert(cellRearrangementThreshold > 0.0);
-    assert(edgeDivisionThreshold > 0.0);
-    assert(t2Threshold > 0.0);
-
-    this->mCellRearrangementThreshold = cellRearrangementThreshold;
-    this->mEdgeDivisionThreshold = edgeDivisionThreshold;
-    this->mT2Threshold = t2Threshold;
-
-    mWidth = numElementsAcross;
-
-    unsigned element_index;
-    unsigned node_indices[6];
-    unsigned node_index = 0;
-
-    // Create the nodes
-    for (unsigned j=0; j<=2*numElementsUp+1; j++)
-    {
-        if (isFlatBottom && (j==1))
-        {
-            // Flat bottom to cylindrical mesh
-            for (unsigned i=0; i<=numElementsAcross-1; i++)
-            {
-                Node<2>* p_node = new Node<2>(node_index, false, i, 0.0);
-                mNodes.push_back(p_node);
-                node_index++;
-            }
-        }
-        else
-        {
-            for (unsigned i=0; i<=numElementsAcross-1; i++)
-            {
-            	double x_coord = ((j%4 == 0)||(j%4 == 3)) ? i+0.5 : i;
-            	double y_coord = (1.5*j - 0.5*(j%2))*0.5/sqrt(3);
-
-                Node<2>* p_node = new Node<2>(node_index, false, x_coord, y_coord);
-                mNodes.push_back(p_node);
-                node_index++;
-            }
-        }
-    }
-
-    /*
-     * Create the elements. The array node_indices contains the
-     * global node indices from bottom, going anticlockwise.
-     */
-    for (unsigned j=0; j<numElementsUp; j++)
-    {
-        for (unsigned i=0; i<numElementsAcross; i++)
-        {
-            element_index = j*numElementsAcross + i;
-
-            node_indices[0] = 2*j*(numElementsAcross) + i + 1*(j%2==1);
-            node_indices[1] = node_indices[0] + numElementsAcross + 1*(j%2==0);
-            node_indices[2] = node_indices[0] + 2*numElementsAcross + 1*(j%2==0);
-            node_indices[3] = node_indices[0] + 3*numElementsAcross;
-            node_indices[4] = node_indices[0] + 2*numElementsAcross - 1*(j%2==1);
-            node_indices[5] = node_indices[0] + numElementsAcross - 1*(j%2==1);
-
-            if (i==numElementsAcross-1) // on far right
-            {
-                node_indices[0] -= numElementsAcross*(j%2==1);
-                node_indices[1] -= numElementsAcross;
-                node_indices[2] -= numElementsAcross;
-                node_indices[3] -= numElementsAcross*(j%2==1);
-            }
-
-            std::vector<Node<2>*> element_nodes;
-            for (unsigned k=0; k<6; k++)
-            {
-               element_nodes.push_back(mNodes[node_indices[k]]);
-            }
-            VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index, element_nodes);
-            mElements.push_back(p_element);
-        }
-    }
-
-    // If the mesh has an imposed flat bottom delete unnessesary nodes
-    if (isFlatBottom)
-    {
-        for (unsigned i=0; i<numElementsAcross; i++)
-        {
-            // Move node 0 to the same position as node 5 then merge the nodes
-            SetNode(i, mNodes[i+numElementsAcross]->GetPoint());
-            PerformNodeMerge(mNodes[i], mNodes[i+numElementsAcross]);
-        }
-    }
-
     // ReMesh to remove any deleted nodes and relabel
     ReMesh();
 }
 
-
 Cylindrical2dVertexMesh::~Cylindrical2dVertexMesh()
 {
 }
-
 
 c_vector<double, 2> Cylindrical2dVertexMesh::GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2)
 {
@@ -180,7 +89,6 @@ void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
     VertexMesh<2,2>::SetNode(nodeIndex, point);
 }
 
-
 double Cylindrical2dVertexMesh::GetWidth(const unsigned& rDimension) const
 {
     double width = 0.0;
@@ -196,7 +104,6 @@ double Cylindrical2dVertexMesh::GetWidth(const unsigned& rDimension) const
     return width;
 }
 
-
 unsigned Cylindrical2dVertexMesh::AddNode(Node<2>* pNewNode)
 {
     unsigned node_index = VertexMesh<2,2>::AddNode(pNewNode);
@@ -207,7 +114,6 @@ unsigned Cylindrical2dVertexMesh::AddNode(Node<2>* pNewNode)
 
     return node_index;
 }
-
 
 double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
 {
@@ -243,7 +149,6 @@ double Cylindrical2dVertexMesh::GetAreaOfElement(unsigned index)
 
     return element_area;
 }
-
 
 c_vector<double, 2> Cylindrical2dVertexMesh::GetCentroidOfElement(unsigned index)
 {

@@ -1,5 +1,6 @@
 cell/TestCellCycleModelsNotForRelease.hpp
 mesh/TestCylindrical2dVertexMesh.hpp
+mesh/TestHoneycombVertexMeshGenerator.hpp
 mesh/TestVertexMesh.hpp
 mesh/TestVertexMeshReader.hpp
 mesh/TestVertexMeshWriter.hpp

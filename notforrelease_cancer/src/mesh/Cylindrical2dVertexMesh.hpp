@@ -80,17 +80,21 @@ private:
 public:
 
     /**
-     * Helper constructor, creates a rectangular vertex-based mesh.
-     *
-     * @param numElementsAcross  Number of VertexElements across.
-     * @param numElementsUp  Number of VertexElements up.
-     * @param isFlatBottom  Whether to enforce a flat bottom to the crypt? (defaults to false).
-     * @param cellRearrangementThreshold  The minimum threshold distance for element rearrangement. (defaults to 0.01)
-     * @param edgeDivisionThreshold  The maximum threshold distance for edge division. (defaults to DBL_MAX)
-     * @param t2Threshold  The minimum threshold distance for vertex removal (t2Swap) (defaults to 0.001)
-     *
+     * Default constructor.
+     * 
+     * @param width the width (circumference) of the mesh
+     * @param nodes vector of pointers to nodes
+     * @param vertexElements vector of pointers to VertexElements
+     * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
+     * @param edgeDivisionThreshold the maximum threshold distance for edge division (defaults to DBL_MAX)
+     * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
      */
-    Cylindrical2dVertexMesh(unsigned numElementsAcross, unsigned numElementsUp, bool isFlatBottom=false, double cellRearrangementThreshold = 0.01, double edgeDivisionThreshold = DBL_MAX, double t2Threshold =0.001);
+    Cylindrical2dVertexMesh(double width,
+                            std::vector<Node<2>*> nodes,
+                            std::vector<VertexElement<2,2>*> vertexElements,
+                            double cellRearrangementThreshold=0.01,
+                            double edgeDivisionThreshold=DBL_MAX,
+                            double t2Threshold=0.001);
 
     /**
      * Destructor.

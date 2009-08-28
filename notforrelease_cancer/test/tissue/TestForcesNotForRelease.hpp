@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "ChemotacticForce.hpp"
 #include "CellwiseDataGradient.hpp"
@@ -711,15 +712,16 @@ public:
     void TestVertexCryptBoundaryForce() throw (Exception)
     {
         // Create a simple 2D VertexMesh
-        VertexMesh<2,2> mesh(5, 5, 0.1, 0.5);
+        HoneycombVertexMeshGenerator generator(5, 5, false, false, 0.1, 0.5);
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Translate mesh so that some points are below y=0
-        mesh.Translate(0.0, -3.0);
+        p_mesh->Translate(0.0, -3.0);
 
         // Set up cells, one for each VertexElement. Give each cell
         // a birth time of -elem_index, so its age is elem_index
         std::vector<TissueCell> cells;
-        for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             CellType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
@@ -730,7 +732,7 @@ public:
         }
 
         // Create tissue
-        VertexBasedTissue<2> tissue(mesh, cells);
+        VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // Create a force system
         VertexCryptBoundaryForce<2> force(100);
@@ -747,11 +749,11 @@ public:
         force.AddForceContribution(node_forces, tissue);
 
         // Check forces are correct
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA(node_forces[i][0], 0.0, 1e-4);
 
-            double y = mesh.GetNode(i)->rGetLocation()[1];
+            double y = tissue.GetNode(i)->rGetLocation()[1];
             if (y >= 0.0)
             {
                 // If y > 0, the force contribution should be zero...
