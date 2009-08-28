@@ -1036,9 +1036,6 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 3u);
 
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
-
         // Test Areas and Perimeters of elements
         TS_ASSERT_DELTA(vertex_mesh.GetAreaOfElement(0), 0.5, 1e-6);
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(0), 2+sqrt(2), 1e-6);
@@ -1047,7 +1044,7 @@ public:
         TS_ASSERT_DELTA(vertex_mesh.GetPerimeterOfElement(1), 2.0+sqrt(2), 1e-6);
     }
 
-    void TestReMeshFailure() throw(Exception)
+    void TestAnotherPerformNodeMerge() throw(Exception)
     {
     	// Create nodes
     	std::vector<Node<2>*> nodes;
@@ -1059,7 +1056,7 @@ public:
     	nodes.push_back(new Node<2>(5, false, 2.0, 2.0));
     	nodes.push_back(new Node<2>(6, false, 1.0, 1.0));
     	nodes.push_back(new Node<2>(7, false, 0.99, 1.0));
-    	nodes.push_back(new Node<2>(7, false, 0.0, 1.0));
+    	nodes.push_back(new Node<2>(8, false, 0.0, 1.0));
 
     	// Create three elements containing nodes
     	std::vector<Node<2>*> nodes_elem_0;
@@ -1093,19 +1090,36 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
 
-        // Try remeshing
+        // Merge nodes 6 and 7
         VertexElementMap map(vertex_mesh.GetNumElements());
-        TS_ASSERT_THROWS_THIS(vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), map),
-                              "One of the nodes is contained in one element, the other in three");
+        vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), map);
 
+        // Test that the mesh is correctly updated
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
-        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
 
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[0], 1.0, 1e-3);
+        // Test merged node is in the correct place
+        TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[0], 0.995, 1e-3);
         TS_ASSERT_DELTA(vertex_mesh.GetNode(6)->rGetLocation()[1], 1.0, 1e-3);
 
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(7)->rGetLocation()[0], 0.99, 1e-3);
-        TS_ASSERT_DELTA(vertex_mesh.GetNode(7)->rGetLocation()[1], 1.0, 1e-3);
+        // Test elements have correct nodes
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(1)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(2)->GetIndex(), 6u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNode(3)->GetIndex(), 7u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(0)->GetIndex(), 1u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(1)->GetIndex(), 2u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNode(3)->GetIndex(), 6u);
+
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(0)->GetIndex(), 3u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(1)->GetIndex(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(2)->GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNode(3)->GetIndex(), 6u);
     }
 
     // This tests both PerformT1Swap and IdentifySwapType

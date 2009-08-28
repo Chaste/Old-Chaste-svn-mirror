@@ -1138,7 +1138,28 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
             }
             case 3:
             {
-                if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
+                if (nodeA_elem_indices.size()==1 || nodeB_elem_indices.size()==1)
+                {
+                    /*
+                     * In this case, one node is contained in one element and
+                     * the other node is contained in three elements:
+                     *
+                     *    A   B 
+                     * 
+                     *  empty   /
+                     *         / (3)
+                     * ---o---o-----   (element number in brackets)
+                     *  (1)    \ (2)
+                     *          \
+                     * 
+                     * We perform a node merge in this case.
+                     */
+                    PerformNodeMerge(pNodeA, pNodeB);
+
+                    // Remove the deleted node and re-index
+                    RemoveDeletedNodes();
+                }
+                else if (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==2)
                 {
                     /*
                      * In this case, the node configuration looks like:
@@ -1157,28 +1178,12 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::IdentifySwapType(Node<SPACE_DIM>* pNode
                 else
                 {
                     /*
-                     * In this case, we assume that one of the nodes is contained in
-                     * two elements and the other node is contained in three elements.
-                     * 
-                     * \todo We do not consider the case where one node is contained
-                     * in one element and the other node is contained in three elements:
-                     *
-                     *    A   B 
-                     * 
-                     *  empty   /
-                     *         / (3)
-                     * ---o---o-----
-                     *  (1)    \ (2)
-                     *          \
-                     * 
+                     * In this case, one of the nodes is contained in two elements
+                     * and the other node is contained in three elements.
                      */
-                    if (nodeA_elem_indices.size()==1 || nodeB_elem_indices.size()==1)
-                    {
-                        EXCEPTION("One of the nodes is contained in one element, the other in three");
-                    }
-
                     assert (   (nodeA_elem_indices.size()==2 && nodeB_elem_indices.size()==3)
                             || (nodeA_elem_indices.size()==3 && nodeB_elem_indices.size()==2) );
+
                     /*
                      * Let node alpha be the node contained in two elements and node beta
                      * the node contained in three elements.
