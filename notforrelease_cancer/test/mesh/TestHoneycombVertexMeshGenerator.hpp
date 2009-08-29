@@ -42,8 +42,13 @@ public:
 
     void TestVertexMeshGenerator() throw(Exception)
     {
-        // Create mesh
         HoneycombVertexMeshGenerator generator(5, 3);
+
+        // Coverage
+        TS_ASSERT_THROWS_THIS(generator.GetCylindricalMesh(),
+                              "A normal mesh was created but a cylindrical mesh is being requested.");
+
+        // Create mesh
         VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 15u);
@@ -121,16 +126,14 @@ public:
 
     void TestCylindrical2dVertexMeshGenerator()
     {
-        // Create non-periodic mesh
-        HoneycombVertexMeshGenerator generator(4, 4);
-        VertexMesh<2,2>* p_non_periodic_mesh = generator.GetMesh();
+        HoneycombVertexMeshGenerator generator(4, 4, true);
 
-        TS_ASSERT_EQUALS(p_non_periodic_mesh->GetNumElements(), 16u);
-        TS_ASSERT_EQUALS(p_non_periodic_mesh->GetNumNodes(), 48u);
-
+        // Coverage
+        TS_ASSERT_THROWS_THIS(generator.GetMesh(),
+                              "A cylindrical mesh was created but a normal mesh is being requested.");
+        
         // Create periodic mesh
-        HoneycombVertexMeshGenerator generator2(4, 4, true);
-        Cylindrical2dVertexMesh* p_cylindrical_mesh = generator2.GetCylindricalMesh();
+        Cylindrical2dVertexMesh* p_cylindrical_mesh = generator.GetCylindricalMesh();
 
         // The periodic mesh should have the same number of elements but fewer nodes
         TS_ASSERT_EQUALS(p_cylindrical_mesh->GetNumElements(), 16u);
