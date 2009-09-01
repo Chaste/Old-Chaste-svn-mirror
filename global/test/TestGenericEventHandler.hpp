@@ -32,8 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GenericEventHandler.hpp"
 
-///\todo MPICH2 doesn't like MPI_Wtime used in sequential
-#define MPISLEEP(secs) {double _start=MPI_Wtime(); while (MPI_Wtime()-_start < (secs)){continue;}}
 
 class AnEventHandler : public GenericEventHandler<3, AnEventHandler>
 {
@@ -62,11 +60,11 @@ public:
         //AnEventHandler::BeginEvent(AnEventHandler::TEST3);
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
-        MPISLEEP(0.01);
+        AnEventHandler::MilliSleep(10);
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
 
 
-        MPISLEEP(0.01);
+        AnEventHandler::MilliSleep(10);
         AnEventHandler::EndEvent(AnEventHandler::TEST3);
 
         AnEventHandler::EndEvent(AnEventHandler::TEST1);
@@ -136,7 +134,7 @@ public:
         TS_ASSERT_LESS_THAN(0.0, AnEventHandler::GetElapsedTime(AnEventHandler::TEST1));
 
         AnEventHandler::BeginEvent(AnEventHandler::TEST2);
-        MPISLEEP(0.01);//Seconds
+        AnEventHandler::MilliSleep(10);
         dummy=0;//Separate the sleep from the end of the event
         AnEventHandler::EndEvent(AnEventHandler::TEST2);
         //Test in milliseconds (at least 10 and not too much)
@@ -151,7 +149,7 @@ public:
         AnEventHandler::Reset();
         AnEventHandler::Enable();
         AnEventHandler::BeginEvent(AnEventHandler::TEST1);
-        MPISLEEP(0.01);
+        AnEventHandler::MilliSleep(10);
 
         AnEventHandler::Report();
     }

@@ -31,8 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "CancerEventHandler.hpp"
 
-///\todo MPICH2 doesn't like MPI_Wtime used in sequential
-#define MPISLEEP(secs) {double _start=MPI_Wtime(); while (MPI_Wtime()-_start < (secs));}
 /**
  * This class consists of a single test for the CancerEventHandler
  * class.
@@ -46,35 +44,35 @@ public:
         CancerEventHandler::BeginEvent(CancerEventHandler::EVERYTHING);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::SETUP);
-        MPISLEEP(0.01);
+        CancerEventHandler::MilliSleep(10);
 
         CancerEventHandler::EndEvent(CancerEventHandler::SETUP);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::DEATH);
-        MPISLEEP(0.02);
+        CancerEventHandler::MilliSleep(20);
         CancerEventHandler::EndEvent(CancerEventHandler::DEATH);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::BIRTH);
-        MPISLEEP(0.03);
+        CancerEventHandler::MilliSleep(30);
         CancerEventHandler::EndEvent(CancerEventHandler::BIRTH);
         CancerEventHandler::BeginEvent(CancerEventHandler::UPDATETISSUE);
-        MPISLEEP(0.04);
+        CancerEventHandler::MilliSleep(40);
         CancerEventHandler::EndEvent(CancerEventHandler::UPDATETISSUE);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
-        MPISLEEP(0.05);
+        CancerEventHandler::MilliSleep(50);
         CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::FORCE);
-        MPISLEEP(0.06);
+        CancerEventHandler::MilliSleep(60);
         CancerEventHandler::EndEvent(CancerEventHandler::FORCE);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::POSITION);
-        MPISLEEP(0.07);
+        CancerEventHandler::MilliSleep(70);
         CancerEventHandler::EndEvent(CancerEventHandler::POSITION);
 
         CancerEventHandler::BeginEvent(CancerEventHandler::OUTPUT);
-        MPISLEEP(0.08);
+        CancerEventHandler::MilliSleep(80);
         CancerEventHandler::EndEvent(CancerEventHandler::OUTPUT);
 
         CancerEventHandler::EndEvent(CancerEventHandler::EVERYTHING);

@@ -52,12 +52,33 @@ template <unsigned NUM_EVENTS, class CONCRETE>
 class GenericEventHandler
 {
     friend class TestGenericEventHandler;
+    friend class TestCancerEventHandler;
+    friend class TestHeartEventHandler;
+    
 private:
     static std::vector<double> mCpuTime; /**< CPU ticks assigned to each event */
     static std::vector<bool> mHasBegun; /**< Whether each event is in progress */
     static bool mEnabled; /**< Whether the event handler is recording event times */
     static bool mInitialised; /**< For internal use */
     static bool mInUse; /**< Determines if any of the event have begun */
+
+    /**
+     * Sleep for a specified number of milliseconds
+     * Used in testing
+     * Ought to be more portable than sleep() or usleep().
+     * 
+     * @param milliseconds  minimim number of milliseconds for which to sleep (ought to be a multiple of 10)
+     */
+    inline static void MilliSleep(unsigned milliseconds)
+    {
+        double start = clock();
+        double min_ticks = milliseconds*(CLOCKS_PER_SEC/1000.0) + start;
+        while (clock() < min_ticks)
+        {
+            //pause;
+        }
+    }
+
     /** Helper function - get the current CPU clock tick count */
     inline static double GetCpuTime()
     {

@@ -36,9 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
-///\todo MPICH2 doesn't like MPI_Wtime used in sequential
-#define MPISLEEP(secs) {double _start=MPI_Wtime(); while (MPI_Wtime()-_start < (secs));}
-
 
 class TestHeartEventHandler : public CxxTest::TestSuite
 {
@@ -48,18 +45,18 @@ public:
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
-        MPISLEEP(0.01);
+        HeartEventHandler::MilliSleep(10);
         HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
 
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
-        MPISLEEP(0.01);
+        HeartEventHandler::MilliSleep(10);
         HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
         HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
-        MPISLEEP(0.01);
+        HeartEventHandler::MilliSleep(10);
 
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
-        MPISLEEP(0.01);
+        HeartEventHandler::MilliSleep(10);
         HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
         HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
@@ -82,12 +79,12 @@ public:
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
         if (PetscTools::GetMyRank() != PetscTools::GetNumProcs()-1)
         {
-            MPISLEEP(0.05);
+        HeartEventHandler::MilliSleep(50);
         }
         else
         {
             //Master process has smaller amount of work
-            MPISLEEP(0.01);
+            HeartEventHandler::MilliSleep(10);
         }
         HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
