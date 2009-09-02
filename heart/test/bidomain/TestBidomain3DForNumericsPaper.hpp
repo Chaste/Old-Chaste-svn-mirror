@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "TetrahedralMesh.hpp"
 
 class TestBidomain3DForNumericsPaper :  public CxxTest::TestSuite
 {
@@ -52,17 +53,22 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 1.75, 1.75));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 7.0, 7.0));
         HeartConfig::Instance()->SetSimulationDuration(4.0);  //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
+//        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
         HeartConfig::Instance()->SetOutputDirectory("Bidomain3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain3d");
 
         // Check the linear system can be solved to a low tolerance (in particular, checks the null space
         // stuff was implemented correctly
-HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);
+HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> bidomain_cell_factory(-600.0*1000);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> bidomain_cell_factory(-1200.0*1000);
 
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructCuboid(20,20,20);
+        mesh.Scale(1.0/200.0, 1.0/200.0, 1.0/200.0);
+        
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
+        bidomain_problem.SetMesh(&mesh);
 
         bidomain_problem.Initialise();
 
