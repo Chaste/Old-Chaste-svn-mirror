@@ -53,12 +53,8 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         // Are we the master process?  Only the master should make any new directories
         if (cleanOutputDirectory && mAmMaster)
         {
-            std::string directory_to_move_to = GetOutputDirectoryFullPath("last_cleaned_directory");
-            IGNORE_RET(system, "rm -rf " + directory_to_move_to);
-            // Re-create the special directory
-            mkdir(directory_to_move_to.c_str(), 0775);
-            CHECK_SYSTEM("mv " + mDirectory + " " + directory_to_move_to);
-            //system(("rm -rf " + mDirectory).c_str());
+            //Remove whatever was there before
+            CHECK_SYSTEM(("rm -rf " + mDirectory).c_str());
             // Re-create the output directory
             mkdir(mDirectory.c_str(), 0775);
         }
