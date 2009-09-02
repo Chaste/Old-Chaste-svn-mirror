@@ -88,7 +88,8 @@ public:
 
 #include <boost/serialization/export.hpp>
 
-BOOST_CLASS_EXPORT(RadialSloughingCellKiller)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(RadialSloughingCellKiller)
 
 namespace boost
 {

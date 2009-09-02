@@ -87,7 +87,8 @@ public:
         archive & mTag;
     }
 };
-BOOST_CLASS_EXPORT(ParentClass)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(ParentClass)
 
 namespace boost
 {

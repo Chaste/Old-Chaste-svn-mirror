@@ -135,8 +135,9 @@ public:
     unsigned GetDimension();
 };
 
+#include "TemplatedExport.hpp"
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(SimpleWntCellCycleModel)
+CHASTE_CLASS_EXPORT(SimpleWntCellCycleModel)
 
 
 namespace boost

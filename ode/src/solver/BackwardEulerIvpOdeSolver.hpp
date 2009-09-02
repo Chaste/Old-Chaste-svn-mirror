@@ -211,7 +211,8 @@ public:
      unsigned GetSystemSize() const {return mSizeOfOdeSystem;};
 };
 
-BOOST_CLASS_EXPORT(BackwardEulerIvpOdeSolver);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(BackwardEulerIvpOdeSolver);
 
 namespace boost
 {

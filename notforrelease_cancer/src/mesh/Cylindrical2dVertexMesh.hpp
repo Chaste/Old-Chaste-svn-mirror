@@ -161,6 +161,7 @@ public:
      c_vector<double, 2> GetCentroidOfElement(unsigned index);
 };
 
-BOOST_CLASS_EXPORT(Cylindrical2dVertexMesh)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(Cylindrical2dVertexMesh)
 
 #endif /*CYLINDRICAL2DVERTEXMESH_HPP_*/

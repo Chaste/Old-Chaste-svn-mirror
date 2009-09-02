@@ -1191,7 +1191,8 @@ void OdeSystemInformation<BackwardEulerNobleVargheseKohlNoble1998>::Initialise(v
     this->mInitialised = true;
 }
 
-BOOST_CLASS_EXPORT(BackwardEulerNobleVargheseKohlNoble1998)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(BackwardEulerNobleVargheseKohlNoble1998)
 
 namespace boost
 {

@@ -97,7 +97,8 @@ public:
     {}
 };
 
-BOOST_CLASS_EXPORT(EulerIvpOdeSolver);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(EulerIvpOdeSolver);
 
 #endif //_EULERIVPODESOLVER_HPP_
 

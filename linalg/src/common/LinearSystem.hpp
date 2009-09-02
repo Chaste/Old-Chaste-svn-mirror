@@ -547,8 +547,9 @@ public:
 
 };
 
+#include "TemplatedExport.hpp"
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(LinearSystem);
+CHASTE_CLASS_EXPORT(LinearSystem);
 
 namespace boost
 {

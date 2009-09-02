@@ -187,7 +187,8 @@ public:
 
 /* You only need to include the next block of code if you want to be able to
  * archive (save or load) the cell cycle model object in a tissue simulation. */
-BOOST_CLASS_EXPORT(MyCellCycleModel)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(MyCellCycleModel)
 
 /*
  * This completes the code for {{{MyCellCycleModel}}}. Note that usually this code would

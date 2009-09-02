@@ -288,7 +288,8 @@ public:
 
 };
 
-BOOST_CLASS_EXPORT(CvodeAdaptor);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(CvodeAdaptor);
 
 #endif // _CVODEADAPTOR_HPP_
 #endif // CHASTE_CVODE

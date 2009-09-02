@@ -146,7 +146,8 @@ public:
  * constructor input argument(s) (in this case, a {{{Tissue}}}). */
 #include <boost/serialization/export.hpp>
 
-BOOST_CLASS_EXPORT(MyCellKiller)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(MyCellKiller)
 
 namespace boost
 {

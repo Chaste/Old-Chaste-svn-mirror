@@ -147,8 +147,9 @@ public:
 };
 
 
+#include "TemplatedExport.hpp"
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(TysonNovakCellCycleModel)
+CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)
 
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

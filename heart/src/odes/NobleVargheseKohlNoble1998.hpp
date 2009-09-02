@@ -688,7 +688,8 @@ void OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic>::Initialise(
 }
 
 
-BOOST_CLASS_EXPORT(CML_noble_varghese_kohl_noble_1998_basic)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(CML_noble_varghese_kohl_noble_1998_basic)
 namespace boost
 {
     namespace serialization

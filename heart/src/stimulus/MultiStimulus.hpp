@@ -99,7 +99,8 @@ public:
      void Clear();
 };
 
+#include "TemplatedExport.hpp"
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(MultiStimulus);
+CHASTE_CLASS_EXPORT(MultiStimulus);
 
 #endif /*MULTISTIMULUS_HPP_*/

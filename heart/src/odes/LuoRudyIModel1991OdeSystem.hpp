@@ -138,7 +138,8 @@ public:
     double GetIntracellularCalciumConcentration();
 };
 
-BOOST_CLASS_EXPORT(LuoRudyIModel1991OdeSystem);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(LuoRudyIModel1991OdeSystem);
 
 namespace boost
 {

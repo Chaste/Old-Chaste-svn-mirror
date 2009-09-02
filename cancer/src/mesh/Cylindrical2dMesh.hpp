@@ -319,6 +319,7 @@ inline void load_construct_data(
 }
 } // namespace ...
 
-BOOST_CLASS_EXPORT(Cylindrical2dMesh)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(Cylindrical2dMesh)
 
 #endif /*CYLINDRICAL2DMESH_HPP_*/

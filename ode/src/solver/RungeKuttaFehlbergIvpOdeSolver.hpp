@@ -222,6 +222,7 @@ public:
 
 };
 
-BOOST_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver);
 
 #endif //_RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_

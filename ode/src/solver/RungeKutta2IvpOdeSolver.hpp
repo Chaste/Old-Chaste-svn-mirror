@@ -87,6 +87,7 @@ public:
 
 };
 
-BOOST_CLASS_EXPORT(RungeKutta2IvpOdeSolver);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(RungeKutta2IvpOdeSolver);
 
 #endif //_RUNGEKUTTA2IVPODESOLVER_HPP_

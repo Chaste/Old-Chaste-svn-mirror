@@ -65,7 +65,8 @@ public:
     double GetStimulus(double time);
 };
 
+#include "TemplatedExport.hpp"
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(ZeroStimulus)
+CHASTE_CLASS_EXPORT(ZeroStimulus)
 
 #endif /*ZEROSTIMULUS_HPP_*/

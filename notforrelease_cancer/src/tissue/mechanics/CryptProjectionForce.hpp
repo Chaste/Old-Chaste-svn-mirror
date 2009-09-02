@@ -160,6 +160,7 @@ public :
 };
 
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(CryptProjectionForce)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(CryptProjectionForce)
 
 #endif /*CRYPTPROJECTIONFORCE_HPP_*/

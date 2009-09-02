@@ -161,7 +161,8 @@ public:
 };
 
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleModel)
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleModel)
 
 
 namespace boost

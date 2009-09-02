@@ -107,6 +107,7 @@ public:
 
 };
 
-BOOST_CLASS_EXPORT(MockEulerIvpOdeSolver);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(MockEulerIvpOdeSolver);
 
 #endif //_MOCKEULERIVPODESOLVER_HPP_

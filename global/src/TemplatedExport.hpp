@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TEMPLATEDEXPORT_HPP_
 
 #define COVERAGE_IGNORE
+#include <boost/version.hpp>
 
 /**
  * Defines some macros to register versions of templated classes with the
@@ -38,6 +39,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/serialization/export.hpp>
 
+
+
+#define CHASTE_CLASS_EXPORT_GUID(T, K, S)                                               \
+namespace                                                                           \
+{                                                                                   \
+    ::boost::archive::detail::guid_initializer< T > const &                         \
+        BOOST_PP_CAT(BOOST_PP_CAT(boost_serialization_guid_initializer_, __LINE__), S)               \
+        = ::boost::serialization::singleton<                                        \
+            ::boost::archive::detail::guid_initializer< T >                         \
+          >::get_mutable_instance().export_guid(K);                                 \
+}
+
+#if BOOST_VERSION >= 103600
+//Avoid using line number as Global "Unique" Identifier
+#define CHASTE_CLASS_EXPORT_TEMPLATED(T, S)                   \
+    CHASTE_CLASS_EXPORT_GUID(                    \
+        T,                                      \
+        BOOST_PP_STRINGIZE(T), S                   \
+    )                                           \
+
+#define CHASTE_CLASS_EXPORT(T)                   \
+   CHASTE_CLASS_EXPORT_TEMPLATED(T, T)
+#else
+//Do exactly as we did before (so that archives created with 1.33 don't have to be re-generated)
+#define CHASTE_CLASS_EXPORT_TEMPLATED(T, S)                   \
+   BOOST_CLASS_EXPORT(T)
+
+#define CHASTE_CLASS_EXPORT(T)                   \
+   BOOST_CLASS_EXPORT(T)
+#endif
+
 template<class> struct pack;
 /** Argument pack for macros. */
 template<class T> struct pack<void (T)> {
@@ -45,13 +77,13 @@ template<class T> struct pack<void (T)> {
 };
 
 #define EXPORT_TEMPLATE_CLASS3(CLASS, E, S, P) \
-    BOOST_CLASS_EXPORT( pack<void (CLASS< E,S,P >)>::type );
+    CHASTE_CLASS_EXPORT( pack<void (CLASS< E,S,P >)>::type, CLASS##E##S##P );
 
 #define EXPORT_TEMPLATE_CLASS2(CLASS, E, S) \
-    BOOST_CLASS_EXPORT( pack<void (CLASS< E,S >)>::type );
+    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< E,S >)>::type, CLASS##E##S );
 
 #define EXPORT_TEMPLATE_CLASS1(CLASS, D) \
-    BOOST_CLASS_EXPORT( pack<void (CLASS< D >)>::type );
+    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< D >)>::type, CLASS##D );
 
 #define EXPORT_TEMPLATE_CLASS_ALL_DIMS(CLASS) \
     EXPORT_TEMPLATE_CLASS2(CLASS, 1, 1) \
@@ -65,6 +97,7 @@ template<class T> struct pack<void (T)> {
     EXPORT_TEMPLATE_CLASS1(CLASS, 1) \
     EXPORT_TEMPLATE_CLASS1(CLASS, 2) \
     EXPORT_TEMPLATE_CLASS1(CLASS, 3)
+
 
 #undef COVERAGE_IGNORE
 #endif /*TEMPLATEDEXPORT_HPP_*/

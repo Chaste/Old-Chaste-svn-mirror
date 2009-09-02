@@ -645,7 +645,8 @@ private:
 
 };
 
+#include "TemplatedExport.hpp"
 // Declare identifier for the serializer
-BOOST_CLASS_EXPORT(HeartConfig);
+CHASTE_CLASS_EXPORT(HeartConfig);
 
 #endif /*HEARTCONFIG_HPP_*/
