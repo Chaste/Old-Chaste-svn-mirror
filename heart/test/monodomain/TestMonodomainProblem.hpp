@@ -766,7 +766,7 @@ public:
 
         // throw because end time is negative
         HeartConfig::Instance()->SetSimulationDuration(-1.0); //ms
-        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"End time should be greater than 0");
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"End time should be in the future");
         HeartConfig::Instance()->SetSimulationDuration( 1.0); //ms
 
         // throws because output dir and filename are both ""
@@ -835,6 +835,45 @@ public:
             // check a progress report exists
             TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblemArchive/").c_str()), 0);
         }
+    }
+    
+    /**
+     * Same as TestMonodomainProblem1D, except run the simulation in 2 halves: first to 1ms,
+     * then continue to 2ms.
+     */
+    void TestMonodomainProblem1dInTwoHalves() throw(Exception)
+    {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dInTwoHalves");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+
+        monodomain_problem.Initialise();
+
+        HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
+        monodomain_problem.Solve();
+        
+        HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+        monodomain_problem.Solve();
+
+        // test whether voltages and gating variables are in correct ranges
+        CheckMonoLr91Vars<1>(monodomain_problem);
+
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
     }
 };
 

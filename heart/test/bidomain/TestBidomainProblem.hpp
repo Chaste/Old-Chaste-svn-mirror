@@ -538,7 +538,7 @@ public:
 
         // Negative simulation duration
         HeartConfig::Instance()->SetSimulationDuration(-1.0);  //ms
-        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "End time should be greater than 0");
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "End time should be in the future");
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
 
         // set output data to avoid their exceptions (which is covered in TestMonoDg0Assembler

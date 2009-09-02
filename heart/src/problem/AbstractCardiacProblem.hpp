@@ -88,7 +88,15 @@ private:
         //archive & mpWriter; // Created by InitialiseWriter, called from Solve
         archive & mpCardiacPde;
         //archive & mpAssembler; // Only exists during calls to the Solve method
-        // TODO: think about mSolution
+        bool has_solution = (mSolution != NULL);
+        archive & has_solution;
+        if (has_solution)
+        {
+            // TODO: Save using PetscTools:DumpPetscObject
+//            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
+//            PetscTools::DumpPetscObject(mSolution, filename);
+        }
+        archive & mCurrentTime;
         archive & mArchiveKSP;
         
         // Save boundary conditions
@@ -117,7 +125,15 @@ private:
         // TODO: think about the writer
         archive & mpCardiacPde;
         //archive & mpAssembler; // Only exists during calls to the Solve method
-        // TODO: think about mSolution
+        bool has_solution;
+        archive & has_solution;
+        if (has_solution)
+        {
+            // TODO: Load using PetscTools::ReadPetscObject
+//            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
+//            PetscTools::ReadPetscObject(mSolution, filename);
+        }
+        archive & mCurrentTime;
         archive & mArchiveKSP;
         
         // Load boundary conditions
@@ -206,6 +222,15 @@ protected:
     /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and
      *  [V_0 phi_0 .. V_N phi_N] for bidomain */
     Vec mSolution;
+    
+    /**
+     * The current simulation time.
+     * 
+     * This is used to be able to restart simulations at a point other than time zero,
+     * either because of repeated calls to Solve (with increased simulation duration)
+     * or because of restarting from a checkpoint.
+     */
+    double mCurrentTime;
     
     /** Tells the destructor to archive the linear system */
     bool mArchiveKSP;

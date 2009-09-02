@@ -59,6 +59,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpDefaultBoundaryConditionsContainer(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
+      mCurrentTime(0.0),
       mArchiveKSP(false),
       mpWriter(NULL)
 {
@@ -96,6 +97,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpCellFactory(NULL),
       mpMesh(NULL),
       mSolution(NULL),
+      mCurrentTime(0.0),
       mArchiveKSP(false),
       mpWriter(NULL)
 {
@@ -260,6 +262,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         mSolution = NULL;
         HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
     }
+    
+    // Always start at time zero
+    mCurrentTime = 0.0;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -281,9 +286,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
     {
         EXCEPTION("Pde is null, Initialise() probably hasn't been called");
     }
-    if ( HeartConfig::Instance()->GetSimulationDuration() <= 0.0)
+    if ( HeartConfig::Instance()->GetSimulationDuration() <= mCurrentTime)
     {
-        EXCEPTION("End time should be greater than 0");
+        EXCEPTION("End time should be in the future");
     }
     if (mPrintOutput==true)
     {
@@ -309,10 +314,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 Vec AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialCondition()
 {
-    //if (DistributedVector::GetProblemSize()==0)
-    //{
-    //    DistributedVector::SetProblemSize(mpMesh->GetNumNodes());
-    //}
     DistributedVectorFactory* p_factory = mpMesh->GetDistributedVectorFactory();
     Vec initial_condition = p_factory->CreateVec(PROBLEM_DIM);
     DistributedVector ic = p_factory->CreateDistributedVector(initial_condition);
@@ -423,7 +424,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         initial_condition = CreateInitialCondition();
     }
 
-    TimeStepper stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(),
+    TimeStepper stepper(mCurrentTime, HeartConfig::Instance()->GetSimulationDuration(),
                         HeartConfig::Instance()->GetPrintingTimeStep());
 
     std::string progress_reporter_dir;
@@ -445,7 +446,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     // create a progress reporter so users can track how much has gone and
     // estimate how much time is left. (Note this has to be done after the
     // InitialiseWriter above (if mPrintOutput==true)
-    ProgressReporter progress_reporter(progress_reporter_dir, 0.0, HeartConfig::Instance()->GetSimulationDuration());
+    ProgressReporter progress_reporter(progress_reporter_dir, mCurrentTime,
+                                       HeartConfig::Instance()->GetSimulationDuration());
     progress_reporter.Update(0);
 
 
@@ -484,6 +486,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
         // update the current time
         stepper.AdvanceOneTimeStep();
+        mCurrentTime = stepper.GetTime();
 
         if (mPrintOutput)
         {
@@ -535,7 +538,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
     HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
-
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
