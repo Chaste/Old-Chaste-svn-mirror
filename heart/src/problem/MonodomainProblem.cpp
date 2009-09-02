@@ -73,6 +73,13 @@ MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCell
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem()
+    : AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>(),
+      mpMonodomainPde(NULL)
+{
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::~MonodomainProblem()
 {
 }

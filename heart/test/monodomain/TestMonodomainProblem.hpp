@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <vector>
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -771,6 +773,68 @@ public:
         TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),
                 "Either explicitly specify not to print output (call PrintOutput(false)) or "
                 "specify the output directory and filename prefix");
+    }
+    
+    /**
+     * Not a very thorough test yet - just checks we can load a problem, simulate it, and
+     * get expected results.
+     */
+    void TestArchiving() throw(Exception)
+    {
+        // Based on TestMonodomainProblem1D()
+        OutputFileHandler handler("monadomain_problem_archive", false);
+        handler.SetArchiveDirectory();
+        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("monodomain_problem.arch");
+
+        // Save
+        {
+            HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+            HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+            HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+            HeartConfig::Instance()->SetOutputDirectory("MonoProblemArchive");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
+    
+            PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+            MonodomainProblem<1> monodomain_problem( &cell_factory );
+    
+            monodomain_problem.Initialise();
+    
+            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+            HeartConfig::Instance()->SetCapacitance(1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            AbstractCardiacProblem<1,1,1>* const p_monodomain_problem = &monodomain_problem;
+            output_arch & p_monodomain_problem;
+        }
+        
+        // Load
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            AbstractCardiacProblem<1,1,1> *p_monodomain_problem;
+            input_arch >> p_monodomain_problem;
+
+            p_monodomain_problem->Solve();
+
+            // test whether voltages and gating variables are in correct ranges
+            CheckMonoLr91Vars<1>(static_cast<MonodomainProblem<1,1>&>(*p_monodomain_problem));
+    
+            // check some voltages
+            ReplicatableVector voltage_replicated(p_monodomain_problem->GetSolution());
+            double atol=5e-3;
+    
+            TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+            TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+            TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+            TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+            TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+            TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+
+            // check a progress report exists
+            TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblemArchive/").c_str()), 0);
+        }
     }
 };
 

@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MONODOMAINPDE_HPP_
 #define MONODOMAINPDE_HPP_
 
+#include <climits> // Work around a boost bug - see #1024.
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
@@ -39,9 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractLinearParabolicPde.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
-
-// Needs to be included last
-#include <boost/serialization/export.hpp>
 
 
 /**
@@ -75,7 +74,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCardiacPde<SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM> >(*this);
     }
 
 
@@ -133,7 +132,10 @@ public:
 };
 
 // Declare identifier for the serializer
+#include "TemplatedExport.hpp" // Must be last
 EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 2);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 3);
 EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2);
 EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3);
 

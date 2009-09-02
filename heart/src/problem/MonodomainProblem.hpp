@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MONODOMAINPROBLEM_HPP_
 #define MONODOMAINPROBLEM_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractCardiacProblem.hpp"
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
@@ -43,6 +46,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class MonodomainProblem : public AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1> >(*this);
+        archive & mpMonodomainPde;
+    }
+    
 protected:
     /** The monodomain PDE object */
     MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
@@ -61,6 +79,11 @@ public:
      *   create cells.
      */
     MonodomainProblem(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
+
+    /**
+     * Constructor just used for archiving
+     */
+    MonodomainProblem();
 
     /**
      * Destructor
@@ -93,5 +116,12 @@ public:
     virtual void WriteOneStep(double time, Vec voltageVec);
     
 };
+
+#include "TemplatedExport.hpp" // Must be last
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 1);
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 2);
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 3);
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 2, 2);
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 3, 3);
 
 #endif /*MONODOMAINPROBLEM_HPP_*/

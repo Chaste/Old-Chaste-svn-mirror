@@ -83,6 +83,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCardiacPde<SPACE_DIM> >(*this);
+        // Conductivity tensors are dealt with by HeartConfig, and the caches get regenerated.
     }
 
     /** Extracellular conductivity tensors. */
@@ -126,6 +127,7 @@ public:
 };
 
 // Declare identifier for the serializer
+#include "TemplatedExport.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainPde)
 
 namespace boost

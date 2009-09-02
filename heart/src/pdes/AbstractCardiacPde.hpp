@@ -47,9 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "ArchiveLocationInfo.hpp"
 
-// Needs to be included last
-#include "TemplatedExport.hpp"
-
 
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
@@ -92,8 +89,8 @@ private:
         // archive & mpMesh; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
         // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
-        // archive & mIionicCacheReplicated; /// \todo #98 archive or regenerate this ???????
-        // archive & mIntracellularStimulusCacheReplicated; /// \todo #98 archive or regenerate this ???????
+        // archive & mIionicCacheReplicated; // will be regenerated
+        // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         // archive & mStride; // archiving constructor sets this.
         archive & mDoCacheReplication;
         archive & mDoOneCacheReplication;
@@ -281,7 +278,6 @@ public:
     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pGetMesh() const;
 
 };
-
 
 TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde);
 

@@ -28,6 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTBOUNDARYCONDITION_HPP_
 #define _ABSTRACTBOUNDARYCONDITION_HPP_
 
+#include <boost/serialization/access.hpp>
+#include "ClassIsAbstract.hpp"
+
 #include "ChastePoint.hpp"
 #include "UblasCustomFunctions.hpp"
 
@@ -37,6 +40,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class AbstractBoundaryCondition
 {
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+    }
+    
 public:
 
     /**
@@ -58,5 +75,7 @@ public:
     virtual ~AbstractBoundaryCondition()
     {}
 };
+
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractBoundaryCondition);
 
 #endif //_ABSTRACTDIRICHLETBOUNDARYCONDITION_HPP_

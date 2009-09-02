@@ -75,10 +75,11 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
     CreateIntracellularConductivityTensor();
 }
 
+// Constructor used for archiving
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                                                           AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                                           const unsigned stride)
+                                                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                                              const unsigned stride)
     : mpMesh(pMesh),
       mCellsDistributed(rCellsDistributed),
       mStride(stride),
@@ -87,7 +88,10 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
       mpDistributedVectorFactory(NULL),
       mFactoryMeshUnarchived(true)
 {
-      CreateIntracellularConductivityTensor();
+    mIionicCacheReplicated.resize(mCellsDistributed.size());
+    mIntracellularStimulusCacheReplicated.resize(mCellsDistributed.size());
+    
+    CreateIntracellularConductivityTensor();
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>

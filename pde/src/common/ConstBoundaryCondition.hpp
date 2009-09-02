@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractBoundaryCondition.hpp"
 
+#include <boost/serialization/base_object.hpp>
+
 /**
  * Boundary condition that takes a constant value wherever it is applied.
  */
@@ -38,6 +40,20 @@ class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private:
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractBoundaryCondition<SPACE_DIM> >(*this);
+    }
+    
     /** The constant value of the boundary condition. */
     double mValue;
 
@@ -57,5 +73,39 @@ public:
      */
     double GetValue(const ChastePoint<SPACE_DIM>& rX) const;
 };
+
+#include "TemplatedExport.hpp" // Must be last
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ConstBoundaryCondition);
+
+namespace boost
+{
+namespace serialization
+{
+
+template<class Archive, unsigned SPACE_DIM>
+inline void save_construct_data(
+    Archive & ar, const ConstBoundaryCondition<SPACE_DIM> * t, const unsigned int file_version)
+{
+    const ChastePoint<SPACE_DIM> p;
+    const double value = t->GetValue(p);
+
+    ar & value;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate an instance (using existing constructor)
+ */
+template<class Archive, unsigned SPACE_DIM>
+inline void load_construct_data(
+    Archive & ar, ConstBoundaryCondition<SPACE_DIM> * t, const unsigned int file_version)
+{
+    double value;
+    ar & value;
+
+    ::new(t)ConstBoundaryCondition<SPACE_DIM>(value);
+}
+}
+} // namespace ...
 
 #endif //_CONSTBOUNDARYCONDITION_HPP_

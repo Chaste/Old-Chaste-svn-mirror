@@ -26,7 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+// Note: the mArchiveKSP functionality will need to move into a HeartSimulationArchiver class...
+#define JC_ARCHIVE_HACK // Needed to get TestMonodomainProblem to link, for now
+#ifndef JC_ARCHIVE_HACK
 #include <boost/archive/text_oarchive.hpp>
+#endif
 
 #include "AbstractCardiacProblem.hpp"
 
@@ -69,6 +73,34 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
 
     HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 }
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem()
+    // it doesn't really matter what we initialise these to, as they'll be overwritten by
+    // the serialization methods
+    : mMeshFilename(""),
+      mNodesPerProcessorFilename(""),
+      mUseMatrixBasedRhsAssembly(true),
+      mAllocatedMemoryForMesh(true), // NB: this is always true after a load
+      mWriteInfo(false),
+      mPrintOutput(true),
+      mCallChaste2Meshalyzer(false),
+      mVoltageColumnId(UINT_MAX),
+      mTimeColumnId(UINT_MAX),
+      mNodeColumnId(UINT_MAX),
+      mpCardiacPde(NULL),
+      mpBoundaryConditionsContainer(NULL),
+      mpDefaultBoundaryConditionsContainer(NULL),
+      mpAssembler(NULL),
+      mpCellFactory(NULL),
+      mpMesh(NULL),
+      mSolution(NULL),
+      mArchiveKSP(false),
+      mpWriter(NULL)
+{
+}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
@@ -463,6 +495,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         OnEndOfTimestep(stepper.GetTime());
     }
 
+#ifndef JC_ARCHIVE_HACK
     // We need to do this before the assembler is destroyed
     if (mArchiveKSP)
     {
@@ -481,6 +514,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
         ofs.close();
     }
+#endif
 
     // Free assembler
     delete mpAssembler;
@@ -635,7 +669,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
-    mpWriter = new Hdf5DataWriter(*mpCellFactory->GetMesh()->GetDistributedVectorFactory(), HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
+    mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(), HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
     DefineWriterColumns();
     mpWriter->EndDefineMode();
 }

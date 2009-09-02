@@ -30,6 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPROBLEM_HPP_
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
+#include <climits> // Work around a boost bug - see #1024.
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/split_member.hpp>
+#include "ClassIsAbstract.hpp"
+
 #include <string>
 #include <vector>
 
@@ -51,6 +58,102 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
 friend class TestBidomainWithBathAssembler;
+
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    
+    /**
+     * Save the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void save(Archive & archive, const unsigned int version) const
+    {
+        archive & mMeshFilename;
+        archive & mpMesh;
+        //archive & mAllocatedMemoryForMesh; // Will always be true after a load
+        archive & mNodesPerProcessorFilename;
+        archive & mUseMatrixBasedRhsAssembly;
+        archive & mWriteInfo;
+        archive & mPrintOutput;
+        archive & mCallChaste2Meshalyzer;
+        archive & mNodesToOutput;
+        //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
+        //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve
+        //archive & mTimeColumnId; // Created by InitialiseWriter, called from Solve
+        //archive & mNodeColumnId; // Created by InitialiseWriter, called from Solve
+        //archive & mpWriter; // Created by InitialiseWriter, called from Solve
+        archive & mpCardiacPde;
+        //archive & mpAssembler; // Only exists during calls to the Solve method
+        // TODO: think about mSolution
+        archive & mArchiveKSP;
+        
+        // Save boundary conditions
+        SaveBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
+        SaveBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer);
+    }
+    
+    /**
+     * Load the member variables.
+     * 
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        archive & mMeshFilename;
+        archive & mpMesh;
+        //archive & mAllocatedMemoryForMesh; // Will always be true after a load
+        archive & mNodesPerProcessorFilename;
+        archive & mUseMatrixBasedRhsAssembly;
+        archive & mWriteInfo;
+        archive & mPrintOutput;
+        archive & mCallChaste2Meshalyzer;
+        archive & mNodesToOutput;
+        // TODO: think about the writer
+        archive & mpCardiacPde;
+        //archive & mpAssembler; // Only exists during calls to the Solve method
+        // TODO: think about mSolution
+        archive & mArchiveKSP;
+        
+        // Load boundary conditions
+        LoadBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
+        LoadBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer);
+    }
+    
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    
+    template<class Archive>
+    void SaveBoundaryConditions(Archive & archive,
+                                AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc) const
+    {
+        bool have_object = (pBcc != NULL);
+        archive & have_object;
+        if (have_object)
+        {
+            pBcc->SaveToArchive(archive);
+        }
+    }
+    
+    template<class Archive>
+    void LoadBoundaryConditions(Archive & archive,
+                                AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc)
+    {
+        bool have_object;
+        archive & have_object;
+        if (have_object)
+        {
+            /// \todo memory leak
+            pBcc = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>;
+            pBcc->LoadFromArchive(archive, pMesh);
+        }
+    }
 
 protected:
     /** Meshes can be read from file or instantiated and passed directly to this
@@ -140,6 +243,11 @@ public:
      * create cells.
      */
     AbstractCardiacProblem(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
+    
+    /**
+     * Constructor used by archiving.
+     */
+    AbstractCardiacProblem();
     
     /**
      *  Destructor
@@ -334,4 +442,7 @@ public:
     void SetArchiveLinearSystemObject(bool archive=true);  
 
 };
+
+TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);
+
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

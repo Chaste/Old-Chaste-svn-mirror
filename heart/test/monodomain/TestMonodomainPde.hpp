@@ -199,6 +199,11 @@ public:
         bool cache_replication_saved = false;
         double saved_printing_timestep = 2.0;
         double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
+        
+        // Info about the first cell on this process (if any)
+        bool has_cell = false;
+        unsigned cell_v_index = (unsigned)(-1);
+        double cell_v = DBL_MAX;
 
         c_matrix<double, 1, 1> tensor_before_archiving;
         {
@@ -213,6 +218,15 @@ public:
             monodomain_pde.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
 
             tensor_before_archiving = monodomain_pde.rGetIntracellularConductivityTensor(1);
+            
+            // Get some info about the first cell on this process (if any)
+            const std::vector<AbstractCardiacCell*>& r_cells = monodomain_pde.GetCellsDistributed();
+            has_cell = !r_cells.empty();
+            if (has_cell)
+            {
+                cell_v_index = r_cells[0]->GetVoltageIndex();
+                cell_v = r_cells[0]->GetVoltage();
+            }
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -245,82 +259,19 @@ public:
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
             TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
 
-            // Test GetCardiacCell
-            // Test rGetIionicCacheReplicated
-            // Test rGetIntracellularStimulusCacheReplicated
+            // Test cardiac cells have also been archived
+            const std::vector<AbstractCardiacCell*>& r_cells = p_monodomain_pde->GetCellsDistributed();
+            TS_ASSERT_EQUALS(has_cell, !r_cells.empty());
+            if (has_cell)
+            {
+                TS_ASSERT_EQUALS(cell_v_index, r_cells[0]->GetVoltageIndex());
+                TS_ASSERT_EQUALS(cell_v, r_cells[0]->GetVoltage());
+            }
 
             delete p_monodomain_pde;
 
             ifs.close();
         }
-        //Restore from a single process archive
-        {
-            ///\todo #98
-            //If this test fails during development then you'll need the new archive format:
-            //cp /tmp/chaste/testoutput/archive/monodomain_pde.arch.0 heart/test/data/
-            std::ifstream ifs("heart/test/data/monodomain_pde.arch.0", std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-
-            AbstractCardiacPde<1>* p_monodomain_pde = NULL;
-            if (PetscTools::IsSequential())
-            {
-                input_arch >> p_monodomain_pde;
-            }
-            else
-            {
-                //Should not read this archive
-                TS_ASSERT_THROWS_THIS(input_arch >> p_monodomain_pde, 
-                        "This archive was written for a different number of processors");
-            }
-
-            delete p_monodomain_pde;
-            
-            ifs.close();
-        }
-
-        //Restore from a two-process archive
-        {
-            ///\todo #98
-            //If this test fails during development then you'll need the new archive format:
-            //cp /tmp/chaste/testoutput/archive/monodomain_pde.arch.0 heart/test/data/monodomain_pde_2procs.arch.0 
-            //cp /tmp/chaste/testoutput/archive/monodomain_pde.arch.1 heart/test/data/monodomain_pde_2procs.arch.1 
-            std::stringstream filename;
-            filename << "heart/test/data/monodomain_pde_2procs.arch." << PetscTools::GetMyRank();
-            std::ifstream ifs(filename.str().c_str(), std::ios::binary);
-            
-            if  (PetscTools::GetNumProcs() <= 2)
-            {
-                boost::archive::text_iarchive input_arch(ifs);
-            
-                
-                AbstractCardiacPde<1>* p_monodomain_pde = NULL;
-                if (PetscTools::GetNumProcs() == 2)
-                {
-                    input_arch >> p_monodomain_pde;
-                }
-                else
-                {
-                    //Should not read this archive
-                    TS_ASSERT_THROWS_THIS(input_arch >> p_monodomain_pde, 
-                            "This archive was written for a different number of processors");
-                }
-                delete p_monodomain_pde;
-            }
-            else {
-                //More than 2 procs
-                
-                /**
-                 * \todo #98 We need to fix this
-                 * There is nothing for process 2 (3rd process) to read
-                 * so 
-                 * boost::archive::text_iarchive input_arch(ifs);
-                 * throws a boost::archive::archive_exception
-                 */
-            }
-            
-            ifs.close();
-        }
-
     }
 };
 
