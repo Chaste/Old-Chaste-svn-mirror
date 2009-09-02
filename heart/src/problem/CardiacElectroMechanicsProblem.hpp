@@ -183,8 +183,6 @@ public :
      * @param numElecTimeStepsPerMechTimestep simple ratio
      * @param nhsOdeTimeStep Step size for NHS (Niederer, Hunter, Smith) model of active tension in cardiac cells.
      * @param outputDirectory the output directory
-     * 
-     * 
      */
     CardiacElectroMechanicsProblem(TetrahedralMesh<DIM,DIM>* pElectricsMesh,
                                    QuadraticMesh<DIM>* pMechanicsMesh,
@@ -198,10 +196,10 @@ public :
     /**
      *  Delete allocated memory and close the watched location file
      * 
-     * NOTE if SetWatchedLocation but not Initialise has been
-     * called, mpWatchedLocationFile will be uninitialised and
-     * using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
-     * it is true if Initialise has been called.
+     *  NOTE if SetWatchedLocation but not Initialise has been
+     *  called, mpWatchedLocationFile will be uninitialised and
+     *  using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
+     *  it is true if Initialise has been called.
      */
     virtual ~CardiacElectroMechanicsProblem();
 
@@ -218,10 +216,8 @@ public :
     void Solve();
 
     /**
-     * Short helper function - the max of a std::vec.
-     * \todo Move to UblasCustomFunctions?
-     * 
-     * @param vec a vector of doubles
+     *  Short helper function - the max of a std::vector
+     *  @param vec a vector of doubles
      */
     double Max(std::vector<double>& vec);
 

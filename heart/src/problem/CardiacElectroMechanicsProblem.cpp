@@ -294,16 +294,19 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
     // find the electrics element and weight for each quad point in the mechanics mesh,
     // and store
+    unsigned last_element = 0;
     for(unsigned i=0; i<quad_point_posns.Size(); i++)
     {
         ChastePoint<DIM> point;
 
-        for(unsigned j=0;j<DIM;j++)
+        for(unsigned j=0; j<DIM; j++)
         {
             point.rGetLocation()[j]=quad_point_posns.Get(i)[j];
         }
 
-        unsigned elem_index = mpElectricsMesh->GetContainingElementIndex(point);
+        unsigned elem_index = mpElectricsMesh->GetContainingElementIndexWithInitialGuess(point, last_element);
+        last_element = elem_index;
+        
         c_vector<double,DIM+1> weight = mpElectricsMesh->GetElement(elem_index)->CalculateInterpolationWeights(point);
 
         mElementAndWeightsForQuadPoints[i].ElementNum = elem_index;
