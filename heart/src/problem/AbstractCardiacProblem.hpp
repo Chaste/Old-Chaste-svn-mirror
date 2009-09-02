@@ -255,7 +255,11 @@ public:
     virtual ~AbstractCardiacProblem();
 
     /**
-     *  Initialise the system. Must be called before Solve()
+     * Initialise the system, once parameters have been set up.
+     * 
+     * Must be called before first calling Solve().  If loading from a checkpoint,
+     * do NOT call this method, as it can also be used to reset the problem to
+     * perform another simulation from time 0.
      */
     void Initialise();
 

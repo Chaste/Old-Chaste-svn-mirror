@@ -251,6 +251,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     ///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
     delete mpCardiacPde; // In case we're called twice
     mpCardiacPde = CreateCardiacPde();
+    
+    // Delete any previous solution, so we get a fresh initial condition
+    if (mSolution)
+    {
+        HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
+        VecDestroy(mSolution);
+        mSolution = NULL;
+        HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -402,7 +411,17 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     }
 
     mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
-    Vec initial_condition = CreateInitialCondition();
+    
+    // If we have already run a simulation, use the old solution as initial condition
+    Vec initial_condition;
+    if (mSolution)
+    {
+        initial_condition = mSolution;
+    }
+    else
+    {
+        initial_condition = CreateInitialCondition();
+    }
 
     TimeStepper stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(),
                         HeartConfig::Instance()->GetPrintingTimeStep());
@@ -429,13 +448,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     ProgressReporter progress_reporter(progress_reporter_dir, 0.0, HeartConfig::Instance()->GetSimulationDuration());
     progress_reporter.Update(0);
 
-    // If we have already run a simulation, free the old solution vec
-    if (mSolution)
-    {
-        HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
-        VecDestroy(mSolution);
-        HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
-    }
 
     while ( !stepper.IsTimeAtEnd() )
     {
