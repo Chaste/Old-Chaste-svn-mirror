@@ -229,19 +229,11 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     ElementData face_data;
     std::vector<unsigned> ret_indices;
 
-    // In the first three cases there's no file, all the nodes are set as faces
-    if (SPACE_DIM == 1)
+    // In the first case there's no file, all the nodes are set as faces
+    if (ELEMENT_DIM == 1)
     {
         ret_indices.push_back(mBoundaryFacesRead);
     }
-    else if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
-    {
-        ret_indices.push_back(mBoundaryFacesRead);
-    }
-    else if (SPACE_DIM == 3 && ELEMENT_DIM == 1)
-    {
-        ret_indices.push_back(mBoundaryFacesRead);
-    }    
     else
     {
         unsigned offset = mIndexFromZero ? 0 : 1;
@@ -283,7 +275,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
             }
             else
             {
-                face_data.AttributeValue = 0u;
+                face_data.AttributeValue = 1u; //Do not ignore
             }
             
             if (mReadContainingElementOfBoundaryElement)
@@ -296,7 +288,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 
             mFacesRead++;
         }
-        while ((mNumFaceAttributes==1) && (face_data.AttributeValue==0));
+        while (ELEMENT_DIM==2 && face_data.AttributeValue==0); //In triangles format we ignore internal edges (which are marked with attribute 0)
     }
 
     mBoundaryFacesRead++;

@@ -496,7 +496,7 @@ public:
 
     void TestConstruct3DWithRegions() throw (Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_positive_flags");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_nonnegative_flags");
         ParallelTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -522,8 +522,7 @@ public:
             try
             {
                 unsigned region = mesh.GetBoundaryElement(i)->GetRegion();
-                TS_ASSERT_LESS_THAN(0u, region);
-                TS_ASSERT_LESS_THAN(region, 5u);
+                TS_ASSERT_LESS_THAN(region, 4u);
             }
             catch(Exception& e)
             {

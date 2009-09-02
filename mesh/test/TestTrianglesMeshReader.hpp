@@ -141,17 +141,22 @@ public:
      */
     void TestFacesDataReadWithAttributes() throw(Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_positive_flags");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_nonnegative_flags");
 
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 92u); // just boundary faces are read
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaceAttributes(), 1u);
 
+        bool read_zero_attribute = false;
         for (unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
         {
             ElementData data = mesh_reader.GetNextFaceData();
-            //Attributes are 1, 2, 3 or 4.
-            TS_ASSERT_LESS_THAN(-1, (int)data.AttributeValue);
-            TS_ASSERT_LESS_THAN(data.AttributeValue, 5u);
+            //Attributes are 0, 1, 2, or 3.
+            TS_ASSERT_LESS_THAN(data.AttributeValue, 4u);
+            if (data.AttributeValue == 0u)
+            {
+                read_zero_attribute = true;
+            }
+            TS_ASSERT(read_zero_attribute);
         }
     }
 

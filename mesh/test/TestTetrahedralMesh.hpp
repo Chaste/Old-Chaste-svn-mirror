@@ -1355,7 +1355,7 @@ public:
 
     void TestReadingMeshesWithRegionsElementsAndFaces3D() throw (Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_positive_flags");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_nonnegative_flags");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -1368,11 +1368,16 @@ public:
 
        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1u);
 
+        bool read_zero_attribute = false;
         for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {
-            TS_ASSERT_LESS_THAN(0u, mesh.GetBoundaryElement(i)->GetRegion());
-            TS_ASSERT_LESS_THAN(mesh.GetBoundaryElement(i)->GetRegion(), 5u);
+            if (mesh.GetBoundaryElement(i)->GetRegion()==0U)
+            {
+                read_zero_attribute = true;
+            }
+            TS_ASSERT_LESS_THAN(mesh.GetBoundaryElement(i)->GetRegion(), 4u);
         }
+        TS_ASSERT(read_zero_attribute);
     }
 
     void TestReadingMeshesWithRegionsElementsAndFaces2D() throw (Exception)

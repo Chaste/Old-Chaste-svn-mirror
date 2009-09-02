@@ -26,6 +26,17 @@ Boost 1_37.  Chaste DOES NOT WORK with Boost 1_35 due to a known bug in that
 version of Boost.</li>
 </ul>
 
+<h3>Code changes</h3>
+
+<li>New functionality.
+  <ul>
+  <li>RegionAttributes can be added to Triangle/Tetgen element and face/edge files.  
+  These should be non-negative and can be retrieved with <tt>mesh.GetBoundaryElement(i)->GetRegion()</tt>
+  or similar.  Note that (due to the default behaviour of Triangle) edges with a region attribute of zero 
+  are ignored.</li>
+  </ul>
+</li>
+
 <h2>Release 1.1 (changes since Release 1.0)</h2>
 
 <h3>General</h3>
