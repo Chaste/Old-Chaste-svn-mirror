@@ -17,10 +17,10 @@ testexe=${1:- heart/build/optimised/bidomain/TestBidomain3DForNumericsPaperRunne
 
 
 #for LinearSolver in cg bicg gmres minres symmlq
-for LinearSolver in bicg
+for LinearSolver in cg bicg
 do 
   #for PreCond in none bjacobi sor asm
-  for PreCond in none 
+  for PreCond in bjacobi none
     do
 	for NbOfProcs in 1
 	do
