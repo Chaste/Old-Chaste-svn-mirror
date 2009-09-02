@@ -132,6 +132,11 @@ public:
      * Close any open files.
      */
     void Close();
+    
+    /**
+     * Destructor just calls Close.
+     */
+    ~Hdf5DataReader();
 
 };
 

@@ -40,7 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
                                const std::string& rDirectory,
                                const std::string& rBaseName,
-                               bool cleanDirectory)
+                               bool cleanDirectory,
+                               bool extendData)
     : mrVectorFactory(rVectorFactory),
       mDirectory(rDirectory),
       mBaseName(rBaseName),
@@ -50,14 +51,123 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
       mIsUnlimitedDimensionSet(false),
       mFileFixedDimensionSize(0u),
       mDataFixedDimensionSize(0u),
-      mLo(0u),
-      mHi(0u),
+      mLo(mrVectorFactory.GetLow()),
+      mHi(mrVectorFactory.GetHigh()),
       mNumberOwned(0u),
       mOffset(0u),
       mIsDataComplete(true),
       mNeedExtend(false),
       mCurrentTimeStep(0)
 {
+    if (extendData && cleanDirectory)
+    {
+        EXCEPTION("You are asking to delete a file and then extend it, change arguments to constructor.");
+    }
+    
+    if (extendData)
+    {
+        // Where to find the file
+        OutputFileHandler output_file_handler(mDirectory, false);
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        std::string file_name = results_dir + mBaseName + ".h5";
+        
+        // Set up a property list saying how we'll open the file
+        hid_t property_list_id = H5Pcreate(H5P_FILE_ACCESS);
+        H5Pset_fapl_mpio(property_list_id, PETSC_COMM_WORLD, MPI_INFO_NULL);
+    
+        // Open the file and free the property list
+        mFileId = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, property_list_id);
+        H5Pclose(property_list_id);
+        
+        if (mFileId <= 0)
+        {
+            EXCEPTION("Hdf5DataWriter could not open " + file_name);
+        }
+        
+        // Open the main dataset, and figure out its size/shape
+        mDatasetId = H5Dopen(mFileId, "Data");
+        hid_t variables_dataspace = H5Dget_space(mDatasetId);
+        //unsigned variables_dataset_rank = H5Sget_simple_extent_ndims(variables_dataspace);
+        hsize_t dataset_max_sizes[DATASET_DIMS];
+        H5Sget_simple_extent_dims(variables_dataspace, mDatasetDims, dataset_max_sizes);
+        // Check that an unlimited dimension is defined
+        if (dataset_max_sizes[0] != H5S_UNLIMITED)
+        {
+            H5Sclose(variables_dataspace);
+            H5Dclose(mDatasetId);
+            H5Fclose(mFileId);
+            EXCEPTION("Tried to open a datafile for extending which doesn't have an unlimited dimension.");
+        }
+        mIsUnlimitedDimensionSet = true;
+        // Sanity check other dimension sizes
+        for (unsigned i=1; i<DATASET_DIMS; i++)  // Zero is excluded since it is unlimited
+        {
+            assert(mDatasetDims[i] == dataset_max_sizes[i]);
+        }
+        mFileFixedDimensionSize = mDatasetDims[1];
+        mIsFixedDimensionSet = true;
+        mVariables.reserve(mDatasetDims[2]);
+        
+        // Figure out what the variables are
+        hid_t attribute_id = H5Aopen_name(mDatasetId, "Variable Details");
+        hid_t attribute_type  = H5Aget_type(attribute_id);
+        hid_t attribute_space = H5Aget_space(attribute_id);
+        hsize_t attr_dataspace_dim;
+        H5Sget_simple_extent_dims(attribute_space, &attr_dataspace_dim, NULL);
+        unsigned num_columns = H5Sget_simple_extent_npoints(attribute_space);
+        assert(num_columns == mDatasetDims[2]); // I think...
+        const unsigned MAX_STRING_SIZE = 100; // TODO: magic number
+        char* string_array = (char *)malloc(sizeof(char)*MAX_STRING_SIZE*(int)num_columns);
+        H5Aread(attribute_id, attribute_type, string_array);
+        // Loop over columns/variables
+        for (unsigned index=0; index<num_columns; index++)
+        {
+            // Read the string from the raw vector
+            std::string column_name_unit(&string_array[MAX_STRING_SIZE*index]);
+            // Find location of unit name
+            size_t name_length = column_name_unit.find('(');
+            size_t unit_length = column_name_unit.find(')') - name_length - 1;
+            // Create the variable
+            DataWriterVariable var;
+            var.mVariableName = column_name_unit.substr(0, name_length);
+            var.mVariableUnits = column_name_unit.substr(name_length+1, unit_length);
+            mVariables.push_back(var);
+        }
+        // Free memory, release ids
+        free(string_array);
+        H5Tclose(attribute_type);
+        H5Sclose(attribute_space);
+        H5Aclose(attribute_id);
+        
+        // Now deal with time
+        mUnlimitedDimensionName = "Time"; // Assumed by the reader...
+        mTimeDatasetId = H5Dopen(mFileId, mUnlimitedDimensionName.c_str());
+        mUnlimitedDimensionUnit = "ms"; // Assumed by Chaste...
+        // How many time steps have been written so far?
+        hid_t timestep_dataspace = H5Dget_space(mTimeDatasetId);
+        hsize_t num_timesteps;
+        H5Sget_simple_extent_dims(timestep_dataspace, &num_timesteps, NULL);
+        H5Sclose(timestep_dataspace);
+        mCurrentTimeStep = (long)num_timesteps - 1;
+        
+        // Incomplete data?
+        mIsDataComplete = true; ///\todo
+        if (mIsDataComplete)
+        {
+            mNumberOwned = mrVectorFactory.GetLocalOwnership();
+            mOffset = mLo;
+            mDataFixedDimensionSize = mFileFixedDimensionSize;
+        }
+        else
+        {
+            // Incomplete data
+            //mIncompleteNodeIndices
+        }
+        
+        // Done!
+        AdvanceAlongUnlimitedDimension();
+        mIsInDefineMode = false;
+    }
 }
 
 Hdf5DataWriter::~Hdf5DataWriter()
@@ -573,3 +683,26 @@ void Hdf5DataWriter::PossiblyExtend()
     }
     mNeedExtend = false;
 }
+
+int Hdf5DataWriter::GetVariableByName(const std::string& rVariableName)
+{
+    int id = -1;
+    // Check for the variable name in the existing variables
+    for (unsigned index=0; index<mVariables.size(); index++)
+    {
+        if (mVariables[index].mVariableName == rVariableName)
+        {
+            id = index;
+            break;
+        }
+    }
+    if (id == -1)
+    {
+        EXCEPTION("Variable does not exist in hdf5 definitions.");   
+    }        
+    return id;
+}
+
+
+
+

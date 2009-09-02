@@ -342,6 +342,11 @@ void Hdf5DataReader::Close()
     H5Fclose(mFileId);
 }
 
+Hdf5DataReader::~Hdf5DataReader()
+{
+    Close();
+}
+
 unsigned Hdf5DataReader::GetNumberOfRows()
 {
     return mVariablesDatasetSizes[1];

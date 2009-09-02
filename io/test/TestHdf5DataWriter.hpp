@@ -44,7 +44,7 @@ private:
     Hdf5DataWriter *mpTestWriter;
 
     bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
-        std::string pathname2, std::string filename2, bool makeAbsolute2)
+                                       std::string pathname2, std::string filename2, bool makeAbsolute2)
     {
         Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
         Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
@@ -1102,5 +1102,70 @@ public:
         VecDestroy(petsc_data_long);
     }
 
+    /**
+     * Test the functionality for adding further data to an existing file.
+     * 
+     * This test must come after TestHdf5DataWriterFullFormat, as we extend that file.
+     */
+    void TestWriteToExistingFile(void)
+    {
+        int number_nodes = 100;
+        DistributedVectorFactory factory(number_nodes);
+        
+        TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format",true,true),
+                              "You are asking to delete a file and then extend it, change arguments to constructor.");
+        
+        TS_ASSERT_THROWS_CONTAINS(Hdf5DataWriter writer(factory, "hdf5", "absent_file",false,true),
+                                  "Hdf5DataWriter could not open");
+        
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format",false,true);
+        
+        // Get IDs for the variables in the file
+        int node_id = writer.GetVariableByName("Node");
+        int ik_id = writer.GetVariableByName("I_K");
+        int ina_id = writer.GetVariableByName("I_Na");
+        
+        TS_ASSERT_THROWS_THIS(writer.GetVariableByName("Joe"),"Variable does not exist in hdf5 definitions.");
+        
+        // Create some extra test data
+        Vec node_petsc = factory.CreateVec();
+        Vec ik_petsc = factory.CreateVec();
+        Vec ina_petsc = factory.CreateVec();
+        DistributedVector node_data = factory.CreateDistributedVector(node_petsc);
+        DistributedVector ik_data = factory.CreateDistributedVector(ik_petsc);
+        DistributedVector ina_data = factory.CreateDistributedVector(ina_petsc);
+        
+        for (unsigned time_step=10; time_step<15; time_step++)
+        {
+            // Fill in data
+            for (DistributedVector::Iterator index = node_data.Begin();
+                 index != node_data.End();
+                 ++index)
+            {
+                node_data[index] = index.Global;
+                ik_data[index] = time_step*1000 + 100 + index.Global;
+                ina_data[index] = time_step*1000 + 200 + index.Global;
+            }
+            node_data.Restore();
+            ik_data.Restore();
+            ina_data.Restore();
+            
+            // Write to file
+            writer.PutVector(node_id, node_petsc);
+            writer.PutVector(ina_id, ina_petsc);
+            writer.PutVector(ik_id, ik_petsc);
+            writer.PutUnlimitedVariable(time_step);
+            writer.AdvanceAlongUnlimitedDimension();
+        }
+        
+        // Close & test
+        writer.Close();
+        VecDestroy(node_petsc);
+        VecDestroy(ik_petsc);
+        VecDestroy(ina_petsc);
+        
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format", true,
+                                                "io/test/data", "hdf5_test_full_format_extended", false));
+    }
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/
