@@ -782,7 +782,7 @@ public:
     void TestArchiving() throw(Exception)
     {
         // Based on TestMonodomainProblem1D()
-        OutputFileHandler handler("monadomain_problem_archive", false);
+        OutputFileHandler handler("monodomain_problem_archive", false);
         handler.SetArchiveDirectory();
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("monodomain_problem.arch");
 
