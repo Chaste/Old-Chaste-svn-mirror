@@ -16,13 +16,13 @@ testexe=${1:- heart/build/optimised/bidomain/TestBidomain3DForNumericsPaperRunne
 ##  for PreCond in none jacobi sor 
 
 
-#for LinearSolver in cg bicg gmres minres symmlq
-for LinearSolver in symmlq
+for LinearSolver in cg bicg gmres minres symmlq
+#for LinearSolver in symmlq
 do 
-  #for PreCond in none bjacobi sor asm
-  for PreCond in bjacobi
+  for PreCond in none bjacobi sor asm
+  #for PreCond in bjacobi
     do
-	for NbOfProcs in 1
+	for NbOfProcs in 4
 	do
 		echo "-------------------------------------------------------------------------------"
 		echo "time mpirun -np $NbOfProcs $testexe -ksp_type $LinearSolver -pc_type $PreCond"
