@@ -89,7 +89,7 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        TS_ASSERT(mesh.CheckVoronoi());
+        TS_ASSERT(mesh.CheckIsVoronoi());
 
         // Create Voronoi Tesselation
         VoronoiTessellation<3> tessellation(mesh);

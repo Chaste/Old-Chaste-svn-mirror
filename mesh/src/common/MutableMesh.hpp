@@ -92,7 +92,6 @@ protected:
 
 private:
 
-#define COVERAGE_IGNORE
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
      *
@@ -100,8 +99,7 @@ private:
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of the element, as a proportion of the circumsphere radius.
      */
-    bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>* pElement, double maxPenetration);
-#undef COVERAGE_IGNORE
+    bool CheckIsVoronoi(Element<ELEMENT_DIM, SPACE_DIM>* pElement, double maxPenetration);
 
 public:
 
@@ -262,7 +260,7 @@ public:
      * circumsphere of an element that it is not a member of, as a proportion of the
      * circumsphere radius.
      */
-    bool CheckVoronoi(double maxPenetration=0.0);
+    bool CheckIsVoronoi(double maxPenetration=0.0);
 #undef COVERAGE_IGNORE
 };
 

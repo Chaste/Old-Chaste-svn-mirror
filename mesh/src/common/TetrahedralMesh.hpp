@@ -147,6 +147,20 @@ public:
     void ReadNodesPerProcessorFile(const std::string& rNodesPerProcessorFile);
 
     /**
+     * Check whether mesh is conforming
+     * Conforming (defn.): the intersection of two elements should be
+     * either the empty set, a vertex, an edge or a face.
+     * 
+     * It may be possible to construct non-conforming meshes which contain 
+     * internal faces owned by only one element: two coplanar triangular faces 
+     * of two elements form a square, but the same square on the adjacent pair of
+     * elements is formed by splitting the diagonal the other way.
+     * 
+     * @return false if there are any orphaned internal faces
+     */
+    bool CheckIsConforming();
+
+    /**
      * Return the volume of the mesh, calculated by adding the determinant of each element
      * and dividing by n!, where n is the element dimension.
      */

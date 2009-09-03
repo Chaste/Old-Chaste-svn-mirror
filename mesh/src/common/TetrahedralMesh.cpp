@@ -268,6 +268,54 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
     delete this->mpDistributedVectorFactory;
     this->mpDistributedVectorFactory=new DistributedVectorFactory(this->GetNumNodes(), num_owned);
 }
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsConforming()
+{
+    /* Each face of each element is a set of node indices
+     * We form a set of these in order to get their parity:
+     *   all faces which appear once are inserted into the set
+     *   all faces which appear twice are inserted and then removed from the set
+     *   we're assuming that faces never appear more than twice
+     */
+    std::set< std::set<unsigned> > odd_parity_faces;
+    
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
+         iter != this->GetElementIteratorEnd();
+         ++iter)
+    {
+        for (unsigned face_index=0; face_index<=ELEMENT_DIM; face_index++)
+        {
+            std::set<unsigned> face_info;
+            for (unsigned node_index=0; node_index<=ELEMENT_DIM; node_index++)
+            {
+                //Leave one index out each time
+                if (node_index != face_index)
+                {
+                    face_info.insert(iter->GetNodeGlobalIndex(node_index));
+                }
+            }
+            //Face is now formed - attempt to find it
+            std::set< std::set<unsigned> >::iterator find_face=odd_parity_faces.find(face_info);
+            if( find_face != odd_parity_faces.end())
+            {
+                //Face was in set, so it now has even parity.
+                //Remove it via the iterator
+                odd_parity_faces.erase(find_face);
+            }
+            else
+            {
+                //Face is not in set so it now has odd parity.  Insert it 
+                odd_parity_faces.insert(face_info);
+            }
+            
+        }
+    }
+    /* At this point the odd parity faces should be the same as the
+     * boundary elements.  We could check this explicitly or we
+     * could just count them.
+     */
+    return( odd_parity_faces.size() == this->GetNumBoundaryElements());
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVolume()

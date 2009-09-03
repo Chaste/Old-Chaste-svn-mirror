@@ -877,7 +877,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(mesh.CheckVoronoi(), true);
+        TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(), true);
     }
 
     void TestCheckVoronoiSquare()
@@ -886,7 +886,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(mesh.CheckVoronoi(), true);
+        TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(), true);
     }
 
     void TestCheckCircularFan()
@@ -895,7 +895,7 @@ public:
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_EQUALS(mesh.CheckVoronoi(5e-3), true);
+        TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(5e-3), true);
     }
 
     void TestCheckMovingMesh()
@@ -914,11 +914,11 @@ public:
 
             if (x >= 0.91)
             {
-                TS_ASSERT_EQUALS(mesh.CheckVoronoi(0.2), true);
+                TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(0.2), true);
             }
             else
             {
-                TS_ASSERT_EQUALS(mesh.CheckVoronoi(0.2), false);
+                TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(0.2), false);
             }
         }
     }

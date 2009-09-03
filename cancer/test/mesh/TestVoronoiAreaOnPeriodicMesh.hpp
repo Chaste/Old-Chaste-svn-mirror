@@ -51,7 +51,7 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
-        TS_ASSERT(p_mesh->CheckVoronoi());
+        TS_ASSERT(p_mesh->CheckIsVoronoi());
         TS_ASSERT_DELTA(p_params->GetCryptWidth(),6.0,1e-6);
 
         // Create Voronoi Tesselation

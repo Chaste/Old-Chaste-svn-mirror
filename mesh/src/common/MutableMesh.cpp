@@ -924,7 +924,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>* pElement, double maxPenetration)
+bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsVoronoi(Element<ELEMENT_DIM, SPACE_DIM>* pElement, double maxPenetration)
 {
     assert(ELEMENT_DIM == SPACE_DIM);
     unsigned num_nodes = pElement->GetNumNodes();
@@ -1009,7 +1009,7 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPAC
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
+bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsVoronoi(double maxPenetration)
 {
     // Looping through all the elements in the mesh
     /// \todo use ElementIterator here?
@@ -1019,7 +1019,7 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
         if (!this->mElements[i]->IsDeleted())
         {
             // Checking the Voronoi of the Element
-            if (CheckVoronoi(this->mElements[i], maxPenetration) == false)
+            if (CheckIsVoronoi(this->mElements[i], maxPenetration) == false)
             {
                 return false;
             }

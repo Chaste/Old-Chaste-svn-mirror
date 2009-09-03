@@ -223,6 +223,7 @@ public:
             }
             it++;
         }
+        TS_ASSERT( mesh.CheckIsConforming() );
     }
 
     void Test1DClosedMeshIn2DSpace()
@@ -276,6 +277,8 @@ public:
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100u);
         // These are the 100 edges around the perimeter of the circle
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100u);
+        
+        TS_ASSERT( mesh.CheckIsConforming() );
     }
 
 
@@ -662,7 +665,7 @@ public:
             TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
             TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(out),"Point is not in mesh");
         }
-
+        TS_ASSERT( mesh.CheckIsConforming() );
         TrianglesMeshWriter<3,3> mesh_writer("", "CuboidMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
@@ -688,7 +691,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width) );
         //Assuming that each cube is split into 6 tetrahedra
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*width*height*depth );
-        //\todo Does stagger make a different in 3D?
+        ///\todo Stagger currently makes a difference in 3D -- it's non-conforming
+        TS_ASSERT_EQUALS( mesh.CheckIsConforming(), false );///\todo #1125
     }
 
 
@@ -1422,6 +1426,7 @@ public:
         TetrahedralMesh<1,1> mesh1;
         mesh1.ConstructFromMeshReader(mesh_reader1);
         TS_ASSERT_EQUALS(mesh1.GetNumNodes(), 9u);
+        TS_ASSERT( mesh1.CheckIsConforming() );
 
         CuboidMeshConstructor<2> constructor2;
         TrianglesMeshReader<2,2> mesh_reader2(constructor2.Construct(1, 1.0));

@@ -123,7 +123,7 @@ public:
         MutableMesh<3,3> mesh(nodes);
         //TrianglesMeshWriter<3,3> mesh_writer("","Simple_Delaunay_Tet");
         //mesh_writer.WriteFilesUsingMesh(mesh);
-        TS_ASSERT(mesh.CheckVoronoi());
+        TS_ASSERT(mesh.CheckIsVoronoi());
 
         // Create expected cell
         c_vector<double, 3> vertex1;
@@ -213,7 +213,7 @@ public:
 
         MutableMesh<2,2> mesh(nodes);
 
-        TS_ASSERT(mesh.CheckVoronoi());
+        TS_ASSERT(mesh.CheckIsVoronoi());
 
         // Create Voronoi Tesselation
         VoronoiTessellation<2> tessellation(mesh);
@@ -260,7 +260,7 @@ public:
 
         MutableMesh<2,2> mesh(nodes);
 
-        TS_ASSERT(mesh.CheckVoronoi());
+        TS_ASSERT(mesh.CheckIsVoronoi());
 
         // Create Voronoi tessellation
         VoronoiTessellation<2> tessellation(mesh);
@@ -289,7 +289,7 @@ public:
 
         MutableMesh<2,2> mesh(nodes);
 
-        TS_ASSERT(mesh.CheckVoronoi());
+        TS_ASSERT(mesh.CheckIsVoronoi());
 
         // Create Voronoi tessellation
         VoronoiTessellation<2> tessellation(mesh);

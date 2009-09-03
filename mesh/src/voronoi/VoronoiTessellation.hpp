@@ -77,7 +77,7 @@ public:
 
     /**
      * Constructor. Create a tessellation of the given mesh which must be Delaunay
-     * (see TetrahedralMesh::CheckVoronoi).
+     * (see TetrahedralMesh::CheckIsVoronoi).
      *
      * @param rMesh a tetrahedral mesh
      */
