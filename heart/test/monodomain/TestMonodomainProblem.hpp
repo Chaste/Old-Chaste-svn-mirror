@@ -834,6 +834,9 @@ public:
 
             // check a progress report exists
             TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblemArchive/").c_str()), 0);
+            
+            // Free memory
+            delete p_monodomain_problem;
         }
     }
     

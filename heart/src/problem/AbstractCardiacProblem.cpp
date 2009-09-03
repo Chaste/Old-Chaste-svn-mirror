@@ -83,7 +83,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     : mMeshFilename(""),
       mNodesPerProcessorFilename(""),
       mUseMatrixBasedRhsAssembly(true),
-      mAllocatedMemoryForMesh(true), // NB: this is always true after a load
+      mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacPde
       mWriteInfo(false),
       mPrintOutput(true),
       mCallChaste2Meshalyzer(false),
@@ -107,7 +107,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
 {
-    if (mpDefaultBoundaryConditionsContainer!=NULL)
+    if (mpDefaultBoundaryConditionsContainer)
     {
         delete mpDefaultBoundaryConditionsContainer;
     }

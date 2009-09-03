@@ -63,7 +63,6 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
         mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
     }
 
-
     pCellFactory->FinaliseCellCreation(&mCellsDistributed,
                                        pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetLow(),
                                        pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetHigh());
@@ -115,7 +114,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
         delete mpIntracellularConductivityTensors;
     }
     
-    // If the distributed vector factory was unarchived we need to free it explicitly. 
+    // If the distributed vector factory was unarchived we need to free it explicitly.
     if (mFactoryMeshUnarchived)
     {
         delete mpDistributedVectorFactory;

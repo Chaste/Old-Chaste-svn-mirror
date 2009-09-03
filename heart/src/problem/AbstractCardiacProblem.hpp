@@ -74,7 +74,7 @@ private:
     {
         archive & mMeshFilename;
         archive & mpMesh;
-        //archive & mAllocatedMemoryForMesh; // Will always be true after a load
+        //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacPde
         archive & mNodesPerProcessorFilename;
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
@@ -137,12 +137,19 @@ private:
         archive & mArchiveKSP;
         
         // Load boundary conditions
-        LoadBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
-        LoadBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer);
+        mpBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
+        mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
     }
     
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     
+    /**
+     * Serialization helper method to save a boundary conditions container.
+     *
+     * @param archive  the archive to save to
+     * @param pMesh  the mesh boundary conditions are defined on
+     * @param pBcc  the container to save
+     */
     template<class Archive>
     void SaveBoundaryConditions(Archive & archive,
                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
@@ -156,12 +163,21 @@ private:
         }
     }
     
+    /**
+     * Serialization helper method to load a boundary conditions container.
+     *
+     * @param archive  the archive to load from
+     * @param pMesh  the mesh boundary conditions are to be defined on
+     * @return  the loaded container
+     */
     template<class Archive>
-    void LoadBoundaryConditions(Archive & archive,
-                                AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc)
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* LoadBoundaryConditions(
+            Archive & archive,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+                                
     {
         bool have_object;
+        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc = NULL;
         archive & have_object;
         if (have_object)
         {
@@ -169,6 +185,7 @@ private:
             pBcc = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>;
             pBcc->LoadFromArchive(archive, pMesh);
         }
+        return pBcc;
     }
 
 protected:

@@ -271,7 +271,7 @@ public:
      * \todo assumes this collection is empty prior to being called
      * 
      * @param archive  the archive to load from
-     * @param archive  the mesh to use to resolve Node and BoundaryElement indices
+     * @param pMesh  the mesh to use to resolve Node and BoundaryElement indices
      */
     template <class Archive>
     void LoadFromArchive(Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
