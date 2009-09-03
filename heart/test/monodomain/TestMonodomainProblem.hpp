@@ -786,6 +786,9 @@ public:
         handler.SetArchiveDirectory();
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("monodomain_problem.arch");
 
+        // Values to test against after load
+        unsigned num_cells;
+
         // Save
         {
             HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -793,14 +796,15 @@ public:
             HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
             HeartConfig::Instance()->SetOutputDirectory("MonoProblemArchive");
             HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
+            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+            HeartConfig::Instance()->SetCapacitance(1.0);
     
             PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
             MonodomainProblem<1> monodomain_problem( &cell_factory );
     
             monodomain_problem.Initialise();
-    
-            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-            HeartConfig::Instance()->SetCapacitance(1.0);
+
+            num_cells = monodomain_problem.GetPde()->GetCellsDistributed().size();
             
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -815,6 +819,10 @@ public:
 
             AbstractCardiacProblem<1,1,1> *p_monodomain_problem;
             input_arch >> p_monodomain_problem;
+            
+            // Check values
+            TS_ASSERT_EQUALS(p_monodomain_problem->GetPde()->GetCellsDistributed().size(),
+                             num_cells);
 
             p_monodomain_problem->Solve();
 
