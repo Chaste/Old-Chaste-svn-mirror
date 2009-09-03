@@ -691,10 +691,10 @@ public:
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
 
-        TS_ASSERT_DELTA(voltage_replicated[1], 31.8629, atol);
-        TS_ASSERT_DELTA(voltage_replicated[3], 32.0507, atol);
-        TS_ASSERT_DELTA(voltage_replicated[5], 32.6340, atol);
-        TS_ASSERT_DELTA(voltage_replicated[7], 33.6119, atol);
+        TS_ASSERT_DELTA(voltage_replicated[1], 31.9227, atol);
+        TS_ASSERT_DELTA(voltage_replicated[3], 32.1385, atol);
+        TS_ASSERT_DELTA(voltage_replicated[5], 32.7569, atol);
+        TS_ASSERT_DELTA(voltage_replicated[7], 33.7192, atol);
     }
 
     // Test the functionality for outputing the values of requested cell state variables
@@ -840,7 +840,7 @@ public:
             TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
             TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
 
-            // check a progress report exists
+            // check a progress report (or something) exists - in a noisy way 
             TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblemArchive/").c_str()), 0);
             
             // Free memory

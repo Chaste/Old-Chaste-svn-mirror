@@ -330,7 +330,7 @@ public:
     {
         // Create 3D mesh
         MutableMesh<3,3> mesh;
-        mesh.ConstructCuboid(4, 5, 6, true);
+        mesh.ConstructCuboid(4, 5, 6);
 
         // Create cells
         std::vector<TissueCell> cells;

@@ -289,9 +289,8 @@ public:
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param depth  depth of the mesh (in the z-direction)
-     * @param stagger  whether the mesh should 'jumble' up the elements (defaults to false)
      */
-    void ConstructCuboid(unsigned width, unsigned height, unsigned depth, bool stagger=false);
+    void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
 
     /**
      * Return the element index for the first element that contains a test point

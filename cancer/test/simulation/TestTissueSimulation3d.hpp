@@ -49,7 +49,7 @@ private:
     MutableMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
     {
         MutableMesh<3,3> mesh;
-        mesh.ConstructCuboid(width,height,depth,true);
+        mesh.ConstructCuboid(width, height, depth);
         TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
 

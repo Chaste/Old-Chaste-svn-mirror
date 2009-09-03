@@ -932,8 +932,7 @@ std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElem
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
         unsigned height,
-        unsigned depth,
-        bool stagger)
+        unsigned depth)
 {
     assert(SPACE_DIM == 3);
     assert(ELEMENT_DIM == 3);
@@ -1013,64 +1012,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
                     for (unsigned n = 0; n < 4; n++)
                     {
-                        if (stagger)
-                        {
-                            if (i%2==0)
-                            {
-                                if (j%2==0)
-                                {
-                                    if (k%2==0)
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
-                                    }
-                                    else
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[3][m][n]]]);
-                                    }
-                                }
-                                else
-                                {
-                                    if (k%2==0)
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[2][m][n]]]);
-                                    }
-                                    else
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[1][m][n]]]);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                               if (j%2==0)
-                               {
-                                    if (k%2==0)
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[3][m][n]]]);
-                                    }
-                                    else
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[1][m][n]]]);
-                                    }
-                               }
-                               else
-                               {
-                                    if (k%2==0)
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[2][m][n]]]);
-                                    }
-                                    else
-                                    {
-                                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
-                                    }
-                                }
-                            }
-                        }
-
-                        else
-                        {
-                            tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
-                        }
+                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
                     }
 
                     this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));

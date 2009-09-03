@@ -92,6 +92,7 @@ protected:
 
 private:
 
+#define COVERAGE_IGNORE
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
      *
@@ -100,6 +101,7 @@ private:
      * circumsphere of the element, as a proportion of the circumsphere radius.
      */
     bool CheckIsVoronoi(Element<ELEMENT_DIM, SPACE_DIM>* pElement, double maxPenetration);
+#undef COVERAGE_IGNORE
 
 public:
 

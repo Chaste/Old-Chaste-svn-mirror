@@ -213,13 +213,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
 
                             static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructCuboid(slab_nodes_x,
                                                    slab_nodes_y,
-                                                   slab_nodes_z,
-                                                   true);
-                            // place at origin
-//                            static_cast<TetrahedralMesh<SPACE_DIM, SPACE_DIM>*>(mpMesh)->Translate(-(double)slab_nodes_x/2.0,
-//                                             -(double)slab_nodes_y/2.0,
-//                                             -(double)slab_nodes_z/2.0);
-
+                                                   slab_nodes_z);
                             // scale
                             double mesh_scale_factor = inter_node_space;
                             static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);

@@ -68,7 +68,7 @@ public:
 
         /* Read the mesh*/
         TetrahedralMesh<3,3> mesh;
-        mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z,  false);
+        mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
         mesh.Scale(width/num_elem_x, height/num_elem_y, depth/num_elem_z);
 
         /*Create a cell factory of the type we defined above. */
