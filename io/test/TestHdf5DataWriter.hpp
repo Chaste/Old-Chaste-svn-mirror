@@ -1112,20 +1112,26 @@ public:
         int number_nodes = 100;
         DistributedVectorFactory factory(number_nodes);
         
-        TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format",true,true),
+        // Test some exceptions
+        TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format", true, true),
                               "You are asking to delete a file and then extend it, change arguments to constructor.");
         
-        TS_ASSERT_THROWS_CONTAINS(Hdf5DataWriter writer(factory, "hdf5", "absent_file",false,true),
+        TS_ASSERT_THROWS_CONTAINS(Hdf5DataWriter writer(factory, "hdf5", "absent_file", false, true),
                                   "Hdf5DataWriter could not open");
         
-        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format",false,true);
+        TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_multi_column", false, true),
+                              "Tried to open a datafile for extending which doesn't have an unlimited dimension.");
+        
+        // Open the real file
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format", false, true);
         
         // Get IDs for the variables in the file
         int node_id = writer.GetVariableByName("Node");
         int ik_id = writer.GetVariableByName("I_K");
         int ina_id = writer.GetVariableByName("I_Na");
         
-        TS_ASSERT_THROWS_THIS(writer.GetVariableByName("Joe"),"Variable does not exist in hdf5 definitions.");
+        TS_ASSERT_THROWS_THIS(writer.GetVariableByName("bob"),
+                              "Variable does not exist in hdf5 definitions.");
         
         // Create some extra test data
         Vec node_petsc = factory.CreateVec();

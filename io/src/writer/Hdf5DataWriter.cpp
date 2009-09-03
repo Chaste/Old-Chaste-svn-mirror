@@ -79,7 +79,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         mFileId = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, property_list_id);
         H5Pclose(property_list_id);
         
-        if (mFileId <= 0)
+        if (mFileId < 0)
         {
             EXCEPTION("Hdf5DataWriter could not open " + file_name);
         }
@@ -90,10 +90,10 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         //unsigned variables_dataset_rank = H5Sget_simple_extent_ndims(variables_dataspace);
         hsize_t dataset_max_sizes[DATASET_DIMS];
         H5Sget_simple_extent_dims(variables_dataspace, mDatasetDims, dataset_max_sizes);
+        H5Sclose(variables_dataspace);
         // Check that an unlimited dimension is defined
         if (dataset_max_sizes[0] != H5S_UNLIMITED)
         {
-            H5Sclose(variables_dataspace);
             H5Dclose(mDatasetId);
             H5Fclose(mFileId);
             EXCEPTION("Tried to open a datafile for extending which doesn't have an unlimited dimension.");
@@ -702,7 +702,3 @@ int Hdf5DataWriter::GetVariableByName(const std::string& rVariableName)
     }        
     return id;
 }
-
-
-
-
