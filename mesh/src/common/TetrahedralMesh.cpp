@@ -830,7 +830,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
     // If it's in none of the elements, then throw
     std::stringstream ss; 
     ss << "Point [";
-    for(unsigned j=0; j<SPACE_DIM-1; j++)
+    for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
         ss << testPoint[j] << ",";
     }
@@ -873,8 +873,8 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
 
     // If it's in none of the elements, then throw
     std::stringstream ss; 
-    ss << "Point [";
-    for(unsigned j=0; j<SPACE_DIM-1; j++)
+    ss << "Point [";    
+    for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
         ss << testPoint[j] << ",";
     }
