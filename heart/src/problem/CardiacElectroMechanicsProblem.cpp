@@ -357,7 +357,6 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
     unsigned num_quad_points = mpCardiacMechAssembler->GetTotalNumQuadPoints();
-    std::vector<NhsCellularMechanicsOdeSystem> cellmech_systems;
     std::vector<double> intracellular_Ca(num_quad_points, 0.0);
 
     // write the initial position
