@@ -827,8 +827,15 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
         }
     }
 
-    //If it's in none of the elements, then throw
-    EXCEPTION("Point is not in mesh");
+    // If it's in none of the elements, then throw
+    std::stringstream ss; 
+    ss << "Point [";
+    for(unsigned j=0; j<SPACE_DIM-1; j++)
+    {
+        ss << testPoint[j] << ",";
+    }
+    ss << testPoint[SPACE_DIM-1] << "] is not in mesh - all elements tested";
+    EXCEPTION(ss.str());
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -838,28 +845,41 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
     
     // let m=startingElementGuess, N=num_elem-1
     // We search from in this order: m, m+1, m+2, .. , N, 0, 1, .., m-1.
-    // First, determine the last element (=m-1, unless m=0)
-    unsigned last_element = (startingElementGuess==0 ? this->GetNumElements()-1 : startingElementGuess-1);
-    
-    unsigned i=startingElementGuess;
-    while(i!=last_element)
+
+    unsigned i = startingElementGuess;
+    bool reached_end = false;
+
+    while(!reached_end)
     {
         ///\todo What if the element is deleted?
         if (this->mElements[i]->IncludesPoint(testPoint, strict))
         {
             return i;
         }
-        
+
         // increment
         i++;
         if(i==this->GetNumElements())
         {
             i=0;
         }
+
+        // back to the beginning yet?
+        if(i==startingElementGuess)
+        {
+            reached_end = true;
+        }
     }
 
-    //If it's in none of the elements, then throw
-    EXCEPTION("Point is not in mesh - all elements tested");
+    // If it's in none of the elements, then throw
+    std::stringstream ss; 
+    ss << "Point [";
+    for(unsigned j=0; j<SPACE_DIM-1; j++)
+    {
+        ss << testPoint[j] << ",";
+    }
+    ss << testPoint[SPACE_DIM-1] << "] is not in mesh - all elements tested";
+    EXCEPTION(ss.str());
 }
 
 

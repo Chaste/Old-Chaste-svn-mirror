@@ -602,7 +602,7 @@ public:
             ChastePoint<3> out(centroid+normal);
             ChastePoint<3> in(centroid-normal);
             TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
-            TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(out),"Point is not in mesh");
+            TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndex(out),"is not in mesh"); // full message is "Point (X,Y,Z) is not in mesh - all elements tested"
         }
     }
 
@@ -662,8 +662,8 @@ public:
             {
                 TS_ASSERT_DELTA(normal[2], 1.0, 1e-16);
             }
-            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
-            TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(out),"Point is not in mesh");
+            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in))
+            TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndex(out),"is not in mesh"); // full message is "Point (X,Y,Z) is not in mesh - all elements tested"
         }
         TS_ASSERT( mesh.CheckIsConforming() );
         TrianglesMeshWriter<3,3> mesh_writer("", "CuboidMesh");
@@ -1028,7 +1028,7 @@ public:
         ChastePoint<1> point2(-0.1);
         ChastePoint<1> point3(0.2);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),1u);
-        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point2),"Point is not in mesh");
+        TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndex(point2),"is not in mesh"); // full message is "Point (X,Y,Z) is not in mesh - all elements tested"
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),1u);  //in elements 1 and 2
 
         std::vector<unsigned> indices;
@@ -1105,7 +1105,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1), 110u);
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point1), 110u);
-        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point2),"Point is not in mesh");
+        TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndex(point2),"is not in mesh"); // full message is "Point (X,Y,Z) is not in mesh - all elements tested"
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point2), 199u); // contains top-right corner
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3), 89u); // in elements 89,90,91,108,109, 110
 
@@ -1202,7 +1202,7 @@ public:
         ChastePoint<3> point3(0.050000000000000003, 0.050000000000000003, 0.050000000000000003);
         // Node 665 of mesh
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1), 2992u);
-        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndex(point2),"Point is not in mesh");
+        TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndex(point2),"is not in mesh"); // full message is "Point (X,Y,Z) is not in mesh - all elements tested"
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3), 2044u);
         /*in elements 2044, 2047. 2058, 2192, 2268, 2286, 2392, 2414, 2415,
          * 2424, 2426, 2452, 2661, 2704, 2734, 2745, 2846, 2968, 2990, 2992,
@@ -1212,7 +1212,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 0), 2992u);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2991), 2992u);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2992), 2992u);
-        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2996), 2992u);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 2993), 2992u);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point1, 5999), 2992u);
 
         //Note from commemt above that point3 is on the boundary of multiple elements
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point3, 2000), 2044u);
@@ -1220,9 +1221,9 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndexWithInitialGuess(point3, 3025), 3026u);
 
         // This should throw because vertex is not contained in any element
-        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndexWithInitialGuess(point2, 0), "Point is not in mesh - all elements tested");
+        TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndexWithInitialGuess(point2, 0), "not in mesh - all elements tested");
         // This should throw because vertex is not strictly contained in any element
-        TS_ASSERT_THROWS_THIS(mesh.GetContainingElementIndexWithInitialGuess(point3, 0, true), "Point is not in mesh - all elements tested");
+        TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndexWithInitialGuess(point3, 0, true), "not in mesh - all elements tested");
 
         std::vector<unsigned> indices;
         indices = mesh.GetContainingElementIndices(point1);
