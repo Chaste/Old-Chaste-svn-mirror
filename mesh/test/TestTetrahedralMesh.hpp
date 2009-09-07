@@ -258,8 +258,8 @@ public:
 
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 31u);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 30u);
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 2u);//3u
-        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2u);//3u
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 3u);
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 3u);
     }
 
     void Test2DClosedMeshIn3DSpace()

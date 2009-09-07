@@ -140,7 +140,7 @@ public:
         BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1> bcc;
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
-  ///\todo 922 Fix this test      bcc.AddDirichletBoundaryCondition(mesh.GetNode(20), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(20), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(30), p_boundary_condition);
 
         // Assembler

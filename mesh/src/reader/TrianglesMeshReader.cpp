@@ -232,22 +232,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     // In the first case there's no file, all the nodes are set as faces
     if (ELEMENT_DIM == 1)
     {
-        //Assuming that the mesh is not closed (it has two boundaries)
-        if (mBoundaryFacesRead==0)
-        {
-            //This is the first call - return the index of the first node
-            ret_indices.push_back(mBoundaryFacesRead);
-        }
-        else
-        {
-            assert(mBoundaryFacesRead==1);
-            /* Second call - return the index of the last node node
-             * With linears this will just be "GetNumNodes() - 1" which is the same as "GetNumElements()"
-             * With quadratics the regular nodes appear first, then the midpoints appear
-             * "GetNumElements()" should cover both these cases.
-             */
-            ret_indices.push_back(GetNumElements());
-        }
+        ret_indices.push_back( mOneDimBoundary[mBoundaryFacesRead] );
     }
     else
     {
@@ -303,7 +288,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 
             mFacesRead++;
         }
-        while (ELEMENT_DIM<=2 && face_data.AttributeValue==0); //In triangles format we ignore internal edges (which are marked with attribute 0)
+        while (ELEMENT_DIM==2 && face_data.AttributeValue==0); //In triangles format we ignore internal edges (which are marked with attribute 0)
     }
 
     mBoundaryFacesRead++;
@@ -385,7 +370,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFacesFile()
     else //if (ELEMENT_DIM == 1)
     {
         // There is no file, data will be read from the node file (with boundaries marked)
-        file_name = mFilesBaseName + NODES_FILE_EXTENSION;
+        return;
     }
 
     mFacesFile.open(file_name.c_str());
@@ -399,7 +384,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 {
     std::string buffer;
-
     GetNextLineFromStream(mNodesFile, buffer);
     std::stringstream buffer_stream(buffer);
     unsigned dimension;
@@ -449,24 +433,8 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
     if (ELEMENT_DIM == 1)
     {
-        unsigned expected_nodes=mNumElements+1;
-        unsigned expected_nodes_closed=mNumElements;
-        if (mOrderOfElements == 2)
-        {
-            expected_nodes=2*mNumElements+1;
-            expected_nodes_closed=2*mNumElements;
-        }    
-        if (mNumNodes==expected_nodes)
-        {
-            //The usual "open" case - all the elements are in a string x-x-x-x
-            mNumFaces = 2;            
-        } 
-        else
-        {
-            //Elements are "closed" in a circle and there is no boundary
-            assert(mNumNodes == expected_nodes_closed); 
-            mNumFaces = 0;
-        }
+       GetOneDimBoundary();
+       mNumFaces = mOneDimBoundary.size();
     }
     else
     {
@@ -557,6 +525,51 @@ std::string TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
     return mFilesBaseName;
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
+{
+    assert(ELEMENT_DIM == 1);
+    if (!mOneDimBoundary.empty())
+    {
+        //With already read this and have reset...
+        return;
+    }
+    
+    std::string buffer;
+    unsigned dummy, node1, node2;
+    
+    //Count how many times we see each node
+    std::vector<unsigned> node_count(mNumNodes);//Covers the case if it's indexed from 1
+    for (unsigned element_index=0; element_index<mNumElements;element_index++)
+    {
+        GetNextLineFromStream(mElementsFile, buffer);//Header
+        std::stringstream buffer_stream(buffer);
+        buffer_stream >> dummy >> node1 >> node2; //Maybe a region marker too
+        if (!mIndexFromZero)
+        {
+            //Adjust so we are indexing from zero
+            node1--;
+            node2--;
+        }
+        node_count[node1]++;
+        node_count[node2]++;
+    }
+    //Find the ones which are terminals (only one mention)
+    for (unsigned node_index=0; node_index<mNumNodes;node_index++)
+    {
+        if (node_count[node_index] == 1u)
+        {
+            mOneDimBoundary.push_back(node_index);
+        }
+    }
+    
+    // close the file, reopen, and skip the header again
+    mElementsFile.close();
+    mElementsFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
+    OpenElementsFile();
+    GetNextLineFromStream(mElementsFile, buffer);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

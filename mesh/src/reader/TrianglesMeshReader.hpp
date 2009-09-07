@@ -62,7 +62,8 @@ private:
     unsigned mElementsRead;         /**< Number of elements read in. */
     unsigned mFacesRead;            /**< Number of faces read in. */
     unsigned mBoundaryFacesRead;    /**< Number of boundary faces read in. */
-
+    std::vector<unsigned> mOneDimBoundary; /**<Indices of nodes which are at the boundary of a 1D mesh*/
+     
     unsigned mNumNodeAttributes;    /**< Is the number of attributes stored at each node. */
     unsigned mMaxNodeBdyMarker;     /**< Is the maximum node boundary marker. */
     unsigned mNumElementNodes;      /**< Is the number of nodes per element. */
@@ -170,6 +171,8 @@ private:
     /** Get method for mFilesBaseName. */
     std::string GetMeshFileBaseName();
 
+    /** Get method specialized to 1D meshes */
+    void GetOneDimBoundary();
 };
 
 #endif //_TRIANGLESMESHREADER_HPP_
