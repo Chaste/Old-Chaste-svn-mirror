@@ -216,6 +216,13 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
             actual_face_index++;
         }
+        else
+        {
+            if (ELEMENT_DIM != 1)
+            {
+                NEVER_REACHED;
+            }
+        }
     }
 
     RefreshJacobianCachedData();

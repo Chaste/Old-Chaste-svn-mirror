@@ -67,11 +67,15 @@ public:
                                                  "femlab_lshape_elements.dat",
                                                  "femlab_lshape_edges.dat");
 
+        //TS_ASSERT_EQUALS(import_mesh_reader.GetNumFaces(), 54U); //Has internal faces
+        TS_ASSERT_EQUALS(import_mesh_reader.GetNumFaces(), 40U); //Has no internal faces
         mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
         TrianglesMeshReader<2,2>* p_new_mesh_reader;
         p_new_mesh_reader = new TrianglesMeshReader<2,2>(output_dir + "MeshFromFemlab");
+        //TS_ASSERT_EQUALS(p_new_mesh_reader->GetNumFaces(), 54U); //No faces have been culled
+        TS_ASSERT_EQUALS(p_new_mesh_reader->GetNumFaces(), 40U); //No faces have been culled
 
         delete p_new_mesh_reader;
     }
@@ -127,16 +131,18 @@ public:
                                                  "femlab_lshape_elements.dat",
                                                  "femlab_lshape_edges.dat");
 
+        TS_ASSERT_EQUALS(import_mesh_reader.GetNumFaces(), 40U);//Has no internal faces
         TetrahedralMesh<2,2> mesh;
-        bool cull_internal_faces = true;
-        mesh.ConstructFromMeshReader(import_mesh_reader, cull_internal_faces);
+
+        mesh.ConstructFromMeshReader(import_mesh_reader);
 
         mesh_writer.WriteFilesUsingMesh(mesh);
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
         TrianglesMeshReader<2,2>* p_new_mesh_reader;
         p_new_mesh_reader = new TrianglesMeshReader<2,2>(output_dir + "MeshFromFemlabViaMesh");
-
+        TS_ASSERT_EQUALS(p_new_mesh_reader->GetNumFaces(), 40U); //Internal faces have been culled
+        
         delete p_new_mesh_reader;
     }
 

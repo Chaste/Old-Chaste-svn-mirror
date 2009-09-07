@@ -115,10 +115,10 @@ public:
                                                        "femlab_lshape_elements.dat",
                                                        "femlab_lshape_edges.dat");
 
-        TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumFaces(), 54u);
+        TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumFaces(), 40u);
 
         // Coverage of AbstractCachedMeshReader::GetNumEdges()
-        TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumEdges(), 54u);
+        TS_ASSERT_EQUALS(mpFemlabMeshReader->GetNumEdges(), 40u);
 
         delete mpFemlabMeshReader;
     }
@@ -214,7 +214,7 @@ public:
                                                        "femlab_lshape_edges.dat");
 
         std::vector<unsigned> first_face;
-
+        
         first_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices;
 
         TS_ASSERT_EQUALS(first_face[0], 0u);
