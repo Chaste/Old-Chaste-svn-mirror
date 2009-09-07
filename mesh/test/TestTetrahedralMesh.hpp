@@ -234,7 +234,7 @@ public:
 
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100u);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 100u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 0u);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 0u);
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0u);
     }
 
@@ -246,8 +246,20 @@ public:
 
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 51u);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 50u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 2u);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 2u);
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2u);
+    }
+
+    void Test1DBranchedMeshIn2DSpace() throw (Exception)
+    {
+        TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/branched_1d_in_3d_mesh");
+        TetrahedralMesh<1,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 31u);
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 30u);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 2u);//3u
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2u);//3u
     }
 
     void Test2DClosedMeshIn3DSpace()

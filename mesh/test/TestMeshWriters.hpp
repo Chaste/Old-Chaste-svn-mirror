@@ -209,7 +209,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 100u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 100u);
-        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 0u);
     }
 
     void TestTriangles1DMeshIn2DSpace()

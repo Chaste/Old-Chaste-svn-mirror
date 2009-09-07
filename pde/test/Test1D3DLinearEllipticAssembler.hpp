@@ -126,11 +126,13 @@ public:
         const unsigned ELEMENT_DIM = 1;
 
         // Create mesh from mesh reader
-        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("pde/test/data/branched_1d_in_3d_mesh");
+        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("mesh/test/data/branched_1d_in_3d_mesh");
         TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
-
+        ///\todo 922 Fix this test
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 3u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 3u);
         // Instantiate PDE object
         SimplePoissonEquation<ELEMENT_DIM,SPACE_DIM> pde;
 
@@ -138,7 +140,7 @@ public:
         BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1> bcc;
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(20), p_boundary_condition);
+  ///\todo 922 Fix this test      bcc.AddDirichletBoundaryCondition(mesh.GetNode(20), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(30), p_boundary_condition);
 
         // Assembler

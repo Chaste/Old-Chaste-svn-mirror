@@ -449,7 +449,14 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
     if (ELEMENT_DIM == 1)
     {
-        if (mNumNodes==mNumElements+1)
+        unsigned expected_nodes=mNumElements+1;
+        unsigned expected_nodes_closed=mNumElements;
+        if (mOrderOfElements == 2)
+        {
+            expected_nodes=2*mNumElements+1;
+            expected_nodes_closed=2*mNumElements;
+        }    
+        if (mNumNodes==expected_nodes)
         {
             //The usual "open" case - all the elements are in a string x-x-x-x
             mNumFaces = 2;            
@@ -457,7 +464,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         else
         {
             //Elements are "closed" in a circle and there is no boundary
-            assert(mNumNodes == mNumElements); 
+            assert(mNumNodes == expected_nodes_closed); 
             mNumFaces = 0;
         }
     }
