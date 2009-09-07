@@ -232,7 +232,22 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     // In the first case there's no file, all the nodes are set as faces
     if (ELEMENT_DIM == 1)
     {
-        ret_indices.push_back(mBoundaryFacesRead);
+        //Assuming that the mesh is not closed (it has two boundaries)
+        if (mBoundaryFacesRead==0)
+        {
+            //This is the first call - return the index of the first node
+            ret_indices.push_back(mBoundaryFacesRead);
+        }
+        else
+        {
+            assert(mBoundaryFacesRead==1);
+            /* Second call - return the index of the last node node
+             * With linears this will just be "GetNumNodes() - 1" which is the same as "GetNumElements()"
+             * With quadratics the regular nodes appear first, then the midpoints appear
+             * "GetNumElements()" should cover both these cases.
+             */
+            ret_indices.push_back(GetNumElements());
+        }
     }
     else
     {
@@ -288,7 +303,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 
             mFacesRead++;
         }
-        while (ELEMENT_DIM==2 && face_data.AttributeValue==0); //In triangles format we ignore internal edges (which are marked with attribute 0)
+        while (ELEMENT_DIM<=2 && face_data.AttributeValue==0); //In triangles format we ignore internal edges (which are marked with attribute 0)
     }
 
     mBoundaryFacesRead++;
@@ -333,15 +348,11 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenElementsFile()
     }
     else
     {
-        if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
+        if (ELEMENT_DIM == 1)
         {
             file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
         }
-        else if (SPACE_DIM == 3 && ELEMENT_DIM == 1)
-        {
-            file_name = mFilesBaseName + EDGES_FILE_EXTENSION;   
-        }
-        else if (SPACE_DIM == 3 && ELEMENT_DIM == 2)
+        else if (ELEMENT_DIM == 2)
         {
             file_name = mFilesBaseName + FACES_FILE_EXTENSION;
         }
@@ -363,25 +374,18 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFacesFile()
 {  
     // Faces/edges definition
     std::string file_name;
-    if (SPACE_DIM == 3)
+    if (ELEMENT_DIM == 3)
     {
-        if (SPACE_DIM == ELEMENT_DIM)
-        {
-            file_name = mFilesBaseName + FACES_FILE_EXTENSION;
-        }
-        else
-        {
-            file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
-        }
+        file_name = mFilesBaseName + FACES_FILE_EXTENSION;
     }
-    else if (SPACE_DIM == 2)
+    else if (ELEMENT_DIM == 2)
     {
         file_name = mFilesBaseName + EDGES_FILE_EXTENSION;
     }
-    else if (SPACE_DIM == 1)
+    else //if (ELEMENT_DIM == 1)
     {
-        // There is no file, data will be generated instead of read
-        return;
+        // There is no file, data will be read from the node file (with boundaries marked)
+        file_name = mFilesBaseName + NODES_FILE_EXTENSION;
     }
 
     mFacesFile.open(file_name.c_str());
@@ -443,17 +447,19 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         mNodesPerElement = ELEMENT_DIM+1;
     }
 
-    if (SPACE_DIM == 1)
+    if (ELEMENT_DIM == 1)
     {
-        mNumFaces = mNumNodes;
-    }
-    else if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
-    {
-        mNumFaces = mNumNodes;
-    }
-    else if (SPACE_DIM == 3 && ELEMENT_DIM == 1)
-    {
-        mNumFaces = mNumNodes;   
+        if (mNumNodes==mNumElements+1)
+        {
+            //The usual "open" case - all the elements are in a string x-x-x-x
+            mNumFaces = 2;            
+        } 
+        else
+        {
+            //Elements are "closed" in a circle and there is no boundary
+            assert(mNumNodes == mNumElements); 
+            mNumFaces = 0;
+        }
     }
     else
     {
@@ -464,7 +470,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
         // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
         // the number of faces which are marked as boundary faces
-        if ((mNumFaceAttributes==1) && (SPACE_DIM!=1))
+        if ((mNumFaceAttributes==1))
         {
             unsigned num_boundary_faces = 0;
             bool end_of_file=false;

@@ -234,8 +234,7 @@ public:
 
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100u);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 100u);
-        //Check that the mesh_reader has the unculled "faces" (which are nodes)
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 0u);
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0u);
     }
 
@@ -247,9 +246,7 @@ public:
 
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 51u);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 50u);
-        //Check that the mesh_reader has the unculled "faces" (which are nodes)
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), mesh.GetNumNodes());
-        //Culled "faces"
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 2u);
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2u);
     }
 

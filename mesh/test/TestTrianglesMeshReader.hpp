@@ -277,10 +277,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 11u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 11u);
-
-        // Determining boundary faces is no longer done by the MeshReader
-        //TS_ASSERT_EQUALS( mesh_reader.GetNumBoundaryFaces(), 2);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 2u);
     }
 
     void Test0DMeshIn1DSpaceFails() throw(Exception)

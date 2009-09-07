@@ -673,7 +673,7 @@ public:
         }
     }
 
-    void Test1DRefineElement()
+    void Test1DRefineElement() throw (Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         MutableMesh<1,1> mesh;

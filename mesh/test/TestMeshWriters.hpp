@@ -209,9 +209,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 100u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 100u);
-
-        // By default all nodes are read as potential "faces"
-        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 100u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
     }
 
     void TestTriangles1DMeshIn2DSpace()
@@ -230,7 +228,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 51u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 50u);
-        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 51u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
     }
 
     void TestTriangles1DMeshIn2DSpaceWithDeletedNode() throw (Exception)
@@ -250,12 +248,12 @@ public:
         TrianglesMeshReader<1,2> mesh_reader2(output_dir + "1dMeshIn2dSpaceWithDeletedNode");
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 50u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 49u);
-        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 50u);
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
         
         TrianglesMeshReader<1,2> mesh_reader3(output_dir + "1dMeshIn2dSpaceWithDeletedNodeConst");
         TS_ASSERT_EQUALS(mesh_reader3.GetNumNodes(), 50u);
         TS_ASSERT_EQUALS(mesh_reader3.GetNumElements(), 49u);
-        TS_ASSERT_EQUALS(mesh_reader3.GetNumFaces(), 50u);
+        TS_ASSERT_EQUALS(mesh_reader3.GetNumFaces(), 2u);
     }
 
     void Test2DClosedMeshIn3DSpace()
