@@ -532,7 +532,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
     assert(ELEMENT_DIM == 1);
     if (!mOneDimBoundary.empty())
     {
-        //With already read this and have reset...
+        //We have already read this and have reset the reader (probably from the mesh class)...
         return;
     }
     

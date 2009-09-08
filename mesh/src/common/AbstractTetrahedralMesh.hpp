@@ -248,10 +248,8 @@ public:
      * This method must be overridden in concrete classes.
      *
      * @param rMeshReader the mesh reader
-     * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                         bool cullInternalFaces=false)=0;
+    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)=0;
 
     /**
      * Return a pointer to the first boundary element in the mesh.

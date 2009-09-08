@@ -134,10 +134,8 @@ public:
      * Construct the mesh using a MeshReader.
      *
      * @param rMeshReader the mesh reader
-     * @param cullInternalFaces whether to cull internal faces (defaults to false)
      */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader,
-                                 bool cullInternalFaces=false);
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
 
     /**
      * Read in the number of nodes per processor from file.

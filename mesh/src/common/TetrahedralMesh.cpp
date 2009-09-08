@@ -54,14 +54,8 @@ TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::TetrahedralMesh()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
-    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-    bool cullInternalFaces)
+    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
-    if (ELEMENT_DIM==1)
-    {
-        cullInternalFaces = true;
-    }
-
     this->mMeshFileBaseName = rMeshReader.GetMeshFileBaseName();
 
     // Record number of corner nodes
@@ -119,7 +113,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     }
 
     // Add boundary elements and nodes
-    unsigned actual_face_index=0;
     for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
     {
         ElementData face_data = rMeshReader.GetNextFaceData();
@@ -130,98 +123,39 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         // and used elsewhere: ie, we don't do this:
         //   unsigned nodes_size = node_indices.size();
 
-        bool is_boundary_face = true;
-
-        // Determine if this is a boundary face
-        std::set<unsigned> containing_element_indices; // Elements that contain this face
         std::vector<Node<SPACE_DIM>*> nodes;
         for (unsigned node_index=0; node_index<ELEMENT_DIM; node_index++) // node_index from 0 to DIM-1, not 0 to node.size()-1
         {
             assert(node_indices[node_index] < this->mNodes.size());
             // Add Node pointer to list for creating an element
             nodes.push_back(this->mNodes[node_indices[node_index]]);
-
-            if (cullInternalFaces)
-            {
-                // Work out what elements contain this face, by taking the intersection
-                // of the sets of elements containing each node in the face.
-                if (node_index == 0)
-                {
-                    containing_element_indices = nodes[node_index]->rGetContainingElementIndices();
-                }
-                else
-                {
-                    std::set<unsigned> temp;
-                    std::set_intersection(nodes[node_index]->rGetContainingElementIndices().begin(),
-                                          nodes[node_index]->rGetContainingElementIndices().end(),
-                                          containing_element_indices.begin(), containing_element_indices.end(),
-                                          std::inserter(temp, temp.begin()));
-                    containing_element_indices = temp;
-                }
-            }
         }
 
-        if (cullInternalFaces)
+        // This is a boundary face
+        // Ensure all its nodes are marked as boundary nodes
+        
+        assert(nodes.size()==ELEMENT_DIM); // just taken vertices of boundary node from 
+        for (unsigned j=0; j<nodes.size(); j++)
         {
-            // only if not 1D as this assertion does not apply to quadratic 1D meshes
-            if (ELEMENT_DIM!=1)
+            if (!nodes[j]->IsBoundaryNode())
             {
-                //If the following assertion is thrown, it means that the .edge/.face file does not
-                //match the .ele file -- they were generated at separate times.  Simply remove the internal
-                //edges/faces by hand.
-                assert(containing_element_indices.size() != 0);
+                nodes[j]->SetAsBoundaryNode();
+                this->mBoundaryNodes.push_back(nodes[j]);
             }
-
-            // if num_containing_elements is greater than 1, it is not an boundary face
-            if (containing_element_indices.size() > 1)
-            {
-                is_boundary_face = false;
-            }
-
-            // in 1D QUADRATICS, all nodes are faces, so internal nodes which don't have any
-            // containing elements must also be unmarked as a boundary face
-            if ((ELEMENT_DIM==1) && (containing_element_indices.size()==0))
-            {
-                is_boundary_face = false;
-            }
+            //Register the index that this bounday element will have
+            //with the node
+            nodes[j]->AddBoundaryElement(face_index);
         }
 
-        if (is_boundary_face)
-        {
-            // This is a boundary face
-            // Ensure all its nodes are marked as boundary nodes
-            
-            assert(nodes.size()==ELEMENT_DIM); // just taken vertices of boundary node from 
-            for (unsigned j=0; j<nodes.size(); j++)
-            {
-                if (!nodes[j]->IsBoundaryNode())
-                {
-                    nodes[j]->SetAsBoundaryNode();
-                    this->mBoundaryNodes.push_back(nodes[j]);
-                }
-                //Register the index that this bounday element will have
-                //with the node
-                nodes[j]->AddBoundaryElement(actual_face_index);
-            }
+        // The added elements will be deleted in our destructor
+        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(face_index, nodes);
+        this->mBoundaryElements.push_back(p_boundary_element);
 
-            // The added elements will be deleted in our destructor
-            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
-            this->mBoundaryElements.push_back(p_boundary_element);
-
-            if (rMeshReader.GetNumFaceAttributes() > 0)
-            {
-                assert(rMeshReader.GetNumFaceAttributes() == 1);
-                unsigned attribute_value = face_data.AttributeValue;
-                p_boundary_element->SetRegion(attribute_value);
-            }
-            actual_face_index++;
-        }
-        else
+        if (rMeshReader.GetNumFaceAttributes() > 0)
         {
-            if (ELEMENT_DIM != 1)
-            {
-                NEVER_REACHED;
-            }
+            assert(rMeshReader.GetNumFaceAttributes() == 1);
+            unsigned attribute_value = face_data.AttributeValue;
+            p_boundary_element->SetRegion(attribute_value);
         }
     }
 
