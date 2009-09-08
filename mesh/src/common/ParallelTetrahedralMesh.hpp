@@ -130,7 +130,7 @@ public:
     /**
      * Constructor.
      * 
-     * @param metisPartitioning defaults to METIS_LIBRARY
+     * @param metisPartitioning defaults to METIS_LIBRARY, but in 1-D is always overridden in this constructor to be the DUMB partition
      */
     ParallelTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
 

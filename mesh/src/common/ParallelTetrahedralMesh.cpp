@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh(PartitionType metisPartitioning)
-    : mMetisPartitioning(metisPartitioning)
+    : mMetisPartitioning((SPACE_DIM!=1)?metisPartitioning:DUMB)
 {
 }
 
@@ -116,9 +116,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
-    // ticket #922: not supported in parallel yet
-    assert(ELEMENT_DIM != 1);
-
     this->mMeshFileBaseName = rMeshReader.GetMeshFileBaseName();
     mTotalNumElements = rMeshReader.GetNumElements();
     mTotalNumNodes = rMeshReader.GetNumNodes();
