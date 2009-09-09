@@ -68,8 +68,8 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
                                        pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetHigh());
 
 
-    mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
-    mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
+    mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
+    mIntracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
 
     CreateIntracellularConductivityTensor();
 }
@@ -87,9 +87,8 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
       mFactoryMeshUnarchived(true)
 {
-    std::cout << "ACPde: " << PetscTools::GetMyRank() << " " << mCellsDistributed.size() << std::endl << std::flush;
-    mIionicCacheReplicated.resize(mpDistributedVectorFactory->GetProblemSize());
-    mIntracellularStimulusCacheReplicated.resize(mpDistributedVectorFactory->GetProblemSize());
+    mIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
+    mIntracellularStimulusCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     
     CreateIntracellularConductivityTensor();
 }

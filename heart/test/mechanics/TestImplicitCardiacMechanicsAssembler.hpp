@@ -76,7 +76,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         assembler.AssembleSystem(true, true);
         ReplicatableVector rhs_vec(assembler.mpLinearSystem->rGetRhsVector());
-        unsigned num_dofs = rhs_vec.size();
+        unsigned num_dofs = rhs_vec.GetSize();
         double h = 1e-6;
         int lo, hi;
         MatGetOwnershipRange(assembler.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);

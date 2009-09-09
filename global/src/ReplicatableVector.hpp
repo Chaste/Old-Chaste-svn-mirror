@@ -86,14 +86,14 @@ public:
     /**
      * Return the size of the vector.
      */
-    unsigned size();
+    unsigned GetSize();
 
     /**
      * Resize the vector.
      *
      * @param size  The number of elements to allocate memory for.
      */
-    void resize(unsigned size);
+    void Resize(unsigned size);
 
     /**
      * Access the vector.

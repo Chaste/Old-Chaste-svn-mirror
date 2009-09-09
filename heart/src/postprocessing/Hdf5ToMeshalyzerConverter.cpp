@@ -61,7 +61,7 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
         mpReader->GetVariableOverNodes(data, type, time_step);
         ReplicatableVector repl_data(data);
 
-        assert(repl_data.size()==num_nodes);
+        assert(repl_data.GetSize()==num_nodes);
 
         if(PetscTools::AmMaster())
         {

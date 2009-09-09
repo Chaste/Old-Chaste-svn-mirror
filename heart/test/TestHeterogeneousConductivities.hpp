@@ -112,7 +112,7 @@ public:
         problem.Solve();
 
         ReplicatableVector voltage_replicated(problem.GetSolution());
-        TS_ASSERT_EQUALS(mesh.GetNumNodes() * 2, voltage_replicated.size());
+        TS_ASSERT_EQUALS(mesh.GetNumNodes() * 2, voltage_replicated.GetSize());
         for (unsigned i=0;i<mesh.GetNumNodes();i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];

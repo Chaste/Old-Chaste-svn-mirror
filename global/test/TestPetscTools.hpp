@@ -63,7 +63,7 @@ public:
         Vec vec1 = PetscTools::CreateVec(10, 3.41);
         ReplicatableVector vec1_repl(vec1);
 
-        TS_ASSERT_EQUALS(vec1_repl.size(), 10u);
+        TS_ASSERT_EQUALS(vec1_repl.GetSize(), 10u);
         for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_DELTA(vec1_repl[i], 3.41, 1e-12);
@@ -82,7 +82,7 @@ public:
 
         ReplicatableVector vec2_repl(vec2);
 
-        TS_ASSERT_EQUALS(vec2_repl.size(), 10u);
+        TS_ASSERT_EQUALS(vec2_repl.GetSize(), 10u);
         for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_DELTA(vec2_repl[i], i+0.45, 1e-12);

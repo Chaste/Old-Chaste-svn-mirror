@@ -110,7 +110,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // Solution should be u = e^{-t*pi*pi} sin(x*pi), t=1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI);
@@ -160,7 +160,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // Solution should be u = e^{-t*pi*pi} sin(x*pi) + 0.5*x^2, t=1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI)-0.5*x*x;
@@ -214,7 +214,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // check result
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = x + exp(-0.5*PI_over_2*PI_over_2)*sin(x*PI_over_2);
@@ -265,7 +265,7 @@ public:
 
         // check result
         // Solution should be u = e^{-2*t*pi*pi} sin(x*pi)*sin(y*pi), t=1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -325,7 +325,7 @@ public:
 
         // check result
         // Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -481,7 +481,7 @@ public:
 
         // check result
         // Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -565,7 +565,7 @@ public:
 
         // check result
         // Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -611,7 +611,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // Check solution is constant throughout the mesh
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             TS_ASSERT_DELTA(result_repl[i],-84.5, 0.0002);
         }
@@ -656,7 +656,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // Check solution is constant throughout the mesh
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             TS_ASSERT_DELTA(result_repl[i],-84.5, 0.0001);
         }

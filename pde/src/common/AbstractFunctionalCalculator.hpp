@@ -167,7 +167,7 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
 {
     assert(solution);
     mSolutionReplicated.ReplicatePetscVector(solution);
-    if (mSolutionReplicated.size() != rMesh.GetNumNodes() * PROBLEM_DIM)
+    if (mSolutionReplicated.GetSize() != rMesh.GetNumNodes() * PROBLEM_DIM)
     {
         EXCEPTION("The solution size does not match the mesh");
     }

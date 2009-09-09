@@ -40,7 +40,7 @@ BidomainPde<SPACE_DIM>::BidomainPde(
             AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
     : AbstractCardiacPde<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
 {
-    mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
+    mExtracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     CreateExtracellularConductivityTensors();
 }
 
@@ -48,7 +48,7 @@ template <unsigned SPACE_DIM>
 BidomainPde<SPACE_DIM>::BidomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
         :  AbstractCardiacPde<SPACE_DIM>(rCellsDistributed, pMesh, 2u) // The 2 tells it this is a bidomain
 {
-    mExtracellularStimulusCacheReplicated.resize(this->mpDistributedVectorFactory->GetProblemSize());
+    mExtracellularStimulusCacheReplicated.Resize(this->mpDistributedVectorFactory->GetProblemSize());
     CreateExtracellularConductivityTensors();
 }
 

@@ -75,7 +75,7 @@ public:
         ReplicatableVector simple_result_repl(simple_result);
         ReplicatableVector nutrients_result_repl(nutrients_result);
 
-        for (unsigned i=0; i<simple_result_repl.size(); i++)
+        for (unsigned i=0; i<simple_result_repl.GetSize(); i++)
         {
             TS_ASSERT_EQUALS(simple_result_repl[i], nutrients_result_repl[i]);
         }

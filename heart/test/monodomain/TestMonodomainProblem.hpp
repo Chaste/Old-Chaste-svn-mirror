@@ -94,6 +94,8 @@ public:
 
 class TestMonodomainProblem : public CxxTest::TestSuite
 {
+private:
+    std::vector<double> mVoltageReplicated1d2ms;///<Used to test differences between tests
 public:
     void tearDown()
     {
@@ -124,6 +126,7 @@ public:
 
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+
         double atol=5e-3;
 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
@@ -132,6 +135,19 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+        
+        for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
+        {
+            mVoltageReplicated1d2ms.push_back(voltage_replicated[index]);
+        }
+        //How close is our "standard" answer?
+        atol=2.5e-3;
+        TS_ASSERT_DELTA(mVoltageReplicated1d2ms[1], 20.7710232, atol);
+        TS_ASSERT_DELTA(mVoltageReplicated1d2ms[3], 21.5319692, atol);
+        TS_ASSERT_DELTA(mVoltageReplicated1d2ms[5], 22.9280817, atol);
+        TS_ASSERT_DELTA(mVoltageReplicated1d2ms[7], 24.0611303, atol);
+        TS_ASSERT_DELTA(mVoltageReplicated1d2ms[9], -0.770330519, atol);
+        TS_ASSERT_DELTA(mVoltageReplicated1d2ms[10], -19.2234919, atol);
 
         // cover get pde
         monodomain_problem.GetPde();
@@ -173,6 +189,11 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
 
+        for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
+        {
+            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index], 5e-3);
+        }
+  
     }
 
     // Same as TestMonodomainProblem1D, except the 1D mesh is embedded in 3D space.
@@ -209,6 +230,10 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
 
+        for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
+        {
+            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index],  1e-12);
+        }
         // cover get pde
         monodomain_problem.GetPde();
 
@@ -223,7 +248,9 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(2); //ms
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 2e-4);
         HeartConfig::Instance()->SetUseAbsoluteTolerance(atol/10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-5);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
@@ -247,6 +274,10 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+        for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
+        {
+            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index],  5e-3);
+        }
 
     }
 
@@ -494,6 +525,11 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+
+        for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
+        {
+            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index],  1e-10);
+        }
     }
 
 
@@ -840,6 +876,11 @@ public:
             TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
             TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
 
+            for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
+            {
+                //Shouldn't differ from the original run at all
+                TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index],  1e-12);
+            }
             // check a progress report (or something) exists - in a noisy way 
             TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblemArchive/").c_str()), 0);
             
@@ -860,7 +901,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-
+//  HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-7);
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -868,7 +909,15 @@ public:
 
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
         monodomain_problem.Solve();
-        
+        ReplicatableVector voltage_replicated_midway(monodomain_problem.GetSolution());
+//        if (PetscTools::AmMaster())
+//        {   
+//            std::cout<<"midway[i] \n";
+//            for (unsigned i=0;i<voltage_replicated_midway.GetSize();i++)
+//            {
+//                std::cout<<i<<"\t"<<voltage_replicated_midway[i]<<"\n";
+//            }
+//        }
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         monodomain_problem.Solve();
 
@@ -878,13 +927,27 @@ public:
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
-
+//        if (PetscTools::AmMaster())
+//        {   
+//            std::cout<<"end[i] \n";
+//            for (unsigned i=0;i<voltage_replicated.GetSize();i++)
+//            {
+//                std::cout<<i<<"\t"<<voltage_replicated[i]<<"\n";
+//            }
+//        }
+ 
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
         TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+        for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
+        {
+            //#98 \todo Can we get down to 1e-12 as in previous test?
+            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index], 1e-10);
+        }
+
     }
 };
 

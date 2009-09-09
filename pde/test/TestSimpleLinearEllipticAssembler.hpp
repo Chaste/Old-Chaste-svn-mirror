@@ -188,7 +188,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // Solution should be u = 0.5*x*(3-x)
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = 0.5*x*(3-x);
@@ -224,7 +224,7 @@ public:
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = 1 - 0.5*(x+1)*(5+x);
@@ -263,7 +263,7 @@ public:
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = -0.5*x*x - 2*x - 0.5;
@@ -331,7 +331,7 @@ public:
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             c_vector<double, 2> r;
             r(0) = mesh.GetNode(i)->GetPoint()[0];
@@ -371,7 +371,7 @@ public:
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
@@ -500,7 +500,7 @@ public:
         ReplicatableVector result_repl(result);
 
         //Solution should be -1/6*(x^2 + y^2 +z^2)
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -565,7 +565,7 @@ public:
         ReplicatableVector result_repl(result);
 
         //Solution should be -1/6*(x^2 + y^2 +z^2)
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -606,7 +606,7 @@ public:
 
         // Solution should be u = a sin(x) + cos(x), where a = (2-cos1)/sin1
         double a = (2-cos(2))/sin(2);
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = a*sin(2*x) + cos(2*x);
@@ -650,7 +650,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // Solution should be u = exp(xy)
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -731,7 +731,7 @@ public:
         ReplicatableVector result_repl(result);
 
         // Solution should be u = 0.5*x*(3-x)
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = 0.5*x*(3-x);

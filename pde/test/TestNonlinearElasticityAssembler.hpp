@@ -107,8 +107,8 @@ public:
         // current solution should have been initialised to u=0, p=p0
         ///////////////////////////////////////////////////////////////////
         ReplicatableVector rhs_vec(assembler.mpLinearSystem->rGetRhsVector());
-        TS_ASSERT_EQUALS( (int)rhs_vec.size(), 2*289+81 );
-        for (unsigned i=0; i<rhs_vec.size(); i++)
+        TS_ASSERT_EQUALS( rhs_vec.GetSize(), 2U*289U+81U );
+        for (unsigned i=0; i<rhs_vec.GetSize(); i++)
         {
             TS_ASSERT_DELTA(rhs_vec[i], 0.0, 1e-12);
         }
@@ -117,7 +117,7 @@ public:
         // compute numerical jacobian and compare with analytic jacobian
         // (about u=0, p=p0)
         ///////////////////////////////////////////////////////////////////
-        unsigned num_dofs = rhs_vec.size();
+        unsigned num_dofs = rhs_vec.GetSize();
         double h = 1e-6;
 
         int lo, hi;

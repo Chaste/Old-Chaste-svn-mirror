@@ -146,7 +146,7 @@ public:
 
         // check result
         // Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -205,7 +205,7 @@ public:
 
         // check result
         // Solution should be u = e^{-3*t*pi*pi} sin(x*pi)*sin(y*pi)*sin(z*pi), t=0.1
-        for (unsigned i=0; i<result_repl.size(); i++)
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];

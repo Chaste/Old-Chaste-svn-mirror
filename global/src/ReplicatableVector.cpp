@@ -76,7 +76,7 @@ ReplicatableVector::ReplicatableVector(unsigned size)
       mReplicated(NULL),
       mDistributed(NULL)
 {
-    resize(size);
+    Resize(size);
 }
 
 ReplicatableVector::~ReplicatableVector()
@@ -87,12 +87,12 @@ ReplicatableVector::~ReplicatableVector()
 
 // Vector interface methods
 
-unsigned ReplicatableVector::size()
+unsigned ReplicatableVector::GetSize()
 {
     return mData.size();
 }
 
-void ReplicatableVector::resize(unsigned size)
+void ReplicatableVector::Resize(unsigned size)
 {
     // PETSc stuff will be out of date
     RemovePetscContext();
@@ -113,7 +113,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
     // Copy information into a PetSC vector
     if (mDistributed==NULL)
     {
-        VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->size(), &mDistributed);
+        VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->GetSize(), &mDistributed);
     }
 
     double* p_distributed;
@@ -136,9 +136,9 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     VecGetSize(vec, &isize);
     unsigned size=isize;
 
-    if (this->size() != size)
+    if (this->GetSize() != size)
     {
-        resize(size);
+        Resize(size);
     }
     if (mReplicated == NULL)
     {

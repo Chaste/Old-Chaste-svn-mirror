@@ -254,7 +254,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = sqrt(x*(1-x));
@@ -300,7 +300,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = sqrt(x*(4-x));
@@ -342,7 +342,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = exp(0.5*(3.0*x-x*x));
@@ -385,7 +385,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = sqrt(2.0*(exp(-x)-x*exp(-1.0)));
@@ -431,7 +431,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = x*exp(-x);
@@ -481,7 +481,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = exp(-x);
@@ -529,7 +529,7 @@ public:
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double u = sqrt(x*(4-x));
@@ -575,7 +575,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             c_vector<double, 2> r;
             r(0) = mesh.GetNode(i)->GetPoint()[0];
@@ -644,7 +644,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double y = mesh.GetNode(i)->GetPoint()[1];
             double u = sqrt(y*(4-y));
@@ -727,7 +727,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -742,7 +742,7 @@ public:
         ReplicatableVector answer_repl2(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -825,7 +825,7 @@ public:
         ReplicatableVector answer_repl(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];
@@ -840,7 +840,7 @@ public:
         ReplicatableVector answer_repl2(answer);
 
         // Check result
-        for (unsigned i=0; i<answer_repl.size(); i++)
+        for (unsigned i=0; i<answer_repl.GetSize(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];

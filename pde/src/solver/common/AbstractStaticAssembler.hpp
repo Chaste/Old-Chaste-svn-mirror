@@ -384,7 +384,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 
             // interpolate u and grad u if a current solution or guess exists
             unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
-            if (mCurrentSolutionOrGuessReplicated.size()>0)
+            if (mCurrentSolutionOrGuessReplicated.GetSize()>0)
             {
                 for (unsigned index_of_unknown=0; index_of_unknown<(NON_HEART ? PROBLEM_DIM : 1); index_of_unknown++)
                 {
@@ -524,8 +524,8 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     // the AssembleOnElement type methods will determine if a current solution or
     // current guess exists by looking at the size of the replicated vector, so
     // check the size is zero if there isn't a current solution
-    assert(    ( currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()>0)
-            || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()==0));
+    assert(    ( currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.GetSize()>0)
+            || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.GetSize()==0));
 
     // the concrete class can override this following method if there is
     // work to be done before assembly

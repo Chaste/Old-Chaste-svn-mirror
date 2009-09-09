@@ -67,13 +67,13 @@ void Hdf5ToCmguiConverter::Write(std::string type)
         //read the data for this time step
         mpReader->GetVariableOverNodes(data, "V", time_step);
         ReplicatableVector repl_data(data);
-        assert(repl_data.size()==num_nodes);
+        assert(repl_data.GetSize()==num_nodes);
 
         //get the data for phie only if needed
         ReplicatableVector repl_data_phie;
         if (type=="Bi")
         {
-            repl_data_phie.resize(num_nodes);
+            repl_data_phie.Resize(num_nodes);
             mpReader->GetVariableOverNodes(data_phie, "Phi_e", time_step);
             repl_data_phie.ReplicatePetscVector(data_phie);
         }

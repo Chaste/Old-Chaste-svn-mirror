@@ -588,7 +588,7 @@ public:
 
         // Test the nutrient concentration at the coarse mesh nodes is
         // equal to 1.0 if the nodes are away from the cells
-        for (unsigned i=0; i<nutrient_conc.size(); i++)
+        for (unsigned i=0; i<nutrient_conc.GetSize(); i++)
         {
             c_vector<double,2> centre;
             centre(0) = 2.5; // assuming 5 by 5 honeycomb mesh
