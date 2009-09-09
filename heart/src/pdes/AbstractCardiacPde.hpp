@@ -267,6 +267,8 @@ public:
 
     /**
      *  Returns a reference to the vector of distributed cells. Needed for archiving.
+     * 
+     * \todo this method should be renamed rGetCellsDistributed() as it returns a reference
      */
     const std::vector<AbstractCardiacCell*>& GetCellsDistributed() const;
 
