@@ -167,9 +167,9 @@ public:
      *  Get the Wnt gradient at a given location in the crypt. Note the
      *  TissueConfig::CryptLength() is used for this.
      *
-     *  @param location  the location at which we want the Wnt gradient
+     *  @param rLocation  the location at which we want the Wnt gradient
      */
-    c_vector<double, DIM> GetWntGradient(c_vector<double, DIM> location);
+    c_vector<double, DIM> GetWntGradient(c_vector<double, DIM>& rLocation);
 
     /**
      *  Get the Wnt gradient at a given cell in the crypt. The crypt

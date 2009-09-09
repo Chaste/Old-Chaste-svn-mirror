@@ -607,10 +607,9 @@ public:
      * Translate the mesh given the displacement vector.
      * This is the translation method that actually does the work.
      *
-     * @param displacement is a translation vector of the correct size
-     * \todo pass by const reference?
+     * @param rDisplacement is a translation vector of the correct size
      */
-    void Translate(c_vector<double, SPACE_DIM> displacement);
+    void Translate(c_vector<double, SPACE_DIM>& rDisplacement);
 
     /**
      * Translate the mesh given the coordinate displacements separately.

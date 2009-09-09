@@ -177,7 +177,7 @@ double WntConcentration<DIM>::GetWntLevel(double height)
 
 
 template<unsigned DIM>
-c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM> location)
+c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM>& rLocation)
 {
     c_vector<double, DIM> wnt_gradient = zero_vector<double>(DIM);
 
@@ -188,7 +188,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
 
         if (mWntType==LINEAR)
         {
-            if ((location[DIM-1] >= -1e-9) && (location[DIM-1] < top_of_wnt*crypt_height))
+            if ((rLocation[DIM-1] >= -1e-9) && (rLocation[DIM-1] < top_of_wnt*crypt_height))
             {
                 wnt_gradient[DIM-1] = -1.0/(top_of_wnt*crypt_height);
             }
@@ -197,7 +197,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
         {
             double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
             double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
-            double r = norm_2(location);
+            double r = norm_2(rLocation);
             double r_critical = pow(top_of_wnt*crypt_height/a, 1.0/b);
 
             double dwdr = 0.0;
@@ -209,7 +209,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
 
             for (unsigned i=0; i<DIM; i++)
             {
-                wnt_gradient[i] = location[i]*dwdr/r;
+                wnt_gradient[i] = rLocation[i]*dwdr/r;
             }
         }
     }

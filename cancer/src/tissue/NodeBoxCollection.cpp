@@ -33,9 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-NodeBox<DIM>::NodeBox(c_vector<double, 2*DIM> minAndMaxValues)
+NodeBox<DIM>::NodeBox(c_vector<double, 2*DIM>& rMinAndMaxValues)
 {
-    mMinAndMaxValues = minAndMaxValues;
+    mMinAndMaxValues = rMinAndMaxValues;
 }
 
 template<unsigned DIM>

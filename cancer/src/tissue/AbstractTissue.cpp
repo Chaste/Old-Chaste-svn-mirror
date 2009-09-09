@@ -512,6 +512,42 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
     double time = SimulationTime::Instance()->GetTime();
 
     *mpVizNodesFile << time << "\t";
+
+    // Write node data to file
+    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
+    {
+        // Hack that covers the case where the node is associated with a cell that has just been killed (#1129)
+        ///\todo Improve this!
+        bool node_corresponds_to_dead_cell = false;
+        if (mLocationCellMap[node_index])
+        {
+            if (mLocationCellMap[node_index]->IsDead())
+            {
+                node_corresponds_to_dead_cell = true;
+            }
+        }
+
+        // Write node data to file
+        if ( !(GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
+        {                
+            const c_vector<double,DIM>& position = GetNode(node_index)->rGetLocation();
+
+            for (unsigned i=0; i<DIM; i++)
+            {
+                *mpVizNodesFile << position[i] << " ";
+            }
+        }
+    }
+    *mpVizNodesFile << "\n";
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::WriteResultsToFiles()
+{
+    WriteTimeAndNodeResultsToFiles();
+
+    double time = SimulationTime::Instance()->GetTime();
+
     *mpVizCellTypesFile << time << "\t";
 
     if (TissueConfig::Instance()->GetOutputCellAncestors())
@@ -538,29 +574,6 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
     {
         *mpCellAgesFile << time << "\t";
     }
-
-    // Write node data to file
-    for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
-    {
-        // Write node data to file
-        if ( !(GetNode(node_index)->IsDeleted()) )
-        {
-            const c_vector<double,DIM>& position = GetNode(node_index)->rGetLocation();
-
-            for (unsigned i=0; i<DIM; i++)
-            {
-                *mpVizNodesFile << position[i] << " ";
-            }
-        }
-    }
-    *mpVizNodesFile << "\n";
-}
-
-template<unsigned DIM>
-void AbstractTissue<DIM>::WriteResultsToFiles()
-{
-    WriteTimeAndNodeResultsToFiles();
-
     GenerateCellResultsAndWriteToFiles();
 
     // Write logged cell data if required

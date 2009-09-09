@@ -1952,14 +1952,14 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM> transVec)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM>& rDisplacement)
 {
     unsigned num_nodes = this->GetNumAllNodes();
 
     for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
-        r_location += transVec;
+        r_location += rDisplacement;
     }
 }
 

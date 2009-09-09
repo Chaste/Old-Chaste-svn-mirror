@@ -929,7 +929,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 				int entries_from_cell_type_file = st_cell_type.countTokens();
 				if (numCells[row] != entries_from_cell_type_file)
 				{
-					System.out.println("Warning: At time "+time.doubleValue()+", node file gives "+numCells[row]+" cells, but cell type file gives "+entries_from_cell_type_file+" cell");
+					System.out.println("Warning: At time "+time.doubleValue()+", node file gives "+numCells[row]+" cells, but cell type file gives "+entries_from_cell_type_file+" cells");
 					break;
 				}
 

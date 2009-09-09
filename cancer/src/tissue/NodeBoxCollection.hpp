@@ -51,9 +51,9 @@ public:
     /**
      * Constructor just takes in the extremal values of the box.
      *
-     * @param minAndMaxValues the extremal values
+     * @param rMinAndMaxValues the extremal values
      */
-    NodeBox(c_vector<double, 2*DIM> minAndMaxValues);
+    NodeBox(c_vector<double, 2*DIM>& rMinAndMaxValues);
 
     /** Get the coordinates of the box, in the form (for 2D) (xmin, xmax, ymin, ymax) (etc). */
     c_vector<double, 2*DIM>& rGetMinAndMaxValues();
