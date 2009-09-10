@@ -1105,6 +1105,30 @@ public:
     /**
      * Test the functionality for adding further data to an existing file.
      * 
+     */
+    void TestFailCreateFile(void)
+    {
+        //This test causes memory leak within MPIO
+        int number_nodes = 100;
+        DistributedVectorFactory factory(number_nodes);
+        
+        OutputFileHandler handler("hdf5", false);
+        //Create file and remove permission to overwrite file
+        system(("touch "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
+        system(("chmod u-w "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
+
+        Hdf5DataWriter writer(factory, "hdf5", "empty", false);
+        writer.DefineVariable("Node","dimensionless");
+        writer.DefineFixedDimension(number_nodes);
+        TS_ASSERT_THROWS_CONTAINS(writer.EndDefineMode(),  "Hdf5DataWriter could not create");
+        writer.Close();
+
+        //Re-instate permission to overwrite file
+        system(("chmod u+w "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
+    }
+    /**
+     * Test the functionality for adding further data to an existing file.
+     * 
      * This test must come after TestHdf5DataWriterFullFormat, as we extend that file.
      */
     void TestWriteToExistingFile(void)

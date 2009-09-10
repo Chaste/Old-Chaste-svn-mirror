@@ -306,3 +306,25 @@
    fun:H5Fclose
 }
 
+{
+   HDF using MPI_open
+   Memcheck:Leak
+   fun:malloc
+   fun:ADIOI_Malloc_fn
+   fun:ADIO_Open
+   fun:PMPI_File_open
+   fun:H5FD_mpio_open
+   fun:H5FD_open
+   fun:H5F_open
+   fun:H5Fcreate
+   fun:_ZN14Hdf5DataWriter13EndDefineModeEv
+   fun:_*
+   fun:_*
+   fun:_*
+   fun:_*
+   fun:_*
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}

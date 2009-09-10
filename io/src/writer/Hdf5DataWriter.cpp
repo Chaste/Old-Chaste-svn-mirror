@@ -81,6 +81,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         
         if (mFileId < 0)
         {
+            mDatasetId = 0;
             EXCEPTION("Hdf5DataWriter could not open " + file_name);
         }
         
@@ -308,8 +309,6 @@ void Hdf5DataWriter::EndDefineMode()
         EXCEPTION("Cannot end define mode. One fixed dimension should be defined.");
     }
 
-    mIsInDefineMode = false;
-
     OutputFileHandler output_file_handler(mDirectory, mCleanDirectory);
     std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
     std::string file_name = results_dir + mBaseName + ".h5";
@@ -321,6 +320,11 @@ void Hdf5DataWriter::EndDefineMode()
     // Create a file (collectively) and free the property list
     mFileId = H5Fcreate(file_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, property_list_id);
     H5Pclose(property_list_id);
+    if (mFileId < 0)
+    {
+        EXCEPTION("Hdf5DataWriter could not create " + file_name);
+    }
+    mIsInDefineMode = false;
 
     /*
      *  Create "Data" dataset
