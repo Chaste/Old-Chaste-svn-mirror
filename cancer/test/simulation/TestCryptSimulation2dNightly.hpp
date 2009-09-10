@@ -696,7 +696,7 @@ public:
     }
 
     /*
-     * This tests that the results files are correct. It was added in r???? due to #1130
+     * This tests that the results files are correct (added because of #1130).
      */
     void TestResultsFileForLongerCryptSimulation() throw(Exception)
     {
