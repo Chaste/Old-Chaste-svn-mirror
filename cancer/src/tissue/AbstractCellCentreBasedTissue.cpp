@@ -124,6 +124,60 @@ double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex
 }
 
 
+
+template<unsigned DIM>
+void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
+{
+    // Set up cell type counter
+    std::vector<unsigned> cell_type_counter(this->mCellTypeCount.size());
+    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
+    {
+        cell_type_counter[i] = 0;
+    }
+
+    // Set up cell mutation state counter
+    std::vector<unsigned> cell_mutation_state_counter(this->mCellMutationStateCount.size());
+    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+    {
+        cell_mutation_state_counter[i] = 0;
+    }
+
+    // Set up cell cycle phase counter
+    std::vector<unsigned> cell_cycle_phase_counter(5);
+    for (unsigned i=0; i<5; i++)
+    {
+        cell_cycle_phase_counter[i] = 0;
+    }
+    // Write node data to file
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
+    {
+        // Hack that covers the case where the node is associated with a cell that has just been killed (#1129)
+        ///\todo Improve this!
+        bool node_corresponds_to_dead_cell = false;
+        if (this->mLocationCellMap[node_index])
+        {
+            if (this->mLocationCellMap[node_index]->IsDead())
+            {
+                node_corresponds_to_dead_cell = true;
+            }
+        }
+
+        // Write node data to file
+        if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
+        {
+            this->GenerateCellResults(node_index,
+                                cell_type_counter,
+                                cell_mutation_state_counter,
+                                cell_cycle_phase_counter);
+        }
+    }
+
+    this->WriteCellResultsToFiles(cell_type_counter,
+                                  cell_mutation_state_counter,
+                                  cell_cycle_phase_counter);
+}
+
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

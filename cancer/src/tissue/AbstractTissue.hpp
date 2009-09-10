@@ -395,7 +395,7 @@ public:
     /**
      * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
      */
-    virtual void GenerateCellResultsAndWriteToFiles();
+    virtual void GenerateCellResultsAndWriteToFiles()=0;
 
     /**
      * Generate results for a given cell in the current tissue state to output files.

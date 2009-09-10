@@ -36,13 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
+#include "SimpleWntCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
 #include "CancerEventHandler.hpp"
 #include "VoronoiTessellation.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
-
 
 class TestCryptSimulation2dNightly : public AbstractCancerTestSuite
 {
@@ -693,6 +693,95 @@ public:
 
         // Run simulation
         simulator.Solve();
+    }
+
+    /*
+     * This tests that the results files are correct. It was added in r???? due to #1130
+     */
+    void TestResultsFileForLongerCryptSimulation() throw(Exception)
+    {
+        // Set some model parameters
+        TissueConfig* p_params = TissueConfig::Instance();
+        p_params->SetSDuration(7.4);
+        p_params->SetG2Duration(1.4);
+        p_params->SetMDuration(0.72);
+        p_params->SetTransitCellG1Duration(9.4);
+        p_params->SetStemCellG1Duration(9.4);
+
+        // Set output directory
+        std::string output_directory = "TestResultsFileForLongerCryptSimulation";
+
+        // Create cylindrical mesh
+        HoneycombMeshGenerator generator(16, 19, 0, true, 14.1);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Get location indices corresponding to real cells in mesh
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+        // Set up each cell with a simple Wnt-based cell cycle model
+        std::vector<TissueCell> cells;
+        SimpleWntCellCycleModelCellsGenerator<2> cell_generator;
+        cell_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+
+        // Create crypt
+        MeshBasedTissue<2> crypt(*p_mesh, cells);
+
+        // Set up instance of WntConcentration singleton and associate it with crypt
+        WntConcentration<2>::Instance()->SetType(LINEAR);
+        WntConcentration<2>::Instance()->SetTissue(crypt);
+
+        // Set up force law
+        GeneralisedLinearSpringForce<2> meineke_force;
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&meineke_force);
+
+        // Create crypt simulation
+        CryptSimulation2d simulator(crypt, force_collection);
+
+        // Set where to output simulation results
+        simulator.SetOutputDirectory(output_directory);
+
+        // Set simulation to output cell types
+        TissueConfig::Instance()->SetOutputCellTypes(true);
+
+        // Set length of simulation
+        simulator.SetEndTime(20.0);
+
+        // Only save results every tenth time step
+        simulator.SetSamplingTimestepMultiple(10);
+
+        // Set up sloughing cell killer and pass in to simulation
+        AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetTissue(), 0.01);
+        simulator.AddCellKiller(p_cell_killer);
+
+        // Unusual set-up here (corresponds to the Meineke crypt model parameters)
+        p_params->SetDampingConstantNormal(1.0);
+        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
+        p_params->SetSpringStiffness(30.0);
+        simulator.UseJiggledBottomCells();
+
+        // Run simulation
+        simulator.Solve();
+
+        // Test that results files are correct
+        OutputFileHandler handler(output_directory, false);
+        std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
+
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements");
+        TS_ASSERT(comp_ele.CompareFiles());
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements").c_str()), 0);
+
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cancer/test/data/TestResultsFileForLongerCryptSimulation/results.viznodes");
+        TS_ASSERT(comp_nodes.CompareFiles(1e-15));
+
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizcelltypes");
+        TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
+
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizsetup").c_str()), 0);
+
+        // Tidy up
+        delete p_cell_killer;
+        WntConcentration<2>::Destroy();
     }
 };
 

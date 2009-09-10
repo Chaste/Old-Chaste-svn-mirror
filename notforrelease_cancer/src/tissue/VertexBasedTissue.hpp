@@ -307,6 +307,11 @@ public:
      */
     void WriteResultsToFiles();
 
+    /**
+     * Overridden GenerateCellResultsAndWriteToFiles() method.
+     */
+    virtual void GenerateCellResultsAndWriteToFiles();
+
 };
 
 #include "TemplatedExport.hpp"

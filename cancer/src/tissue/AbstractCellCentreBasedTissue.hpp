@@ -136,6 +136,10 @@ public:
      */
     virtual double GetDampingConstant(unsigned nodeIndex);
 
+    /**
+     * Overridden GenerateCellResultsAndWriteToFiles() method.
+     */
+    virtual void GenerateCellResultsAndWriteToFiles();
 };
 
 #endif /*ABSTRACTCELLCENTREBASEDTISSUE_HPP_*/
