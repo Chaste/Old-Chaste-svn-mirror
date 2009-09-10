@@ -927,19 +927,17 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
     unsigned elem_index = 0;
     unsigned belem_index = 0;
-    unsigned element_nodes[4][6][4] = {{{0, 1, 5, 7}, {0, 1, 3, 7},
+    unsigned element_nodes[6][4] = {{0, 1, 5, 7}, {0, 1, 3, 7},
                                         {0, 2, 3, 7}, {0, 2, 6, 7},
-                                        {0, 4, 6, 7}, {0, 4, 5, 7}},
-                                       {{1, 0, 2, 6}, {1, 0, 4, 6},
-                                        {1, 5, 4, 6}, {1, 5, 7, 6},
-                                        {1, 3, 2, 6}, {1, 3, 7, 6}},
-                                       {{2, 0, 1, 5}, {2, 0, 4, 5},
-                                        {2, 3, 1, 5}, {2, 3, 7, 5},
-                                        {2, 6, 4, 5}, {2, 6, 7, 5}},
-                                       {{3, 1, 0, 4}, {3, 1, 5, 4},
-                                        {3, 2, 0, 4}, {3, 2, 6, 4},
-                                        {3, 7, 5, 4}, {3, 7, 6, 4}}};
-
+                                        {0, 4, 6, 7}, {0, 4, 5, 7}};
+/* Alternative tessellation - (gerardus)
+    unsigned element_nodes[6][4] = {{ 0, 6, 5, 4},
+                                    { 0, 2, 6, 1},
+                                    { 0, 1, 6, 5},
+                                    { 1, 2, 3, 7},
+                                    { 1, 2, 6, 7},
+                                    { 1, 6, 7, 5 }};
+*/
     std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
 
     for (unsigned k=0; k<depth; k++)
@@ -973,7 +971,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
                     for (unsigned n = 0; n < 4; n++)
                     {
-                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[0][m][n]]]);
+                        tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[m][n]]]);
                     }
 
                     this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
