@@ -307,7 +307,7 @@
 }
 
 {
-   HDF using MPI_open
+   MPICH problem in calls from H5FD_mpio_open
    Memcheck:Leak
    fun:malloc
    fun:ADIOI_Malloc_fn
@@ -318,11 +318,34 @@
    fun:H5F_open
    fun:H5Fcreate
    fun:_ZN14Hdf5DataWriter13EndDefineModeEv
-   fun:_*
-   fun:_*
-   fun:_*
-   fun:_*
-   fun:_*
+   fun:_ZN18TestHdf5DataWriter18TestFailCreateFileEv
+   fun:_ZN53TestDescription_TestHdf5DataWriter_TestFailCreateFile7runTestEv
+   fun:_ZN7CxxTest19RealTestDescription3runEv
+   fun:_ZN7CxxTest10TestRunner7runTestERNS_15TestDescriptionE
+   fun:_ZN7CxxTest10TestRunner8runSuiteERNS_16SuiteDescriptionE
+   fun:_ZN7CxxTest10TestRunner8runWorldEv
+   fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
+   fun:_ZN7CxxTest14ErrorFormatter3runEv
+   fun:main
+}
+
+{
+   MPICH problem in calls from H5FD_mpio_open
+   Memcheck:Leak
+   fun:malloc
+   fun:ADIOI_Malloc_fn
+   fun:ADIO_Open
+   fun:PMPI_File_open
+   fun:H5FD_mpio_open
+   fun:H5FD_open
+   fun:H5F_open
+   fun:H5Fopen
+   fun:_ZN14Hdf5DataWriterC1ER24DistributedVectorFactoryRKSsS3_bb
+   fun:_ZN18TestHdf5DataWriter23TestWriteToExistingFileEv
+   fun:_ZN58TestDescription_TestHdf5DataWriter_TestWriteToExistingFile7runTestEv
+   fun:_ZN7CxxTest19RealTestDescription3runEv
+   fun:_ZN7CxxTest10TestRunner7runTestERNS_15TestDescriptionE
+   fun:_ZN7CxxTest10TestRunner8runSuiteERNS_16SuiteDescriptionE
    fun:_ZN7CxxTest10TestRunner8runWorldEv
    fun:_ZN7CxxTest10TestRunner11runAllTestsERNS_12TestListenerE
    fun:_ZN7CxxTest14ErrorFormatter3runEv
