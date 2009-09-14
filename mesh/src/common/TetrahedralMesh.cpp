@@ -931,6 +931,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                                         {0, 2, 3, 7}, {0, 2, 6, 7},
                                         {0, 4, 6, 7}, {0, 4, 5, 7}};
 /* Alternative tessellation - (gerardus)
+ * Note that our method (above) has a bias that all tetrahedra share a
+ * common edge (the diagonal 0 - 7).  In the following method the cube is
+ * split along the "face diagonal" 1-2-5-6 into two prisms.  This also has a bias.
+ * 
     unsigned element_nodes[6][4] = {{ 0, 6, 5, 4},
                                     { 0, 2, 6, 1},
                                     { 0, 1, 6, 5},

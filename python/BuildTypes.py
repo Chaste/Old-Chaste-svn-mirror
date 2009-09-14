@@ -663,6 +663,11 @@ class MemoryTesting(GccDebug):
                            int(bytes) == 240 and \
                            int(blocks) == 10:
                             status = 'Warn'
+                        #HDF5 Test giving unexpected indirect loss
+                        elif match.group(1) == 'indirectly' and \
+                           int(bytes) == 256 and \
+                           int(blocks) == 14:
+                            status = 'Warn'   
                         else:
                             status = 'Leaky'
                         break
