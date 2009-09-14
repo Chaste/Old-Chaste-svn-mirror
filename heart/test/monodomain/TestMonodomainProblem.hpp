@@ -901,7 +901,6 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-//  HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-7);
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -910,14 +909,6 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
         monodomain_problem.Solve();
         ReplicatableVector voltage_replicated_midway(monodomain_problem.GetSolution());
-//        if (PetscTools::AmMaster())
-//        {   
-//            std::cout<<"midway[i] \n";
-//            for (unsigned i=0;i<voltage_replicated_midway.GetSize();i++)
-//            {
-//                std::cout<<i<<"\t"<<voltage_replicated_midway[i]<<"\n";
-//            }
-//        }
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         monodomain_problem.Solve();
 
@@ -927,14 +918,6 @@ public:
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
-//        if (PetscTools::AmMaster())
-//        {   
-//            std::cout<<"end[i] \n";
-//            for (unsigned i=0;i<voltage_replicated.GetSize();i++)
-//            {
-//                std::cout<<i<<"\t"<<voltage_replicated[i]<<"\n";
-//            }
-//        }
  
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
@@ -944,8 +927,7 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
         for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
         {
-            //#98 \todo Can we get down to 1e-12 as in previous test?
-            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index], 1e-10);
+            TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index], 5e-11);
         }
 
     }

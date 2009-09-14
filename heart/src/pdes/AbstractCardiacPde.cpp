@@ -205,6 +205,7 @@ template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SetCacheReplication(bool doCacheReplication)
 {
     mDoCacheReplication = doCacheReplication;
+    mDoOneCacheReplication = true; //If we have reset to false (even from false) then we may have created a new matrix-based assembler and need to run it once 
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>

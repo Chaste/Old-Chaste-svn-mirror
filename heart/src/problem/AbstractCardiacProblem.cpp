@@ -405,6 +405,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         mpBoundaryConditionsContainer = mpDefaultBoundaryConditionsContainer;
     }
 
+    assert(mpAssembler==NULL);
     mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
     
     // If we have already run a simulation, use the old solution as initial condition
@@ -459,6 +460,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         {
             // Free memory.
             delete mpAssembler;
+            mpAssembler=NULL;
             //VecDestroy(initial_condition);
 
             PetscTools::ReplicateException(true);
@@ -527,7 +529,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
     // Free assembler
     delete mpAssembler;
-
+    mpAssembler=NULL;
+    
     // close the file that stores voltage values
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
