@@ -112,7 +112,6 @@ void VtkWriter<DIM>::MakeVtkMesh()
 {
     assert(DIM==3 || DIM == 2);
     vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
-    //p_pts->SetDataTypeToDouble();
     p_pts->GetData()->SetName("Vertex positions");
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
     {
@@ -125,7 +124,6 @@ void VtkWriter<DIM>::MakeVtkMesh()
         p_pts->InsertPoint(item_num, current_item[0], current_item[1], current_item[2]);
     }
 
-    //mpVtkUnstructedMesh->Allocate(rMesh.GetNumNodes(), rMesh.GetNumNodes());
     mpVtkUnstructedMesh->SetPoints(p_pts);
     p_pts->Delete(); //Reference counted
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)

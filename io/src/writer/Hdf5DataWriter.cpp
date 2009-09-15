@@ -117,7 +117,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         H5Sget_simple_extent_dims(attribute_space, &attr_dataspace_dim, NULL);
         unsigned num_columns = H5Sget_simple_extent_npoints(attribute_space);
         assert(num_columns == mDatasetDims[2]); // I think...
-        const unsigned MAX_STRING_SIZE = 100; // TODO: magic number
+
         char* string_array = (char *)malloc(sizeof(char)*MAX_STRING_SIZE*(int)num_columns);
         H5Aread(attribute_id, attribute_type, string_array);
         // Loop over columns/variables

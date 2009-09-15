@@ -31,11 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-#define H5_USE_16_API
-#include <hdf5.h>
-#include <petscvec.h>
-
-//#include "AbstractDataWriter.hpp"
+#include "Hdf5DataReader.hpp" //For common definitions
 #include "DataWriterVariable.hpp"
 #include "DistributedVectorFactory.hpp"
 

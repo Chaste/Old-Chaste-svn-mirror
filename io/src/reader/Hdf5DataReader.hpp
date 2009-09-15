@@ -35,6 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
+
+const unsigned MAX_STRING_SIZE = 100; /// \TODO: magic number
+
+
 /**
  * A concrete HDF5 data reader class.
  */

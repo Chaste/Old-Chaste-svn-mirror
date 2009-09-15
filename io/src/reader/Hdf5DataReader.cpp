@@ -104,9 +104,6 @@ Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
     hsize_t attr_dataspace_dim;
     H5Sget_simple_extent_dims(attribute_space, &attr_dataspace_dim, NULL);
 
-    // Defined in writer class, todo: define it just once
-    const unsigned MAX_STRING_SIZE=100;
-
     unsigned num_columns = H5Sget_simple_extent_npoints(attribute_space);
     char* string_array = (char *)malloc(sizeof(char)*MAX_STRING_SIZE*(int)num_columns);
     H5Aread(attribute_id, attribute_type, string_array);
@@ -331,7 +328,7 @@ std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()
 
 void Hdf5DataReader::Close()
 {
-    // todo: move code to the destructor???
+    /// \todo: move code to the destructor???
     H5Dclose(mVariablesDatasetId);
 
     if (mIsUnlimitedDimensionSet)

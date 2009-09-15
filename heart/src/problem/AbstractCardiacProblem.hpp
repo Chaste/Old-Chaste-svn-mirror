@@ -92,7 +92,7 @@ private:
         archive & has_solution;
         if (has_solution)
         {
-            // TODO: Save using PetscTools:DumpPetscObject
+            /// \TODO: Save using PetscTools:DumpPetscObject
 //            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 //            PetscTools::DumpPetscObject(mSolution, filename);
         }
@@ -122,14 +122,14 @@ private:
         archive & mPrintOutput;
         archive & mCallChaste2Meshalyzer;
         archive & mNodesToOutput;
-        // TODO: think about the writer
+        /// \TODO: think about the writer
         archive & mpCardiacPde;
         //archive & mpAssembler; // Only exists during calls to the Solve method
         bool has_solution;
         archive & has_solution;
         if (has_solution)
         {
-            // TODO: Load using PetscTools::ReadPetscObject
+            /// \TODO: Load using PetscTools::ReadPetscObject
 //            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 //            PetscTools::ReadPetscObject(mSolution, filename);
         }
@@ -155,11 +155,12 @@ private:
                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc) const
     {
-        bool have_object = (pBcc != NULL);
+       bool have_object = (pBcc != NULL);
         archive & have_object;
         if (have_object)
         {
-            pBcc->SaveToArchive(archive);
+            ///\todo #98 Fix archiving boundary conditions properly         
+            //pBcc->SaveToArchive(archive);
         }
     }
     
@@ -177,13 +178,14 @@ private:
                                 
     {
         bool have_object;
+        
         BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc = NULL;
         archive & have_object;
         if (have_object)
         {
-            /// \todo memory leak
-            pBcc = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>;
-            pBcc->LoadFromArchive(archive, pMesh);
+            /// \todo #98 memory leak
+//            pBcc = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>;
+//            pBcc->LoadFromArchive(archive, pMesh);
         }
         return pBcc;
     }

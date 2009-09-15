@@ -39,8 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
-//todos:
-//factor out Dof handling?
+///\todo: factor out Dof handling?
 
 #include "AbstractNonlinearElasticityAssembler.hpp"
 //#include "LinearBasisFunction.hpp"
