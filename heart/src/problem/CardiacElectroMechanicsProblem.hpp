@@ -44,8 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "NodewiseData.hpp"
 
 
-/** \Todo
- *  Go through and tidy/refactor, perhaps make elements and weights safer
+/** \todo Go through and tidy/refactor, perhaps make elements and weights safer
  *  Think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
 

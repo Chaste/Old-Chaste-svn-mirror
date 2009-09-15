@@ -184,7 +184,7 @@ public:
         // The tests
         double exact_solution = exp(2);
 
-        // TODO: Work out what the global error should be bounded by
+        // todo: Work out what the global error should be bounded by
         double global_error = 1e-3;
 
         TS_ASSERT_DELTA(testvalue, exact_solution, global_error);
@@ -213,7 +213,7 @@ public:
         exact_solution[0] = sin(2);
         exact_solution[1] = cos(2);
 
-        // TODO: Work this out properly
+        // todo: Work this out properly
         double global_error = 1e-3;
 
         TS_ASSERT_DELTA(testvalue[0], exact_solution[0], global_error);

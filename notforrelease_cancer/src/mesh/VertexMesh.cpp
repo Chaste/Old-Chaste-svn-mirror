@@ -778,7 +778,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
                              it != all_elements.end();
                              ++it)
                         {
-                            if (this->GetElement(*it)->GetNumNodes() <= 3)//&&(this->GetAreaOfElement(*it) < 2.0*GetT2Threshold())) //\todo this is a magic number needs to be investigated.
+                            ///\todo this magic number needs to be investigated.
+                            if (this->GetElement(*it)->GetNumNodes() <= 3)//&&(this->GetAreaOfElement(*it) < 2.0*GetT2Threshold())) 
                             {
                                 triangular_element = true;
                             }
@@ -1679,7 +1680,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
     // Add the new element to the mesh
     AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
 
-    /*
+    /**
      * Remove the correct nodes from each element. Choose the
      * original element to be below (in the y direction) the
      * new element, so as to keep stem cells at the bottom.
@@ -1688,7 +1689,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT
      * Is this code crypt-dependent? It shouldn't be... see also #1099
      */
 
-    // Find lowest element \todo this could be more efficient
+    /// Find lowest element \todo this could be more efficient
     double height_midpoint_1 = 0.0;
     double height_midpoint_2 = 0.0;
     unsigned counter_1 = 0;

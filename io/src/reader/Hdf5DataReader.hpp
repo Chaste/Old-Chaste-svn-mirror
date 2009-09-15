@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 
 
-const unsigned MAX_STRING_SIZE = 100; /// \TODO: magic number
+const unsigned MAX_STRING_SIZE = 100; /// \todo: magic number
 
 
 /**

@@ -92,7 +92,7 @@ private:
         archive & has_solution;
         if (has_solution)
         {
-            /// \TODO: Save using PetscTools:DumpPetscObject
+            /// \todo: Save using PetscTools:DumpPetscObject
 //            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 //            PetscTools::DumpPetscObject(mSolution, filename);
         }
@@ -122,14 +122,14 @@ private:
         archive & mPrintOutput;
         archive & mCallChaste2Meshalyzer;
         archive & mNodesToOutput;
-        /// \TODO: think about the writer
+        /// \todo: think about the writer
         archive & mpCardiacPde;
         //archive & mpAssembler; // Only exists during calls to the Solve method
         bool has_solution;
         archive & has_solution;
         if (has_solution)
         {
-            /// \TODO: Load using PetscTools::ReadPetscObject
+            /// \todo: Load using PetscTools::ReadPetscObject
 //            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 //            PetscTools::ReadPetscObject(mSolution, filename);
         }

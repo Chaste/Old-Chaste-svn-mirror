@@ -341,7 +341,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
         // NOTE - have to get the active tension again, this must be done last!!
         // As if this turns out to be the correct solution, the state vars will be updated!
-        /// \TODO: sort out this inefficiency
+        /// \todo: sort out this inefficiency
         system.SetLambdaAndDerivative(lam, dlam_dt);
         system.SetActiveTensionInitialGuess(active_tension);
 
