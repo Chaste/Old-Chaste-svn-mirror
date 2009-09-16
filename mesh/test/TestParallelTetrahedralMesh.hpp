@@ -46,7 +46,6 @@ class TestParallelTetrahedralMesh : public CxxTest::TestSuite
 
 public:
 
-    // ticket #922: 1D parallel meshes not supported (!). Since culling internal faces is mandatory here and there's not a parallel implementation of that yet
     void TestConstructFromMeshReader1D()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
@@ -788,5 +787,155 @@ public:
 
         delete p_mesh;
     }
+    
+    void TestConstructLinearMesh()
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
+        ParallelTetrahedralMesh<1,1> read_mesh;
+        read_mesh.ConstructFromMeshReader(mesh_reader);
+        ParallelTetrahedralMesh<1,1> constructed_mesh;
+        constructed_mesh.ConstructLinearMesh(10u);
+
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumNodes(), read_mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalNodes(), read_mesh.GetNumLocalNodes());
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), read_mesh.GetNumBoundaryNodes());
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryElements(),  read_mesh.GetNumBoundaryElements());
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumElements(), read_mesh.GetNumElements());
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalElements(), read_mesh.GetNumLocalElements());
+
+        unsigned owned=constructed_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        unsigned owned_in_read=read_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        TS_ASSERT_EQUALS(owned_in_read, owned);
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryElements(), 2u);
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalNodes(), owned);
+        //Sequential: Process owns one fewer element than the number of nodes
+        //Parallel: End processes own the same as the number of node (since one node is paired with a halo node)
+        //Parallel: Middle processes own one more than the number of nodes (since two nodes are paired with a halo nodes)
+        unsigned expected_elements=owned+1;
+        if (PetscTools::GetMyRank()==0)
+        {
+            expected_elements--;
+        }
+         if (PetscTools::GetMyRank()==PetscTools::GetNumProcs()-1)
+        {
+            expected_elements--;
+        }
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalElements(), expected_elements);
+
+        //Note that boundary nodes are local to the process
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), 2u);
+        }
+        else
+        {
+            TS_ASSERT_LESS_THAN(constructed_mesh.GetNumBoundaryNodes(), 2u);
+        }
+        
+        for (unsigned i=0; i<read_mesh.GetNumNodes(); i++)
+        {
+            try
+            {
+                
+                read_mesh.GetNode(i);
+                //Read mesh didn't throw so owns the node
+                TS_ASSERT_THROWS_NOTHING(constructed_mesh.GetNode(i));
+                
+             }
+            catch(Exception& e)
+            {
+                //Read mesh threw so does not own node
+                TS_ASSERT_THROWS_ANYTHING(constructed_mesh.GetNode(i));
+            }
+        }
+
+        for (unsigned i=0; i<read_mesh.GetNumElements(); i++)
+        {
+            try
+            {
+                
+                read_mesh.GetElement(i);
+                //Read mesh didn't throw so owns the element
+                TS_ASSERT_THROWS_NOTHING(constructed_mesh.GetElement(i));
+                
+             }
+            catch(Exception& e)
+            {
+                //Read mesh threw so does not own element
+                TS_ASSERT_THROWS_ANYTHING(constructed_mesh.GetElement(i));
+            }
+        }
+
+        for (unsigned i=0; i<read_mesh.GetNumBoundaryElements(); i++)
+        {
+            try
+            {
+                
+                read_mesh.GetBoundaryElement(i);
+                //Read mesh didn't throw so owns the element
+                TS_ASSERT_THROWS_NOTHING(constructed_mesh.GetBoundaryElement(i));
+                
+             }
+            catch(Exception& e)
+            {
+                //Read mesh threw so does not own element
+                TS_ASSERT_THROWS_ANYTHING(constructed_mesh.GetBoundaryElement(i));
+            }
+        }
+    }
+ 
+    void TestConstructLinearMeshVerySmall()
+    {
+         
+        ParallelTetrahedralMesh<1,1> small_mesh;
+        if (PetscTools::GetNumProcs() >= 3u)
+        {
+            TS_ASSERT_THROWS_ANYTHING(small_mesh.ConstructLinearMesh(1));
+        }
+        else
+        {
+            //Works with up to 2 processes
+            small_mesh.ConstructLinearMesh(1);
+            unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+            TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 2u);
+            TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
+            TS_ASSERT_EQUALS(small_mesh.GetNumBoundaryElements(),  2u);
+            TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 1u);
+            TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), 1u);
+        }
+        
+    }
+ 
+    void TestConstructLinearMeshVerySmall2()
+    {
+        ParallelTetrahedralMesh<1,1> small_mesh;
+        if (PetscTools::GetNumProcs() >= 4u)
+        {
+            TS_ASSERT_THROWS_ANYTHING(small_mesh.ConstructLinearMesh(2));
+        }
+        else
+        {
+            //Works with up to 3 processes
+            small_mesh.ConstructLinearMesh(2);
+            unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+            TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 3u);
+            TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
+            TS_ASSERT_EQUALS(small_mesh.GetNumBoundaryElements(),  2u);
+            TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 2u);
+            //See logic in earlier test
+            unsigned expected_elements=owned+1;
+            if (PetscTools::GetMyRank()==0)
+            {
+                expected_elements--;
+            }
+            if (PetscTools::GetMyRank()==PetscTools::GetNumProcs()-1)
+            {
+                expected_elements--;
+            }
+            TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), expected_elements);
+        }
+       
+    }
+    
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

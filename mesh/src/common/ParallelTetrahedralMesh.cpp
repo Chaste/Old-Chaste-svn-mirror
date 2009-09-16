@@ -697,6 +697,85 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<u
     }
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
+{
+    assert(ELEMENT_DIM == 1);
+    
+    /*
+     * Start of stuff that's exclusive to parallel
+     */
+    //Check that there are enough nodes to make the parallelisation worthwhile
+    if (width+1 < PetscTools::GetNumProcs())
+    {
+        EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
+    }
+    mTotalNumNodes=width+1;
+    mTotalNumBoundaryElements=2u;
+    mTotalNumElements=width;
+    
+    //Use DistributedVectorFactory to make a dumb partition of the nodes
+    this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
+    
+    /*
+     * End of stuff that's exclusive to parallel
+     */
+    unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
+    unsigned hi_node=this->mpDistributedVectorFactory->GetHigh();
+    
+    if (PetscTools::GetMyRank() != 0)
+    {
+        //Allow for a halo node
+        lo_node--;
+    }
+    if (PetscTools::GetMyRank() != PetscTools::GetNumProcs()-1)
+    {
+        //Allow for a halo node
+        hi_node++;
+    }
+    Node<SPACE_DIM>* p_old_node=NULL;
+    for (unsigned node_index=lo_node; node_index<hi_node; node_index++)
+    {
+        // create node or halo-node
+        Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, node_index==0 || node_index==width, node_index);
+        if (node_index<this->mpDistributedVectorFactory->GetLow() ||
+            node_index==this->mpDistributedVectorFactory->GetHigh() )
+        {
+            //Beyond left or right it's a halo node
+            RegisterHaloNode(node_index);
+            mHaloNodes.push_back(p_node); 
+        }
+        else
+        {
+            RegisterNode(node_index);
+            this->mNodes.push_back(p_node); // create node
+        }
+        if (node_index==0) // create left boundary node and boundary element
+        {
+            this->mBoundaryNodes.push_back(p_node);
+            RegisterBoundaryElement(0);
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(0, p_node) );
+        }
+        if (node_index==width) // create right boundary node and boundary element
+        {
+            this->mBoundaryNodes.push_back(p_node);
+            RegisterBoundaryElement(1);
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
+        }
+        
+        if (node_index>lo_node) // create element
+        {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            nodes.push_back(p_old_node);
+            nodes.push_back(p_node);
+            RegisterElement(node_index-1);
+            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(node_index-1, nodes) );
+        }
+        //Keep track of the node which we've just created
+        p_old_node=p_node;
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

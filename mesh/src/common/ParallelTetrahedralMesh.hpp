@@ -191,6 +191,15 @@ public:
      */
     void SetElementOwnerships(unsigned lo, unsigned hi);
 
+     /**
+     * Construct a 1D linear grid on [0,width]
+     * 
+     * Throws if there are more processes than the number of nodes (width+1)
+     * 
+     * @param width  width of the mesh (in the x-direction)
+     */
+     void ConstructLinearMesh(unsigned width);
+
 private:
 
     /**
