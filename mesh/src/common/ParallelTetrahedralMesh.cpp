@@ -706,10 +706,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
      * Start of stuff that's exclusive to parallel
      */
     //Check that there are enough nodes to make the parallelisation worthwhile
+#define COVERAGE_IGNORE
+    //Sorry can't be covered by regular num_procs=2 Parallel build
     if (width+1 < PetscTools::GetNumProcs())
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
+#undef COVERAGE_IGNORE
     mTotalNumNodes=width+1;
     mTotalNumBoundaryElements=2u;
     mTotalNumElements=width;
