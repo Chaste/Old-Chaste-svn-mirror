@@ -65,9 +65,9 @@ public:
      * @param rMesh A reference to the mesh used to calculate the distance map to pass to the conduction velocity calculator.
      * @param directory The directory the data is in. The output is written to \<directory\>/output
      * @param hdf5File The file the data is in.
-     * @param isAbsolute Whether the directory is an absolute path
+     * @param makeAbsolute Whether to convert the path to absolute using the OutputFileHandler (via the HdfDataReader)
      */
-    PostProcessingWriter(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool isAbsolute);
+    PostProcessingWriter(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute);
 
     /**
      *  Write out data files. The data that is written depends on which maps have been requested using
