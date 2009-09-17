@@ -281,9 +281,6 @@ public:
     /**
      * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
      *
-     * Diagonals can be staggered so that there is no preferred
-     * diffusion propagation direction.
-     *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param depth  depth of the mesh (in the z-direction)

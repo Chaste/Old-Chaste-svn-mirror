@@ -244,7 +244,7 @@ public:
 
         some_system.AssembleFinalLinearSystem();
 
-        if (PetscTools::GetNumProcs()==1)
+        if (PetscTools::IsSequential())
         {
             for (int i=0; i<SIZE; i++)
             {

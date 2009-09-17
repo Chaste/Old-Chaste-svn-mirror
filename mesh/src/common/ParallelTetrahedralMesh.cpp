@@ -70,11 +70,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
 {
     ///\todo: add a timing event for the partitioning
 
-    if (mMetisPartitioning==METIS_BINARY && PetscTools::GetNumProcs() > 1)
+    if (mMetisPartitioning==METIS_BINARY && !PetscTools::IsSequential())
     {
         MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);
     }
-    else if (mMetisPartitioning==METIS_LIBRARY && PetscTools::GetNumProcs() > 1)
+    else if (mMetisPartitioning==METIS_LIBRARY && !PetscTools::IsSequential())
     {
         MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);
     }
@@ -271,14 +271,14 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         }
     }
 
-    if (mMetisPartitioning != DUMB && PetscTools::GetNumProcs()>1)
+    if (mMetisPartitioning != DUMB && !PetscTools::IsSequential())
     {
         assert(this->mNodesPermutation.size() != 0);
         ReorderNodes(this->mNodesPermutation);
 
         unsigned num_owned;
         unsigned rank = PetscTools::GetMyRank();
-        if ( rank<PetscTools::GetNumProcs()-1 )
+        if ( !PetscTools::AmTopMost() )
         {
             num_owned =  proc_offsets[rank+1]-proc_offsets[rank];
         }
@@ -421,7 +421,26 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMa
 
     return boundary_element_position->second;
 }
-
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM> * ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAnyNode(unsigned index) const
+{
+    std::map<unsigned, unsigned>::const_iterator node_position;
+    //First search the halo
+    if ((node_position=mHaloNodesMapping.find(index)) != mHaloNodesMapping.end())
+    {
+        return mHaloNodes[node_position->second];
+    }
+    //First search the owned node
+    if ((node_position=mNodesMapping.find(index)) != mNodesMapping.end())
+    {
+        //Found an owned node
+        return this->mNodes[node_position->second];
+    }
+    //Not here
+    std::stringstream message;
+    message << "Requested node/halo " << index << " does not belong to processor " << PetscTools::GetMyRank();
+    EXCEPTION(message.str().c_str());
+}
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
@@ -443,7 +462,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
                                                                                   std::vector<unsigned>& rProcessorsOffset,
                                                                                   std::vector<unsigned>& rNodePermutation)
 {
-    assert(PetscTools::GetNumProcs() > 1);
+    assert(!PetscTools::IsSequential());
     #define COVERAGE_IGNORE
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
     #undef COVERAGE_IGNORE
@@ -671,7 +690,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<unsigned>& rNodePermutation)
 {
-    assert(PetscTools::GetNumProcs() > 1);
+    assert(!PetscTools::IsSequential());
 
     // Need to rebuild global-local maps
     mNodesMapping.clear();
@@ -717,12 +736,12 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
     unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
     unsigned hi_node=this->mpDistributedVectorFactory->GetHigh();
     
-    if (PetscTools::GetMyRank() != 0)
+    if (!PetscTools::AmMaster())
     {
         //Allow for a halo node
         lo_node--;
     }
-    if (PetscTools::GetMyRank() != PetscTools::GetNumProcs()-1)
+    if (!PetscTools::AmTopMost())
     {
         //Allow for a halo node
         hi_node++;
@@ -769,6 +788,329 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
         p_old_node=p_node;
     }
 }
+
+//#include "Debug.hpp"
+//
+//template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
+//{
+//    assert(SPACE_DIM == 2);
+//    assert(ELEMENT_DIM == 2);
+//    //Check that there are enough nodes to make the parallelisation worthwhile
+//    if (height<2 || height+1 < PetscTools::GetNumProcs())
+//    {
+//        EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
+//    }
+//    mTotalNumNodes=(width+1)*(height+1);
+//    mTotalNumBoundaryElements=(width+height)*2;
+//    mTotalNumElements=width*height*2;
+//    
+//    //Use DistributedVectorFactory to make a dumb partition of the nodes
+//    this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
+//    DistributedVectorFactory y_partition(height+1);
+//    unsigned lo_y = y_partition.GetLow();
+//    unsigned hi_y = y_partition.GetHigh();
+//    if (!PetscTools::AmMaster())
+//    {
+//        //Allow for a halo node
+//        lo_y--;
+//    }
+//    if (!PetscTools::AmTopMost())
+//    {
+//        //Allow for a halo node
+//        hi_y++;
+//    }
+//   
+//    //Construct the nodes
+//    for (int j=(int)hi_y-1; j>=(int)lo_y; j--) //j must be signed for this loop to terminate
+//    {
+//        for (unsigned i=0; i<width+1; i++)
+//        {
+//            bool is_boundary=false;
+//            if (i==0 || j==0 || i==width || j==(int)height)
+//            {
+//                is_boundary=true;
+//            }
+//            unsigned global_node_index=(width+1)*(height-j) + i; //Verified from sequential
+//            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(global_node_index, is_boundary, i, j);
+//            if (j<(int)y_partition.GetLow() || j==(int)y_partition.GetHigh() )
+//            {
+//                //Beyond left or right it's a halo node
+//                RegisterHaloNode(global_node_index);               
+//                mHaloNodes.push_back(p_node); 
+//            }
+//            else
+//            {
+//                PRINT_VARIABLES(j, global_node_index);
+//                PRINT_VARIABLES(i, global_node_index);
+//                RegisterNode(global_node_index);
+//                this->mNodes.push_back(p_node);
+//            }
+//            if (is_boundary)
+//            {
+//                this->mBoundaryNodes.push_back(p_node);
+//            }
+//        }
+//    }
+//    PRINT_VARIABLE(this->mNodes.size());
+//  
+//    //Construct the boundary elements
+//    unsigned belem_index=0;
+//    //Top
+//    if (PetscTools::AmMaster())
+//    {
+//       for (unsigned i=0; i<width; i++)
+//       {
+//            std::vector<Node<SPACE_DIM>*> nodes;
+//            nodes.push_back(GetAnyNode( i ));
+//            nodes.push_back(GetAnyNode( i+1 ));
+//            PRINT_VARIABLES(i, i+1);
+//            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+//        }
+//    }
+//
+//    //Right
+//    for (unsigned i=lo_y; i<hi_y; i++)
+//    {
+//        std::vector<Node<SPACE_DIM>*> nodes;
+//        nodes.push_back(GetAnyNode( (width+1)*i-1 ));
+//        nodes.push_back(GetAnyNode( (width+1)*(i+1)-1 ));
+//        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+//    }
+//    //Bottom
+//    if (PetscTools::AmTopMost())
+//    {
+//        for (unsigned i=0; i<width; i++)
+//        {
+//            std::vector<Node<SPACE_DIM>*> nodes;
+//            nodes.push_back(GetAnyNode( height*(width+1)+i+1 ));
+//            nodes.push_back(GetAnyNode( height*(width+1)+i ));
+//            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+//        }
+//    }
+//
+//    //Left
+//    for (unsigned i=lo_y; i<hi_y; i++)
+//    {
+//        std::vector<Node<SPACE_DIM>*> nodes;
+//        nodes.push_back(GetAnyNode( (width+1)*(i+1) ));
+//        nodes.push_back(GetAnyNode( (width+1)*(i) ));
+//        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+//    }
+//    MARK;
+//
+//    //Construct the elements
+//    unsigned elem_index = 0;
+//    for (unsigned j=lo_y; j<hi_y-1; j++)
+//    {
+//        for (unsigned i=0; i<width; i++)
+//        {
+//            unsigned parity=(i+j)%2;
+//            std::vector<Node<SPACE_DIM>*> upper_nodes;
+//            upper_nodes.push_back(GetAnyNode( j*(width+1)+i ));
+//            upper_nodes.push_back(GetAnyNode( j*(width+1)+i+1 ));
+//            if (stagger==false  || parity == 0)
+//            {
+//                upper_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i+1 ));
+//            }
+//            else
+//            {
+//                upper_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i ));
+//            }
+//            RegisterElement(elem_index);
+//            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
+//            std::vector<Node<SPACE_DIM>*> lower_nodes;
+//            lower_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i+1 ));
+//            lower_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i ));
+//            if (stagger==false  ||parity == 0)
+//            {
+//                lower_nodes.push_back(GetAnyNode( j*(width+1)+i ));
+//            }
+//            else
+//            {
+//                lower_nodes.push_back(GetAnyNode( j*(width+1)+i+1 ));
+//            }
+//            RegisterElement(elem_index);
+//            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
+//        }
+//    }
+//
+//}
+//template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
+//        unsigned height,
+//        unsigned depth)
+//{
+//    assert(SPACE_DIM == 3);
+//    assert(ELEMENT_DIM == 3);
+//    //Construct the nodes
+//
+//    unsigned node_index = 0;
+//    for (unsigned k=0; k<depth+1; k++)
+//    {
+//        for (unsigned j=0; j<height+1; j++)
+//        {
+//            for (unsigned i=0; i<width+1; i++)
+//            {
+//                bool is_boundary = false;
+//                if (i==0 || j==0 || k==0 || i==width || j==height || k==depth)
+//                {
+//                    is_boundary = true;
+//                }
+//
+//                Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j, k);
+//
+//                this->mNodes.push_back(p_node);
+//                if (is_boundary)
+//                {
+//                    this->mBoundaryNodes.push_back(p_node);
+//                }
+//            }
+//        }
+//    }
+//
+//    // Construct the elements
+//
+//    unsigned elem_index = 0;
+//    unsigned belem_index = 0;
+//    unsigned element_nodes[6][4] = {{0, 1, 5, 7}, {0, 1, 3, 7},
+//                                        {0, 2, 3, 7}, {0, 2, 6, 7},
+//                                        {0, 4, 6, 7}, {0, 4, 5, 7}};
+///* Alternative tessellation - (gerardus)
+// * Note that our method (above) has a bias that all tetrahedra share a
+// * common edge (the diagonal 0 - 7).  In the following method the cube is
+// * split along the "face diagonal" 1-2-5-6 into two prisms.  This also has a bias.
+// * 
+//    unsigned element_nodes[6][4] = {{ 0, 6, 5, 4},
+//                                    { 0, 2, 6, 1},
+//                                    { 0, 1, 6, 5},
+//                                    { 1, 2, 3, 7},
+//                                    { 1, 2, 6, 7},
+//                                    { 1, 6, 7, 5 }};
+//*/
+//    std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
+//
+//    for (unsigned k=0; k<depth; k++)
+//    {
+//        for (unsigned j=0; j<height; j++)
+//        {
+//            for (unsigned i=0; i<width; i++)
+//            {
+//                // Compute the nodes' index
+//                unsigned global_node_indices[8];
+//                unsigned local_node_index = 0;
+//
+//                for (unsigned z = 0; z < 2; z++)
+//                {
+//                    for (unsigned y = 0; y < 2; y++)
+//                    {
+//                        for (unsigned x = 0; x < 2; x++)
+//                        {
+//                            global_node_indices[local_node_index] = i+x+(width+1)*(j+y+(height+1)*(k+z));
+//
+//                            local_node_index++;
+//                        }
+//                    }
+//                }
+//
+//                for (unsigned m = 0; m < 6; m++)
+//                {
+//                    // Tetrahedra #m
+//
+//                    tetrahedra_nodes.clear();
+//
+//                    for (unsigned n = 0; n < 4; n++)
+//                    {
+//                        tetrahedra_nodes.push_back(GetAnyNode( global_node_indices[element_nodes[m][n]] ));
+//                    }
+//
+//                    this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
+//                }
+//
+//                //Are we at a boundary?
+//                std::vector<Node<SPACE_DIM>*> triangle_nodes;
+//                if (i == 0) //low face at x==0
+//                {
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                }
+//                if (i == width-1) //high face at x=width
+//                {
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                }
+//                if (j == 0) //low face at y==0
+//                {
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                }
+//                if (j == height-1) //high face at y=height
+//                {
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                }
+//                if (k == 0) //low face at z==0
+//                {
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                }
+//                if (k == depth-1) //high face at z=depth
+//                {
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                    triangle_nodes.clear();
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
+//                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+//                    this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+//                }
+//            }//i
+//        }//j
+//    }//k
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

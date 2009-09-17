@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 std::string FormDebugHead()
 {
     std::string ret;
-    if (PetscTools::GetNumProcs()==1)
+    if (PetscTools::IsSequential())
     {
         std::string ret("DEBUG: ");
         return ret;

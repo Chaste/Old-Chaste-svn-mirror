@@ -77,13 +77,13 @@ public:
 
         HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
         HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
-        if (PetscTools::GetMyRank() != PetscTools::GetNumProcs()-1)
+        if (!PetscTools::AmTopMost())
         {
-        HeartEventHandler::MilliSleep(50);
+            HeartEventHandler::MilliSleep(50);
         }
         else
         {
-            //Master process has smaller amount of work
+            //Top process has smaller amount of work
             HeartEventHandler::MilliSleep(10);
         }
         HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);

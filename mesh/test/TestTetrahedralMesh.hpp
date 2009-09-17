@@ -1316,11 +1316,11 @@ public:
         {
             mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_2.txt");
 
-            if (PetscTools::GetMyRank()==0)
+            if (PetscTools::AmMaster())
             {
                 TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetLocalOwnership(), 1u);
             }
-            else if (PetscTools::GetMyRank()==1)
+            else if (PetscTools::AmTopMost())
             {
                 TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetLocalOwnership(), 3u);
             }

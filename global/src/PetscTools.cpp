@@ -96,6 +96,12 @@ bool PetscTools::AmMaster()
     return (mRank == MASTER_RANK);
 }
 
+bool PetscTools::AmTopMost()
+{
+    CheckCache();
+    return (mRank == mNumProcessors - 1);
+}
+
 //
 // Little utility methods
 //

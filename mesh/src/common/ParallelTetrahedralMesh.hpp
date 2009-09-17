@@ -199,6 +199,27 @@ public:
      * @param width  width of the mesh (in the x-direction)
      */
      void ConstructLinearMesh(unsigned width);
+     
+//    /**
+//     * Construct a 2D rectangular grid on [0,width]x[0,height].
+//     *
+//     * Diagonals can be staggered so that there is no preferred
+//     * diffusion propagation direction.
+//     *
+//     * @param width  width of the mesh (in the x-direction)
+//     * @param height  height of the mesh (in the y-direction)
+//     * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
+//     */
+//    void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
+//
+//    /**
+//     * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
+//     *
+//     * @param width  width of the mesh (in the x-direction)
+//     * @param height  height of the mesh (in the y-direction)
+//     * @param depth  depth of the mesh (in the z-direction)
+//     */
+//    void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
 
 private:
 
@@ -258,6 +279,17 @@ private:
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
+    /**
+     * Returns the local pointer to a node which is
+     * either owned or in the halo of this process.
+     * 
+     * We first search halo node (as there are fewer),
+     * then search totally owned nodes.  Otherwise throw.
+     *
+     * @param index the global index of the node
+     */
+    Node<SPACE_DIM> * GetAnyNode(unsigned index) const;
+    
     /**
      * Compute a parallel partitioning of a given mesh
      * using specialised methods below based on the value

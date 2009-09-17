@@ -287,6 +287,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec exi
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
 {
+    ///\todo the following condition is equivalent to PetscTools::IsSequential (doesn't match comment)
     if(!PetscTools::GetNumProcs()>1)
     {
         // don't do test in parallel

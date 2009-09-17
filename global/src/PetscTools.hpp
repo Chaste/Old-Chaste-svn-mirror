@@ -104,6 +104,13 @@ public:
     static bool AmMaster();
 
     /**
+     * Just returns whether it is the right-most process or not.
+     *
+     * If not running in parallel, always returns true.
+     */
+    static bool AmTopMost();
+
+    /**
      * If MPI is set up, perform a barrier synchronisation.
      * If not, it's a noop.
      */

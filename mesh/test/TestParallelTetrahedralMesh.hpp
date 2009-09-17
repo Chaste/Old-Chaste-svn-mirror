@@ -870,11 +870,11 @@ public:
         //Parallel: End processes own the same as the number of node (since one node is paired with a halo node)
         //Parallel: Middle processes own one more than the number of nodes (since two nodes are paired with a halo nodes)
         unsigned expected_elements=owned+1;
-        if (PetscTools::GetMyRank()==0)
+        if (PetscTools::AmMaster())
         {
             expected_elements--;
         }
-         if (PetscTools::GetMyRank()==PetscTools::GetNumProcs()-1)
+         if (PetscTools::AmTopMost())
         {
             expected_elements--;
         }
@@ -913,18 +913,91 @@ public:
             TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 2u);
             //See logic in earlier test
             unsigned expected_elements=owned+1;
-            if (PetscTools::GetMyRank()==0)
+            if (PetscTools::AmMaster())
             {
                 expected_elements--;
+                //Left processor always owns left node
+                TS_ASSERT_EQUALS(small_mesh.GetNode(0),small_mesh.GetAnyNode(0));
             }
-            if (PetscTools::GetMyRank()==PetscTools::GetNumProcs()-1)
+            if (PetscTools::AmTopMost())
             {
                 expected_elements--;
+                if (!PetscTools::IsSequential())
+                {
+                    TS_ASSERT_THROWS_CONTAINS(small_mesh.GetAnyNode(0), "Requested node/halo");
+                    //Right processor has  node 1 as halo
+                    TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNode(1), "does not belong to processor");
+                    TS_ASSERT_THROWS_NOTHING(small_mesh.GetAnyNode(1));
+                }
             }
             TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), expected_elements);
         }
        
     }
     
+    void dontTestConstructRetangularMesh()
+    {
+        unsigned width=2;
+        unsigned height=2;
+        
+        TetrahedralMesh<2,2> base_mesh;
+        base_mesh.ConstructRectangularMesh(width, height);
+        TrianglesMeshWriter<2,2> mesh_writer("", "rectangle");
+        mesh_writer.WriteFilesUsingMesh(base_mesh);
+        PetscTools::Barrier();
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
+        ParallelTetrahedralMesh<2,2> read_mesh;
+        read_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        ParallelTetrahedralMesh<2,2> constructed_mesh;
+        //constructed_mesh.ConstructRectangularMesh(width, height);
+        
+        CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+    }
+    
+    
+    void dontTestConstructRetangularMeshStagger()
+    {
+        unsigned width=2;
+        unsigned height=1;
+        
+        TetrahedralMesh<2,2> base_mesh;
+        base_mesh.ConstructRectangularMesh(width, height, true);
+        TrianglesMeshWriter<2,2> mesh_writer("", "rectangle");
+        mesh_writer.WriteFilesUsingMesh(base_mesh);
+        PetscTools::Barrier();
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
+        ParallelTetrahedralMesh<2,2> read_mesh;
+        read_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        ParallelTetrahedralMesh<2,2> constructed_mesh;
+        //constructed_mesh.ConstructRectangularMesh(width, height, true);
+        
+        CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+    }
+    
+    void dontTestConstructCuboidMesh()
+    {
+        unsigned width=2;
+        unsigned height=2;
+        unsigned depth=2;
+        
+        TetrahedralMesh<3,3> base_mesh;
+        base_mesh.ConstructCuboid(width, height, depth);
+        TrianglesMeshWriter<3,3> mesh_writer("", "cuboid");
+        mesh_writer.WriteFilesUsingMesh(base_mesh);
+        PetscTools::Barrier();
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<3,3> mesh_reader(output_dir+"cuboid");
+        ParallelTetrahedralMesh<3,3> read_mesh;
+        read_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        ParallelTetrahedralMesh<3,3> constructed_mesh;
+        //constructed_mesh.ConstructCuboid(width, height, depth);
+        
+        CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+    }
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/
