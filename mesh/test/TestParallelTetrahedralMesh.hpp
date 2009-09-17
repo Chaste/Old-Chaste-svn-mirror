@@ -788,6 +788,69 @@ public:
         delete p_mesh;
     }
     
+private:
+
+    template <unsigned DIM>
+    void CompareParallelMeshOwnership(ParallelTetrahedralMesh<DIM,DIM> &readMesh, ParallelTetrahedralMesh<DIM,DIM> &constructedMesh)
+    {
+        TS_ASSERT_EQUALS(constructedMesh.GetNumNodes(), readMesh.GetNumNodes());
+        TS_ASSERT_EQUALS(constructedMesh.GetNumLocalNodes(), readMesh.GetNumLocalNodes());
+        TS_ASSERT_EQUALS(constructedMesh.GetNumBoundaryNodes(), readMesh.GetNumBoundaryNodes());
+        TS_ASSERT_EQUALS(constructedMesh.GetNumBoundaryElements(),  readMesh.GetNumBoundaryElements());
+        TS_ASSERT_EQUALS(constructedMesh.GetNumElements(), readMesh.GetNumElements());
+        TS_ASSERT_EQUALS(constructedMesh.GetNumLocalElements(), readMesh.GetNumLocalElements());
+        
+        for (unsigned i=0; i<readMesh.GetNumNodes(); i++)
+        {
+            try
+            {
+                unsigned index=constructedMesh.SolveNodeMapping(i);
+                //Read mesh didn't throw so owns the node
+                TS_ASSERT_THROWS_NOTHING(constructedMesh.GetNode(i));
+                TS_ASSERT_EQUALS(index, readMesh.SolveNodeMapping(i));
+             }
+            catch(Exception& e)
+            {
+                //Read mesh threw so does not own node
+                TS_ASSERT_THROWS_CONTAINS(constructedMesh.GetNode(i), "does not belong to processor");
+            }
+        }
+
+        for (unsigned i=0; i<readMesh.GetNumElements(); i++)
+        {
+            try
+            {
+                unsigned index=constructedMesh.SolveElementMapping(i);
+                //Read mesh didn't throw so owns the element
+                TS_ASSERT_THROWS_NOTHING(constructedMesh.GetElement(i));
+                TS_ASSERT_EQUALS(index, readMesh.SolveElementMapping(i));
+             }
+            catch(Exception& e)
+            {
+                //Read mesh threw so does not own element
+                TS_ASSERT_THROWS_CONTAINS(constructedMesh.GetElement(i), "does not belong to processor");
+            }
+        }
+
+        for (unsigned i=0; i<readMesh.GetNumBoundaryElements(); i++)
+        {
+            try
+            {
+                
+                unsigned index=constructedMesh.SolveBoundaryElementMapping(i);
+                //Read mesh didn't throw so owns the element
+                TS_ASSERT_THROWS_NOTHING(constructedMesh.GetBoundaryElement(i));
+                TS_ASSERT_EQUALS(index, readMesh.SolveBoundaryElementMapping(i));
+             }
+            catch(Exception& e)
+            {
+                //Read mesh threw so does not own element
+                TS_ASSERT_THROWS_CONTAINS(constructedMesh.GetBoundaryElement(i), "does not belong to processor");
+            }
+        }
+        
+    }
+public:    
     void TestConstructLinearMesh()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
@@ -796,13 +859,8 @@ public:
         ParallelTetrahedralMesh<1,1> constructed_mesh;
         constructed_mesh.ConstructLinearMesh(10u);
 
-        TS_ASSERT_EQUALS(constructed_mesh.GetNumNodes(), read_mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalNodes(), read_mesh.GetNumLocalNodes());
-        TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), read_mesh.GetNumBoundaryNodes());
-        TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryElements(),  read_mesh.GetNumBoundaryElements());
-        TS_ASSERT_EQUALS(constructed_mesh.GetNumElements(), read_mesh.GetNumElements());
-        TS_ASSERT_EQUALS(constructed_mesh.GetNumLocalElements(), read_mesh.GetNumLocalElements());
-
+        CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+        
         unsigned owned=constructed_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         unsigned owned_in_read=read_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         TS_ASSERT_EQUALS(owned_in_read, owned);
@@ -832,86 +890,17 @@ public:
             TS_ASSERT_LESS_THAN(constructed_mesh.GetNumBoundaryNodes(), 2u);
         }
         
-        for (unsigned i=0; i<read_mesh.GetNumNodes(); i++)
-        {
-            try
-            {
-                
-                read_mesh.GetNode(i);
-                //Read mesh didn't throw so owns the node
-                TS_ASSERT_THROWS_NOTHING(constructed_mesh.GetNode(i));
-                
-             }
-            catch(Exception& e)
-            {
-                //Read mesh threw so does not own node
-                TS_ASSERT_THROWS_ANYTHING(constructed_mesh.GetNode(i));
-            }
-        }
-
-        for (unsigned i=0; i<read_mesh.GetNumElements(); i++)
-        {
-            try
-            {
-                
-                read_mesh.GetElement(i);
-                //Read mesh didn't throw so owns the element
-                TS_ASSERT_THROWS_NOTHING(constructed_mesh.GetElement(i));
-                
-             }
-            catch(Exception& e)
-            {
-                //Read mesh threw so does not own element
-                TS_ASSERT_THROWS_ANYTHING(constructed_mesh.GetElement(i));
-            }
-        }
-
-        for (unsigned i=0; i<read_mesh.GetNumBoundaryElements(); i++)
-        {
-            try
-            {
-                
-                read_mesh.GetBoundaryElement(i);
-                //Read mesh didn't throw so owns the element
-                TS_ASSERT_THROWS_NOTHING(constructed_mesh.GetBoundaryElement(i));
-                
-             }
-            catch(Exception& e)
-            {
-                //Read mesh threw so does not own element
-                TS_ASSERT_THROWS_ANYTHING(constructed_mesh.GetBoundaryElement(i));
-            }
-        }
     }
+ 
  
     void TestConstructLinearMeshVerySmall()
     {
-         
         ParallelTetrahedralMesh<1,1> small_mesh;
-        if (PetscTools::GetNumProcs() >= 3u)
-        {
-            TS_ASSERT_THROWS_ANYTHING(small_mesh.ConstructLinearMesh(1));
-        }
-        else
-        {
-            //Works with up to 2 processes
-            small_mesh.ConstructLinearMesh(1);
-            unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
-            TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 2u);
-            TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
-            TS_ASSERT_EQUALS(small_mesh.GetNumBoundaryElements(),  2u);
-            TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 1u);
-            TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), 1u);
-        }
-        
-    }
- 
-    void TestConstructLinearMeshVerySmall2()
-    {
-        ParallelTetrahedralMesh<1,1> small_mesh;
+        //Coverage hack
+        TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(1), "There aren't enough nodes to make parallelisation worthwhile");
         if (PetscTools::GetNumProcs() >= 4u)
         {
-            TS_ASSERT_THROWS_ANYTHING(small_mesh.ConstructLinearMesh(2));
+            TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(2), "There aren't enough nodes to make parallelisation worthwhile");
         }
         else
         {

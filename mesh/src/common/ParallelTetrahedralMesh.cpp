@@ -702,17 +702,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
 {
     assert(ELEMENT_DIM == 1);
     
-    /*
-     * Start of stuff that's exclusive to parallel
-     */
-    //Check that there are enough nodes to make the parallelisation worthwhile
-#define COVERAGE_IGNORE
-    //Sorry can't be covered by regular num_procs=2 Parallel build
-    if (width+1 < PetscTools::GetNumProcs())
+     //Check that there are enough nodes to make the parallelisation worthwhile
+    if (width<2 || width+1 < PetscTools::GetNumProcs())
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
-#undef COVERAGE_IGNORE
     mTotalNumNodes=width+1;
     mTotalNumBoundaryElements=2u;
     mTotalNumElements=width;
@@ -720,9 +714,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
     //Use DistributedVectorFactory to make a dumb partition of the nodes
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
     
-    /*
-     * End of stuff that's exclusive to parallel
-     */
     unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
     unsigned hi_node=this->mpDistributedVectorFactory->GetHigh();
     
