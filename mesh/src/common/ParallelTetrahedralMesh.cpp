@@ -789,153 +789,162 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
     }
 }
 
-//#include "Debug.hpp"
-//
-//template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-//void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
-//{
-//    assert(SPACE_DIM == 2);
-//    assert(ELEMENT_DIM == 2);
-//    //Check that there are enough nodes to make the parallelisation worthwhile
-//    if (height<2 || height+1 < PetscTools::GetNumProcs())
-//    {
-//        EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
-//    }
-//    mTotalNumNodes=(width+1)*(height+1);
-//    mTotalNumBoundaryElements=(width+height)*2;
-//    mTotalNumElements=width*height*2;
-//    
-//    //Use DistributedVectorFactory to make a dumb partition of the nodes
-//    this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
-//    DistributedVectorFactory y_partition(height+1);
-//    unsigned lo_y = y_partition.GetLow();
-//    unsigned hi_y = y_partition.GetHigh();
-//    if (!PetscTools::AmMaster())
-//    {
-//        //Allow for a halo node
-//        lo_y--;
-//    }
-//    if (!PetscTools::AmTopMost())
-//    {
-//        //Allow for a halo node
-//        hi_y++;
-//    }
-//   
-//    //Construct the nodes
-//    for (int j=(int)hi_y-1; j>=(int)lo_y; j--) //j must be signed for this loop to terminate
-//    {
-//        for (unsigned i=0; i<width+1; i++)
-//        {
-//            bool is_boundary=false;
-//            if (i==0 || j==0 || i==width || j==(int)height)
-//            {
-//                is_boundary=true;
-//            }
-//            unsigned global_node_index=(width+1)*(height-j) + i; //Verified from sequential
-//            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(global_node_index, is_boundary, i, j);
-//            if (j<(int)y_partition.GetLow() || j==(int)y_partition.GetHigh() )
-//            {
-//                //Beyond left or right it's a halo node
-//                RegisterHaloNode(global_node_index);               
-//                mHaloNodes.push_back(p_node); 
-//            }
-//            else
-//            {
-//                PRINT_VARIABLES(j, global_node_index);
-//                PRINT_VARIABLES(i, global_node_index);
-//                RegisterNode(global_node_index);
-//                this->mNodes.push_back(p_node);
-//            }
-//            if (is_boundary)
-//            {
-//                this->mBoundaryNodes.push_back(p_node);
-//            }
-//        }
-//    }
-//    PRINT_VARIABLE(this->mNodes.size());
-//  
-//    //Construct the boundary elements
-//    unsigned belem_index=0;
-//    //Top
-//    if (PetscTools::AmMaster())
-//    {
-//       for (unsigned i=0; i<width; i++)
-//       {
-//            std::vector<Node<SPACE_DIM>*> nodes;
-//            nodes.push_back(GetAnyNode( i ));
-//            nodes.push_back(GetAnyNode( i+1 ));
-//            PRINT_VARIABLES(i, i+1);
-//            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
-//        }
-//    }
-//
-//    //Right
-//    for (unsigned i=lo_y; i<hi_y; i++)
-//    {
-//        std::vector<Node<SPACE_DIM>*> nodes;
-//        nodes.push_back(GetAnyNode( (width+1)*i-1 ));
-//        nodes.push_back(GetAnyNode( (width+1)*(i+1)-1 ));
-//        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
-//    }
-//    //Bottom
-//    if (PetscTools::AmTopMost())
-//    {
-//        for (unsigned i=0; i<width; i++)
-//        {
-//            std::vector<Node<SPACE_DIM>*> nodes;
-//            nodes.push_back(GetAnyNode( height*(width+1)+i+1 ));
-//            nodes.push_back(GetAnyNode( height*(width+1)+i ));
-//            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
-//        }
-//    }
-//
-//    //Left
-//    for (unsigned i=lo_y; i<hi_y; i++)
-//    {
-//        std::vector<Node<SPACE_DIM>*> nodes;
-//        nodes.push_back(GetAnyNode( (width+1)*(i+1) ));
-//        nodes.push_back(GetAnyNode( (width+1)*(i) ));
-//        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
-//    }
-//    MARK;
-//
-//    //Construct the elements
-//    unsigned elem_index = 0;
-//    for (unsigned j=lo_y; j<hi_y-1; j++)
-//    {
-//        for (unsigned i=0; i<width; i++)
-//        {
-//            unsigned parity=(i+j)%2;
-//            std::vector<Node<SPACE_DIM>*> upper_nodes;
-//            upper_nodes.push_back(GetAnyNode( j*(width+1)+i ));
-//            upper_nodes.push_back(GetAnyNode( j*(width+1)+i+1 ));
-//            if (stagger==false  || parity == 0)
-//            {
-//                upper_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i+1 ));
-//            }
-//            else
-//            {
-//                upper_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i ));
-//            }
-//            RegisterElement(elem_index);
-//            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
-//            std::vector<Node<SPACE_DIM>*> lower_nodes;
-//            lower_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i+1 ));
-//            lower_nodes.push_back(GetAnyNode( (j+1)*(width+1)+i ));
-//            if (stagger==false  ||parity == 0)
-//            {
-//                lower_nodes.push_back(GetAnyNode( j*(width+1)+i ));
-//            }
-//            else
-//            {
-//                lower_nodes.push_back(GetAnyNode( j*(width+1)+i+1 ));
-//            }
-//            RegisterElement(elem_index);
-//            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
-//        }
-//    }
-//
-//}
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
+{
+    assert(SPACE_DIM == 2);
+    assert(ELEMENT_DIM == 2);
+    //Check that there are enough nodes to make the parallelisation worthwhile
+    if (height<2 || height+1 < PetscTools::GetNumProcs())
+    {
+        EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
+    }
+    mTotalNumNodes=(width+1)*(height+1);
+    mTotalNumBoundaryElements=(width+height)*2;
+    mTotalNumElements=width*height*2;
+    
+    //Use DistributedVectorFactory to make a dumb partition of space
+    DistributedVectorFactory y_partition(height+1);
+    unsigned lo_y = y_partition.GetLow();
+    unsigned hi_y = y_partition.GetHigh();
+    //Dumb partition of nodes has to be such that each process gets complete slices
+    this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes, (width+1)*y_partition.GetLocalOwnership());
+  
+    if (!PetscTools::AmMaster())
+    {
+        //Allow for a halo node
+        lo_y--;
+    }
+    if (!PetscTools::AmTopMost())
+    {
+        //Allow for a halo node
+        hi_y++;
+    }
+   
+    //Construct the nodes
+    for (unsigned j=lo_y; j<hi_y; j++)
+    {
+        for (unsigned i=0; i<width+1; i++)
+        {
+            bool is_boundary=false;
+            if (i==0 || j==0 || i==width || j==height)
+            {
+                is_boundary=true;
+            }
+            unsigned global_node_index=((width+1)*(j) + i); //Verified from sequential
+            Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(global_node_index, is_boundary, i, j);
+            if (j<y_partition.GetLow() || j==y_partition.GetHigh() )
+            {
+                //Beyond left or right it's a halo node
+                RegisterHaloNode(global_node_index);               
+                mHaloNodes.push_back(p_node); 
+            }
+            else
+            {
+                RegisterNode(global_node_index);
+                this->mNodes.push_back(p_node);
+            }
+            if (is_boundary)
+            {
+                this->mBoundaryNodes.push_back(p_node);
+            }
+        }
+    }
+  
+    //Construct the boundary elements
+    unsigned belem_index;
+    //Top
+    if (PetscTools::AmTopMost())
+    {
+       for (unsigned i=0; i<width; i++)
+       {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            nodes.push_back(GetAnyNode( height*(width+1)+i ));
+            nodes.push_back(GetAnyNode( height*(width+1)+i+1 ));
+            belem_index=i;
+            RegisterBoundaryElement(belem_index);
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
+        }
+    }
+
+    //Right
+    for (unsigned j=lo_y+1; j<hi_y; j++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        nodes.push_back(GetAnyNode( (width+1)*(j+1)-1 ));
+        nodes.push_back(GetAnyNode( (width+1)*j-1 ));
+        belem_index=width+j-1;
+        RegisterBoundaryElement(belem_index);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
+    }
+
+    //Bottom
+    if (PetscTools::AmMaster())
+    {
+        for (unsigned i=0; i<width; i++)
+        {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            nodes.push_back(GetAnyNode( i+1 ));
+            nodes.push_back(GetAnyNode( i ));
+            belem_index=width+height+i;
+            RegisterBoundaryElement(belem_index);
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
+        }
+    }
+
+    //Left
+    for (unsigned j=lo_y; j<hi_y-1; j++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        nodes.push_back(GetAnyNode( (width+1)*(j+1) ));
+        nodes.push_back(GetAnyNode( (width+1)*(j) ));
+        belem_index=2*width+height+j;
+        RegisterBoundaryElement(belem_index);
+        this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
+    }
+
+
+    //Construct the elements
+    unsigned elem_index;
+    for (unsigned j=lo_y; j<hi_y-1; j++)
+    {
+        for (unsigned i=0; i<width; i++)
+        {
+            unsigned parity=(i+(height-j))%2;//Note that parity is measured from the top-left (not bottom left) for historical reasons
+            unsigned nw=(j+1)*(width+1)+i; //ne=nw+1
+            unsigned sw=(j)*(width+1)+i;   //se=sw+1
+            std::vector<Node<SPACE_DIM>*> upper_nodes;
+            upper_nodes.push_back(GetAnyNode( nw ));
+            upper_nodes.push_back(GetAnyNode( nw+1 ));
+            if (stagger==false  || parity == 1)
+            {
+                upper_nodes.push_back(GetAnyNode( sw+1 ));
+            }
+            else
+            {
+                upper_nodes.push_back(GetAnyNode( sw ));
+            }
+            elem_index=2*(j*width+i);
+            RegisterElement(elem_index);
+            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index,upper_nodes));
+            std::vector<Node<SPACE_DIM>*> lower_nodes;
+            lower_nodes.push_back(GetAnyNode( sw+1 ));
+            lower_nodes.push_back(GetAnyNode( sw ));
+            if (stagger==false  ||parity == 1)
+            {
+                lower_nodes.push_back(GetAnyNode( nw ));
+            }
+            else
+            {
+                lower_nodes.push_back(GetAnyNode( nw+1 ));
+            }
+            elem_index++;
+            RegisterElement(elem_index);
+            this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index,lower_nodes));
+        }
+    }
+
+}
 //template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 //void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 //        unsigned height,

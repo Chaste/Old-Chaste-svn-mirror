@@ -682,14 +682,16 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[height*(width+1)+i]);
         nodes.push_back(this->mNodes[height*(width+1)+i+1]);
+        assert(belem_index==i);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Right
-    for (unsigned j=1; j<height+1; j++)
+    for (unsigned j=1; j<=height; j++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[(width+1)*(j+1)-1]);
         nodes.push_back(this->mNodes[(width+1)*j-1]);
+        assert(belem_index==width+j-1);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Bottom
@@ -698,6 +700,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[i+1]);
         nodes.push_back(this->mNodes[i]);
+        assert(belem_index==width+height+i);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Left
@@ -706,6 +709,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(this->mNodes[(width+1)*(j+1)]);
         nodes.push_back(this->mNodes[(width+1)*(j)]);
+        assert(belem_index==2*width+height+j);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
 
@@ -716,28 +720,31 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned 
         for (unsigned i=0; i<width; i++)
         {
             unsigned parity=(i+(height-j))%2;//Note that parity is measured from the top-left (not bottom left) for historical reasons
+            unsigned nw=(j+1)*(width+1)+i; //ne=nw+1
+            unsigned sw=(j)*(width+1)+i;   //se=sw+1
             std::vector<Node<SPACE_DIM>*> upper_nodes;
-            upper_nodes.push_back(this->mNodes[(j+1)*(width+1)+i]);
-            upper_nodes.push_back(this->mNodes[(j+1)*(width+1)+i+1]);
+            upper_nodes.push_back(this->mNodes[nw]);
+            upper_nodes.push_back(this->mNodes[nw+1]);
             if (stagger==false  || parity == 1)
             {
-                upper_nodes.push_back(this->mNodes[(j)*(width+1)+i+1]);
+                upper_nodes.push_back(this->mNodes[sw+1]);
             }
             else
             {
-                upper_nodes.push_back(this->mNodes[(j)*(width+1)+i]);
+                upper_nodes.push_back(this->mNodes[sw]);
             }
+            assert(elem_index==2*(j*width+i));
             this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
             std::vector<Node<SPACE_DIM>*> lower_nodes;
-            lower_nodes.push_back(this->mNodes[(j)*(width+1)+i+1]);
-            lower_nodes.push_back(this->mNodes[(j)*(width+1)+i]);
+            lower_nodes.push_back(this->mNodes[sw+1]);
+            lower_nodes.push_back(this->mNodes[sw]);
             if (stagger==false  ||parity == 1)
             {
-                lower_nodes.push_back(this->mNodes[(j+1)*(width+1)+i]);
+                lower_nodes.push_back(this->mNodes[nw]);
             }
             else
             {
-                lower_nodes.push_back(this->mNodes[(j+1)*(width+1)+i+1]);
+                lower_nodes.push_back(this->mNodes[nw+1]);
             }
             this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
         }

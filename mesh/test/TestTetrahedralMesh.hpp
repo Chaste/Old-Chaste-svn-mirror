@@ -542,6 +542,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
  
         //Verify some element indices -- bottom left diagonal goes SW-NE (stagger)
+        TS_ASSERT_EQUALS(height%2, 0u);//If height is even the bottom left is staggered
         TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0], 1.0/3.0, 1e-5);
         TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], 2.0/3.0, 1e-5);
         TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[0], 2.0/3.0, 1e-5);

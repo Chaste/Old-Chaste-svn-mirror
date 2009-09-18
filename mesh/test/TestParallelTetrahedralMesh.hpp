@@ -935,10 +935,10 @@ public:
        
     }
     
-    void dontTestConstructRetangularMesh()
+    void TestConstructRetangularMesh()
     {
-        unsigned width=2;
-        unsigned height=2;
+        unsigned width=5;
+        unsigned height=4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
         
         TetrahedralMesh<2,2> base_mesh;
         base_mesh.ConstructRectangularMesh(width, height);
@@ -947,20 +947,38 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
-        ParallelTetrahedralMesh<2,2> read_mesh;
+        ParallelTetrahedralMesh<2,2> read_mesh(ParallelTetrahedralMesh<2,2>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
         
         ParallelTetrahedralMesh<2,2> constructed_mesh;
-        //constructed_mesh.ConstructRectangularMesh(width, height);
+        constructed_mesh.ConstructRectangularMesh(width, height, false);
         
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+
+        if (PetscTools::AmTopMost())
+        {
+            //Verify some element indices -- top left diagonal goes NW-SE (normal)
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0],            2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
+        }
+        if (PetscTools::AmMaster())
+        {
+            //Verify some element indices -- bottom left diagonal goes NW-SE (normal)
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(0)->CalculateCentroid()[0], 2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(0)->CalculateCentroid()[1], 2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(1)->CalculateCentroid()[0], 1.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(1)->CalculateCentroid()[1], 1.0/3.0, 1e-5);
+        }
+        
     }
     
     
-    void dontTestConstructRetangularMeshStagger()
+    void TestConstructRetangularMeshStagger()
     {
-        unsigned width=2;
-        unsigned height=1;
+        unsigned width=4;
+        unsigned height=4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
         
         TetrahedralMesh<2,2> base_mesh;
         base_mesh.ConstructRectangularMesh(width, height, true);
@@ -969,13 +987,31 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
-        ParallelTetrahedralMesh<2,2> read_mesh;
+        ParallelTetrahedralMesh<2,2> read_mesh(ParallelTetrahedralMesh<2,2>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
         
         ParallelTetrahedralMesh<2,2> constructed_mesh;
-        //constructed_mesh.ConstructRectangularMesh(width, height, true);
+        constructed_mesh.ConstructRectangularMesh(width, height, true);
         
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+
+        if (PetscTools::AmTopMost())
+        {
+            //Verify some element indices -- top left diagonal goes NW-SE (normal)
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0],              2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1],   (height-1)+2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
+        }
+        if (PetscTools::AmMaster())
+        {
+            TS_ASSERT_EQUALS(height%2, 1u);//If height is odd the bottom left is not staggered - next one is
+            //Verify some element indices -- bottom left diagonal goes SW-NE (stagger)
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2)->CalculateCentroid()[0], 1 + 1.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(2)->CalculateCentroid()[1], 2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(3)->CalculateCentroid()[0], 1 + 2.0/3.0, 1e-5);
+            TS_ASSERT_DELTA(constructed_mesh.GetElement(3)->CalculateCentroid()[1], 1.0/3.0, 1e-5);
+        }
     }
     
     void dontTestConstructCuboidMesh()
@@ -991,7 +1027,7 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<3,3> mesh_reader(output_dir+"cuboid");
-        ParallelTetrahedralMesh<3,3> read_mesh;
+        ParallelTetrahedralMesh<3,3> read_mesh(ParallelTetrahedralMesh<3,3>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
         
         ParallelTetrahedralMesh<3,3> constructed_mesh;
