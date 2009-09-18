@@ -503,25 +503,50 @@ public:
         //Test indexing and connectivity of corners
         Node<2>* p_node;
         //Top-left
-        p_node = mesh.GetNode(0);
+        p_node = mesh.GetNode(height*(width+1));
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
         //Top-right
-        p_node = mesh.GetNode(width);
+        p_node = mesh.GetNode((height+1)*(width+1)-1);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
         //Bottom-left
-        p_node = mesh.GetNode(height*(width+1));
+        p_node = mesh.GetNode(0);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
         //Bottom right
-        p_node = mesh.GetNode((height+1)*(width+1)-1);
+        p_node = mesh.GetNode(width);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
+        
+//      Index with down-loop
+//        //Verify some element indices -- top left diagonal goes NW-SE (normal)
+//        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0],            2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
+// 
+//        //Verify some element indices -- bottom left diagonal goes SW-NE (stagger)
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0], 1.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], 2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0], 2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], 1.0/3.0, 1e-5);
+        //Verify some element indices -- top left diagonal goes NW-SE (normal)
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0],            2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
+ 
+        //Verify some element indices -- bottom left diagonal goes SW-NE (stagger)
+        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0], 1.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], 2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[0], 2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[1], 1.0/3.0, 1e-5);
+
 
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -542,25 +567,49 @@ public:
         //Test indexing and connectivity of corners
         Node<2>* p_node;
         //Top-left
-        p_node = mesh.GetNode(0);
+        p_node = mesh.GetNode(height*(width+1));
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
         //Top-right
-        p_node = mesh.GetNode(width);
+        p_node = mesh.GetNode((height+1)*(width+1)-1);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
         //Bottom-left
-        p_node = mesh.GetNode(height*(width+1));
+        p_node = mesh.GetNode(0);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
         //Bottom right
-        p_node = mesh.GetNode((height+1)*(width+1)-1);
+        p_node = mesh.GetNode(width);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
+
+//      Index with down-loop
+//        //Verify some element indices -- top left diagonal goes NW-SE (normal)
+//        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0],            2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
+// 
+//        //Verify some element indices -- bottom left diagonal goes NW-SE (normal)
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0], 2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], 2.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0], 1.0/3.0, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], 1.0/3.0, 1e-5);
+        //Verify some element indices -- top left diagonal goes NW-SE (normal)
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0],            2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
+ 
+        //Verify some element indices -- bottom left diagonal goes NW-SE (normal)
+        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0], 2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], 2.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[0], 1.0/3.0, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[1], 1.0/3.0, 1e-5);
 
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshNoStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -870,28 +919,17 @@ public:
         //TrianglesMeshWriter<2,2> mesh_writer("rectangle", "small");
         //mesh_writer.WriteFilesUsingMesh(mesh);
 
-        mesh.GetElement(1)->Flag();
-        mesh.GetElement(3)->Flag();
-        mesh.GetElement(5)->Flag();
-        mesh.GetElement(8)->Flag();
+        //Diamond at bottom left
+        mesh.GetElement(7)->Flag();
+        mesh.GetElement(0)->Flag();
         mesh.GetElement(9)->Flag();
-        mesh.GetElement(10)->Flag();
-        mesh.GetElement(14)->Flag();
-        mesh.GetElement(16)->Flag();
-        mesh.GetElement(17)->Flag();
-
+        mesh.GetElement(2)->Flag();
+       
         std::set<unsigned> correct_boundary;
-        correct_boundary.insert(0);
+        correct_boundary.insert(1);
         correct_boundary.insert(4);
-        correct_boundary.insert(5);
-        correct_boundary.insert(2);
+        correct_boundary.insert(6);
         correct_boundary.insert(9);
-        correct_boundary.insert(13);
-        correct_boundary.insert(10);
-        correct_boundary.insert(7);
-        correct_boundary.insert(11);
-        correct_boundary.insert(14);
-        correct_boundary.insert(15);
 
         std::set<unsigned> boundary = mesh.CalculateBoundaryOfFlaggedRegion();
 

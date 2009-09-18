@@ -901,24 +901,28 @@ public:
     void TestCheckMovingMesh()
     {
         MutableMesh<2,2> mesh;
-        mesh.ConstructRectangularMesh(1,1);
-
-        Node<2>* p_node = mesh.GetNode(1);
+        mesh.ConstructRectangularMesh(1,1,false);
+        
+        unsigned top_right=3;
+        Node<2>* p_node = mesh.GetNode(top_right);
         ChastePoint<2> point = p_node->GetPoint();
-
+        TS_ASSERT_DELTA(point[0], 1.0, 1e-7);
+        TS_ASSERT_DELTA(point[1], 1.0, 1e-7);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
+    
         for (double x=1.1; x>=0.9; x-=0.01)
         {
             point.SetCoordinate(0,x);
             point.SetCoordinate(1,x);
-            mesh.SetNode(1, point);
+            mesh.SetNode(top_right, point);
 
-            if (x >= 0.91)
+            if (x >= 0.94)
             {
-                TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(0.2), true);
+                TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(0.15), true);
             }
             else
             {
-                TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(0.2), false);
+                TS_ASSERT_EQUALS(mesh.CheckIsVoronoi(0.15), false);
             }
         }
     }
@@ -969,14 +973,14 @@ public:
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
 
-        TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[0], 0.0, 1e-7);
-        TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[1], 1.0, 1e-7);
-        TS_ASSERT_DELTA(mesh.GetNode(1u)->rGetLocation()[0], 1.0, 1e-7);
-        TS_ASSERT_DELTA(mesh.GetNode(1u)->rGetLocation()[1], 1.0, 1e-7);
         TS_ASSERT_DELTA(mesh.GetNode(2u)->rGetLocation()[0], 0.0, 1e-7);
-        TS_ASSERT_DELTA(mesh.GetNode(2u)->rGetLocation()[1], 0.0, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(2u)->rGetLocation()[1], 1.0, 1e-7);
         TS_ASSERT_DELTA(mesh.GetNode(3u)->rGetLocation()[0], 1.0, 1e-7);
-        TS_ASSERT_DELTA(mesh.GetNode(3u)->rGetLocation()[1], 0.0, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(3u)->rGetLocation()[1], 1.0, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[0], 0.0, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[1], 0.0, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(1u)->rGetLocation()[0], 1.0, 1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(1u)->rGetLocation()[1], 0.0, 1e-7);
 
         // Test the add node method
         c_vector<double,2> point;

@@ -67,7 +67,7 @@ public:
 
         // have checked these hardcoded values correspond to the nodes
         // at (1,0);
-        TS_ASSERT_EQUALS(problem.mWatchedElectricsNodeIndex, 9408u);
+        TS_ASSERT_EQUALS(problem.mWatchedElectricsNodeIndex, 96u);
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
 
         //// would like to do the following....

@@ -111,7 +111,12 @@ public:
         TetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(1,1);
         coarse_mesh.Scale(100,100);
-
+        //Top right
+        TS_ASSERT_DELTA(coarse_mesh.GetElement(0)->CalculateCentroid()[0], 200.0/3.0, 0.1);
+        TS_ASSERT_DELTA(coarse_mesh.GetElement(0)->CalculateCentroid()[1], 200.0/3.0, 0.1);
+        //Bottom left
+        TS_ASSERT_DELTA(coarse_mesh.GetElement(1)->CalculateCentroid()[0], 100.0/3.0, 0.1);
+        TS_ASSERT_DELTA(coarse_mesh.GetElement(1)->CalculateCentroid()[1], 100.0/3.0, 0.1);
         // Set up PDE
         AveragedSinksPde<2> pde(tissue, -1.0);
         pde.SetupSourceTerms(coarse_mesh);

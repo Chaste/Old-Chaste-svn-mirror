@@ -165,9 +165,9 @@ public:
 
         mesh.GetElement(0)->Flag();
 
-        TS_ASSERT_EQUALS(mesh.GetNode(0)->IsFlagged(mesh), true);
+        TS_ASSERT_EQUALS(mesh.GetNode(0)->IsFlagged(mesh), false);
         TS_ASSERT_EQUALS(mesh.GetNode(1)->IsFlagged(mesh), true);
-        TS_ASSERT_EQUALS(mesh.GetNode(2)->IsFlagged(mesh), false);
+        TS_ASSERT_EQUALS(mesh.GetNode(2)->IsFlagged(mesh), true);
         TS_ASSERT_EQUALS(mesh.GetNode(3)->IsFlagged(mesh), true);
 
         mesh.GetElement(0)->Unflag();
@@ -179,9 +179,9 @@ public:
 
         mesh.GetElement(1)->Flag();
         TS_ASSERT_EQUALS(mesh.GetNode(0)->IsFlagged(mesh), true);
-        TS_ASSERT_EQUALS(mesh.GetNode(1)->IsFlagged(mesh), false);
+        TS_ASSERT_EQUALS(mesh.GetNode(1)->IsFlagged(mesh), true);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->IsFlagged(mesh), true);
-        TS_ASSERT_EQUALS(mesh.GetNode(3)->IsFlagged(mesh), true);
+        TS_ASSERT_EQUALS(mesh.GetNode(3)->IsFlagged(mesh), false);
     }
 
 };
