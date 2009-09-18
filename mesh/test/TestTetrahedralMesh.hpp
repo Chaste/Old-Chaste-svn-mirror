@@ -485,13 +485,13 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
-    void TestConstructRectangle()
+    void TestConstructRectangleStagger()
     {
         TetrahedralMesh<2,2> mesh;
-        unsigned width = 39;
+        unsigned width = 38;
         unsigned height = 16;
 
-        mesh.ConstructRectangularMesh(width, height);
+        mesh.ConstructRectangularMesh(width, height, true);
 
         TS_ASSERT_DELTA(mesh.GetVolume(), width*height, 1e-7);
         TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 2.0*(width+height), 1e-7);
@@ -500,14 +500,37 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2*(width+height) );
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*width*height);
 
-        TrianglesMeshWriter<2,2> mesh_writer("","RectangleMesh");
+        //Test indexing and connectivity of corners
+        Node<2>* p_node;
+        //Top-left
+        p_node = mesh.GetNode(0);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
+        //Top-right
+        p_node = mesh.GetNode(width);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
+        //Bottom-left
+        p_node = mesh.GetNode(height*(width+1));
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
+        //Bottom right
+        p_node = mesh.GetNode((height+1)*(width+1)-1);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
+
+        TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
     void TestConstructRectangleNoStagger()
     {
         TetrahedralMesh<2,2> mesh;
-        unsigned width = 39;
+        unsigned width = 38;
         unsigned height = 16;
         mesh.ConstructRectangularMesh(width, height, false);
         TS_ASSERT_DELTA(mesh.GetVolume(), width*height, 1e-7);
@@ -515,6 +538,29 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2*(width+height) );
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*width*height );
+
+        //Test indexing and connectivity of corners
+        Node<2>* p_node;
+        //Top-left
+        p_node = mesh.GetNode(0);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
+        //Top-right
+        p_node = mesh.GetNode(width);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], height);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
+        //Bottom-left
+        p_node = mesh.GetNode(height*(width+1));
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], 0.0);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
+        //Bottom right
+        p_node = mesh.GetNode((height+1)*(width+1)-1);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
+        TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
 
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshNoStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
