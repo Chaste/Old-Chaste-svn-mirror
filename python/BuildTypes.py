@@ -54,6 +54,7 @@ class BuildType(object):
         self._revision = ''
         self.build_dir = 'default'
         self._num_processes = 1
+        self._hostConfigSettings = {}
         self.using_dealii = False
         self.dealii_debugging = False
         self.is_optimised = False
@@ -254,8 +255,8 @@ class BuildType(object):
         else:
             runtime = int(leafname[i2+1:])
         return {'testsuite': leafname[:i1],
-                        'status': leafname[i1+1:i2],
-                        'runtime': runtime}
+                'status': leafname[i1+1:i2],
+                'runtime': runtime}
 
     def UseDealii(self, use_dealii):
         """Set whether this build should link against Deal.II.
@@ -294,6 +295,20 @@ class BuildType(object):
         """
         return '*'.join([self.build_type, self.build_dir])
 
+    def SetHostConfig(self, configString):
+        """..."""
+        items = configString.split(',')
+        config = {'petsc': '2.3',
+                  'boost': '1.34',
+                  'hdf5': '1.6'}
+        for item in items:
+            key, val = item.split('=')
+            config[key] = val.replace('-', '.')
+        self._hostConfigSettings = config
+        return
+
+    def GetPreferedVersions(self):
+        return self._hostConfigSettings
 
 Gcc = BuildType
 
@@ -930,6 +945,9 @@ def GetBuildType(buildType):
                 obj.build_dir += '_warn'
             except ValueError:
                 pass
+        elif extra.startswith('hostconfig'):
+            obj.SetHostConfig(extra[11:])
+            obj.build_dir += '_' + extra
         else:
             try:
                 np = int(extra)
