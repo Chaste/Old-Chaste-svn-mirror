@@ -163,11 +163,11 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                             c_vector<double, 1> fibre_length;
                             HeartConfig::Instance()->GetFibreLength(fibre_length);
 
-                            mpMesh = new ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                            mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
 
                             unsigned slab_nodes_x = (unsigned)round(fibre_length[0]/inter_node_space);
 
-                            static_cast<ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructLinearMesh(slab_nodes_x);
+                            static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructLinearMesh(slab_nodes_x);
 
                             break;
                         }
@@ -176,12 +176,12 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                             c_vector<double, 2> sheet_dimensions; //cm
                             HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
 
-                            mpMesh = new ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                            mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
 
                             unsigned slab_nodes_x = (unsigned)round(sheet_dimensions[0]/inter_node_space);
                             unsigned slab_nodes_y = (unsigned)round(sheet_dimensions[1]/inter_node_space);
 
-                            static_cast<ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructRectangularMesh(slab_nodes_x, slab_nodes_y);
+                            static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructRectangularMesh(slab_nodes_x, slab_nodes_y);
 
                             break;
                         }
