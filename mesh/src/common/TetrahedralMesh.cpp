@@ -898,7 +898,6 @@ std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElem
 //
 //    }
 //}
-
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
         unsigned height,
@@ -920,7 +919,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                 {
                     is_boundary = true;
                 }
-
+                assert(node_index == (k*(height+1)+j)*(width+1)+i);
                 Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index++, is_boundary, i, j, k);
 
                 this->mNodes.push_back(p_node);
@@ -955,6 +954,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
     for (unsigned k=0; k<depth; k++)
     {
+        if (k!=0)
+        {
+            // height*width squares on upper face, k layers of 2*height+2*width square aroun
+            assert(belem_index ==   2*(height*width+k*2*(height+width)) );
+        }
         for (unsigned j=0; j<height; j++)
         {
             for (unsigned i=0; i<width; i++)
@@ -987,11 +991,13 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                         tetrahedra_nodes.push_back(this->mNodes[global_node_indices[element_nodes[m][n]]]);
                     }
 
+                    assert(elem_index == 6 * ((k*height+j)*width+i)+m );
                     this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
                 }
 
                 //Are we at a boundary?
                 std::vector<Node<SPACE_DIM>*> triangle_nodes;
+          
                 if (i == 0) //low face at x==0
                 {
                     triangle_nodes.clear();

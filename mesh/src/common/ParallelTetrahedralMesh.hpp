@@ -212,14 +212,14 @@ public:
      */
     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
 
-//    /**
-//     * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
-//     *
-//     * @param width  width of the mesh (in the x-direction)
-//     * @param height  height of the mesh (in the y-direction)
-//     * @param depth  depth of the mesh (in the z-direction)
-//     */
-//    void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
+    /**
+     * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
+     *
+     * @param width  width of the mesh (in the x-direction)
+     * @param height  height of the mesh (in the y-direction)
+     * @param depth  depth of the mesh (in the z-direction)
+     */
+    void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
 
 private:
 

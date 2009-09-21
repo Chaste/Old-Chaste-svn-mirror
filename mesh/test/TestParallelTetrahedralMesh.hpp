@@ -951,6 +951,11 @@ public:
         read_mesh.ConstructFromMeshReader(mesh_reader);
         
         ParallelTetrahedralMesh<2,2> constructed_mesh;
+        //Coverage
+        TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructRectangularMesh(width, 1, false), 
+                            "There aren't enough nodes to make parallelisation worthwhile");
+
+        //Real mesh construction
         constructed_mesh.ConstructRectangularMesh(width, height, false);
         
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
@@ -1014,11 +1019,11 @@ public:
         }
     }
     
-    void dontTestConstructCuboidMesh()
+    void TestConstructCuboidMesh()
     {
         unsigned width=2;
-        unsigned height=2;
-        unsigned depth=2;
+        unsigned height=3;
+        unsigned depth=4*PetscTools::GetNumProcs()-1;
         
         TetrahedralMesh<3,3> base_mesh;
         base_mesh.ConstructCuboid(width, height, depth);
@@ -1031,7 +1036,10 @@ public:
         read_mesh.ConstructFromMeshReader(mesh_reader);
         
         ParallelTetrahedralMesh<3,3> constructed_mesh;
-        //constructed_mesh.ConstructCuboid(width, height, depth);
+        //Coverage
+        TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructCuboid(width, height, 1), 
+                            "There aren't enough nodes to make parallelisation worthwhile");
+        constructed_mesh.ConstructCuboid(width, height, depth);
         
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
     }
