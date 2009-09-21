@@ -296,7 +296,14 @@ class BuildType(object):
         return '*'.join([self.build_type, self.build_dir])
 
     def SetHostConfig(self, configString):
-        """..."""
+        """Parse hostconfig settings from a build type option string.
+        
+        This method extracts prefered versions of libraries from a string
+        with format "libraryName1=version1,libraryName2=version2", where
+        version numbers are given as "1-2-3".  Currently recognised library
+        names are 'petsc', 'boost', and 'hdf5'.  Prefered versions can be
+        retrieved using GetPreferedVersions.
+        """
         items = configString.split(',')
         config = {'petsc': '2.3',
                   'boost': '1.34',
@@ -308,6 +315,11 @@ class BuildType(object):
         return
 
     def GetPreferedVersions(self):
+        """Get the prefered versions of libraries parsed with SetHostConfig.
+        
+        Returns a dictionary mapping library name to version string, e.g.
+        {'petsc': '2.3', 'boost': '1.34'}
+        """
         return self._hostConfigSettings
 
 Gcc = BuildType
