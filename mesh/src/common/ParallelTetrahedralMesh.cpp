@@ -1167,6 +1167,30 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
     }//k
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor, const double yFactor, const double zFactor)
+{
+    //Base class scale (scales node positions
+    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(xFactor, yFactor, zFactor);
+    
+    //Scales halos
+    for (unsigned i=0; i<mHaloNodes.size(); i++)
+    {
+        c_vector<double, SPACE_DIM>& r_location = mHaloNodes[i]->rGetModifiableLocation();
+        if (SPACE_DIM>=3)
+        {
+            r_location[2] *= zFactor;
+        }
+        if (SPACE_DIM>=2)
+        {
+            r_location[1] *= yFactor;
+        }
+        r_location[0] *= xFactor;
+    }
+    
+}
+    
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

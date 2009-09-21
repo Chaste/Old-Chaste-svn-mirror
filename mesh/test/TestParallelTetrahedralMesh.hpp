@@ -906,6 +906,8 @@ public:
         {
             //Works with up to 3 processes
             small_mesh.ConstructLinearMesh(2);
+            //Scale it
+            small_mesh.Scale(10.0);
             unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
             TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 3u);
             TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
@@ -918,6 +920,8 @@ public:
                 expected_elements--;
                 //Left processor always owns left node
                 TS_ASSERT_EQUALS(small_mesh.GetNode(0),small_mesh.GetAnyNode(0));
+                TS_ASSERT_DELTA(small_mesh.GetAnyNode(0)->rGetLocation()[0], 0.0, 1e-5);
+                TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
             }
             if (PetscTools::AmTopMost())
             {
@@ -927,7 +931,9 @@ public:
                     TS_ASSERT_THROWS_CONTAINS(small_mesh.GetAnyNode(0), "Requested node/halo");
                     //Right processor has  node 1 as halo
                     TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNode(1), "does not belong to processor");
-                    TS_ASSERT_THROWS_NOTHING(small_mesh.GetAnyNode(1));
+                    TS_ASSERT_THROWS_NOTHING(small_mesh.GetAnyNode(1));//It's a halo
+                    TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
+                    TS_ASSERT_DELTA(small_mesh.GetAnyNode(2)->rGetLocation()[0], 20.0, 1e-5);
                 }
             }
             TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), expected_elements);

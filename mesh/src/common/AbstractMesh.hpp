@@ -248,7 +248,7 @@ public:
      * @param yFactor is the scale in the y-direction (defaults to 1.0)
      * @param zFactor is the scale in the z-direction (defaults to 1.0)
      */
-    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
+    virtual void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
 
     /**
      * This method allows the mesh properties to be re-calculated after
