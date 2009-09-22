@@ -75,6 +75,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     // allows the visualiser to be run as a simulation is being run.
     // To visualise the last timestep, use "showlaststep" as an argument
     public static boolean showLastStep = false; 
+    public static boolean axesEqual = false;
     
     public static int timeStep = 0;
     public static int delay = 50;
@@ -118,6 +119,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox difference_stress = new Checkbox("Difference Stress");
     public static Checkbox ancestors = new Checkbox("Clonal Populations");
     public static Checkbox axes = new Checkbox("Axes");
+    public static Checkbox axes_equal = new Checkbox("Axes Equal");
     
     public static JLabel nearest_label = new JLabel();
     
@@ -316,6 +318,35 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             drawAxes = state;
             System.out.println("Drawing axes = "+drawAxes); 
         }
+        else if (cb == axes_equal)
+        {
+            axesEqual = state;
+            
+            if (axesEqual==true) // Make the axes equal
+            {
+	            if (min_y < min_x)
+	        	{
+	        		min_x = min_y;
+	        	}
+	            else
+	            {
+	            	min_y = min_x;
+	            }
+	            if (max_x < max_y)
+	        	{
+	        		max_x = max_y;
+	        	}
+	            else
+	            {
+	            	max_y = max_x;
+	            }
+            }
+            else // reset the axes
+            { 
+            	CalculateCanvasDimensions();
+            }
+            System.out.println("Drawing axes equal = "+axesEqual); 
+        }
         else if (cb == ancestors)
         {
             drawAncestors = state;
@@ -439,6 +470,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         average_stress.addItemListener(this);
         difference_stress.addItemListener(this);
         axes.addItemListener(this);
+        axes_equal.addItemListener(this);
         ancestors.addItemListener(this);
         
         checkPanel.add(output);
@@ -447,6 +479,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(ghost_nodes);
         checkPanel.add(circles);
         checkPanel.add(axes);
+        checkPanel.add(axes_equal);
         checkPanel.add(nutrient);
         checkPanel.add(beta_catenin);
         checkPanel.add(fibre);
@@ -477,6 +510,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         average_stress.setState(false);
         difference_stress.setState(false);
         axes.setState(true);
+        axes_equal.setState(false);
         ancestors.setState(false);
         
         // Update states for options according to input args
@@ -534,6 +568,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
                 drawAxes = true;
                 axes.setState(true);
+            }
+            else if (args[i].equals("axesequal"))
+            {
+                axesEqual = true;
+                axes_equal.setState(true);
             }
             else if (args[i].equals("ancestors"))
             {
@@ -1105,6 +1144,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Drawing ghost nodes = "+drawGhosts);
             System.out.println("Drawing cylindrically = "+ drawCylinder);
             System.out.println("Drawing axes = "+ drawAxes);
+            System.out.println("Drawing axes equal = "+ axesEqual);
             System.out.println("Drawing clonal populations = "+ drawAncestors);
             
             if (drawCylinder) 
@@ -1125,6 +1165,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static void CalculateCanvasDimensions()
     {
+        max_x = -1e12;
+        max_y = -1e12;
+        min_x =  1e12;
+        min_y =  1e12;
         for (int row=0; row<numSteps; row++)
         {
             for (int i=0; i < numCells[row]; i++) 
