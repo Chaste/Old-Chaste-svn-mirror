@@ -254,3 +254,23 @@ double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
     return mTimesAtMaxUpstrokeVelocity[size-1];
 }
 
+std::vector<double> CellProperties::GetMaxUpstrokeVelocities()
+{
+    unsigned size = mMaxUpstrokeVelocities.size();
+    if (size==0)
+    {
+        EXCEPTION("Threshold never reached");
+    }
+    return mMaxUpstrokeVelocities;
+}
+
+std::vector<double> CellProperties::GetTimesAtMaxUpstrokeVelocity()
+{
+    unsigned size = mTimesAtMaxUpstrokeVelocity.size();
+    if (size==0)
+    {
+        EXCEPTION("Threshold never reached");
+    }
+    return mTimesAtMaxUpstrokeVelocity;
+}
+

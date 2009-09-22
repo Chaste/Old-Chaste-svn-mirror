@@ -186,16 +186,15 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
 
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
-
+    
     t_near = near_cell_props.GetTimesAtMaxUpstrokeVelocity();
     t_far = far_cell_props.GetTimesAtMaxUpstrokeVelocity();
-
-    //If empty, no AP reached the node and no conduction velocity will be calculated
-    if (t_near.size() == 0 || t_far.size() == 0)
-    {
-        EXCEPTION("AP never reached one of the nodes");
-    }
-
+    
+    //exception should have been thrown within the GetTimesAtMaxUpstrokeVelocity method if the threshold is never reached 
+    //and these vectors are empty    
+    assert(t_near.size() !=0);
+    assert(t_far.size() !=0);
+    
     //Check the node where the least number of aps is reached.
     //We will calculate only where AP reached both nodes
     if (t_near.size() > t_far.size())

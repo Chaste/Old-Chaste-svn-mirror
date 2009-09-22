@@ -69,6 +69,8 @@ public:
         //Should throw exceptions because upstroke was never crossed
         TS_ASSERT_THROWS_THIS(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), "Upstroke never occurred");
         TS_ASSERT_THROWS_THIS(cell_properties.GetLastMaxUpstrokeVelocity(), "Upstroke never occurred");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetMaxUpstrokeVelocities(), "Threshold never reached");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetTimesAtMaxUpstrokeVelocity(), "Threshold never reached");
 
         //Now make it cross the threshold so the onset vector isn't empty any longer
         times.push_back(100);

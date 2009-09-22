@@ -114,10 +114,7 @@ public:
      * 
      * @return a vector containing the maximum upstroke velocity for all APs
      */
-    std::vector<double> GetMaxUpstrokeVelocities()
-    {
-        return mMaxUpstrokeVelocities;
-    }
+    std::vector<double> GetMaxUpstrokeVelocities();
 
     /**
      * Returns the maximum upstroke velocity for the last AP.
@@ -133,10 +130,7 @@ public:
      * 
      * @return a vector containing the times of maximum upstroke velocity for all APs
      */
-    std::vector<double> GetTimesAtMaxUpstrokeVelocity()
-    {
-        return mTimesAtMaxUpstrokeVelocity;
-    }
+    std::vector<double> GetTimesAtMaxUpstrokeVelocity();
 
     /**
      * Returns the time at which the maximum upstroke velocity for the last complete AP occurred.

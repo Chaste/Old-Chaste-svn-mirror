@@ -49,8 +49,8 @@ public:
         PropagationPropertiesCalculator ppc(&simulation_data);
 
         // Should throw because node 95 never crosses the threshold
-        TS_ASSERT_THROWS_THIS(ppc.CalculateConductionVelocity(5,95,0.9), "AP never reached one of the nodes");
-        TS_ASSERT_THROWS_THIS(ppc.CalculateAllConductionVelocities(5,95,0.9)[0], "AP never reached one of the nodes");
+        TS_ASSERT_THROWS_THIS(ppc.CalculateConductionVelocity(5,95,0.9), "Threshold never reached");
+        TS_ASSERT_THROWS_THIS(ppc.CalculateAllConductionVelocities(5,95,0.9)[0], "Threshold never reached");
 
         // Should throw because AP is not complete here
         TS_ASSERT_THROWS_THIS(ppc.CalculateActionPotentialDuration(50,5), "No full action potential was recorded");
