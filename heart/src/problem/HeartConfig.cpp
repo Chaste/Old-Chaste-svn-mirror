@@ -258,19 +258,22 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions
          ++i)
     {
         ionic_model_region_type ionic_model_region(*i);
-        point_type point_a = ionic_model_region.Location().Cuboid().LowerCoordinates();
-        point_type point_b = ionic_model_region.Location().Cuboid().UpperCoordinates();
-
-        ChastePoint<3> chaste_point_a ( point_a.x(),
-                                        point_a.y(),
-                                        point_a.z());
-
-        ChastePoint<3> chaste_point_b ( point_b.x(),
-                                        point_b.y(),
-                                        point_b.z());
-
-        definedRegions.push_back(ChasteCuboid( chaste_point_a, chaste_point_b ));
-        ionicModels.push_back(ionic_model_region.IonicModel());
+        if (ionic_model_region.Location().Cuboid())
+        {
+            point_type point_a = ionic_model_region.Location().Cuboid()->LowerCoordinates();
+            point_type point_b = ionic_model_region.Location().Cuboid()->UpperCoordinates();
+    
+            ChastePoint<3> chaste_point_a ( point_a.x(),
+                                            point_a.y(),
+                                            point_a.z());
+    
+            ChastePoint<3> chaste_point_b ( point_b.x(),
+                                            point_b.y(),
+                                            point_b.z());
+    
+            definedRegions.push_back(ChasteCuboid( chaste_point_a, chaste_point_b ));
+            ionicModels.push_back(ionic_model_region.IonicModel());
+        }
     }
 }
 
@@ -438,22 +441,25 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
          ++i)
     {
         stimulus_type stimulus(*i);
-        point_type point_a = stimulus.Location().Cuboid().LowerCoordinates();
-        point_type point_b = stimulus.Location().Cuboid().UpperCoordinates();
-
-        ChastePoint<3> chaste_point_a ( point_a.x(),
-                                        point_a.y(),
-                                        point_a.z());
-
-        ChastePoint<3> chaste_point_b ( point_b.x(),
-                                        point_b.y(),
-                                        point_b.z());
-
-        boost::shared_ptr<SimpleStimulus> stim(new SimpleStimulus(stimulus.Strength(),
-                                                                  stimulus.Duration(),
-                                                                  stimulus.Delay()));
-        rStimuliApplied.push_back( stim );
-        rStimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        if (stimulus.Location().Cuboid())
+        {
+            point_type point_a = stimulus.Location().Cuboid()->LowerCoordinates();
+            point_type point_b = stimulus.Location().Cuboid()->UpperCoordinates();
+    
+            ChastePoint<3> chaste_point_a ( point_a.x(),
+                                            point_a.y(),
+                                            point_a.z());
+    
+            ChastePoint<3> chaste_point_b ( point_b.x(),
+                                            point_b.y(),
+                                            point_b.z());
+    
+            boost::shared_ptr<SimpleStimulus> stim(new SimpleStimulus(stimulus.Strength(),
+                                                                      stimulus.Duration(),
+                                                                      stimulus.Delay()));
+            rStimuliApplied.push_back( stim );
+            rStimulatedAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        }
     }
 }
 
@@ -472,21 +478,24 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
          ++i)
     {
         cell_heterogeneity_type ht(*i);
-        point_type point_a = ht.Location().Cuboid().LowerCoordinates();
-        point_type point_b = ht.Location().Cuboid().UpperCoordinates();
+        if (ht.Location().Cuboid())
+        {
+            point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
+            point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
 
-        ChastePoint<3> chaste_point_a (point_a.x(),
-                                       point_a.y(),
-                                       point_a.z());
-
-        ChastePoint<3> chaste_point_b (point_b.x(),
-                                       point_b.y(),
-                                       point_b.z());
-
-        scaleFactorGks.push_back (ht.ScaleFactorGks());
-        scaleFactorIto.push_back (ht.ScaleFactorIto());
-        scaleFactorGkr.push_back (ht.ScaleFactorGkr());
-        cellHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+            ChastePoint<3> chaste_point_a (point_a.x(),
+                                           point_a.y(),
+                                           point_a.z());
+    
+            ChastePoint<3> chaste_point_b (point_b.x(),
+                                           point_b.y(),
+                                           point_b.z());
+    
+            scaleFactorGks.push_back (ht.ScaleFactorGks());
+            scaleFactorIto.push_back (ht.ScaleFactorIto());
+            scaleFactorGkr.push_back (ht.ScaleFactorGkr());
+            cellHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        }
     }
 }
 
@@ -520,18 +529,21 @@ void HeartConfig::GetConductivityHeterogeneities(
          ++i)
     {
         conductivity_heterogeneity_type ht(*i);
-        point_type point_a = ht.Location().Cuboid().LowerCoordinates();
-        point_type point_b = ht.Location().Cuboid().UpperCoordinates();
-
-        ChastePoint<3> chaste_point_a (point_a.x(),
-                                       point_a.y(),
-                                       point_a.z());
-
-        ChastePoint<3> chaste_point_b (point_b.x(),
-                                       point_b.y(),
-                                       point_b.z());
-
-        conductivitiesHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        if (ht.Location().Cuboid())
+        {
+            point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
+            point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
+    
+            ChastePoint<3> chaste_point_a (point_a.x(),
+                                           point_a.y(),
+                                           point_a.z());
+    
+            ChastePoint<3> chaste_point_b (point_b.x(),
+                                           point_b.y(),
+                                           point_b.z());
+    
+            conductivitiesHeterogeneityAreas.push_back( ChasteCuboid( chaste_point_a, chaste_point_b ) );
+        }
 
         if (ht.IntracellularConductivities().present())
         {
@@ -1068,8 +1080,9 @@ void HeartConfig::SetConductivityHeterogeneities(
         point_type point_b(cornerB[region_index][0],
                            cornerB[region_index][1],
                            cornerB[region_index][2]);
-
-        XSD_CREATE_WITH_FIXED_ATTR1(location_type, locn, box_type(point_a, point_b), "cm");
+    
+        XSD_CREATE_WITH_FIXED_ATTR(location_type, locn, "cm");
+        locn.Cuboid().set(box_type(point_a, point_b));
         conductivity_heterogeneity_type ht(locn);
 
         XSD_CREATE_WITH_FIXED_ATTR3(conductivities_type, intra,
