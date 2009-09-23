@@ -304,6 +304,11 @@ public:
         
         HeartGeometryInformation<3> info(mesh, epi_face, lv_face, rv_face);   
         
+        //covering exceptions
+        TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(0.9, 0.9), "The sum of fractions of epicardial and endocardial layers must be lesser than 1");
+        TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(0.9, -1.0), "A fraction of a layer must be positive");
+        TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(-2.0, 1.0), "A fraction of a layer must be positive");
+        
         info.DetermineLayerForEachNode(0.29, 0.51);
 
         info.WriteLayerForEachNode("TestHeartGeom","layers.het");

@@ -306,9 +306,15 @@ double HeartGeometryInformation<SPACE_DIM>::CalculateRelativeWallPosition(unsign
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::DetermineLayerForEachNode(double epiFraction, double endoFraction)
 {
-    assert(epiFraction+endoFraction<1);
-    assert(endoFraction>0);
-    assert(epiFraction>0);
+    if (epiFraction+endoFraction>1)
+    {
+        EXCEPTION("The sum of fractions of epicardial and endocardial layers must be lesser than 1"); 
+    }
+    
+    if ((endoFraction<0) || (epiFraction<0))
+    {
+        EXCEPTION("A fraction of a layer must be positive");
+    }
 
     mLayerForEachNode.resize(mrMesh.GetNumNodes());
     for(unsigned i=0; i<mrMesh.GetNumNodes(); i++)
