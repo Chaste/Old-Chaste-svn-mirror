@@ -133,7 +133,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         // If no mesh has been passed, we get it from the configuration file
         try
         {
-            /// \todo: Only considering \<LoadMesh/> definition. Consider \<Slab/> too
             if(HeartConfig::Instance()->GetLoadMesh())
             {
                 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
@@ -693,16 +692,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
     bool extend_file = (mSolution != NULL);
-    
-    if (extend_file)
-    {
-        std::cout << "extending file" << std::endl;        
-    }
-    else
-    {
-        std::cout << "creating file" << std::endl;        
-    }
-    
+        
     mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(), 
                                   HeartConfig::Instance()->GetOutputDirectory(), 
                                   HeartConfig::Instance()->GetOutputFilenamePrefix(), 

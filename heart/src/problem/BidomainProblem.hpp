@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BIDOMAINPROBLEM_HPP_
 #define BIDOMAINPROBLEM_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include <vector>
 
 #include "AbstractCardiacProblem.hpp"
@@ -53,7 +56,25 @@ template<unsigned DIM>
 class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
 {
 
-friend class TestBidomainWithBathAssembler;
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCardiacProblem<DIM, DIM, 2> >(*this);
+        archive & mpBidomainPde;
+        archive & mHasBath;
+    }
+
+    friend class TestBidomainWithBathAssembler;
+
+
 
 protected:
     /** The bidomain PDE */
@@ -110,6 +131,11 @@ public:
      *
      */
     BidomainProblem(AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath=false);
+
+    /**
+     * Constructor just used for archiving
+     */
+    BidomainProblem();
 
     /**
      *  Set the nodes at which phi_e (the extracellular potential) is fixed to
@@ -182,6 +208,9 @@ public:
      */
     void OnEndOfTimestep(double time);
 };
+
+#include "TemplatedExport.hpp" // Must be last
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainProblem);
 
 
 #endif /*BIDOMAINPROBLEM_HPP_*/

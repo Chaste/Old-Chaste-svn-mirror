@@ -186,6 +186,18 @@ BidomainProblem<DIM>::BidomainProblem(
 }
 
 template<unsigned DIM>
+BidomainProblem<DIM>::BidomainProblem()
+    : AbstractCardiacProblem<DIM, DIM, 2>(),
+      mpBidomainPde(NULL),
+      mRowForAverageOfPhiZeroed(INT_MAX),
+      mpElectrodes(NULL)
+{
+    mFixedExtracellularPotentialNodes.resize(0);
+}
+
+
+
+template<unsigned DIM>
 void BidomainProblem<DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
 {
     mFixedExtracellularPotentialNodes.resize(nodes.size());
