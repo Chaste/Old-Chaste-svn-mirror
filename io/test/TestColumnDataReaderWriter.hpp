@@ -46,7 +46,7 @@ private:
     ColumnDataWriter* mpTestWriter;
     ColumnDataReader* mpTestReader;
 
-    bool filesMatch(std::string testfileName, std::string goodfileName)
+    bool FilesMatch(std::string testfileName, std::string goodfileName)
     {
         bool matching = true;
 
@@ -108,7 +108,16 @@ public:
 
         delete mpTestReader;
     }
-
+    
+    void TestDetermineFieldWidth() throw(Exception)
+    {
+        mpTestReader = new ColumnDataReader("io/test/data","testfixed_good",false);
+        TS_ASSERT_EQUALS(mpTestReader->GetFieldWidth(), 10u);
+        
+        delete mpTestReader;
+        
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testdefine_good", false), "Unable to determine field width from file as cannot find any data entries");
+    }
 
     void TestDefineUnlimitedDimension()
     {
@@ -193,9 +202,9 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testdefine.dat", "io/test/data/testdefine_good.dat"));
+        TS_ASSERT(FilesMatch(output_dir + "testdefine.dat", "io/test/data/testdefine_good.dat"));
 
-        TS_ASSERT(filesMatch(output_dir + "testdefine.info", "io/test/data/testdefine_good.info"));
+        TS_ASSERT(FilesMatch(output_dir + "testdefine.info", "io/test/data/testdefine_good.info"));
     }
 
     void TestCantAddUnlimitedAfterEndDefine()
@@ -291,7 +300,7 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testunlimitednegative.dat", "io/test/data/testunlimitednegative_good.dat"));
+        TS_ASSERT(FilesMatch(output_dir + "testunlimitednegative.dat", "io/test/data/testunlimitednegative_good.dat"));
     }
 
     void TestPutVariableInFixedFile()
@@ -330,9 +339,9 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testfixed.dat", "io/test/data/testfixed_good.dat"));
+        TS_ASSERT(FilesMatch(output_dir + "testfixed.dat", "io/test/data/testfixed_good.dat"));
 
-        TS_ASSERT(filesMatch(output_dir + "testfixed.info", "io/test/data/testfixed_good.info"));
+        TS_ASSERT(FilesMatch(output_dir + "testfixed.info", "io/test/data/testfixed_good.info"));
 
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("", "testfixed"));
 
@@ -398,7 +407,7 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testfixed_negatives.dat", "io/test/data/testfixed_negatives_good.dat"));
+        TS_ASSERT(FilesMatch(output_dir + "testfixed_negatives.dat", "io/test/data/testfixed_negatives_good.dat"));
     }
 
     void TestPutVariableInFixedandUnlimitedFile()
@@ -435,10 +444,10 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(filesMatch(output_dir + "testfixedandunlimited_unlimited.dat",
+        TS_ASSERT(FilesMatch(output_dir + "testfixedandunlimited_unlimited.dat",
                              "io/test/data/testfixedandunlimited_unlimited_good.dat"));
 
-        TS_ASSERT(filesMatch(output_dir + "testfixedandunlimited_000001.dat",
+        TS_ASSERT(FilesMatch(output_dir + "testfixedandunlimited_000001.dat",
                              "io/test/data/testfixedandunlimited_000001_good.dat"));
 
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testfixedandunlimited"));

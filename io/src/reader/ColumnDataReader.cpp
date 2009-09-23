@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <climits>
 
+#include <iostream>
+
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 
@@ -169,6 +171,46 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
 
         column++;
     }
+    
+    // Now read the first line of proper data to determine the field width used when this
+    // file was created. Do this by reading the first entry and measuring it's length (ignoring
+    // preceding '-'s)
+    // eg, if the first entry is
+    //   6.3124e+01         => field width = 10 // chaste release 1 and 1.1
+    //  -3.5124e+01         => field width = 10 // chaste release 1 and 1.1
+    //  +1.00000000e+00     => field width = 14
+    //  -1.20000000e+01     => field width = 14
+    //
+    std::string first_line;
+    std::string first_entry;
+    
+    // read the first entry of the line. If there is no first entry, move to the next line..
+    while(first_entry.length()==0 && !datafile.eof())
+    {
+        std::getline(datafile, first_line);
+        std::stringstream stream(first_line);
+        stream >> first_entry;
+    }
+
+    if(datafile.eof() && first_entry.length()==0)
+    {
+        EXCEPTION("Unable to determine field width from file as cannot find any data entries");
+    }
+
+    if(first_entry[0]=='-' || first_entry[0]=='+')
+    {
+        mFieldWidth = (unsigned)(first_entry.length()-1);
+    }
+    else
+    {
+        mFieldWidth = first_entry.length();
+    }
+
+///\todo: #1123. FIELD_WIDTH is no longer hardcoded here and is determined above as mFieldWidth. This assert checks it has
+// been determined to be one correctly. To finish this ticket get writer to  write with an increased (or variable) field 
+// width, at which point this assert should be removed.  
+    assert(mFieldWidth==10);
+    
     infofile.close();
     datafile.close();
 }
@@ -317,8 +359,8 @@ void ColumnDataReader::ReadColumnFromFile(const std::string& rFilename, int col)
 
 void ColumnDataReader::PushColumnEntryFromLine(const std::string& rLine, int col)
 {
-    int startpos = col * (FIELD_WIDTH + SPACING) + SPACING - 1;
-    std::string value = rLine.substr(startpos, FIELD_WIDTH + 1);
+    int startpos = col * (mFieldWidth + SPACING) + SPACING - 1;
+    std::string value = rLine.substr(startpos, mFieldWidth + 1);
     std::stringstream variable_stream(value);
     double d_value;
     variable_stream >> d_value;
@@ -335,3 +377,9 @@ bool ColumnDataReader::HasValues(const std::string& rVariableName)
     std::map<std::string, int>::iterator col = mVariablesToColumns.find(rVariableName);
     return !(col == mVariablesToColumns.end());
 }
+
+unsigned ColumnDataReader::GetFieldWidth()
+{
+    return mFieldWidth;
+}
+

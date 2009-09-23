@@ -75,8 +75,10 @@ private:
      * @param row  the row number
      */
     void ReadValueFromFile(const std::string& rFilename, int col, int row);
-
-    static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
+    
+     /**< Width of each column in the text file (excludes column headers). Determined from the first data entry*/
+    unsigned mFieldWidth;
+    
     static const int SPACING = 2;      /**< Space between columns (includes minus sign) */
 
 public:
@@ -137,6 +139,11 @@ public:
      * @param rVariableName
      */
     bool HasValues(const std::string& rVariableName);
+    
+    /**
+     *  Get the field width (the number of characters (excl '+' or '-') printed for each data entry in the file).
+     */
+    unsigned GetFieldWidth();
 
 };
 #endif //_COLUMNDATAREADER_HPP_
