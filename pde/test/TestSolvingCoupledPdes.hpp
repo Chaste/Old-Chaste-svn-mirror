@@ -174,16 +174,16 @@ struct AssemblerTraits<MySimpleCoupledAssembler<CONCRETE> >
 {
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      MySimpleCoupledAssembler<CONCRETE>,
-                                     typename AssemblerTraits<CONCRETE>::CVT_CLS>::type
-            CVT_CLS;
+                                     typename AssemblerTraits<CONCRETE>::CVT_CLASS>::type
+            CVT_CLASS;
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      MySimpleCoupledAssembler<CONCRETE>,
-                                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
-            CMT_CLS;
+                                     typename AssemblerTraits<CONCRETE>::CMT_CLASS>::type
+            CMT_CLASS;
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      AbstractStaticAssembler<2u,2u,2u,true,MySimpleCoupledAssembler<CONCRETE> >,
-                                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
-            INTERPOLATE_CLS;
+                                     typename AssemblerTraits<CONCRETE>::CMT_CLASS>::type
+            INTERPOLATE_CLASS;
 };
 
 
@@ -248,9 +248,9 @@ public :
 template<>
 struct AssemblerTraits<AnotherCoupledAssembler>
 {
-    typedef AnotherCoupledAssembler CVT_CLS;
-    typedef MySimpleCoupledAssembler<AnotherCoupledAssembler> CMT_CLS;
-    typedef AbstractStaticAssembler<2u,2u,2u,true,AnotherCoupledAssembler> INTERPOLATE_CLS;
+    typedef AnotherCoupledAssembler CVT_CLASS;
+    typedef MySimpleCoupledAssembler<AnotherCoupledAssembler> CMT_CLASS;
+    typedef AbstractStaticAssembler<2u,2u,2u,true,AnotherCoupledAssembler> INTERPOLATE_CLASS;
 };
 
 

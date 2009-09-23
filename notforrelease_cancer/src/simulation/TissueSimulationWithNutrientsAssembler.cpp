@@ -105,11 +105,11 @@ template<unsigned DIM>
 struct AssemblerTraits<TissueSimulationWithNutrientsAssembler<DIM> >
 {
     /** The class in which ComputeVectorTerm is defined. */
-    typedef TissueSimulationWithNutrientsAssembler<DIM> CVT_CLS;
+    typedef TissueSimulationWithNutrientsAssembler<DIM> CVT_CLASS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef TissueSimulationWithNutrientsAssembler<DIM> CMT_CLS;
+    typedef TissueSimulationWithNutrientsAssembler<DIM> CMT_CLASS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
-    typedef TissueSimulationWithNutrientsAssembler<DIM> INTERPOLATE_CLS;
+    typedef TissueSimulationWithNutrientsAssembler<DIM> INTERPOLATE_CLASS;
 };
 
 //////////////////////////////////////////////////////////////////////

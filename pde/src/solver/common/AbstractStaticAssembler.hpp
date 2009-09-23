@@ -63,11 +63,11 @@ template<class T>
 struct AssemblerTraits
 {
     /** The class in which ComputeVectorTerm is defined. */
-    typedef T CVT_CLS;
+    typedef T CVT_CLASS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef T CMT_CLS;
+    typedef T CMT_CLASS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
-    typedef AbstractAssembler<T::E_DIM, T::S_DIM, T::P_DIM> INTERPOLATE_CLS;
+    typedef AbstractAssembler<T::E_DIM, T::S_DIM, T::P_DIM> INTERPOLATE_CLASS;
 };
 
 /** Empty specialization for the void type */
@@ -75,11 +75,11 @@ template<>
 struct AssemblerTraits<boost::mpl::void_>
 {
     /** The class in which ComputeVectorTerm is defined. */
-    typedef boost::mpl::void_ CVT_CLS;
+    typedef boost::mpl::void_ CVT_CLASS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef boost::mpl::void_ CMT_CLS;
+    typedef boost::mpl::void_ CMT_CLASS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
-    typedef boost::mpl::void_ INTERPOLATE_CLS;
+    typedef boost::mpl::void_ INTERPOLATE_CLASS;
 };
 
 /**
@@ -366,7 +366,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 
         // allow the concrete version of the assembler to interpolate any
         // desired quantities
-        static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->ResetInterpolatedQuantities();
+        static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLASS *>(this)->ResetInterpolatedQuantities();
 
         /////////////////////////////////////////////////////////////
         // interpolation
@@ -411,7 +411,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 
             // allow the concrete version of the assembler to interpolate any
             // desired quantities
-            static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
+            static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLASS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
         }
 
         //HeartEventHandler::BeginEvent(HeartEventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
@@ -422,12 +422,12 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         ////////////////////////////////////////////////////////////
         if (assembleMatrix)
         {
-            noalias(rAElem) += static_cast<typename AssemblerTraits<CONCRETE>::CMT_CLS *>(this)->ComputeMatrixTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
+            noalias(rAElem) += static_cast<typename AssemblerTraits<CONCRETE>::CMT_CLASS *>(this)->ComputeMatrixTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
         }
 
         if (assembleVector)
         {
-            noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
+            noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLASS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
         }
         //HeartEventHandler::EndEvent(HeartEventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
     }

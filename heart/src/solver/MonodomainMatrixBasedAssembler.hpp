@@ -140,11 +140,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct AssemblerTraits<MonodomainRhsMatrixAssembler<ELEMENT_DIM, SPACE_DIM> >
 {
     /** The class in which ComputeVectorTerm is defined. */
-    typedef MonodomainRhsMatrixAssembler<ELEMENT_DIM,SPACE_DIM> CVT_CLS;
+    typedef MonodomainRhsMatrixAssembler<ELEMENT_DIM,SPACE_DIM> CVT_CLASS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef MonodomainRhsMatrixAssembler<ELEMENT_DIM,SPACE_DIM> CMT_CLS;
+    typedef MonodomainRhsMatrixAssembler<ELEMENT_DIM,SPACE_DIM> CMT_CLASS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
-    typedef AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1> INTERPOLATE_CLS;
+    typedef AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1> INTERPOLATE_CLASS;
 };
 
 
@@ -212,11 +212,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct AssemblerTraits<MonodomainMatrixBasedAssembler<ELEMENT_DIM, SPACE_DIM> >
 {
     /** The class in which ComputeVectorTerm is defined. */
-    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLASS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CMT_CLS;
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CMT_CLASS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
-    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLS;
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLASS;
 };
 
 #endif //_MONODOMAINMATRIXBASEDASSEMBLER_HPP_

@@ -183,20 +183,20 @@ struct AssemblerTraits<SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CON
     /** The class in which ComputeVectorTerm is defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE>,
-                                     typename AssemblerTraits<CONCRETE>::CVT_CLS>::type
-            CVT_CLS;
+                                     typename AssemblerTraits<CONCRETE>::CVT_CLASS>::type
+            CVT_CLASS;
 
     /** The class in which ComputeMatrixTerm is defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                                      SimpleLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, CONCRETE>,
-                                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
-            CMT_CLS;
+                                     typename AssemblerTraits<CONCRETE>::CMT_CLASS>::type
+            CMT_CLASS;
 
     /** The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
                      AbstractAssembler<ELEMENT_DIM, SPACE_DIM, 1u>,
-                     typename AssemblerTraits<CONCRETE>::CMT_CLS>::type
-            INTERPOLATE_CLS;
+                     typename AssemblerTraits<CONCRETE>::CMT_CLASS>::type
+            INTERPOLATE_CLASS;
 };
 
 #endif //_SIMPLELINEARELLIPTICASSEMBLER_HPP_
