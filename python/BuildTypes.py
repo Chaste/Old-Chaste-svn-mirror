@@ -308,7 +308,8 @@ class BuildType(object):
         items = configString.split(',')
         config = {'petsc': '2.3',
                   'boost': '1.34',
-                  'hdf5': '1.6'}
+                  'hdf5': '1.6',
+                  'xsd': '3.2'}
         for item in items:
             key, val = item.split('=')
             config[key] = val.replace('-', '.')
