@@ -69,7 +69,10 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
     {
         archive & boost::serialization::base_object<AbstractCardiacProblem<DIM, DIM, 2> >(*this);
         archive & mpBidomainPde;
+        archive & mExtracelluarColumnId; /// \todo: needed?
+        archive & mRowForAverageOfPhiZeroed;
         archive & mHasBath;
+        /// \todo: archive electrodes
     }
 
     friend class TestBidomainWithBathAssembler;

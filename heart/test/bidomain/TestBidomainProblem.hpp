@@ -790,6 +790,8 @@ public:
      */
     void TestArchiving() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+        
         // Based on TestBidomainProblem1D()
         OutputFileHandler handler("bidomain_problem_archive", false);
         handler.SetArchiveDirectory();

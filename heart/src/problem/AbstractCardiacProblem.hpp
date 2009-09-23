@@ -94,6 +94,11 @@ private:
         {
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
             PetscTools::DumpPetscObject(mSolution, filename);
+            
+            /// \todo: #98 mSolution is not loaded with the same parallel pattern as it was originally saved            
+//            PetscInt local_size;
+//            VecGetLocalSize(mSolution, &local_size);
+//            std::cout << "local size" << local_size <<std::endl;
         }
         archive & mCurrentTime;
         archive & mArchiveKSP;
@@ -134,6 +139,11 @@ private:
         {
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
             PetscTools::ReadPetscObject(mSolution, filename);
+
+            /// \todo: #98 mSolution is not loaded with the same parallel pattern as it was originally saved
+//            PetscInt local_size;
+//            VecGetLocalSize(mSolution, &local_size);
+//            std::cout << "local size" << local_size<<std::endl;;
         }
         archive & mCurrentTime;
         archive & mArchiveKSP;
