@@ -116,8 +116,8 @@ def testsuite(req, type, revision, machine, buildType, testsuite, status, runtim
   req.write(_header(), 0)
   test_set_dir = _testResultsDir(type, revision, machine, buildType)
   buildTypesModule = _importBuildTypesModule(revision)
-  if buildType == 'acceptance':
-    build = buildTypesModule.GetBuildType('default')
+  if buildType.startswith('acceptance'):
+    build = buildTypesModule.GetBuildType('default' + buildType[10:])
   else:
     build = buildTypesModule.GetBuildType(buildType)
   testsuite_file = build.ResultsFileName(test_set_dir, testsuite, status, runtime)
@@ -219,8 +219,8 @@ def _recent(req, type=None, start=0):
       buildTypesModule = _importBuildTypesModule(revision)
       old_revision = revision
       bgcol_index = 1 - bgcol_index
-    if buildType == 'acceptance':
-      build = buildTypesModule.GetBuildType('default')
+    if buildType.startswith('acceptance'):
+      build = buildTypesModule.GetBuildType('default' + buildType[10:])
     elif buildType == 'failing':
       build = buildTypesModule.GetBuildType('_onlytests_Failing')
     else:
@@ -286,8 +286,8 @@ def _summary(req, type, revision, machine=None, buildType=None):
     build = _build
   else:
     buildTypesModule = _importBuildTypesModule(revision)
-    if buildType == 'acceptance':
-      build = buildTypesModule.GetBuildType('default')
+    if buildType.startswith('acceptance'):
+      build = buildTypesModule.GetBuildType('default' + buildType[10:])
     else:
       build = buildTypesModule.GetBuildType(buildType)
   testsuite_status, overall_status, colour, runtime, graphs = _getTestStatus(test_set_dir, build)
@@ -383,8 +383,8 @@ def buildType(req, buildType, revision=None):
   else:
     rev_text = ' at revision %s' % revision
   BuildTypes = _importBuildTypesModule(revision)
-  if buildType == 'acceptance':
-    build = BuildTypes.GetBuildType('default')
+  if buildType.startswith('acceptance'):
+    build = BuildTypes.GetBuildType('default' + buildType[10:])
   else:
     build = BuildTypes.GetBuildType(buildType)
   test_packs = ', '.join(build.TestPacks())
@@ -403,7 +403,7 @@ def buildType(req, buildType, revision=None):
 """ % (buildType, rev_text, build.CompilerType(),
        build.CcFlags(), build.LinkFlags(),
        test_packs, testsuite_exe, testsuite_cmd)
-  if buildType == 'acceptance':
+  if buildType.startswith('acceptance'):
     page_body += """
     <p>
     This build was actually used just to run the acceptance tests.
