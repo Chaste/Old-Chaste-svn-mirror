@@ -1,3 +1,2 @@
 Test1dFibreWithHeterogeneity.hpp
 bidomain/TestBidomainCompareWithMemfem.hpp
-bidomain/TestBidomain3DForNumericsPaper.hpp
