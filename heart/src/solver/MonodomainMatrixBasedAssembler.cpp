@@ -153,51 +153,91 @@ MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::~MonodomainMatrixBasedAss
     VecDestroy(this->mVectorForMatrixBasedRhsAssembly);
 }
 
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(Vec existingSolution)
+//{
+//    // copy V to z
+//    VecCopy(existingSolution, this->mVectorForMatrixBasedRhsAssembly);
+//
+//    // set up a vector which has the nodewise force term (ie A*I_ionic+I_stim)
+//    Vec force_term_at_nodes = this->mpMesh->GetDistributedVectorFactory()->CreateVec();
+//    PetscInt lo, hi;
+//    VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
+//    double* p_force_term;
+//    VecGetArray(force_term_at_nodes, &p_force_term);
+//    for (int global_index=lo; global_index<hi; global_index++)
+//    {
+//        unsigned local_index = global_index - lo;
+//        const Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(global_index);
+//        p_force_term[local_index] = this->mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*p_node, 0.0);
+//    }
+//    VecRestoreArray(force_term_at_nodes, &p_force_term);
+//    VecAssemblyBegin(force_term_at_nodes);
+//    VecAssemblyEnd(force_term_at_nodes);
+//
+//    double one=1.0;
+//    double scaling=  this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
+//                    *this->mDtInverse;
+//
+//#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+//    // VecAXPBY(a,b,x,y) does y = ax + by
+//    VecAXPBY(&one,
+//             &scaling,
+//             force_term_at_nodes,
+//             this->mVectorForMatrixBasedRhsAssembly);
+//#else
+//
+//    // VecAXPBY(y,a,b,x) does y = ax + by
+//    VecAXPBY(this->mVectorForMatrixBasedRhsAssembly,
+//             one,
+//             scaling,
+//             force_term_at_nodes);
+//#endif
+//
+//    VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
+//    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
+//    VecDestroy(force_term_at_nodes);
+//}
+
+
+
+
+
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(Vec existingSolution)
+void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatrixBasedRhsAssembly(
+        Vec existingSolution)
 {
-    // copy V to z
-    VecCopy(existingSolution, this->mVectorForMatrixBasedRhsAssembly);
+    DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
+    
+    // dist stripe for the current Voltage
+    DistributedVector distributed_current_solution = p_factory->CreateDistributedVector(existingSolution);
 
-    // set up a vector which has the nodewise force term (ie A*I_ionic+I_stim)
-    Vec force_term_at_nodes = this->mpMesh->GetDistributedVectorFactory()->CreateVec();
-    PetscInt lo, hi;
-    VecGetOwnershipRange(force_term_at_nodes, &lo, &hi);
-    double* p_force_term;
-    VecGetArray(force_term_at_nodes, &p_force_term);
-    for (int global_index=lo; global_index<hi; global_index++)
+    // dist stripe for z (return value)
+    DistributedVector dist_vec_matrix_based = p_factory->CreateDistributedVector(this->mVectorForMatrixBasedRhsAssembly);
+
+    double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
+    double Cm  = HeartConfig::Instance()->GetCapacitance();
+
+    for (DistributedVector::Iterator index = dist_vec_matrix_based.Begin();
+         index!= dist_vec_matrix_based.End();
+         ++index)
     {
-        unsigned local_index = global_index - lo;
-        const Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(global_index);
-        p_force_term[local_index] = this->mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*p_node, 0.0);
+        double V = distributed_current_solution[index];
+        double F = - Am*this->mpMonodomainPde->rGetIionicCacheReplicated()[index.Global]
+                   - this->mpMonodomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global];
+
+        dist_vec_matrix_based[index] = Am*Cm*V*this->mDtInverse + F;
     }
-    VecRestoreArray(force_term_at_nodes, &p_force_term);
-    VecAssemblyBegin(force_term_at_nodes);
-    VecAssemblyEnd(force_term_at_nodes);
 
-    double one=1.0;
-    double scaling=  this->mpMonodomainPde->ComputeDuDtCoefficientFunction(ChastePoint<SPACE_DIM>())
-                    *this->mDtInverse;
-
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    // VecAXPBY(a,b,x,y) does y = ax + by
-    VecAXPBY(&one,
-             &scaling,
-             force_term_at_nodes,
-             this->mVectorForMatrixBasedRhsAssembly);
-#else
-
-    // VecAXPBY(y,a,b,x) does y = ax + by
-    VecAXPBY(this->mVectorForMatrixBasedRhsAssembly,
-             one,
-             scaling,
-             force_term_at_nodes);
-#endif
+    dist_vec_matrix_based.Restore();
 
     VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
     VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
-    VecDestroy(force_term_at_nodes);
 }
+
+
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

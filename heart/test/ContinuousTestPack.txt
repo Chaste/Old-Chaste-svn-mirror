@@ -24,7 +24,6 @@ monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 monodomain/TestMonodomainPde.hpp
-monodomain/TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestNeumannStimulus.hpp
 mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestPapillaryFibreCalculator.hpp

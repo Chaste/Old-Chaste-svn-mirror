@@ -43,51 +43,6 @@ MonodomainPde<ELEMENT_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacC
 }
 
 
-//The following are hidden from the coverage test while it is waiting
-//for a re-factor. (Ticket #157)
-#define COVERAGE_IGNORE
-template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& )
-{
-    NEVER_REACHED;
-    return 0.0;
-}
-template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double )
-{
-    NEVER_REACHED;
-    return 0.0;
-}
-#undef COVERAGE_IGNORE
-
-
-template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-c_matrix<double, SPACE_DIM, SPACE_DIM> MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeDiffusionTerm(
-            const ChastePoint<SPACE_DIM>& ,
-            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-{
-    return (*this->mpIntracellularConductivityTensors)[pElement->GetIndex()];
-}
-
-
-template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeNonlinearSourceTermAtNode(
-            const Node<SPACE_DIM>& node,
-            double /* unused */)
-{
-    unsigned index = node.GetIndex();
-    return  -(this->mpConfig->GetSurfaceAreaToVolumeRatio())*(this->mIionicCacheReplicated[index])
-            - this->mIntracellularStimulusCacheReplicated[index];
-}
-
-
-template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-double MonodomainPde<ELEMENT_DIM,SPACE_DIM>::ComputeDuDtCoefficientFunction(
-            const ChastePoint<SPACE_DIM>& /* unused */)
-{
-    return (this->mpConfig->GetSurfaceAreaToVolumeRatio())*(this->mpConfig->GetCapacitance());
-}
-
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

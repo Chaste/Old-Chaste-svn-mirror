@@ -37,10 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include "AbstractCardiacPde.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "AbstractLinearParabolicPde.hpp"
-#include "Node.hpp"
-#include "Element.hpp"
 
 
 /**
@@ -58,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Note that default values of A, C and sigma_i are stored in the parent class
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
-class MonodomainPde : public virtual AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>, public AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>
+class MonodomainPde : public virtual AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>
 {
 private:
     friend class TestMonodomainPde;
@@ -96,38 +92,6 @@ public:
     MonodomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
                   AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
-    //The following are hidden from the coverage test while it is waiting
-    //for a re-factor. (Ticket #157)
-#define COVERAGE_IGNORE
-    /**
-     * This should not be called; use
-     * ComputeLinearSourceTermAtNode instead
-     */
-    double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& );
-
-    /**
-     * This should not be called; use
-     * ComputeNonlinearSourceTermAtNode instead
-     */
-    double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& , double );
-#undef COVERAGE_IGNORE
-
-   /**
-     * Compute the diffusion term at a given point.
-     *
-     * @param rX The point in space at which the diffusion term is computed.
-     * @param pElement the element for which to compute the contribution
-     * @return A matrix.
-     */
-    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(
-                const ChastePoint<SPACE_DIM>& rX,
-                Element<ELEMENT_DIM,SPACE_DIM>* pElement);
-
-
-    double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double );
-
-
-    double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& );
 
 };
 

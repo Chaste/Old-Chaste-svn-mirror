@@ -38,8 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacPde.hpp"
 #include "AbstractConductivityTensors.hpp"
-#include "AbstractCardiacCellFactory.hpp"
-#include "ReplicatableVector.hpp"
 
 /**
  * BidomainPde class.

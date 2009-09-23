@@ -214,8 +214,7 @@ struct AssemblerTraits<MonodomainMatrixBasedAssembler<ELEMENT_DIM, SPACE_DIM> >
     /** The class in which ComputeVectorTerm is defined. */
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainMatrixBasedAssembler<ELEMENT_DIM, SPACE_DIM> >
-            CMT_CLS;
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CMT_CLS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLS;
 };

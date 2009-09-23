@@ -39,6 +39,10 @@ SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::SimpleNonlinearEllipti
     : AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
       SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::BaseClassType(numQuadPoints)
 {
+    // if this is run with SPACE_DIM != ELEMENT_DIM the class has to be checked -
+    // lots of places where should be using SPACE_DIM not ELEMENT_DIM??
+    assert(SPACE_DIM==ELEMENT_DIM);  
+    
     assert(pMesh!=NULL);
     assert(pPde!=NULL);
     assert(pBoundaryConditions!=NULL);
@@ -53,7 +57,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeMatrixTerm(
             c_vector<double, ELEMENT_DIM+1>& rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
             ChastePoint<SPACE_DIM>& rX,
             c_vector<double,1>& rU,
             c_matrix<double,1,SPACE_DIM>& rGradU,
@@ -61,6 +65,7 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
 {
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
 
+///\todo: Should these be SPACE_DIM??    
     c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX, rU(0));
     c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX, rU(0));
 
@@ -70,11 +75,11 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
     // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
     // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector
     matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0(rGradU, 0);
-    c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime, rGradU0);
+    c_vector<double, SPACE_DIM> temp1 = prod(f_of_u_prime, rGradU0);
     c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, rGradPhi);
 
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, rPhi);
-    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(f_of_u, rGradPhi);
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp2 = prod(f_of_u, rGradPhi);
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2 = prod(trans(rGradPhi), temp2);
     c_vector<double, ELEMENT_DIM+1> integrand_values3 = forcing_term_prime * rPhi;
 
@@ -87,7 +92,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,1*(ELEMENT_DIM+1)>
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeVectorTerm(
             c_vector<double, ELEMENT_DIM+1>& rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& rGradPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
             ChastePoint<SPACE_DIM>& rX,
             c_vector<double,1>& rU,
             c_matrix<double,1,SPACE_DIM>& rGradU,

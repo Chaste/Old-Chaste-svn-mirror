@@ -58,7 +58,7 @@ public:
       * 
       * \todo #1030 run PyCml automatically, rather than having to generate the .hpp files by hand.
       */
-     void TestPyCmlCodeGeneration()
+     void TestPyCmlCodeGeneration() throw(Exception)
      {
         clock_t ck_start, ck_end;
 

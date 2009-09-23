@@ -5,5 +5,4 @@ TestCardiacUneven.hpp
 TestElectrodes.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
-monodomain/TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 monodomain/TestMonodomainPde.hpp

@@ -79,7 +79,11 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 //        {
 //            std::cout << "\rElement " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
 //        }
-
+//        else
+//        {
+//            std::cout << "\rResid: element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
+//        }
+    
         Element<DIM, DIM>& element = *iter;
 
         if (element.GetOwnership() == true)

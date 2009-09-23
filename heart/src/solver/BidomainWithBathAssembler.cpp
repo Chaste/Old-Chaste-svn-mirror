@@ -38,7 +38,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
     BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
             c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
             ChastePoint<SPACE_DIM> &rX,
             c_vector<double,2> &rU,
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
@@ -53,7 +53,7 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
         double bath_cond=HeartConfig::Instance()->GetBathConductivity();
         const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_b = bath_cond*identity_matrix<double>(SPACE_DIM);
 
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp = prod(sigma_b, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_b_grad_phi =
             prod(trans(rGradPhi), temp);
 
@@ -88,7 +88,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,2*(ELEMENT_DIM+1)>
     BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
             c_vector<double, ELEMENT_DIM+1> &rPhi,
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
             ChastePoint<SPACE_DIM> &rX,
             c_vector<double,2> &rU,
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,

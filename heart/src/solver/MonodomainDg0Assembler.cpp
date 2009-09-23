@@ -32,23 +32,67 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
+    MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
+            c_vector<double, ELEMENT_DIM+1> &rPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
+            ChastePoint<SPACE_DIM> &rX,
+            c_vector<double,1> &rU,
+            c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
+            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+{
+    // get bidomain parameters
+    double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
+    double Cm = mpConfig->GetCapacitance();
+
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpMonodomainPde->rGetIntracellularConductivityTensor(pElement->GetIndex());
+
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
+        prod(trans(rGradPhi), temp);
+
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
+        outer_prod(rPhi, rPhi);
+
+    return (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double,1*(ELEMENT_DIM+1)> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
     c_vector<double, ELEMENT_DIM+1> &rPhi,
-    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
-    ChastePoint<SPACE_DIM> &rX,
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi /* not used */,
+    ChastePoint<SPACE_DIM> &rX /* not used */,
     c_vector<double,1> &rU,
     c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-    Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+    Element<ELEMENT_DIM,SPACE_DIM>* pElement /* not used */)
 {
-    return  rPhi * (mSourceTerm + this->mDtInverse *
-                    mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * rU(0));
+    double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
+    double Cm = mpConfig->GetCapacitance();
+
+    return  rPhi * (this->mDtInverse * Am * Cm * rU(0) - Am*mIionic - mIIntracellularStimulus);
 }
+
+//#define COVERAGE_IGNORE - I think this is called nowadays
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, 1*ELEMENT_DIM> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
+    const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+    c_vector<double,ELEMENT_DIM> &rPhi,
+    ChastePoint<SPACE_DIM> &rX)
+{
+    // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
+    double sigma_i_times_grad_phi_i_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
+
+    return rPhi*sigma_i_times_grad_phi_i_dot_n;
+}
+//#undef COVERAGE_IGNORE
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ResetInterpolatedQuantities( void )
 {
-    mSourceTerm=0;
+    mIionic=0;
+    mIIntracellularStimulus=0;
 }
 
 
@@ -56,7 +100,10 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(
             double phiI, const Node<SPACE_DIM>* pNode)
 {
-    mSourceTerm += phiI * mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionOrGuessReplicated[ pNode->GetIndex() ] );
+    unsigned node_global_index = pNode->GetIndex();
+
+    mIionic                 += phiI * mpMonodomainPde->rGetIionicCacheReplicated()[ node_global_index ];
+    mIIntracellularStimulus += phiI * mpMonodomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 }
 
 
@@ -101,7 +148,8 @@ MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::MonodomainDg0Assembler(
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBcc,
             unsigned numQuadPoints)
     : AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(),
-      BaseClassType(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
+      BaseClassType(numQuadPoints),
+      AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,1>()
 {
     mpMonodomainPde = pPde;
 
@@ -110,6 +158,8 @@ MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::MonodomainDg0Assembler(
     this->SetMesh(pMesh);
 
     this->SetMatrixIsConstant();
+
+    mpConfig = HeartConfig::Instance();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -128,10 +178,3 @@ template class MonodomainDg0Assembler<1,3>;
 template class MonodomainDg0Assembler<2,2>;
 template class MonodomainDg0Assembler<3,3>;
 
-#include "SimpleDg0ParabolicAssemblerImplementation.hpp"
-
-template class SimpleDg0ParabolicAssembler<1, 1, false, MonodomainDg0Assembler<1, 1> >;
-template class SimpleDg0ParabolicAssembler<1, 2, false, MonodomainDg0Assembler<1, 2> >;
-template class SimpleDg0ParabolicAssembler<1, 3, false, MonodomainDg0Assembler<1, 3> >;
-template class SimpleDg0ParabolicAssembler<2, 2, false, MonodomainDg0Assembler<2, 2> >;
-template class SimpleDg0ParabolicAssembler<3, 3, false, MonodomainDg0Assembler<3, 3> >;

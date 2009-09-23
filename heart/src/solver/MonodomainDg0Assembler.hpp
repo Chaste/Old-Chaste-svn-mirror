@@ -31,8 +31,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _MONODOMAINDG0ASSEMBLER_HPP_
 
 
-#include "SimpleDg0ParabolicAssembler.hpp"
+#include "UblasIncludes.hpp"
+
+//#include <iostream>
+#include <vector>
+#include <petscvec.h>
+
+#include "AbstractDynamicAssemblerMixin.hpp"
+#include "AbstractLinearAssembler.hpp"
+
 #include "MonodomainPde.hpp"
+#include "HeartConfig.hpp"
+#include "Element.hpp"
+#include "BoundaryElement.hpp"
+#include "ChastePoint.hpp"
+#include "AbstractTetrahedralMesh.hpp"
+#include "BoundaryConditionsContainer.hpp"
 
 
 /**
@@ -50,7 +64,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainDg0Assembler
-    : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
+    : public AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >,
+      public AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>
 {
 public:
     static const unsigned E_DIM = ELEMENT_DIM; /**< The element dimension (to save typing). */
@@ -59,20 +74,47 @@ public:
 
 protected:
 
-    /** The source term. */
-    double mSourceTerm;
+    /** Local cache of the configuration singleton instance*/
+    HeartConfig* mpConfig;
+
+    /** Ionic current to be interpolated from cache*/
+    double mIionic;
+    /** Intracellular stimulus to be interpolated from cache*/
+    double mIIntracellularStimulus;
+
 
     /** The PDE to be solved. */
     MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
 
     // Save typing
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> SelfType; /**< This type (to save typing). */
-    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, SelfType> BaseClassType; /**< Base class type (to save typing). */
+    typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, false, SelfType> BaseClassType; /**< Base class type (to save typing). */
 
-    /// Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
-    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1u, false, BaseClassType>;
+    // Allow the AbstractStaticAssembler to call our private/protected methods using static polymorphism.
+    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1u, false, SelfType>;
 
 protected:
+
+    /**
+     * ComputeMatrixTerm()
+     *
+     * This method is called by AssembleOnElement() and tells the assembler
+     * the contribution to add to the element stiffness matrix.
+     * 
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     * @param rX The point in space
+     * @param rU The unknown as a vector, u(i) = u_i
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * @param pElement Pointer to the element
+     */
+    virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
+        ChastePoint<SPACE_DIM> &rX,
+        c_vector<double,1> &rU,
+        c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      * ComputeVectorTerm()
@@ -97,6 +139,23 @@ protected:
         c_vector<double,1> &rU,
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
+
+    /**
+     * ComputeVectorSurfaceTerm()
+     *
+     * This method is called by AssembleOnSurfaceElement() and tells the
+     * assembler what to add to the element stiffness matrix arising
+     * from surface element contributions.
+     *
+     * @param rSurfaceElement the element which is being considered.
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rX The point in space
+     */
+    virtual c_vector<double, 1*ELEMENT_DIM> ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+        c_vector<double,ELEMENT_DIM> &rPhi,
+        ChastePoint<SPACE_DIM> &rX);
+
 
     /**
      * Overridden ResetInterpolatedQuantities() method.
@@ -164,8 +223,7 @@ struct AssemblerTraits<MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
     /** The class in which ComputeVectorTerm is defined. */
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CVT_CLS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, false, MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> >
-            CMT_CLS;
+    typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> CMT_CLS;
     /** The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
     typedef MonodomainDg0Assembler<ELEMENT_DIM, SPACE_DIM> INTERPOLATE_CLS;
 };

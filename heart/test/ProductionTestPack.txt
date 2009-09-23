@@ -8,7 +8,6 @@ monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 monodomain/TestMonodomainPde.hpp
-monodomain/TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestPlaneStimulusCellFactory.hpp
 postprocessing/TestPropagationPropertiesCalculator.hpp
