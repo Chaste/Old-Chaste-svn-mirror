@@ -301,8 +301,9 @@ class BuildType(object):
         This method extracts prefered versions of libraries from a string
         with format "libraryName1=version1,libraryName2=version2", where
         version numbers are given as "1-2-3".  Currently recognised library
-        names are 'petsc', 'boost', and 'hdf5'.  Prefered versions can be
-        retrieved using GetPreferedVersions.
+        names are 'petsc', 'boost', 'hdf5' and 'xsd', but support from the
+        machine-specific hostconfig file is needed too.  Prefered versions
+        can be retrieved using GetPreferedVersions.
         """
         items = configString.split(',')
         config = {'petsc': '2.3',
