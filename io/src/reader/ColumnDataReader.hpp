@@ -141,7 +141,7 @@ public:
     bool HasValues(const std::string& rVariableName);
     
     /**
-     *  Get the field width (the number of characters (excl '+' or '-') printed for each data entry in the file).
+     *  Get the field width (the number of characters (excl. preceding '+' or '-') printed for each data entry in the file).
      */
     unsigned GetFieldWidth();
 

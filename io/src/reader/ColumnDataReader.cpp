@@ -40,9 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cassert>
 #include <climits>
-
-#include <iostream>
-
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 
