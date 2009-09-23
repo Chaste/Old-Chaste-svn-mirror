@@ -405,10 +405,17 @@ def buildType(req, buildType, revision=None):
        test_packs, testsuite_exe, testsuite_cmd)
   if buildType.startswith('acceptance'):
     page_body += """
-    <p>
-    This build was actually used just to run the acceptance tests.
-    </p>
+  <p>This build was actually used just to run the acceptance tests.</p>
 """
+  prefs = build.GetPreferedVersions()
+  if prefs:
+    page_body += """
+  <p>Library/tool versions requested:</p>
+  <ul>
+"""
+    for lib, version in prefs.iteritems():
+      page_body += "    <li>%s: %s</li>\n" % (lib, version)
+  page_body += "\n  </ul>\n"
   return _header() + page_body + _footer()
 
 
