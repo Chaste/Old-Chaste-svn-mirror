@@ -92,7 +92,7 @@ protected:
     CellMutationState mMutationState;
 
     /** The cell's cell-cycle model */
-    AbstractCellCycleModel *mpCellCycleModel;
+    AbstractCellCycleModel* mpCellCycleModel;
 
     /** An index which is inherited by all children of this cell */
     unsigned mAncestor;

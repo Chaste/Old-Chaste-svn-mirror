@@ -64,7 +64,7 @@ public:
 protected:
 
     /** The PDE to be solved. */
-    AbstractLinearEllipticPde<ELEMENT_DIM,SPACE_DIM> *mpEllipticPde;
+    AbstractLinearEllipticPde<ELEMENT_DIM,SPACE_DIM>* mpEllipticPde;
 
     /**
      * The term to be added to the element stiffness matrix:

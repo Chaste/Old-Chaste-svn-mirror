@@ -47,7 +47,7 @@ class HoneycombVertexMeshGenerator
 private:
 
     /** A pointer to the mesh this class creates */
-    VertexMesh<2,2> *mpMesh;
+    VertexMesh<2,2>* mpMesh;
 
     /** Whether we are creating a cylindrical mesh or not */
     bool mIsCylindrical;

@@ -149,7 +149,7 @@ private:
     }
 
     /** Pointer to the CVODE memory block. */
-    void *mpCvodeMem;
+    void* mpCvodeMem;
 
     /** Initial conditions for the ODE solver. */
     N_Vector mInitialValues;

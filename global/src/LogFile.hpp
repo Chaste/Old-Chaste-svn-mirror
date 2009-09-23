@@ -70,7 +70,7 @@ class LogFile
 private:
 
     /** The static single instance. */
-    static LogFile *mpInstance;
+    static LogFile* mpInstance;
 
     /** Whether a directory and filename has been set. */
     bool mFileSet;

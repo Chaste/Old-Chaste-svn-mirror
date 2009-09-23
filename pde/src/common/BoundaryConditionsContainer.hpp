@@ -65,8 +65,8 @@ public:
 
 private:
 
-    std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >
-        *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions. */
+    std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >* 
+        mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions. */
 
     /**
      * Neumann boundary condition iterator.
@@ -79,7 +79,7 @@ private:
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
 
     /** A zero boundary condition, used for other unknowns in ApplyNeumannBoundaryCondition */
-    ConstBoundaryCondition<SPACE_DIM> *mpZeroBoundaryCondition;
+    ConstBoundaryCondition<SPACE_DIM>* mpZeroBoundaryCondition;
 
 public:
 

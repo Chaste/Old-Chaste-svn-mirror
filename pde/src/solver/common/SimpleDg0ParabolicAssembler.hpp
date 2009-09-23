@@ -60,7 +60,7 @@ public:
 private:
 
     /** The PDE to be solved. */
-    AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM> *mpParabolicPde;
+    AbstractLinearParabolicPde<ELEMENT_DIM, SPACE_DIM>* mpParabolicPde;
 
     typedef SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE> SelfType; /**< This type (to save typing). */
     typedef AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, NON_HEART, SelfType> BaseClassType; /**< Base class type (to save typing). */

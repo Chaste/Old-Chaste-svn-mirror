@@ -75,7 +75,7 @@ protected:
      *  and the Jacobian. Note we don't actually call Solve but solve using Petsc
      *  methods explicitly (in order to easily set number of restarts etc).
      */
-    LinearSystem *mpLinearSystem;
+    LinearSystem* mpLinearSystem;
 
     /**
      *  The linear system which stores the matrix used for preconditioning (given
@@ -95,7 +95,7 @@ protected:
      *  and M is the MASS MATRIX (ie integral phi_i phi_j dV, where phi_i are the
      *  pressure basis functions).
      */
-    LinearSystem *mpPreconditionMatrixLinearSystem;
+    LinearSystem* mpPreconditionMatrixLinearSystem;
 
     /** Body force vector */
     c_vector<double,DIM> mBodyForce;

@@ -101,10 +101,10 @@ protected:
     out_stream mpSetupFile;
 
     /** The cancer tissue configuration */
-    TissueConfig *mpConfig;
+    TissueConfig* mpConfig;
 
     /** The singleton RandomNumberGenerator */
-    RandomNumberGenerator *mpRandomGenerator;
+    RandomNumberGenerator* mpRandomGenerator;
 
     /** Counts the number of births during the simulation */
     unsigned mNumBirths;

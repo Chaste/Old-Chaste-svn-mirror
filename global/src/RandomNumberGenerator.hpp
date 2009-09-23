@@ -119,7 +119,7 @@ private:
     unsigned mTimesCalled;
 
     /** Pointer to the single instance. */
-    static RandomNumberGenerator *mpInstance;
+    static RandomNumberGenerator* mpInstance;
 
     friend class boost::serialization::access;
     /**

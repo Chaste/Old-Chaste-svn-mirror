@@ -123,7 +123,7 @@ class InventorVoronoiWriter
 {
 protected:
 
-    OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
+    OutputFileHandler* mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
 
 public:

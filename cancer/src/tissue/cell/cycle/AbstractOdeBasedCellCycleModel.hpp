@@ -71,7 +71,7 @@ private:
 protected:
 
     /** The system of ODEs for the cell cycle model. */
-    AbstractOdeSystem *mpOdeSystem;
+    AbstractOdeSystem* mpOdeSystem;
 
     /** The last time the cell cycle ODEs were evaluated.*/
     double mLastTime;

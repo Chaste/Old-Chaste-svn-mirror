@@ -53,7 +53,7 @@ class HoneycombMeshGenerator
 private:
 
     /** A pointer to the mesh this class creates */
-    MutableMesh<2,2> *mpMesh;
+    MutableMesh<2,2>* mpMesh;
 
     /** The indices of the nodes in this mesh which are 'ghost nodes'  */
     std::set<unsigned> mGhostNodeIndices;

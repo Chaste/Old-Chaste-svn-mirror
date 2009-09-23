@@ -57,7 +57,7 @@ class VtkWriter : public AbstractTetrahedralMeshWriter<DIM, DIM>
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 
 private:
-    vtkUnstructuredGrid *mpVtkUnstructedMesh;
+    vtkUnstructuredGrid* mpVtkUnstructedMesh;
 
     void MakeVtkMesh();
 public:

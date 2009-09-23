@@ -98,7 +98,7 @@ private:
 protected:
 
     /** The cell that this model is associated with. */
-    TissueCell *mpCell;
+    TissueCell* mpCell;
 
     /**
      * The time that the cell began to split from its parent

@@ -88,7 +88,7 @@ private:
 protected:
 
     /** The nonlinear solver. */
-    AbstractNonlinearSolver *mpSolver;
+    AbstractNonlinearSolver* mpSolver;
 
     /** Whether memory has been allocated for the solver. */
     bool mWeAllocatedSolverMemory;

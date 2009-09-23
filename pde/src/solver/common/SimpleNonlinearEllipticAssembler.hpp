@@ -64,7 +64,7 @@ private:
     friend class TestSimpleNonlinearEllipticAssembler;
 
     /** The PDE to be solved. */
-    AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;
+    AbstractNonlinearEllipticPde<SPACE_DIM>* mpNonlinearEllipticPde;
 
     /**
      * This method returns the matrix to be added to element stiffness matrix

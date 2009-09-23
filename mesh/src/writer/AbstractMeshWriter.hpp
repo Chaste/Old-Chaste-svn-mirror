@@ -44,7 +44,7 @@ class AbstractMeshWriter
 {
 protected: // Give access of these members to subclasses
 
-    OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
+    OutputFileHandler* mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
 
     std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/

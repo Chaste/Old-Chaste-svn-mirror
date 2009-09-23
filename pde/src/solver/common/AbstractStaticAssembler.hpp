@@ -106,13 +106,13 @@ class AbstractStaticAssembler : virtual public AbstractAssembler<ELEMENT_DIM,SPA
 protected:
 
     /** Mesh to be solved on */
-    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
 
     /** Quadrature rule for use on normal elements */
-    GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
+    GaussianQuadratureRule<ELEMENT_DIM>* mpQuadRule;
 
     /** Quadrature rule for use on boundary elements */
-    GaussianQuadratureRule<ELEMENT_DIM-1> *mpSurfaceQuadRule;
+    GaussianQuadratureRule<ELEMENT_DIM-1>* mpSurfaceQuadRule;
 
     /** Basis function for use with normal elements */
     typedef LinearBasisFunction<ELEMENT_DIM> BasisFunction;
@@ -129,7 +129,7 @@ protected:
      *  The linear system that is assembled in linear pde problems. Not used in
      *  nonlinear problems.
      */
-    LinearSystem *mpLinearSystem;
+    LinearSystem* mpLinearSystem;
 
     /**
      * Compute the derivatives of all basis functions at a point within an element.

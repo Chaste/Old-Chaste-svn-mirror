@@ -40,7 +40,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 {
 public:
 
-    AbstractMeshReader<2,2> *mpFemlabMeshReader;
+    AbstractMeshReader<2,2>* mpFemlabMeshReader;
 
     /**
      * Check that input files are opened correctly.

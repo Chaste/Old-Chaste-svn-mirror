@@ -51,7 +51,7 @@ class ChildClass
 {
 public:
     unsigned mTag;
-    ParentClass *mpParent;
+    ParentClass* mpParent;
     ChildClass() : mTag(1)
     {
     }
@@ -73,7 +73,7 @@ class ParentClass
 {
 public:
     unsigned mTag;
-    ChildClass *mpChild;
+    ChildClass* mpChild;
     ParentClass(ChildClass* pChild) : mTag(0), mpChild(pChild)
     {
         mpChild->SetParent(this);

@@ -74,12 +74,12 @@ private :
     /**
      *  Pointer to the PDE satisfied by the nutrient.
      */
-    AbstractLinearEllipticPde<DIM,DIM> *mpPde;
+    AbstractLinearEllipticPde<DIM,DIM>* mpPde;
 
     /**
      *  Pointer to the averaged sink PDE satisfied by the nutrient.
      */
-    AveragedSinksPde<DIM> *mpAveragedSinksPde;
+    AveragedSinksPde<DIM>* mpAveragedSinksPde;
 
     /**
      *  File that the nutrient values are written out to.
@@ -110,7 +110,7 @@ private :
     /**
      *  Coarse nutrient mesh on which to solve the nutrient PDE.
      */
-    TetrahedralMesh<DIM,DIM> *mpCoarseNutrientMesh;
+    TetrahedralMesh<DIM,DIM>* mpCoarseNutrientMesh;
 
     /**
      * Map between cells and the elements of the coarse nutrient mesh containing them.

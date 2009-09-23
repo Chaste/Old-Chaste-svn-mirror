@@ -44,8 +44,8 @@ class TestParallelColumnDataReaderWriter : public CxxTest::TestSuite
 
 private:
 
-    ParallelColumnDataWriter *mpParallelWriter;
-    ColumnDataReader *mpReader;
+    ParallelColumnDataWriter* mpParallelWriter;
+    ColumnDataReader* mpReader;
 
     const static int num_nodes = 10;
 

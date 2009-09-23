@@ -60,7 +60,7 @@ private:
 #ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 ///\todo Merge into VtkWriter
-    vtkUnstructuredGrid *mpVtkUnstructedMesh;
+    vtkUnstructuredGrid* mpVtkUnstructedMesh;
 #endif //CHASTE_VTK
 
 public:

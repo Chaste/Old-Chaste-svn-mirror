@@ -96,7 +96,7 @@ protected:
      * Pointer to a Voronoi tessellation object.
      * Used to calculate cell area and perimeter information if required.
      */
-    VoronoiTessellation<DIM> *mpVoronoiTessellation;
+    VoronoiTessellation<DIM>* mpVoronoiTessellation;
 
     /**
      * Whether to delete the mesh when we are destroyed.

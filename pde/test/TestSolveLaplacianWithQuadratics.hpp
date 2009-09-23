@@ -57,10 +57,10 @@ private:
     double mCoeffOfU;
     double mConstant;
 
-    LinearSystem *mpLinearSystem;
-    QuadraticMesh<DIM> *mpQuadMesh;
-    BoundaryConditionsContainer<DIM,DIM,1> *mpBoundaryConditions;
-    GaussianQuadratureRule<DIM> *mpQuadRule;
+    LinearSystem* mpLinearSystem;
+    QuadraticMesh<DIM>* mpQuadMesh;
+    BoundaryConditionsContainer<DIM,DIM,1>* mpBoundaryConditions;
+    GaussianQuadratureRule<DIM>* mpQuadRule;
 
     static const unsigned NUM_BASES_PER_ELEMENT = (DIM+1)*(DIM+2)/2;
     static const unsigned STENCIL_SIZE = NUM_BASES_PER_ELEMENT; // multiplied by PROBLEM_DIM

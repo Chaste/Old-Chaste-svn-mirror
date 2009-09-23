@@ -79,16 +79,16 @@ protected:
      *  The mesh to be solved on. Requires 6 nodes per triangle (or 10 per tetrahedron)
      *  as quadratic bases are used.
      */
-    QuadraticMesh<DIM> *mpQuadMesh;
+    QuadraticMesh<DIM>* mpQuadMesh;
 
     /** Boundary elements with (non-zero) surface tractions defined on them */
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
 
     /** Gaussian quadrature rule */
-    GaussianQuadratureRule<DIM> *mpQuadratureRule;
+    GaussianQuadratureRule<DIM>* mpQuadratureRule;
 
     /** Boundary Gaussian quadrature rule */
-    GaussianQuadratureRule<DIM-1> *mpBoundaryQuadratureRule;
+    GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
 
     /**
      * Assemble residual or jacobian on an element, using the current solution

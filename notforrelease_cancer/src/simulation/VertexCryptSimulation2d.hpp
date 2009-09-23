@@ -60,7 +60,7 @@ private :
     }
 
     /** Helper member that is a static cast of the tissue. */
-    VertexBasedTissue<2> *mpStaticCastTissue;
+    VertexBasedTissue<2>* mpStaticCastTissue;
 
     /** Whether to use a flat bottom surface or to jiggle the cells on the bottom surface */
     bool mUseJiggledBottomCells;

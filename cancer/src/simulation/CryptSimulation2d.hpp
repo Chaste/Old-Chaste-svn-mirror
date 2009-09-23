@@ -75,7 +75,7 @@ private :
     out_stream mBetaCatResultsFile;
 
     /** Helper member that is a static cast of the tissue. */
-    MeshBasedTissueWithGhostNodes<2> *mpStaticCastTissue;
+    MeshBasedTissueWithGhostNodes<2>* mpStaticCastTissue;
 
     /**
      * Calculates the new locations of a dividing cell's cell centres.

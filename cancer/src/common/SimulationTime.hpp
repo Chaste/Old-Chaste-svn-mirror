@@ -160,7 +160,7 @@ private:
     /**
      * A pointer to the singleton instance of this class.
      */
-    static SimulationTime *mpInstance;
+    static SimulationTime* mpInstance;
 
     /**
      * The duration of the simulation (cancer time units are in hours).

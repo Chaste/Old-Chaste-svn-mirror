@@ -70,7 +70,7 @@ private:
     }
 
     /** Helper member that is a static cast of the tissue. */
-    MeshBasedTissue<1> *mpStaticCastTissue;
+    MeshBasedTissue<1>* mpStaticCastTissue;
 
     /**
      * Calculates the new locations of a dividing cell's cell centres.

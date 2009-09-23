@@ -58,7 +58,7 @@ private:
     bool mAddedNodes;
 
     /** Pointer to a Node box collection */
-    NodeBoxCollection<DIM> *mpNodeBoxCollection;
+    NodeBoxCollection<DIM>* mpNodeBoxCollection;
 
     /** Vector of minimal spatial positions in each dimension */
     c_vector<double, DIM> mMinSpatialPositions;

@@ -43,8 +43,8 @@ class TestColumnDataReaderWriter : public CxxTest::TestSuite
 
 private:
 
-    ColumnDataWriter *mpTestWriter;
-    ColumnDataReader *mpTestReader;
+    ColumnDataWriter* mpTestWriter;
+    ColumnDataReader* mpTestReader;
 
     bool filesMatch(std::string testfileName, std::string goodfileName)
     {
