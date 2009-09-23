@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
+#include "CompareHdf5ResultsFiles.hpp"
 
 /*
  *  This cell factory introduces a stimulus in the very centre of mesh/test/data/2D_0_to_1mm_400_elements.
@@ -95,156 +96,6 @@ class TestMonodomainProblem : public CxxTest::TestSuite
 {
 private:
     std::vector<double> mVoltageReplicated1d2ms;///<Used to test differences between tests
-    
-    bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
-                                       std::string pathname2, std::string filename2, bool makeAbsolute2)
-    {
-        Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
-        Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
-
-        unsigned number_nodes1 = reader1.GetNumberOfRows();
-        unsigned number_nodes2 = reader2.GetNumberOfRows();
-        if (number_nodes1 != number_nodes2)
-        {
-            std::cout << "Number of nodes " << number_nodes1 << " and " << number_nodes2 << " don't match\n";
-            return false;
-        }
-        // Check the variable names and units
-        std::vector<std::string> variable_names1 = reader1.GetVariableNames();
-        std::vector<std::string> variable_names2 = reader2.GetVariableNames();
-        unsigned num_vars = variable_names1.size();
-        if (num_vars != variable_names2.size())
-        {
-            std::cout << "Number of variables " << variable_names1.size()
-                      << " and " << variable_names2.size() << " don't match\n";
-            return false;
-        }
-        for (unsigned var=0; var<num_vars; var++)
-        {
-            std::string var_name = variable_names1[var];
-            if (var_name != variable_names2[var])
-            {
-                std::cout << "Variable names " << var_name << " and "
-                          << variable_names2[var] << " don't match\n";
-                return false;
-            }
-            if (reader1.GetUnit(var_name) != reader2.GetUnit(var_name))
-            {
-                std::cout << "Units names " << reader1.GetUnit(var_name)
-                          << " and " << reader2.GetUnit(var_name) << " don't match\n";
-                return false;
-            }
-        }
-        // Check the timestep vectors
-        std::vector<double> times1 = reader1.GetUnlimitedDimensionValues();
-        std::vector<double> times2 = reader2.GetUnlimitedDimensionValues();
-
-        if (times1.size() != times2.size())
-        {
-            std::cout << "Time step sizes " << times1.size()
-                      << " and " << times2.size() << " don't match\n";
-            return false;
-        }
-
-        for (unsigned timestep=0; timestep<times1.size(); timestep++)
-        {
-            if (fabs(times1[timestep]-times2[timestep]) > 1e-8)
-            {
-                std::cout << "Time steps " << times1[timestep]
-                          << " and " << times2[timestep] << " don't match\n";
-                return false;
-            }
-        }
-
-        bool is_complete1 = reader1.IsDataComplete();
-        bool is_complete2 = reader2.IsDataComplete();
-
-        if (is_complete1 != is_complete2)
-        {
-            std::cout<<"One of the readers has incomplete data and the other doesn't\n";
-            return false;
-        }
-
-        if (is_complete1)
-        {
-            DistributedVectorFactory factory(number_nodes1);
-
-            Vec data1 = factory.CreateVec();
-            Vec data2 = factory.CreateVec();
-
-            for (unsigned timestep=0; timestep<times1.size(); timestep++)
-            {
-                for (unsigned var=0; var<num_vars; var++)
-                {
-                    reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
-                    reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
-                    
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                    double minus_one = -1.0;
-                    VecAXPY(&minus_one, data2, data1);
-#else
-                    //[note: VecAXPY(y,a,x) computes y = ax+y]
-                    VecAXPY(data1, -1.0, data2);
-#endif
-                    
-                    PetscReal difference_norm;
-                    VecNorm(data1, NORM_2, &difference_norm);
-                    
-                    if (difference_norm > 1e-10)
-                    {
-                        std::cout << "Vectors differ in NORM_2 by " << difference_norm << std::endl;
-                        return false;
-                    }
-                }
-            }
-           VecDestroy(data1);
-           VecDestroy(data2);
-        }
-        else
-        {
-            // Incomplete data
-
-            // Check the index vectors
-            std::vector<unsigned> indices1 = reader1.GetIncompleteNodeMap();
-            std::vector<unsigned> indices2 = reader2.GetIncompleteNodeMap();
-
-            if (indices1.size() != indices2.size())
-            {
-                std::cout << "Index map sizes " << indices1.size() << " and " << indices2.size() << " don't match\n";
-                return false;
-            }
-
-            for (unsigned index=0; index<indices1.size(); index++)
-            {
-                if (indices1[index]!=indices2[index])
-                {
-                   std::cout << "Time steps " << indices1[index] << " and " << indices2[index] << " don't match\n";
-                   return false;
-                }
-            }
-
-            // Check all the data
-            for (unsigned index=0; index<indices1.size(); index++)
-            {
-                unsigned node_index = indices1[index];
-                for (unsigned var=0; var<num_vars; var++)
-                {
-                  std::vector<double> var_over_time1 = reader1.GetVariableOverTime(variable_names1[var], node_index);
-                  std::vector<double> var_over_time2 = reader2.GetVariableOverTime(variable_names1[var], node_index);
-                  for (unsigned time_step=0;time_step< var_over_time1.size(); time_step++)
-                  {
-                     if (var_over_time1[time_step] != var_over_time2[time_step])
-                     {
-                        std::cout<<"Node "<<node_index<<" at time step "<<time_step<<" variable "<<variable_names1[var]<<
-                            " differs ("<<var_over_time1[time_step]<<" != "<<var_over_time2[time_step]<<")\n";
-                     }
-                  }
-                }
-            }
-        }
-       return true;
-    }
-    
     
 public:
     void tearDown()
@@ -964,6 +815,8 @@ public:
     /**
      * Not a very thorough test yet - just checks we can load a problem, simulate it, and
      * get expected results.
+     * 
+     * This test relies on the h5 file generated in TestMonodomainProblem1D. Always run after!
      */
     void TestArchiving() throw(Exception)
     {
@@ -1037,7 +890,7 @@ public:
 
             // check output file contains results for the whole simulation
             TS_ASSERT(CompareFilesViaHdf5DataReader("MonoProblemArchive", "MonodomainLR91_1d", true,
-                                                    "heart/test/data/Monodomain1d", "MonodomainLR91_1d_2ms", false));
+                                                    "MonoProblem1d", "MonodomainLR91_1d", true));
             
             // Free memory
             delete p_monodomain_problem;
@@ -1047,6 +900,8 @@ public:
     /**
      * Same as TestMonodomainProblem1D, except run the simulation in 2 halves: first to 1ms,
      * then continue to 2ms.
+     * 
+     * This test relies on the h5 file generated in TestMonodomainProblem1D. Always run after!
      */
     void TestMonodomainProblem1dInTwoHalves() throw(Exception)
     {
@@ -1085,9 +940,9 @@ public:
             TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index], 5e-11);
         }
 
-        // check output file contains results for the whole simulation
+        // check output file contains results for the whole simulation and agree with normal test
         TS_ASSERT(CompareFilesViaHdf5DataReader("MonoProblem1dInTwoHalves", "MonodomainLR91_1d", true,
-                                                "heart/test/data/Monodomain1d", "MonodomainLR91_1d_2ms", false));
+                                                "MonoProblem1d", "MonodomainLR91_1d", true));
     }
 };
 
