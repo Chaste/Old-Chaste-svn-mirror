@@ -146,8 +146,9 @@ public:
     /**
      * Define what variables are written to the primary results file.
      * Adds the extracellular potential.
+     * @param extending  whether we are extending an existing results file
      */
-    virtual void DefineWriterColumns();
+    virtual void DefineWriterColumns(bool extending);
 
     /**
      * Write one timestep of output data to the primary results file.

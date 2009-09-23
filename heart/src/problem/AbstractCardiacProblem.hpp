@@ -92,9 +92,8 @@ private:
         archive & has_solution;
         if (has_solution)
         {
-            /// \todo: Save using PetscTools:DumpPetscObject
-//            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
-//            PetscTools::DumpPetscObject(mSolution, filename);
+            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
+            PetscTools::DumpPetscObject(mSolution, filename);
         }
         archive & mCurrentTime;
         archive & mArchiveKSP;
@@ -122,16 +121,19 @@ private:
         archive & mPrintOutput;
         archive & mCallChaste2Meshalyzer;
         archive & mNodesToOutput;
-        /// \todo: think about the writer
+        //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
+        //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve
+        //archive & mTimeColumnId; // Created by InitialiseWriter, called from Solve
+        //archive & mNodeColumnId; // Created by InitialiseWriter, called from Solve
+        //archive & mpWriter; // Created by InitialiseWriter, called from Solve
         archive & mpCardiacPde;
         //archive & mpAssembler; // Only exists during calls to the Solve method
         bool has_solution;
         archive & has_solution;
         if (has_solution)
         {
-            /// \todo: Load using PetscTools::ReadPetscObject
-//            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
-//            PetscTools::ReadPetscObject(mSolution, filename);
+            std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
+            PetscTools::ReadPetscObject(mSolution, filename);
         }
         archive & mCurrentTime;
         archive & mArchiveKSP;
@@ -423,13 +425,15 @@ public:
 
     /**
      * Define what variables are written to the primary results file.
+     * @param extending  whether we are extending an existing results file
      */
-    virtual void DefineWriterColumns();
+    virtual void DefineWriterColumns(bool extending);
     
     /**
      * Define the user specified variables to be written to the primary results file
+     * @param extending  whether we are extending an existing results file
      */
-    void DefineExtraVariablesWriterColumns();
+    void DefineExtraVariablesWriterColumns(bool extending);
 
     /**
      * Write one timestep of output data to the primary results file.

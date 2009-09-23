@@ -120,10 +120,10 @@ void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::WriteInfo(double time)
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::DefineWriterColumns()
+void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::DefineWriterColumns(bool extending)
 {
-    AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,1>::DefineWriterColumns();
-    AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,1>::DefineExtraVariablesWriterColumns();
+    AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,1>::DefineWriterColumns(extending);
+    AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,1>::DefineExtraVariablesWriterColumns(extending);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

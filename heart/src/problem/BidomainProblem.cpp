@@ -252,11 +252,18 @@ void BidomainProblem<DIM>::WriteInfo(double time)
 }
 
 template<unsigned DIM>
-void BidomainProblem<DIM>::DefineWriterColumns()
+void BidomainProblem<DIM>::DefineWriterColumns(bool extending)
 {
-    AbstractCardiacProblem<DIM,DIM,2>::DefineWriterColumns();
-    mExtracelluarColumnId = this->mpWriter->DefineVariable("Phi_e","mV");
-    AbstractCardiacProblem<DIM,DIM,2>::DefineExtraVariablesWriterColumns();
+    AbstractCardiacProblem<DIM,DIM,2>::DefineWriterColumns(extending);
+    if (extending)
+    {
+        mExtracelluarColumnId = this->mpWriter->GetVariableByName("Phi_e");
+    }
+    else
+    {
+        mExtracelluarColumnId = this->mpWriter->DefineVariable("Phi_e","mV");
+    }
+    AbstractCardiacProblem<DIM,DIM,2>::DefineExtraVariablesWriterColumns(extending);
 }
 
 template<unsigned DIM>

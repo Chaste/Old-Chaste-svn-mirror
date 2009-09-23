@@ -416,7 +416,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
         InitialiseWriter();
-        WriteOneStep(stepper.GetTime(), initial_condition);
+        
+        // If we are resuming a simulation (i.e. mSolution already exists) there's no need
+        // of writing the initial timestep, 
+        // since it was already written as the last timestep of the previous run
+        if (!mSolution)
+        {
+            WriteOneStep(stepper.GetTime(), initial_condition);
+            mpWriter->AdvanceAlongUnlimitedDimension();
+        }
         HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
 
         progress_reporter_dir = HeartConfig::Instance()->GetOutputDirectory();
@@ -484,8 +492,10 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
             // Writing data out to the file <FilenamePrefix>.dat
             HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
-            mpWriter->AdvanceAlongUnlimitedDimension(); //creates a new file
             WriteOneStep(stepper.GetTime(), mSolution);
+            // Just flags that we've finished a time-step; won't actually 'extend' unless new data is written.
+            mpWriter->AdvanceAlongUnlimitedDimension();
+
             HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
         }
 
@@ -594,30 +604,36 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineWriterColumns()
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineWriterColumns(bool extending)
 {
-    if ( mNodesToOutput.empty() )
+    if (!extending)
     {
-        //Set writer to output all nodes
-        mpWriter->DefineFixedDimension( mpMesh->GetNumNodes() );
+        if ( mNodesToOutput.empty() )
+        {
+            //Set writer to output all nodes
+            mpWriter->DefineFixedDimension( mpMesh->GetNumNodes() );
+        }
+        else
+        {
+            //Output only the nodes indicted
+            mpWriter->DefineFixedDimension( mNodesToOutput, mpMesh->GetNumNodes() );
+        }
+        //mNodeColumnId = mpWriter->DefineVariable("Node", "dimensionless");
+        mVoltageColumnId = mpWriter->DefineVariable("V","mV");
+
+        mpWriter->DefineUnlimitedDimension("Time","msecs");
     }
     else
     {
-        //Output only the nodes indicted
-        mpWriter->DefineFixedDimension( mNodesToOutput, mpMesh->GetNumNodes() );
+        mVoltageColumnId = mpWriter->GetVariableByName("V");
     }
-    //mNodeColumnId = mpWriter->DefineVariable("Node", "dimensionless");
-    mVoltageColumnId = mpWriter->DefineVariable("V","mV");
-
-    mpWriter->DefineUnlimitedDimension("Time","msecs");
-
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVariablesWriterColumns()
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVariablesWriterColumns(bool extending)
 {
     // Check if any extra output variables have been requested
-    if(HeartConfig::Instance()->GetOutputVariablesProvided())
+    if (HeartConfig::Instance()->GetOutputVariablesProvided())
     {
         // Get their names in a vector
         std::vector<std::string> output_variables;        
@@ -629,8 +645,16 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVaria
             // Get variable name
             std::string var_name = output_variables[var_index];
             
-            // Register it in the data writer
-            unsigned column_id = this->mpWriter->DefineVariable(var_name, "");
+            // Register it (or look it up) in the data writer
+            unsigned column_id;
+            if (extending)
+            {
+                column_id = this->mpWriter->GetVariableByName(var_name);
+            }
+            else
+            {
+                column_id = this->mpWriter->DefineVariable(var_name, "");
+            }
             
             // Store column id 
             mExtraVariablesId.push_back(column_id);        
@@ -668,9 +692,29 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
-    mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(), HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
-    DefineWriterColumns();
-    mpWriter->EndDefineMode();
+    bool extend_file = (mSolution != NULL);
+    
+    if (extend_file)
+    {
+        std::cout << "extending file" << std::endl;        
+    }
+    else
+    {
+        std::cout << "creating file" << std::endl;        
+    }
+    
+    mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(), 
+                                  HeartConfig::Instance()->GetOutputDirectory(), 
+                                  HeartConfig::Instance()->GetOutputFilenamePrefix(), 
+                                  !extend_file, // don't clear directory if extension requested
+                                  extend_file);
+                                  
+    // Define columns, or get the variable IDs from the writer
+    DefineWriterColumns(extend_file);
+    if (!extend_file)
+    {
+        mpWriter->EndDefineMode();
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
