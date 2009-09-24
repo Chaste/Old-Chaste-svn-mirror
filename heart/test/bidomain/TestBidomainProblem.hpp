@@ -730,7 +730,7 @@ public:
     }
 
     /*
-     *  This test is almost identical to TestBidomainProblemPrintsOnlyAtRequestedTimesAndOnlyRequestedNodes
+     *  This test is almost identical to TestSimpleBidomain1D
      *  and relies on that test generating a h5 file to check against.
      */
     void TestBidomainProblemInTwoHalves() throw (Exception)
@@ -790,9 +790,6 @@ public:
      */
     void TestArchiving() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-        
-        // Based on TestBidomainProblem1D()
         OutputFileHandler handler("bidomain_problem_archive", false);
         handler.SetArchiveDirectory();
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("bidomain_problem.arch");

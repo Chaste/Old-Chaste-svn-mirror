@@ -92,13 +92,32 @@ private:
         archive & has_solution;
         if (has_solution)
         {
+            /// \todo: code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem                        
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
-            PetscTools::DumpPetscObject(mSolution, filename);
+
+            Hdf5DataWriter writer(*mpMesh->GetDistributedVectorFactory(), ArchiveLocationInfo::GetArchiveRelativePath(), "AbstractCardiacProblem_mSolution", false);
+            writer.DefineFixedDimension(mpMesh->GetDistributedVectorFactory()->GetProblemSize());
             
-            /// \todo: #98 mSolution is not loaded with the same parallel pattern as it was originally saved            
-//            PetscInt local_size;
-//            VecGetLocalSize(mSolution, &local_size);
-//            std::cout << "local size" << local_size <<std::endl;
+            writer.DefineUnlimitedDimension("Time", "msec");
+            int vm_col = writer.DefineVariable("Vm","mV");              
+            
+            if (PROBLEM_DIM==1)
+            {
+                writer.EndDefineMode();
+                writer.PutUnlimitedVariable(0.0);           
+                writer.PutVector(vm_col, mSolution);    
+            }
+            
+            if (PROBLEM_DIM==2)
+            {
+                int phie_col = writer.DefineVariable("Phie","mV");
+                writer.EndDefineMode();                           
+                writer.PutUnlimitedVariable(0.0);           
+                writer.PutStripedVector(vm_col, phie_col, mSolution);    
+            }                
+            
+            writer.Close();            
+            
         }
         archive & mCurrentTime;
         archive & mArchiveKSP;
@@ -137,13 +156,56 @@ private:
         archive & has_solution;
         if (has_solution)
         {
+            /// \todo: code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem                        
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
-            PetscTools::ReadPetscObject(mSolution, filename);
 
-            /// \todo: #98 mSolution is not loaded with the same parallel pattern as it was originally saved
-//            PetscInt local_size;
-//            VecGetLocalSize(mSolution, &local_size);
-//            std::cout << "local size" << local_size<<std::endl;;
+            mSolution = mpMesh->GetDistributedVectorFactory()->CreateVec(PROBLEM_DIM);
+            DistributedVector mSolution_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(mSolution);                    
+
+            Vec vm = mpMesh->GetDistributedVectorFactory()->CreateVec();
+            Vec phie = mpMesh->GetDistributedVectorFactory()->CreateVec();
+
+            Hdf5DataReader reader(ArchiveLocationInfo::GetArchiveRelativePath(), "AbstractCardiacProblem_mSolution");
+            reader.GetVariableOverNodes(vm, "Vm", 0);
+
+            if (PROBLEM_DIM==1)
+            {
+                //reader.Close(); // no need to call close explicitly, done in the destructor
+
+                DistributedVector vm_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(vm);                    
+                
+                DistributedVector::Stripe mSolution_vm(mSolution_distri,0);
+    
+                for (DistributedVector::Iterator index = mSolution_distri.Begin();
+                     index != mSolution_distri.End();
+                     ++index)
+                {
+                    mSolution_vm[index] = vm_distri[index];
+                }
+            }
+            
+            if (PROBLEM_DIM==2)
+            {
+                reader.GetVariableOverNodes(phie, "Phie", 0);
+                //reader.Close(); // no need to call close explicitly, done in the destructor
+    
+                DistributedVector vm_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(vm);                    
+                DistributedVector phie_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(phie);
+                
+                DistributedVector::Stripe mSolution_vm(mSolution_distri,0);
+                DistributedVector::Stripe mSolution_phie(mSolution_distri,1);
+    
+                for (DistributedVector::Iterator index = mSolution_distri.Begin();
+                     index != mSolution_distri.End();
+                     ++index)
+                {
+                    mSolution_vm[index] = vm_distri[index];
+                    mSolution_phie[index] = phie_distri[index];
+                }
+            }
+
+            mSolution_distri.Restore();            
+
         }
         archive & mCurrentTime;
         archive & mArchiveKSP;
