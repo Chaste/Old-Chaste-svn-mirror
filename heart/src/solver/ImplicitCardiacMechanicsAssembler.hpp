@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
 #define IMPLICITCARDIACMECHANICSASSEMBLER_HPP_
 
-#include "NonlinearElasticityAssembler.hpp"
+#include "AbstractCardiacMechanicsAssembler.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include "LinearBasisFunction.hpp"
 #include "NhsSystemWithImplicitSolver.hpp"
@@ -48,14 +48,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  for more detail.
  */
 template<unsigned DIM>
-class ImplicitCardiacMechanicsAssembler : public NonlinearElasticityAssembler<DIM>
+class ImplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembler<DIM>
 {
 friend class TestImplicitCardiacMechanicsAssembler;
 
 private:
-    static const unsigned STENCIL_SIZE = NonlinearElasticityAssembler<DIM>::STENCIL_SIZE;
-    static const unsigned NUM_NODES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_NODES_PER_ELEMENT;
-    static const unsigned NUM_VERTICES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_VERTICES_PER_ELEMENT;
     /**
      *  The NHS cell systems (with their own implicit solvers, which take in
      *  [Ca]_i and return Ta. Note the indexing: the i-th entry corresponds to
@@ -75,18 +72,16 @@ private:
      */
     std::vector<double> mLambda;
 
-    /** Current time */
-    double mCurrentTime;
-    /** Time to which the solver has been asked to solve to */
-    double mNextTime;
-    /** Time used to integrate the NHS model */
-    double mOdeTimestep;
 
-    /** Whether the material law was passed in or the default used */
-    bool mAllocatedMaterialLawMemory;
-
-    /** Total number of quad points in the (mechanics) mesh */
-    unsigned mTotalQuadPoints;
+/**
+ */
+    void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
+                                          unsigned currentQuadPointGlobalIndex,
+                                          bool assembleJacobian,
+                                          double& rActiveTension,
+                                          double& rDerivActiveTensionWrtLambda,
+                                          double& rDerivActiveTensionWrtDLambdaDt,
+                                          double& rLambda);
 
 public:
     /**
@@ -104,15 +99,9 @@ public:
                                       AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
 
     /**
-     *  Destructor just deletes memory if it was allocated
+     *  Destructor
      */
-    ~ImplicitCardiacMechanicsAssembler();
-
-    /** Get the total number of quad points in the mesh */
-    unsigned GetTotalNumQuadPoints();
-
-    /** Get the quadrature rule used in the elements */
-    GaussianQuadratureRule<DIM>* GetQuadratureRule();
+    virtual ~ImplicitCardiacMechanicsAssembler();
 
     /**
      *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we
@@ -149,31 +138,32 @@ public:
 
 private:
 
-    /**
-     * Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
-     * the lack of the body force term in the residual, the bits where this is
-     * different to the base class AssembleOnElement are restricted to two bits
-     * (see code): calculating Ta implicitly and using it to compute the stress,
-     * and the addition of a corresponding extra term to the Jacobian.
-     * 
-     * @param rElement The element to assemble on.
-     * @param rAElem The element's contribution to the LHS matrix is returned in this
-     *     n by n matrix, where n is the no. of nodes in this element. There is no
-     *     need to zero this matrix before calling.
-     * @param rAElemPrecond The element's contribution to the matrix passed to PetSC
-     *     in creating a preconditioner
-     * @param rBElem The element's contribution to the RHS vector is returned in this
-     *     vector of length n, the no. of nodes in this element. There is no
-     *     need to zero this vector before calling.
-     * @param assembleResidual A bool stating whether to assemble the residual vector.
-     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
-     */
-    void AssembleOnElement(Element<DIM, DIM>& rElement,
-                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElem,
-                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElemPrecond,
-                           c_vector<double,STENCIL_SIZE>& rBElem,
-                           bool assembleResidual,
-                           bool assembleJacobian);
+//    /**
+//     * Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
+//     * the lack of the body force term in the residual, the bits where this is
+//     * different to the base class AssembleOnElement are restricted to two bits
+//     * (see code): calculating Ta implicitly and using it to compute the stress,
+//     * and the addition of a corresponding extra term to the Jacobian.
+//     * 
+//     * @param rElement The element to assemble on.
+//     * @param rAElem The element's contribution to the LHS matrix is returned in this
+//     *     n by n matrix, where n is the no. of nodes in this element. There is no
+//     *     need to zero this matrix before calling.
+//     * @param rAElemPrecond The element's contribution to the matrix passed to PetSC
+//     *     in creating a preconditioner
+//     * @param rBElem The element's contribution to the RHS vector is returned in this
+//     *     vector of length n, the no. of nodes in this element. There is no
+//     *     need to zero this vector before calling.
+//     * @param assembleResidual A bool stating whether to assemble the residual vector.
+//     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
+//     */
+//    void AssembleOnElement(Element<DIM, DIM>& rElement,
+//                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElem,
+//                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElemPrecond,
+//                           c_vector<double,STENCIL_SIZE>& rBElem,
+//                           bool assembleResidual,
+//                           bool assembleJacobian);
+
 };
 
 

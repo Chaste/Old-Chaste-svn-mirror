@@ -104,7 +104,7 @@ protected :
     /** The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
     /** The mechanics assembler */
-    ImplicitCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;
+    AbstractCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;
 
     /** End time. The start time is assumed to be 0.0 */
     double mEndTime;
