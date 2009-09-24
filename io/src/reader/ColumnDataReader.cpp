@@ -202,11 +202,6 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
     {
         mFieldWidth = first_entry.length();
     }
-
-///\todo: #1123. FIELD_WIDTH is no longer hardcoded here and is determined above as mFieldWidth. This assert checks it has
-// been determined to be one correctly. To finish this ticket get writer to  write with an increased (or variable) field 
-// width, at which point this assert should be removed.  
-    assert(mFieldWidth==10);
     
     infofile.close();
     datafile.close();

@@ -68,7 +68,8 @@ protected:
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
 
-    static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
+    const unsigned mFieldWidth; /**< Width of each column in the text file (excludes column headers)*/
+    const unsigned mPrecision; /**< Precision used in writing the data */
     static const int SPACING = 2; /**< Space between columns (includes minus sign) */
     static const int FIXED_DIMENSION_VAR_ID = -1; /**< id of fixed dimension variable */
     static const int UNLIMITED_DIMENSION_VAR_ID = -2;/**< id of unlimited dimension variable */
@@ -126,10 +127,12 @@ public:
      * @param rDirectory  the directory in which to write the data to file
      * @param rBaseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
+     * @param precision the precision with which to write the data. Defaults to 8. Must be between 2 and 20 (inclusive).
      */
     ColumnDataWriter(const std::string& rDirectory,
                      const std::string& rBaseName,
-                     bool cleanDirectory=true);
+                     bool cleanDirectory=true,
+                     unsigned precision=4);
 
     /**
      * Destructor. Closes any open files.

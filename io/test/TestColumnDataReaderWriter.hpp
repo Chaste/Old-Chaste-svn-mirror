@@ -81,7 +81,7 @@ private:
 
 public:
 
-    void TestCreateColumnWriter()
+    void TestCreateColumnWriter() throw(Exception)
     {
         // Create a new csvdata writer
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
@@ -92,7 +92,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestCreateColumnReader()
+    void TestCreateColumnReader() throw(Exception)
     {
         // File does not exist
         TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"),"Couldn\'t open info file: ");
@@ -112,14 +112,14 @@ public:
     void TestDetermineFieldWidth() throw(Exception)
     {
         mpTestReader = new ColumnDataReader("io/test/data","testfixed_good",false);
-        TS_ASSERT_EQUALS(mpTestReader->GetFieldWidth(), 10u);
+        TS_ASSERT_EQUALS(mpTestReader->GetFieldWidth(), 9u);
         
         delete mpTestReader;
         
         TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testdefine_good", false), "Unable to determine field width from file as cannot find any data entries");
     }
 
-    void TestDefineUnlimitedDimension()
+    void TestDefineUnlimitedDimension() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
@@ -136,7 +136,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestDefineFixedDimension()
+    void TestDefineFixedDimension() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
@@ -151,7 +151,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestDefineVariable()
+    void TestDefineVariable() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         int ina_var_id = 0;
@@ -175,7 +175,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestEndDefineMode()
+    void TestEndDefineMode() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
 
@@ -207,7 +207,7 @@ public:
         TS_ASSERT(FilesMatch(output_dir + "testdefine.info", "io/test/data/testdefine_good.info"));
     }
 
-    void TestCantAddUnlimitedAfterEndDefine()
+    void TestCantAddUnlimitedAfterEndDefine() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
         int ina_var_id = 0;
@@ -224,7 +224,7 @@ public:
         delete mpTestWriter;
     }
 
-    void TestPutVariableInUnlimitedFile()
+    void TestPutVariableInUnlimitedFile() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimited"));
         int time_var_id = 0;
@@ -271,7 +271,7 @@ public:
         delete mpTestReader;
     }
 
-    void TestPutNegativeVariable()
+    void TestPutNegativeVariable() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimitednegative"));
         int time_var_id = 0;
@@ -303,14 +303,16 @@ public:
         TS_ASSERT(FilesMatch(output_dir + "testunlimitednegative.dat", "io/test/data/testunlimitednegative_good.dat"));
     }
 
-    void TestPutVariableInFixedFile()
+    void TestPutVariableInFixedFileAndPrecision() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testfixed"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testfixed", true, 3)); // precision = 3
+
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
         int short_id = 0;
+
         TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node", "dimensionless", 4));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
@@ -373,9 +375,13 @@ public:
         TS_ASSERT_THROWS_THIS(std::vector<double> unlimited_values = mpTestReader->GetUnlimitedDimensionValues(), "Data file has no unlimited dimension");
 
         delete mpTestReader;
+        
+        // precision exceptions
+        TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,1), "Precision must be between 2 and 20 (inclusive)");
+        TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,21), "Precision must be between 2 and 20 (inclusive)");
     }
 
-    void TestPutNegativeVariableInFixedFile()
+    void TestPutNegativeVariableInFixedFile() throw(Exception)
     {
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testfixed_negatives"));
@@ -410,7 +416,7 @@ public:
         TS_ASSERT(FilesMatch(output_dir + "testfixed_negatives.dat", "io/test/data/testfixed_negatives_good.dat"));
     }
 
-    void TestPutVariableInFixedandUnlimitedFile()
+    void TestPutVariableInFixedandUnlimitedFile() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("","testfixedandunlimited"));
         int time_var_id = 0;
@@ -471,7 +477,7 @@ public:
      * the fixed and unlimited dimensions are both set and the unlimited parameter
      * (i.e. time) is passed in negative.
      */
-    void TestNegativeWithFixedAndUnlimitedDefined()
+    void TestNegativeWithFixedAndUnlimitedDefined() throw(Exception)
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimitednegative2"));
 
@@ -489,7 +495,7 @@ public:
         // unwritten will be written to the datafile
         delete mpTestWriter;
     }
-
+    
 };
 
 #endif //_TESTCOLUMNDATAREADERWRITER_HPP_
