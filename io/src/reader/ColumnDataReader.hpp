@@ -76,7 +76,7 @@ private:
      */
     void ReadValueFromFile(const std::string& rFilename, int col, int row);
     
-     /**< Width of each column in the text file (excludes column headers). Determined from the first data entry*/
+     /** Width of each column in the text file (excludes column headers). Determined from the first data entry*/
     unsigned mFieldWidth;
     
     static const int SPACING = 2;      /**< Space between columns (includes minus sign) */
