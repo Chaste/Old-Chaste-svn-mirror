@@ -46,7 +46,8 @@ public:
         {
             auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/xml/ChasteParametersFullFormat.xml"));
 
-            simulation_type simulation_params = params->Simulation();
+            TS_ASSERT(params->Simulation().present());
+            simulation_type simulation_params = params->Simulation().get();
 
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
             TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
@@ -89,7 +90,8 @@ public:
         {
             auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/xml/ChasteParametersLoadMesh.xml"));
 
-            simulation_type simulation_params = params->Simulation();
+            TS_ASSERT(params->Simulation().present());
+            simulation_type simulation_params = params->Simulation().get();
 
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
             TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);

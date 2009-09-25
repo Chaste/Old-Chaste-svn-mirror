@@ -306,7 +306,19 @@
       <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
       <xs:element name="OutputFilenamePrefix" type="xs:string" minOccurs="0"/>      
       <xs:element name="OutputVariables" type="output_variables_type" minOccurs="0"/>
+
+      <!-- \todo: I couldn't find out how to define this element to have no content-->
+      <xs:element name="SaveSimulation" type="xs:string" minOccurs="0"/>
     </xs:all>
+  </xs:complexType>    
+
+  <xs:complexType name="resume_simulation_type">
+    <xs:all>
+      <xs:element name="Directory" type="xs:string"/>
+      <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
+      <!-- \todo: I couldn't find out how to define this element to have no content-->
+      <xs:element name="SaveSimulation" type="xs:string" minOccurs="0"/>
+    </xs:all>      
   </xs:complexType>    
 
   <xs:complexType name="physiological_type">
@@ -340,7 +352,10 @@
   
   <xs:complexType name="chaste_parameters_type">
     <xs:sequence>
-      <xs:element name="Simulation" type="simulation_type"/>
+      <xs:choice>      
+	      <xs:element name="Simulation" type="simulation_type"/>
+    	  <xs:element name="ResumeSimulation" type="resume_simulation_type"/>
+      </xs:choice>
       <xs:element name="Physiological" type="physiological_type"/>
       <xs:element name="Numerical" type="numerical_type"/>
       <xs:element name="PostProcessing" type="postprocessing_type" minOccurs="0"/>

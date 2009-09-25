@@ -142,6 +142,8 @@
 		    <Var name="Nai"/>
 		    <Var name="Ki"/>
 		</OutputVariables>
+
+		<SaveSimulation/>
 				
 	</Simulation>
 	

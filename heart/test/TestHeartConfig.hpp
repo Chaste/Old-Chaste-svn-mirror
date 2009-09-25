@@ -66,10 +66,12 @@ public :
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
-        ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().IonicModels().get().Default();
+        TS_ASSERT(HeartConfig::Instance()->mpDefaultParameters->Simulation().present());
+
+        ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().get().IonicModels().get().Default();
         TS_ASSERT_EQUALS(default_ionic_model, ionic_models_available_type::LuoRudyI);
 
-        ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().IonicModels().get().Default();
+        ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().get().IonicModels().get().Default();
         TS_ASSERT_EQUALS(user_ionic_model, ionic_models_available_type::FaberRudy2000);
 
         ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
@@ -741,6 +743,31 @@ public :
         }        
     }    
     
+    void TestSetAndGetArchivingStuff()
+    {
+        // Get the singleton in a clean state
+        HeartConfig::Instance()->Reset();
+        
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
+        TS_ASSERT(HeartConfig::Instance()->IsSimulationDefined());
+        TS_ASSERT(!HeartConfig::Instance()->IsSimulationResumed());
+        
+        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());        
+        HeartConfig::Instance()->SetSaveSimulation(false);
+        TS_ASSERT(!HeartConfig::Instance()->GetSaveSimulation());
+        HeartConfig::Instance()->SetSaveSimulation(true);
+        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
+
+        // Get the singleton in a clean state
+        HeartConfig::Instance()->Reset();
+        
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
+        TS_ASSERT(!HeartConfig::Instance()->IsSimulationDefined());
+        TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());        
+
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSpaceDimension(), "SpaceDimension information is not available in a resumed simulation.")
+
+    }
 };
 
 #endif /*TESTHEARTCONFIG_HPP_*/

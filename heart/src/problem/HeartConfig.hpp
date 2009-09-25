@@ -151,6 +151,22 @@ public:
     /*
      *  Get methods
      */
+     
+    // Methods for asking the configuration file about which sections are defined. 
+    /**
+     *  Returns whether the configuration file defines a new simulation.
+     * 
+     *  @return is a new simulation? 
+     */
+    bool IsSimulationDefined() const;
+
+    /**
+     *  Returns whether the configuration file resumes an archived simulation.
+     * 
+     *  @return is a resumed simulation? 
+     */
+    bool IsSimulationResumed() const;         
+     
     // Simulation
     unsigned GetSpaceDimension() const; /**< @return space dimension 1, 2 or 3.*/
     double GetSimulationDuration() const; /**< @return duration of the simulation (ms)*/
@@ -260,6 +276,26 @@ public:
      */
     std::string GetOutputFilenamePrefix() const;
 
+    /**
+     * @return true any extra output variables have been requested
+     */
+    bool GetOutputVariablesProvided() const;
+
+    /**
+     * Get the extra output variables from the xml file
+     *
+     * @param outputVariables reference to std::vector to contain the output variables requested
+     */
+    void GetOutputVariables(std::vector<std::string> &outputVariables) const;
+
+    /**
+     * Get whether simulation should be archived or not
+     * 
+     * @return archive simulation
+     */
+    bool GetSaveSimulation() const;
+
+
     // Physiological
     /**
      * 3D version
@@ -368,17 +404,6 @@ public:
      */
     void GetConductionVelocityMaps(std::vector<unsigned>& conductionVelocityMaps) const;
 
-    /**
-     * @return true any extra output variables have been requested
-     */
-    bool GetOutputVariablesProvided() const;
-
-    /**
-     * Get the extra output variables from the xml file
-     *
-     * @param outputVariables reference to std::vector to contain the output variables requested
-     */
-    void GetOutputVariables(std::vector<std::string> &outputVariables) const;
 
      /*
      *  Set methods
@@ -476,6 +501,14 @@ public:
      * USING THIS METHOD WILL OVERRIDE THE ANY OUTPUT VARIABLES SET IN THE XML FILE
      */
     void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
+
+    /**
+     * Set whether the simulation should be archived or not
+     * 
+     * @saveSimulation archive simulation
+     */
+     void SetSaveSimulation(bool saveSimulation);
+
 
     // Physiological
     /**
@@ -636,6 +669,17 @@ private:
      */
     template<class TYPE>
     TYPE* DecideLocation(TYPE* params_ptr, TYPE* defaults_ptr, const std::string& nameParameter) const;
+
+    /**
+     * CheckSimulationIsDefined is a convience method for checking if the <Simulation> element
+     * has been defined and therefore is safe to use the Simulation().get() pointer to access
+     * other data.
+     * 
+     * Throws and exception if not.
+     * 
+     * @param callingMethod string describing the get method performing the check.
+     */
+     void CheckSimulationIsDefined(std::string callingMethod="") const;
 
     /**
      * Utility method to parse an XML parameters file.

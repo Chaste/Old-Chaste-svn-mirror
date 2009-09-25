@@ -203,6 +203,17 @@ void HeartConfig::Reset()
     mpInstance.reset(new HeartConfig);
 }
 
+bool HeartConfig::IsSimulationDefined() const
+{
+    return mpUserParameters->Simulation().present();     
+}
+
+bool HeartConfig::IsSimulationResumed() const
+{
+    return mpUserParameters->ResumeSimulation().present();         
+}         
+
+
 template<class TYPE>
 TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nameParameter) const
 {
@@ -217,31 +228,41 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
     EXCEPTION("No " + nameParameter + " provided (neither default nor user defined)");
 }
 
+void HeartConfig::CheckSimulationIsDefined(std::string callingMethod) const
+{
+    if(!mpUserParameters->Simulation().present())
+    {
+        EXCEPTION(callingMethod + " information is not available in a resumed simulation.");
+    }   
+}
+
 unsigned HeartConfig::GetSpaceDimension() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().SpaceDimension(),
-                           & mpDefaultParameters->Simulation().SpaceDimension(),
+    CheckSimulationIsDefined("SpaceDimension");
+    
+    return DecideLocation( & mpUserParameters->Simulation().get().SpaceDimension(),
+                           & mpDefaultParameters->Simulation().get().SpaceDimension(),
                            "SpaceDimension")->get();
 }
 
 double HeartConfig::GetSimulationDuration() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().SimulationDuration(),
-                           & mpDefaultParameters->Simulation().SimulationDuration(),
+    return DecideLocation( & mpUserParameters->Simulation().get().SimulationDuration(),
+                           & mpDefaultParameters->Simulation().get().SimulationDuration(),
                            "SimulationDuration")->get();
 }
 
 domain_type HeartConfig::GetDomain() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().Domain(),
-                           & mpDefaultParameters->Simulation().Domain(),
+    return DecideLocation( & mpUserParameters->Simulation().get().Domain(),
+                           & mpDefaultParameters->Simulation().get().Domain(),
                            "Domain")->get();
 }
 
 ionic_models_available_type HeartConfig::GetDefaultIonicModel() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().IonicModels(),
-                           & mpDefaultParameters->Simulation().IonicModels(),
+    return DecideLocation( & mpUserParameters->Simulation().get().IonicModels(),
+                           & mpDefaultParameters->Simulation().get().IonicModels(),
                            "IonicModel")->get().Default();
 }
 
@@ -249,8 +270,8 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions
                                        std::vector<ionic_models_available_type>& ionicModels) const
 {
     XSD_SEQUENCE_TYPE(ionic_models_type::Region)&
-         regions = DecideLocation( & mpUserParameters->Simulation().IonicModels(),
-                                   & mpDefaultParameters->Simulation().IonicModels(),
+         regions = DecideLocation( & mpUserParameters->Simulation().get().IonicModels(),
+                                   & mpDefaultParameters->Simulation().get().IonicModels(),
                                    "IonicModel")->get().Region();
 
     for (XSD_ITERATOR_TYPE(ionic_models_type::Region) i = regions.begin();
@@ -282,8 +303,8 @@ bool HeartConfig::IsMeshProvided() const
 {
     try
     {
-        DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                        & mpDefaultParameters->Simulation().Mesh(),
+        DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                        & mpDefaultParameters->Simulation().get().Mesh(),
                         "Mesh");
         return true;
     }
@@ -295,8 +316,8 @@ bool HeartConfig::IsMeshProvided() const
 
 bool HeartConfig::GetCreateMesh() const
 {
-    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                     & mpDefaultParameters->Simulation().Mesh(),
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                     & mpDefaultParameters->Simulation().get().Mesh(),
                                      "Mesh")->get();
 
     return (mesh.Slab().present() || mesh.Sheet().present() || mesh.Fibre().present());
@@ -304,8 +325,8 @@ bool HeartConfig::GetCreateMesh() const
 
 bool HeartConfig::GetCreateSlab() const
 {
-    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                     & mpDefaultParameters->Simulation().Mesh(),
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                     & mpDefaultParameters->Simulation().get().Mesh(),
                                      "Mesh")->get();
 
     return (mesh.Slab().present());
@@ -313,8 +334,8 @@ bool HeartConfig::GetCreateSlab() const
 
 bool HeartConfig::GetCreateSheet() const
 {
-    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                     & mpDefaultParameters->Simulation().Mesh(),
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                     & mpDefaultParameters->Simulation().get().Mesh(),
                                      "Mesh")->get();
 
     return (mesh.Sheet().present());
@@ -322,8 +343,8 @@ bool HeartConfig::GetCreateSheet() const
 
 bool HeartConfig::GetCreateFibre() const
 {
-    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                     & mpDefaultParameters->Simulation().Mesh(),
+    mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                     & mpDefaultParameters->Simulation().get().Mesh(),
                                      "Mesh")->get();
 
     return (mesh.Fibre().present());
@@ -332,8 +353,8 @@ bool HeartConfig::GetCreateFibre() const
 
 bool HeartConfig::GetLoadMesh() const
 {
-    return (DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                            & mpDefaultParameters->Simulation().Mesh(),
+    return (DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                            & mpDefaultParameters->Simulation().get().Mesh(),
                             "Mesh")->get().LoadMesh().present());
 }
 
@@ -344,8 +365,8 @@ void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
         EXCEPTION("Tissue slabs can only be defined in 3D");
     }
 
-    optional<slab_type, false> slab_dimensions = DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                                                  & mpDefaultParameters->Simulation().Mesh(),
+    optional<slab_type, false> slab_dimensions = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                                                  & mpDefaultParameters->Simulation().get().Mesh(),
                                                                   "Slab")->get().Slab();
 
     slabDimensions[0] = slab_dimensions->x();
@@ -360,8 +381,8 @@ void HeartConfig::GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const
         EXCEPTION("Tissue sheets can only be defined in 2D");
     }
 
-    optional<sheet_type, false> sheet_dimensions = DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                                                  & mpDefaultParameters->Simulation().Mesh(),
+    optional<sheet_type, false> sheet_dimensions = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                                                  & mpDefaultParameters->Simulation().get().Mesh(),
                                                                   "Sheet")->get().Sheet();
 
     sheetDimensions[0] = sheet_dimensions->x();
@@ -375,8 +396,8 @@ void HeartConfig::GetFibreLength(c_vector<double, 1>& fibreLength) const
         EXCEPTION("Tissue fibres can only be defined in 1D");
     }
 
-    optional<fibre_type, false> fibre_length = DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                                                  & mpDefaultParameters->Simulation().Mesh(),
+    optional<fibre_type, false> fibre_length = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                                                  & mpDefaultParameters->Simulation().get().Mesh(),
                                                                   "Fibre")->get().Fibre();
 
     fibreLength[0] = fibre_length->x();
@@ -390,18 +411,18 @@ double HeartConfig::GetInterNodeSpace() const
     switch(GetSpaceDimension())
     {
         case 3:
-            return DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                   & mpDefaultParameters->Simulation().Mesh(),
+            return DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                   & mpDefaultParameters->Simulation().get().Mesh(),
                                    "Slab")->get().Slab()->inter_node_space();
             break;
         case 2:
-            return DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                   & mpDefaultParameters->Simulation().Mesh(),
+            return DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                   & mpDefaultParameters->Simulation().get().Mesh(),
                                    "Sheet")->get().Sheet()->inter_node_space();
             break;
         case 1:
-            return DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                                   & mpDefaultParameters->Simulation().Mesh(),
+            return DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                                   & mpDefaultParameters->Simulation().get().Mesh(),
                                    "Fibre")->get().Fibre()->inter_node_space();
             break;
         default:
@@ -415,8 +436,8 @@ std::string HeartConfig::GetMeshName() const
 {
     assert(GetLoadMesh());
 
-    return DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                           & mpDefaultParameters->Simulation().Mesh(),
+    return DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                           & mpDefaultParameters->Simulation().get().Mesh(),
                            "LoadMesh")->get().LoadMesh()->name();
 }
 
@@ -424,8 +445,8 @@ media_type HeartConfig::GetConductivityMedia() const
 {
     assert(GetLoadMesh());
 
-    return DecideLocation( & mpUserParameters->Simulation().Mesh(),
-                           & mpDefaultParameters->Simulation().Mesh(),
+    return DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
+                           & mpDefaultParameters->Simulation().get().Mesh(),
                            "LoadMesh")->get().LoadMesh()->conductivity_media();
 }
 
@@ -433,8 +454,8 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
                              std::vector<ChasteCuboid>& rStimulatedAreas) const
 {
     XSD_ANON_SEQUENCE_TYPE(simulation_type, Stimuli, Stimulus)&
-         stimuli = DecideLocation( & mpUserParameters->Simulation().Stimuli(),
-                           & mpDefaultParameters->Simulation().Stimuli(),
+         stimuli = DecideLocation( & mpUserParameters->Simulation().get().Stimuli(),
+                           & mpDefaultParameters->Simulation().get().Stimuli(),
                            "Stimuli")->get().Stimulus();
     for (XSD_ANON_ITERATOR_TYPE(simulation_type, Stimuli, Stimulus) i = stimuli.begin();
          i != stimuli.end();
@@ -469,8 +490,8 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
                                          std::vector<double>& scaleFactorGkr) const
 {
     XSD_ANON_SEQUENCE_TYPE(simulation_type, CellHeterogeneities, CellHeterogeneity)&
-         cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().CellHeterogeneities(),
-                                                 & mpDefaultParameters->Simulation().CellHeterogeneities(),
+         cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().CellHeterogeneities(),
+                                                 & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
                                                  "CellHeterogeneities")->get().CellHeterogeneity();
 
     for (XSD_ANON_ITERATOR_TYPE(simulation_type, CellHeterogeneities, CellHeterogeneity) i = cell_heterogeneity.begin();
@@ -503,8 +524,8 @@ bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
 {
     try
     {
-        DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
-                        & mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
+        DecideLocation( & mpUserParameters->Simulation().get().ConductivityHeterogeneities(),
+                        & mpDefaultParameters->Simulation().get().ConductivityHeterogeneities(),
                         "CellHeterogeneities");
         return true;
     }
@@ -520,8 +541,8 @@ void HeartConfig::GetConductivityHeterogeneities(
         std::vector< c_vector<double,3> >& extraConductivities) const
 {
     XSD_ANON_SEQUENCE_TYPE(simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity)&
-         conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().ConductivityHeterogeneities(),
-                                                      & mpDefaultParameters->Simulation().ConductivityHeterogeneities(),
+         conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().ConductivityHeterogeneities(),
+                                                      & mpDefaultParameters->Simulation().get().ConductivityHeterogeneities(),
                                                       "CellHeterogeneities")->get().ConductivityHeterogeneity();
 
     for (XSD_ANON_ITERATOR_TYPE(simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity) i = conductivity_heterogeneity.begin();
@@ -580,16 +601,64 @@ void HeartConfig::GetConductivityHeterogeneities(
 
 std::string HeartConfig::GetOutputDirectory() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().OutputDirectory(),
-                           & mpDefaultParameters->Simulation().OutputDirectory(),
+    return DecideLocation( & mpUserParameters->Simulation().get().OutputDirectory(),
+                           & mpDefaultParameters->Simulation().get().OutputDirectory(),
                            "OutputDirectory")->get();
 }
 
 std::string HeartConfig::GetOutputFilenamePrefix() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().OutputFilenamePrefix(),
-                           & mpDefaultParameters->Simulation().OutputFilenamePrefix(),
+    return DecideLocation( & mpUserParameters->Simulation().get().OutputFilenamePrefix(),
+                           & mpDefaultParameters->Simulation().get().OutputFilenamePrefix(),
                            "OutputFilenamePrefix")->get();
+}
+
+bool HeartConfig::GetOutputVariablesProvided() const
+{
+    try
+    {
+        DecideLocation( & mpUserParameters->Simulation().get().OutputVariables(),
+                        & mpDefaultParameters->Simulation().get().OutputVariables(),
+                        "OutputVariables");                        
+        return true;
+    }
+    catch (Exception& e)
+    {            
+        return false;
+    }        
+}
+
+void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) const
+{
+    XSD_SEQUENCE_TYPE(output_variables_type::Var)&
+         output_variables = DecideLocation( & mpUserParameters->Simulation().get().OutputVariables(),
+                           & mpDefaultParameters->Simulation().get().OutputVariables(),
+                           "OutputVariables")->get().Var();
+    
+    for (XSD_ITERATOR_TYPE(output_variables_type::Var) i = output_variables.begin();
+         i != output_variables.end();
+         ++i)
+    {
+        var_type var(*i);
+        
+        // Add to outputVariables the string returned by var.name() 
+        outputVariables.push_back(var.name());
+    }
+}
+
+bool HeartConfig::GetSaveSimulation() const
+{
+    try
+    {
+        DecideLocation( & mpUserParameters->Simulation().get().SaveSimulation(),
+                        & mpDefaultParameters->Simulation().get().SaveSimulation(),
+                        "SaveSimulation");                        
+        return true;
+    }
+    catch (Exception& e)
+    {            
+        return false;
+    }            
 }
 
 void HeartConfig::GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const
@@ -952,111 +1021,77 @@ void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_ve
     }
 }
 
-bool HeartConfig::GetOutputVariablesProvided() const
-{
-    try
-    {
-        DecideLocation( & mpUserParameters->Simulation().OutputVariables(),
-                        & mpDefaultParameters->Simulation().OutputVariables(),
-                        "OutputVariables");                        
-        return true;
-    }
-    catch (Exception& e)
-    {            
-        return false;
-    }        
-}
-
-void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) const
-{
-    XSD_SEQUENCE_TYPE(output_variables_type::Var)&
-         output_variables = DecideLocation( & mpUserParameters->Simulation().OutputVariables(),
-                           & mpDefaultParameters->Simulation().OutputVariables(),
-                           "OutputVariables")->get().Var();
-    
-    for (XSD_ITERATOR_TYPE(output_variables_type::Var) i = output_variables.begin();
-         i != output_variables.end();
-         ++i)
-    {
-        var_type var(*i);
-        
-        // Add to outputVariables the string returned by var.name() 
-        outputVariables.push_back(var.name());
-    }
-}
-
-
 
 /*
  *  Set methods
  */
 void HeartConfig::SetSpaceDimension(unsigned spaceDimension)
 {
-    mpUserParameters->Simulation().SpaceDimension().set(spaceDimension);
+    mpUserParameters->Simulation().get().SpaceDimension().set(spaceDimension);
 }
 
 void HeartConfig::SetSimulationDuration(double simulationDuration)
 {
     XSD_CREATE_WITH_FIXED_ATTR1(time_type, time, simulationDuration, "ms");
-    mpUserParameters->Simulation().SimulationDuration().set(time);
+    mpUserParameters->Simulation().get().SimulationDuration().set(time);
 }
 
 void HeartConfig::SetDomain(domain_type domain)
 {
-    mpUserParameters->Simulation().Domain().set(domain);
+    mpUserParameters->Simulation().get().Domain().set(domain);
 }
 
 void HeartConfig::SetDefaultIonicModel(ionic_models_available_type ionicModel)
 {
-    mpUserParameters->Simulation().IonicModels().set(ionicModel);
+    mpUserParameters->Simulation().get().IonicModels().set(ionicModel);
 }
 
 void HeartConfig::SetSlabDimensions(double x, double y, double z, double inter_node_space)
 {
-    if ( ! mpUserParameters->Simulation().Mesh().present())
+    if ( ! mpUserParameters->Simulation().get().Mesh().present())
     {
         XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
-        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
+        mpUserParameters->Simulation().get().Mesh().set(mesh_to_load);
     }
 
     slab_type slab_definition(x, y, z, inter_node_space);
-    mpUserParameters->Simulation().Mesh().get().Slab().set(slab_definition);
+    mpUserParameters->Simulation().get().Mesh().get().Slab().set(slab_definition);
 }
 
 void HeartConfig::SetSheetDimensions(double x, double y, double inter_node_space)
 {
-    if ( ! mpUserParameters->Simulation().Mesh().present())
+    if ( ! mpUserParameters->Simulation().get().Mesh().present())
     {
         XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
-        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
+        mpUserParameters->Simulation().get().Mesh().set(mesh_to_load);
     }
 
     sheet_type sheet_definition(x, y, inter_node_space);
-    mpUserParameters->Simulation().Mesh().get().Sheet().set(sheet_definition);
+    mpUserParameters->Simulation().get().Mesh().get().Sheet().set(sheet_definition);
 }
 
 void HeartConfig::SetFibreLength(double x, double inter_node_space)
 {
-    if ( ! mpUserParameters->Simulation().Mesh().present())
+    if ( ! mpUserParameters->Simulation().get().Mesh().present())
     {
         XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
-        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
+        mpUserParameters->Simulation().get().Mesh().set(mesh_to_load);
     }
 
     fibre_type fibre_definition(x, inter_node_space);
-    mpUserParameters->Simulation().Mesh().get().Fibre().set(fibre_definition);
+    mpUserParameters->Simulation().get().Mesh().get().Fibre().set(fibre_definition);
 }
 
 void HeartConfig::SetMeshFileName(std::string meshPrefix, media_type fibreDefinition)
 {
-    if ( ! mpUserParameters->Simulation().Mesh().present())
+    if ( ! mpUserParameters->Simulation().get().Mesh().present())
     {
         XSD_CREATE_WITH_FIXED_ATTR(mesh_type, mesh_to_load, "cm");
-        mpUserParameters->Simulation().Mesh().set(mesh_to_load);
+        mpUserParameters->Simulation().get().Mesh().set(mesh_to_load);
     }
 
     XSD_NESTED_TYPE(mesh_type::LoadMesh) mesh_prefix(meshPrefix, fibreDefinition);
-    mpUserParameters->Simulation().Mesh().get().LoadMesh().set(mesh_prefix);
+    mpUserParameters->Simulation().get().Mesh().get().LoadMesh().set(mesh_prefix);
 }
 
 void HeartConfig::SetConductivityHeterogeneities(
@@ -1107,30 +1142,30 @@ void HeartConfig::SetConductivityHeterogeneities(
     XSD_ANON_TYPE(simulation_type, ConductivityHeterogeneities) heterogeneities_object;
     heterogeneities_object.ConductivityHeterogeneity(heterogeneities_container);
 
-    mpUserParameters->Simulation().ConductivityHeterogeneities().set(heterogeneities_object);
+    mpUserParameters->Simulation().get().ConductivityHeterogeneities().set(heterogeneities_object);
 }
 
 
 void HeartConfig::SetOutputDirectory(const std::string& rOutputDirectory)
 {
-    mpUserParameters->Simulation().OutputDirectory().set(rOutputDirectory);
+    mpUserParameters->Simulation().get().OutputDirectory().set(rOutputDirectory);
 }
 
 void HeartConfig::SetOutputFilenamePrefix(const std::string& rOutputFilenamePrefix)
 {
-    mpUserParameters->Simulation().OutputFilenamePrefix().set(rOutputFilenamePrefix);
+    mpUserParameters->Simulation().get().OutputFilenamePrefix().set(rOutputFilenamePrefix);
 }
 
 void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVariables)
 {
-    if ( ! mpUserParameters->Simulation().OutputVariables().present())
+    if ( ! mpUserParameters->Simulation().get().OutputVariables().present())
     {
         output_variables_type variables_requested;
-        mpUserParameters->Simulation().OutputVariables().set(variables_requested);
+        mpUserParameters->Simulation().get().OutputVariables().set(variables_requested);
     }
         
     XSD_SEQUENCE_TYPE(output_variables_type::Var)&
-    var_type_sequence = mpUserParameters->Simulation().OutputVariables()->Var();
+    var_type_sequence = mpUserParameters->Simulation().get().OutputVariables()->Var();
     //Erase or create a sequence
     var_type_sequence.clear();
 
@@ -1139,6 +1174,19 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
         var_type temp(rOutputVariables[i]);
         var_type_sequence.push_back(temp);
     }
+}
+
+void HeartConfig::SetSaveSimulation(bool saveSimulation)
+{
+    if (saveSimulation)
+    {
+        /// \todo: find a way of defining an empty element, so we don't have to pass a simulation_type::SaveSimulation_type object here.
+        mpUserParameters->Simulation().get().SaveSimulation().set(simulation_type::SaveSimulation_type(""));
+    }
+    else
+    {
+        mpUserParameters->Simulation().get().SaveSimulation().reset();
+    }        
 }
 
 // Physiological
