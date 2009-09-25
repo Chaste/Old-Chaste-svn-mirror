@@ -303,7 +303,7 @@ public:
             }
         }
     }
-    
+
     void TestArchivingStimuli() throw(Exception)
     {
         OutputFileHandler handler("archive",false);
@@ -314,15 +314,15 @@ public:
         {
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // Set up a zero stimulus
             AbstractStimulusFunction* const p_zero_stimulus = new ZeroStimulus;
-            
+
             double magnitude = 1.0;
             double duration  = 0.5;  // ms
             double applied_time = 100.0;
             AbstractStimulusFunction* const p_simple_stimulus = new SimpleStimulus(magnitude, duration, applied_time);
-            
+
             double magnitude_of_stimulus = 1.0;
             double duration_of_stimulus  = 0.5;  // ms
             double period = 1000.0; // 1s
@@ -331,22 +331,22 @@ public:
                                          duration_of_stimulus,
                                          period,
                                          when);
-                                         
+
             MultiStimulus* p_multiple_stimulus = new MultiStimulus;
             boost::shared_ptr<SimpleStimulus> p1(new SimpleStimulus(2,1,0));
             boost::shared_ptr<SimpleStimulus> p2(new SimpleStimulus(3,1,3));
             p_multiple_stimulus->AddStimulus(p1);
-            p_multiple_stimulus->AddStimulus(p2);  
-            
-            AbstractStimulusFunction* const p_multiple_stimulus2 = p_multiple_stimulus;   // make const now we've added stimuli 
-            
+            p_multiple_stimulus->AddStimulus(p2);
+
+            AbstractStimulusFunction* const p_multiple_stimulus2 = p_multiple_stimulus;   // make const now we've added stimuli
+
             // Should always archive a pointer
             output_arch << p_zero_stimulus;
             output_arch << p_simple_stimulus;
             output_arch << p_regular_stimulus;
             output_arch << p_multiple_stimulus2;
-            
-            // Change stimulus a bit           
+
+            // Change stimulus a bit
             delete p_zero_stimulus;
             delete p_simple_stimulus;
             delete p_regular_stimulus;
@@ -356,8 +356,8 @@ public:
         // Restore
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);            
-            
+            boost::archive::text_iarchive input_arch(ifs);
+
             // Create a pointer
             AbstractStimulusFunction* p_zero;
             AbstractStimulusFunction* p_simple;
@@ -367,14 +367,14 @@ public:
             input_arch >> p_simple;
             input_arch >> p_regular;
             input_arch >> p_multiple;
-            
+
             // Check the stimulus now has the properties of the one archived above.
             TS_ASSERT_DELTA(p_zero->GetStimulus(0.0), 0.0, 1e-9);
-            
+
             TS_ASSERT_DELTA(p_simple->GetStimulus(0.0), 0.0, 1e-9);
             TS_ASSERT_DELTA(p_simple->GetStimulus(100.1), 1.0, 1e-9);
             TS_ASSERT_DELTA(p_simple->GetStimulus(100.6), 0.0, 1e-9);
-            
+
             TS_ASSERT_DELTA(p_regular->GetStimulus(0.0), 0.0, 1e-9);
             TS_ASSERT_DELTA(p_regular->GetStimulus(100.1), 1.0, 1e-9);
             TS_ASSERT_DELTA(p_regular->GetStimulus(100.6), 0.0, 1e-9);
@@ -395,10 +395,9 @@ public:
             delete p_zero;
             delete p_simple;
             delete p_regular;
-            p_multiple->Clear();
             delete p_multiple;
         }
-    }   
+    }
 
 };
 

@@ -71,11 +71,16 @@ private:
         archive & boost::serialization::base_object<AbstractStimulusFunction>(*this);
         archive & mStimuli;
     }
-
+protected:
     /** Vector of stimuli. */
     std::vector<boost::shared_ptr<AbstractStimulusFunction> > mStimuli;
 
 public:
+    /**
+     * Destructor - just calls #Clear().
+     */
+    ~MultiStimulus();
+
     /**
      * Combine a stimulus with the existing ones.
      *
@@ -89,12 +94,11 @@ public:
      * @param time  time at which to return the stimulus
      * @return  Magnitude of stimulus at time 'time'.
      */
-     double GetStimulus(double time);
+     virtual double GetStimulus(double time);
 
      /**
       * Clear is responsible for managing the memory of
       * delegated stimuli
-      *
       */
      void Clear();
 };

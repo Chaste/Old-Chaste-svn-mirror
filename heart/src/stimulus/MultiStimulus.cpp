@@ -46,6 +46,11 @@ double MultiStimulus::GetStimulus(double time)
     return total_stimulus;
 }
 
+MultiStimulus::~MultiStimulus()
+{
+    Clear();
+}
+
 void MultiStimulus::Clear()
 {
      mStimuli.clear();

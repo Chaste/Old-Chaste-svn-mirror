@@ -131,6 +131,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
             }
             catch(Exception& e)
             {
+                assert(e.GetShortMessage()=="No full action potential was recorded");
                 apds.push_back(0);
                 assert(apds.size() == 1);
             }
@@ -199,7 +200,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(d
             {
                 upstroke_velocities.push_back(0);
                 assert(upstroke_velocities.size() ==1);
-            }            
+            }
             for (unsigned i = 0; i < upstroke_velocities.size(); i++)
             {
                 *p_file << upstroke_velocities[i] << "\t";
