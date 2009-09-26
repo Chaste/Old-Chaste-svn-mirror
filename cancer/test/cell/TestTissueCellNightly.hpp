@@ -129,7 +129,7 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-                switch (cell_iterator->GetCellType())
+                switch (cell_iterator->GetCellProliferativeType())
                 {
                     case STEM:
                         stem_cells[i]++;
@@ -316,7 +316,7 @@ public:
         TissueCell wnt_cell(TRANSIT, APC_TWO_HIT, new WntCellCycleModel(2));
         wnt_cell.InitialiseCellCycleModel();
 
-        CellMutationState this_state = wnt_cell.GetMutationState();
+        CryptCellMutationState this_state = wnt_cell.GetMutationState();
 
         TS_ASSERT(this_state==APC_TWO_HIT);
 

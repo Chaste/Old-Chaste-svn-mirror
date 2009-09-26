@@ -30,12 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 unsigned TissueCell::mMaxCellId = 0;
 
 
-TissueCell::TissueCell(CellType cellType,
-                       CellMutationState mutationState,
+TissueCell::TissueCell(CellProliferativeType cellType,
+                       CryptCellMutationState mutationState,
                        AbstractCellCycleModel* pCellCycleModel,
                        bool archiving)
     : mCanDivide(false),
-      mCellType(cellType),
+      mCellProliferativeType(cellType),
       mMutationState(mutationState),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
@@ -68,7 +68,7 @@ void TissueCell::CommonCopy(const TissueCell& rOtherCell)
     mCanDivide = rOtherCell.mCanDivide;
 
     // Copy 'easy' protected data members
-    mCellType = rOtherCell.mCellType;
+    mCellProliferativeType = rOtherCell.mCellProliferativeType;
     mMutationState = rOtherCell.mMutationState;
     mUndergoingApoptosis = rOtherCell.mUndergoingApoptosis;
     mIsDead = rOtherCell.mIsDead;
@@ -150,25 +150,25 @@ void TissueCell::SetBirthTime(double birthTime)
 }
 
 
-void TissueCell::SetCellType(CellType cellType)
+void TissueCell::SetCellProliferativeType(CellProliferativeType cellType)
 {
-    mCellType = cellType;
+    mCellProliferativeType = cellType;
 }
 
 
-CellType TissueCell::GetCellType() const
+CellProliferativeType TissueCell::GetCellProliferativeType() const
 {
-    return mCellType;
+    return mCellProliferativeType;
 }
 
 
-void TissueCell::SetMutationState(CellMutationState mutationState)
+void TissueCell::SetMutationState(CryptCellMutationState mutationState)
 {
     mMutationState = mutationState;
 }
 
 
-CellMutationState TissueCell::GetMutationState() const
+CryptCellMutationState TissueCell::GetMutationState() const
 {
     return mMutationState;
 }
@@ -205,7 +205,7 @@ void TissueCell::StartApoptosis(bool setDeathTime)
         mDeathTime = DBL_MAX;
     }
 
-    mCellType = APOPTOTIC;
+    mCellProliferativeType = APOPTOTIC;
 }
 
 
@@ -271,7 +271,7 @@ void TissueCell::ResetMaxCellId()
 bool TissueCell::ReadyToDivide()
 {
     assert(!IsDead());
-    if (mUndergoingApoptosis || mCellType==APOPTOTIC)
+    if (mUndergoingApoptosis || mCellProliferativeType==APOPTOTIC)
     {
         return false;
     }
@@ -293,7 +293,7 @@ TissueCell TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
 
     // Create daughter cell
-    TissueCell new_cell = TissueCell(mCellType, mMutationState,
+    TissueCell new_cell = TissueCell(mCellProliferativeType, mMutationState,
                                      mpCellCycleModel->CreateCellCycleModel());
 
     // Initialise properties of daughter cell

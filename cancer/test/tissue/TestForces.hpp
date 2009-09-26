@@ -63,7 +63,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            CellMutationState mutation_state = HEALTHY;
+            CryptCellMutationState mutation_state = HEALTHY;
             if (i==60)
             {
                 mutation_state = APC_TWO_HIT;
@@ -418,18 +418,18 @@ public:
         stretched_tissue.InitialiseCells();
 
         // Set one of the non-boundary cells to be necrotic
-        stretched_tissue.rGetCellUsingLocationIndex(6).SetCellType(APOPTOTIC);
+        stretched_tissue.rGetCellUsingLocationIndex(6).SetCellProliferativeType(APOPTOTIC);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
         linear_force.SetApoptoticSprings(true);
 
-        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(6).GetCellType(), APOPTOTIC);
+        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(6).GetCellProliferativeType(), APOPTOTIC);
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_tissue)), 3.3333, 1e-4);
 
         // Set a neighbouring cell to be necrotic
-        stretched_tissue.rGetCellUsingLocationIndex(10).SetCellType(APOPTOTIC);
+        stretched_tissue.rGetCellUsingLocationIndex(10).SetCellProliferativeType(APOPTOTIC);
 
-        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(10).GetCellType(), APOPTOTIC);
+        TS_ASSERT_EQUALS( stretched_tissue.rGetCellUsingLocationIndex(10).GetCellProliferativeType(), APOPTOTIC);
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_tissue)), 1.8750, 1e-4);
 
         // Now do similar tests for a squashed tissue
@@ -444,14 +444,14 @@ public:
         MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, location_indices2);
         squashed_tissue.InitialiseCells();
 
-        squashed_tissue.rGetCellUsingLocationIndex(6).SetCellType(APOPTOTIC);
+        squashed_tissue.rGetCellUsingLocationIndex(6).SetCellProliferativeType(APOPTOTIC);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force2;
         linear_force2.SetApoptoticSprings(true);
 
         TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 4.0909, 1e-4);
 
-        squashed_tissue.rGetCellUsingLocationIndex(10).SetCellType(APOPTOTIC);
+        squashed_tissue.rGetCellUsingLocationIndex(10).SetCellProliferativeType(APOPTOTIC);
 
         TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 2.8125, 1e-4);
     }

@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "CellMutationStates.hpp"
+#include "CryptCellMutationStates.hpp"
 
 
 class TestIngeWntSwatCellCycleOdeSystem : public CxxTest::TestSuite
@@ -219,7 +219,7 @@ public:
         double time = 0.0;
         double wnt_level = 0.5;
 
-        CellMutationState mutation = APC_ONE_HIT;
+        CryptCellMutationState mutation = APC_ONE_HIT;
 
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(1, wnt_level,mutation);
 
@@ -274,7 +274,7 @@ public:
         double time = 0.0;
         double wnt_level = 1.0;
 
-        CellMutationState mutation = BETA_CATENIN_ONE_HIT;
+        CryptCellMutationState mutation = BETA_CATENIN_ONE_HIT;
 
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(1, wnt_level,mutation);
 
@@ -335,7 +335,7 @@ public:
         double time = 0.0;
         double wnt_level = 1.0;
 
-        CellMutationState mutation = APC_TWO_HIT;
+        CryptCellMutationState mutation = APC_TWO_HIT;
 
         IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(1, wnt_level,mutation);
 

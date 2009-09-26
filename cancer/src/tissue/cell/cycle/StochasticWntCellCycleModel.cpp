@@ -35,7 +35,7 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(unsigned dimension)
 
 
 StochasticWntCellCycleModel::StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                                         const CellMutationState& rMutationState,
+                                                         const CryptCellMutationState& rMutationState,
                                                          const unsigned& rDimension)
     : WntCellCycleModel(rParentProteinConcentrations, rMutationState, rDimension)
 {

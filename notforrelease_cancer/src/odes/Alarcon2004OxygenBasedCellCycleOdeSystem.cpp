@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseOdeSystemInformation.hpp"
 
 
-Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CellMutationState& rMutationState)
+Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, const CryptCellMutationState& rMutationState)
     : AbstractOdeSystem(6),
       mMutationState(rMutationState)
 {
@@ -70,7 +70,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     SetInitialConditionsComponent(5, oxygenConcentration);
 }
 
-void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
+void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
 {
     mMutationState = rMutationState;
 }
@@ -149,7 +149,7 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     rDY[5] = 0.0; // do not change the oxygen concentration
 }
 
-CellMutationState& Alarcon2004OxygenBasedCellCycleOdeSystem::rGetMutationState()
+CryptCellMutationState& Alarcon2004OxygenBasedCellCycleOdeSystem::rGetMutationState()
 {
     return mMutationState;
 }

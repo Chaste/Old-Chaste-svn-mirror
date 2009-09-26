@@ -154,7 +154,7 @@ private:
          * cell cycle, we set the G1 duration to {{{DBL_MAX}}}. */
         double uniform_random_number = RandomNumberGenerator::Instance()->ranf();
 
-        switch (mpCell->GetCellType())
+        switch (mpCell->GetCellProliferativeType())
         {
             case STEM:
                 mG1Duration = -log(uniform_random_number)*TissueConfig::Instance()->GetStemCellG1Duration();

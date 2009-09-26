@@ -116,13 +116,13 @@ void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 }
 
 
-void AbstractWntOdeBasedCellCycleModel::UpdateCellType()
+void AbstractWntOdeBasedCellCycleModel::UpdateCellProliferativeType()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     if (SimulationTime::Instance()->GetTime() > mLastTime)
     {
-        EXCEPTION("WntCellCycleModel::UpdateCellType() should only be called when the cell cycle model has been evaluated to the current time\n");
+        EXCEPTION("WntCellCycleModel::UpdateCellProliferativeType() should only be called when the cell cycle model has been evaluated to the current time\n");
     }
-    ChangeCellTypeDueToCurrentBetaCateninLevel();
+    ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }

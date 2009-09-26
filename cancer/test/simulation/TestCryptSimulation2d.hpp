@@ -507,7 +507,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-             TS_ASSERT(cell_iter->GetCellType() != DIFFERENTIATED);
+             TS_ASSERT(cell_iter->GetCellProliferativeType() != DIFFERENTIATED);
         }
 
         // Close the log file opened in this test
@@ -942,15 +942,15 @@ public:
         // (it is too small for it to figure out what's happening on its own)
 
         // Cover exceptions
-        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellMutationStateCount(),
+        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellMutationStateCount(),
                               "Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
-        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellTypeCount(),
-                              "Call TissueConfig::Instance()->SetOutputCellTypes(true) before using this function");
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellProliferativeTypeCount(),
+                              "Call TissueConfig::Instance()->SetOutputCellProliferativeTypes(true) before using this function");
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
 
-        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellCyclePhaseCount(),
+        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellCyclePhaseCount(),
                               "Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
 
         // Run simulation
@@ -964,14 +964,16 @@ public:
             TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
         }
 
-        c_vector<unsigned,5> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().rGetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u);  // No APC two hit, one of all the rest.
         TS_ASSERT_EQUALS(cell_mutation_state_count[4], 1u);
 
-        c_vector<unsigned,5> cell_type_count = simulator.rGetTissue().GetCellTypeCount();
+        std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);
         TS_ASSERT_EQUALS(cell_type_count[1], 4u);
         TS_ASSERT_EQUALS(cell_type_count[2], 0u);

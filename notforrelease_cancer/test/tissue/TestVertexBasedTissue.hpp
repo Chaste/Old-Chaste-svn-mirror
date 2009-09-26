@@ -192,7 +192,7 @@ public:
         std::vector<unsigned> cell_location_indices;
         for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
         {
-            CellType cell_type = STEM;
+            CellProliferativeType cell_type = STEM;
 
             if ((i==0) || (i==4))
             {
@@ -574,7 +574,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
-            CellType cell_type = DIFFERENTIATED;
+            CellProliferativeType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
 
             // Cell 4 should divide immediately
@@ -805,22 +805,22 @@ public:
         VertexBasedTissue<2> tissue(*p_mesh, cells);
 
         // For coverage of WriteResultsToFiles()
-        tissue.rGetCellUsingLocationIndex(0).SetCellType(TRANSIT);
+        tissue.rGetCellUsingLocationIndex(0).SetCellProliferativeType(TRANSIT);
         tissue.rGetCellUsingLocationIndex(0).SetMutationState(LABELLED);
-        tissue.rGetCellUsingLocationIndex(1).SetCellType(DIFFERENTIATED);
+        tissue.rGetCellUsingLocationIndex(1).SetCellProliferativeType(DIFFERENTIATED);
         tissue.rGetCellUsingLocationIndex(1).SetMutationState(APC_ONE_HIT);
         tissue.rGetCellUsingLocationIndex(2).SetMutationState(APC_TWO_HIT);
         tissue.rGetCellUsingLocationIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
-        tissue.rGetCellUsingLocationIndex(4).SetCellType(APOPTOTIC);
+        tissue.rGetCellUsingLocationIndex(4).SetCellProliferativeType(APOPTOTIC);
         tissue.rGetCellUsingLocationIndex(4).StartApoptosis();
-        tissue.rGetCellUsingLocationIndex(5).SetCellType(STEM);
+        tissue.rGetCellUsingLocationIndex(5).SetCellProliferativeType(STEM);
         tissue.SetCellAncestorsToLocationIndices();
 
         std::string output_directory = "TestVertexBasedTissueOutputWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         TissueConfig::Instance()->SetOutputCellCyclePhases(true);
         TissueConfig::Instance()->SetOutputCellAncestors(true);
         TissueConfig::Instance()->SetOutputCellAges(true);

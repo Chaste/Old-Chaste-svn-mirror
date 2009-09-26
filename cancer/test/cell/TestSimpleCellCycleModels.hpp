@@ -66,20 +66,20 @@ public:
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
         TS_ASSERT_EQUALS(p_stem_model->GetGeneration(), 0u);
 
-        TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(),STEM);
 
         FixedDurationGenerationBasedCellCycleModel* p_transit_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell transit_cell(TRANSIT, HEALTHY, p_transit_model);
         transit_cell.InitialiseCellCycleModel();
 
-        TS_ASSERT_EQUALS(transit_cell.GetCellType(),TRANSIT);
+        TS_ASSERT_EQUALS(transit_cell.GetCellProliferativeType(),TRANSIT);
         TS_ASSERT_EQUALS(p_transit_model->GetGeneration(), 0u);
 
         FixedDurationGenerationBasedCellCycleModel* p_diff_model = new FixedDurationGenerationBasedCellCycleModel;
         TissueCell diff_cell(DIFFERENTIATED, HEALTHY, p_diff_model);
         diff_cell.InitialiseCellCycleModel();
 
-        TS_ASSERT_EQUALS(diff_cell.GetCellType(),DIFFERENTIATED);
+        TS_ASSERT_EQUALS(diff_cell.GetCellProliferativeType(),DIFFERENTIATED);
         TS_ASSERT_EQUALS(p_diff_model->GetGeneration(), 0u);
 
         for (unsigned i=0; i<num_steps; i++)
@@ -189,7 +189,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, 1.0676);
         }
         // Stem cell should have been changed into a transit cell by wnt cell cycle model
-        TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell.GetCellProliferativeType(), TRANSIT);
 
         // Divide the cell
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
@@ -215,8 +215,8 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model2, new_g1_duration2);
         }
 
-        TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);
-        TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell.GetCellProliferativeType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell2.GetCellProliferativeType(), TRANSIT);
 
         p_cycle_model->ResetForDivision();
         p_cycle_model2->ResetForDivision();
@@ -251,8 +251,8 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model2, new_g1_duration2);
         }
 
-        TS_ASSERT_EQUALS(cell.GetCellType(), DIFFERENTIATED);
-        TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell.GetCellProliferativeType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(cell2.GetCellProliferativeType(), TRANSIT);
 
         // For coverage...
         SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel(2);
@@ -294,14 +294,14 @@ public:
         }
 
         // We should still have a stem cell since the WntConcentration exceeds mRadialWntThreshold
-        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell4.GetCellProliferativeType(), STEM);
 
         // Divide the cell
         TS_ASSERT_EQUALS(cell4.ReadyToDivide(), true);
-        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell4.GetCellProliferativeType(), STEM);
         TissueCell cell5 = cell4.Divide();
-        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
-        TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell4.GetCellProliferativeType(), STEM);
+        TS_ASSERT_EQUALS(cell5.GetCellProliferativeType(), TRANSIT);
         cell2.SetMutationState(LABELLED);
 
         // Now reduce the Wnt concentration
@@ -318,8 +318,8 @@ public:
         }
 
         TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(&cell4), wnt_level, 1e-12);
-        TS_ASSERT_EQUALS(cell4.GetCellType(), TRANSIT);
-        TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell4.GetCellProliferativeType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell5.GetCellProliferativeType(), TRANSIT);
 
 
         // Coverage of 1D
@@ -555,7 +555,7 @@ public:
             }
 
             // Wnt should change this to a transit cell
-            TS_ASSERT_EQUALS(stem_cell.GetCellType(), TRANSIT);
+            TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO_PHASE);
 
@@ -665,7 +665,7 @@ public:
             }
 
             // Wnt should change this to a transit cell
-            TS_ASSERT_EQUALS(cell.GetCellType(), TRANSIT);
+            TS_ASSERT_EQUALS(cell.GetCellProliferativeType(), TRANSIT);
             TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(), false);
             TS_ASSERT_EQUALS(cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO_PHASE);
 
@@ -715,12 +715,12 @@ public:
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
 
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
-            TS_ASSERT_EQUALS(p_cell->GetCellType(), TRANSIT);
+            TS_ASSERT_EQUALS(p_cell->GetCellProliferativeType(), TRANSIT);
 
             p_simulation_time->IncrementTimeOneStep();
 
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
-            TS_ASSERT_EQUALS(p_cell->GetCellType(), TRANSIT);
+            TS_ASSERT_EQUALS(p_cell->GetCellProliferativeType(), TRANSIT);
 
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);

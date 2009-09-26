@@ -29,17 +29,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CELLTYPES_HPP_
 
 /**
- * Possible types of TissueCell.
+ * The possible proliferative types of a TissueCell. This property of a cell is
+ * updated by its cell cycle model.
  */
-typedef enum CellType_
+typedef enum CellProliferativeType_
 {
     STEM,
     TRANSIT,
     DIFFERENTIATED,
     APOPTOTIC // for use in tissue simulations with nutrients
-} CellType;
+} CellProliferativeType;
 
-const static unsigned NUM_CELL_TYPES=4u;
+const static unsigned NUM_CELL_PROLIFERATIVE_TYPES=4;
 
 
 #endif /*CELLTYPES_HPP_*/

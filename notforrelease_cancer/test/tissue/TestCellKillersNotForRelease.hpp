@@ -153,7 +153,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            cell_iter->SetCellType(STEM);
+            cell_iter->SetCellProliferativeType(STEM);
         }
 
         TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue));
@@ -164,7 +164,7 @@ public:
 
         // Check that a single cell reaches apoptosis
         TS_ASSERT(!r_cells.begin()->HasApoptosisBegun());
-        r_cells.begin()->SetCellType(APOPTOTIC);
+        r_cells.begin()->SetCellProliferativeType(APOPTOTIC);
         oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
 
         TS_ASSERT(r_cells.begin()->HasApoptosisBegun());

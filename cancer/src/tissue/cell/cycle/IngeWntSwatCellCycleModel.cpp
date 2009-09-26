@@ -53,7 +53,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleM
 
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                                      const std::vector<double>& rParentProteinConcentrations,
-                                                     const CellMutationState& rMutationState,
+                                                     const CryptCellMutationState& rMutationState,
                                                      const unsigned& rDimension)
     : AbstractWntOdeBasedCellCycleModel(rDimension)
 {
@@ -71,7 +71,7 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateCellCycleModel()
 }
 
 
-void IngeWntSwatCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
+void IngeWntSwatCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
@@ -80,7 +80,7 @@ void IngeWntSwatCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
                                 + mpOdeSystem->rGetStateVariables()[18]
                                 + mpOdeSystem->rGetStateVariables()[19];
 
-    CellType cell_type = TRANSIT;
+    CellProliferativeType cell_type = TRANSIT;
 
     // For mitogenic stimulus of 1/25.0 in Wnt equations
     if (beta_catenin_level < 10.188)
@@ -88,7 +88,7 @@ void IngeWntSwatCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
         cell_type = DIFFERENTIATED;
     }
 
-    mpCell->SetCellType(cell_type);
+    mpCell->SetCellProliferativeType(cell_type);
 }
 
 
@@ -102,7 +102,7 @@ void IngeWntSwatCellCycleModel::Initialise()
     mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, wnt_level, mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 
-    ChangeCellTypeDueToCurrentBetaCateninLevel();
+    ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
 
 
@@ -124,7 +124,7 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
 
     mLastTime = currentTime; // normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
-    UpdateCellType();
+    UpdateCellProliferativeType();
     return msSolver.StoppingEventOccurred();
 }
 

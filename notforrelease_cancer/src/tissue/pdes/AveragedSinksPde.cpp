@@ -52,7 +52,7 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMe
         const ChastePoint<DIM>& r_position_of_cell = mrTissue.GetLocationOfCellCentre(&(*cell_iter));
         unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 
-        if (cell_iter->GetCellType()!=APOPTOTIC)
+        if (cell_iter->GetCellProliferativeType() != APOPTOTIC)
         {
             mCellDensityOnCoarseElements[elem_index] += 1.0;
         }

@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel, const CellMutationState& rMutationState)
+IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel, const CryptCellMutationState& rMutationState)
     : AbstractOdeSystem(22),
       mMutationState(rMutationState),
       mHypothesis(hypothesis)
@@ -146,7 +146,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     SetInitialConditionsComponent(21, wntLevel); // Wnt stimulus
 }
 
-void IngeWntSwatCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
+void IngeWntSwatCellCycleOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
 {
     mMutationState = rMutationState;
 }
@@ -374,7 +374,7 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus
 }
 
-CellMutationState& IngeWntSwatCellCycleOdeSystem::rGetMutationState()
+CryptCellMutationState& IngeWntSwatCellCycleOdeSystem::rGetMutationState()
 {
     return mMutationState;
 }

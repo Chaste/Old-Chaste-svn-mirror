@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystem.hpp"
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
-#include "CellMutationStates.hpp"
+#include "CryptCellMutationStates.hpp"
 #include "Exception.hpp"
 
 
@@ -73,14 +73,14 @@ private:
     }
 
     /**
-     * Called by ::Initialise() and ::UpdateCellType() only.
-     * Updates the mpCell::mCellType to match mpOdeSystem's
+     * Called by ::Initialise() and ::UpdateCellProliferativeType() only.
+     * Updates the mpCell::mCellProliferativeType to match mpOdeSystem's
      * beta-catenin levels
      *
-     * This carries out the work for ::UpdateCellType();
+     * This carries out the work for ::UpdateCellProliferativeType();
      * But does not check the current time so it can be used by the initialise method.
      */
-    void ChangeCellTypeDueToCurrentBetaCateninLevel();
+    void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 
     /**
      * Hypothesis number (1 or 2), concerning the nature of the
@@ -119,7 +119,7 @@ public:
      */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                               const std::vector<double>& rParentProteinConcentrations,
-                              const CellMutationState& rMutationState,
+                              const CryptCellMutationState& rMutationState,
                               const unsigned& rDimension);
 
     /**
@@ -207,7 +207,7 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    CellMutationState mutation_state = HEALTHY;
+    CryptCellMutationState mutation_state = HEALTHY;
     unsigned dimension = UINT_MAX;
 
     unsigned hypothesis;

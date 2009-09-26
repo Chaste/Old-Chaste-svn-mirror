@@ -46,5 +46,6 @@ typedef enum CellCyclePhase_
     M_PHASE
 } CellCyclePhase;
 
+const static unsigned NUM_CELL_CYCLE_PHASES=5;
 
 #endif /*CELLCYCLEPHASES_HPP_*/

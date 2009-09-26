@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * These models have a constant length M phase, run ODEs to decide when
  * to finish G1 phase, then add time for S and G2 phases (in some classes,
- * random periods of time). The CellType is updated dependent on the
+ * random periods of time). The CellProliferativeType is updated dependent on the
  * concentration of beta-catenin (given by one of the ODEs).
  */
 class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
@@ -132,13 +132,13 @@ public:
      * This should only be called when the cell cycle model has been
      * evaluated to the current time, or it may give misleading results.
      */
-    void UpdateCellType();
+    void UpdateCellProliferativeType();
 
     /**
      * This must be implemented by subclasses to change cell type to reflect
      * current levels of beta-catenin.
      */
-    virtual void ChangeCellTypeDueToCurrentBetaCateninLevel()=0;
+    virtual void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()=0;
 
     /**
      * Get the spatial dimension.

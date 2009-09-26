@@ -131,7 +131,7 @@ public:
      * @param rDimension the spatial dimension
      */
     StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                const CellMutationState& rMutationState,
+                                const CryptCellMutationState& rMutationState,
                                 const unsigned& rDimension);
 
     /**
@@ -182,7 +182,7 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    CellMutationState mutation_state = HEALTHY;
+    CryptCellMutationState mutation_state = HEALTHY;
     unsigned dimension = UINT_MAX;
     ::new(t)StochasticWntCellCycleModel(state_vars, mutation_state, dimension);
 }

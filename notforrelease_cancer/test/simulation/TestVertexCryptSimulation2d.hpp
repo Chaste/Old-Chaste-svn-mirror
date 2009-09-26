@@ -287,7 +287,7 @@ public:
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
 
-            CellType cell_type;
+            CellProliferativeType cell_type;
 
             // Cell 1 should divide at time t=0.5
             if (elem_index==0)
@@ -355,7 +355,7 @@ public:
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
 
-            CellType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
 
             // Cells 0 1 2 3 4 and 5 are stem cells
@@ -553,7 +553,7 @@ public:
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
 
-            CellType cell_type;
+            CellProliferativeType cell_type;
 
             // Cells 0, 1, 2 and 3 are stem cells
             if (elem_index < 6)

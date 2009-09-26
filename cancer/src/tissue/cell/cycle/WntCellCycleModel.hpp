@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
-#include "CellMutationStates.hpp"
+#include "CryptCellMutationStates.hpp"
 
 
 // Needs to be included last
@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * singleton object.
  *
  * This model has a constant length M phase, runs ODEs to decide when
- * to finish G1 phase then adds time for S and G2 phases. The CellType is
+ * to finish G1 phase then adds time for S and G2 phases. The CellProliferativeType is
  * updated dependent on the concentration of beta-catenin (given by one
  * of the ODEs).
  *
@@ -75,11 +75,11 @@ private:
      * Update the cell type according to the current beta catenin
      * level as given by the WntCellCycleOdeSystem.
      *
-     * This method carries out the work for UpdateCellType(), but
+     * This method carries out the work for UpdateCellProliferativeType(), but
      * does not check the current time, so can also be called by
      * Initialise().
      */
-    void ChangeCellTypeDueToCurrentBetaCateninLevel();
+    void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 
 public:
 
@@ -115,7 +115,7 @@ public:
      * @param dimension the spatial dimension
      */
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
-                      const CellMutationState& rMutationState,
+                      const CryptCellMutationState& rMutationState,
                       double birthTime,
                       double lastTime,
                       bool inSG2MPhase,
@@ -131,7 +131,7 @@ public:
      * @param rDimension the spatial dimension
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                      const CellMutationState& rMutationState,
+                      const CryptCellMutationState& rMutationState,
                       const unsigned& rDimension);
 
     /**
@@ -198,7 +198,7 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    CellMutationState mutation_state = HEALTHY;
+    CryptCellMutationState mutation_state = HEALTHY;
     unsigned dimension = UINT_MAX;
     ::new(t)WntCellCycleModel(state_vars, mutation_state, dimension);
 }

@@ -215,7 +215,7 @@ public:
         // a 'stem cell'. Cell type is changed to transit or
         // differentiated, depending on the Wnt concentration, when
         // InitialiseCellCycleModel() is called.
-        TS_ASSERT_EQUALS(stem_cell.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
 
         // Progress through the cell cycle
         for (unsigned i=0; i<num_timesteps; i++)
@@ -260,7 +260,7 @@ public:
 
         // Test that, since the cell now experiences a low Wnt concentration,
         // it has indeed changed cell type to differentiated
-        TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), DIFFERENTIATED);
 
         double diff = 1.0;
         test_results[6] = test_results[6] + diff;
@@ -311,7 +311,7 @@ public:
         // a 'stem cell'. Cell type is changed to transit or
         // differentiated, depending on the Wnt concentration, when
         // InitialiseCellCycleModel() is called.
-        TS_ASSERT_EQUALS(stem_cell.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
 
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
@@ -456,7 +456,7 @@ public:
 
         // Test that, since the cell now experiences a low Wnt concentration,
         // it has indeed changed cell type to differentiated
-        TS_ASSERT_EQUALS(stem_cell.GetCellType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), DIFFERENTIATED);
 
         // Test beta catenin levels
 
@@ -606,7 +606,7 @@ public:
         for (unsigned i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_THROWS_THIS(p_cell_model_1->UpdateCellType(), "WntCellCycleModel::UpdateCellType() should only be called when the cell cycle model has been evaluated to the current time\n");
+            TS_ASSERT_THROWS_THIS(p_cell_model_1->UpdateCellProliferativeType(), "WntCellCycleModel::UpdateCellProliferativeType() should only be called when the cell cycle model has been evaluated to the current time\n");
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, expected_g1_duration);
         }
 

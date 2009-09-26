@@ -29,17 +29,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CELLMUTATIONSTATES_HPP_
 
 /**
- * Possible types mutation state for TissueCells.
+ * Possible types mutation state for colonic crypt cells.
+ * \todo make this inherit from an abstract cell mutation state class (see also #1138)
  */
-typedef enum CellMutationState_
+typedef enum CryptCellMutationState_
 {
     HEALTHY,                // Wild-type cell
     APC_ONE_HIT,            // APC +/-
     APC_TWO_HIT,            // APC -/-
     BETA_CATENIN_ONE_HIT,   // Beta-catenin with a change at residue 45
     LABELLED,               // To paint a different colour but not actually mutant
-} CellMutationState;
+} CryptCellMutationState;
 
-const static unsigned NUM_CELL_MUTATION_STATES=5;
+const static unsigned NUM_CRYPT_CELL_MUTATION_STATES=5;
 
 #endif /*CELLMUTATIONSTATES_HPP_*/

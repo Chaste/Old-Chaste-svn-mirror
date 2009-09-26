@@ -135,7 +135,7 @@ void TissueConfig::Reset()
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
     mOutputCellAncestors = false;
-    mOutputCellTypes = false;
+    mOutputCellProliferativeTypes = false;
     mOutputCellVariables = false;
     mOutputCellCyclePhases = false;
     mOutputCellAges = false;
@@ -308,9 +308,9 @@ bool TissueConfig::GetOutputCellAncestors()
 {
     return mOutputCellAncestors;
 }
-bool TissueConfig::GetOutputCellTypes()
+bool TissueConfig::GetOutputCellProliferativeTypes()
 {
-    return mOutputCellTypes;
+    return mOutputCellProliferativeTypes;
 }
 bool TissueConfig::GetOutputCellVariables()
 {
@@ -541,9 +541,9 @@ void TissueConfig::SetOutputCellAncestors(bool outputCellAncestors)
 {
     mOutputCellAncestors = outputCellAncestors;
 }
-void TissueConfig::SetOutputCellTypes(bool outputCellTypes)
+void TissueConfig::SetOutputCellProliferativeTypes(bool outputCellProliferativeTypes)
 {
-    mOutputCellTypes = outputCellTypes;
+    mOutputCellProliferativeTypes = outputCellProliferativeTypes;
 }
 void TissueConfig::SetOutputCellVariables(bool outputCellVariables)
 {

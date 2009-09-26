@@ -109,7 +109,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
@@ -130,7 +130,8 @@ public:
         std::set<unsigned> ghost_indices = crypt.GetGhostNodeIndices();
         TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
 
-        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.GetCellTypeCount();
+        std::vector<unsigned> cell_type_count = crypt.rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_type_count[0], 6u);   // Stem
         TS_ASSERT_EQUALS(cell_type_count[1], 21u);  // Transit
         TS_ASSERT_EQUALS(cell_type_count[2], 35u);  // Differentiated
@@ -174,7 +175,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Monolayer");
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         simulator.SetEndTime(1);
 
         // Run simulation
@@ -188,7 +189,8 @@ public:
         std::set<unsigned> ghost_indices = crypt.GetGhostNodeIndices();
         TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
 
-        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = crypt.GetCellTypeCount();
+        std::vector<unsigned> cell_type_count = crypt.rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);   // Stem
         TS_ASSERT_EQUALS(cell_type_count[1], 32u);  // Transit
         TS_ASSERT_EQUALS(cell_type_count[2], 36u);  // Differentiated
@@ -243,7 +245,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CellType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
 
@@ -295,7 +297,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            CellType type = cell_iter->GetCellType();
+            CellProliferativeType type = cell_iter->GetCellProliferativeType();
 
             if (type==STEM)
             {
@@ -456,7 +458,7 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
-            CellMutationState mutation_state;
+            CryptCellMutationState mutation_state;
 
             double x = p_mesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
@@ -742,7 +744,7 @@ public:
         simulator.SetOutputDirectory(output_directory);
 
         // Set simulation to output cell types
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
 
         // Set length of simulation
         simulator.SetEndTime(20.0);

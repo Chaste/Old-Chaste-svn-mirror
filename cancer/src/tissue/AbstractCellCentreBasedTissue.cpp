@@ -129,25 +129,29 @@ template<unsigned DIM>
 void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
 {
     // Set up cell type counter
-    std::vector<unsigned> cell_type_counter(this->mCellTypeCount.size());
-    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
+    unsigned num_cell_types = this->mCellProliferativeTypeCount.size();
+    std::vector<unsigned> cell_type_counter(num_cell_types);
+    for (unsigned i=0; i<num_cell_types; i++)
     {
         cell_type_counter[i] = 0;
     }
 
     // Set up cell mutation state counter
-    std::vector<unsigned> cell_mutation_state_counter(this->mCellMutationStateCount.size());
-    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+    unsigned num_mutation_states = this->mCellMutationStateCount.size();
+    std::vector<unsigned> cell_mutation_state_counter(num_mutation_states);
+    for (unsigned i=0; i<num_mutation_states; i++)
     {
         cell_mutation_state_counter[i] = 0;
     }
 
     // Set up cell cycle phase counter
-    std::vector<unsigned> cell_cycle_phase_counter(5);
-    for (unsigned i=0; i<5; i++)
+    unsigned num_cell_cycle_phases = this->mCellCyclePhaseCount.size();
+    std::vector<unsigned> cell_cycle_phase_counter(num_cell_cycle_phases);
+    for (unsigned i=0; i<num_cell_cycle_phases; i++)
     {
         cell_cycle_phase_counter[i] = 0;
     }
+
     // Write node data to file
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {

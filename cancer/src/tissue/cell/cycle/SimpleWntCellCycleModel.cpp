@@ -28,8 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 
 
-SimpleWntCellCycleModel::SimpleWntCellCycleModel(unsigned dimension, bool useCellTypeDependentG1Duration)
-    : mUseCellTypeDependentG1Duration(useCellTypeDependentG1Duration),
+SimpleWntCellCycleModel::SimpleWntCellCycleModel(unsigned dimension, bool useCellProliferativeTypeDependentG1Duration)
+    : mUseCellProliferativeTypeDependentG1Duration(useCellProliferativeTypeDependentG1Duration),
       mDimension(dimension)
 {
 }
@@ -54,10 +54,10 @@ void SimpleWntCellCycleModel::SetG1Duration()
     TissueConfig* p_params = TissueConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-    switch (mpCell->GetCellType())
+    switch (mpCell->GetCellProliferativeType())
     {
         case STEM:
-            if (mUseCellTypeDependentG1Duration)
+            if (mUseCellProliferativeTypeDependentG1Duration)
             {
                 mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(), 1.0);
             }
@@ -183,7 +183,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     // Set the cell type to TRANSIT if the Wnt stimulus exceeds wnt_division_threshold
     if (wnt_level >= wnt_division_threshold)
     {
-        CellType cell_type = TRANSIT;
+        CellProliferativeType cell_type = TRANSIT;
 
         // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
         if ( (wnt_type == RADIAL) && (wnt_level > p_params->GetWntStemThreshold()) )
@@ -191,13 +191,13 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             cell_type = STEM;
         }
 
-        mpCell->SetCellType(cell_type);
+        mpCell->SetCellProliferativeType(cell_type);
         AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
     }
     else
     {
         // The cell is DIFFERENTIATED and so in G0 phase
-        mpCell->SetCellType(DIFFERENTIATED);
+        mpCell->SetCellProliferativeType(DIFFERENTIATED);
         mCurrentCellCyclePhase = G_ZERO_PHASE;
     }
 }
@@ -215,7 +215,7 @@ void SimpleWntCellCycleModel::InitialiseDaughterCell()
 
     if (wnt_type == RADIAL)
     {
-        mpCell->SetCellType(TRANSIT);
+        mpCell->SetCellProliferativeType(TRANSIT);
     }
 
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();

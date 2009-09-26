@@ -70,7 +70,7 @@ public:
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Make one cell apoptotic
-        cells[0].SetCellType(APOPTOTIC);
+        cells[0].SetCellProliferativeType(APOPTOTIC);
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 

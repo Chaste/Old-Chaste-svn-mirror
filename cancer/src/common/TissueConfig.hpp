@@ -214,9 +214,9 @@ public:
      */
     bool GetOutputCellAncestors();
     /**
-     * @return mOutputCellTypes
+     * @return mOutputCellProliferativeTypes
      */
-    bool GetOutputCellTypes();
+    bool GetOutputCellProliferativeTypes();
     /**
      * @return mOutputCellVariables
      */
@@ -403,9 +403,9 @@ public:
      */
     void SetOutputCellAncestors(bool);
     /**
-     * Set mOutputCellTypes.
+     * Set mOutputCellProliferativeTypes.
      */
-    void SetOutputCellTypes(bool);
+    void SetOutputCellProliferativeTypes(bool);
     /**
      * Set mOutputCellVariables.
      */
@@ -687,7 +687,7 @@ private:
      * Whether to count the number of each cell type and output
      * to file.
      */
-    bool mOutputCellTypes;
+    bool mOutputCellProliferativeTypes;
 
     /**
      * Whether to write the cell variables to a file.
@@ -759,7 +759,7 @@ private:
         archive & mOutputCellIdData;
         archive & mOutputCellMutationStates;
         archive & mOutputCellAncestors;
-        archive & mOutputCellTypes;
+        archive & mOutputCellProliferativeTypes;
         archive & mOutputCellVariables;
         archive & mOutputCellCyclePhases;
         archive & mOutputCellAges;

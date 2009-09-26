@@ -228,7 +228,7 @@ public:
         // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
+            TS_ASSERT(apoptotic_cell.GetCellProliferativeType()!=APOPTOTIC ||
                       p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
@@ -237,7 +237,7 @@ public:
         }
 
         // Test that the cell type is updated to be APOPTOTIC
-        TS_ASSERT(apoptotic_cell.GetCellType()==APOPTOTIC);
+        TS_ASSERT(apoptotic_cell.GetCellProliferativeType()==APOPTOTIC);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
         // Tidy up
@@ -297,13 +297,13 @@ public:
 
         // This cell must have divided asymmetrically
         TS_ASSERT_EQUALS(p_cycle_model1->DividedSymmetrically(), false);
-        TS_ASSERT_EQUALS(cell1.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell1.GetCellProliferativeType(), STEM);
         TS_ASSERT_EQUALS(p_cycle_model1->GetGeneration(), 0u);
 
         TS_ASSERT_EQUALS(cell1.ReadyToDivide(), true);
         TissueCell cell2 = cell1.Divide();
 
-        TS_ASSERT_EQUALS(cell2.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell2.GetCellProliferativeType(), TRANSIT);
 
         StochasticDivisionRuleCellCycleModel* p_cycle_model2 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell2.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_cycle_model2->GetGeneration(), 1u);
@@ -336,12 +336,12 @@ public:
         TissueCell cell4 = cell1.Divide();
 
         TS_ASSERT_EQUALS(p_cycle_model1->DividedSymmetrically(), true);
-        TS_ASSERT_EQUALS(cell1.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell1.GetCellProliferativeType(), STEM);
         TS_ASSERT_EQUALS(p_cycle_model1->GetGeneration(), 0u);
 
         StochasticDivisionRuleCellCycleModel* p_cycle_model4 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell4.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_cycle_model4->DividedSymmetrically(), true);
-        TS_ASSERT_EQUALS(cell4.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(cell4.GetCellProliferativeType(), STEM);
         TS_ASSERT_EQUALS(p_cycle_model4->GetGeneration(), 0u);
 
         // The stem cell cell3 must have divided symmetrically. For coverage,
@@ -353,12 +353,12 @@ public:
         TissueCell cell5 = cell3.Divide();
 
         TS_ASSERT_EQUALS(p_cycle_model3->DividedSymmetrically(), true);
-        TS_ASSERT_EQUALS(cell3.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell3.GetCellProliferativeType(), TRANSIT);
         TS_ASSERT_EQUALS(p_cycle_model3->GetGeneration(), 1u);
 
         StochasticDivisionRuleCellCycleModel* p_cycle_model5 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell5.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_cycle_model5->DividedSymmetrically(), true);
-        TS_ASSERT_EQUALS(cell5.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(cell5.GetCellProliferativeType(), TRANSIT);
         TS_ASSERT_EQUALS(p_cycle_model5->GetGeneration(), 1u);
 
         // The transit cell cell2 divides into two differentiated cells
@@ -366,12 +366,12 @@ public:
         TissueCell cell6 = cell2.Divide();
 
         TS_ASSERT_EQUALS(p_cycle_model2->DividedSymmetrically(), false);
-        TS_ASSERT_EQUALS(cell2.GetCellType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(cell2.GetCellProliferativeType(), DIFFERENTIATED);
         TS_ASSERT_EQUALS(p_cycle_model2->GetGeneration(), 2u);
 
         StochasticDivisionRuleCellCycleModel* p_cycle_model6 = static_cast <StochasticDivisionRuleCellCycleModel*> (cell6.GetCellCycleModel());
         TS_ASSERT_EQUALS(p_cycle_model6->DividedSymmetrically(), false);
-        TS_ASSERT_EQUALS(cell6.GetCellType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(cell6.GetCellProliferativeType(), DIFFERENTIATED);
         TS_ASSERT_EQUALS(p_cycle_model6->GetGeneration(), 2u);
 
         // For coverage
@@ -501,7 +501,7 @@ public:
         // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(apoptotic_cell.GetCellType()!=APOPTOTIC ||
+            TS_ASSERT(apoptotic_cell.GetCellProliferativeType()!=APOPTOTIC ||
                       p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
@@ -510,7 +510,7 @@ public:
         }
 
         // Test that the cell type is updated to be APOPTOTIC
-        TS_ASSERT(apoptotic_cell.GetCellType()==APOPTOTIC);
+        TS_ASSERT_EQUALS(apoptotic_cell.GetCellProliferativeType(), APOPTOTIC);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
         // Tidy up

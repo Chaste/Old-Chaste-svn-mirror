@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 
 #include "Element.hpp"
-#include "CellTypes.hpp"
-#include "CellMutationStates.hpp"
+#include "CellProliferativeTypes.hpp"
+#include "CryptCellMutationStates.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 
@@ -68,7 +68,7 @@ private:
         // If Archive is an input archive, then '&' resolves to '>>'
         // These first four are also dealt with by {load,save}_construct_data
         archive & mCanDivide;
-        archive & mCellType;
+        archive & mCellProliferativeType;
         archive & mMutationState;
         archive & mpCellCycleModel;
         archive & mUndergoingApoptosis;
@@ -85,11 +85,11 @@ protected:
 
     // NB - if you add any member variables, make sure CommonCopy includes them.
 
-    /** The cell type - defined in CellTypes.hpp */
-    CellType mCellType;
+    /** The cell type - defined in CellProliferativeTypes.hpp */
+    CellProliferativeType mCellProliferativeType;
 
-    /** The cell's mutation state - defined in CellMutationStates.hpp */
-    CellMutationState mMutationState;
+    /** The cell's mutation state - defined in CryptCellMutationStates.hpp */
+    CryptCellMutationState mMutationState;
 
     /** The cell's cell-cycle model */
     AbstractCellCycleModel* mpCellCycleModel;
@@ -138,8 +138,8 @@ public:
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
      */
-    TissueCell(CellType cellType,
-               CellMutationState mutationState,
+    TissueCell(CellProliferativeType cellType,
+               CryptCellMutationState mutationState,
                AbstractCellCycleModel* pCellCycleModel,
                bool archiving = false);
 
@@ -201,28 +201,28 @@ public:
     double GetStartOfApoptosisTime() const;
 
     /**
-     * Get method for mCellType.
+     * Get method for mCellProliferativeType.
      */
-    CellType GetCellType() const;
+    CellProliferativeType GetCellProliferativeType() const;
 
     /**
-     * Set method for mCellType.
+     * Set method for mCellProliferativeType.
      *
      * @param cellType the cell's type
      */
-    void SetCellType(CellType cellType);
+    void SetCellProliferativeType(CellProliferativeType cellType);
 
     /**
      * Get method for mMutationState.
      */
-    CellMutationState GetMutationState() const;
+    CryptCellMutationState GetMutationState() const;
 
     /**
      * Set method for mMutationState.
      *
      * @param mutationState the cell's mutation state
      */
-    void SetMutationState(CellMutationState mutationState);
+    void SetMutationState(CryptCellMutationState mutationState);
 
     /**
      * Determine if this cell is ready to divide at the current simulation time.
@@ -314,8 +314,8 @@ inline void save_construct_data(
     Archive & ar, const TissueCell * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const CellType cell_type = t->GetCellType();
-    const CellMutationState mutation_state = t->GetMutationState();
+    const CellProliferativeType cell_type = t->GetCellProliferativeType();
+    const CryptCellMutationState mutation_state = t->GetMutationState();
     const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
     ar << cell_type;
     ar << mutation_state;
@@ -330,8 +330,8 @@ inline void load_construct_data(
     Archive & ar, TissueCell * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    CellType cell_type;
-    CellMutationState mutation_state;
+    CellProliferativeType cell_type;
+    CryptCellMutationState mutation_state;
     AbstractCellCycleModel* p_cell_cycle_model;
     ar >> cell_type;
     ar >> mutation_state;

@@ -435,7 +435,7 @@ public:
         std::vector<TissueCell> cells;
         FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-        cells[0].SetCellType(APOPTOTIC); // coverage
+        cells[0].SetCellProliferativeType(APOPTOTIC); // coverage
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -453,7 +453,7 @@ public:
         OutputFileHandler output_file_handler(output_directory, false);
 
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         TissueConfig::Instance()->SetOutputCellAges(true);
 
         TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
@@ -472,15 +472,17 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat       cancer/test/data/TestTissueWriters/cellareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
-        c_vector<unsigned,5> cell_mutation_states = tissue.GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_states = tissue.rGetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_states[0], tissue.GetNumRealCells());
-        for (unsigned i=1; i<NUM_CELL_MUTATION_STATES; i++)
+        for (unsigned i=1; i<cell_mutation_states.size(); i++)
         {
             TS_ASSERT_EQUALS(cell_mutation_states[i], 0u);
         }
 
-        // Test the GetCellTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
-        c_vector<unsigned,5> cell_types = tissue.GetCellTypeCount();
+        // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
+        std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_types.size(), 4u);
         TS_ASSERT_EQUALS(cell_types[0], 4u);
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);

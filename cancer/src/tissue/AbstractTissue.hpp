@@ -79,19 +79,19 @@ protected:
     std::map<TissueCell*, unsigned> mCellLocationMap;
 
     /** Current cell mutation state counts */
-    c_vector<unsigned, NUM_CELL_MUTATION_STATES> mCellMutationStateCount;
+    std::vector<unsigned> mCellMutationStateCount;
 
     /** Current cell type counts */
-    c_vector<unsigned, NUM_CELL_TYPES> mCellTypeCount;
+    std::vector<unsigned> mCellProliferativeTypeCount;
 
     /** Current cell cycle phase counts */
-    c_vector<unsigned, 5> mCellCyclePhaseCount;
+    std::vector<unsigned> mCellCyclePhaseCount;
 
     /** Results file for node visualization */
     out_stream mpVizNodesFile;
 
     /** Results file for cell visualization */
-    out_stream mpVizCellTypesFile;
+    out_stream mpVizCellProliferativeTypesFile;
 
     /** Results file for cell mutation states */
     out_stream mpCellMutationStatesFile;
@@ -100,7 +100,7 @@ protected:
     out_stream mpCellAncestorsFile;
 
     /** Results file for cell types */
-    out_stream mpCellTypesFile;
+    out_stream mpCellProliferativeTypesFile;
 
     /** Results file for cell cycle phases */
     out_stream mpCellCyclePhasesFile;
@@ -300,7 +300,7 @@ public:
      * [3] = APC two hit
      * [4] = beta catenin one hit
      */
-    c_vector<unsigned, NUM_CELL_MUTATION_STATES> GetCellMutationStateCount();
+    const std::vector<unsigned>& rGetCellMutationStateCount() const;
 
     /**
      * Find out how many cells of each type there are
@@ -311,7 +311,7 @@ public:
      * [2] = DIFFERENTIATED
      * [3] = APOPTOTIC
      */
-    c_vector<unsigned, NUM_CELL_TYPES> GetCellTypeCount();
+     const std::vector<unsigned>& rGetCellProliferativeTypeCount() const;
 
     /**
      * Find out how many cells in each cell cycle phase there are
@@ -323,7 +323,7 @@ public:
      * [3] = G_TWO_PHASE
      * [4] = M_PHASE
      */
-    c_vector<unsigned, 5> GetCellCyclePhaseCount();
+    const std::vector<unsigned>& rGetCellCyclePhaseCount() const;
 
     /**
      * Get the number of real cells.
@@ -401,23 +401,23 @@ public:
      * Generate results for a given cell in the current tissue state to output files.
      *
      * @param locationIndex location index of the cell
-     * @param rCellTypeCounter cell type counter
+     * @param rCellProliferativeTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
     virtual void GenerateCellResults(unsigned locationIndex,
-                             std::vector<unsigned>& rCellTypeCounter,
+                             std::vector<unsigned>& rCellProliferativeTypeCounter,
                              std::vector<unsigned>& rCellMutationStateCounter,
                              std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**
      * Write the current state of each cell to output files.
 
-     * @param rCellTypeCounter cell type counter
+     * @param rCellProliferativeTypeCounter cell type counter
      * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
-    void WriteCellResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
+    void WriteCellResultsToFiles(std::vector<unsigned>& rCellProliferativeTypeCounter,
                                  std::vector<unsigned>& rCellMutationStateCounter,
                                  std::vector<unsigned>& rCellCyclePhaseCounter);
 

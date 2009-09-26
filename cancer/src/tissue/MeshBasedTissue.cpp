@@ -510,7 +510,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
          ++cell_iter)
     {
         // Only bother calculating the cell area if it is apoptotic
-        if (cell_iter->GetCellType() == APOPTOTIC)
+        if (cell_iter->GetCellProliferativeType() == APOPTOTIC)
         {
             unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
             double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);

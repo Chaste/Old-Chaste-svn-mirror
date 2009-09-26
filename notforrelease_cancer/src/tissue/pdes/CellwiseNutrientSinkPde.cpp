@@ -53,7 +53,7 @@ template<unsigned DIM>
 double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
 {
     TissueCell& r_cell = mrTissue.rGetCellUsingLocationIndex(rNode.GetIndex());
-    if (r_cell.GetCellType()!=APOPTOTIC)
+    if (r_cell.GetCellProliferativeType() != APOPTOTIC)
     {
         return -mCoefficient;
     }

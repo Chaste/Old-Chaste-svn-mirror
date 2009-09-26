@@ -56,7 +56,7 @@ private:
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
 
-        archive & mUseCellTypeDependentG1Duration;
+        archive & mUseCellProliferativeTypeDependentG1Duration;
         archive & mDimension;
     }
 
@@ -64,7 +64,7 @@ private:
      * Whether to use different mean G1 durations for different cell types.
      * For use in SetG1Duration().
      */
-    bool mUseCellTypeDependentG1Duration;
+    bool mUseCellProliferativeTypeDependentG1Duration;
 
     /**
      * The spatial dimension (needed by the templated class WntConcentration).
@@ -102,9 +102,9 @@ public:
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called.
      *
      * @param dimension the spatial dimension (needed by the templated class WntConcentration)
-     * @param useCellTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
+     * @param useCellProliferativeTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
-    SimpleWntCellCycleModel(unsigned dimension, bool useCellTypeDependentG1Duration=false);
+    SimpleWntCellCycleModel(unsigned dimension, bool useCellProliferativeTypeDependentG1Duration=false);
 
     /**
      * Overridden UpdateCellCyclePhase() method.

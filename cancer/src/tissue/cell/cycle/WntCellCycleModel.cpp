@@ -39,7 +39,7 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
 
 
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                     const CellMutationState& rMutationState,
+                                     const CryptCellMutationState& rMutationState,
                                      const unsigned& rDimension)
     : AbstractWntOdeBasedCellCycleModel(rDimension)
 {
@@ -56,13 +56,13 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 }
 
 
-void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
+void WntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
     double beta_catenin_level = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
 
-    CellType cell_type = TRANSIT;
+    CellProliferativeType cell_type = TRANSIT;
 
     // For mitogenic stimulus of 6x10^-4 in Wnt equations
     if (beta_catenin_level < 0.4127)
@@ -70,7 +70,7 @@ void WntCellCycleModel::ChangeCellTypeDueToCurrentBetaCateninLevel()
         cell_type = DIFFERENTIATED;
     }
 
-    mpCell->SetCellType(cell_type);
+    mpCell->SetCellProliferativeType(cell_type);
 }
 
 
@@ -84,7 +84,7 @@ void WntCellCycleModel::Initialise()
     mpOdeSystem = new WntCellCycleOdeSystem(wnt_level, mpCell->GetMutationState());
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 
-    ChangeCellTypeDueToCurrentBetaCateninLevel();
+    ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
 
 
@@ -108,6 +108,6 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
 
     mLastTime = currentTime;// normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
-    UpdateCellType();
+    UpdateCellProliferativeType();
     return msSolver.StoppingEventOccurred();
 }

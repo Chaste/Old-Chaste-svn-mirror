@@ -270,18 +270,18 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
 
 template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResults(unsigned locationIndex,
-                                              std::vector<unsigned>& rCellTypeCounter,
+                                              std::vector<unsigned>& rCellProliferativeTypeCounter,
                                               std::vector<unsigned>& rCellMutationStateCounter,
                                               std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     if (IsGhostNode(locationIndex) == true)
     {
-        *(this->mpVizCellTypesFile) << INVISIBLE_COLOUR << " ";
+        *(this->mpVizCellProliferativeTypesFile) << INVISIBLE_COLOUR << " ";
     }
     else
     {
         AbstractTissue<DIM>::GenerateCellResults(locationIndex,
-                                                 rCellTypeCounter,
+                                                 rCellProliferativeTypeCounter,
                                                  rCellMutationStateCounter,
                                                  rCellCyclePhaseCounter);
     }
@@ -292,22 +292,25 @@ template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles()
 {
     // Set up cell type counter
-    std::vector<unsigned> cell_type_counter(this->mCellTypeCount.size());
-    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
+    unsigned num_cell_types = this->mCellProliferativeTypeCount.size();
+    std::vector<unsigned> cell_type_counter(num_cell_types);
+    for (unsigned i=0; i<num_cell_types; i++)
     {
         cell_type_counter[i] = 0;
     }
 
     // Set up cell mutation state counter
-    std::vector<unsigned> cell_mutation_state_counter(this->mCellMutationStateCount.size());
-    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+    unsigned num_mutation_states = this->mCellMutationStateCount.size();
+    std::vector<unsigned> cell_mutation_state_counter(num_mutation_states);
+    for (unsigned i=0; i<num_mutation_states; i++)
     {
         cell_mutation_state_counter[i] = 0;
     }
 
     // Set up cell cycle phase counter
-    std::vector<unsigned> cell_cycle_phase_counter(5);
-    for (unsigned i=0; i<5; i++)
+    unsigned num_cell_cycle_phases = this->mCellCyclePhaseCount.size();
+    std::vector<unsigned> cell_cycle_phase_counter(num_cell_cycle_phases);
+    for (unsigned i=0; i<num_cell_cycle_phases; i++)
     {
         cell_cycle_phase_counter[i] = 0;
     }

@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTissue.hpp"
 #include "AbstractOdeBasedCellCycleModel.hpp"
-
+#include "Debug.hpp"
 
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
@@ -57,19 +57,14 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
         mCellLocationMap[&(*it)] = index;
     }
 
-    // Initialise cell counts to zero
-    for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
-    {
-        mCellMutationStateCount[i] = 0;
-    }
-    for (unsigned i=0; i<NUM_CELL_TYPES; i++)
-    {
-        mCellTypeCount[i] = 0;
-    }
-    for (unsigned i=0; i<5; i++)
-    {
-        mCellCyclePhaseCount[i] = 0;
-    }
+    // Initialise cell counts
+    /**
+     * \todo remove explicit use of NUM_CRYPT_CELL_MUTATION_STATES, NUM_CELL_PROLIFERATIVE_TYPES
+     *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1138)
+     */    
+    mCellMutationStateCount = std::vector<unsigned>(NUM_CRYPT_CELL_MUTATION_STATES);
+    mCellProliferativeTypeCount = std::vector<unsigned>(NUM_CELL_PROLIFERATIVE_TYPES);
+    mCellCyclePhaseCount = std::vector<unsigned>(NUM_CELL_CYCLE_PHASES);
 }
 
 template<unsigned DIM>
@@ -125,7 +120,7 @@ std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
 }
 
 template<unsigned DIM>
-c_vector<unsigned, NUM_CELL_MUTATION_STATES> AbstractTissue<DIM>::GetCellMutationStateCount()
+const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellMutationStateCount() const
 {
     if (TissueConfig::Instance()->GetOutputCellMutationStates()==false)
     {
@@ -135,17 +130,17 @@ c_vector<unsigned, NUM_CELL_MUTATION_STATES> AbstractTissue<DIM>::GetCellMutatio
 }
 
 template<unsigned DIM>
-c_vector<unsigned, NUM_CELL_TYPES> AbstractTissue<DIM>::GetCellTypeCount()
+const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellProliferativeTypeCount() const
 {
-    if (TissueConfig::Instance()->GetOutputCellTypes()==false)
+    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes()==false)
     {
-        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellTypes(true) before using this function");
+        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellProliferativeTypes(true) before using this function");
     }
-    return mCellTypeCount;
+    return mCellProliferativeTypeCount;
 }
 
 template<unsigned DIM>
-c_vector<unsigned, 5> AbstractTissue<DIM>::GetCellCyclePhaseCount()
+const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellCyclePhaseCount() const
 {
     if (TissueConfig::Instance()->GetOutputCellCyclePhases()==false)
     {
@@ -188,7 +183,7 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
 {
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
-    mpVizCellTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
+    mpVizCellProliferativeTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
 
     if (TissueConfig::Instance()->GetOutputCellAncestors())
     {
@@ -199,9 +194,9 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
         *mpCellMutationStatesFile << "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
     }
-    if (TissueConfig::Instance()->GetOutputCellTypes())
+    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
     {
-        mpCellTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
+        mpCellProliferativeTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
     }
     if (TissueConfig::Instance()->GetOutputCellVariables())
     {
@@ -225,15 +220,15 @@ template<unsigned DIM>
 void AbstractTissue<DIM>::CloseOutputFiles()
 {
     mpVizNodesFile->close();
-    mpVizCellTypesFile->close();
+    mpVizCellProliferativeTypesFile->close();
 
     if (TissueConfig::Instance()->GetOutputCellMutationStates())
     {
         mpCellMutationStatesFile->close();
     }
-    if (TissueConfig::Instance()->GetOutputCellTypes())
+    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
     {
-        mpCellTypesFile->close();
+        mpCellProliferativeTypesFile->close();
     }
     if (TissueConfig::Instance()->GetOutputCellVariables())
     {
@@ -259,7 +254,7 @@ void AbstractTissue<DIM>::CloseOutputFiles()
 
 template<unsigned DIM>
 void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
-                                              std::vector<unsigned>& rCellTypeCounter,
+                                              std::vector<unsigned>& rCellProliferativeTypeCounter,
                                               std::vector<unsigned>& rCellMutationStateCounter,
                                               std::vector<unsigned>& rCellCyclePhaseCounter)
 {
@@ -306,34 +301,34 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     }
 
     // Set colour dependent on cell type
-    switch (p_cell->GetCellType())
+    switch (p_cell->GetCellProliferativeType())
     {
         case STEM:
             colour = STEM_COLOUR;
-            if (TissueConfig::Instance()->GetOutputCellTypes())
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
             {
-                rCellTypeCounter[0]++;
+                rCellProliferativeTypeCounter[0]++;
             }
             break;
         case TRANSIT:
             colour = TRANSIT_COLOUR;
-            if (TissueConfig::Instance()->GetOutputCellTypes())
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
             {
-                rCellTypeCounter[1]++;
+                rCellProliferativeTypeCounter[1]++;
             }
             break;
         case DIFFERENTIATED:
             colour = DIFFERENTIATED_COLOUR;
-            if (TissueConfig::Instance()->GetOutputCellTypes())
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
             {
-                rCellTypeCounter[2]++;
+                rCellProliferativeTypeCounter[2]++;
             }
             break;
         case APOPTOTIC:
             colour = APOPTOSIS_COLOUR;
-            if (TissueConfig::Instance()->GetOutputCellTypes())
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
             {
-                rCellTypeCounter[3]++;
+                rCellProliferativeTypeCounter[3]++;
             }
             break;
         default:
@@ -343,7 +338,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     if (TissueConfig::Instance()->GetOutputCellMutationStates())
     {
         // Set colour dependent on cell mutation state and update rCellMutationStateCounter
-        CellMutationState mutation = p_cell->GetMutationState();
+        CryptCellMutationState mutation = p_cell->GetMutationState();
         switch (mutation)
         {
             case HEALTHY:
@@ -408,15 +403,15 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         *mpCellAgesFile << p_cell->GetAge() << " ";
     }
 
-    *mpVizCellTypesFile << colour << " ";
+    *mpVizCellProliferativeTypesFile << colour << " ";
 }
 
 template<unsigned DIM>
-void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellTypeCounter,
+void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellProliferativeTypeCounter,
                                                   std::vector<unsigned>& rCellMutationStateCounter,
                                                   std::vector<unsigned>& rCellCyclePhaseCounter)
 {
-    *mpVizCellTypesFile << "\n";
+    *mpVizCellProliferativeTypesFile << "\n";
 
     if (TissueConfig::Instance()->GetOutputCellAncestors())
     {
@@ -426,7 +421,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellTy
     // Write cell mutation state data to file if required
     if (TissueConfig::Instance()->GetOutputCellMutationStates())
     {
-        for (unsigned i=0; i<NUM_CELL_MUTATION_STATES; i++)
+        for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
         {
             mCellMutationStateCount[i] = rCellMutationStateCounter[i];
             *mpCellMutationStatesFile << rCellMutationStateCounter[i] << "\t";
@@ -435,14 +430,14 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellTy
     }
 
     // Write cell type data to file if required
-    if (TissueConfig::Instance()->GetOutputCellTypes())
+    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
     {
-        for (unsigned i=0; i<NUM_CELL_TYPES; i++)
+        for (unsigned i=0; i<mCellProliferativeTypeCount.size(); i++)
         {
-            mCellTypeCount[i] = rCellTypeCounter[i];
-            *mpCellTypesFile << rCellTypeCounter[i] << "\t";
+            mCellProliferativeTypeCount[i] = rCellProliferativeTypeCounter[i];
+            *mpCellProliferativeTypesFile << rCellProliferativeTypeCounter[i] << "\t";
         }
-        *mpCellTypesFile << "\n";
+        *mpCellProliferativeTypesFile << "\n";
     }
 
     if (TissueConfig::Instance()->GetOutputCellVariables())
@@ -453,7 +448,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellTy
     // Write cell cycle phase data to file if required
     if (TissueConfig::Instance()->GetOutputCellCyclePhases())
     {
-        for (unsigned i=0; i<5; i++)
+        for (unsigned i=0; i<mCellCyclePhaseCount.size(); i++)
         {
             mCellCyclePhaseCount[i] = rCellCyclePhaseCounter[i];
             *mpCellCyclePhasesFile << rCellCyclePhaseCounter[i] << "\t";
@@ -510,7 +505,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles()
 
     double time = SimulationTime::Instance()->GetTime();
 
-    *mpVizCellTypesFile << time << "\t";
+    *mpVizCellProliferativeTypesFile << time << "\t";
 
     if (TissueConfig::Instance()->GetOutputCellAncestors())
     {
@@ -520,9 +515,9 @@ void AbstractTissue<DIM>::WriteResultsToFiles()
     {
         *mpCellMutationStatesFile << time << "\t";
     }
-    if (TissueConfig::Instance()->GetOutputCellTypes())
+    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
     {
-        *mpCellTypesFile << time << "\t";
+        *mpCellProliferativeTypesFile << time << "\t";
     }
     if (TissueConfig::Instance()->GetOutputCellVariables())
     {

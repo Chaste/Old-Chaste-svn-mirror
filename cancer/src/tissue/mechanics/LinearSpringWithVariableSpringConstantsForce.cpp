@@ -159,12 +159,12 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
     if (mUseApoptoticSprings)
     {
-        if (r_cell_A.GetCellType()==APOPTOTIC || r_cell_B.GetCellType()==APOPTOTIC)
+        if (r_cell_A.GetCellProliferativeType()==APOPTOTIC || r_cell_B.GetCellProliferativeType()==APOPTOTIC)
         {
             double spring_a_stiffness = 2.0*TissueConfig::Instance()->GetSpringStiffness();
             double spring_b_stiffness = 2.0*TissueConfig::Instance()->GetSpringStiffness();
 
-            if (r_cell_A.GetCellType()==APOPTOTIC)
+            if (r_cell_A.GetCellProliferativeType()==APOPTOTIC)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
@@ -175,7 +175,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
                     spring_a_stiffness = TissueConfig::Instance()->GetApoptoticSpringCompressionStiffness();
                 }
             }
-            if (r_cell_B.GetCellType()==APOPTOTIC)
+            if (r_cell_B.GetCellProliferativeType()==APOPTOTIC)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {

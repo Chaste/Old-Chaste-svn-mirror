@@ -41,7 +41,7 @@ void StochasticDivisionRuleCellCycleModel::SetG1Duration()
     TissueConfig* p_params = TissueConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-    switch (mpCell->GetCellType())
+    switch (mpCell->GetCellProliferativeType())
     {
         case STEM:
             mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(), 1.0);
@@ -76,7 +76,7 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
      * AbstractSimpleCellCycleModel::ResetForDivision(), because
      * that method sets the G1 duration based on the cell type.
      */
-    if (mpCell->GetCellType() == STEM)
+    if (mpCell->GetCellProliferativeType() == STEM)
     {
         double test_number = RandomNumberGenerator::Instance()->ranf(); // U(0,1)
         double sym_div_prob = TissueConfig::Instance()->GetSymmetricDivisionProbability();
@@ -90,11 +90,11 @@ void StochasticDivisionRuleCellCycleModel::ResetForDivision()
             // We assign an equal probability to each of these events.
             if (test_number < 0.5*sym_div_prob)
             {
-                mpCell->SetCellType(STEM);
+                mpCell->SetCellProliferativeType(STEM);
             }
             else
             {
-                mpCell->SetCellType(TRANSIT);
+                mpCell->SetCellProliferativeType(TRANSIT);
             }
         }
         else

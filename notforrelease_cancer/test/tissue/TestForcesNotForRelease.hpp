@@ -511,7 +511,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            CellMutationState mutation_state = HEALTHY;
+            CryptCellMutationState mutation_state = HEALTHY;
             if (i==60)
             {
                 mutation_state = APC_TWO_HIT;
@@ -660,7 +660,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.25, 2);
 
         // Set the cell to be necrotic
-        tissue.rGetCellUsingLocationIndex(0).StartApoptosis();//SetCellType(APOPTOTIC);
+        tissue.rGetCellUsingLocationIndex(0).StartApoptosis();//SetCellProliferativeType(APOPTOTIC);
 
         double initial_apoptotic_target_area = tissue.GetTargetAreaOfCell(tissue.rGetCellUsingLocationIndex(0));
 
@@ -723,7 +723,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
-            CellType cell_type = DIFFERENTIATED;
+            CellProliferativeType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());

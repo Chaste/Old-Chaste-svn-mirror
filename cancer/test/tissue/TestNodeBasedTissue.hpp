@@ -527,13 +527,13 @@ public:
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
 
         // For coverage of WriteResultsToFiles()
-        node_based_tissue.rGetCellUsingLocationIndex(0).SetCellType(TRANSIT);
+        node_based_tissue.rGetCellUsingLocationIndex(0).SetCellProliferativeType(TRANSIT);
         node_based_tissue.rGetCellUsingLocationIndex(0).SetMutationState(LABELLED);
-        node_based_tissue.rGetCellUsingLocationIndex(1).SetCellType(DIFFERENTIATED);
+        node_based_tissue.rGetCellUsingLocationIndex(1).SetCellProliferativeType(DIFFERENTIATED);
         node_based_tissue.rGetCellUsingLocationIndex(1).SetMutationState(APC_ONE_HIT);
         node_based_tissue.rGetCellUsingLocationIndex(2).SetMutationState(APC_TWO_HIT);
         node_based_tissue.rGetCellUsingLocationIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
-        node_based_tissue.rGetCellUsingLocationIndex(4).SetCellType(APOPTOTIC);
+        node_based_tissue.rGetCellUsingLocationIndex(4).SetCellProliferativeType(APOPTOTIC);
         node_based_tissue.rGetCellUsingLocationIndex(4).StartApoptosis();
         node_based_tissue.SetCellAncestorsToLocationIndices();
 
@@ -541,7 +541,7 @@ public:
         OutputFileHandler output_file_handler(output_directory, false);
 
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         TissueConfig::Instance()->SetOutputCellCyclePhases(true);
         TissueConfig::Instance()->SetOutputCellAncestors(true);
         TissueConfig::Instance()->SetOutputCellAges(true);
@@ -562,14 +562,17 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cancer/test/data/TestNodeBasedTissueWriters/cellages.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
-        c_vector<unsigned,5> cell_mutation_states = node_based_tissue.GetCellMutationStateCount();
-        for (unsigned i=1; i<NUM_CELL_MUTATION_STATES; i++)
+        std::vector<unsigned> cell_mutation_states = node_based_tissue.rGetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
+         TS_ASSERT_EQUALS(cell_mutation_states[0], 1u);
+        for (unsigned i=1; i<cell_mutation_states.size(); i++)
         {
             TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
         }
 
-        // Test the GetCellTypeCount function
-        c_vector<unsigned,5> cell_types = node_based_tissue.GetCellTypeCount();
+        // Test the GetCellProliferativeTypeCount function
+        std::vector<unsigned> cell_types = node_based_tissue.rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_types.size(), 4u);
         TS_ASSERT_EQUALS(cell_types[0], 2u);
         TS_ASSERT_EQUALS(cell_types[1], 1u);
         TS_ASSERT_EQUALS(cell_types[2], 1u);
@@ -611,7 +614,7 @@ public:
             cells.push_back(cell);
         }
 
-        cells[0].SetCellType(DIFFERENTIATED);
+        cells[0].SetCellProliferativeType(DIFFERENTIATED);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -634,8 +637,8 @@ public:
         node_based_tissue.WriteResultsToFiles();
         node_based_tissue.CloseOutputFiles();
 
-        // Test the GetCellCyclePhaseCount function
-        c_vector<unsigned,5> cell_cycle_phases = node_based_tissue.GetCellCyclePhaseCount();
+        // Test the rGetCellCyclePhaseCount function
+        std::vector<unsigned> cell_cycle_phases = node_based_tissue.rGetCellCyclePhaseCount();
         TS_ASSERT_EQUALS(cell_cycle_phases[0], 1u);
         TS_ASSERT_EQUALS(cell_cycle_phases[1], 3u);
         TS_ASSERT_EQUALS(cell_cycle_phases[2], 0u);

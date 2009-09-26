@@ -156,7 +156,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
-            CellType cell_type = DIFFERENTIATED;
+            CellProliferativeType cell_type = DIFFERENTIATED;
             double birth_time = -1.0;
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -199,7 +199,7 @@ public:
 
         // Set up cell.
         std::vector<TissueCell> cells;
-        CellType cell_type = TRANSIT;
+        CellProliferativeType cell_type = TRANSIT;
         double birth_time = -20.0; // Divides Straight Away
 
         TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -247,7 +247,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
-            CellType cell_type = DIFFERENTIATED;
+            CellProliferativeType cell_type = DIFFERENTIATED;
             double birth_time = 0.0 - elem_index;
 
             // Cell should divide at time t=0.5
@@ -303,7 +303,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
-            CellType cell_type = TRANSIT;
+            CellProliferativeType cell_type = TRANSIT;
 
             double birth_time = - RandomNumberGenerator::Instance()->ranf()*
                                  ( TissueConfig::Instance()->GetTransitCellG1Duration()
@@ -430,7 +430,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned elem_index=0; elem_index<mesh.GetNumElements(); elem_index++)
         {
-            CellType cell_type = DIFFERENTIATED;
+            CellProliferativeType cell_type = DIFFERENTIATED;
             double birth_time = -1.0;
 
             TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());

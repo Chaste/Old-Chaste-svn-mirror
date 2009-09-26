@@ -49,7 +49,7 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(unsig
 
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                                                           const CellMutationState& rMutationState,
+                                                                           const CryptCellMutationState& rMutationState,
                                                                            const unsigned& rDimension)
 {
     mDimension = rDimension;

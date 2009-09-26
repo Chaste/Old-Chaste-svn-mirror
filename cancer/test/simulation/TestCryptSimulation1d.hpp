@@ -190,7 +190,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -330,7 +330,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -421,7 +421,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
@@ -514,7 +514,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CellType cell_type = DIFFERENTIATED;
+            CellProliferativeType cell_type = DIFFERENTIATED;
             unsigned generation = 4;
             double birth_time = 0;
             if (i == 0)
@@ -547,7 +547,7 @@ public:
         // Set up crypt simulation
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         simulator.SetEndTime(40);
 
         // Add sloughing cell killer to simulation
@@ -566,7 +566,8 @@ public:
         TS_ASSERT_EQUALS(num_cells_at_end, 6u);
 
         // Check we have the correct number of each cell type
-        c_vector<unsigned, NUM_CELL_TYPES> cell_type_count = simulator.rGetTissue().GetCellTypeCount();
+        std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_type_count[0], 1u);
         TS_ASSERT_EQUALS(cell_type_count[1], 2u);
         TS_ASSERT_EQUALS(cell_type_count[2], 3u);
@@ -580,15 +581,15 @@ public:
 
             if (fabs(x) < 1e-2)
             {
-                TS_ASSERT_EQUALS(cell_iter->GetCellType(), STEM);
+                TS_ASSERT_EQUALS(cell_iter->GetCellProliferativeType(), STEM);
             }
             else if ( (fabs(x-1) < 1e-2) || (fabs(x-2) < 1e-2) )
             {
-                TS_ASSERT_EQUALS(cell_iter->GetCellType(), TRANSIT);
+                TS_ASSERT_EQUALS(cell_iter->GetCellProliferativeType(), TRANSIT);
             }
             else
             {
-                TS_ASSERT_EQUALS(cell_iter->GetCellType(), DIFFERENTIATED);
+                TS_ASSERT_EQUALS(cell_iter->GetCellProliferativeType(), DIFFERENTIATED);
             }
         }
     }
@@ -652,7 +653,7 @@ public:
         simulator.SetOutputDirectory("Crypt1DWntMatureCells");
         simulator.SetEndTime(0.01);
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellTypes(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
 
         // Run simulation
         simulator.Solve();
@@ -665,14 +666,16 @@ public:
             TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(&(*cell_iter))[0]);
         }
 
-        c_vector<unsigned,5> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().rGetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u);  // No APC two hit, one of all the rest.
         TS_ASSERT_EQUALS(cell_mutation_state_count[4], 1u);
 
-        c_vector<unsigned,5> cell_type_count = simulator.rGetTissue().GetCellTypeCount();
+        std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);
         TS_ASSERT_EQUALS(cell_type_count[1], 4u);
         TS_ASSERT_EQUALS(cell_type_count[2], 0u);
@@ -700,7 +703,7 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellType cell_type;
+            CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)

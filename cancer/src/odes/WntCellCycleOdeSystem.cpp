@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CellMutationState& rMutationState)
+WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CryptCellMutationState& rMutationState)
     : AbstractOdeSystem(9),
       mMutationState(rMutationState)
 {
@@ -78,7 +78,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CellMutation
     }
     else
     {
-        // can't get here until new mutation states are added to CellMutationState
+        // Can't get here until new mutation states are added to CryptCellMutationState
         NEVER_REACHED;
     }
 
@@ -89,7 +89,7 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CellMutation
     SetInitialConditionsComponent(8, wntLevel);
 }
 
-void WntCellCycleOdeSystem::SetMutationState(const CellMutationState& rMutationState)
+void WntCellCycleOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
 {
     mMutationState = rMutationState;
 }
@@ -229,7 +229,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     }
     else
     {
-        // Can't get here until new mutation states are added to CellMutationState
+        // Can't get here until new mutation states are added to CryptCellMutationState
         NEVER_REACHED;
     }
 
@@ -259,7 +259,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     rDY[8] = 0.0; // do not change the Wnt level
 }
 
-CellMutationState& WntCellCycleOdeSystem::rGetMutationState()
+CryptCellMutationState& WntCellCycleOdeSystem::rGetMutationState()
 {
     return mMutationState;
 }

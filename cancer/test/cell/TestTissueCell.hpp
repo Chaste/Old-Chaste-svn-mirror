@@ -116,9 +116,9 @@ public:
         TissueCell other_cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         other_cell.InitialiseCellCycleModel();
 
-        TS_ASSERT_EQUALS(other_cell.GetCellType(), TRANSIT);
+        TS_ASSERT_EQUALS(other_cell.GetCellProliferativeType(), TRANSIT);
         other_cell = stem_cell;
-        TS_ASSERT_EQUALS(other_cell.GetCellType(), STEM);
+        TS_ASSERT_EQUALS(other_cell.GetCellProliferativeType(), STEM);
 
         // Back to the test
         p_simulation_time->IncrementTimeOneStep(); //t=12
@@ -136,7 +136,7 @@ public:
 
         TS_ASSERT(!stem_cell.ReadyToDivide());
         TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(daughter_cell.GetCellCycleModel())->GetGeneration(), 1u);
-        TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
+        TS_ASSERT(daughter_cell.GetCellProliferativeType() == TRANSIT);
         TS_ASSERT_DELTA(daughter_cell.GetAge(), 0, 1e-9);
 
         p_simulation_time->IncrementTimeOneStep(); //t=36
@@ -234,19 +234,19 @@ public:
                 {
                     TissueCell new_cell = cell_iterator->Divide();
                     TS_ASSERT_DELTA(cell_iterator->GetAge(), 0, 1e-9);
-                    if (cell_iterator->GetCellType()==STEM)
+                    if (cell_iterator->GetCellProliferativeType()==STEM)
                     {
-                        TS_ASSERT_EQUALS(new_cell.GetCellType(), TRANSIT);
+                        TS_ASSERT_EQUALS(new_cell.GetCellProliferativeType(), TRANSIT);
                         TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell_iterator->GetCellCycleModel())->GetGeneration(), 0u);
                     }
-                    else if (cell_iterator->GetCellType()==TRANSIT)
+                    else if (cell_iterator->GetCellProliferativeType()==TRANSIT)
                     {
-                        TS_ASSERT_EQUALS(new_cell.GetCellType(), TRANSIT);
+                        TS_ASSERT_EQUALS(new_cell.GetCellProliferativeType(), TRANSIT);
                         TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell_iterator->GetCellCycleModel())->GetGeneration(), generation);
                     }
                     else
                     {
-                        TS_ASSERT_EQUALS(new_cell.GetCellType(), DIFFERENTIATED);
+                        TS_ASSERT_EQUALS(new_cell.GetCellProliferativeType(), DIFFERENTIATED);
                         TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell_iterator->GetCellCycleModel())->GetGeneration(), generation);
                     }
 
@@ -273,16 +273,16 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_EQUALS(cells[i].GetCellType(), DIFFERENTIATED);
+            TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), DIFFERENTIATED);
         }
     }
 
 
     /*
-     * ReadyToDivide() now calls UpdateCellType() where appropriate.
+     * ReadyToDivide() now calls UpdateCellProliferativeType() where appropriate.
      * (at the moment in Wnt-dependent cells).
      */
-    void TestUpdateCellTypes() throw (Exception)
+    void TestUpdateCellProliferativeTypes() throw (Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
@@ -291,28 +291,28 @@ public:
         stem_cell.InitialiseCellCycleModel();
         stem_cell.ReadyToDivide();
 
-        TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(),STEM);
 
-        stem_cell.SetCellType(TRANSIT);
+        stem_cell.SetCellProliferativeType(TRANSIT);
 
         stem_cell.ReadyToDivide();
 
-        TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(),TRANSIT);
 
         // Test a Wnt dependent cell
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(0.0);
 
         TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel(2));
 
-        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
+        TS_ASSERT_EQUALS(wnt_cell.GetCellProliferativeType(),TRANSIT);
 
         wnt_cell.InitialiseCellCycleModel();
 
-        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
+        TS_ASSERT_EQUALS(wnt_cell.GetCellProliferativeType(),DIFFERENTIATED);
 
         wnt_cell.ReadyToDivide();
 
-        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
+        TS_ASSERT_EQUALS(wnt_cell.GetCellProliferativeType(),DIFFERENTIATED);
 
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
@@ -324,7 +324,7 @@ public:
 
         wnt_cell.ReadyToDivide();
 
-        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
+        TS_ASSERT_EQUALS(wnt_cell.GetCellProliferativeType(),TRANSIT);
 
         WntConcentration<2>::Destroy();
     }
@@ -379,7 +379,7 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-                switch (cell_iterator->GetCellType())
+                switch (cell_iterator->GetCellProliferativeType())
                 {
                     case STEM:
                         stem_cells[i]++;
@@ -585,7 +585,7 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-                switch (cell_iterator->GetCellType())
+                switch (cell_iterator->GetCellProliferativeType())
                 {
                     case STEM:
                         stem_cells[simulation_number]++;
@@ -667,7 +667,7 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-                CellMutationState this_cell_state;
+                CryptCellMutationState this_cell_state;
                 this_cell_state = cell_iterator->GetMutationState();
                 TS_ASSERT(this_cell_state==HEALTHY);
                 if (cell_iterator->ReadyToDivide())
@@ -693,7 +693,7 @@ public:
             differentiated_cells[i] = 0;
             while (cell_iterator < cells.end())
             {
-                switch (cell_iterator->GetCellType())
+                switch (cell_iterator->GetCellProliferativeType())
                 {
                     case STEM:
                         stem_cells[i]++;
@@ -1084,7 +1084,7 @@ public:
             {
                 if (!cell_iterator->IsDead())
                 {
-                    switch (cell_iterator->GetCellType())
+                    switch (cell_iterator->GetCellProliferativeType())
                     {
                         case STEM:
                             stem_cells[i]++;
@@ -1167,7 +1167,7 @@ public:
 
             TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
             TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_stem_cell->GetCellCycleModel())->GetGeneration(), 0u);
-            TS_ASSERT_EQUALS(p_stem_cell->GetCellType(), STEM);
+            TS_ASSERT_EQUALS(p_stem_cell->GetCellProliferativeType(), STEM);
 
             AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();
 

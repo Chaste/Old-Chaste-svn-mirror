@@ -90,7 +90,7 @@ private:
         TS_ASSERT_EQUALS(p_inst->GetOutputCellIdData(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellMutationStates(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellAncestors(), false);
-        TS_ASSERT_EQUALS(p_inst->GetOutputCellTypes(), false);
+        TS_ASSERT_EQUALS(p_inst->GetOutputCellProliferativeTypes(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellVariables(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellCyclePhases(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellAges(), false);
@@ -144,7 +144,7 @@ public:
         p_inst->SetOutputCellIdData(true);
         p_inst->SetOutputCellMutationStates(true);
         p_inst->SetOutputCellAncestors(true);
-        p_inst->SetOutputCellTypes(true);
+        p_inst->SetOutputCellProliferativeTypes(true);
         p_inst->SetOutputCellVariables(true);
         p_inst->SetOutputCellCyclePhases(true);
         p_inst->SetOutputCellAges(true);
@@ -197,7 +197,7 @@ public:
         p_inst1->SetOutputCellIdData(true);
         p_inst1->SetOutputCellMutationStates(true);
         p_inst1->SetOutputCellAncestors(true);
-        p_inst1->SetOutputCellTypes(true);
+        p_inst1->SetOutputCellProliferativeTypes(true);
         p_inst1->SetOutputCellVariables(true);
         p_inst1->SetOutputCellCyclePhases(true);
         p_inst1->SetOutputCellAges(true);
@@ -243,7 +243,7 @@ public:
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellIdData(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellMutationStates(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAncestors(), true);
-        TS_ASSERT_EQUALS(p_inst2->GetOutputCellTypes(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellProliferativeTypes(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellVariables(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellCyclePhases(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAges(), true);
@@ -298,7 +298,7 @@ public:
             p_inst1->SetOutputCellIdData(true);
             p_inst1->SetOutputCellMutationStates(true);
             p_inst1->SetOutputCellAncestors(true);
-            p_inst1->SetOutputCellTypes(true);
+            p_inst1->SetOutputCellProliferativeTypes(true);
             p_inst1->SetOutputCellVariables(true);
             p_inst1->SetOutputCellCyclePhases(true);
             p_inst1->SetOutputCellAges(true);
@@ -354,7 +354,7 @@ public:
             p_inst1->SetOutputCellIdData(false);
             p_inst1->SetOutputCellMutationStates(false);
             p_inst1->SetOutputCellAncestors(false);
-            p_inst1->SetOutputCellTypes(false);
+            p_inst1->SetOutputCellProliferativeTypes(false);
             p_inst1->SetOutputCellVariables(false);
             p_inst1->SetOutputCellCyclePhases(false);
             p_inst1->SetOutputCellAges(false);
@@ -406,7 +406,7 @@ public:
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellIdData(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellMutationStates(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellAncestors(), true);
-            TS_ASSERT_EQUALS(p_inst1->GetOutputCellTypes(), true);
+            TS_ASSERT_EQUALS(p_inst1->GetOutputCellProliferativeTypes(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellVariables(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellCyclePhases(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellAges(), true);

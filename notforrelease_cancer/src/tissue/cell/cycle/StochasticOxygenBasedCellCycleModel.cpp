@@ -99,7 +99,7 @@ void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
     // mG1Duration is set when the cell cycle model is given a cell
 
-    if (mpCell->GetCellType()!=APOPTOTIC)
+    if (mpCell->GetCellProliferativeType()!=APOPTOTIC)
     {
         UpdateHypoxicDuration();
 
@@ -153,7 +153,7 @@ AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleMode
 
 void StochasticOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
-    assert(mpCell->GetCellType()!=APOPTOTIC);
+    assert(mpCell->GetCellProliferativeType()!=APOPTOTIC);
     assert(!mpCell->HasApoptosisBegun());
 
     // Get cell's oxygen concentration
@@ -193,7 +193,7 @@ void StochasticOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
         if (mCurrentHypoxicDuration > TissueConfig::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
-            mpCell->SetCellType(APOPTOTIC);
+            mpCell->SetCellProliferativeType(APOPTOTIC);
         }
     }
     else

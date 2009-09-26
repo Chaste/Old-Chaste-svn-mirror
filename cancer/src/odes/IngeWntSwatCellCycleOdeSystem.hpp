@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "AbstractOdeSystem.hpp"
-#include "CellMutationStates.hpp"
+#include "CryptCellMutationStates.hpp"
 
 /**
  * Represents the van Leeuwen et al. (2007) system of ODEs
@@ -179,7 +179,7 @@ private:
     /**
      * The mutation state of the cell
      */
-    CellMutationState mMutationState;
+    CryptCellMutationState mMutationState;
 
     /**
      * The hypothesis we are using
@@ -197,7 +197,7 @@ public:
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
      * @param rMutationState affects the ODE system and is given by CryptCellMutationStates.hpp
      */
-    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel = 0.0, const CellMutationState& rMutationState = HEALTHY);
+    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel = 0.0, const CryptCellMutationState& rMutationState = HEALTHY);
 
     /**
      * Destructor.
@@ -217,7 +217,7 @@ public:
      *
      * @param rMutationState the mutation state.
      */
-    void SetMutationState(const CellMutationState& rMutationState);
+    void SetMutationState(const CryptCellMutationState& rMutationState);
 
     /**
      * Called by the archive function on the Wnt cell cycle model.
@@ -225,7 +225,7 @@ public:
      * @return mMutationState the mutation state of the cell defined by
      * CryptCellMutationStates.hpp
      */
-    CellMutationState& rGetMutationState();
+    CryptCellMutationState& rGetMutationState();
 
     /**
      * Compute the RHS of the system of ODEs.

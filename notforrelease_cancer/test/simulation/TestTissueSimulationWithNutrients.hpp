@@ -323,7 +323,7 @@ public:
             double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );
             if (dist_from_centre < 1.5)
             {
-                cell.SetCellType(APOPTOTIC);
+                cell.SetCellProliferativeType(APOPTOTIC);
             }
 
             cells.push_back(cell);
@@ -400,7 +400,7 @@ public:
             // Label three neighbouring cells as apoptotic
             if (i==12 || i==13 || i==17)
             {
-                cell.SetCellType(APOPTOTIC);
+                cell.SetCellProliferativeType(APOPTOTIC);
             }
             cells.push_back(cell);
         }
@@ -447,7 +447,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            if (cell_iter->GetCellType()==APOPTOTIC)
+            if (cell_iter->GetCellProliferativeType()==APOPTOTIC)
             {
                 num_apoptotic_cells++;
             }

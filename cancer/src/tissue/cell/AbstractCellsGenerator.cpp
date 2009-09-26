@@ -66,7 +66,7 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
 
     for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
-        CellType cell_type;
+        CellProliferativeType cell_type;
         unsigned generation;
 
         double y = 0.0;

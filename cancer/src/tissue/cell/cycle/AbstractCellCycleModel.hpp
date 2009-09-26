@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-#include "CellTypes.hpp"
+#include "CellProliferativeTypes.hpp"
 #include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
 #include "TissueConfig.hpp"

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "CellMutationStates.hpp"
+#include "CryptCellMutationStates.hpp"
 
 
 class TestWntCellCycleOdeSystem : public CxxTest::TestSuite
@@ -96,7 +96,7 @@ public:
          * A test for the case mutation = 1
          * (An APC +/- mutation)
          */
-        CellMutationState mutation = APC_ONE_HIT;
+        CryptCellMutationState mutation = APC_ONE_HIT;
         wnt_level = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system3(wnt_level,mutation);
         initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
