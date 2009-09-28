@@ -10,6 +10,7 @@ mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestCardiacSimulationArchiver.hpp
 TestCardiacUneven.hpp
 postprocessing/TestCellProperties.hpp
+postprocessing/TestPseudoEcgCalculator.hpp
 TestConductivityTensors.hpp
 convergence/TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
