@@ -1181,7 +1181,7 @@ void HeartConfig::SetSaveSimulation(bool saveSimulation)
     if (saveSimulation)
     {
         /// \todo: find a way of defining an empty element, so we don't have to pass a simulation_type::SaveSimulation_type object here.
-        mpUserParameters->Simulation().get().SaveSimulation().set(simulation_type::SaveSimulation_type(""));
+        mpUserParameters->Simulation().get().SaveSimulation().set(simulation_type::XSD_NESTED_TYPE(SaveSimulation)(""));
     }
     else
     {
