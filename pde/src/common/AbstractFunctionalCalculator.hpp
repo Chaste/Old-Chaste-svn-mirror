@@ -110,7 +110,8 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
     /// no curvilinear bases were used for position
     /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method.
     double jacobian_determinant;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian, inverse_jacobian;
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
+    c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
     rElement.CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
 
     const unsigned num_nodes = rElement.GetNumNodes();
