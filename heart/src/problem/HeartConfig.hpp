@@ -505,7 +505,7 @@ public:
     /**
      * Set whether the simulation should be archived or not
      * 
-     * @saveSimulation archive simulation
+     * @param saveSimulation archive simulation
      */
      void SetSaveSimulation(bool saveSimulation);
 
@@ -671,7 +671,7 @@ private:
     TYPE* DecideLocation(TYPE* params_ptr, TYPE* defaults_ptr, const std::string& nameParameter) const;
 
     /**
-     * CheckSimulationIsDefined is a convience method for checking if the <Simulation> element
+     * CheckSimulationIsDefined is a convience method for checking if the "<"Simulation">" element
      * has been defined and therefore is safe to use the Simulation().get() pointer to access
      * other data.
      * 
