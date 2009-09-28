@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestPseudoEcgCalculator : public CxxTest::TestSuite
 {

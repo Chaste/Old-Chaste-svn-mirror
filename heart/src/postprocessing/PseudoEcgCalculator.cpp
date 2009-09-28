@@ -27,10 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PseudoEcgCalculator.hpp"
-#include "Hdf5DataReader.hpp"
-#include "DistributedVectorFactory.hpp"
 #include "PetscTools.hpp"
-#include "PetscSetupAndFinalize.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(ChastePoint<SPACE_DIM>& rX,
