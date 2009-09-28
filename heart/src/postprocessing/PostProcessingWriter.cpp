@@ -131,7 +131,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
             }
             catch(Exception& e)
             {
-                assert(e.GetShortMessage()=="No full action potential was recorded");
+                assert(e.GetShortMessage()=="No full action potential was recorded" || "No upstroke occurred");
                 apds.push_back(0);
                 assert(apds.size() == 1);
             }
