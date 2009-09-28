@@ -82,7 +82,7 @@ private:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS(node_based_tissue.GetLocationIndexUsingCell(&(*cell_iter)), counter);
+            TS_ASSERT_EQUALS(node_based_tissue.GetLocationIndexUsingCell(*cell_iter), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -256,11 +256,11 @@ public:
         // Test SetNode() by moving node 0 by a small amount
 
         AbstractTissue<2>::Iterator cell_iter = node_based_tissue.Begin();
-        c_vector<double,2> new_location = node_based_tissue.GetLocationOfCellCentre(&(*cell_iter));
+        c_vector<double,2> new_location = node_based_tissue.GetLocationOfCellCentre(*cell_iter);
         new_location[0] += 1e-2;
         new_location[1] += 1e-2;
         ChastePoint<2> new_location_point(new_location);
-        node_based_tissue.SetNode(node_based_tissue.GetLocationIndexUsingCell(&(*cell_iter)), new_location_point);
+        node_based_tissue.SetNode(node_based_tissue.GetLocationIndexUsingCell(*cell_iter), new_location_point);
 
         TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[0], new_location[0], 1e-12);
         TS_ASSERT_DELTA(node_based_tissue.GetNode(0)->rGetLocation()[1], new_location[1], 1e-12);
@@ -328,7 +328,7 @@ public:
 
         // Check the index of the new cell
         TissueCell& new_cell = node_based_tissue.rGetCells().back();
-        TS_ASSERT_EQUALS(node_based_tissue.GetLocationIndexUsingCell(&new_cell), old_num_nodes);
+        TS_ASSERT_EQUALS(node_based_tissue.GetLocationIndexUsingCell(new_cell), old_num_nodes);
     }
 
     void TestRemoveDeadCellsAndUpdate()
@@ -374,7 +374,7 @@ public:
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(node_based_tissue.GetLocationIndexUsingCell(&(*cell_iter)), index);
+            TS_ASSERT_EQUALS(node_based_tissue.GetLocationIndexUsingCell(*cell_iter), index);
             index++;
         }
     }
@@ -463,7 +463,7 @@ public:
              cell_iter != node_based_tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), node_based_tissue.GetLocationIndexUsingCell(&(*cell_iter)));
+            TS_ASSERT_EQUALS(cell_iter->GetAncestor(), node_based_tissue.GetLocationIndexUsingCell(*cell_iter));
             counter ++;
         }
         TS_ASSERT_EQUALS(counter, 5u);
@@ -504,11 +504,11 @@ public:
              ++cell_iter)
         {
             // Record node location
-            c_vector<double, 2> node_location = node_based_tissue.GetLocationOfCellCentre(&(*cell_iter));
+            c_vector<double, 2> node_location = node_based_tissue.GetLocationOfCellCentre(*cell_iter);
 
             // Test GetLocationOfCellCentre()
-            TS_ASSERT_DELTA(node_location[0], node_based_tissue.GetLocationOfCellCentre(&(*cell_iter))[0], 1e-9);
-            TS_ASSERT_DELTA(node_location[1], node_based_tissue.GetLocationOfCellCentre(&(*cell_iter))[1], 1e-9);
+            TS_ASSERT_DELTA(node_location[0], node_based_tissue.GetLocationOfCellCentre(*cell_iter)[0], 1e-9);
+            TS_ASSERT_DELTA(node_location[1], node_based_tissue.GetLocationOfCellCentre(*cell_iter)[1], 1e-9);
         }
     }
 

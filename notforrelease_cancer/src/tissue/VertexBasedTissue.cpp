@@ -156,9 +156,9 @@ unsigned VertexBasedTissue<DIM>::GetNumNodes()
 
 
 template<unsigned DIM>
-c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell* pCell)
+c_vector<double, DIM> VertexBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell& rCell)
 {
-    return mrMesh.GetCentroidOfElement(this->mCellLocationMap[pCell]);
+    return mrMesh.GetCentroidOfElement(this->mCellLocationMap[&rCell]);
 }
 
 
@@ -184,9 +184,9 @@ void VertexBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewL
 
 
 template<unsigned DIM>
-VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElementCorrespondingToCell(TissueCell* pCell)
+VertexElement<DIM, DIM>* VertexBasedTissue<DIM>::GetElementCorrespondingToCell(TissueCell& rCell)
 {
-    return mrMesh.GetElement(this->mCellLocationMap[pCell]);
+    return mrMesh.GetElement(this->mCellLocationMap[&rCell]);
 }
 
 
@@ -201,7 +201,7 @@ template<unsigned DIM>
 TissueCell* VertexBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_vector<double,DIM> cellDivisionVector, TissueCell* pParentCell)
 {
     // Get the element associated with this cell
-    VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(pParentCell);
+    VertexElement<DIM, DIM>* p_element = GetElementCorrespondingToCell(*pParentCell);
 
     // Divide the element
     unsigned new_element_index;
@@ -273,7 +273,7 @@ void VertexBasedTissue<DIM>::UpdateNodeLocations(const std::vector< c_vector<dou
 template<unsigned DIM>
 bool VertexBasedTissue<DIM>::IsCellAssociatedWithADeletedLocation(TissueCell& rCell)
 {
-    return GetElementCorrespondingToCell(&rCell)->IsDeleted();;
+    return GetElementCorrespondingToCell(rCell)->IsDeleted();;
 }
 
 
@@ -319,7 +319,7 @@ void VertexBasedTissue<DIM>::Validate()
          cell_iter != this->End();
          ++cell_iter)
     {
-        unsigned elem_index = GetLocationIndexUsingCell(&(*cell_iter));
+        unsigned elem_index = GetLocationIndexUsingCell(*cell_iter);
         validated_element[elem_index] = true;
     }
 
@@ -396,7 +396,7 @@ void VertexBasedTissue<DIM>::WriteResultsToFiles()
          cell_iter != this->mCells.end();
          ++cell_iter)
     {
-        unsigned elem_index = this->GetLocationIndexUsingCell(&(*cell_iter));
+        unsigned elem_index = this->GetLocationIndexUsingCell(*cell_iter);
 
         // First write the number of Nodes belonging to this VertexElement
         *mpElementFile <<  mrMesh.GetElement(elem_index)->GetNumNodes() << " ";
@@ -496,7 +496,7 @@ void VertexBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
          cell_iter != this->End();
          ++cell_iter)
     {
-        this->GenerateCellResults(this->GetLocationIndexUsingCell(&(*cell_iter)),
+        this->GenerateCellResults(this->GetLocationIndexUsingCell(*cell_iter),
                                   cell_type_counter,
                                   cell_mutation_state_counter,
                                   cell_cycle_phase_counter);

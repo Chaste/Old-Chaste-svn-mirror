@@ -576,7 +576,7 @@ public:
              cell_iter != simulator.rGetTissue().End();
              ++cell_iter)
         {
-            c_vector<double, 1> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(&(*cell_iter));
+            c_vector<double, 1> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(*cell_iter);
             double x = cell_location[0];
 
             if (fabs(x) < 1e-2)
@@ -663,7 +663,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(&(*cell_iter))[0]);
+            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(*cell_iter)[0]);
         }
 
         std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().rGetCellMutationStateCount();

@@ -102,8 +102,8 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
-            double x = tissue.GetLocationOfCellCentre(&(*cell_iter))[0];
+            unsigned index = tissue.GetLocationIndexUsingCell(*cell_iter);
+            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
             double c = x/50;
             double norm_grad_c = 1.0/50.0;
             double force_magnitude = chemotactic_force.GetChemotacticForceMagnitude(c, norm_grad_c);
@@ -428,7 +428,7 @@ public:
         c_vector<double,2> new_force = new_node_forces[11];
 
         double wnt_chemotaxis_strength = TissueConfig::Instance()->GetWntChemotaxisStrength();
-        c_vector<double,2> wnt_component = wnt_chemotaxis_strength*WntConcentration<2>::Instance()->GetWntGradient(&(cells[11]));
+        c_vector<double,2> wnt_component = wnt_chemotaxis_strength*WntConcentration<2>::Instance()->GetWntGradient(cells[11]);
 
         TS_ASSERT_DELTA(new_force[0], old_force[0]+wnt_component[0], 1e-4);
         TS_ASSERT_DELTA(new_force[1], old_force[1]+wnt_component[1], 1e-4);
@@ -557,7 +557,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned node_index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
 
             TS_ASSERT_DELTA(node_forces[node_index][0], 0.0, 1e-4);
             TS_ASSERT_DELTA(node_forces[node_index][1], 0.0, 1e-4);

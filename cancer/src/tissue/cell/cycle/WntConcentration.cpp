@@ -74,7 +74,7 @@ void WntConcentration<DIM>::Destroy()
 
 
 template<unsigned DIM>
-double WntConcentration<DIM>::GetWntLevel(TissueCell* pCell)
+double WntConcentration<DIM>::GetWntLevel(TissueCell& rCell)
 {
     if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
@@ -83,7 +83,6 @@ double WntConcentration<DIM>::GetWntLevel(TissueCell* pCell)
 
     assert(mpTissue!=NULL);
     assert(mTypeSet);
-    assert(pCell!=NULL);
 
     double height;
 
@@ -91,18 +90,18 @@ double WntConcentration<DIM>::GetWntLevel(TissueCell* pCell)
     {
         double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
         double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
-        height = a*pow(norm_2(mpTissue->GetLocationOfCellCentre(pCell)), b);
+        height = a*pow(norm_2(mpTissue->GetLocationOfCellCentre(rCell)), b);
     }
     else
     {
-        height = mpTissue->GetLocationOfCellCentre(pCell)[DIM-1];
+        height = mpTissue->GetLocationOfCellCentre(rCell)[DIM-1];
     }
     return GetWntLevel(height);
 }
 
 
 template<unsigned DIM>
-c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCell* pCell)
+c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCell& rCell)
 {
     if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
@@ -110,9 +109,8 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCell* pCell)
     }
     assert(mpTissue!=NULL);
     assert(mTypeSet);
-    assert(pCell!=NULL);
 
-    c_vector<double, DIM> location_of_cell = mpTissue->GetLocationOfCellCentre(pCell);
+    c_vector<double, DIM> location_of_cell = mpTissue->GetLocationOfCellCentre(rCell);
 
     return GetWntGradient(location_of_cell);
 }

@@ -80,9 +80,9 @@ private :
      * then used by the VertexBasedTissue method AddCell() as the axis along
      * which the cell divides.
      *
-     * @param pParentCell pointer to the parent cell
+     * @param rParentCell the parent cell
      */
-    c_vector<double, 2> CalculateCellDivisionVector(TissueCell* pParentCell);
+    c_vector<double, 2> CalculateCellDivisionVector(TissueCell& rParentCell);
 
 public :
 

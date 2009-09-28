@@ -44,10 +44,10 @@ CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
 }
 
 
-c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCell* pParentCell)
+c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCell& rParentCell)
 {
     // Location of parent and daughter cells
-    c_vector<double, 1> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
+    c_vector<double, 1> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(rParentCell);
     c_vector<double, 1> daughter_coords;
 
     // Get separation parameter
@@ -92,7 +92,7 @@ c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCell* p
     // Set the parent to use this location
     ChastePoint<1> parent_coords_point(parent_coords);
 
-    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(pParentCell);
+    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(rParentCell);
     mrTissue.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
@@ -114,10 +114,10 @@ void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
+        unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(*cell_iter);
 
         // Get pointer to this node
-        Node<1>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
+        Node<1>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter);
 
         if (!is_wnt_included)
         {

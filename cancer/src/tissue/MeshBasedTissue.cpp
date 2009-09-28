@@ -158,7 +158,7 @@ void MeshBasedTissue<DIM>::Validate()
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = GetLocationIndexUsingCell(&(*cell_iter));
+        unsigned node_index = GetLocationIndexUsingCell(*cell_iter);
         validated_node[node_index] = true;
     }
 
@@ -283,8 +283,8 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         assert(r_pair.size() == 2);
         TissueCell* p_cell_1 = *(r_pair.begin());
         TissueCell* p_cell_2 = *(++r_pair.begin());
-        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(p_cell_1);
-        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(p_cell_2);
+        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(*p_cell_1);
+        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(*p_cell_2);
 
         bool joined = false;
 
@@ -479,8 +479,8 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
          ++cell_iter)
     {
         unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-        double x = this->GetLocationOfCellCentre(&(*cell_iter))[0];
-        double y = this->GetLocationOfCellCentre(&(*cell_iter))[1];
+        double x = this->GetLocationOfCellCentre(*cell_iter)[0];
+        double y = this->GetLocationOfCellCentre(*cell_iter)[1];
 
         double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
         double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);
@@ -539,7 +539,7 @@ void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
         *mpCellAreasFile << cell_index << " ";
 
         // Write cell location
-        c_vector<double, DIM> cell_location = this->GetLocationOfCellCentre(&(*cell_iter));
+        c_vector<double, DIM> cell_location = this->GetLocationOfCellCentre(*cell_iter);
         for (unsigned i=0; i<DIM; i++)
         {
             *mpCellAreasFile << cell_location[i] << " ";

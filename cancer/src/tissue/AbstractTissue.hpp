@@ -176,11 +176,11 @@ public:
     /**
      * Find where a given cell is in space.
      *
-     * @param pCell pointer to the cell
+     * @param rCell the cell
      *
      * @return the location of the cell
      */
-    virtual c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell)=0;
+    virtual c_vector<double, DIM> GetLocationOfCellCentre(TissueCell& rCell)=0;
 
     /**
      * As this method is pure virtual, it must be overridden
@@ -367,11 +367,11 @@ public:
      * Currently assumes there is one cell for each location index, and they are ordered identically in their vectors.
      * An assertion fails if not.
      *
-     * @param pCell the cell
+     * @param rCell the cell
      *
      * @return the location index.
      */
-    unsigned GetLocationIndexUsingCell(TissueCell* pCell);
+    unsigned GetLocationIndexUsingCell(TissueCell& rCell);
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.

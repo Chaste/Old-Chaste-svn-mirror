@@ -317,7 +317,7 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model4, new_g1_duration);
         }
 
-        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(&cell4), wnt_level, 1e-12);
+        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(cell4), wnt_level, 1e-12);
         TS_ASSERT_EQUALS(cell4.GetCellProliferativeType(), TRANSIT);
         TS_ASSERT_EQUALS(cell5.GetCellProliferativeType(), TRANSIT);
 

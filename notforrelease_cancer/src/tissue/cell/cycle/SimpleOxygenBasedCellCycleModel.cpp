@@ -64,19 +64,19 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
             case 1:
             {
                 const unsigned DIM = 1;
-                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
                 break;
             }
             case 2:
             {
                 const unsigned DIM = 2;
-                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
                 break;
             }
             case 3:
             {
                 const unsigned DIM = 3;
-                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+                oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
                 break;
             }
 
@@ -119,19 +119,19 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         case 1:
         {
             const unsigned DIM = 1;
-            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
             break;
         }
         case 2:
         {
             const unsigned DIM = 2;
-            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
             break;
         }
         case 3:
         {
             const unsigned DIM = 3;
-            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            oxygen_concentration = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
             break;
         }
         default:

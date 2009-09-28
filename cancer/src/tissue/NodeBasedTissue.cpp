@@ -304,7 +304,7 @@ unsigned NodeBasedTissue<DIM>::RemoveDeadCells()
         {
             // Remove the node
             num_removed++;
-            this->GetNodeCorrespondingToCell(&(*cell_iter))->MarkAsDeleted();
+            this->GetNodeCorrespondingToCell(*cell_iter)->MarkAsDeleted();
             mDeletedNodeIndices.push_back( this->mCellLocationMap[&(*cell_iter)] );
             cell_iter = this->mCells.erase(cell_iter);
             --cell_iter;

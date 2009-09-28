@@ -101,7 +101,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned node_index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
 
             TS_ASSERT_DELTA(node_forces[node_index][0], 0.0, 1e-4);
             TS_ASSERT_DELTA(node_forces[node_index][1], 0.0, 1e-4);

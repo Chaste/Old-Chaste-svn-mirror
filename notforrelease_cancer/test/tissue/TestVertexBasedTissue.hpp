@@ -91,7 +91,7 @@ public:
              ++cell_iter)
         {
             // Test operator* and that cells are in sync
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&(*cell_iter)), counter);
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(*cell_iter), counter);
 
             // Test operator-> and that cells are in sync
             TS_ASSERT_DELTA(cell_iter->GetAge(), (double)counter, 1e-12);
@@ -162,7 +162,7 @@ public:
             std::set<unsigned> actual_node_indices;
             unsigned elem_index = iter->GetIndex();
             TissueCell& r_cell = tissue.rGetCellUsingLocationIndex(elem_index);
-            VertexElement<2,2>* p_actual_element = tissue.GetElementCorrespondingToCell(&r_cell);
+            VertexElement<2,2>* p_actual_element = tissue.GetElementCorrespondingToCell(r_cell);
             unsigned actual_index = p_actual_element->GetIndex();
 
             for (unsigned i=0; i<p_actual_element->GetNumNodes(); i++)
@@ -417,12 +417,12 @@ public:
         // For coverage, test GetLocationOfCellCentre()
 
         // Cell 0 is a rectangle with centre of mass (0,0)
-        c_vector<double, 2> cell0_location = tissue.GetLocationOfCellCentre(&(tissue.rGetCellUsingLocationIndex(0)));
+        c_vector<double, 2> cell0_location = tissue.GetLocationOfCellCentre(tissue.rGetCellUsingLocationIndex(0));
         TS_ASSERT_DELTA(cell0_location[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(cell0_location[1], 0.0, 1e-4);
 
         // Cell 1 is a triangle with centre of mass (0,4/3)
-        c_vector<double, 2> cell1_location = tissue.GetLocationOfCellCentre(&(tissue.rGetCellUsingLocationIndex(1)));
+        c_vector<double, 2> cell1_location = tissue.GetLocationOfCellCentre(tissue.rGetCellUsingLocationIndex(1));
         TS_ASSERT_DELTA(cell1_location[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(cell1_location[1], 4.0/3.0, 1e-4);
 
@@ -489,7 +489,7 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
 
         // Check the index of the new cell
-        TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(p_new_cell), old_num_elements);
+        TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(*p_new_cell), old_num_elements);
     }
 
 
@@ -560,7 +560,7 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNode(5)->rGetContainingElementIndices(), expected_elements_containing_node_5);
 
         // Check the index of the new cell
-        TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(p_new_cell), 1u);
+        TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(*p_new_cell), 1u);
     }
 
     void TestAddCellWithHoneycombMesh() throw (Exception)
@@ -709,7 +709,7 @@ public:
         {
             bool is_deleted = tissue.IsCellAssociatedWithADeletedLocation(*cell_iter);
 
-            if (tissue.GetLocationIndexUsingCell(&(*cell_iter)) == 5)
+            if (tissue.GetLocationIndexUsingCell(*cell_iter) == 5)
             {
                 TS_ASSERT_EQUALS(is_deleted, true);
             }
@@ -781,7 +781,7 @@ public:
              ++cell_iter)
         {
             // Record element index corresponding to cell
-            unsigned element_index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned element_index = tissue.GetLocationIndexUsingCell(*cell_iter);
             element_indices.insert(element_index);
         }
 
@@ -1050,8 +1050,8 @@ public:
         p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true); // set up again
 
-        double wnt_at_cell0 = p_wnt->GetWntLevel(&(tissue.rGetCellUsingLocationIndex(0)));
-        double wnt_at_cell1 = p_wnt->GetWntLevel(&(tissue.rGetCellUsingLocationIndex(1)));
+        double wnt_at_cell0 = p_wnt->GetWntLevel(tissue.rGetCellUsingLocationIndex(0));
+        double wnt_at_cell1 = p_wnt->GetWntLevel(tissue.rGetCellUsingLocationIndex(1));
 
         // We have set the top of the tissue to be 4, so the WntConcentration should decrease linearly
         // up the tissue, from one at height 0 to zero at height 4.

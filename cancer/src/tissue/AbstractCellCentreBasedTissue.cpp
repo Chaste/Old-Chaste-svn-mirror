@@ -45,16 +45,16 @@ AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue()
 
 
 template<unsigned DIM>
-c_vector<double, DIM> AbstractCellCentreBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell* pCell)
+c_vector<double, DIM> AbstractCellCentreBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell& rCell)
 {
-    return GetNodeCorrespondingToCell(pCell)->rGetLocation();
+    return GetNodeCorrespondingToCell(rCell)->rGetLocation();
 }
 
 
 template<unsigned DIM>
-Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(TissueCell* pCell)
+Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(TissueCell& rCell)
 {
-    return this->GetNode(this->mCellLocationMap[pCell]);
+    return this->GetNode(this->mCellLocationMap[&rCell]);
 }
 
 
@@ -80,7 +80,7 @@ TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, c_
 template<unsigned DIM>
 bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedLocation(TissueCell& rCell)
 {
-    return GetNodeCorrespondingToCell(&rCell)->IsDeleted();
+    return GetNodeCorrespondingToCell(rCell)->IsDeleted();
 }
 
 

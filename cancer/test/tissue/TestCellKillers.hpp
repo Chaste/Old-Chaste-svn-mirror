@@ -123,7 +123,7 @@ public:
         {
             if (!cell_iter->IsDead())
             {
-                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
@@ -139,7 +139,7 @@ public:
              ++cell_iter)
         {
             TS_ASSERT(!cell_iter->IsDead());
-            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }
@@ -175,31 +175,31 @@ public:
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
-            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
+            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
 
             if ( (x<0) || (x>0.5) || (y>0.5))
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), true);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }
             else
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), false);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
             }
         }
 
         tissue.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
-            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
+            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
 
             TS_ASSERT_LESS_THAN_EQUALS(x, 0.5);
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
@@ -239,28 +239,28 @@ public:
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
+            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
             if (y>0.5)
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), true);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }
             else
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), false);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
             }
         }
 
         tissue.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
+            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
     }
@@ -298,29 +298,29 @@ public:
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<1>::Iterator iter = tissue.Begin();
-            iter != tissue.End();
-            ++iter)
+        for (AbstractTissue<1>::Iterator cell_iter = tissue.Begin();
+            cell_iter != tissue.End();
+            ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
+            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
             if (x > crypt_length)
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), true);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }
             else
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), false);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
             }
         }
 
         // Check that dead cells were correctly removed
         tissue.RemoveDeadCells();
 
-        for (AbstractTissue<1>::Iterator iter = tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<1>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
+            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
             TS_ASSERT_LESS_THAN_EQUALS(x, crypt_length);
         }
     }

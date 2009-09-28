@@ -185,11 +185,11 @@ public:
      *       for a VertexTissue (for example, there is no guarantee of convexity so the
      *       centre of mass may lie outside the element)
      *
-     * @param pCell pointer to the cell
+     * @param rCell the cell
      *
      * @return the location of the centre of mass of the element corresponding to this cell.
      */
-    c_vector<double, DIM> GetLocationOfCellCentre(TissueCell* pCell);
+    c_vector<double, DIM> GetLocationOfCellCentre(TissueCell& rCell);
 
     /**
      * Overridden GetNode() method.
@@ -231,11 +231,11 @@ public:
     /**
      * Get a pointer to the element corresponding to a given TissueCell.
      *
-     * @param pCell pointer to the cell
+     * @param rCell the cell
      *
      * @return pointer to the element.
      */
-    VertexElement<DIM, DIM>* GetElementCorrespondingToCell(TissueCell* pCell);
+    VertexElement<DIM, DIM>* GetElementCorrespondingToCell(TissueCell& rCell);
 
     /**
      * Overridden AddCell() method.

@@ -190,12 +190,12 @@ protected:
      *
      * For a vertex tissue, the method returns the zero vector.
      *
-     * @param pParentCell pointer to the parent cell
+     * @param rParentCell the parent cell
      *
      * @return a vector containing information on cell division.
      *
      */
-    virtual c_vector<double, DIM> CalculateCellDivisionVector(TissueCell* pParentCell);
+    virtual c_vector<double, DIM> CalculateCellDivisionVector(TissueCell& rParentCell);
 
     /**
      * During a simulation time step, process any cell sloughing or death

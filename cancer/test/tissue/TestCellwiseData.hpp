@@ -81,12 +81,12 @@ public:
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(1.23, mesh.GetNode(0));
-        AbstractTissue<2>::Iterator iter = tissue.Begin();
-        TS_ASSERT_DELTA(p_data->GetValue(&(*iter)), 1.23, 1e-12);
+        AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+        TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.23, 1e-12);
 
         p_data->SetValue(2.23, mesh.GetNode(1));
-        ++iter;
-        TS_ASSERT_DELTA(p_data->GetValue(&(*iter)), 2.23, 1e-12);
+        ++cell_iter;
+        TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 2.23, 1e-12);
 
         // Test ReallocateMemory method
         TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
@@ -108,7 +108,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), 1.579, 1e-12);
+            TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.579, 1e-12);
         }
 
         p_data->Destroy();
@@ -126,18 +126,18 @@ public:
         TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
 
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
-        AbstractTissue<2>::Iterator iter2 = tissue.Begin();
+        AbstractTissue<2>::Iterator cell_iter2 = tissue.Begin();
 
-        TS_ASSERT_DELTA(p_data->GetValue(&(*iter2), 1), 3.23, 1e-12);
+        TS_ASSERT_DELTA(p_data->GetValue(*cell_iter2, 1), 3.23, 1e-12);
 
         p_data->SetValue(4.23, mesh.GetNode(1), 1);
-        ++iter2;
+        ++cell_iter2;
 
-        TS_ASSERT_DELTA(p_data->GetValue(&(*iter2), 1), 4.23, 1e-12);
+        TS_ASSERT_DELTA(p_data->GetValue(*cell_iter2, 1), 4.23, 1e-12);
 
         // Other values should have been initialised to zero
-        ++iter2;
-        TS_ASSERT_DELTA(p_data->GetValue(&(*iter2), 0), 0.0, 1e-12);
+        ++cell_iter2;
+        TS_ASSERT_DELTA(p_data->GetValue(*cell_iter2, 0), 0.0, 1e-12);
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -175,11 +175,11 @@ public:
 
             // Put some data in
             unsigned i=0;
-            for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-                     iter != tissue.End();
-                     ++iter)
+            for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+                 cell_iter != tissue.End();
+                 ++cell_iter)
             {
-                p_data->SetValue((double) i, tissue.GetNodeCorrespondingToCell(&(*iter)), 0);
+                p_data->SetValue((double) i, tissue.GetNodeCorrespondingToCell(*cell_iter), 0);
                 i++;
             }
 
@@ -213,11 +213,11 @@ public:
             MeshBasedTissue<2>& tissue = p_data->rGetTissue();
             //p_data->SetTissue(tissue);
 
-            for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-                 iter != tissue.End();
-                 ++iter)
+            for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+                 cell_iter != tissue.End();
+                 ++cell_iter)
             {
-                TS_ASSERT_DELTA(p_data->GetValue(&(*iter), 0u), (double) tissue.GetLocationIndexUsingCell(&(*iter)), 1e-12);
+                TS_ASSERT_DELTA(p_data->GetValue(*cell_iter, 0u), (double) tissue.GetLocationIndexUsingCell(*cell_iter), 1e-12);
             }
 
             // Tidy up

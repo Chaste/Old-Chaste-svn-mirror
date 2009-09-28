@@ -83,8 +83,8 @@ public:
 
         TS_ASSERT_DELTA(constant_in_u_source_term, 0.0, 1e-6);
 
-        Node<2>* p_node_0 = tissue.GetNodeCorrespondingToCell(&(tissue.rGetCellUsingLocationIndex(0)));
-        Node<2>* p_node_1 = tissue.GetNodeCorrespondingToCell(&(tissue.rGetCellUsingLocationIndex(1)));
+        Node<2>* p_node_0 = tissue.GetNodeCorrespondingToCell(tissue.rGetCellUsingLocationIndex(0));
+        Node<2>* p_node_1 = tissue.GetNodeCorrespondingToCell(tissue.rGetCellUsingLocationIndex(1));
 
         double source_term_at_node_0 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*p_node_0);
         double source_term_at_node_1 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*p_node_1);

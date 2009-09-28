@@ -88,7 +88,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            double r = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)) - centre);
+            double r = norm_2(tissue.GetLocationOfCellCentre(*cell_iter) - centre);
 
             if (r > radius)
             {
@@ -108,7 +108,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            double r = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)) - centre);
+            double r = norm_2(tissue.GetLocationOfCellCentre(*cell_iter) - centre);
             TS_ASSERT_LESS_THAN_EQUALS(r, radius);
         }
     }
@@ -180,7 +180,7 @@ public:
         {
             if (!cell_iter->IsDead())
             {
-                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
@@ -196,7 +196,7 @@ public:
              ++cell_iter)
         {
             TS_ASSERT(!cell_iter->IsDead());
-            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(&(*cell_iter));
+            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }

@@ -359,8 +359,8 @@ public:
              cell_iter!=simulator.rGetTissue().End();
              ++cell_iter)
         {
-            unsigned index = simulator.rGetTissue().GetLocationIndexUsingCell(&(*cell_iter));
-            c_vector<double, 2> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(&(*cell_iter));
+            unsigned index = simulator.rGetTissue().GetLocationIndexUsingCell(*cell_iter);
+            c_vector<double, 2> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(*cell_iter);
 
             if (old_posns[index][1]==0) // stem
             {
@@ -749,11 +749,9 @@ public:
         TS_ASSERT_DELTA(node_120_location[1], 0.1033, 1e-4);
 
         // Test the Wnt concentration result
-        TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(28));
-        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
-
-        p_cell = &(crypt.rGetCellUsingLocationIndex(120));
-        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.rGetCellUsingLocationIndex(28)), 1.0, 1e-9);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.rGetCellUsingLocationIndex(120)), 0.9900, 1e-4);
         WntConcentration<2>::Destroy();
 
         // Check writing of voronoi data
@@ -864,11 +862,9 @@ public:
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), true);
 
         // Test the Wnt concentration result
-        TissueCell* p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28));
-        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 1.0, 1e-9);
-
-        p_cell = &(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(120));
-        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.9900, 1e-4);
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28)), 1.0, 1e-9);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(120)), 0.9900, 1e-4);
 
         // Tidy up
         delete p_simulator1;
@@ -961,7 +957,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
+            TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(*cell_iter)[1]);
         }
 
         std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().rGetCellMutationStateCount();
@@ -1214,12 +1210,10 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(conf_crypt, force_collection);
 
-        c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(&(*conf_iter));
+        c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                        TissueConfig::Instance()->GetDivisionSeparation(),
-                        1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
     }
 
 
@@ -1256,7 +1250,7 @@ public:
         // different branches will execute to make sure daughter stays in crypt ie. +ve y component
         for (unsigned repetitions=0; repetitions<=1; repetitions++)
         {
-            c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(&(*conf_iter));
+            c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*conf_iter);
             c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
             c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
 
@@ -1265,9 +1259,7 @@ public:
             TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
             TS_ASSERT(daughter_location[1]>=location[1]);
-            TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                            1.0*TissueConfig::Instance()->GetDivisionSeparation(),
-                            1e-7);
+            TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
        }
     }
 
@@ -1300,12 +1292,10 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
-        c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(&(*cyl_iter));
+        c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter),
-                        TissueConfig::Instance()->GetDivisionSeparation(),
-                        1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
     }
 
 
@@ -1337,7 +1327,7 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
-        c_vector<double,2> daughter_location = simulator.CalculateCellDivisionVector(&(*cyl_iter));
+        c_vector<double,2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
         c_vector<double,2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double,2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
 
@@ -1482,18 +1472,18 @@ public:
 
         // Move the first cell (which should be on y=0) down a bit
         AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
-        TS_ASSERT_DELTA(crypt.GetLocationOfCellCentre(&(*cell_iter))[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(crypt.GetLocationOfCellCentre(*cell_iter)[1], 0.0, 1e-6);
 
         // Move the cell (can't use the iterator for this as it is const)
         crypt.GetNode(0)->rGetModifiableLocation()[1] = -0.1;
-        TS_ASSERT_LESS_THAN(crypt.GetLocationOfCellCentre(&(*cell_iter))[1], 0.0);
+        TS_ASSERT_LESS_THAN(crypt.GetLocationOfCellCentre(*cell_iter)[1], 0.0);
 
         // Run simulation
         simulator.Solve();
 
         // The cell should have been pulled up, but not above y=0. However it should
         // then been moved to above y=0 by the jiggling
-        TS_ASSERT_LESS_THAN(0.0, crypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
+        TS_ASSERT_LESS_THAN(0.0, crypt.GetLocationOfCellCentre(*cell_iter)[1]);
     }
 
 

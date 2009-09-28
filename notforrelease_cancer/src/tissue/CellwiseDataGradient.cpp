@@ -81,7 +81,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
 
             // If no ghost element, get nutrient conc
             TissueCell& r_cell = r_tissue.rGetCellUsingLocationIndex(node_global_index);
-            double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(&r_cell,0);
+            double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(r_cell, 0);
 
             // Interpolate gradient
             for (unsigned i=0; i<DIM; i++)
@@ -107,13 +107,13 @@ void CellwiseDataGradient<DIM>::SetupGradients()
          cell_iter != r_tissue.End();
          ++cell_iter)
     {
-        unsigned node_global_index = r_tissue.GetLocationIndexUsingCell(&(*cell_iter));
+        unsigned node_global_index = r_tissue.GetLocationIndexUsingCell(*cell_iter);
 
         if  (!num_real_elems_for_node[node_global_index]>0)
         {
             // The node is a real node which is not in any real element
             // but should be connected to some cells (if more than one cell in mesh)
-            Node<DIM>& this_node = *(r_tissue.GetNodeCorrespondingToCell(&(*cell_iter)));
+            Node<DIM>& this_node = *(r_tissue.GetNodeCorrespondingToCell(*cell_iter));
 
             mGradients[node_global_index] = zero_vector<double>(DIM);
             unsigned num_real_adjacent_nodes = 0;
@@ -140,11 +140,11 @@ void CellwiseDataGradient<DIM>::SetupGradients()
                         // Calculate the contribution of gradient from this node
                         Node<DIM>& adjacent_node = *(r_mesh.GetNode(adjacent_node_global_index));
 
-                        double this_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter),0);
+                        double this_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(*cell_iter, 0);
                         TissueCell& adjacent_cell = r_tissue.rGetCellUsingLocationIndex(adjacent_node_global_index);
-                        double adjacent_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(&adjacent_cell,0);
+                        double adjacent_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(adjacent_cell, 0);
 
-                        c_vector<double, DIM> gradient_contribution=zero_vector<double>(DIM);
+                        c_vector<double, DIM> gradient_contribution = zero_vector<double>(DIM);
 
                         if (fabs(this_cell_concentration-adjacent_cell_concentration) > 100*DBL_EPSILON )
                         {

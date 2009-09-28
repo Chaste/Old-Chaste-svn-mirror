@@ -167,9 +167,9 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
 }
 
 template<unsigned DIM>
-unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCell* pCell)
+unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCell& rCell)
 {
-    return mCellLocationMap[pCell];
+    return mCellLocationMap[&rCell];
 }
 
 
@@ -392,7 +392,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         *mpCellAgesFile << locationIndex << " ";
 
         // Write cell location
-        c_vector<double, DIM> cell_location = GetLocationOfCellCentre(p_cell);
+        c_vector<double, DIM> cell_location = GetLocationOfCellCentre(*p_cell);
 
         for (unsigned i=0; i<DIM; i++)
         {
@@ -554,7 +554,7 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
         unsigned location_index = mCellLocationMap[&(*cell_iter)];
         *mpCellIdFile << " " << cell_id << " " << location_index;
 
-        c_vector<double, DIM> coords = GetLocationOfCellCentre(&(*cell_iter));
+        c_vector<double, DIM> coords = GetLocationOfCellCentre(*cell_iter);
         for (unsigned i=0; i<DIM; i++)
         {
             *mpCellIdFile << " " << coords[i];

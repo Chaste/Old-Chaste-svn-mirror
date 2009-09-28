@@ -175,7 +175,7 @@ void TissueSimulationWithNutrients<2>::CreateCoarseNutrientMesh(double coarseGra
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        centre_of_tissue += this->mrTissue.GetLocationOfCellCentre(&(*cell_iter));
+        centre_of_tissue += this->mrTissue.GetLocationOfCellCentre(*cell_iter);
     }
     centre_of_tissue /= this->mrTissue.GetNumRealCells();
 
@@ -185,7 +185,7 @@ void TissueSimulationWithNutrients<2>::CreateCoarseNutrientMesh(double coarseGra
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        double radius = norm_2(centre_of_tissue - this->mrTissue.GetLocationOfCellCentre(&(*cell_iter)));
+        double radius = norm_2(centre_of_tissue - this->mrTissue.GetLocationOfCellCentre(*cell_iter));
         if (radius > max_tissue_radius)
         {
             max_tissue_radius = radius;
@@ -233,7 +233,7 @@ void TissueSimulationWithNutrients<DIM>::InitialiseCoarseNutrientMesh()
         ++cell_iter)
     {
         // Find the element of mpCoarseNutrientMesh that contains this cell
-        const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(&(*cell_iter));
+        const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(*cell_iter);
         unsigned elem_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_position_of_cell);
         mCellNutrientElementMap[&(*cell_iter)] = elem_index;
     }
@@ -348,7 +348,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        centre += this->mrTissue.GetLocationOfCellCentre(&(*cell_iter));
+        centre += this->mrTissue.GetLocationOfCellCentre(*cell_iter);
     }
     centre /= this->mrTissue.GetNumRealCells();
 
@@ -358,7 +358,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
-        double radius = norm_2(centre - this->mrTissue.GetLocationOfCellCentre(&(*cell_iter)));
+        double radius = norm_2(centre - this->mrTissue.GetLocationOfCellCentre(*cell_iter));
         if (radius > max_radius)
         {
             max_radius = radius;
@@ -463,7 +463,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
 
         Element<DIM,DIM>* p_element = mpCoarseNutrientMesh->GetElement(elem_index);
 
-        const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(&(*cell_iter));
+        const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(*cell_iter);
 
         c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
 
@@ -474,7 +474,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
             interpolated_nutrient += nodal_value*weights(i);
         }
 
-        CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(&(*cell_iter)));
+        CellwiseData<DIM>::Instance()->SetValue(interpolated_nutrient, (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&(this->mrTissue)))->GetNodeCorrespondingToCell(*cell_iter));
     }
 }
 
@@ -503,7 +503,7 @@ unsigned TissueSimulationWithNutrients<DIM>::FindElementContainingCell(TissueCel
     }
 
     // Find new element, using the previous one as a guess
-    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCellCentre(&rCell);
+    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCellCentre(rCell);
     unsigned new_element_index = mpCoarseNutrientMesh->GetContainingElementIndex(r_cell_position, false, test_elements);
 
     // Update mCellNutrientElementMap
@@ -561,10 +561,10 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
-            global_index = this->mrTissue.GetLocationIndexUsingCell(&(*cell_iter));
-            x = this->mrTissue.GetLocationOfCellCentre(&(*cell_iter))[0];
-            y = this->mrTissue.GetLocationOfCellCentre(&(*cell_iter))[1];
-            nutrient = CellwiseData<DIM>::Instance()->GetValue(&(*cell_iter));
+            global_index = this->mrTissue.GetLocationIndexUsingCell(*cell_iter);
+            x = this->mrTissue.GetLocationOfCellCentre(*cell_iter)[0];
+            y = this->mrTissue.GetLocationOfCellCentre(*cell_iter)[1];
+            nutrient = CellwiseData<DIM>::Instance()->GetValue(*cell_iter);
 
             (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
         }
@@ -597,15 +597,14 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
     }
     centre /= (double) num_nodes;
 
-    // Calculate the distance between each node and the centre
-    // of the tissue, as well as the maximum of these
+    // Calculate the distance between each node and the centre of the tissue, as well as the maximum of these
     std::map<double, TissueCell*> distance_cell_map;
 
     double max_distance_from_centre = 0.0;
 
     for (unsigned i=0; i<this->mrTissue.GetNumRealCells(); i++)
     {
-        double distance = norm_2(r_mesh.GetNode(i)->rGetLocation()-centre);
+        double distance = norm_2(r_mesh.GetNode(i)->rGetLocation() - centre);
         distance_cell_map[distance] = &(this->mrTissue.rGetCellUsingLocationIndex(i));
 
         if (distance > max_distance_from_centre)
@@ -633,9 +632,9 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
              iter != distance_cell_map.end();
              ++iter)
         {
-            if ((*iter).first > lower_radius && (*iter).first <= radius_intervals[i])
+            if (iter->first > lower_radius && iter->first <= radius_intervals[i])
             {
-                average_conc += CellwiseData<DIM>::Instance()->GetValue((*iter).second);
+                average_conc += CellwiseData<DIM>::Instance()->GetValue(*(iter->second));
                 counter++;
             }
         }

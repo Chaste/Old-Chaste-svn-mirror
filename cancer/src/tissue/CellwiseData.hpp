@@ -115,12 +115,12 @@ public:
     /**
      * Get the value of CellwiseData for a given cell and variable number.
      *
-     * @param pCell pointer to a TissueCell
+     * @param rCell the cell
      * @param variableNumber the index of CellwiseData whose value is required (defaults to zero)
      *
      * @return the value of CellwiseData.
      */
-    double GetValue(TissueCell* pCell, unsigned variableNumber=0);
+    double GetValue(TissueCell& rCell, unsigned variableNumber=0);
 
     /**
      *  Set the value for a given node and variable number.

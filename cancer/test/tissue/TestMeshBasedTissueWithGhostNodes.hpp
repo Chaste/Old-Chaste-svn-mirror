@@ -157,7 +157,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned node_index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
             TS_ASSERT_EQUALS(is_ghost_node[node_index], false);
             counter++;
         }
@@ -204,7 +204,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            unsigned node_index = tissue.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
             VoronoiTessellation<2>& tess = tissue.rGetVoronoiTessellation();
             double area = tess.GetFaceArea(node_index);
             TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
@@ -295,7 +295,7 @@ public:
              ++cell_iter)
         {
             // Record node index corresponding to cell
-            unsigned node_index_with_ghost_nodes = tissue_with_ghost_nodes.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned node_index_with_ghost_nodes = tissue_with_ghost_nodes.GetLocationIndexUsingCell(*cell_iter);
             node_indices_with_ghost_nodes.insert(node_index_with_ghost_nodes);
         }
 
@@ -400,7 +400,7 @@ public:
              cell_iter != tissue2.End();
              ++cell_iter)
         {
-            unsigned i = tissue2.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned i = tissue2.GetLocationIndexUsingCell(*cell_iter);
             TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[0], old_posns2[i][0] +   i*0.01*0.01, 1e-9);
             TS_ASSERT_DELTA(tissue2.GetNode(i)->rGetLocation()[1], old_posns2[i][1] + 2*i*0.01*0.01, 1e-9);
         }
@@ -460,10 +460,10 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&(spring_iterator.rGetCellA())),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellA()),
                              spring_iterator.GetNodeA()->GetIndex());
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&(spring_iterator.rGetCellB())),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellB()),
                              spring_iterator.GetNodeB()->GetIndex());
         }
 
@@ -507,10 +507,10 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&(spring_iterator.rGetCellA())),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellA()),
                              spring_iterator.GetNodeA()->GetIndex());
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(&(spring_iterator.rGetCellB())),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellB()),
                              spring_iterator.GetNodeB()->GetIndex());
         }
 

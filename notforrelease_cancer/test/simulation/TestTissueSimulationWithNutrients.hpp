@@ -168,7 +168,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            double radius = norm_2(tissue.GetLocationOfCellCentre(&(*cell_iter)));
+            double radius = norm_2(tissue.GetLocationOfCellCentre(*cell_iter));
             double analytic_solution = 1 - 0.25*(1 - pow(radius,2.0));
 
             // Get cell model
@@ -176,10 +176,10 @@ public:
             SimpleOxygenBasedCellCycleModel* p_oxygen_model = static_cast<SimpleOxygenBasedCellCycleModel*> (p_abstract_model);
 
             // First part of test - check that PDE solver is working correctly
-            TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), analytic_solution, 1e-2);
+            TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), analytic_solution, 1e-2);
 
             // Second part of test - check that each cell's hypoxic duration is correctly updated
-            if ( p_data->GetValue(&(*cell_iter)) >= TissueConfig::Instance()->GetHepaOneCellHypoxicConcentration() )
+            if ( p_data->GetValue(*cell_iter) >= TissueConfig::Instance()->GetHepaOneCellHypoxicConcentration() )
             {
                 TS_ASSERT_DELTA(p_oxygen_model->GetCurrentHypoxicDuration(), 0.0, 1e-5);
             }
@@ -370,8 +370,7 @@ public:
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
         TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
-        TissueCell* p_cell = &(simulator.rGetTissue().rGetCellUsingLocationIndex(5));
-        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9702, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5)), 0.9702, 1e-4);
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -610,7 +609,7 @@ public:
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(&(*cell_iter)));
+            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(*cell_iter));
             Element<2,2>* p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
 
 
@@ -625,7 +624,7 @@ public:
             min = std::min(min, nutrient_conc[p_element->GetNodeGlobalIndex(2)]);
 
 
-            double value_at_cell = CellwiseData<2>::Instance()->GetValue(&(*cell_iter), 0);
+            double value_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
 
             TS_ASSERT_LESS_THAN_EQUALS(min, value_at_cell);
             TS_ASSERT_LESS_THAN_EQUALS(value_at_cell, max);
@@ -699,9 +698,9 @@ public:
              cell_iter != simulator.rGetTissue().End();
              ++cell_iter)
         {
-            if ( (static_cast<AbstractCellCentreBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNodeCorrespondingToCell(&(*cell_iter))->IsBoundaryNode() )
+            if ( (static_cast<AbstractCellCentreBasedTissue<2>*>(&(simulator.rGetTissue())))->GetNodeCorrespondingToCell(*cell_iter)->IsBoundaryNode() )
             {
-                TS_ASSERT_DELTA(p_data->GetValue(&(*cell_iter)), 1.0, 1e-1);
+                TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.0, 1e-1);
             }
         }
 
@@ -794,11 +793,8 @@ public:
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(),true);
 
         // Test the CellwiseData result
-        TissueCell* p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(5));
-        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9604, 1e-4);
-
-        p_cell = &(p_simulator->rGetTissue().rGetCellUsingLocationIndex(15));
-        TS_ASSERT_DELTA(CellwiseData<2>::Instance()->GetValue(p_cell), 0.9584, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(p_simulator->rGetTissue().rGetCellUsingLocationIndex(5)), 0.9604, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(p_simulator->rGetTissue().rGetCellUsingLocationIndex(15)), 0.9584, 1e-4);
 
         // Run tissue simulation
         delete p_simulator;

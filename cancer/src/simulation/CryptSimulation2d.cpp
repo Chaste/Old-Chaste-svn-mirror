@@ -45,10 +45,10 @@ CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue,
 }
 
 
-c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(TissueCell* pParentCell)
+c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(TissueCell& rParentCell)
 {
     // Location of parent and daughter cells
-    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
+    c_vector<double, 2> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(rParentCell);
     c_vector<double, 2> daughter_coords;
 
     // Get separation parameter
@@ -100,7 +100,7 @@ c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(TissueCell* p
     // Set the parent to use this location
     ChastePoint<2> parent_coords_point(parent_coords);
 
-    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(pParentCell);
+    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(rParentCell);
     mrTissue.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
@@ -136,9 +136,9 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
          cell_iter != mrTissue.End();
          ++cell_iter)
     {
-        global_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
-        x = mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[0];
-        y = mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[1];
+        global_index = mpStaticCastTissue->GetLocationIndexUsingCell(*cell_iter);
+        x = mpStaticCastTissue->GetLocationOfCellCentre(*cell_iter)[0];
+        y = mpStaticCastTissue->GetLocationOfCellCentre(*cell_iter)[1];
 
         // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model = static_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
@@ -213,10 +213,10 @@ void CryptSimulation2d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(&(*cell_iter));
+        unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(*cell_iter);
 
         // Get pointer to this node
-        Node<2>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(&(*cell_iter));
+        Node<2>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter);
 
         if (!is_wnt_included)
         {
@@ -264,7 +264,7 @@ void CryptSimulation2d::SetBottomCellAncestors()
          cell_iter != mpStaticCastTissue->End();
          ++cell_iter)
     {
-        if (mpStaticCastTissue->GetLocationOfCellCentre(&(*cell_iter))[1] < 0.5)
+        if (mpStaticCastTissue->GetLocationOfCellCentre(*cell_iter)[1] < 0.5)
         {
             cell_iter->SetAncestor(index++);
         }

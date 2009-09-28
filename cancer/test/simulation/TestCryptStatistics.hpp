@@ -97,7 +97,7 @@ public:
 
         for (unsigned i=0; i<test_section.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section[i]), expected_indices[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section[i]), expected_indices[i]);
         }
 
         // Test that we get a valid section when the x-values are the same
@@ -110,7 +110,7 @@ public:
 
         for (unsigned i=0; i<test_section_vertical.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_vertical[i]), expected_indices_vertical[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_vertical[i]), expected_indices_vertical[i]);
         }
 
         std::vector< TissueCell* > test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
@@ -122,7 +122,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic[i]), expected_indices_periodic[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_periodic[i]), expected_indices_periodic[i]);
         }
 
         std::vector< TissueCell* > test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
@@ -134,7 +134,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_2.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic_2[i]), expected_indices_periodic_2[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_periodic_2[i]), expected_indices_periodic_2[i]);
         }
 
         // Test an overwritten method
@@ -146,7 +146,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_3.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic_3[i]), expected_indices_periodic_3[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_periodic_3[i]), expected_indices_periodic_3[i]);
         }
     }
 
@@ -300,7 +300,7 @@ public:
             bool in_section = false;
             for (unsigned vector_index=0; vector_index<test_section.size(); vector_index++)
             {
-                if (test_section[vector_index]==&(*cell_iter))
+                if (test_section[vector_index] == &(*cell_iter))
                 {
                     in_section = true;
                 }

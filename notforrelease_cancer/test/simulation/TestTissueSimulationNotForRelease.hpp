@@ -155,11 +155,9 @@ public:
         TS_ASSERT_DELTA(norm_2(distance_between), 0.6145, 1e-3);
 
         // Test the Wnt concentration result
-        TissueCell* p_cell = &(crypt.rGetCellUsingLocationIndex(329));
-        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.8753, 1e-3);
-
-        p_cell = &(crypt.rGetCellUsingLocationIndex(494));
-        TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell), 0.9175, 1e-3);
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.rGetCellUsingLocationIndex(329)), 0.8753, 1e-3);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.rGetCellUsingLocationIndex(494)), 0.9175, 1e-3);
 
         // Tidy up
         WntConcentration<2>::Destroy();

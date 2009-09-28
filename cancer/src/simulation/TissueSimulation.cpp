@@ -127,7 +127,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 TissueCell new_cell = cell_iter->Divide();
 
                 // Call method that determines how cell division occurs and returns a vector
-                c_vector<double, DIM> new_location = CalculateCellDivisionVector(&(*cell_iter));
+                c_vector<double, DIM> new_location = CalculateCellDivisionVector(*cell_iter);
 
                 // Add new cell to the tissue
                 mrTissue.AddCell(new_cell, new_location, &(*cell_iter));
@@ -169,7 +169,7 @@ const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollectio
 
 
 template<unsigned DIM>
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueCell* pParentCell)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueCell& rParentCell)
 {
     /**
      * \todo Could remove this dynamic_cast by moving the code block below into
@@ -179,7 +179,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
     if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
     {
         // Location of parent and daughter cells
-        c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(pParentCell);
+        c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(rParentCell);
         c_vector<double, DIM> daughter_coords;
 
         // Get separation parameter
@@ -230,7 +230,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
 
         // Set the parent to use this location
         ChastePoint<DIM> parent_coords_point(parent_coords);
-        unsigned node_index = mrTissue.GetLocationIndexUsingCell(pParentCell);
+        unsigned node_index = mrTissue.GetLocationIndexUsingCell(rParentCell);
         mrTissue.SetNode(node_index, parent_coords_point);
 
         return daughter_coords;

@@ -78,11 +78,11 @@ private:
      * It does this by picking a random direction (0->2PI) and placing the parent
      * and daughter in opposing directions on this axis.
      *
-     * @param pParentCell pointer to the parent cell
+     * @param rParentCell the parent cell
      *
      * @return daughter_coords the coordinates for the daughter cell.
      */
-    c_vector<double, 1> CalculateCellDivisionVector(TissueCell* pParentCell);
+    c_vector<double, 1> CalculateCellDivisionVector(TissueCell& rParentCell);
 
 public:
 

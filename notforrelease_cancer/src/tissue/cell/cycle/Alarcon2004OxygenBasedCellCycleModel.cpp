@@ -89,19 +89,19 @@ void Alarcon2004OxygenBasedCellCycleModel::Initialise()
         case 1:
         {
             const unsigned DIM = 1;
-            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(*mpCell,0), mpCell->GetMutationState());
             break;
         }
         case 2:
         {
             const unsigned DIM = 2;
-            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(*mpCell,0), mpCell->GetMutationState());
             break;
         }
         case 3:
         {
             const unsigned DIM = 3;
-            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(*mpCell,0), mpCell->GetMutationState());
             break;
         }
         default:
@@ -122,19 +122,19 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
         case 1:
         {
             const unsigned DIM = 1;
-            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
             break;
         }
         case 2:
         {
             const unsigned DIM = 2;
-            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
             break;
         }
         case 3:
         {
             const unsigned DIM = 3;
-            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(mpCell, 0);
+            mpOdeSystem->rGetStateVariables()[5] = CellwiseData<DIM>::Instance()->GetValue(*mpCell, 0);
             break;
         }
         default:

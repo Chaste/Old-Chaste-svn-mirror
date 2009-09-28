@@ -121,9 +121,9 @@ public:
              cell_iter != mrTissue.End();
              ++cell_iter)
         {
-            c_vector<double, 2> cell_location = mrTissue.GetLocationOfCellCentre(&(*cell_iter));
+            c_vector<double, 2> cell_location = mrTissue.GetLocationOfCellCentre(*cell_iter);
 
-            unsigned node_index = mrTissue.GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned node_index = mrTissue.GetLocationIndexUsingCell(*cell_iter);
             Node<2>* p_node = mrTissue.GetNode(node_index);
 
             if (cell_location[1] > 5.0)
@@ -266,7 +266,7 @@ public:
              cell_iter != simulator.rGetTissue().End();
              ++cell_iter)
         {
-            unsigned node_index = simulator.rGetTissue().GetLocationIndexUsingCell(&(*cell_iter));
+            unsigned node_index = simulator.rGetTissue().GetLocationIndexUsingCell(*cell_iter);
             Node<2>* p_node = simulator.rGetTissue().GetNode(node_index);
 
             TS_ASSERT_LESS_THAN_EQUALS(p_node->rGetModifiableLocation()[1], 5.0);

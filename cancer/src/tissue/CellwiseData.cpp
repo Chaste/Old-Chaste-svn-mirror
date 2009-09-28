@@ -76,7 +76,7 @@ void CellwiseData<DIM>::Destroy()
 }
 
 template<unsigned DIM>
-double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
+double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
 {
     // To test a cell and cell cycle models without a tissue
     if (mUseConstantDataForTesting)
@@ -88,9 +88,8 @@ double CellwiseData<DIM>::GetValue(TissueCell* pCell, unsigned variableNumber)
     assert(mpTissue!=NULL);
     assert(mAllocatedMemory);
     assert(variableNumber < mNumberOfVariables);
-    assert(pCell!=NULL);
 
-    unsigned node_index = mpTissue->GetLocationIndexUsingCell(pCell);
+    unsigned node_index = mpTissue->GetLocationIndexUsingCell(rCell);
     unsigned vector_index = node_index*mNumberOfVariables + variableNumber;
     return mData[vector_index];
 }

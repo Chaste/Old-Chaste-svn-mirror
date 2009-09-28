@@ -129,7 +129,7 @@ public:
             cell_iter != this->mpTissue->End();
             ++cell_iter)
         {
-            c_vector<double, 2> location = this->mpTissue->GetLocationOfCellCentre(&(*cell_iter));
+            c_vector<double, 2> location = this->mpTissue->GetLocationOfCellCentre(*cell_iter);
 
             if ( pow(location[0]/20, 2) + pow(location[1]/10, 2) > 1.0 )
             {
@@ -238,20 +238,20 @@ public:
 
         /* ... and check that any cell whose centre is located outside the ellipse
          * (x/20)^2^ + (y/10)^2^ < 1 has indeed been labelled as dead. */
-        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
-            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
+            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
 
             if ( pow(x/20, 2) + pow(y/10, 2) > 1.0 )
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), true);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
             }
             else
             {
-                TS_ASSERT_EQUALS(iter->IsDead(), false);
+                TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
             }
         }
 
@@ -259,12 +259,12 @@ public:
          * remaining cells are indeed located within the ellipse. */
         tissue.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator iter = tissue.Begin();
-             iter != tissue.End();
-             ++iter)
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(&(*iter))[0];
-            double y = tissue.GetLocationOfCellCentre(&(*iter))[1];
+            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
 
             TS_ASSERT_LESS_THAN_EQUALS(pow(x/20, 2) + pow(y/10, 2) > 1.0, 1.0);
         }

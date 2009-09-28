@@ -144,19 +144,19 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
     {
         if (periodic)
         {
-            if (CellIsInSectionPeriodic(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(&(*cell_iter))))
+            if (CellIsInSectionPeriodic(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(*cell_iter)))
             {
                 // Set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
+                std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetLocationOfCellCentre(*cell_iter)[1]);
                 cells_list.push_back(pair);
             }
         }
         else
         {
-            if (CellIsInSection(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(&(*cell_iter))))
+            if (CellIsInSection(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(*cell_iter)))
             {
                 // Set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetLocationOfCellCentre(&(*cell_iter))[1]);
+                std::pair<TissueCell*, double> pair(&(*cell_iter), mrCrypt.GetLocationOfCellCentre(*cell_iter)[1]);
                 cells_list.push_back(pair);
             }
         }
