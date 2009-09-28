@@ -250,7 +250,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2u);
     }
 
-    void Test1DBranchedMeshIn2DSpace() throw (Exception)
+    void Test1DBranchedMeshIn3DSpace() throw (Exception)
     {
         TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/branched_1d_in_3d_mesh");
         TetrahedralMesh<1,3> mesh;
