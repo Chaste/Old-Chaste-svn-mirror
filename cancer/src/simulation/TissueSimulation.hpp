@@ -176,7 +176,7 @@ protected:
      *
      * @return the number of births that occurred.
      */
-    unsigned DoCellBirth();
+    virtual unsigned DoCellBirth();
 
     /**
      * Method for determining how cell division occurs. This method returns a vector
