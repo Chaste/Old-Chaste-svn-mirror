@@ -48,7 +48,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Gima K, Rudy Y Circ Res (2002) 90:889-896 (equation 1)
  *  Baher et al. Am J Physiol (2007) 292:H180-H189 (equation 5)
  * 
- * ///\ todo include definitions and set methods for D somewhere! It is assumed 1 at the moment.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class PseudoEcgCalculator : public AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
@@ -60,6 +59,7 @@ private:
     unsigned mNumTimeSteps;/**< Number of time steps in the simulation (got from the data reader)*/
     TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used by the calculator*/
     ChastePoint<SPACE_DIM>& mrX; /**<The point from where we want to calculate the pseudoECG*/
+    double mDiffusionCoefficient;
     
     /**
      * Get the integrand.
@@ -105,6 +105,14 @@ public:
      * 
      */
     std::vector<double> ComputePseudoEcg ();
+    
+    /**
+     * Sets the value of the diffusion coefficient (D)
+     * 
+     * @param diffusionCoefficient The desired value of the diffusion coefficient
+     * 
+     */
+    void SetDiffusionCoefficient(double diffusionCoefficient);
     
     /**
      * Writes out the pseudo-ECG to file

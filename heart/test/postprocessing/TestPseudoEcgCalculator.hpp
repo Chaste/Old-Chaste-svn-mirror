@@ -194,6 +194,7 @@ public:
         
         std::vector<double> pseudo_ecg; //stores the results
         
+        calculator.SetDiffusionCoefficient(1.0);
         pseudo_ecg = calculator.ComputePseudoEcg();
         
         // The expected result is the integral of: - d(gradV)*dgrad(1/r) in dx
@@ -204,7 +205,18 @@ public:
         for (unsigned k = 0; k< pseudo_ecg.size(); k++)
         {
             TS_ASSERT_DELTA(pseudo_ecg[k], expected_result,1e-6);
-        } 
+        }
+        
+        // Now try a different diffusion coefficient
+        double diff_coeff = 2.0;
+        calculator.SetDiffusionCoefficient(diff_coeff);
+        pseudo_ecg = calculator.ComputePseudoEcg(); 
+        
+        //since we are assuming D to be constant, the expected result is just mulitplied by diff_coeff
+        for (unsigned k = 0; k< pseudo_ecg.size(); k++)
+        {
+            TS_ASSERT_DELTA(pseudo_ecg[k], diff_coeff*expected_result,1e-6);
+        }
         
     }
 
