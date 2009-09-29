@@ -810,12 +810,6 @@ public:
             PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
             BidomainProblem<1> bidomain_problem( &cell_factory );
 
-//            /// \todo: Make this test pass if the mesh is set via HeartConfig
-//            TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1mm_10_elements");
-//            ParallelTetrahedralMesh<1,1> mesh;
-//            mesh.ConstructFromMeshReader(mesh_reader);
-//            bidomain_problem.SetMesh(&mesh);
-    
             bidomain_problem.Initialise();
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             bidomain_problem.Solve();
