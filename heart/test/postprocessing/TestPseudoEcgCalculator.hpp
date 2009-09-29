@@ -51,6 +51,8 @@ public:
     
     void TestCalculator1DLinearGradient() throw (Exception)
     {
+        EXIT_IF_PARALLEL;
+        
         //read in the 1D mesh, from 0 to 1
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
         TetrahedralMesh<1,1> mesh;
@@ -79,7 +81,8 @@ public:
         DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
         
         //4 time steps
-        for (unsigned time_step=0; time_step<4; time_step++)
+        unsigned number_of_time_steps = 4;
+        for (unsigned time_step=0; time_step<number_of_time_steps; time_step++)
         {
             // Write some values, the value of V is the same as the x coordinate, i.e. a gradient
             for (DistributedVector::Iterator index = distributed_vector_1.Begin();
@@ -112,23 +115,33 @@ public:
         electrode.SetCoordinate(0, 15.0);
         
         PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "gradient_V", true);
-        std::vector<double> pseudo_ecg;      
-        
-        pseudo_ecg = calculator.ComputePseudoEcg();
+        double pseudo_ecg;      
         
         // The expected result is the integral of: - d(gradV)*dgrad(1/r) in dx
         // Because in this simple case d(gradV)=1, the result is simply -1/(15-x) evaluated 
         // between 0 and 1 
         double expected_result = -(1/14.0-1/15.0);
-        for (unsigned k = 0; k< pseudo_ecg.size(); k++)
+        for (unsigned k = 0; k< number_of_time_steps; k++)
         {
-            TS_ASSERT_DELTA(pseudo_ecg[k], expected_result,1e-6);
+            pseudo_ecg = calculator.ComputePseudoEcgAtOneTimeStep(k);
+            TS_ASSERT_DELTA(pseudo_ecg, expected_result,1e-6);
         } 
         
+        //now we test the writer method
+        calculator.WritePseudoEcg();   
+        
+        std::string output_dir = "ChasteResults/output";//default value
+        std::string command;
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/PseudoEcg.dat " 
+                  + "heart/test/data/ValidPseudoEcg1D.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0); 
+             
     }
     
     void TestCalculator1DParabolic() throw (Exception)
     {
+        EXIT_IF_PARALLEL;
+        
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
@@ -157,7 +170,8 @@ public:
         DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
         
         //4 time steps
-        for (unsigned time_step=0; time_step<4; time_step++)
+        unsigned number_of_time_steps = 4;
+        for (unsigned time_step=0; time_step<number_of_time_steps; time_step++)
         {
             // Write some values, the value of V is x^2, i.e. a parabola
             for (DistributedVector::Iterator index = distributed_vector_1.Begin();
@@ -192,30 +206,30 @@ public:
         
         PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "parabolic_V", true);
         
-        std::vector<double> pseudo_ecg; //stores the results
+        double pseudo_ecg; //stores the results
         
         calculator.SetDiffusionCoefficient(1.0);
-        pseudo_ecg = calculator.ComputePseudoEcg();
         
         // The expected result is the integral of: - d(gradV)*dgrad(1/r) in dx
         // In this case d(gradV)/dx=2x, hence the result is the integral of: - (2x * d(1/(15-x))/dx)
         // Integrating by parts with f = 2x and g = 1/(15-x) and evaluating between 0 and 1
         
         double expected_result = -( (2/14.0) - 2.0*log(1/14.0) + 2.0*log(1/15.0));        
-        for (unsigned k = 0; k< pseudo_ecg.size(); k++)
+        for (unsigned k = 0; k< number_of_time_steps; k++)
         {
-            TS_ASSERT_DELTA(pseudo_ecg[k], expected_result,1e-6);
+            pseudo_ecg = calculator.ComputePseudoEcgAtOneTimeStep(k);
+            TS_ASSERT_DELTA(pseudo_ecg, expected_result,1e-6);
         }
         
         // Now try a different diffusion coefficient
         double diff_coeff = 2.0;
         calculator.SetDiffusionCoefficient(diff_coeff);
-        pseudo_ecg = calculator.ComputePseudoEcg(); 
         
         //since we are assuming D to be constant, the expected result is just mulitplied by diff_coeff
-        for (unsigned k = 0; k< pseudo_ecg.size(); k++)
+        for (unsigned k = 0; k< number_of_time_steps; k++)
         {
-            TS_ASSERT_DELTA(pseudo_ecg[k], diff_coeff*expected_result,1e-6);
+            pseudo_ecg = calculator.ComputePseudoEcgAtOneTimeStep(k); 
+            TS_ASSERT_DELTA(pseudo_ecg, diff_coeff*expected_result,1e-6);
         }
         
     }

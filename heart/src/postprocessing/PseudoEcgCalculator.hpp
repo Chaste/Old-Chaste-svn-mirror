@@ -54,6 +54,8 @@ class PseudoEcgCalculator : public AbstractFunctionalCalculator<ELEMENT_DIM, SPA
 {
 private:
 
+    friend class TestPseudoEcgCalculator;//for testing
+    
     Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to get the solution*/
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
     unsigned mNumTimeSteps;/**< Number of time steps in the simulation (got from the data reader)*/
@@ -72,7 +74,16 @@ private:
                                 c_vector<double,PROBLEM_DIM>& rU,
                                 c_matrix<double,PROBLEM_DIM,SPACE_DIM>& rGradU);
                         
-                                
+
+    /**
+     * Calculates the pseudo-ECG and stores the results in a vector
+     * 
+     * @param timeStep the time step where we want to calculate the pseudoecg
+     * @return the pseudo ECG at teh given time step.
+     * 
+     */
+    double ComputePseudoEcgAtOneTimeStep (unsigned timeStep);
+                                  
 public:
 
     /**
@@ -98,13 +109,6 @@ public:
      */
     ~PseudoEcgCalculator();
     
-    /**
-     * Calculates the pseudo-ECG and stores the results in a vector
-     * 
-     * @return a standard vector containing the pseudo ECG.
-     * 
-     */
-    std::vector<double> ComputePseudoEcg ();
     
     /**
      * Sets the value of the diffusion coefficient (D)
@@ -115,14 +119,14 @@ public:
     void SetDiffusionCoefficient(double diffusionCoefficient);
     
     /**
-     * Writes out the pseudo-ECG to file
      * 
-     * @param fileName the name of the file (in the same directory as the hdf5)
-     * 
-     * ///\ todo think a good way to design this function (not yet implemented) 
+     * Calculates and writes the pseudo-ECG to file. the file will be named PseudoEcg.dat.
+     * It will contain one column of numbers, each being the pseudoECG at each time step.
+     * It will be created  by the master processor into /output relaitive to where the output 
+     * directory is set (by the HeartConfig or by default)
      * 
      */
-    void WriteFullPseudoEcg (std::string fileName);
+    void WritePseudoEcg ();
 
 };
 

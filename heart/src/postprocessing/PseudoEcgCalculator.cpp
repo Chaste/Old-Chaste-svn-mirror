@@ -27,7 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PseudoEcgCalculator.hpp"
+#include "HeartConfig.hpp"
 #include "PetscTools.hpp"
+
+#include <iostream>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(ChastePoint<SPACE_DIM>& rX,
@@ -87,18 +90,41 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetDiffusionCoeff
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-std::vector<double> PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEcg ()
+double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEcgAtOneTimeStep (unsigned timeStep)
 {
-    Vec SolutionAtOneTimestep = PetscTools::CreateVec(mNumberOfNodes);
-    std::vector<double> pseudo_ecg;
-    for (unsigned i = 0; i < mNumTimeSteps; i++)
-    {
-        mpDataReader->GetVariableOverNodes(SolutionAtOneTimestep, "V" , i);
-        double pseudo_ecg_at_one_timestep = Calculate(mrMesh, SolutionAtOneTimestep);
-        pseudo_ecg.push_back(pseudo_ecg_at_one_timestep);
+    double pseudo_ecg_at_one_timestep;
+    if (PetscTools::AmMaster())
+    {  
+        Vec SolutionAtOneTimestep = PetscTools::CreateVec(mNumberOfNodes); 
+          
+        mpDataReader->GetVariableOverNodes(SolutionAtOneTimestep, "V" , timeStep);
+        pseudo_ecg_at_one_timestep = Calculate(mrMesh, SolutionAtOneTimestep);
+        
+        VecDestroy(SolutionAtOneTimestep);
     }
-    VecDestroy(SolutionAtOneTimestep);
-    return pseudo_ecg;
+    
+    return pseudo_ecg_at_one_timestep;
+    
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
+{
+    if (PetscTools::AmMaster())
+    {     
+        out_stream p_file=out_stream(NULL);
+        std::stringstream stream;
+        stream << "PseudoEcg.dat";
+        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+        p_file = output_file_handler.OpenOutputFile(stream.str());
+        for (unsigned i = 0; i < mNumTimeSteps; i++)
+        {
+            double pseudo_ecg_at_one_timestep = ComputePseudoEcgAtOneTimeStep(i);
+            *p_file << pseudo_ecg_at_one_timestep << "\n";
+        }
+         p_file->close();
+    }
+    
 }
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
