@@ -102,5 +102,3 @@ template class PseudoEcgCalculator<1,3,1>;
 template class PseudoEcgCalculator<1,2,2>;
 template class PseudoEcgCalculator<2,3,1>;
 template class PseudoEcgCalculator<3,3,1>;
-   
-   
