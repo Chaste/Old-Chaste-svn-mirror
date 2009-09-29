@@ -81,7 +81,7 @@ public:
      * @param rMesh A reference to the mesh
      * @param rX The location of the recording electrode
      * @param directory The directory where the simulation results are stored
-     * @oaram hdf5File The file name  where the simulation results are stored
+     * @param hdf5File The file name  where the simulation results are stored
      * @param makeAbsolute whether to make the path of directory absolute (using the OutputFileHandler)
      * 
      * 
