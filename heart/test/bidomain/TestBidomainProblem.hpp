@@ -801,7 +801,7 @@ public:
         {
             HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
             HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
-            //HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+            HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
             HeartConfig::Instance()->SetOutputDirectory("BiProblemArchive");
             HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -810,11 +810,11 @@ public:
             PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
             BidomainProblem<1> bidomain_problem( &cell_factory );
 
-            /// \todo: Make this test pass if the mesh is set via HeartConfig
-            TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1mm_10_elements");
-            ParallelTetrahedralMesh<1,1> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
-            bidomain_problem.SetMesh(&mesh);
+//            /// \todo: Make this test pass if the mesh is set via HeartConfig
+//            TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1mm_10_elements");
+//            ParallelTetrahedralMesh<1,1> mesh;
+//            mesh.ConstructFromMeshReader(mesh_reader);
+//            bidomain_problem.SetMesh(&mesh);
     
             bidomain_problem.Initialise();
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
