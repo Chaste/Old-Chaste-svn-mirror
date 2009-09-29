@@ -136,7 +136,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
             if(HeartConfig::Instance()->GetLoadMesh())
             {
                 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
-                mpMesh = new ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                if (ELEMENT_DIM == 1) 
+                { 
+                    ///\todo We CAN currently instantiate the parallel mesh in 1D, but there's an archiving test which assumes that 1D meshes are sequential 
+                    mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(); 
+                } 
+                else 
+                { 
+                    mpMesh = new ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(); 
+                } 
                 mpMesh->ConstructFromMeshReader(mesh_reader);
             }
             else
