@@ -34,11 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscTools.hpp"
 #include "Exception.hpp"
-
 #include "ArchiveLocationInfo.hpp"
-
-
-#define CHECK_SYSTEM(cmd) EXPECT0(system, cmd)
 
 
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
@@ -54,7 +50,8 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         if (cleanOutputDirectory && mAmMaster)
         {
             //Remove whatever was there before
-            CHECK_SYSTEM(("rm -rf " + mDirectory).c_str());
+            //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems  
+            EXPECT0(system,"rm -rf " + mDirectory + "/*");
             // Re-create the output directory
             mkdir(mDirectory.c_str(), 0775);
         }
@@ -97,7 +94,7 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDi
     // Make sure it exists (ish)
     if (mAmMaster)
     {
-        CHECK_SYSTEM("mkdir -p " + directory);
+        EXPECT0(system,"mkdir -p " + directory);
     }
 
     // Add a trailing slash if not already there
