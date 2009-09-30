@@ -602,6 +602,7 @@ public:
         HeartConfig::Instance()->SetCapacitance(1.0);
 
         //Clean previous output
+        OutputFileHandler handler1("Monodomain2d", true); //This one makes sure that we leave a signature file in Monodomain2d so that we can clean up later
         OutputFileHandler handler("Monodomain2d/output", true);
         PetscTools::Barrier();
 

@@ -76,7 +76,7 @@ std::string CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(unsigned me
     file_name_stream << "cube_" << ELEMENT_DIM << "D_2mm_" << mNumElements << "_elements";
     std::string mesh_filename = file_name_stream.str();
 
-    if (output_file_handler.IsMaster())
+    if (PetscTools::AmMaster())
     {
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(mesh_dir, mesh_filename, false);
         mesh_writer.WriteFilesUsingMesh(mesh);

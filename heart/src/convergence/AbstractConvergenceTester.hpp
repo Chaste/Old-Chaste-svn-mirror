@@ -229,7 +229,7 @@ public:
         // Create a file for storing conduction velocity and AP data and write the header
         OutputFileHandler conv_info_handler("ConvergencePlots", false);
         out_stream p_conv_info_file;
-        if (conv_info_handler.IsMaster())
+        if (PetscTools::AmMaster())
         {
             p_conv_info_file = conv_info_handler.OpenOutputFile(nameOfTest+"_info.csv");
             (*p_conv_info_file) << "#Abcisa\t"
@@ -432,7 +432,7 @@ public:
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
 
                 // Write out the time series for the node at third quadrant
-                if (results_handler.IsMaster())
+                if (PetscTools::AmMaster())
                 {
                     OutputFileHandler plot_file_handler("ConvergencePlots", false);
                     std::stringstream plot_file_name_stream;
@@ -446,7 +446,7 @@ public:
                 }
 
                 // Write time series for first quadrant node
-                if (results_handler.IsMaster())
+                if (PetscTools::AmMaster())
                 {
                     std::vector<double> transmembrane_potential_1qd=results_reader.GetVariableOverTime("V", first_quadrant_node);
                     std::vector<double> time_series_1qd = results_reader.GetUnlimitedDimensionValues();
@@ -562,7 +562,7 @@ public:
                 if (this->PopulatedResult)
                 {
 
-                    if (conv_info_handler.IsMaster())
+                    if (PetscTools::AmMaster())
                     {
                         (*p_conv_info_file) << std::setprecision(8)
                                             << Abscissa() << "\t"
@@ -604,7 +604,7 @@ public:
         while (!GiveUpConvergence() && !this->Converged);
 
 
-        if (conv_info_handler.IsMaster())
+        if (PetscTools::AmMaster())
         {
             p_conv_info_file->close();
 

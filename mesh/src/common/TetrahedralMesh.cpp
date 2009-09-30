@@ -499,7 +499,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     std::string nodes_per_proc_file = basename + ".nodesperproc";
 
     // Only the master process should do IO and call METIS
-    if (handler.IsMaster())
+    if (PetscTools::AmMaster())
     {
         out_stream metis_file = handler.OpenOutputFile(basename);
 

@@ -479,7 +479,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     std::string nodes_per_proc_file = basename + ".nodesperproc";
 
     // Only the master process should do IO and call METIS
-    if (handler.IsMaster())
+    if (PetscTools::AmMaster())
     {
         /*
          *  Create input file for METIS

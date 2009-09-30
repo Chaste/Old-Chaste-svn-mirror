@@ -131,7 +131,7 @@ template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupWriteNutrient()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
-    if (output_file_handler.IsMaster())
+    if (PetscTools::AmMaster())
     {
         mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
         *this->mpSetupFile << "Nutrient \n";

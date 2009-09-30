@@ -162,7 +162,7 @@ void HoneycombMeshGenerator::Make2dPeriodicCryptMesh(double width, unsigned ghos
 {
     OutputFileHandler output_file_handler("");
 
-    if (output_file_handler.IsMaster())
+    if (PetscTools::AmMaster())
     {
         out_stream p_node_file = output_file_handler.OpenOutputFile(mMeshFilename+".node");
         (*p_node_file) << std::scientific;

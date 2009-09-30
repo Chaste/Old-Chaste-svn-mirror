@@ -827,7 +827,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         std::string full_name = handler.GetOutputDirectoryFullPath("") + "temp_" + pid.str() + ".";
 
         // Only the master process should do IO and call the mesher
-        if (handler.IsMaster())
+        if (PetscTools::AmMaster())
         {
             std::string node_file_name = "temp_" + pid.str() + ".node";
             {
@@ -891,7 +891,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         // Make sure the file is not deleted before all the processors have read it
         PetscTools::Barrier();
 
-        if (handler.IsMaster())
+        if (PetscTools::AmMaster())
         {
             // delete the temporary files (one by one rather than using * to make it impossible
             // to ever accidentally end up with "rm -f *").

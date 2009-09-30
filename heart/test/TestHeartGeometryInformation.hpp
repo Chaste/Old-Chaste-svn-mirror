@@ -385,7 +385,7 @@ public:
         info.DetermineLayerForEachNode(0.25,0.375);
         //and write them out to file
         OutputFileHandler results_handler("CellularHeterogeneity", false);
-        if (results_handler.IsMaster())
+        if (PetscTools::AmMaster())
         {        
             out_stream p_file = results_handler.OpenOutputFile("distances.dat");        
             
