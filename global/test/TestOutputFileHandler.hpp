@@ -56,7 +56,7 @@ public:
         TS_ASSERT_EQUALS(full_dir, handler2.GetOutputDirectoryFullPath());
 
         // Only the master process should write to disk
-        if (PetscTools::AmMaster())
+        if (handler.IsMaster())
         {
             out_stream p_file_stream;
             TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
@@ -82,47 +82,38 @@ public:
 
         setenv("CHASTE_TEST_OUTPUT", "", 1/*Overwrite*/);
 
-        std::string path = handler.GetOutputDirectoryFullPath("whatever");
-        
-        // Check that the signature file has been written
-        std::string command = "test -e " + path + ".chaste";
-        int return_value = system(command.c_str());
-        TS_ASSERT_EQUALS(return_value, 0);
-        
+        handler.GetOutputDirectoryFullPath("whatever");
+
         rmdir("testoutput/whatever");
 
         setenv("CHASTE_TEST_OUTPUT", "somewhere_without_trailing_forward_slash", 1/*Overwrite*/);
 
-        handler.GetOutputDirectoryFullPath("whatever");        
+        handler.GetOutputDirectoryFullPath("whatever");
 
         rmdir("somewhere_without_trailing_forward_slash/whatever");
         rmdir("somewhere_without_trailing_forward_slash");
 
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
     }
-    
-    void TestWeCanOnlyDeleteFoldersThatWeCreatedOurselves()
+
+    void TestIsMaster()
     {
+        // get an output file handler
         OutputFileHandler handler("");
-        std::string test_output_path = handler.GetOutputDirectoryFullPath("");
-        std::string command;
-        
-        if (PetscTools::AmMaster())
+
+        PetscTruth is_there;
+        PetscInitialized(&is_there);
+        TS_ASSERT(is_there);
+        PetscInt my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        if (my_rank==0)
         {
-            command = "mkdir -p " + test_output_path + "cannot_delete_me";
-            system(command.c_str());
+            TS_ASSERT(handler.IsMaster());
         }
-        PetscTools::Barrier();
-        
-        command = "test -d " + test_output_path + "cannot_delete_me";
-        // Check this folder has been created...
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        
-        // Try to use it as an output folder
-        TS_ASSERT_THROWS_CONTAINS(OutputFileHandler bad_handler("cannot_delete_me"),
-                              "Cannot clean directory");        
-        
-        
+        else
+        {
+            TS_ASSERT(!handler.IsMaster());
+        }
     }
 
 };

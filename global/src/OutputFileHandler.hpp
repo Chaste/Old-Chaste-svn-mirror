@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+
 #ifndef OUTPUTFILEHANDLER_HPP_
 #define OUTPUTFILEHANDLER_HPP_
 
@@ -47,14 +48,8 @@ class OutputFileHandler
 {
 private:
     std::string mDirectory; ///< The directory to store output files in (always ends in "/")
-    
-    /**
-     * Makes a little file called ".chaste" that signifies that OutputFileHandler created this
-     * directory. We can't wipe a directory unless this is present.
-     * @param  directory
-     */
-    static void CreateChasteSignatureOnCreatedDirectory(std::string directory);
-    
+    bool mAmMaster; ///< Are we the master process?
+
 public:
     /**
      * Create an OutputFileHandler that will create output files in the given directory.
@@ -93,7 +88,6 @@ public:
      * @return full pathname to the output directory
      */
     std::string GetOutputDirectoryFullPath(const std::string& rDirectory);
-    
     /**
      * Return the full pathname to the directory this object will create files
      * in.
@@ -134,7 +128,11 @@ public:
                               unsigned number,
                               const std::string& rFileFormat,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
-    
+    /**
+     * Returns true if this process is the master, or if running without Petsc i.e. in serial
+     */
+    bool IsMaster();
+
 };
 
 #endif /*OUTPUTFILEHANDLER_HPP_*/

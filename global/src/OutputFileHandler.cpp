@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+
 #include "OutputFileHandler.hpp"
 
 #include <cstdlib>
@@ -33,36 +34,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscTools.hpp"
 #include "Exception.hpp"
+
 #include "ArchiveLocationInfo.hpp"
+
+
+#define CHECK_SYSTEM(cmd) EXPECT0(system, cmd)
 
 
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
 {
+    // Are we the master process?  Only the master should make any new directories
+    mAmMaster = PetscTools::AmMaster();
     mDirectory = GetOutputDirectoryFullPath(rDirectory);
     //Is it a valid request for a directory?
     if (rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
-        if (cleanOutputDirectory)
-        {            
-            std::string command = "test -e " + mDirectory + ".chaste";
-            int return_value = system(command.c_str());
-            if (return_value!=0)
-            {
-                EXCEPTION("Cannot clean directory "+mDirectory+" because OutputFileHandler did not create it.");
-            }
-            // Are we the master process?  Only the master should make any new directories
-            if (PetscTools::AmMaster())
-            {
-                //Remove whatever was there before. 
-                //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems 
-                EXPECT0(system,"rm -rf " + mDirectory + "/*");
-                // Re-create the output directory
-                mkdir(mDirectory.c_str(), 0775);                       
-                CreateChasteSignatureOnCreatedDirectory(mDirectory);
-            }
+        // Are we the master process?  Only the master should make any new directories
+        if (cleanOutputDirectory && mAmMaster)
+        {
+            //Remove whatever was there before
+            CHECK_SYSTEM(("rm -rf " + mDirectory).c_str());
+            // Re-create the output directory
+            mkdir(mDirectory.c_str(), 0775);
         }
-//This not always collective so we can't have a barrier here    PetscTools::Barrier();
+//This not always collective so we can't have a barrier       PetscTools::Barrier();
         struct stat st;
         while (stat(mDirectory.c_str(), &st) != 0)
         {
@@ -78,30 +74,18 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
     if (chaste_test_output == NULL || *chaste_test_output == 0)
     {
         // Default to 'testoutput' folder within the current directory
-        directory_root = "./testoutput";
+        directory_root = "./testoutput/";
     }
     else
     {
         directory_root = std::string(chaste_test_output);
-    }
-    
-    // Add a trailing slash if not already there
-    if (! ( *(directory_root.end()-1) == '/'))
-    {
-        directory_root = directory_root + "/";
-    }
-    
-    // Make sure it exists, if not create it.
-    if (PetscTools::AmMaster())
-    {
-        std::string command = "test -d " + directory_root;
-        int return_value = system(command.c_str());
-        if (return_value!=0) // If the directory does not exist
+        // Add a trailing slash if not already there
+        if (! ( *(directory_root.end()-1) == '/'))
         {
-            EXPECT0(system,"mkdir -p " + directory_root);            
-            CreateChasteSignatureOnCreatedDirectory(directory_root);
-        }        
+            directory_root = directory_root + "/";
+        }
     }
+
     return directory_root;
 }
 
@@ -110,25 +94,17 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDi
 {
     std::string directory_root = GetChasteTestOutputDirectory();
     std::string directory = directory_root + rDirectory;
-    
+    // Make sure it exists (ish)
+    if (mAmMaster)
+    {
+        CHECK_SYSTEM("mkdir -p " + directory);
+    }
+
     // Add a trailing slash if not already there
     if (! ( *(directory.end()-1) == '/'))
     {
         directory = directory + "/";
     }
-    
-    // Make sure it exists, if not create it.
-    if (PetscTools::AmMaster())
-    {
-        std::string command = "test -d " + directory;
-        int return_value = system(command.c_str());
-        if (return_value!=0) // If the directory does not exist
-        {
-            EXPECT0(system,"mkdir -p " + directory);
-            CreateChasteSignatureOnCreatedDirectory(directory);
-        }           
-    }
-    
     return directory;
 }
 
@@ -160,15 +136,12 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
     return OpenOutputFile(string_stream.str(), mode);
 }
 
+bool OutputFileHandler::IsMaster()
+{
+    return mAmMaster;
+}
+
 void OutputFileHandler::SetArchiveDirectory()
 {
     ArchiveLocationInfo::SetArchiveDirectory(GetOutputDirectoryFullPath());
 }
-
-void OutputFileHandler::CreateChasteSignatureOnCreatedDirectory(std::string directory)
-{
-    EXPECT0(system,"echo \"This directory was created by Chaste OutputFileHandler\" > " + directory +  ".chaste");
-}
-
-
-
