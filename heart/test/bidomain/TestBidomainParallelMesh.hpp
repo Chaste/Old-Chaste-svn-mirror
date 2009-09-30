@@ -44,7 +44,7 @@ class TestBidomainParallelMesh : public CxxTest::TestSuite
 {
 public:
 
-    void TestBidomainProblemWithDistributedMesh2D()
+    void TestBidomainProblemWithDistributedMesh2D() throw(Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("DistributedMesh2d");

@@ -41,13 +41,12 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
 {
     // Are we the master process?  Only the master should make any new directories
-    mAmMaster = PetscTools::AmMaster();
     mDirectory = GetOutputDirectoryFullPath(rDirectory);
     //Is it a valid request for a directory?
     if (rDirectory != "" && rDirectory.find("..") == std::string::npos)
     {
         // Are we the master process?  Only the master should make any new directories
-        if (cleanOutputDirectory && mAmMaster)
+        if (cleanOutputDirectory && PetscTools::AmMaster())
         {
             //Remove whatever was there before
             //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems  
@@ -92,7 +91,7 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDi
     std::string directory_root = GetChasteTestOutputDirectory();
     std::string directory = directory_root + rDirectory;
     // Make sure it exists (ish)
-    if (mAmMaster)
+    if (PetscTools::AmMaster())
     {
         EXPECT0(system,"mkdir -p " + directory);
     }
@@ -131,11 +130,6 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
     std::stringstream string_stream;
     string_stream << rFileName << number << rFileFormat;
     return OpenOutputFile(string_stream.str(), mode);
-}
-
-bool OutputFileHandler::IsMaster()
-{
-    return mAmMaster;
 }
 
 void OutputFileHandler::SetArchiveDirectory()

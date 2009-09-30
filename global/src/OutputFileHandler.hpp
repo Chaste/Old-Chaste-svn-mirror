@@ -48,7 +48,6 @@ class OutputFileHandler
 {
 private:
     std::string mDirectory; ///< The directory to store output files in (always ends in "/")
-    bool mAmMaster; ///< Are we the master process?
 
 public:
     /**
@@ -128,10 +127,6 @@ public:
                               unsigned number,
                               const std::string& rFileFormat,
                               std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
-    /**
-     * Returns true if this process is the master, or if running without Petsc i.e. in serial
-     */
-    bool IsMaster();
 
 };
 

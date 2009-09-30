@@ -56,7 +56,7 @@ public:
         TS_ASSERT_EQUALS(full_dir, handler2.GetOutputDirectoryFullPath());
 
         // Only the master process should write to disk
-        if (handler.IsMaster())
+        if (PetscTools::AmMaster())
         {
             out_stream p_file_stream;
             TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
@@ -96,25 +96,6 @@ public:
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
     }
 
-    void TestIsMaster()
-    {
-        // get an output file handler
-        OutputFileHandler handler("");
-
-        PetscTruth is_there;
-        PetscInitialized(&is_there);
-        TS_ASSERT(is_there);
-        PetscInt my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0)
-        {
-            TS_ASSERT(handler.IsMaster());
-        }
-        else
-        {
-            TS_ASSERT(!handler.IsMaster());
-        }
-    }
 
 };
 
