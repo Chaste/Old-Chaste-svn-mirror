@@ -54,8 +54,9 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
             // Are we the master process?  Only the master should make any new directories
             if (PetscTools::AmMaster())
             {
-                //Remove whatever was there before
-                EXPECT0(system,"rm -rf " + mDirectory);
+                //Remove whatever was there before. 
+                //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems 
+                EXPECT0(system,"rm -rf " + mDirectory + "/*");
                 // Re-create the output directory
                 mkdir(mDirectory.c_str(), 0775);                       
                 CreateChasteSignatureOnCreatedDirectory(mDirectory);
