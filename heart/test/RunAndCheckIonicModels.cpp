@@ -108,7 +108,7 @@ void CheckCellModelResults(const std::string& rBaseResultsFilename,
     {
         TS_ASSERT_DELTA(times[i], valid_times[i], 1e-12);
         // adjust tol to data
-        TS_ASSERT_DELTA(voltages[i], valid_voltages[i], 1e-6);
+        TS_ASSERT_DELTA(voltages[i], valid_voltages[i], 1e-3); // comparing against a file written to 5sf
     }
 }
 

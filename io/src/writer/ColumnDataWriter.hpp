@@ -120,7 +120,6 @@ protected:
     void DoAdvanceAlongUnlimitedDimension();
 
 public:
-
     /**
      * Constructor.
      *
@@ -132,7 +131,7 @@ public:
     ColumnDataWriter(const std::string& rDirectory,
                      const std::string& rBaseName,
                      bool cleanDirectory=true,
-                     unsigned precision=4);
+                     unsigned precision=8);
 
     /**
      * Destructor. Closes any open files.
