@@ -92,7 +92,7 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetDiffusionCoeff
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEcgAtOneTimeStep (unsigned timeStep)
 {
-    double pseudo_ecg_at_one_timestep;
+    double pseudo_ecg_at_one_timestep = 0;
     if (PetscTools::AmMaster())
     {  
         Vec SolutionAtOneTimestep = PetscTools::CreateVec(mNumberOfNodes); 
