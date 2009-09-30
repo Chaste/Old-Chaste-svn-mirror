@@ -129,11 +129,9 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
     unsigned aps_near_node = near_cell_props.GetMaxUpstrokeVelocities().size();
     unsigned aps_far_node = far_cell_props.GetMaxUpstrokeVelocities().size();
 
-    //If empty, no AP reached the node and no conduction velocity will be calculated
-    if (aps_near_node == 0 || aps_far_node == 0)
-    {
-        EXCEPTION("AP never reached one of the nodes");
-    }
+    //These should never be empty. If so, an exception should have been thrown in the GetMaxUpstrokeVelocities() method.
+    assert(aps_near_node > 0);
+    assert(aps_far_node > 0);
 
     //if the same number of APs reached both nodes, get the last one...
     if (aps_near_node == aps_far_node)

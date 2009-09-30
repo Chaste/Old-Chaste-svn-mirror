@@ -61,7 +61,7 @@ private:
     unsigned mNumTimeSteps;/**< Number of time steps in the simulation (got from the data reader)*/
     TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used by the calculator*/
     ChastePoint<SPACE_DIM>& mrX; /**<The point from where we want to calculate the pseudoECG*/
-    double mDiffusionCoefficient;
+    double mDiffusionCoefficient;/**<The diffusion coefficient D*/
     
     /**
      * Get the integrand.
