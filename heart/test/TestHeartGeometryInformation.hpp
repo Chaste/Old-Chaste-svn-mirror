@@ -43,19 +43,23 @@ private:
                            const std::vector<unsigned>& rNodeLayers, unsigned spaceDim)
     {
         OutputFileHandler handler(rOutputDir, false);
-        out_stream p_file = handler.OpenOutputFile(rFilename);
         
-        assert(rNodeLayers.size()>0);
-        for (unsigned i=0; i<rNodeLayers.size(); i++)
+        if (PetscTools::AmMaster())
         {
-            for (unsigned j=0; j<spaceDim; j++)
+            out_stream p_file = handler.OpenOutputFile(rFilename);
+            
+            assert(rNodeLayers.size()>0);
+            for (unsigned i=0; i<rNodeLayers.size(); i++)
             {
-               * p_file << (j == 0 ? "" : "  ") << (1+rNodeLayers[i]);
+                for (unsigned j=0; j<spaceDim; j++)
+                {
+                   * p_file << (j == 0 ? "" : "  ") << (1+rNodeLayers[i]);
+                }
+               * p_file << std::endl;
             }
-           * p_file << std::endl;
+            
+            p_file->close();
         }
-        
-        p_file->close();
     }
 
 public:
@@ -94,11 +98,9 @@ public:
         
         // Write our fake face files
         std::string output_dir = "HeartGeom2d";
-        if (PetscTools::AmMaster())
-        {
-            WriteFakeFaceFile(output_dir, "epi.tri", left_face, 2u);
-            WriteFakeFaceFile(output_dir, "endo.tri", right_face, 2u);
-        }
+        WriteFakeFaceFile(output_dir, "epi.tri", left_face, 2u);
+        WriteFakeFaceFile(output_dir, "endo.tri", right_face, 2u);
+
         PetscTools::Barrier(); // Make sure files are written
 
         // Read in
@@ -221,12 +223,10 @@ public:
         
         // Write our fake face files
         std::string output_dir = "HeartGeom3d";
-        if (PetscTools::AmMaster())
-        {
-            WriteFakeFaceFile(output_dir, "epi.tri", epi_face, 3u);
-            WriteFakeFaceFile(output_dir, "lv.tri", lv_face, 3u);
-            WriteFakeFaceFile(output_dir, "rv.tri", rv_face, 3u);
-        }
+        WriteFakeFaceFile(output_dir, "epi.tri", epi_face, 3u);
+        WriteFakeFaceFile(output_dir, "lv.tri", lv_face, 3u);
+        WriteFakeFaceFile(output_dir, "rv.tri", rv_face, 3u);
+
         PetscTools::Barrier(); // Make sure files are written
 
         // Read in

@@ -479,6 +479,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     std::string nodes_per_proc_file = basename + ".nodesperproc";
 
     // Only the master process should do IO and call METIS
+    std::string full_path = handler.GetOutputDirectoryFullPath("");
+ 
     if (PetscTools::AmMaster())
     {
         /*
@@ -518,7 +520,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
          */
         std::stringstream permute_command;
         permute_command <<  "./bin/partdmesh "
-                        <<  handler.GetOutputDirectoryFullPath("")
+                        <<  full_path
                         <<  basename << " "
                         <<  num_procs
                         <<  " > /dev/null";
@@ -536,8 +538,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
      *  Read partition file and compute local node ownership and processors offset
      */
     std::ifstream partition_stream;
-    std::string full_path = handler.GetOutputDirectoryFullPath("")
-                            + output_file.str();
+    full_path +=  output_file.str();
 
     partition_stream.open(full_path.c_str());
     assert(partition_stream.is_open());
@@ -573,7 +574,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     partition_stream.seekg (0, std::ios::beg);
 
     std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
-
     rNodePermutation.resize(this->GetNumNodes());
 
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
