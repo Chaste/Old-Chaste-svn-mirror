@@ -45,3 +45,14 @@ example, the schema contains a selection of cell models:
       <xs:enumeration value="BackwardEulerLuoRudyIModel1991"/>
       <xs:enumeration value="LuoRudyIModel1991OdeSystem"/>
 etc...
+
+
+To run the executable on (for example) 2 processors, type
+
+./Chaste -np 2 ChasteParameters.xml
+
+you may run the executable on as many processors as you wish by changing
+this number. Bear in mind that the more processors that are used
+means a greater communication overhead between them. If you have ten 
+processors and ten simulations to run, then you are better running 
+all at once with "-np 1", rather than each in turn with "-np 10".
