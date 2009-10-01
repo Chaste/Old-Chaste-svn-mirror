@@ -37,17 +37,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * This class implements a pseudo-ECG calculator. It is a concrete class of AbstractFunctionalCalculator.
  * The pseudo-ECG is defined as the integral over the mesh of the following integrand:
- * 
- * - D * grad (solution) dot grad (1/r)  
- * 
+ *
+ * - D * grad (solution) dot grad (1/r)
+ *
  *  where D is a diffusion coefficient and r is the distance between a recording electrode
- *  and a given point in the mesh. 
- * 
- *  References for the formula that defines the pseudo-ECG: 
- * 
+ *  and a given point in the mesh.
+ *
+ *  References for the formula that defines the pseudo-ECG:
+ *
  *  Gima K, Rudy Y Circ Res (2002) 90:889-896 (equation 1)
  *  Baher et al. Am J Physiol (2007) 292:H180-H189 (equation 5)
- * 
+ *
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class PseudoEcgCalculator : public AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
@@ -55,14 +55,14 @@ class PseudoEcgCalculator : public AbstractFunctionalCalculator<ELEMENT_DIM, SPA
 private:
 
     friend class TestPseudoEcgCalculator;//for testing
-    
+
     Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to get the solution*/
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
     unsigned mNumTimeSteps;/**< Number of time steps in the simulation (got from the data reader)*/
     TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used by the calculator*/
     ChastePoint<SPACE_DIM>& mrX; /**<The point from where we want to calculate the pseudoECG*/
     double mDiffusionCoefficient;/**<The diffusion coefficient D*/
-    
+
     /**
      * Get the integrand.
      *
@@ -73,17 +73,17 @@ private:
     double GetIntegrand(ChastePoint<SPACE_DIM>& rX,
                                 c_vector<double,PROBLEM_DIM>& rU,
                                 c_matrix<double,PROBLEM_DIM,SPACE_DIM>& rGradU);
-                        
+
 
     /**
      * Calculates the pseudo-ECG and stores the results in a vector
-     * 
+     *
      * @param timeStep the time step where we want to calculate the pseudoecg
      * @return the pseudo ECG at teh given time step.
-     * 
+     *
      */
     double ComputePseudoEcgAtOneTimeStep (unsigned timeStep);
-                                  
+
 public:
 
     /**
@@ -94,41 +94,42 @@ public:
      * @param directory The directory where the simulation results are stored
      * @param hdf5File The file name  where the simulation results are stored
      * @param makeAbsolute whether to make the path of directory absolute (using the OutputFileHandler)
-     * 
-     * 
+     *
+     *
      * ///\ todo pass in the name of the variable in the hdf5 file? it is currently hardcoded to "V"
      */
-    PseudoEcgCalculator (TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, 
+    PseudoEcgCalculator (TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
                          ChastePoint<SPACE_DIM>& rX,
-                         std::string directory, 
-                         std::string hdf5File, 
+                         std::string directory,
+                         std::string hdf5File,
                          bool makeAbsolute = true);
-    
+
     /**
      * Destructor.
      */
     ~PseudoEcgCalculator();
-    
-    
+
+
     /**
      * Sets the value of the diffusion coefficient (D)
-     * 
+     *
      * @param diffusionCoefficient The desired value of the diffusion coefficient
-     * 
+     *
      */
     void SetDiffusionCoefficient(double diffusionCoefficient);
-    
+
     /**
-     * 
+     *
      * Calculates and writes the pseudo-ECG to file. the file will be named PseudoEcg.dat.
      * It will contain one column of numbers, each being the pseudoECG at each time step.
-     * It will be created  by the master processor into /output relaitive to where the output 
+     * It will be created  by the master processor into /output relaitive to where the output
      * directory is set (by the HeartConfig or by default)
-     * 
+     *
      */
-    void WritePseudoEcg ();
+    void WritePseudoEcg();
 
 };
 
 #endif //_PSEUDOECGALCALCULATOR_HPP_
+
 

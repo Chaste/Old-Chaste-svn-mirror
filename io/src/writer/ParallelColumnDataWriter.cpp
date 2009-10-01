@@ -36,7 +36,7 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(const std::string& rDirectory
     : ColumnDataWriter::ColumnDataWriter(rDirectory, rBaseName, cleanDirectory),
       mConcentrated(NULL)
 {
-    int num_procs, my_rank;
+    int num_procs;
     MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
     if (num_procs==1)
     {
@@ -45,16 +45,6 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(const std::string& rDirectory
     else
     {
         mIsParallel = true;
-    }
-
-    MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-    if (my_rank==0)
-    {
-        mAmMaster = true;
-    }
-    else
-    {
-        mAmMaster = false;
     }
 }
 
@@ -78,7 +68,7 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 //    VecGetSize(mConcentrated, &size2);
 //    std::cout << "Vector size=" << size << "," << size2 << std::endl << std::flush;
 
-//PETSc-3.x.x or PETSc-2.3.3 
+//PETSc-3.x.x or PETSc-2.3.3
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(mToMaster, petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd(mToMaster, petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD);
@@ -89,7 +79,7 @@ void ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 
 //    std::cout << "Done scatter" << std::endl << std::flush;
 
-    if (mAmMaster)
+    if (PetscTools::AmMaster())
     {
         double *concentrated_vector;
         VecGetArray(mConcentrated, &concentrated_vector);
@@ -122,7 +112,7 @@ void ParallelColumnDataWriter::PutVectorStripe(int variableId, DistributedVector
 
 void ParallelColumnDataWriter::EndDefineMode()
 {
-    if (mAmMaster)
+    if (PetscTools::AmMaster())
     {
         ColumnDataWriter::EndDefineMode();
     }
@@ -142,7 +132,7 @@ void ParallelColumnDataWriter::EndDefineMode()
  */
 void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue, long dimensionPosition)
 {
-    if (mAmMaster)
+    if (PetscTools::AmMaster())
     {
         // Master process is allowed to write
         ColumnDataWriter::PutVariable(variableID, variableValue, dimensionPosition);
@@ -164,7 +154,7 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
     // Make sure that everyone has queued their messages
     MPI_Barrier(PETSC_COMM_WORLD);
 
-    if (mAmMaster)
+    if (PetscTools::AmMaster())
     {
         /// \todo This is where the master is going to take messages from the slaves and write them.
         ColumnDataWriter::DoAdvanceAlongUnlimitedDimension();
@@ -176,7 +166,7 @@ void ParallelColumnDataWriter::Close()
     MPI_Barrier(PETSC_COMM_WORLD);
 
     ///\todo we may still have queued messages at this point - force their output.
-    if (mAmMaster)
+    if (PetscTools::AmMaster())
     {
         ColumnDataWriter::Close();
     }

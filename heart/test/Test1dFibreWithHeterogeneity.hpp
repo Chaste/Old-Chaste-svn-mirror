@@ -136,7 +136,7 @@ public:
 
             // Write out the time series for the node at third quadrant
             OutputFileHandler results_handler("FibreWithHeterogeneity", false);
-            if (results_handler.IsMaster())
+            if (PetscTools::AmMaster())
             {
                 OutputFileHandler plot_file_handler("HeterogeneityPlots", false);
                 std::stringstream plot_file_name_stream;

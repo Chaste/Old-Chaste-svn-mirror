@@ -40,33 +40,33 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
     double denominator = 0;
     for (unsigned i = 0; i < SPACE_DIM; i++)
     {
-        denominator = denominator + (rX[i] - mrX[i])*(rX[i] - mrX[i]); 
+        denominator = denominator + (rX[i] - mrX[i])*(rX[i] - mrX[i]);
     }
-    
-    c_vector<double,SPACE_DIM> grad_one_over_r;   
+
+    c_vector<double,SPACE_DIM> grad_one_over_r;
     for (unsigned j = 0; j < SPACE_DIM; j++)
     {
-        grad_one_over_r[j] = - (rX[j] - mrX[j])*pow( (1/denominator) , 1.5); 
+        grad_one_over_r[j] = - (rX[j] - mrX[j])*pow( (1/denominator) , 1.5);
     }
-    
+
     double integrand = 0;
     for (unsigned k = 0; k < SPACE_DIM; k++)
     {
-        integrand = integrand + rGradU(k, k) * grad_one_over_r[k]; 
+        integrand = integrand + rGradU(k, k) * grad_one_over_r[k];
     }
-    
+
     return -mDiffusionCoefficient*integrand;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::PseudoEcgCalculator (TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, 
+PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::PseudoEcgCalculator (TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
                                                                                  ChastePoint<SPACE_DIM>& rX,
-                                                                                 std::string directory, 
-                                                                                 std::string hdf5File, 
+                                                                                 std::string directory,
+                                                                                 std::string hdf5File,
                                                                                  bool makeAbsolute)
                                       : mrMesh(rMesh),
                                         mrX(rX)
-                                      
+
 {
     mpDataReader = new Hdf5DataReader(directory, hdf5File, makeAbsolute);
     mNumberOfNodes = mpDataReader->GetNumberOfRows();
@@ -94,24 +94,24 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEc
 {
     double pseudo_ecg_at_one_timestep = 0;
     if (PetscTools::AmMaster())
-    {  
-        Vec SolutionAtOneTimestep = PetscTools::CreateVec(mNumberOfNodes); 
-          
+    {
+        Vec SolutionAtOneTimestep = PetscTools::CreateVec(mNumberOfNodes);
+
         mpDataReader->GetVariableOverNodes(SolutionAtOneTimestep, "V" , timeStep);
         pseudo_ecg_at_one_timestep = Calculate(mrMesh, SolutionAtOneTimestep);
-        
+
         VecDestroy(SolutionAtOneTimestep);
     }
-    
+
     return pseudo_ecg_at_one_timestep;
-    
+
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
 {
     if (PetscTools::AmMaster())
-    {     
+    {
         out_stream p_file=out_stream(NULL);
         std::stringstream stream;
         stream << "PseudoEcg.dat";
@@ -124,7 +124,7 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
         }
          p_file->close();
     }
-    
+
 }
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
@@ -136,3 +136,4 @@ template class PseudoEcgCalculator<1,3,1>;
 template class PseudoEcgCalculator<1,2,2>;
 template class PseudoEcgCalculator<2,3,1>;
 template class PseudoEcgCalculator<3,3,1>;
+
