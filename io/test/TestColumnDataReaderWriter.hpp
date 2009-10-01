@@ -108,14 +108,14 @@ public:
 
         delete mpTestReader;
     }
-    
+
     void TestDetermineFieldWidth() throw(Exception)
     {
         mpTestReader = new ColumnDataReader("io/test/data","testfixed_good",false);
         TS_ASSERT_EQUALS(mpTestReader->GetFieldWidth(), 9u);
-        
+
         delete mpTestReader;
-        
+
         TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testdefine_good", false), "Unable to determine field width from file as cannot find any data entries");
     }
 
@@ -226,7 +226,7 @@ public:
 
     void TestPutVariableInUnlimitedFile() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimited"));
+        mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimited");
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -249,7 +249,7 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testunlimited"));
+        mpTestReader = new ColumnDataReader("","testunlimited");
 
         std::vector<double> values_ik = mpTestReader->GetValues("I_K");
 
@@ -369,16 +369,20 @@ public:
             }
         }
 
-        TS_ASSERT_THROWS_THIS(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1), "Unknown variable");
+        TS_ASSERT_THROWS_THIS(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1),
+                "Unknown variable");
 
         // Check that get unlimited dimension values throws
-        TS_ASSERT_THROWS_THIS(std::vector<double> unlimited_values = mpTestReader->GetUnlimitedDimensionValues(), "Data file has no unlimited dimension");
+        TS_ASSERT_THROWS_THIS(std::vector<double> unlimited_values = mpTestReader->GetUnlimitedDimensionValues(),
+                "Data file has no unlimited dimension");
 
         delete mpTestReader;
-        
+
         // precision exceptions
-        TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,1), "Precision must be between 2 and 20 (inclusive)");
-        TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,21), "Precision must be between 2 and 20 (inclusive)");
+        TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,1),
+                "Precision must be between 2 and 20 (inclusive)");
+        TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,21),
+                "Precision must be between 2 and 20 (inclusive)");
     }
 
     void TestPutNegativeVariableInFixedFile() throw(Exception)
@@ -433,7 +437,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
-        
+
         int i = 12;
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.1));
