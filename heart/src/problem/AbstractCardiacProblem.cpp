@@ -553,12 +553,11 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         Hdf5ToMeshalyzerConverter converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
 
         //Write mesh in a suitable form for meshalyzer
+        std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
+        //Write the mesh
+        MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
         if (PetscTools::AmMaster())
         {
-            std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
-            //Write the mesh
-            MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
-
             try
             {
                 // If this mesh object has been constructed from a mesh reader we can get reference to it
@@ -571,11 +570,11 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
                 ///\todo WriteFilesUsingMesh cannot handle ParallelTetrahedralMesh objects. Abort if so.
                 mesh_writer.WriteFilesUsingMesh(*mpMesh);
             }
-
-            //Write the parameters out
-            HeartConfig::Instance()->Write();
         }
+        //Write the parameters out
+        HeartConfig::Instance()->Write();
     }
+
     if(HeartConfig::Instance()->IsPostProcessingRequested())
     {
         //Test that we have a tetrahedral mesh
@@ -588,14 +587,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
 //            EXCEPTION("Cannot post-process on a parallel mesh yet");
 //        }
         assert(p_tetmesh != NULL);
-        
-        if (PetscTools::AmMaster())
-        {
-            PostProcessingWriter<ELEMENT_DIM, SPACE_DIM> post_writer(*p_tetmesh, HeartConfig::Instance()->GetOutputDirectory(),
-                 HeartConfig::Instance()->GetOutputFilenamePrefix(), true);
-            post_writer.WritePostProcessingFiles();
-        }        
-        
+        PostProcessingWriter<ELEMENT_DIM, SPACE_DIM> post_writer(*p_tetmesh, HeartConfig::Instance()->GetOutputDirectory(),
+                        HeartConfig::Instance()->GetOutputFilenamePrefix(), true);
+        post_writer.WritePostProcessingFiles();
     }
     
     HeartEventHandler::EndEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing

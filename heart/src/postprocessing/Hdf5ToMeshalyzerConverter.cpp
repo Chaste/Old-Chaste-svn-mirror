@@ -119,11 +119,10 @@ Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
         Write("Phi_e");
     }
 
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if (PetscTools::AmMaster())
     {
-        //Note that we don't want the child processes to create
-        //a fresh directory if it doesn't already exist
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+        //Note that we don't want the child processes to write info files
 
         out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_times.info");
         unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
@@ -138,9 +137,7 @@ Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
 
     }
 
-    MPI_Barrier(PETSC_COMM_WORLD);
-
-
+    PetscTools::Barrier();
 }
 
 Hdf5ToMeshalyzerConverter::~Hdf5ToMeshalyzerConverter()

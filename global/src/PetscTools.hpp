@@ -53,6 +53,8 @@ private:
 
     /** The total number of processors. */
     static unsigned mNumProcessors;
+   
+    //Can be used to debug number of barriers: static unsigned mBarrier;
 
     /** Which processors we are. */
     static unsigned mRank;

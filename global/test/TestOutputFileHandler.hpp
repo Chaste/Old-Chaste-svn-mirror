@@ -55,27 +55,23 @@ public:
         TS_ASSERT_EQUALS(full_dir.substr(full_dir.length()-dir.length()-1), dir+"/");
         TS_ASSERT_EQUALS(full_dir, handler2.GetOutputDirectoryFullPath());
 
-        // Only the master process should write to disk
-        if (PetscTools::AmMaster())
-        {
-            out_stream p_file_stream;
-            TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
-                                                 std::ios::out));
+        out_stream p_file_stream;
+        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
+                                             std::ios::out));
 
-            TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file"));
+        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file"));
 
-            TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_file"));
+        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_file"));
 
-            TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_",34,".txt"));
+        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_",34,".txt"));
 
-            // This should try to write files to /, which isn't allowed (we hope!)
-            OutputFileHandler handler3("../../../../../../../../../../../../../../../",
-                                       false);
+        // This should try to write files to /, which isn't allowed (we hope!)
+        OutputFileHandler handler3("../../../../../../../../../../../../../../../",
+                                   false);
 
-            TS_ASSERT_THROWS_THIS(p_file_stream = handler3.OpenOutputFile("test_file"),
-                    "Could not open file test_file in " + handler3.GetOutputDirectoryFullPath());
-        }
-
+        TS_ASSERT_THROWS_THIS(p_file_stream = handler3.OpenOutputFile("test_file"),
+                "Could not open file test_file in " + handler3.GetOutputDirectoryFullPath());
+ 
         // Test that the Chaste directory is meaningful, just for coverage purposes
 
         char *chaste_test_output = getenv("CHASTE_TEST_OUTPUT");

@@ -75,6 +75,12 @@ void OdeSolution::WriteToFile(std::string directoryName,
 
     // Write data to a file using ColumnDataWriter
     ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory);
+    
+    if (!PetscTools::AmMaster())
+    {
+        //Only the master actually writes to file
+        return;
+    }
 
     int time_var_id = writer.DefineUnlimitedDimension("Time", timeUnits);
 

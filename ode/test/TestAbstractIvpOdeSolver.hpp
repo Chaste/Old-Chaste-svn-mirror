@@ -56,6 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "ArchiveLocationInfo.hpp"
 
+
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
 private :
@@ -170,10 +171,7 @@ public:
         solutions = solver.Solve(&ode_system, state_variables, 0.0, 0.1, 0.1, 0.1);
 
         // Write
-        if (PetscTools::AmMaster())
-        {
-            solutions.WriteToFile("OdeSolution", "Ode2", &ode_system, "time");
-        }
+        solutions.WriteToFile("OdeSolution", "Ode2", &ode_system, "time");
     }
 
     void TestEulerSolver() throw (Exception)
@@ -454,7 +452,7 @@ public:
         TS_ASSERT_DELTA(testvalue_rk4[0], exact_solution[0], global_error_rk4);
         TS_ASSERT_DELTA(testvalue_rk4[1], exact_solution[1], global_error_rk4);
         TS_ASSERT_DELTA(testvalue_rk4[2], exact_solution[2], global_error_rk4);
-    }
+     }
 
     void TestGlobalError2()
     {
@@ -511,7 +509,6 @@ public:
         OutputFileHandler handler("archive",false);
         handler.SetArchiveDirectory();
         std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("ode_solver.arch");
-
         // Archive
         {
             std::ofstream ofs(archive_filename.c_str());
@@ -563,7 +560,7 @@ public:
             delete p_rk2;
             delete p_rk4;
         }
-    }
+     }
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

@@ -39,7 +39,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::PostProcessingWriter(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute)
                                 : mrMesh(rMesh)
 {
- //   mOutputDirectory = directory + "/output";
     mpDataReader = new Hdf5DataReader(directory, hdf5File, makeAbsolute);
     mpCalculator = new PropagationPropertiesCalculator(mpDataReader);
     mNumberOfNodes = mpDataReader->GetNumberOfRows();
@@ -113,13 +112,12 @@ PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::~PostProcessingWriter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
-
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
         std::stringstream stream;
         stream << "Apd_" << repolarisationPercentage << "_" << threshold << "_Map.dat";
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         {
@@ -148,12 +146,12 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double threshold)
 {
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
         std::stringstream stream;
         stream << "UpstrokeTimeMap_" << threshold << ".dat";
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         {
@@ -181,12 +179,12 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double t
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(double threshold)
 {
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
         std::stringstream stream;
         stream << "MaxUpstrokeVelocityMap_" << threshold << ".dat";
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(stream.str());
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         {
@@ -214,10 +212,10 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(d
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode)
 {
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if(PetscTools::AmMaster())
     {
         out_stream p_file=out_stream(NULL);
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
 
         std::stringstream filename;
         filename << "ConductionVelocityFromNode" << originNode << ".dat";

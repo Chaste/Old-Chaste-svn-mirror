@@ -91,13 +91,13 @@ private:
     {
         //Only the master process writes any meshes to disk
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
+        // Create a mesh writer pointing to the correct file and directory.
+        TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
+                                                               ArchiveLocationInfo::GetMeshFilename(),
+                                                               false);
         if (PetscTools::AmMaster())
         {
                 
-            // Create a mesh writer pointing to the correct file and directory.
-            TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
-                                                                   ArchiveLocationInfo::GetMeshFilename(),
-                                                                   false);
             if (this->IsMeshChanging())
             {
                 //#98 Why not do this everytime?  In the parallel case, then it means that we are saving with

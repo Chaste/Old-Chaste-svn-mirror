@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 bool PetscTools::mPetscIsInitialised = false;
 unsigned PetscTools::mNumProcessors = 0;
 unsigned PetscTools::mRank = 0;
+//unsigned PetscTools::mBarrier = 0u;
 
 void PetscTools::ResetCache()
 {
@@ -112,6 +113,7 @@ void PetscTools::Barrier()
     if (mPetscIsInitialised)
     {
         PetscBarrier(PETSC_NULL);
+        //PRINT_VARIABLE(mBarrier++);
     }
 }
 

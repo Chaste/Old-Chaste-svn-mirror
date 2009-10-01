@@ -139,7 +139,11 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
         OutputFileHandler handler(GetOutputDirectory(), false);
         output_dirname =  handler.GetOutputDirectoryFullPath() + "output/";
     }
-
+    if (!PetscTools::AmMaster())
+    {
+        //Only the master process is writing the configuration files
+        return;
+    }
     out_stream p_defaults_file( new std::ofstream( (output_dirname+"ChasteDefaults.xml").c_str() ) );
     out_stream p_parameters_file( new std::ofstream( (output_dirname+"ChasteParameters.xml").c_str() ) );
 

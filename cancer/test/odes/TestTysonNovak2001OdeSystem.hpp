@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
 
+#include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 
@@ -120,13 +121,11 @@ public:
 //        }
 //        file->close();
 
-        int my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0) // if master process
+        ColumnDataWriter writer("TysonNovak","TysonNovak");
+        if (PetscTools::AmMaster()) // if master process
         {
 
             int step_per_row = 1;
-            ColumnDataWriter writer("TysonNovak","TysonNovak");
             int time_var_id = writer.DefineUnlimitedDimension("Time","s");
 
             std::vector<int> var_ids;
@@ -148,7 +147,7 @@ public:
             }
             writer.Close();
         }
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier();
 
         // Proper values calculated using the Matlab stiff ODE solver ode15s. Note that
         // large tolerances are required for the tests to pass with both chaste solvers

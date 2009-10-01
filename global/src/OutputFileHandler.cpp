@@ -36,10 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "ArchiveLocationInfo.hpp"
 
-
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
 {
+    if (cleanOutputDirectory)
+    {
+        ///\todo #1126 Make sure that we're collective
+        //TRACE("Enter constructor with clean directory");
+        PetscTools::Barrier();
+        //MARK;
+    }
     // Are we the master process?  Only the master should make any new directories
     mDirectory = GetOutputDirectoryFullPath(rDirectory);
     //Is it a valid request for a directory?
@@ -81,16 +87,22 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
             directory_root = directory_root + "/";
         }
     }
-
     return directory_root;
 }
 
 
 std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDirectory)
 {
+    ///\todo #1126 Make sure that we're collective
+    //TRACE("Enter GetOutputDirectoryFullPath");
+    //PRINT_VARIABLE(rDirectory);
+    //PetscTools::Barrier();
+    //MARK;
+
     std::string directory_root = GetChasteTestOutputDirectory();
     std::string directory = directory_root + rDirectory;
     // Make sure it exists (ish)
+
     if (PetscTools::AmMaster())
     {
         EXPECT0(system,"mkdir -p " + directory);
