@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 
+#include <sys/stat.h>
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -214,7 +215,7 @@ public :
         HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_maps_requested);
         TS_ASSERT_EQUALS(upstroke_velocity_maps_requested.size(), 1u);
         TS_ASSERT_EQUALS(upstroke_velocity_maps_requested[0], -30.0);
-        
+
         TS_ASSERT(HeartConfig::Instance()->IsConductionVelocityMapsRequested());
         std::vector<unsigned> conduction_velocity_maps_requested;
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps_requested);
@@ -556,7 +557,7 @@ public :
         TS_ASSERT_EQUALS(upstroke_time_map_get.size(),2u);
         TS_ASSERT_EQUALS(upstroke_time_map_get[0],25);
         TS_ASSERT_EQUALS(upstroke_time_map_get[1],55);
-        
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested(), false);
         std::vector<double> upstroke_velocity_map, upstroke_velocity_map_get;
         upstroke_velocity_map.push_back(25.0);
@@ -567,7 +568,7 @@ public :
         TS_ASSERT_EQUALS(upstroke_velocity_map_get.size(),2u);
         TS_ASSERT_EQUALS(upstroke_velocity_map_get[0],25);
         TS_ASSERT_EQUALS(upstroke_velocity_map_get[1],55);
-        
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsConductionVelocityMapsRequested(), false);
         std::vector<unsigned> conduction_velocity_map, conduction_velocity_map_get;
         conduction_velocity_map.push_back(25u);
@@ -592,9 +593,8 @@ public :
         HeartConfig::Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
         //Reload the other XML
-        HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath("Xml/output")+"ChasteParameters.xml");
+        HeartConfig::Instance()->SetParametersFile(output_file_handler.GetOutputDirectoryFullPath()+"ChasteParameters.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
-
     }
 
     void TestArchiving()
@@ -653,9 +653,17 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"),
                 "Ode time-step should not be greater than pde time-step");
 
-        //Can't open a directory/file for writing
+        //Can't open a directory
         HeartConfig::Instance()->SetOutputDirectory("../../../");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(), "Could not open XML file in HeartConfig");
+        TS_ASSERT_THROWS_CONTAINS(HeartConfig::Instance()->Write(), "due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
+
+        // Can't open a file for writing
+        std::string command = OutputFileHandler::GetChasteTestOutputDirectory() + "no_write_access";
+        mkdir(command.c_str(), 0444);
+        HeartConfig::Instance()->SetOutputDirectory("no_write_access");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(),"Could not open XML file in HeartConfig");
+        chmod(command.c_str(), 0755);
+        rmdir(command.c_str());
     }
 
     /**
@@ -675,14 +683,14 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
-        
+
         // Can release 1 xml be loaded with release 1 schema?
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
     }
-    
+
     void TestGetOuputVariablesFromXML()
     {
         // Use the configuration file we just modified.
@@ -692,67 +700,67 @@ public :
         TS_ASSERT(HeartConfig::Instance()->GetOutputVariablesProvided());
 
         // Get them
-        std::vector<std::string> output_variables;        
+        std::vector<std::string> output_variables;
         HeartConfig::Instance()->GetOutputVariables(output_variables);
 
-        bool three_variables_defined = (output_variables.size() == 3u); 
+        bool three_variables_defined = (output_variables.size() == 3u);
 
         // Test three variables were provided
         TS_ASSERT(three_variables_defined);
-        
+
         // Test the actual names
         if (three_variables_defined)
         {
             TS_ASSERT_EQUALS(output_variables[0],"CaI");
             TS_ASSERT_EQUALS(output_variables[1],"Nai");
             TS_ASSERT_EQUALS(output_variables[2],"Ki");
-        }        
+        }
     }
-    
+
     void TestSetAndGetOuputVariables()
     {
         // Get the singleton in a clean state
         HeartConfig::Instance()->Reset();
-        
+
         // Set the variables we are interested in writing.
         std::vector<std::string> output_variables;
         output_variables.push_back("CaI");
         output_variables.push_back("Nai");
         output_variables.push_back("Ki");
-        
+
         HeartConfig::Instance()->SetOutputVariables( output_variables );
 
         // We want a method to check if the user is interested in any extra variable
         TS_ASSERT(HeartConfig::Instance()->GetOutputVariablesProvided());
 
         // Get them
-        std::vector<std::string> got_output_variables;        
+        std::vector<std::string> got_output_variables;
         HeartConfig::Instance()->GetOutputVariables(got_output_variables);
 
-        bool three_variables_defined = (got_output_variables.size() == 3u); 
+        bool three_variables_defined = (got_output_variables.size() == 3u);
 
         // Test three variables were provided
         TS_ASSERT(three_variables_defined);
-        
+
         // Test the actual names
         if (three_variables_defined)
         {
             TS_ASSERT_EQUALS(got_output_variables[0],"CaI");
             TS_ASSERT_EQUALS(got_output_variables[1],"Nai");
             TS_ASSERT_EQUALS(got_output_variables[2],"Ki");
-        }        
-    }    
-    
+        }
+    }
+
     void TestSetAndGetArchivingStuff()
     {
         // Get the singleton in a clean state
         HeartConfig::Instance()->Reset();
-        
+
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         TS_ASSERT(HeartConfig::Instance()->IsSimulationDefined());
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationResumed());
-        
-        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());        
+
+        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
         HeartConfig::Instance()->SetSaveSimulation(false);
         TS_ASSERT(!HeartConfig::Instance()->GetSaveSimulation());
         HeartConfig::Instance()->SetSaveSimulation(true);
@@ -760,10 +768,10 @@ public :
 
         // Get the singleton in a clean state
         HeartConfig::Instance()->Reset();
-        
+
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationDefined());
-        TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());        
+        TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());
 
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSpaceDimension(), "SpaceDimension information is not available in a resumed simulation.")
 

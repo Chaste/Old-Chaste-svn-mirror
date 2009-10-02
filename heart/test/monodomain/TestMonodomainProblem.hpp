@@ -96,7 +96,7 @@ class TestMonodomainProblem : public CxxTest::TestSuite
 {
 private:
     std::vector<double> mVoltageReplicated1d2ms;///<Used to test differences between tests
-    
+
 public:
     void tearDown()
     {
@@ -136,7 +136,7 @@ public:
         TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
         TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
         TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
-        
+
         for (unsigned index=0; index<voltage_replicated.GetSize(); index++)
         {
             mVoltageReplicated1d2ms.push_back(voltage_replicated[index]);
@@ -194,7 +194,7 @@ public:
         {
             TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index], 5e-3);
         }
-  
+
     }
 
     // Same as TestMonodomainProblem1D, except the 1D mesh is embedded in 3D space.
@@ -578,7 +578,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(0.1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("Monodomain2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
-        
+
         //set the postprocessing information we want
         std::vector<unsigned> origin_nodes;
         origin_nodes.push_back(0u);
@@ -613,13 +613,13 @@ public:
         for (unsigned i=0; i<num_files; i++)
         {
             std::string compare_command = "cmp -s ";
-            compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
+            compare_command += handler.GetOutputDirectoryFullPath()+"/"+test_file_names[i];
             compare_command += " ";
             compare_command += "heart/test/data/Monodomain2d/";
             compare_command += test_file_names[i];
             TS_ASSERT_EQUALS(system(compare_command.c_str()), 512);//Not there
         }
-        
+
         // now solve
         monodomain_problem.Solve();
 
@@ -637,7 +637,7 @@ public:
                  * We will test that the file exists though.
                  */
                 std::ifstream vm_file;
-                std::string command = handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
+                std::string command = handler.GetOutputDirectoryFullPath()+"/"+test_file_names[i];
                 vm_file.open(command.c_str());
                 TS_ASSERT(vm_file.is_open());
                 vm_file.close();
@@ -645,7 +645,7 @@ public:
             else
             {
                 std::string compare_command = "diff --ignore-matching-lines=\"<ChasteParameters\" ";
-                compare_command += handler.GetOutputDirectoryFullPath("Monodomain2d/output")+"/"+test_file_names[i];
+                compare_command += handler.GetOutputDirectoryFullPath()+"/"+test_file_names[i];
                 compare_command += " ";
                 compare_command += "heart/test/data/Monodomain2d/";
                 compare_command += test_file_names[i];
@@ -738,9 +738,9 @@ public:
     // Test the functionality for outputing the values of requested cell state variables
     void TestMonodomainProblemPrintsMultipleVariables() throw (Exception)
     {
-        // Set configuration file 
+        // Set configuration file
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/MultipleVariablesMonodomain.xml");
-   
+
         // Set up problem
         PlaneStimulusCellFactory<FaberRudy2000Version3, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -754,7 +754,7 @@ public:
         Hdf5DataReader data_reader1=monodomain_problem.GetDataReader();
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
 
-        // Check there is information about 101 timesteps (0, 0.01, 0.02, ...) 
+        // Check there is information about 101 timesteps (0, 0.01, 0.02, ...)
         TS_ASSERT_EQUALS( times.size(), 11u);
         TS_ASSERT_DELTA( times[0], 0.0, 1e-12);
         TS_ASSERT_DELTA( times[1], 0.01, 1e-12);
@@ -769,12 +769,12 @@ public:
         TS_ASSERT_EQUALS( node_5_cai.size(), 11U);
 
         std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("Nai", 5);
-        TS_ASSERT_EQUALS( node_5_nai.size(), 11U);        
+        TS_ASSERT_EQUALS( node_5_nai.size(), 11U);
 
         std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("Ki", 5);
         TS_ASSERT_EQUALS( node_5_ki.size(), 11U);
     }
-    
+
     void TestMonodomainProblemExceptions() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
@@ -812,11 +812,11 @@ public:
                 "Either explicitly specify not to print output (call PrintOutput(false)) or "
                 "specify the output directory and filename prefix");
     }
-    
+
     /**
      * Not a very thorough test yet - just checks we can load a problem, simulate it, and
      * get expected results.
-     * 
+     *
      * This test relies on the h5 file generated in TestMonodomainProblem1D. Always run after!
      */
     void TestArchiving() throw(Exception)
@@ -837,22 +837,22 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
-    
+
             PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
             MonodomainProblem<1> monodomain_problem( &cell_factory );
-    
+
             monodomain_problem.Initialise();
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             monodomain_problem.Solve();
-    
+
             num_cells = monodomain_problem.GetPde()->GetCellsDistributed().size();
-            
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             AbstractCardiacProblem<1,1,1>* const p_monodomain_problem = &monodomain_problem;
             output_arch & p_monodomain_problem;
         }
-        
+
         // Load
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -860,7 +860,7 @@ public:
 
             AbstractCardiacProblem<1,1,1> *p_monodomain_problem;
             input_arch >> p_monodomain_problem;
-            
+
             // Check values
             TS_ASSERT_EQUALS(p_monodomain_problem->GetPde()->GetCellsDistributed().size(),
                              num_cells);
@@ -870,7 +870,7 @@ public:
 
             // test whether voltages and gating variables are in correct ranges
             CheckMonoLr91Vars<1>(static_cast<MonodomainProblem<1,1>&>(*p_monodomain_problem));
-    
+
             // check some voltages
             ReplicatableVector voltage_replicated(p_monodomain_problem->GetSolution());
             double atol=5e-3;
@@ -886,22 +886,22 @@ public:
                 //Shouldn't differ from the original run at all
                 TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index],  5e-11);
             }
-            // check a progress report (or something) exists - in a noisy way 
+            // check a progress report (or something) exists - in a noisy way
             TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblemArchive/").c_str()), 0);
 
             // check output file contains results for the whole simulation
             TS_ASSERT(CompareFilesViaHdf5DataReader("MonoProblemArchive", "MonodomainLR91_1d", true,
                                                     "MonoProblem1d", "MonodomainLR91_1d", true));
-            
+
             // Free memory
             delete p_monodomain_problem;
         }
     }
-    
+
     /**
      * Same as TestMonodomainProblem1D, except run the simulation in 2 halves: first to 1ms,
      * then continue to 2ms.
-     * 
+     *
      * This test relies on the h5 file generated in TestMonodomainProblem1D. Always run after!
      */
     void TestMonodomainProblem1dInTwoHalves() throw(Exception)
@@ -929,7 +929,7 @@ public:
         // check some voltages
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
         double atol=5e-3;
- 
+
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
         TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);

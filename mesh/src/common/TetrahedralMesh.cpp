@@ -119,7 +119,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         std::vector<unsigned> node_indices = face_data.NodeIndices;
 
         // NOTE: as above just read boundary element *vertices* from mesh reader - even if
-        // it is a quadratic mesh with internal elements, the extra nodes are ignored here 
+        // it is a quadratic mesh with internal elements, the extra nodes are ignored here
         // and used elsewhere: ie, we don't do this:
         //   unsigned nodes_size = node_indices.size();
 
@@ -133,8 +133,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
         // This is a boundary face
         // Ensure all its nodes are marked as boundary nodes
-        
-        assert(nodes.size()==ELEMENT_DIM); // just taken vertices of boundary node from 
+
+        assert(nodes.size()==ELEMENT_DIM); // just taken vertices of boundary node from
         for (unsigned j=0; j<nodes.size(); j++)
         {
             if (!nodes[j]->IsBoundaryNode())
@@ -199,9 +199,9 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReadNodesPerProcessorFile(const st
                      << ", not equal to number of nodes in mesh, " << this->GetNumNodes();
         EXCEPTION(string_stream.str());
     }
-    
+
     unsigned num_owned=nodes_per_processor_vec[PetscTools::GetMyRank()];
-    
+
     if (nodes_per_processor_vec.size() != PetscTools::GetNumProcs())
     {
         EXCEPTION("Number of processes doesn't match the size of the nodes-per-processor file");
@@ -219,7 +219,7 @@ bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsConforming()
      *   we're assuming that faces never appear more than twice
      */
     std::set< std::set<unsigned> > odd_parity_faces;
-    
+
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();
          iter != this->GetElementIteratorEnd();
          ++iter)
@@ -245,10 +245,10 @@ bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsConforming()
             }
             else
             {
-                //Face is not in set so it now has odd parity.  Insert it 
+                //Face is not in set so it now has odd parity.  Insert it
                 odd_parity_faces.insert(face_info);
             }
-            
+
         }
     }
     /* At this point the odd parity faces should be the same as the
@@ -530,7 +530,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
          */
         std::stringstream permute_command;
         permute_command <<  "./bin/partdmesh "
-                        <<  handler.GetOutputDirectoryFullPath("")
+                        <<  handler.GetOutputDirectoryFullPath()
                         <<  basename << " "
                         <<  numProcs
                         <<  " > /dev/null";
@@ -544,7 +544,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
         // Make sure it doesn't exist, since values will be appended with >>
         std::stringstream clear_command;
         clear_command << "rm -f "
-                      << handler.GetOutputDirectoryFullPath("")
+                      << handler.GetOutputDirectoryFullPath()
                       << nodes_per_proc_file
                       << " > /dev/null";
         EXPECT0(system, clear_command.str());
@@ -555,10 +555,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
             std::stringstream count_command;
             count_command << "grep "
                           << proc_index << " "
-                          << handler.GetOutputDirectoryFullPath("")
+                          << handler.GetOutputDirectoryFullPath()
                           << output_file.str()
                           << " | wc -l >> "
-                          << handler.GetOutputDirectoryFullPath("")
+                          << handler.GetOutputDirectoryFullPath()
                           << nodes_per_proc_file;
 
             EXPECT0(system, count_command.str());
@@ -576,7 +576,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     std::vector<unsigned> offset(numProcs,0u);
 
     std::ifstream partition_stream;
-    std::string full_path = handler.GetOutputDirectoryFullPath("")
+    std::string full_path = handler.GetOutputDirectoryFullPath()
                             + output_file.str();
 
     partition_stream.open(full_path.c_str());
@@ -778,7 +778,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
     }
 
     // If it's in none of the elements, then throw
-    std::stringstream ss; 
+    std::stringstream ss;
     ss << "Point [";
     for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
@@ -792,7 +792,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithInitialGuess(ChastePoint<SPACE_DIM> testPoint, unsigned startingElementGuess, bool strict)
 {
     assert(startingElementGuess<this->GetNumElements());
-    
+
     // let m=startingElementGuess, N=num_elem-1
     // We search from in this order: m, m+1, m+2, .. , N, 0, 1, .., m-1.
 
@@ -822,8 +822,8 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
     }
 
     // If it's in none of the elements, then throw
-    std::stringstream ss; 
-    ss << "Point [";    
+    std::stringstream ss;
+    ss << "Point [";
     for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
         ss << testPoint[j] << ",";
@@ -942,7 +942,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
  * Note that our method (above) has a bias that all tetrahedra share a
  * common edge (the diagonal 0 - 7).  In the following method the cube is
  * split along the "face diagonal" 1-2-5-6 into two prisms.  This also has a bias.
- * 
+ *
     unsigned element_nodes[6][4] = {{ 0, 6, 5, 4},
                                     { 0, 2, 6, 1},
                                     { 0, 1, 6, 5},
@@ -997,7 +997,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
 
                 //Are we at a boundary?
                 std::vector<Node<SPACE_DIM>*> triangle_nodes;
-          
+
                 if (i == 0) //low face at x==0
                 {
                     triangle_nodes.clear();
@@ -1389,7 +1389,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
     // Make sure we have enough space
     this->mElementJacobians.resize(this->GetNumAllElements());
     this->mElementInverseJacobians.resize(this->GetNumAllElements());
-    
+
     if (ELEMENT_DIM < SPACE_DIM)
     {
         this->mElementWeightedDirections.resize(this->GetNumAllElements());
@@ -1408,7 +1408,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
         unsigned index = iter->GetIndex();
         iter->CalculateInverseJacobian(this->mElementJacobians[index], this->mElementJacobianDeterminants[index], this->mElementInverseJacobians[index]);
     }
-        
+
     if (ELEMENT_DIM < SPACE_DIM)
     {
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();

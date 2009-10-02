@@ -39,33 +39,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
 {
-    if (cleanOutputDirectory)
-    {
-        ///\todo #1126 Make sure that we're collective
-        //TRACE("Enter constructor with clean directory");
-        PetscTools::Barrier();
-        //MARK;
-    }
-    // Are we the master process?  Only the master should make any new directories
-    mDirectory = GetOutputDirectoryFullPath(rDirectory);
     //Is it a valid request for a directory?
-    if (rDirectory != "" && rDirectory.find("..") == std::string::npos)
+    if (rDirectory.find("..") != std::string::npos)
+    {
+        EXCEPTION("Will not create directory: " + rDirectory +
+                " due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
+    }
+
+    mDirectory = GetOutputDirectoryFullPath(rDirectory);
+
+    // Clean the directory (default)
+    if (rDirectory != "" && cleanOutputDirectory) // Don't clean CHASTE_TEST_OUTPUT
     {
         // Are we the master process?  Only the master should make any new directories
-        if (cleanOutputDirectory && PetscTools::AmMaster())
+        if (PetscTools::AmMaster())
         {
             //Remove whatever was there before
-            //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems  
+            //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems
             EXPECT0(system,"rm -rf " + mDirectory + "/*");
-            // Re-create the output directory
-            mkdir(mDirectory.c_str(), 0775);
         }
-//This not always collective so we can't have a barrier       PetscTools::Barrier();
-        struct stat st;
-        while (stat(mDirectory.c_str(), &st) != 0)
-        {
-            //Wait until directory becomes available
-        }
+        // Wait for master to finish before going on to use the directory.
+        PetscTools::Barrier();
     }
 }
 
@@ -81,38 +75,34 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
     else
     {
         directory_root = std::string(chaste_test_output);
-        // Add a trailing slash if not already there
-        if (! ( *(directory_root.end()-1) == '/'))
-        {
-            directory_root = directory_root + "/";
-        }
     }
+    AddTrailingSlash(directory_root);
+
     return directory_root;
 }
 
 
 std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDirectory)
 {
-    ///\todo #1126 Make sure that we're collective
-    //TRACE("Enter GetOutputDirectoryFullPath");
-    //PRINT_VARIABLE(rDirectory);
-    //PetscTools::Barrier();
-    //MARK;
-
     std::string directory_root = GetChasteTestOutputDirectory();
     std::string directory = directory_root + rDirectory;
-    // Make sure it exists (ish)
+    AddTrailingSlash(directory);
 
+    // Are we the master process?  Only the master should make any new directories
     if (PetscTools::AmMaster())
     {
-        EXPECT0(system,"mkdir -p " + directory);
+        // Re-create the output directory structure:
+        std::string command = "test -d " + directory;
+        int return_value = system(command.c_str());
+        if (return_value!=0)
+        {
+            // We make as many folders as necessary here.
+            EXPECT0(system,"mkdir -p " + directory);
+        }
     }
+    // Wait for master to finish before going on to use the directory.
+    PetscTools::Barrier();
 
-    // Add a trailing slash if not already there
-    if (! ( *(directory.end()-1) == '/'))
-    {
-        directory = directory + "/";
-    }
     return directory;
 }
 
@@ -147,4 +137,13 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
 void OutputFileHandler::SetArchiveDirectory()
 {
     ArchiveLocationInfo::SetArchiveDirectory(GetOutputDirectoryFullPath());
+}
+
+void OutputFileHandler::AddTrailingSlash(std::string& rDirectory)
+{
+    // Add a trailing slash if not already there
+    if (! ( *(rDirectory.end()-1) == '/'))
+    {
+        rDirectory = rDirectory + "/";
+    }
 }

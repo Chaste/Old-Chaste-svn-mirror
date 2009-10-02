@@ -286,10 +286,10 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         {
             num_owned = mTotalNumNodes - proc_offsets[rank];
         }
-        
+
         this->mpDistributedVectorFactory = new DistributedVectorFactory(this->GetNumNodes(), num_owned);
     }
-    else 
+    else
     {
         // Dumb or sequential partition
         assert(this->mpDistributedVectorFactory);
@@ -323,7 +323,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetPartitionType() const
 {
-    return mMetisPartitioning;   
+    return mMetisPartitioning;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -446,11 +446,11 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
                                                                            std::set<unsigned>& rNodesOwned)
 {
     DistributedVectorFactory factory(mTotalNumNodes); /// \todo: to be removed
-    
+
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
     for (unsigned node_index = this->mpDistributedVectorFactory->GetLow();
          node_index < this->mpDistributedVectorFactory->GetHigh();
-         node_index++)         
+         node_index++)
     {
          rNodesOwned.insert(node_index);
     }
@@ -479,8 +479,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     std::string nodes_per_proc_file = basename + ".nodesperproc";
 
     // Only the master process should do IO and call METIS
-    std::string full_path = handler.GetOutputDirectoryFullPath("");
- 
+    std::string full_path = handler.GetOutputDirectoryFullPath();
+
     if (PetscTools::AmMaster())
     {
         /*
@@ -720,7 +720,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
 {
     assert(ELEMENT_DIM == 1);
-    
+
      //Check that there are enough nodes to make the parallelisation worthwhile
     if (width<2 || width+1 < PetscTools::GetNumProcs())
     {
@@ -729,13 +729,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
     mTotalNumNodes=width+1;
     mTotalNumBoundaryElements=2u;
     mTotalNumElements=width;
-    
+
     //Use DistributedVectorFactory to make a dumb partition of the nodes
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
-    
+
     unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
     unsigned hi_node=this->mpDistributedVectorFactory->GetHigh();
-    
+
     if (!PetscTools::AmMaster())
     {
         //Allow for a halo node
@@ -756,7 +756,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
         {
             //Beyond left or right it's a halo node
             RegisterHaloNode(node_index);
-            mHaloNodes.push_back(p_node); 
+            mHaloNodes.push_back(p_node);
         }
         else
         {
@@ -775,7 +775,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
             RegisterBoundaryElement(1);
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
         }
-        
+
         if (node_index>lo_node) // create element
         {
             std::vector<Node<SPACE_DIM>*> nodes;
@@ -802,14 +802,14 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
     mTotalNumNodes=(width+1)*(height+1);
     mTotalNumBoundaryElements=(width+height)*2;
     mTotalNumElements=width*height*2;
-    
+
     //Use DistributedVectorFactory to make a dumb partition of space
     DistributedVectorFactory y_partition(height+1);
     unsigned lo_y = y_partition.GetLow();
     unsigned hi_y = y_partition.GetHigh();
     //Dumb partition of nodes has to be such that each process gets complete slices
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes, (width+1)*y_partition.GetLocalOwnership());
-  
+
     if (!PetscTools::AmMaster())
     {
         //Allow for a halo node
@@ -820,7 +820,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
         //Allow for a halo node
         hi_y++;
     }
-   
+
     //Construct the nodes
     for (unsigned j=lo_y; j<hi_y; j++)
     {
@@ -836,8 +836,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
             if (j<y_partition.GetLow() || j==y_partition.GetHigh() )
             {
                 //Beyond left or right it's a halo node
-                RegisterHaloNode(global_node_index);               
-                mHaloNodes.push_back(p_node); 
+                RegisterHaloNode(global_node_index);
+                mHaloNodes.push_back(p_node);
             }
             else
             {
@@ -850,7 +850,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
             }
         }
     }
-  
+
     //Construct the boundary elements
     unsigned belem_index;
     //Top
@@ -979,7 +979,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
         //Allow for a halo node
         hi_z++;
     }
-   
+
     //Construct the nodes
     unsigned global_node_index;
     for (unsigned k=lo_z; k<hi_z; k++)
@@ -994,21 +994,21 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
                     is_boundary = true;
                 }
                 global_node_index = (k*(height+1)+j)*(width+1)+i;
-                
+
                 Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(global_node_index, is_boundary, i, j, k);
 
                 if (k<z_partition.GetLow() || k==z_partition.GetHigh() )
                 {
                     //Beyond left or right it's a halo node
-                    RegisterHaloNode(global_node_index);               
-                    mHaloNodes.push_back(p_node); 
+                    RegisterHaloNode(global_node_index);
+                    mHaloNodes.push_back(p_node);
                 }
                 else
                 {
                     RegisterNode(global_node_index);
                     this->mNodes.push_back(p_node);
                 }
-                
+
                 if (is_boundary)
                 {
                     this->mBoundaryNodes.push_back(p_node);
@@ -1032,7 +1032,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
             // height*width squares on upper face, k layers of 2*height+2*width square aroun
             belem_index =   2*(height*width+k*2*(height+width));
         }
- 
+
         for (unsigned j=0; j<height; j++)
         {
             for (unsigned i=0; i<width; i++)
@@ -1071,7 +1071,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
 
                 //Are we at a boundary?
                 std::vector<Node<SPACE_DIM>*> triangle_nodes;
-                
+
                 if (i == 0) //low face at x==0
                 {
                     triangle_nodes.clear();
@@ -1172,7 +1172,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor
 {
     //Base class scale (scales node positions
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(xFactor, yFactor, zFactor);
-    
+
     //Scales halos
     for (unsigned i=0; i<mHaloNodes.size(); i++)
     {
@@ -1187,9 +1187,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor
         }
         r_location[0] *= xFactor;
     }
-    
+
 }
-    
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

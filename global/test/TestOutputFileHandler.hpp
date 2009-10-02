@@ -44,53 +44,86 @@ class TestOutputFileHandler : public CxxTest::TestSuite
 {
 public:
 
-    void TestHandler()
+    void TestHandler() throw(Exception)
     {
+        // Make a handler that points straight to the CHASTE_TEST_OUTPUT directory.
         OutputFileHandler handler("");
-        TS_ASSERT(handler.GetOutputDirectoryFullPath("").length() > 0);
+        TS_ASSERT(handler.GetOutputDirectoryFullPath().length() > 0);
+        TS_ASSERT_EQUALS(handler.GetOutputDirectoryFullPath(),handler.GetChasteTestOutputDirectory());
 
+        // Make a handler that points straight to a sub-directory.
         std::string dir = "testhandler";
         OutputFileHandler handler2(dir);
-        std::string full_dir = handler2.GetOutputDirectoryFullPath(dir);
+        std::string full_dir = handler2.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(full_dir.substr(full_dir.length()-dir.length()-1), dir+"/");
         TS_ASSERT_EQUALS(full_dir, handler2.GetOutputDirectoryFullPath());
 
+        // Check that both can create files
         out_stream p_file_stream;
-        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
-                                             std::ios::out));
+        p_file_stream = handler.OpenOutputFile("test_file", std::ios::out);
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "test_file");
 
-        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file"));
+        p_file_stream = handler.OpenOutputFile("test_file");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "test_file");
 
-        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_file"));
+        p_file_stream = handler2.OpenOutputFile("test_file");
+        EXPECT0(system, "test -e " + handler2.GetOutputDirectoryFullPath() + "test_file");
 
-        TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_",34,".txt"));
+        p_file_stream = handler2.OpenOutputFile("test_",34,".txt");
+        EXPECT0(system, "test -e " + handler2.GetOutputDirectoryFullPath() + "test_34.txt");
 
         // This should try to write files to /, which isn't allowed (we hope!)
-        OutputFileHandler handler3("../../../../../../../../../../../../../../../",
-                                   false);
+        TS_ASSERT_THROWS_CONTAINS(OutputFileHandler handler3("../../../../../../../../../../../../../../../",false),
+                "due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
 
-        TS_ASSERT_THROWS_THIS(p_file_stream = handler3.OpenOutputFile("test_file"),
-                "Could not open file test_file in " + handler3.GetOutputDirectoryFullPath());
- 
-        // Test that the Chaste directory is meaningful, just for coverage purposes
+        // We don't want other people using CHASTE_TEST_OUTPUT whilst we are messing with it!
+        PetscTools::Barrier();
 
+        // Test that the Chaste directory actually influences the location of files
         char *chaste_test_output = getenv("CHASTE_TEST_OUTPUT");
 
         setenv("CHASTE_TEST_OUTPUT", "", 1/*Overwrite*/);
-
-        handler.GetOutputDirectoryFullPath("whatever");
-
+        OutputFileHandler handler4("whatever");
         rmdir("testoutput/whatever");
 
         setenv("CHASTE_TEST_OUTPUT", "somewhere_without_trailing_forward_slash", 1/*Overwrite*/);
 
-        handler.GetOutputDirectoryFullPath("whatever");
+        OutputFileHandler handler5("whatever");
 
         rmdir("somewhere_without_trailing_forward_slash/whatever");
         rmdir("somewhere_without_trailing_forward_slash");
 
+        // Reset the location of CHASTE_TEST_OUTPUT
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
+
+        // We don't want other people using CHASTE_TEST_OUTPUT whilst we are messing with it!
+        PetscTools::Barrier();
     }
+
+    ///todo #1126 test
+//    void TestWeCanOnlyDeleteFoldersWeHaveMadeOurselves() throw(Exception)
+//    {
+//        OutputFileHandler handler("");
+//        std::string test_output_path = handler.GetOutputDirectoryFullPath();
+//        std::string command;
+//
+//        if (PetscTools::AmMaster())
+//        {
+//            command = "mkdir -p " + test_output_path + "cannot_delete_me";
+//            system(command.c_str());
+//        }
+//        // Wait until directory has been created
+//        PetscTools::Barrier();
+//
+//        command = "test -d " + test_output_path + "cannot_delete_me";
+//        // Check this folder has been created...
+//        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+//
+//        // Try to use it as an output folder
+//        TS_ASSERT_THROWS_CONTAINS(OutputFileHandler bad_handler("cannot_delete_me"),
+//                                  "Cannot clean directory");
+//
+//    }
 
 
 };

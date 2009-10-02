@@ -282,7 +282,7 @@ public:
             }
 
             int ierr = MPI_Allreduce(&local_phi_e, &total_phi_e, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-            TS_ASSERT_EQUALS (ierr, MPI_SUCCESS)
+            TS_ASSERT_EQUALS (ierr, MPI_SUCCESS);
 
             TS_ASSERT_DELTA(total_phi_e, 0, 1e-4);
 
@@ -313,7 +313,7 @@ public:
      * sigma_i) in a bidomain simulation it should agree with a monodomain
      * simulation with the same parameters.
      */
-    void TestCompareBidomainProblemWithMonodomain()
+    void TestCompareBidomainProblemWithMonodomain() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
@@ -488,9 +488,9 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("BidomainFallsOver");
         HeartConfig::Instance()->SetOutputFilenamePrefix("res");
 
-        //Something happens at 0.1ms
+        // Something happens at 0.1ms
 
-        //DelayedTotalStimCellFactory bidomain_cell_factory(-6e5); //Normal stimulus
+        // DelayedTotalStimCellFactory bidomain_cell_factory(-6e5); //Normal stimulus
         DelayedTotalStimCellFactory bidomain_cell_factory(-6e6); //Takes sodium out of range
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
@@ -510,21 +510,19 @@ public:
         //TS_ASSERT_DELTA( times.back(), 0.3,  1e-12);//For normal stimulation
         TS_ASSERT_DELTA( times.back(), 0.20,  1e-12);//For over stimulation
 
-        //Make sure that there's time for the files to be written
-        //(most files are only written by the master)
+        // Make sure that there's time for the files to be written
+        // (most files are only written by the master)
         PetscTools::Barrier();
 
-        //Test for post-processed output
-        OutputFileHandler handler("");
+        // Test for post-processed output (and don't wipe the directory!)
+        OutputFileHandler handler("BidomainFallsOver/output",false);
 
         std::string files[7] = {"res_mesh.pts","res_mesh.cnnx","ChasteParameters.xml","ChasteDefaults.xml",
                                 "res_Phi_e.dat","res_V.dat","res_times.info"};
 
-        for(unsigned i=0; i<6; i++)
+        for(unsigned i=0; i<7; i++)
         {
-            std::string filename =   handler.GetOutputDirectoryFullPath("BidomainFallsOver/output")
-                                   + files[i];
-
+            std::string filename = handler.GetOutputDirectoryFullPath() + files[i];
             std::ifstream file(filename.c_str());
             TS_ASSERT(file.is_open());
             file.close();
@@ -629,25 +627,25 @@ public:
             TS_ASSERT_DELTA(ortho_ex_pot[index], axi_ex_pot[index], 1e-7);
         }
     }
-    
+
     // Test the functionality for outputing the values of requested cell state variables
     void TestBidomainProblemPrintsMultipleVariables() throw (Exception)
     {
         // Get the singleton in a clean state
         HeartConfig::Instance()->Reset();
 
-        // Set configuration file 
+        // Set configuration file
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/MultipleVariablesBidomain.xml");
-        
+
         // Override the variables we are interested in writing.
         std::vector<std::string> output_variables;
         output_variables.push_back("Ca_NSR");
         output_variables.push_back("Nai");
         output_variables.push_back("j");
         output_variables.push_back("Ki");
-        
+
         HeartConfig::Instance()->SetOutputVariables( output_variables );
-   
+
         // Set up problem
         PlaneStimulusCellFactory<FaberRudy2000Version3, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
@@ -661,7 +659,7 @@ public:
         Hdf5DataReader data_reader1=bidomain_problem.GetDataReader();
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
 
-        // Check there is information about 101 timesteps (0, 0.01, 0.02, ...) 
+        // Check there is information about 101 timesteps (0, 0.01, 0.02, ...)
         TS_ASSERT_EQUALS( times.size(), 11u);
         TS_ASSERT_DELTA( times[0], 0.0, 1e-12);
         TS_ASSERT_DELTA( times[1], 0.01, 1e-12);
@@ -679,10 +677,10 @@ public:
         TS_ASSERT_EQUALS( node_5_cansr.size(), 11U);
 
         std::vector<double> node_5_nai = data_reader1.GetVariableOverTime("Nai", 5);
-        TS_ASSERT_EQUALS( node_5_nai.size(), 11U);        
+        TS_ASSERT_EQUALS( node_5_nai.size(), 11U);
 
         std::vector<double> node_5_j = data_reader1.GetVariableOverTime("j", 5);
-        TS_ASSERT_EQUALS( node_5_j.size(), 11U);        
+        TS_ASSERT_EQUALS( node_5_j.size(), 11U);
 
         std::vector<double> node_5_ki = data_reader1.GetVariableOverTime("Ki", 5);
         TS_ASSERT_EQUALS( node_5_ki.size(), 11U);
@@ -696,8 +694,8 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        HeartConfig::Instance()->SetCapacitance(1.0);        
-        
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainSimple1d");
@@ -721,7 +719,7 @@ public:
         TS_ASSERT_DELTA(solution_replicated[7], -16.6761, atol);
         TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
         TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
-        
+
         for (unsigned index=0; index<solution_replicated.GetSize(); index++)
         {
             mSolutionReplicated1d2ms.push_back(solution_replicated[index]);
@@ -738,7 +736,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        HeartConfig::Instance()->SetCapacitance(1.0);        
+        HeartConfig::Instance()->SetCapacitance(1.0);
 
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainSimple1dInTwoHalves");
@@ -756,7 +754,7 @@ public:
 
         HeartConfig::Instance()->SetSimulationDuration(2.0);
         bidomain_problem.Solve();
-        
+
 
         // check some voltages
         ReplicatableVector solution_replicated(bidomain_problem.GetSolution());
@@ -769,7 +767,7 @@ public:
         TS_ASSERT_DELTA(solution_replicated[5], -16.5617, atol);
         TS_ASSERT_DELTA(solution_replicated[7], -16.6761, atol);
         TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
-        TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);        
+        TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
         for (unsigned index=0; index<solution_replicated.GetSize(); index++)
         {
             TS_ASSERT_DELTA(solution_replicated[index], mSolutionReplicated1d2ms[index], 5e-11);
@@ -781,11 +779,11 @@ public:
 
     }
 
-    
+
     /**
      * Not a very thorough test yet - just checks we can load a problem, simulate it, and
      * get expected results.
-     * 
+     *
      * This test relies on the h5 file generated in TestSimpleBidomain1D. Always run after!
      */
     void TestArchiving() throw(Exception)
@@ -806,22 +804,22 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
-    
+
             PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
             BidomainProblem<1> bidomain_problem( &cell_factory );
 
             bidomain_problem.Initialise();
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             bidomain_problem.Solve();
-    
+
             num_cells = bidomain_problem.GetPde()->GetCellsDistributed().size();
-            
+
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             AbstractCardiacProblem<1,1,2>* const p_bidomain_problem = &bidomain_problem;
             output_arch & p_bidomain_problem;
         }
-        
+
         // Load
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -829,14 +827,14 @@ public:
 
             AbstractCardiacProblem<1,1,2> *p_bidomain_problem;
             input_arch >> p_bidomain_problem;
-            
+
             // Check values
             TS_ASSERT_EQUALS(p_bidomain_problem->GetPde()->GetCellsDistributed().size(),
                              num_cells);
 
             HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
             p_bidomain_problem->Solve();
-    
+
             // check some voltages
             ReplicatableVector solution_replicated(p_bidomain_problem->GetSolution());
             double atol=5e-3;
@@ -846,7 +844,7 @@ public:
             TS_ASSERT_DELTA(solution_replicated[5], -16.5617, atol);
             TS_ASSERT_DELTA(solution_replicated[7], -16.6761, atol);
             TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
-            TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);        
+            TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
 
             for (unsigned index=0; index<solution_replicated.GetSize(); index++)
             {
@@ -856,12 +854,12 @@ public:
             // check output file contains results for the whole simulation
             TS_ASSERT(CompareFilesViaHdf5DataReader("BiProblemArchive", "BidomainLR91_1d", true,
                                                     "BidomainSimple1d", "BidomainLR91_1d", true));
-            
+
             // Free memory
             delete p_bidomain_problem;
         }
     }
-    
+
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/

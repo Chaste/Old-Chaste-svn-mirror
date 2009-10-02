@@ -49,6 +49,28 @@ class OutputFileHandler
 private:
     std::string mDirectory; ///< The directory to store output files in (always ends in "/")
 
+    /**
+     * Takes a reference to a string and adds a trailing slash if one is not already present
+     *
+     * @param rDirectory  The directory name to add a trailing slash to.
+     */
+    static void AddTrailingSlash(std::string& rDirectory);
+
+    /**
+     * Check that the desired output directory exists and is writable by us.
+     * Create it if needed.
+     * Return the full pathname of the output directory.
+     *
+     * The environment variable CHASTE_TEST_OUTPUT will be examined.  If it is set
+     * and non-empty it is taken to be a directory where test output should be stored.
+     * Otherwise the current directory is used.
+     *
+     * @param rDirectory  pathname of the output directory, relative to where Chaste
+     *         output will be stored (user shouldn't care about this).
+     * @return full pathname to the output directory
+     */
+    std::string GetOutputDirectoryFullPath(const std::string& rDirectory);
+
 public:
     /**
      * Create an OutputFileHandler that will create output files in the given directory.
@@ -74,25 +96,11 @@ public:
     static std::string GetChasteTestOutputDirectory();
 
     /**
-     * Check that the desired output directory exists and is writable by us.
-     * Create it if needed.
-     * Return the full pathname of the output directory.
-     *
-     * The environment variable CHASTE_TEST_OUTPUT will be examined.  If it is set
-     * and non-empty it is taken to be a directory where test output should be stored.
-     * Otherwise the current directory is used.
-     *
-     * @param rDirectory  pathname of the output directory, relative to where Chaste
-     *         output will be stored (user shouldn't care about this).
-     * @return full pathname to the output directory
-     */
-    std::string GetOutputDirectoryFullPath(const std::string& rDirectory);
-    /**
      * Return the full pathname to the directory this object will create files
      * in.
      */
     std::string GetOutputDirectoryFullPath();
-    
+
     /**
      * Helper method to set up ArchiveLocationInfo.
      */

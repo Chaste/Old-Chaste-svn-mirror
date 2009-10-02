@@ -156,7 +156,7 @@ public:
             (*node_file) << i << "\t" << node_loc[0] << "\t" << node_loc[1] << "\t" << node_loc[2] << "\n";
         }
         node_file->close();
-        std::string full_name = handler.GetOutputDirectoryFullPath("")+"temp.";
+        std::string full_name = handler.GetOutputDirectoryFullPath()+"temp.";
         std::string command = "tetgen -Q " + full_name + "node" + " > /dev/null";
         int return_value=system(command.c_str());
         TS_ASSERT(return_value == 0);
