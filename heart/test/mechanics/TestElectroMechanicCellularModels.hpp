@@ -121,8 +121,11 @@ public:
 
             // get CaI
             double Ca_I = electrophys_model.rGetStateVariables()[Ca_i_index];
-            cellmech_model.SetLambdaAndDerivative(1.0, 0.0);
-            cellmech_model.SetIntracellularCalciumConcentration(Ca_I);
+            cellmech_model.SetStretchAndStretchRate(1.0, 0.0);
+
+            ContractionModelInputParameters input_parameters;
+            input_parameters.IntracellularCalciumConcentrations = Ca_I;    
+            cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
             p_solver->SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
@@ -225,9 +228,10 @@ public:
             double lam = MyLam(current_time, end_time, min_lam);
             double dlam_dt = MyLamDeriv(current_time, end_time, min_lam);
 
-            cellmech_model.SetLambdaAndDerivative(lam, dlam_dt);
-            cellmech_model.SetIntracellularCalciumConcentration(Ca_I);
-
+            cellmech_model.SetStretchAndStretchRate(lam, dlam_dt);
+            ContractionModelInputParameters input_parameters;
+            input_parameters.IntracellularCalciumConcentrations = Ca_I;    
+            cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
             p_solver->SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());

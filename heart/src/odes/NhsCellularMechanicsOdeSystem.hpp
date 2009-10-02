@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NHSCELLULARMECHANICSODESYSTEM_HPP_
 #define NHSCELLULARMECHANICSODESYSTEM_HPP_
 
-#include "AbstractOdeSystem.hpp"
+#include "AbstractOdeBasedContractionModel.hpp"
 
 
 /**
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  THE ACTIVE TENSION IS RETURNED IN KILOPASCALS!!
  */
-class NhsCellularMechanicsOdeSystem  : public AbstractOdeSystem
+class NhsCellularMechanicsOdeSystem  : public AbstractOdeBasedContractionModel
 {
 friend class TestCellularMechanicsOdeSystems;
 
@@ -160,14 +160,21 @@ public :
      * @param lambda  current stretch
      * @param dlambdaDt  current stretch rate
      */
-    void SetLambdaAndDerivative(double lambda, double dlambdaDt);
+    void SetStretchAndStretchRate(double lambda, double dlambdaDt);
 
     /**
      *  Set the current intracellular calcium concentration
      * 
-     *  @param calciumI is the intracellular calcium
+     *  @param rInputParameters input parameters (calcium, voltage, time, of which only calcium is used)
      */
-    void SetIntracellularCalciumConcentration(double calciumI);
+    void SetInputParameters(ContractionModelInputParameters& rInputParameters);
+        
+    /**
+     *  Directly set the intracellular calcium concentration.
+     *  @param calciumConcentration calcium concentration.
+     */
+    void SetIntracellularCalciumConcentration(double calciumConcentration);
+    
 
     /**
      *  Get the current Calcium Troponin (one of the state variables) value. This
@@ -185,7 +192,7 @@ public :
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
 
     /**
-     *  Get the active tension, which is a function of the constants and current state variables
+     *  Get the active tension, which is a function of the constants and current state variables. KILOPASCALS
      */
     double GetActiveTension();
 
@@ -193,5 +200,15 @@ public :
      *  Get the current stretch rate
      */
     double GetLambda();
+    
+    bool IsStretchDependent() 
+    {
+        return true;
+    }
+
+    bool IsStretchRateDependent() 
+    {
+        return true;
+    }
 };
 #endif /*NHSCELLULARMECHANICSODESYSTEM_HPP_*/

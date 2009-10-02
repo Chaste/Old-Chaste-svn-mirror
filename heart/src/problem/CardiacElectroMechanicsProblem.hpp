@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "MonodomainProblem.hpp"
 #include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "ExplicitCardiacMechanicsAssembler.hpp"
+//#include "ExplicitNhsCardiacMechanicsAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "QuadraticMesh.hpp"
 
@@ -101,6 +103,8 @@ class CardiacElectroMechanicsProblem
 friend class TestCardiacElectroMechanicsProblem;
 
 protected :
+    /** Contraction model (from enumeration) */
+    ContractionModel mContractionModel;
     /** The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
     /** The mechanics assembler */
@@ -174,6 +178,7 @@ public :
 
     /**
      * Constructor.
+     * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param pElectricsMesh  Mesh on which to solve electrics (Monodomain)
      * @param pMechanicsMesh  Mesh (2nd order) on which to solve mechanics
      * @param fixedMechanicsNodes  Indices of those nodes which a pinned in space
@@ -183,7 +188,8 @@ public :
      * @param nhsOdeTimeStep Step size for NHS (Niederer, Hunter, Smith) model of active tension in cardiac cells.
      * @param outputDirectory the output directory
      */
-    CardiacElectroMechanicsProblem(TetrahedralMesh<DIM,DIM>* pElectricsMesh,
+    CardiacElectroMechanicsProblem(ContractionModel contractionModel,
+                                   TetrahedralMesh<DIM,DIM>* pElectricsMesh,
                                    QuadraticMesh<DIM>* pMechanicsMesh,
                                    std::vector<unsigned> fixedMechanicsNodes,
                                    AbstractCardiacCellFactory<DIM>* pCellFactory,

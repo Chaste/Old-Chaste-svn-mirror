@@ -54,7 +54,7 @@ public:
         NhsSystemWithImplicitSolver system_with_solver;
 
         // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
-        system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
+        system_with_solver.SetStretchAndStretchRate(0.5, 0.1);
         double Ca_I = GetSampleCaIValue();
         system_with_solver.SetIntracellularCalciumConcentration(Ca_I);
 
@@ -73,7 +73,7 @@ public:
         }
 
         // solve system with euler
-        system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1);
+        system_for_euler_solver.SetStretchAndStretchRate(0.5, 0.1);
         system_for_euler_solver.SetIntracellularCalciumConcentration(Ca_I);
         EulerIvpOdeSolver euler_solver;
         euler_solver.SolveAndUpdateStateVariable(&system_for_euler_solver, 0, 0.1, 0.1);  // one timestep
@@ -106,7 +106,7 @@ public:
             NhsSystemWithImplicitSolver system_with_solver;
 
             // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
-            system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
+            system_with_solver.SetStretchAndStretchRate(0.5, 0.1);
             double Ca_I = GetSampleCaIValue();
             // bigger Ca_I, so we get some active tension (and so the a few iterations are
             // needed when solving for T_a and z
@@ -134,7 +134,7 @@ public:
 
             // solve system with euler
             NhsCellularMechanicsOdeSystem system_for_euler_solver;
-            system_for_euler_solver.SetLambdaAndDerivative(0.5, 0.1);
+            system_for_euler_solver.SetStretchAndStretchRate(0.5, 0.1);
             system_for_euler_solver.SetIntracellularCalciumConcentration(10*Ca_I);
             EulerIvpOdeSolver euler_solver;
 
@@ -166,14 +166,14 @@ public:
 //    void TestImplicitSolverWithLargeTimeSteps()
 //    {
 //        NhsSystemWithImplicitSolver system_with_solver;
-//        system_with_solver.SetLambdaAndDerivative(0.5, 0.1);
+//        system_with_solver.SetStretchAndStretchRate(0.5, 0.1);
 //        system_with_solver.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
 //        system_with_solver.SolveDoNotUpdate(0, 100, 0.01);
 //        system_with_solver.UpdateStateVariables();
 //
 //        NhsSystemWithImplicitSolver system_with_solver2;
-//        system_with_solver2.SetLambdaAndDerivative(0.5, 0.1);
+//        system_with_solver2.SetStretchAndStretchRate(0.5, 0.1);
 //        system_with_solver2.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
 //        system_with_solver2.SolveDoNotUpdate(0, 100, 1);
@@ -204,12 +204,12 @@ public:
         // get initial active tension
         double init_Ta = system.GetActiveTension();
 
-        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SetStretchAndStretchRate(0.6, 0.1);
         system.SolveDoNotUpdate(0, 1, 0.01);
 
         double Ta1 = system.GetActiveTensionAtNextTime();
 
-        system.SetLambdaAndDerivative(0.6, 0.2);
+        system.SetStretchAndStretchRate(0.6, 0.2);
         system.SolveDoNotUpdate(0, 1, 0.01);
 
         double Ta2 = system.GetActiveTensionAtNextTime();
@@ -219,12 +219,12 @@ public:
         TS_ASSERT_DIFFERS(init_Ta, Ta1);
         TS_ASSERT_DIFFERS(init_Ta, Ta2);
 
-        system.SetLambdaAndDerivative(0.6, 0.2);
+        system.SetStretchAndStretchRate(0.6, 0.2);
         system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_be_Ta2 = system.GetActiveTensionAtNextTime();
 
-        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SetStretchAndStretchRate(0.6, 0.1);
         system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_be_Ta1 = system.GetActiveTensionAtNextTime();
@@ -232,12 +232,12 @@ public:
         TS_ASSERT_EQUALS(Ta1, should_be_Ta1);
         TS_ASSERT_EQUALS(Ta2, should_be_Ta2);
 
-        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SetStretchAndStretchRate(0.6, 0.1);
         system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_also_be_Ta1 = system.GetActiveTensionAtNextTime();
 
-        system.SetLambdaAndDerivative(0.6, 0.2);
+        system.SetStretchAndStretchRate(0.6, 0.2);
         system.SolveDoNotUpdate(0, 1, 0.01);
 
         double should_also_be_Ta2 = system.GetActiveTensionAtNextTime();
@@ -252,7 +252,7 @@ public:
 
         double Ca_I = GetSampleCaIValue();
         system.SetIntracellularCalciumConcentration(Ca_I);
-        system.SetLambdaAndDerivative(0.6, 0.1);
+        system.SetStretchAndStretchRate(0.6, 0.1);
         system.SolveDoNotUpdate(0, 1, 0.01);
 
         double Ta_at_next_time_before_update = system.GetActiveTensionAtNextTime();

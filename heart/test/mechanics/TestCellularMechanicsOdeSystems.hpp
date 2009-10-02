@@ -36,9 +36,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 #include "NhsCellularMechanicsOdeSystem.hpp"
+#include "Kerchoffs2003ContractionModel.hpp"
+#include "Nash2004ContractionModel.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
+#include "TimeStepper.hpp"
 
 class TestCellularMechanicsOdeSystems : public CxxTest::TestSuite
 {
@@ -71,7 +74,7 @@ public :
         // has changed. A proper test where lambda varies (which means time-looping has
         // to be done outside the solver is done in TestElectroMechanicCellularModels,
         // where NHS is coupled to a cell model
-        nhs_system.SetLambdaAndDerivative(0.5, 0.1);
+        nhs_system.SetStretchAndStretchRate(0.5, 0.1);
         TS_ASSERT_DELTA(nhs_system.GetLambda(), 0.5, 1e-12);
         nhs_system.SetIntracellularCalciumConcentration(Ca_I);
         OdeSolution solution = p_euler_solver->Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
@@ -82,6 +85,68 @@ public :
         TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][2], -25.0359, 1e-2 );
         TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][3],  77.2103, 1e-2 );
         TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][4],  20.6006, 1e-2 );
+    }
+    
+
+    void TestKerchoffs2003ContractionModelConstantStrain() throw(Exception)
+    {        
+//todo: add tests, seconds to milliseconds, etc.
+
+        Kerchoffs2003ContractionModel kerchoffs_model;
+
+        EulerIvpOdeSolver euler_solver;
+                
+        ContractionModelInputParameters input_params;
+        input_params.IntracellularCalciumConcentration = DOUBLE_UNSET;
+
+        TimeStepper stepper(0, 0.5, 0.001);        
+        std::cout << stepper.GetTime() << " " << kerchoffs_model.rGetStateVariables()[0] << " " << kerchoffs_model.GetActiveTension() <<  "\n";
+
+        while(!stepper.IsTimeAtEnd())
+        {
+            input_params.Time = stepper.GetTime();
+            if( (stepper.GetTime()>0.1) && (stepper.GetTime()<0.6) )
+            {
+                input_params.Voltage = 50;
+            }
+            else
+            {
+                input_params.Voltage = -90;
+            }
+            kerchoffs_model.SetInputParameters(input_params);
+                
+            euler_solver.SolveAndUpdateStateVariable(&kerchoffs_model, stepper.GetTime(), stepper.GetNextTime(), 0.00001);
+            std::cout << stepper.GetTime() << " " << kerchoffs_model.rGetStateVariables()[0] << " " << kerchoffs_model.GetActiveTension() <<  "\n";
+            
+            stepper.AdvanceOneTimeStep();
+        }
+    }
+    
+    void TestNash2004ContractionModel() throw(Exception)
+    {
+        Nash2004ContractionModel nash_model;
+        
+        boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver);
+
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(-3.0,3.0));
+        LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_stimulus);
+        
+        ContractionModelInputParameters input_params;
+        input_params.IntracellularCalciumConcentration = DOUBLE_UNSET;
+        input_params.Time = DOUBLE_UNSET;
+
+        TimeStepper stepper(0, 1000, 1); 
+
+        while(!stepper.IsTimeAtEnd())
+        {
+            lr91.Compute(stepper.GetTime(), stepper.GetNextTime());
+            input_params.Voltage = lr91.GetVoltage();
+            nash_model.SetInputParameters(input_params);
+            p_euler_solver->SolveAndUpdateStateVariable(&nash_model, stepper.GetTime(), stepper.GetNextTime(), 0.01);
+            
+            std::cout << stepper.GetTime() << " " << nash_model.GetActiveTension() <<  "\n";
+            stepper.AdvanceOneTimeStep();            
+        }
     }
 };
 #endif /*TESTCELLULARMECHANICSODESYSTEMS_HPP_*/

@@ -53,7 +53,8 @@ public:
      * @param nhsOdeTimeStep Step size for NHS (Niederer, Hunter, Smith) model of active tension in cardiac cells.
      * @param outputDirectory the output directory
      */
-    CardiacElectroMechProbRegularGeom(double width,
+    CardiacElectroMechProbRegularGeom(ContractionModel contractionModel,
+                                      double width,
                                       unsigned numMechanicsElementsEachDir,
                                       unsigned numElectricsElementsEachDir,
                                       AbstractCardiacCellFactory<DIM>* pCellFactory,
@@ -61,7 +62,8 @@ public:
                                       unsigned numElecTimeStepsPerMechTimestep,
                                       double nhsOdeTimeStep,
                                       std::string outputDirectory = "")
-        : CardiacElectroMechanicsProblem<DIM>(NULL, NULL, std::vector<unsigned>(), // all these set below
+        : CardiacElectroMechanicsProblem<DIM>(contractionModel, 
+                                              NULL, NULL, std::vector<unsigned>(), // all these set below
                                               pCellFactory, endTime,
                                               numElecTimeStepsPerMechTimestep,
                                               nhsOdeTimeStep, outputDirectory)

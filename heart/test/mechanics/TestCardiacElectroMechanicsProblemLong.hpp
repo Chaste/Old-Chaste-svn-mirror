@@ -50,7 +50,8 @@ public:
 
         // run to 125 ms - about where the width is at its minimum (see figures
         // in "A numerical method for cardiac mechano–electric simulations" (Pras&JonW))
-        CardiacElectroMechProbRegularGeom<2> problem(1.0,  /* width */
+        CardiacElectroMechProbRegularGeom<2> problem(NHS,
+                                                     1.0,  /* width */
                                                      5,    /* mech mesh size */
                                                      96,   /* elec elem each dir */
                                                      &cell_factory,
@@ -87,7 +88,8 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,0,0);
 
-        CardiacElectroMechanicsProblem<3> problem(&electrics_mesh,
+        CardiacElectroMechanicsProblem<3> problem(NHS,
+                                                  &electrics_mesh,
                                                   &mechanics_mesh,
                                                   fixed_nodes,
                                                   &cell_factory,

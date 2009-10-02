@@ -87,7 +87,7 @@ double NhsCellularMechanicsOdeSystem::CalculateT0(double z)
  */
 
 NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
-    :   AbstractOdeSystem(5) // five state variables
+    :   AbstractOdeBasedContractionModel(5) // five state variables
 {
     mpSystemInfo = OdeSystemInformation<NhsCellularMechanicsOdeSystem>::Instance();
     SetStateVariables(GetInitialConditions());
@@ -108,7 +108,7 @@ NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
     mK2 *= 1 - mNr*pow(mKZ,mNr)/zp_to_n_plus_K_to_n;
 }
 
-void NhsCellularMechanicsOdeSystem::SetLambdaAndDerivative(double lambda, double dlambdaDt)
+void NhsCellularMechanicsOdeSystem::SetStretchAndStretchRate(double lambda, double dlambdaDt)
 {
     assert(lambda>0.0);
     mLambda = lambda;
@@ -117,11 +117,19 @@ void NhsCellularMechanicsOdeSystem::SetLambdaAndDerivative(double lambda, double
     CalculateCalciumTrop50();
 }
 
-void NhsCellularMechanicsOdeSystem::SetIntracellularCalciumConcentration(double calciumI)
+void NhsCellularMechanicsOdeSystem::SetInputParameters(ContractionModelInputParameters& rInputParameters)
 {
-    assert(calciumI > 0.0);
-    mCalciumI = calciumI;
+    assert(rInputParameters.IntracellularCalciumConcentration != DOUBLE_UNSET);
+    assert(rInputParameters.IntracellularCalciumConcentration > 0.0);
+    mCalciumI = rInputParameters.IntracellularCalciumConcentration;
 }
+
+void NhsCellularMechanicsOdeSystem::SetIntracellularCalciumConcentration(double calciumConcentration)
+{
+    assert(calciumConcentration > 0.0);
+    mCalciumI = calciumConcentration;
+}
+    
 
 #define COVERAGE_IGNORE // this is covered, but gcov is rubbish
 double NhsCellularMechanicsOdeSystem::GetCalciumTroponinValue()

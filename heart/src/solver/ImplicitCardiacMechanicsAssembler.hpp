@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  Solves cardiac mechanics implicitly (together with the NHS cell
  *  models for determining the active tension), taking in the intracellular
- *  Calcium concentration. See CardiacElectroMechanicsProblem documentation
+ *  calcium concentration. See CardiacElectroMechanicsProblem documentation
  *  for more detail.
  */
 template<unsigned DIM>
@@ -72,9 +72,25 @@ private:
      */
     std::vector<double> mLambda;
 
-
-/**
- */
+    /** This solver is an implicit solver (overloaded pure method) */
+    bool IsImplicitSolver()
+    {
+        return true;
+    }
+    /**
+     *  A method called by AbstractCardiacMechanicsAssembler::AssembleOnElement(), providing
+     *  the active tension (and other info) at a particular quadrature point. This version uses C to 
+     *  determine the current stretch and stretch rate, and integrates the NHS ODEs to determine
+     *  the active tension, and derivatives of the active tension with respect to stretch and
+     *  stretch rate.
+     * 
+     *  @param C Green-deformation tension
+     *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement
+     *  @param rActiveTension The returned active tension
+     *  @param rActiveTension The returned dT_dLam, derivative of active tension wrt stretch
+     *  @param rActiveTension The returned dT_dLamDot, derivative of active tension wrt stretch rate
+     *  @param rLambda The stretch (computed from C) as AssembleOnElement needs to use this too.
+     */
     void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
                                           unsigned currentQuadPointGlobalIndex,
                                           bool assembleJacobian,
@@ -104,10 +120,9 @@ public:
     virtual ~ImplicitCardiacMechanicsAssembler();
 
     /**
-     *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we
-     *  would set the active tension as the forcing quantity; the implicit algorithm
-     *  takes in the Calcium concentration and solves for the active tension implicitly
-     *  together with the mechanics).
+     *  Set the intracellular calcium concentrations. The implicit algorithm 
+     *  takes in the calcium concentration and solves for the active tension implicitly
+     *  together with the mechanics.
      * 
      *  @param caI the intracellular calcium concentrations
      */
@@ -134,36 +149,6 @@ public:
      *  @param odeTimestep the ODE timestep
      */
     void Solve(double time, double nextTime, double odeTimestep);
-
-
-private:
-
-//    /**
-//     * Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
-//     * the lack of the body force term in the residual, the bits where this is
-//     * different to the base class AssembleOnElement are restricted to two bits
-//     * (see code): calculating Ta implicitly and using it to compute the stress,
-//     * and the addition of a corresponding extra term to the Jacobian.
-//     * 
-//     * @param rElement The element to assemble on.
-//     * @param rAElem The element's contribution to the LHS matrix is returned in this
-//     *     n by n matrix, where n is the no. of nodes in this element. There is no
-//     *     need to zero this matrix before calling.
-//     * @param rAElemPrecond The element's contribution to the matrix passed to PetSC
-//     *     in creating a preconditioner
-//     * @param rBElem The element's contribution to the RHS vector is returned in this
-//     *     vector of length n, the no. of nodes in this element. There is no
-//     *     need to zero this vector before calling.
-//     * @param assembleResidual A bool stating whether to assemble the residual vector.
-//     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
-//     */
-//    void AssembleOnElement(Element<DIM, DIM>& rElement,
-//                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElem,
-//                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElemPrecond,
-//                           c_vector<double,STENCIL_SIZE>& rBElem,
-//                           bool assembleResidual,
-//                           bool assembleJacobian);
-
 };
 
 

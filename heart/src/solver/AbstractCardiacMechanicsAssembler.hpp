@@ -34,7 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticBasisFunction.hpp" // not included in NonlinearElasticityAssembler.hpp, just the cpp
 #include "LinearBasisFunction.hpp"
 
-
+/**
+ *  AbstractCardiacMechanicsAssembler
+ * 
+ *  Base class to implicit and explicit cardiac mechanics assemblers. Inherits from NonlinearElasticityAssembler
+ *  Main method is the overloaded AssembleOnElement which does the extra work needed for cardiac problems. The
+ *  child classes hold the contraction models and need to implement a method for getting the active tension from 
+ *  the model. 
+ */
 template<unsigned DIM>
 class AbstractCardiacMechanicsAssembler : public NonlinearElasticityAssembler<DIM>
 {
@@ -55,14 +62,19 @@ protected:
     double mNextTime;
     /** Time used to integrate the contraction model */
     double mOdeTimestep;
-
+    
+    /**
+     *  Whether the solver is implicit or not (ie whether the contraction model depends on lambda (and depends on
+     *  lambda at the current time)). For whether dTa_dLam dependent terms need to be added to the Jacbobian
+     */
+    virtual bool IsImplicitSolver()=0;
 
     /**
      * Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
      * the lack of the body force term in the residual, the bits where this is
      * different to the base class AssembleOnElement are restricted to two bits
-     * (see code): calculating Ta implicitly and using it to compute the stress,
-     * and the addition of a corresponding extra term to the Jacobian.
+     * (see code): getting Ta and using it to compute the stress, and (in when Ta
+     * is a function of the stretch) the addition of extra term to the Jacobian.
      * 
      * @param rElement The element to assemble on.
      * @param rAElem The element's contribution to the LHS matrix is returned in this
@@ -85,6 +97,19 @@ protected:
 
 
     /**
+     *  A method called by AbstractCardiacMechanicsAssembler::AssembleOnElement(), providing
+     *  the active tension (and other info if implicit (if the contraction model depends on stretch
+     *  or stretch rate)) at a particular quadrature point. This version uses C to determine the 
+     *  current stretch and stretch rate, and integrates the NHS ODEs to determine
+     *  the active tension, and derivatives of the active tension with respect to stretch and
+     *  stretch rate.
+     * 
+     *  @param C Green-deformation tension
+     *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement
+     *  @param rActiveTension The returned active tension
+     *  @param rActiveTension The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit assemblers
+     *  @param rActiveTension The returned dT_dLamDot, derivative of active tension wrt stretch rate.  Only should be set in implicit assemblers
+     *  @param rLambda The stretch (computed from C) as AssembleOnElement needs to use this too.  Only should be set in implicit assemblers
      */
     virtual void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
                                                   unsigned currentQuadPointGlobalIndex,
@@ -152,12 +177,15 @@ public:
 
 
     /**
-     *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we
-     *  would set the active tension as the forcing quantity; the implicit algorithm
-     *  takes in the Calcium concentration and solves for the active tension implicitly
-     *  together with the mechanics). Pure, implemented in concrete assembler
+     *  Set the intracellular Calcium concentrations.
      * 
-     *  @param caI the intracellular calcium concentrations
+     *  Implicit solvers (for contraction models which are functions of stretch (and maybe 
+     *  stretch rate) would integrate the contraction model with this Ca using the current
+     *  stretch (ie inside AssembleOnElement, ie inside GetActiveTensionAndTensionDerivs).
+     *  Explicit solvers (for contraction models which are NOT functions of stretch can immediately
+     *  integrate the contraction models to get the active tension.
+     * 
+     *  @param caI the intracellular calcium concentrations at each quadrature point
      */
     virtual void SetIntracellularCalciumConcentrations(std::vector<double>& caI)=0;
 
@@ -168,7 +196,7 @@ public:
      *  @param nextTime the next time
      *  @param odeTimestep the ODE timestep
      */
-    virtual void Solve(double time, double nextTime, double odeTimestep)=0;    
+    virtual void Solve(double time, double nextTime, double odeTimestep)=0;
 };
 
 
@@ -513,16 +541,19 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                     /************************************
                      *  The cardiac-specific code PART 2
                      ************************************/
-                    rAElem(index1,index2) +=  (
-                                                   d_act_tension_dlam
-                                                 +
-                                                   d_act_tension_d_dlamdt/(mNextTime-mCurrentTime)
-                                                )
-                                                * (F(spatial_dim2,0)/lambda)
-                                                * grad_quad_phi(0,node_index2)
-                                                * F(spatial_dim1,0)
-                                                * grad_quad_phi(0,node_index1)
-                                                * wJ;
+                    if(IsImplicitSolver())
+                    {                      
+                        rAElem(index1,index2) +=  (
+                                                       d_act_tension_dlam
+                                                     +
+                                                       d_act_tension_d_dlamdt/(mNextTime-mCurrentTime)
+                                                    )
+                                                    * (F(spatial_dim2,0)/lambda)
+                                                    * grad_quad_phi(0,node_index2)
+                                                    * F(spatial_dim1,0)
+                                                    * grad_quad_phi(0,node_index1)
+                                                    * wJ;
+                    }
                    /************************************
                     *  End cardiac-specific code PART 2
                     ************************************/

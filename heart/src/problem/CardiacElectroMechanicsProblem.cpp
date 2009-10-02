@@ -160,6 +160,7 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
 
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
+            ContractionModel contractionModel,
             TetrahedralMesh<DIM,DIM>* pElectricsMesh,
             QuadraticMesh<DIM>* pMechanicsMesh,
             std::vector<unsigned> fixedMechanicsNodes,
@@ -177,6 +178,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     // events in AbstractCardiacProblem::Solve() (esp. calling EndEvent(EVERYTHING))
     // if we didn't disable it.
     HeartEventHandler::Disable();
+    
+    mContractionModel = contractionModel;
 
     // create the monodomain problem. Note the we use this to set up the cells,
     // get an initial condition (voltage) vector, and get an assembler. We won't
@@ -284,7 +287,19 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMonodomainProblem->Initialise();
 
     // construct mechanics assembler
-    mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+    switch(mContractionModel)
+    {
+        case NASH2004:
+        case KERCHOFFS2003:
+            mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            break;
+        case NHS:
+            mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            break;
+        default:
+            EXCEPTION("Unknown contraction model");
+            break;
+    }
 
     // find the element nums and weights for each gauss point in the mechanics mesh
     mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());

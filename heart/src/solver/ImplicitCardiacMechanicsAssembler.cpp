@@ -55,9 +55,15 @@ template<unsigned DIM>
 void ImplicitCardiacMechanicsAssembler<DIM>::SetIntracellularCalciumConcentrations(std::vector<double>& caI)
 {
     assert(caI.size() == this->mTotalQuadPoints);
+
+    ContractionModelInputParameters input_parameters;
+    input_parameters.Voltage = DOUBLE_UNSET;
+    input_parameters.Time = DOUBLE_UNSET;
+    
     for(unsigned i=0; i<caI.size(); i++)
     {
-        mCellMechSystems[i].SetIntracellularCalciumConcentration(caI[i]);
+        input_parameters.IntracellularCalciumConcentration = caI[i];
+        mCellMechSystems[i].SetInputParameters(input_parameters);
     }
 }
 
@@ -92,6 +98,8 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
          mCellMechSystems[i].UpdateStateVariables();
          mLambdaLastTimeStep[i] = mCellMechSystems[i].GetLambda();
     }
+    
+    std::cout << "ACTIVE_TENSION = " << mCellMechSystems[0].GetActiveTension() << "\n";
 }
 
 
@@ -117,7 +125,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(c_
 
     // get proper active tension
     // see NOTE below
-    system.SetLambdaAndDerivative(rLambda, dlam_dt);
+    system.SetStretchAndStretchRate(rLambda, dlam_dt);
 
     try
     {
@@ -139,13 +147,13 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(c_
     {
         // get active tension for (lam+h,dlamdt)
         double h1 = std::max(1e-6, rLambda/100);
-        system.SetLambdaAndDerivative(rLambda+h1, dlam_dt);
+        system.SetStretchAndStretchRate(rLambda+h1, dlam_dt);
         system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
         double active_tension_at_lam_plus_h = system.GetActiveTensionAtNextTime();
 
         // get active tension for (lam,dlamdt+h)
         double h2 = std::max(1e-6, dlam_dt/100);
-        system.SetLambdaAndDerivative(rLambda, dlam_dt+h2);
+        system.SetStretchAndStretchRate(rLambda, dlam_dt+h2);
         system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
         double active_tension_at_dlamdt_plus_h = system.GetActiveTensionAtNextTime();
 
@@ -156,7 +164,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(c_
     // NOTE - have to get the active tension again, this must be done last!!
     // As if this turns out to be the correct solution, the state vars will be updated!
     /// \todo: sort out this inefficiency
-    system.SetLambdaAndDerivative(rLambda, dlam_dt);
+    system.SetStretchAndStretchRate(rLambda, dlam_dt);
     system.SetActiveTensionInitialGuess(rActiveTension);
 
     try
