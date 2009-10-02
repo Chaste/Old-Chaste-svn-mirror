@@ -40,7 +40,7 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
     double denominator = 0;
     for (unsigned i = 0; i < SPACE_DIM; i++)
     {
-        denominator = denominator + (rX[i] - mrX[i])*(rX[i] - mrX[i]);
+        denominator += (rX[i] - mrX[i])*(rX[i] - mrX[i]); 
     }
 
     c_vector<double,SPACE_DIM> grad_one_over_r;
@@ -52,7 +52,7 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
     double integrand = 0;
     for (unsigned k = 0; k < SPACE_DIM; k++)
     {
-        integrand = integrand + rGradU(k, k) * grad_one_over_r[k];
+        integrand += rGradU(0, k) * grad_one_over_r[k]; 
     }
 
     return -mDiffusionCoefficient*integrand;
@@ -94,13 +94,12 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEc
 {
     double pseudo_ecg_at_one_timestep = 0;
     if (PetscTools::AmMaster())
-    {
-        Vec SolutionAtOneTimestep = PetscTools::CreateVec(mNumberOfNodes);
+    {  
+        Vec solution_at_one_time_step = PetscTools::CreateVec(mNumberOfNodes);           
+        mpDataReader->GetVariableOverNodes(solution_at_one_time_step, "V" , timeStep);
+        pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);
 
-        mpDataReader->GetVariableOverNodes(SolutionAtOneTimestep, "V" , timeStep);
-        pseudo_ecg_at_one_timestep = Calculate(mrMesh, SolutionAtOneTimestep);
-
-        VecDestroy(SolutionAtOneTimestep);
+        VecDestroy(solution_at_one_time_step);
     }
 
     return pseudo_ecg_at_one_timestep;
@@ -117,6 +116,7 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
         stream << "PseudoEcg.dat";
         OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
         p_file = output_file_handler.OpenOutputFile(stream.str());
+
         for (unsigned i = 0; i < mNumTimeSteps; i++)
         {
             double pseudo_ecg_at_one_timestep = ComputePseudoEcgAtOneTimeStep(i);
@@ -131,9 +131,9 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
 /////////////////////////////////////////////////////////////////////
 
 template class PseudoEcgCalculator<1,1,1>;
-template class PseudoEcgCalculator<1,2,1>;
-template class PseudoEcgCalculator<1,3,1>;
-template class PseudoEcgCalculator<1,2,2>;
-template class PseudoEcgCalculator<2,3,1>;
+//template class PseudoEcgCalculator<1,2,1>;
+//template class PseudoEcgCalculator<1,3,1>;
+template class PseudoEcgCalculator<2,2,1>;
+//template class PseudoEcgCalculator<2,3,1>;
 template class PseudoEcgCalculator<3,3,1>;
 
