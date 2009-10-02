@@ -249,7 +249,7 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        mpTestReader = new ColumnDataReader("","testunlimited");
+        mpTestReader = new ColumnDataReader("TestColumnDataReaderWriter","testunlimited");
 
         std::vector<double> values_ik = mpTestReader->GetValues("I_K");
 
@@ -345,7 +345,7 @@ public:
 
         TS_ASSERT(FilesMatch(output_dir + "testfixed.info", "io/test/data/testfixed_good.info"));
 
-        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("", "testfixed"));
+        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("TestColumnDataReaderWriter", "testfixed"));
 
         TS_ASSERT_THROWS_THIS(mpTestReader->GetValues("BadVar", 0), "Unknown variable");
 
