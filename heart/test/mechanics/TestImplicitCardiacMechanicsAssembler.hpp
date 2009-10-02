@@ -55,13 +55,14 @@ public:
         ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"",fixed_nodes,&law);
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0);
+        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
 
         for(unsigned i=0; i<calcium_conc.size(); i++)
         {
             calcium_conc[i] = 0.05;
         }
 
-        assembler.SetIntracellularCalciumConcentrations(calcium_conc);
+        assembler.SetCalciumVoltageAndTime(calcium_conc, voltages, 0.0);
 
         // NOTE: calling CompareJacobians below bypasses calling Solve(t0,t1,dt), hence the
         // time info will not be set. We therefore must explicitly set them here.
@@ -141,7 +142,8 @@ public:
 
         // 0.0002 is the initial Ca conc in Lr91
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0002);
-        assembler.SetIntracellularCalciumConcentrations(calcium_conc);
+        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+        assembler.SetCalciumVoltageAndTime(calcium_conc, voltages, 0.0);
 
         assembler.Solve(0,0.1,0.01);
 
@@ -179,7 +181,8 @@ public:
         ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
-        assembler.SetIntracellularCalciumConcentrations(calcium_conc);
+        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+        assembler.SetCalciumVoltageAndTime(calcium_conc, voltages, 0.0);
 
         assembler.Solve(0,0.01,0.01);
 
@@ -220,7 +223,8 @@ public:
             calcium_conc[i] = 0.0002 + 0.001*Y;
         }
 
-        assembler.SetIntracellularCalciumConcentrations(calcium_conc);
+        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+        assembler.SetCalciumVoltageAndTime(calcium_conc, voltages, 0.0);
 
         // solve for quite a long time to get some deformation
         assembler.Solve(0,10,1);

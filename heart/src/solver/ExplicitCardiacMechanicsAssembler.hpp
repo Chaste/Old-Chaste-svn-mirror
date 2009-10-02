@@ -118,7 +118,7 @@ public:
             }
             case KERCHOFFS2003: //stretch dependent, will this work with explicit??
             {
-                mContractionModelSystems.resize(this->mTotalQuadPoints, new Nash2004ContractionModel());
+                mContractionModelSystems.resize(this->mTotalQuadPoints, new Kerchoffs2003ContractionModel());
                 break;
             }
             default:

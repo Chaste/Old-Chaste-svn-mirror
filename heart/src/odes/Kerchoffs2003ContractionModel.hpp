@@ -45,20 +45,23 @@ private:
     static const double a7;  /**< See reference. 1.5 um */ 
     static const double T0;  /**< See reference. 180 kPa - SHOULD THIS BE PASCALS??????? */
     static const double Ea;  /**< See reference. 20 um^{-1} */
-    static const double v0;  /**< See reference. 7.5 um/s */
+    static const double v0;  /**< See reference. 0.0075 um/ms */
     static const double ls0; /**< See reference. 1.9 um */ 
-    static const double tr;  /**< See reference. 0.075 seconds */
-    static const double td;  /**< See reference. 0.075 seconds */
-    static const double b;   /**< See reference. 0.15 s/um */
+    static const double tr;  /**< See reference. 75 ms */
+    static const double td;  /**< See reference. 75 ms */
+    static const double b;   /**< See reference. 150 ms/um */
     static const double ld;  /**< See reference. -0.4 um */
+
+    static const double mActivationVoltage = 0;
+    static const double mDeactivationVoltage = -70;
 
     /** Length of the sarcomere in um. Variable "ls" in reference. Fibre-stretch is ls/ls0. */
     double mSarcomereLength;
-    /** Time of electrical activation (= time the voltage at this cell reached 40mV) */
+    /** Time (ms) of electrical activation (= time the voltage at this cell reached 40mV) */
     double mActivationTime;
     /** Whether the cell is activated - whether the voltage has gone above 40mV without going below -70mV. */
     bool mIsActivated;
-    /** Current time */
+    /** Current time (ms)*/
     double mCurrentTime;
 
 public:

@@ -260,6 +260,7 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
     }
 
     delete mpMonodomainProblem;
+
     delete mpCardiacMechAssembler;
 
     LogFile::Close();

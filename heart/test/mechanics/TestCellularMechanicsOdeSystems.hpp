@@ -49,6 +49,8 @@ public :
     void TestNhsCellularMechanicsOdeSystem() throw(Exception)
     {
         NhsCellularMechanicsOdeSystem nhs_system;
+        TS_ASSERT_EQUALS(nhs_system.IsStretchDependent(), true);
+        TS_ASSERT_EQUALS(nhs_system.IsStretchRateDependent(), true);
 
         // Hardcoded results for two values for z when lambda1=0.
         // Note: CalculateT0(z) is a private method.
@@ -93,19 +95,21 @@ public :
 //todo: add tests, seconds to milliseconds, etc.
 
         Kerchoffs2003ContractionModel kerchoffs_model;
+        TS_ASSERT_EQUALS(kerchoffs_model.IsStretchDependent(), true);
+        TS_ASSERT_EQUALS(kerchoffs_model.IsStretchRateDependent(), false);
 
         EulerIvpOdeSolver euler_solver;
                 
         ContractionModelInputParameters input_params;
         input_params.IntracellularCalciumConcentration = DOUBLE_UNSET;
 
-        TimeStepper stepper(0, 0.5, 0.001);        
+        TimeStepper stepper(0, 500, 1.0);  //ms
         std::cout << stepper.GetTime() << " " << kerchoffs_model.rGetStateVariables()[0] << " " << kerchoffs_model.GetActiveTension() <<  "\n";
 
         while(!stepper.IsTimeAtEnd())
         {
             input_params.Time = stepper.GetTime();
-            if( (stepper.GetTime()>0.1) && (stepper.GetTime()<0.6) )
+            if( (stepper.GetTime()>100) && (stepper.GetTime()<600) )
             {
                 input_params.Voltage = 50;
             }
@@ -115,16 +119,18 @@ public :
             }
             kerchoffs_model.SetInputParameters(input_params);
                 
-            euler_solver.SolveAndUpdateStateVariable(&kerchoffs_model, stepper.GetTime(), stepper.GetNextTime(), 0.00001);
+            euler_solver.SolveAndUpdateStateVariable(&kerchoffs_model, stepper.GetTime(), stepper.GetNextTime(), 0.01);
             std::cout << stepper.GetTime() << " " << kerchoffs_model.rGetStateVariables()[0] << " " << kerchoffs_model.GetActiveTension() <<  "\n";
             
             stepper.AdvanceOneTimeStep();
         }
     }
     
-    void TestNash2004ContractionModel() throw(Exception)
+    void dontTestNash2004ContractionModel() throw(Exception)
     {
         Nash2004ContractionModel nash_model;
+        TS_ASSERT_EQUALS(nash_model.IsStretchDependent(), false);
+        TS_ASSERT_EQUALS(nash_model.IsStretchRateDependent(), false);
         
         boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver);
 

@@ -28,16 +28,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "Kerchoffs2003ContractionModel.hpp"
+#include <iostream>
 
 const double Kerchoffs2003ContractionModel::a6 = 2.0; // 1/um 
 const double Kerchoffs2003ContractionModel::a7 = 1.5; // um 
-const double Kerchoffs2003ContractionModel::T0 = 180; // kPa 
+const double Kerchoffs2003ContractionModel::T0 = 0.180; // kPa            // <--- changed 180 to 0.180 
 const double Kerchoffs2003ContractionModel::Ea = 20;  // 1/um 
-const double Kerchoffs2003ContractionModel::v0 = 7.5; // um/s 
+const double Kerchoffs2003ContractionModel::v0 = 0.0075; // um/ms 
 const double Kerchoffs2003ContractionModel::ls0 = 1.9; // um  
-const double Kerchoffs2003ContractionModel::tr = 0.075; // s 
-const double Kerchoffs2003ContractionModel::td = 0.075; // s 
-const double Kerchoffs2003ContractionModel::b = 0.15; // s/um 
+const double Kerchoffs2003ContractionModel::tr = 75; // ms 
+const double Kerchoffs2003ContractionModel::td = 75; // ms 
+const double Kerchoffs2003ContractionModel::b = 150; // ms/um 
 const double Kerchoffs2003ContractionModel::ld = -0.4; // um
 
 Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel() 
@@ -70,16 +71,15 @@ void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputPara
     assert(rInputParameters.Voltage != DOUBLE_UNSET);
 
     mCurrentTime = rInputParameters.Time;
-
-    if (mIsActivated && rInputParameters.Voltage<-70)
+    if (mIsActivated && rInputParameters.Voltage< mDeactivationVoltage)
     {
         // inactive (resting)
         mIsActivated = false;
     }
     
-    if (!mIsActivated && rInputParameters.Voltage>40)
+    if (!mIsActivated && rInputParameters.Voltage > mActivationVoltage )
     {
-        // activateds
+        // activated
         mIsActivated = true;
         mActivationTime = mCurrentTime;
     }
@@ -111,7 +111,7 @@ double Kerchoffs2003ContractionModel::GetActiveTension()
             f_twitch = pow(tanh(t_a/tr)*tanh((t_max-t_a)/td),2);
         }
     }
-
+//std::cout << mIsActivated << " " << (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea << "\n";
     return (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea;
 }
 
