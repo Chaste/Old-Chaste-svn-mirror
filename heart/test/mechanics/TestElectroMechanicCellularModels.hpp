@@ -124,7 +124,7 @@ public:
             cellmech_model.SetStretchAndStretchRate(1.0, 0.0);
 
             ContractionModelInputParameters input_parameters;
-            input_parameters.IntracellularCalciumConcentrations = Ca_I;    
+            input_parameters.IntracellularCalciumConcentration = Ca_I;    
             cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
@@ -230,7 +230,7 @@ public:
 
             cellmech_model.SetStretchAndStretchRate(lam, dlam_dt);
             ContractionModelInputParameters input_parameters;
-            input_parameters.IntracellularCalciumConcentrations = Ca_I;    
+            input_parameters.IntracellularCalciumConcentration = Ca_I;
             cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
