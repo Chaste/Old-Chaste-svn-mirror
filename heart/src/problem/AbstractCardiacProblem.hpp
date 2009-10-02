@@ -49,6 +49,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "Hdf5DataWriter.hpp"
 
+/*
+ * Archiving extravaganza: 
+ * 
+ * We archive mesh and pde through a pointer to an abstract class. All the potential concrete
+ * classes need to be included here, so they are registered with boost. If not, boost won't be
+ * able to find the archiving methods of the concrete class and will throw the following
+ * exception:
+ * 
+ *       terminate called after throwing an instance of 'boost::archive::archive_exception'
+ *       what():  unregistered class
+ * 
+ * No member variable is defined to be of any of these clases, removing them won't
+ * produce any compiler error. The exception above will occur at runtime.
+ * 
+ * This might not be even necessary in certain cases, if the file is included implicitely by another header file
+ * or by the test itself. It's safer though. 
+ * 
+ */
+#include "ParallelTetrahedralMesh.hpp"
+#include "MonodomainPde.hpp"
+#include "BidomainPde.hpp"
+
+
 /**
  * Base class for cardiac problems; contains code generic to both mono- and bidomain.
  *
