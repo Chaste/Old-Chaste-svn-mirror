@@ -98,8 +98,6 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
          mCellMechSystems[i].UpdateStateVariables();
          mLambdaLastTimeStep[i] = mCellMechSystems[i].GetLambda();
     }
-    
-    std::cout << "ACTIVE_TENSION = " << mCellMechSystems[0].GetActiveTension() << "\n";
 }
 
 

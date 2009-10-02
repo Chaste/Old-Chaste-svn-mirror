@@ -95,7 +95,7 @@ public:
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
                                                      10.0, /* end time */
-                                                     1,  /* 100*0.01ms mech dt */
+                                                     100,  /* 100*0.01ms mech dt */
                                                      0.01, /* NHS ode timestep */
                                                      "TestCardiacElectroMechOneElement");
         c_vector<double,2> pos;
@@ -104,7 +104,7 @@ public:
 
         problem.SetWatchedPosition(pos);
         problem.Solve();
-return;
+
         // test by checking the length of the tissue against hardcoded value
         std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
         TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0497, 1e-4);
