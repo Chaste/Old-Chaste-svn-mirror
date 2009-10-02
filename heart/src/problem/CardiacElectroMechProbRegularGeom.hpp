@@ -44,6 +44,7 @@ public:
     /**
      * Constructor.
      * 
+     * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param width Width and height of the square
      * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
      * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh

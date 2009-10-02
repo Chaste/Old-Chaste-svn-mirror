@@ -68,70 +68,70 @@ protected :
 
     // Parameters
 
-    /** FILL IN. (mMols)^-1 (ms)^-1 */
+    /** See reference. (mMols)^-1 (ms)^-1 */
     static const double mKon;
 
-    /** FILL IN. (ms)^-1 */
+    /** See reference. (ms)^-1 */
     static const double mKrefoff;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mGamma;
 
-    /** FILL IN. mMols */
+    /** See reference. mMols */
     static const double mCalciumTroponinMax;
 
-    /** FILL IN. (ms)^-1 */
+    /** See reference. (ms)^-1 */
     static const double mAlphaR1;
 
-    /** FILL IN. (ms)^-1 */
+    /** See reference. (ms)^-1 */
     static const double mAlphaR2;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mKZ;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mNr;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mBeta1;
 
-    /** FILL IN. (ms)^-1 */
+    /** See reference. (ms)^-1 */
     static const double mAlpha0;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mN;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mZp;
 
-    /** FILL IN. mMols */
+    /** See reference. mMols */
     static const double mCalcium50ref;
 
-    /** FILL IN. kPa */
+    /** See reference. kPa */
     static const double mTref;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mBeta0;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mA;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mA1;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mA2;
 
-    /** FILL IN. Dimensionless */
+    /** See reference. Dimensionless */
     static const double mA3;
 
-    /** FILL IN. (ms)^-1 */
+    /** See reference. (ms)^-1 */
     static const double mAlpha1;
 
-    /** FILL IN. (ms)^-1 */
+    /** See reference. (ms)^-1 */
     static const double mAlpha2;
 
-    /** FILL IN. (ms)^-1 */
+    /** See reference. (ms)^-1 */
     static const double mAlpha3;
 
     /**
@@ -143,7 +143,7 @@ protected :
     /**
      *  Calculate T0. This is a function of constants, lambda and z
      * 
-     * @param z
+     *  @param z
      */
     double CalculateT0(double z);
 
@@ -174,7 +174,6 @@ public :
      *  @param calciumConcentration calcium concentration.
      */
     void SetIntracellularCalciumConcentration(double calciumConcentration);
-    
 
     /**
      *  Get the current Calcium Troponin (one of the state variables) value. This
@@ -200,12 +199,18 @@ public :
      *  Get the current stretch rate
      */
     double GetLambda();
-    
+        
+   /** 
+    *  This model is stretch-dependent
+    */
     bool IsStretchDependent() 
     {
         return true;
     }
 
+   /** 
+    *  This model is stretch-rate-dependent
+    */
     bool IsStretchRateDependent() 
     {
         return true;

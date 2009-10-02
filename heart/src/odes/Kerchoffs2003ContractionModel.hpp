@@ -33,100 +33,77 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 #include <math.h>
 
+/**
+ *  Implementation of the ODE-based, stretch-dependent, stretch-rate-INdependent, contraction
+ *  model detailed in the appendix of Kerchoffs 2003 "Intra- and interventricular asynchrony of 
+ *  electromechanics in the ventricularly paced heart".
+ */
 class Kerchoffs2003ContractionModel : public AbstractOdeBasedContractionModel
 {
 private:
-    static const double a6;
-    static const double a7;
-    static const double T0;
-    static const double Ea;
-    static const double v0;
-    static const double ls0;  
-    static const double tr;
-    static const double td;
-    static const double b;   
-    static const double ld; 
+    static const double a6;  /**< See reference. 2.0 um^{-1} */
+    static const double a7;  /**< See reference. 1.5 um */ 
+    static const double T0;  /**< See reference. 180 kPa - SHOULD THIS BE PASCALS??????? */
+    static const double Ea;  /**< See reference. 20 um^{-1} */
+    static const double v0;  /**< See reference. 7.5 um/s */
+    static const double ls0; /**< See reference. 1.9 um */ 
+    static const double tr;  /**< See reference. 0.075 seconds */
+    static const double td;  /**< See reference. 0.075 seconds */
+    static const double b;   /**< See reference. 0.15 s/um */
+    static const double ld;  /**< See reference. -0.4 um */
 
+    /** Length of the sarcomere in um. Variable "ls" in reference. Fibre-stretch is ls/ls0. */
     double mSarcomereLength;
+    /** Time of electrical activation (= time the voltage at this cell reached 40mV) */
     double mActivationTime;
+    /** Whether the cell is activated - whether the voltage has gone above 40mV without going below -70mV. */
     bool mIsActivated;
+    /** Current time */
     double mCurrentTime;
 
 public:
-    Kerchoffs2003ContractionModel() : AbstractOdeBasedContractionModel(1) 
-    {
-        this->mpSystemInfo = OdeSystemInformation<Kerchoffs2003ContractionModel>::Instance();
+    /** Constructor */
+    Kerchoffs2003ContractionModel();
 
-        mSarcomereLength = ls0;
-
-        this->mStateVariables.push_back(mSarcomereLength-1.0/Ea); //steady state
-
-        mIsActivated = false;
-        mActivationTime = 0.0;
-        mCurrentTime = 0.0;
-    }
-
-    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
-    {
-        double lc = rY[0];
-        rDY[0]=( Ea*(mSarcomereLength-lc) - 1 )*v0;
-    }
+    /** 
+     *  The derivative function of the one state variable: "lc" in reference, the length of the contractile element 
+     *  @param time time
+     *  @param rY 1D vector containing lc
+     *  @param rDY 1D vector in which dlc/dt is set
+     */
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
     
-    void SetInputParameters(ContractionModelInputParameters& rInputParameters)
-    {
-        assert(rInputParameters.Time != DOUBLE_UNSET);
-        assert(rInputParameters.Voltage != DOUBLE_UNSET);
-
-        mCurrentTime = rInputParameters.Time;
-
-        if (mIsActivated && rInputParameters.Voltage<-70)
-        {
-            mIsActivated = false;
-        }
-        
-        if (!mIsActivated && rInputParameters.Voltage>40)
-        {
-            mIsActivated = true;
-            mActivationTime = mCurrentTime;
-        }
-
-    }
+    /**
+     *  Set the input parameters. The calcium concentration is not used. If the voltage is such that activation
+     *  has occured (gone above 40mV), the state is set to active and the time saved as the activation time.
+     *  The state is set to inactive if the voltage goes below -70.
+     *  @param rInputParameters reference to the input parameters
+     */
+    void SetInputParameters(ContractionModelInputParameters& rInputParameters);
     
-    void SetStretchAndStretchRate(double stretch, double stretchRate)
-    {
-        mSarcomereLength = stretch*ls0;
-    }
+    /**
+     *  Take the stretch and compute the sarcomere length (stretch rate is not used).
+     *  @param stretch stretch
+     *  @param stretchRate stretch rate
+     */
+    void SetStretchAndStretchRate(double stretch, double stretchRate);
     
-    double GetActiveTension()
-    {
-        double lc = mStateVariables[0];
-        
-        double f_iso = 0;
-        if(lc > a7)
-        {
-            f_iso = T0 * pow((tanh(a6*(lc-a7))),2);
-        }
-        
-        double f_twitch = 0;
-        double t_max = b*(mSarcomereLength - ld);
-        if(mIsActivated)
-        {
-            double t_a = mCurrentTime - mActivationTime;
-
-            if(t_a < t_max)
-            {
-                f_twitch = pow(tanh(t_a/tr)*tanh((t_max-t_a)/td),2);
-            }
-        }
-
-        return (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea;
-    }
+    /** 
+     *  Get the active tension (note: actually a stress), ie kPa
+     */
+    double GetActiveTension();
     
+    /** 
+     *  This model is stretch-dependent
+     */
     bool IsStretchDependent()
     {
         return true;
     }
 
+    /** 
+     *  This model is stretch-rate-independent
+     */
     bool IsStretchRateDependent()
     {
         return false;

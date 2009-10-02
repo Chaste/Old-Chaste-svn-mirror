@@ -52,17 +52,22 @@ ImplicitCardiacMechanicsAssembler<DIM>::~ImplicitCardiacMechanicsAssembler()
 
 
 template<unsigned DIM>
-void ImplicitCardiacMechanicsAssembler<DIM>::SetIntracellularCalciumConcentrations(std::vector<double>& caI)
+void ImplicitCardiacMechanicsAssembler<DIM>::SetCalciumVoltageAndTime(std::vector<double>& rCalciumConcentrations, 
+                                                                      std::vector<double>& rVoltages,
+                                                                      double time)
+                                        
 {
-    assert(caI.size() == this->mTotalQuadPoints);
+    assert(rCalciumConcentrations.size() == this->mTotalQuadPoints);
+    assert(rVoltages.size() == this->mTotalQuadPoints);
 
     ContractionModelInputParameters input_parameters;
-    input_parameters.Voltage = DOUBLE_UNSET;
-    input_parameters.Time = DOUBLE_UNSET;
+    input_parameters.Time = time;
     
-    for(unsigned i=0; i<caI.size(); i++)
+    for(unsigned i=0; i<rCalciumConcentrations.size(); i++)
     {
-        input_parameters.IntracellularCalciumConcentration = caI[i];
+        input_parameters.IntracellularCalciumConcentration = rCalciumConcentrations[i];
+        input_parameters.Voltage = rVoltages[i];
+        
         mCellMechSystems[i].SetInputParameters(input_parameters);
     }
 }

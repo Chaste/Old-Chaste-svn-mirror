@@ -372,7 +372,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
     unsigned num_quad_points = mpCardiacMechAssembler->GetTotalNumQuadPoints();
-    std::vector<double> intracellular_Ca(num_quad_points, 0.0);
+    std::vector<double> interpolated_calcium_concs(num_quad_points, 0.0);
+    std::vector<double> interpolated_voltages(num_quad_points, 0.0);
 
     // write the initial position
     unsigned counter = 0;
@@ -436,29 +437,35 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
         // compute Ca_I at each quad point (by interpolation, using the info on which
         // electrics element the quad point is in. Then set Ca_I on the mechanics solver
-        LOG(2, "  Interpolating Ca_I");
+        LOG(2, "  Interpolating Ca_I and voltage");
+        
+        ReplicatableVector voltage_repl(voltage);
+        
         for(unsigned i=0; i<mElementAndWeightsForQuadPoints.size(); i++)
         {
-            double interpolated_Ca_I = 0;
+            double interpolated_CaI = 0;
+            double interpolated_voltage = 0;
 
             Element<DIM,DIM>& element = *(mpElectricsMesh->GetElement(mElementAndWeightsForQuadPoints[i].ElementNum));
             for(unsigned node_index = 0; node_index<element.GetNumNodes(); node_index++)
             {
                 unsigned global_node_index = element.GetNodeGlobalIndex(node_index);
-                double Ca_I_at_node = mpMonodomainProblem->GetPde()->GetCardiacCell(global_node_index)->GetIntracellularCalciumConcentration();
-                interpolated_Ca_I += Ca_I_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
+                double CaI_at_node = mpMonodomainProblem->GetPde()->GetCardiacCell(global_node_index)->GetIntracellularCalciumConcentration();
+                interpolated_CaI += CaI_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
+                interpolated_voltage += voltage_repl[global_node_index]*mElementAndWeightsForQuadPoints[i].Weights(node_index);
             }
 
-            intracellular_Ca[i] = interpolated_Ca_I;
+            interpolated_calcium_concs[i] = interpolated_CaI;
+            interpolated_voltages[i] = interpolated_voltage;
         }
 
-        LOG(2, "  Setting Ca_I. max value = " << Max(intracellular_Ca));
+        LOG(2, "  Setting Ca_I. max value = " << Max(interpolated_calcium_concs));
 
         // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
         // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
 
-        // set [Ca]
-        mpCardiacMechAssembler->SetIntracellularCalciumConcentrations(intracellular_Ca);
+        // set [Ca], V, t
+        mpCardiacMechAssembler->SetCalciumVoltageAndTime(interpolated_calcium_concs, interpolated_voltages, stepper.GetTime());
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::NON_MECH);
 
 

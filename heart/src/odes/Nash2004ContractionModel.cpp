@@ -38,3 +38,5 @@ void OdeSystemInformation<Nash2004ContractionModel>::Initialise()
     this->mVariableUnits.push_back("kPa");
     this->mInitialised = true;
 }
+
+// all methods inline (implementation in hpp)

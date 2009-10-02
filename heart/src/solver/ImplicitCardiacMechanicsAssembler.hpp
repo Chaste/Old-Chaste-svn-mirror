@@ -119,14 +119,21 @@ public:
      */
     virtual ~ImplicitCardiacMechanicsAssembler();
 
+
     /**
-     *  Set the intracellular calcium concentrations. The implicit algorithm 
-     *  takes in the calcium concentration and solves for the active tension implicitly
-     *  together with the mechanics.
+     *  Set the intracellular Calcium concentrations and voltages at each quad point, and the current time.
      * 
-     *  @param caI the intracellular calcium concentrations
+     *  This implicit solver with NHS cells takes in the calcium concentration and solves for the active tension 
+     *  implicitly together with the mechanics.    
+     *  
+     *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
+     *  @param rVoltages Reference to a vector of voltages at each quadrature point
+     *  @param time Current time
      */
-    void SetIntracellularCalciumConcentrations(std::vector<double>& caI);
+
+    void SetCalciumVoltageAndTime(std::vector<double>& rCalciumConcentrations, 
+                                  std::vector<double>& rVoltages,
+                                  double time);
 
     /**
      *  Get lambda (the stretch ratio).

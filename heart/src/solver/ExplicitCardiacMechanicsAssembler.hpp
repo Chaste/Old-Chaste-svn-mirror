@@ -39,6 +39,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
+ *  Explicit cardiac mechanics assembler for solving electromechanic problems where the
+ *  contraction model is not stretch-rate-dependent (for those the implicit assembler is 
+ *  needed). 
+ *  
+ *  The general explicit solution procedure is to do, each timestep:
+ *  (0) [solve the electrics and interpolate Ca and voltage onto quad points
+ *  (i) pass Ca and voltage to the contraction models
+ *  (ii) integrate the contraction models in order to get the active tension
+ *  (iii) solve for the deformation using this active tension. 
  */
 template<unsigned DIM>
 class ExplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembler<DIM>
@@ -46,8 +55,10 @@ class ExplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembl
 friend class TestExplicitCardiacMechanicsAssembler;
 
 private:
+    /**
+     *  Vector of contraction model (pointers). One for each quadrature point.
+     */
     std::vector<AbstractOdeBasedContractionModel*> mContractionModelSystems;
-    std::vector<double> mActiveTensions;
 
     /** This solver is an explicit solver (overloaded pure method) */
     bool IsImplicitSolver()
@@ -55,6 +66,17 @@ private:
         return false;
     }
 
+    /**
+     *  Get the active tension and other info at the given quadrature point. This is an explicit 
+     *  assembler so just sets the active tension, it doesn't set the derivatives or the stretch.
+     * 
+     *  @param C Green-deformation tension. Unused.
+     *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement.
+     *  @param rActiveTension The returned active tension. 
+     *  @param rActiveTension The returned dT_dLam, derivative of active tension wrt stretch. Unset.
+     *  @param rActiveTension The returned dT_dLamDot, derivative of active tension wrt stretch rate. Unset.
+     *  @param rLambda The stretch (computed from C) as AssembleOnElement needs to use this too. Unset.
+     */   
     void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
                                           unsigned currentQuadPointGlobalIndex,
                                           bool assembleJacobian,
@@ -63,13 +85,14 @@ private:
                                           double& rDerivActiveTensionWrtDLambdaDt,
                                           double& rLambda)
     {
-        rActiveTension = mActiveTensions[currentQuadPointGlobalIndex];
+        rActiveTension = mContractionModelSystems[currentQuadPointGlobalIndex]->GetActiveTension();
     }
 
 public:
     /**
      * Constructor
      *
+     * @param contractionModel The contraction model.
      * @param pQuadMesh A pointer to the mesh.
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
      * @param rFixedNodes The fixed nodes
@@ -105,9 +128,6 @@ public:
         }
         
         assert(!(mContractionModelSystems[0]->IsStretchRateDependent()));
-        
-        // initialise stores
-        mActiveTensions.resize(this->mTotalQuadPoints, 0.0);
     }
     /**
      *  Destructor
@@ -122,25 +142,31 @@ public:
         
 
     /**
-     *  Set the intracellular Calcium concentrations (note: in an explicit algorithm we
-     *  would set the active tension as the forcing quantity; the implicit algorithm
-     *  takes in the Calcium concentration and solves for the active tension implicitly
-     *  together with the mechanics).
+     *  Set the intracellular Calcium concentrations and voltages at each quad point, and the current time.
      * 
-     *  @param caI the intracellular calcium concentrations
+     *  This explicit solver (for contraction models which are NOT functions of stretch) can then
+     *  integrate the contraction models to get the active tension, although this is done in Solve.
+     * 
+     *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
+     *  @param rVoltages Reference to a vector of voltages at each quadrature point
+     *  @param time Current time
      */
-    void SetIntracellularCalciumConcentrations(std::vector<double>& caI)
+
+    void SetCalciumVoltageAndTime(std::vector<double>& rCalciumConcentrations, 
+                                  std::vector<double>& rVoltages,
+                                  double time)
     {
-        assert(caI.size()==mContractionModelSystems.size());
-        assert(caI.size()==mActiveTensions.size());
+        assert(rCalciumConcentrations.size()==mContractionModelSystems.size());
+        assert(rVoltages.size()==mContractionModelSystems.size());
 
         ContractionModelInputParameters input_parameters;
-        input_parameters.Voltage = DOUBLE_UNSET;
-        input_parameters.Time = DOUBLE_UNSET;
+
+        input_parameters.Time = time;
         
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
-            input_parameters.IntracellularCalciumConcentration = caI[i];
+            input_parameters.IntracellularCalciumConcentration = rCalciumConcentrations[i];
+            input_parameters.Voltage = rVoltages[i];
             mContractionModelSystems[i]->SetInputParameters(input_parameters);
         }
     }
@@ -167,7 +193,6 @@ public:
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
             euler_solver.SolveAndUpdateStateVariable(mContractionModelSystems[i], time, nextTime, odeTimestep);
-            mActiveTensions[i] = mContractionModelSystems[i]->GetActiveTension();
         }   
         
         // solve

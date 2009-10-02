@@ -177,17 +177,21 @@ public:
 
 
     /**
-     *  Set the intracellular Calcium concentrations.
+     *  Set the intracellular Calcium concentrations and voltages at each quad point, and the current time. Pure.
      * 
      *  Implicit solvers (for contraction models which are functions of stretch (and maybe 
-     *  stretch rate) would integrate the contraction model with this Ca using the current
+     *  stretch rate) would integrate the contraction model with this Ca/V/t using the current
      *  stretch (ie inside AssembleOnElement, ie inside GetActiveTensionAndTensionDerivs).
      *  Explicit solvers (for contraction models which are NOT functions of stretch can immediately
      *  integrate the contraction models to get the active tension.
      * 
-     *  @param caI the intracellular calcium concentrations at each quadrature point
+     *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
+     *  @param rVoltages Reference to a vector of voltages at each quadrature point
+     *  @param time Current time
      */
-    virtual void SetIntracellularCalciumConcentrations(std::vector<double>& caI)=0;
+    virtual void SetCalciumVoltageAndTime(std::vector<double>& rCalciumConcentrations, 
+                                          std::vector<double>& rVoltages,
+                                          double time)=0;
 
     /**
      *  Solve for the deformation, integrating the contraction model ODEs.

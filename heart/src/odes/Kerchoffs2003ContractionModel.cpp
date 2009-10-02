@@ -40,6 +40,83 @@ const double Kerchoffs2003ContractionModel::td = 0.075; // s
 const double Kerchoffs2003ContractionModel::b = 0.15; // s/um 
 const double Kerchoffs2003ContractionModel::ld = -0.4; // um
 
+Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel() 
+    : AbstractOdeBasedContractionModel(1) 
+{
+    this->mpSystemInfo = OdeSystemInformation<Kerchoffs2003ContractionModel>::Instance();
+
+    mSarcomereLength = ls0;
+
+    this->mStateVariables.push_back(mSarcomereLength-1.0/Ea); //steady state
+
+    mIsActivated = false;
+    mActivationTime = 0.0;
+    mCurrentTime = 0.0;
+}
+
+
+void Kerchoffs2003ContractionModel::EvaluateYDerivatives(double time, 
+                                                         const std::vector<double>& rY, 
+                                                         std::vector<double>& rDY)
+{
+    double lc = rY[0];
+    rDY[0]=( Ea*(mSarcomereLength-lc) - 1 )*v0;
+}
+
+
+void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputParameters& rInputParameters)
+{
+    assert(rInputParameters.Time != DOUBLE_UNSET);
+    assert(rInputParameters.Voltage != DOUBLE_UNSET);
+
+    mCurrentTime = rInputParameters.Time;
+
+    if (mIsActivated && rInputParameters.Voltage<-70)
+    {
+        // inactive (resting)
+        mIsActivated = false;
+    }
+    
+    if (!mIsActivated && rInputParameters.Voltage>40)
+    {
+        // activateds
+        mIsActivated = true;
+        mActivationTime = mCurrentTime;
+    }
+}
+
+void Kerchoffs2003ContractionModel::SetStretchAndStretchRate(double stretch, double stretchRate)
+{
+    mSarcomereLength = stretch*ls0;
+}
+
+double Kerchoffs2003ContractionModel::GetActiveTension()
+{
+    double lc = mStateVariables[0];
+    
+    double f_iso = 0;
+    if(lc > a7)
+    {
+        f_iso = T0 * pow((tanh(a6*(lc-a7))),2);
+    }
+    
+    double f_twitch = 0;
+    double t_max = b*(mSarcomereLength - ld);
+    if(mIsActivated)
+    {
+        double t_a = mCurrentTime - mActivationTime;
+
+        if(t_a < t_max)
+        {
+            f_twitch = pow(tanh(t_a/tr)*tanh((t_max-t_a)/td),2);
+        }
+    }
+
+    return (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea;
+}
+
+
+
 template<>
 void OdeSystemInformation<Kerchoffs2003ContractionModel>::Initialise()
 {

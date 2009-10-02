@@ -33,14 +33,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 
 //others Nash200 (algebraic), Remme, Andrew Campbell (mad), Jeremy Rice (other framework).
-
+/**
+ *  Implementation of the simple, ODE-based, contraction model detailed in Nash2004. The state variable for
+ *  the single ODE is the active tension, and the ODE depends on the voltage.
+ */
 class Nash2004ContractionModel : public AbstractOdeBasedContractionModel
 {
-    static const double e0;
-    static const double kTa;
-    double mVoltage;
+    static const double e0; /**< See reference */
+    static const double kTa; /**< See reference */
+    double mVoltage; /**< Voltage passed in as an input parameter. */
 
 public:
+    /** 
+     *  Constructor
+     */
     Nash2004ContractionModel() : AbstractOdeBasedContractionModel(1) 
     {
         this->mpSystemInfo = OdeSystemInformation<Nash2004ContractionModel>::Instance();
@@ -49,33 +55,59 @@ public:
         this->mStateVariables.push_back(0.0);
     }
 
+    /**
+     *  The derivative function of the one state variable, Ta.
+     *  @param time time
+     *  @param rY 1D vector containing Ta
+     *  @param rDY 1D vector in which dTa/dt
+     */
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
         double epsilon = (mVoltage > -79.22 ? 10*e0 : e0); // 79.2 is 5% up from -86mV to 50mV
         rDY[0] = epsilon * (kTa*mVoltage - rY[0]);
     }
     
+    /**
+     *  Set the input parameters. The calcium concentration and time are not used, the 
+     *  voltage is saved.
+     *  @param rInputParameters reference to the input parameters
+     */
     void SetInputParameters(ContractionModelInputParameters& rInputParameters)
     {
         assert(rInputParameters.Voltage != DOUBLE_UNSET);
         mVoltage = rInputParameters.Voltage;
     }
     
+    /** 
+     *  Set the stretch and stretch rate (defined in parent class so must be implemented). Stretch
+     *  and stretch rate are not used in this model so this should not be called.
+     *  @param stretch stretch
+     *  @param stretchRate stretch rate
+     */
     void SetStretchAndStretchRate(double stretch, double stretchRate)
     {
         NEVER_REACHED;
     }
     
+    /**
+     *  Get the active tension in kPa
+     */
     double GetActiveTension()
     {
         return rGetStateVariables()[0];
     }
-    
+
+    /** 
+     *  This model is stretch-independent
+     */    
     bool IsStretchDependent()
     {
         return false;
     }
 
+    /** 
+     *  This model is stretch-rate-independent
+     */    
     bool IsStretchRateDependent()
     {
         return false;

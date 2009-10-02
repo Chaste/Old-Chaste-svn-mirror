@@ -31,6 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOdeSystem.hpp"
 
+/**
+ *  Options for the different contraction models (both stretch-dependent and independent, ditto stretch-rate)
+ *  that has been implemented
+ */
 typedef enum ContractionModel_
 {
     NASH2004,
@@ -39,7 +43,10 @@ typedef enum ContractionModel_
 } ContractionModel;
 
 
-
+/**
+ *  Struct storing the input parameters that might be used by a contraction model (excl stretch and stretch-rate,
+ *  as these may be set several times using the current deformation guess by the implicit assembler).
+ */ 
 typedef struct ContractionModelInputParameters_
 {
     double Voltage;
@@ -48,18 +55,45 @@ typedef struct ContractionModelInputParameters_
 } ContractionModelInputParameters;
     
 
+/**
+ *  Abstract base class for ODE-based contraction models. Inherits from AbstractOdeSystem and defines
+ *  a contraction-model interface.
+ */
 class AbstractOdeBasedContractionModel : public AbstractOdeSystem
 {
 public:
+    /**
+     *  Constructor does nothing except pass through the number of state variables
+     *  @param numStateVariables Number of state variables in the ODEs
+     */
     AbstractOdeBasedContractionModel(unsigned numStateVariables)
         : AbstractOdeSystem(numStateVariables)
     {
     }
     
+    /** 
+     *  Does the model depend on the stretch. (Pure, to be implemented in the concrete class).
+     */
     virtual bool IsStretchDependent()=0;
+
+    /** 
+     *  Does the model depend on the stretch-rate. (Pure, to be implemented in the concrete class).
+     */
     virtual bool IsStretchRateDependent()=0;
+
+    /** 
+     *  Set any input parameters (excl stretch and stretch rate). (Pure, to be implemented in the concrete class).
+     */
     virtual void SetInputParameters(ContractionModelInputParameters& rInputParameters)=0;
+
+    /** 
+     *  Set the stretch and stretch rate. (Pure, to be implemented in the concrete class).
+     */
     virtual void SetStretchAndStretchRate(double stretch, double stretchRate)=0;
+
+    /** 
+     *  Get the current active tension (note, actually a stress). (Pure, to be implemented in the concrete class).
+     */
     virtual double GetActiveTension()=0;
 };
 
