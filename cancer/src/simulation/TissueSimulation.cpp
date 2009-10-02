@@ -430,10 +430,8 @@ void TissueSimulation<DIM>::Solve()
     LOG(1, "\tdone\n");
 
     // Write initial conditions to file for the visualizer
-    if (DIM==2)
-    {
-        WriteVisualizerSetupFile();
-    }
+    WriteVisualizerSetupFile();
+    
     *mpSetupFile << std::flush;
 
     mrTissue.WriteResultsToFiles();
