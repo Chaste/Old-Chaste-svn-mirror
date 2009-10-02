@@ -71,6 +71,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean betaCateninFilePresent = false;
     public static boolean stressFilePresent = false;
     public static boolean elementFilePresent = true;
+    public static boolean isSparseMesh = false;
     // by default the last timestep isn't read or visualised; this
     // allows the visualiser to be run as a simulation is being run.
     // To visualise the last timestep, use "showlaststep" as an argument
@@ -728,6 +729,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     {
                 	    showLastStep = true;
                     }
+                    if (parameter.equals("SparseMesh")) 
+                    {
+                	    isSparseMesh = true;
+                    }
                     line_setup = in_setup_file.readLine();
                 }
             }
@@ -974,15 +979,30 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
                 if (elementFilePresent)
                 {
+                	
                     // Count the number of entries in the element file and check correct 
                     entries = st_element.countTokens();
-                    if (entries%3 != 0)
+                    
+                    if (isSparseMesh)
                     {
-                    	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the element file is not of the required form: time,n1,n2,n3,n1,n2,n3..");
-                    	break;
+                    	if (entries%2 != 0)
+                        {
+                        	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the element file is not of the required form: time,n1,n2,n1,n2..");
+                        	break;
+                        }
+                        numElements[row] = entries/2;
+                        element_nodes[row] = new int[memory_factor*2*numElements[row]];
                     }
-                    numElements[row] = entries/3;
-                    element_nodes[row] = new int[memory_factor*3*numElements[row]];
+                    else
+                    {	
+	                    if (entries%3 != 0)
+	                    {
+	                    	System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the element file is not of the required form: time,n1,n2,n3,n1,n2,n3..");
+	                    	break;
+	                    }
+	                    numElements[row] = entries/3;
+	                    element_nodes[row] = new int[memory_factor*3*numElements[row]];
+                    }
                 }                
 
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
@@ -1097,11 +1117,22 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 
                 if (elementFilePresent)
                 {
-                	for (int i = 0; i < 3*numElements[row]; i++) 
+                	if (isSparseMesh)
                     {
-                        int node = Integer.parseInt(st_element.nextToken());
-                        element_nodes[row][i] = node;
-                    }                	
+	                	for (int i = 0; i < 2*numElements[row]; i++) 
+	                    {
+	                        int node = Integer.parseInt(st_element.nextToken());
+	                        element_nodes[row][i] = node;
+	                    }
+                    }
+                	else
+                	{
+	                	for (int i = 0; i < 3*numElements[row]; i++) 
+	                    {
+	                        int node = Integer.parseInt(st_element.nextToken());
+	                        element_nodes[row][i] = node;
+	                    }
+                	}
                 }
                 
                 // Read next line of each file
@@ -1146,6 +1177,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Drawing axes = "+ drawAxes);
             System.out.println("Drawing axes equal = "+ axesEqual);
             System.out.println("Drawing clonal populations = "+ drawAncestors);
+            System.out.println("Using sparse mesh = "+ isSparseMesh);
             
             if (drawCylinder) 
             {
@@ -1206,7 +1238,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 image_cells[time_index][i] = i;
             }
             
-            if (elementFilePresent)
+            if ( (elementFilePresent) && (!isSparseMesh) )
             {
                 // Draw elements first
                 for (int i=0; i<numElements[time_index]; i++)
@@ -1356,6 +1388,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     BufferedImage buffered_image = null;
     Graphics g2 = null;
     
+    
+    //Color background_silver = new Color(255,255,255);
     Color background_silver = new Color(238,238,238);
     Color spring_silver = new Color(200,200,200);
     Color apoptotic_grey = new Color(80,80,80);
@@ -1497,7 +1531,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         g2.setColor(Color.black);
         Shape original_clip = g2.getClip();
         
-        if (vis.elementFilePresent)
+        if (vis.elementFilePresent && !vis.isSparseMesh )
         {        	
 	        // Draw elements first
 	        for (int i=0; i<vis.numElements[vis.timeStep]; i++)
@@ -1768,6 +1802,47 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	                    if ( (vis.cell_type[vis.timeStep][index[2]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) )
 	                    {
 	                        g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
+	                    }
+	                    g2.setColor(Color.black);
+	                }
+	            }
+	        }
+        }
+	        
+        if (vis.elementFilePresent && vis.isSparseMesh )
+        {        	
+	        //  1D Elements in 2D space 
+	        for (int i=0; i<vis.numElements[vis.timeStep]; i++)
+	        {       
+	            // What nodes are we joining up?
+	        	int index[] = new int[2];
+	            index[0] = vis.element_nodes[vis.timeStep][2*i];
+	            index[1] = vis.element_nodes[vis.timeStep][2*i+1];
+	            
+	            
+	            RealPoint r1 = vis.positions[vis.timeStep][index[0]];
+	            RealPoint r2 = vis.positions[vis.timeStep][index[1]];
+	            
+	            // Where are they? Convert to integer pixels
+	            PlotPoint vertex[] = new PlotPoint[3];
+	            vertex[0] = scale(r1);
+	            vertex[1] = scale(r2);
+	                        
+	            g2.setColor(Color.black);
+	            
+	            if (vis.drawSprings)
+	            {
+	                // Plot lines
+	                if ( (vis.cell_type[vis.timeStep][index[0]] != INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]] != INVISIBLE_COLOUR) )
+	                {
+	                    g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
+	                }
+	                if (vis.drawGhosts)
+	                {
+	                    g2.setColor(spring_silver);
+	                    if ( (vis.cell_type[vis.timeStep][index[0]] == INVISIBLE_COLOUR) || (vis.cell_type[vis.timeStep][index[1]] == INVISIBLE_COLOUR) )
+	                    {
+	                        g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
 	                    }
 	                    g2.setColor(Color.black);
 	                }
