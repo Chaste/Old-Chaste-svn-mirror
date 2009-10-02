@@ -83,16 +83,34 @@ public:
         char *chaste_test_output = getenv("CHASTE_TEST_OUTPUT");
 
         setenv("CHASTE_TEST_OUTPUT", "", 1/*Overwrite*/);
+
+        // Check this folder is not present
+        std::string command = "test -d testoutput/whatever";
+        int return_value = system(command.c_str());
+        TS_ASSERT_DIFFERS(return_value, 0);
+        PetscTools::Barrier();
+
+        // Make a folder and erase it - NB only master can erase files and check it is successful!
         OutputFileHandler handler4("whatever");
-        rmdir("testoutput/whatever");
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "rm -rf testoutput/whatever");
+        }
+
+        // Check this folder is not present
+        command = "test -d somewhere_without_trailing_forward_slash";
+        return_value = system(command.c_str());
+        TS_ASSERT_DIFFERS(return_value, 0);
+        PetscTools::Barrier();
 
         setenv("CHASTE_TEST_OUTPUT", "somewhere_without_trailing_forward_slash", 1/*Overwrite*/);
-
+        // Make a folder
         OutputFileHandler handler5("whatever");
-
-        rmdir("somewhere_without_trailing_forward_slash/whatever");
-        rmdir("somewhere_without_trailing_forward_slash");
-
+        // erase it
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "rm -rf somewhere_without_trailing_forward_slash");
+        }
         // Reset the location of CHASTE_TEST_OUTPUT
         setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
 
@@ -100,30 +118,47 @@ public:
         PetscTools::Barrier();
     }
 
-    ///todo #1126 test
-//    void TestWeCanOnlyDeleteFoldersWeHaveMadeOurselves() throw(Exception)
-//    {
-//        OutputFileHandler handler("");
-//        std::string test_output_path = handler.GetOutputDirectoryFullPath();
-//        std::string command;
-//
-//        if (PetscTools::AmMaster())
-//        {
-//            command = "mkdir -p " + test_output_path + "cannot_delete_me";
-//            system(command.c_str());
-//        }
-//        // Wait until directory has been created
-//        PetscTools::Barrier();
-//
-//        command = "test -d " + test_output_path + "cannot_delete_me";
-//        // Check this folder has been created...
-//        TS_ASSERT_EQUALS(system(command.c_str()), 0);
-//
-//        // Try to use it as an output folder
-//        TS_ASSERT_THROWS_CONTAINS(OutputFileHandler bad_handler("cannot_delete_me"),
-//                                  "Cannot clean directory");
-//
-//    }
+    void TestWeCanOnlyDeleteFoldersWeHaveMadeOurselves() throw(Exception)
+    {
+        std::string command;
+        if (PetscTools::AmMaster())
+        {
+            command = "mkdir -p " + OutputFileHandler::GetChasteTestOutputDirectory() + "cannot_delete_me";
+            system(command.c_str());
+        }
+        // Wait until directory has been created
+        PetscTools::Barrier();
+
+        command = "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "cannot_delete_me";
+        // Check this folder has been created...
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        // Try to use it as an output folder
+        TS_ASSERT_THROWS_CONTAINS(OutputFileHandler bad_handler("cannot_delete_me"),
+                                  "because signature file \".chaste_deletable_folder\" is not present");
+
+        OutputFileHandler handler("can_delete_me");
+        out_stream p_file_stream;
+        p_file_stream = handler.OpenOutputFile("test_file");
+
+        // Test file is still present
+        command = "test -e " + handler.GetOutputDirectoryFullPath() + "test_file";
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value, 0);
+        PetscTools::Barrier();
+
+        OutputFileHandler handler2("can_delete_me", false);
+        // Test file is still present
+        return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value, 0);
+        PetscTools::Barrier();
+
+        OutputFileHandler handler3("can_delete_me", true);
+        // Test file is deleted
+        return_value = system(command.c_str());
+        TS_ASSERT_DIFFERS(return_value, 0);
+        PetscTools::Barrier();
+    }
 
 
 };

@@ -46,12 +46,19 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                 " due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
     }
 
-    mDirectory = GetOutputDirectoryFullPath(rDirectory);
+    mDirectory = MakeFoldersAndReturnFullPath(rDirectory);
 
     // Clean the directory (default)
     if (rDirectory != "" && cleanOutputDirectory) // Don't clean CHASTE_TEST_OUTPUT
     {
-        // Are we the master process?  Only the master should make any new directories
+        std::string command = "test -e " + mDirectory + ".chaste_deletable_folder";
+        int return_value = system(command.c_str());
+        if (return_value!=0)
+        {
+            EXCEPTION("Cannot delete " + mDirectory + " because signature file \".chaste_deletable_folder\" is not present.");
+        }
+
+        // Are we the master process?  Only the master should delete files
         if (PetscTools::AmMaster())
         {
             //Remove whatever was there before
@@ -82,7 +89,7 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
 }
 
 
-std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDirectory)
+std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& rDirectory)
 {
     std::string directory_root = GetChasteTestOutputDirectory();
     std::string directory = directory_root + rDirectory;
@@ -98,6 +105,9 @@ std::string OutputFileHandler::GetOutputDirectoryFullPath(const std::string& rDi
         {
             // We make as many folders as necessary here.
             EXPECT0(system,"mkdir -p " + directory);
+
+            // Put the Chaste signature file in all folders we have created
+            EXPECT0(system,"touch " + directory + ".chaste_deletable_folder");
         }
     }
     // Wait for master to finish before going on to use the directory.

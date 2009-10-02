@@ -69,7 +69,7 @@ private:
      *         output will be stored (user shouldn't care about this).
      * @return full pathname to the output directory
      */
-    std::string GetOutputDirectoryFullPath(const std::string& rDirectory);
+    std::string MakeFoldersAndReturnFullPath(const std::string& rDirectory);
 
 public:
     /**
