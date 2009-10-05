@@ -49,7 +49,6 @@ Exception::Exception(std::string message,
     // LOG(1, log_file_message);
 }
 
-
 std::string Exception::GetMessage() const
 {
     return mMessage;
