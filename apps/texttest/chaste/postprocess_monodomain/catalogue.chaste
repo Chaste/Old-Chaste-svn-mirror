@@ -1,9 +1,11 @@
 The following new files/directories were created:
 <Test Directory>
 ----ChasteResults
+--------.chaste_deletable_folder
 --------SimulationResults.h5
 --------progress_status.txt
 --------output
+------------.chaste_deletable_folder
 ------------Apd_90_-30_Map.dat
 ------------ChasteDefaults.xml
 ------------ChasteParameters.xml
