@@ -48,7 +48,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "CuboidMeshConstructor.hpp"
-#include "OutputFileHandler.hpp"
 #include "ZeroStimulusCellFactory.hpp"
 #include "SimpleStimulus.hpp"
 #include "ConstBoundaryCondition.hpp"
@@ -273,8 +272,8 @@ public:
                 HeartConfig::Instance()->SetSimulationDuration(8.0);
             }
 #undef COVERAGE_IGNORE
-            HeartConfig::Instance()->SetOutputDirectory ("Convergence");
-            HeartConfig::Instance()->SetOutputFilenamePrefix ("Results");
+            HeartConfig::Instance()->SetOutputDirectory("Convergence");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("Results");
 
             //Don't use parallel mesh for now
             //HeartConfig::Instance()->SetMeshFileName( constructor.Construct(this->MeshNum, mMeshWidth) );
@@ -431,39 +430,36 @@ public:
                 std::vector<double> transmembrane_potential=results_reader.GetVariableOverTime("V", third_quadrant_node);
                 std::vector<double> time_series = results_reader.GetUnlimitedDimensionValues();
 
-                // Write out the time series for the node at third quadrant
+                OutputFileHandler plot_file_handler("ConvergencePlots", false);
                 if (PetscTools::AmMaster())
                 {
-                    OutputFileHandler plot_file_handler("ConvergencePlots", false);
-                    std::stringstream plot_file_name_stream;
-                    plot_file_name_stream<< nameOfTest << "_Third_quadrant_node_run_"<< file_num << ".csv";
-                    out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
-                    for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                    // Write out the time series for the node at third quadrant
                     {
-                        (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";
+                        std::stringstream plot_file_name_stream;
+                        plot_file_name_stream<< nameOfTest << "_Third_quadrant_node_run_"<< file_num << ".csv";
+                        out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
+                        for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                        {
+                            (*p_plot_file) << time_series[data_point] << "\t" << transmembrane_potential[data_point] << "\n";
+                        }
+                        p_plot_file->close();
                     }
-                    p_plot_file->close();
-                }
-
-                // Write time series for first quadrant node
-                if (PetscTools::AmMaster())
-                {
-                    std::vector<double> transmembrane_potential_1qd=results_reader.GetVariableOverTime("V", first_quadrant_node);
-                    std::vector<double> time_series_1qd = results_reader.GetUnlimitedDimensionValues();
-                    OutputFileHandler plot_file_handler("ConvergencePlots", false);
-                    std::stringstream plot_file_name_stream;
-                    plot_file_name_stream<< nameOfTest << "_First_quadrant_node_run_"<< file_num << ".csv";
-                    out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
-                    for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                    // Write time series for first quadrant node
                     {
-                        (*p_plot_file) << time_series_1qd[data_point] << "\t" << transmembrane_potential_1qd[data_point] << "\n";
+                        std::vector<double> transmembrane_potential_1qd=results_reader.GetVariableOverTime("V", first_quadrant_node);
+                        std::vector<double> time_series_1qd = results_reader.GetUnlimitedDimensionValues();
+                        std::stringstream plot_file_name_stream;
+                        plot_file_name_stream<< nameOfTest << "_First_quadrant_node_run_"<< file_num << ".csv";
+                        out_stream p_plot_file = plot_file_handler.OpenOutputFile(plot_file_name_stream.str());
+                        for (unsigned data_point = 0; data_point<time_series.size(); data_point++)
+                        {
+                            (*p_plot_file) << time_series_1qd[data_point] << "\t" << transmembrane_potential_1qd[data_point] << "\n";
+                        }
+                        p_plot_file->close();
                     }
-                    p_plot_file->close();
                 }
-
                 // calculate conduction velocity and APD90 error
                 PropagationPropertiesCalculator ppc(&results_reader);
-
 
                 try
                 {
