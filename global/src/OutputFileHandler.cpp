@@ -47,9 +47,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     }
 
     mDirectory = MakeFoldersAndReturnFullPath(rDirectory);
-    PRINT_VARIABLE(calls++);
     
-
     // Clean the directory (default)
     if (rDirectory != "" && cleanOutputDirectory) // Don't clean CHASTE_TEST_OUTPUT
     {
