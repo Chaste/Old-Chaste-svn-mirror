@@ -339,9 +339,9 @@ void HeartGeometryInformation<SPACE_DIM>::DetermineLayerForEachNode(double epiFr
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outputDir, std::string file)
 {
+    OutputFileHandler handler(outputDir,false);
     if (PetscTools::AmMaster())
     {
-        OutputFileHandler handler(outputDir,false);
         out_stream p_file = handler.OpenOutputFile(file);
 
         assert(mLayerForEachNode.size()>0);
