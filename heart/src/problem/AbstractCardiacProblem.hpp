@@ -68,6 +68,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 #include "ParallelTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"
 #include "MonodomainPde.hpp"
 #include "BidomainPde.hpp"
 

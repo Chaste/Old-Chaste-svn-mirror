@@ -9,3 +9,6 @@ base_bidomain
 
 # monodomain with baseline parameters and some post-processing output
 postprocess_monodomain
+
+# bidomain simulation with <SaveSimulation> defined
+save_bidomain

@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+// Must go first
+#include "CardiacSimulationArchiver.hpp"
 
 #include <vector>
 #include <ctime>
@@ -369,6 +371,13 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                         bi_problem.ConvertOutputToMeshalyzerFormat(true);
                         bi_problem.Initialise();
                         bi_problem.Solve();
+
+                        if (HeartConfig::Instance()->GetSaveSimulation())
+                        {
+                            std::stringstream directory;
+                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+                            CardiacSimulationArchiver<BidomainProblem<3> >::Save(bi_problem, directory.str(), false);
+                        }
 
                         break;
                     }

@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ParallelTetrahedralMesh.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
+#include "BackwardEulerFoxModel2002Modified.hpp"
 
 class TestCardiacSimulationArchiver : public CxxTest::TestSuite
 {
@@ -152,8 +153,47 @@ public:
             delete p_bidomain_problem;            
         }
 
-    }      
+    }
     
+    /*
+     *  Test used to generate the results for the acceptance test save_bidomain.
+     * 
+     *  The idea is that the binary should generate the same results that this test.
+     */      
+    void TestGenerateResultsForSaveBidomain()
+    {
+        HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_bidomain/ChasteParameters.xml");
+        // We reset the mesh filename to include the relative path
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_1626_elements");
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(),
+                         "mesh/test/data/cube_1626_elements");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+                         ionic_models_available_type::Fox2002BackwardEuler);
+
+        HeartConfig::Instance()->SetOutputDirectory("SaveBidomain");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");      
+
+        // This cell factory should apply the same stimulus described in the xml config file.
+        PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
+        BidomainProblem<3> bidomain_problem( &cell_factory );
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        bidomain_problem.Initialise();
+        bidomain_problem.Solve();
+
+        CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
+        
+        /// \todo: add some more meaningful testing 
+    }
+    
+    /*
+     *  Test used to generate the results for the acceptance test resume_bidomain.
+     * 
+     *  Here we run the whole simulation (20ms) and check
+     */
 };
 
 #endif /*TESTCARDIACSIMULATIONARCHIVER_HPP_*/
