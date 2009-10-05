@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "OdeSolution.hpp"
+#include "PetscTools.hpp"
 
 unsigned OdeSolution::GetNumberOfTimeSteps()
 {

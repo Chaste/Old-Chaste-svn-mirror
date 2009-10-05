@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include "ColumnDataWriter.hpp"
 #include "AbstractOdeSystem.hpp"
-#include "PetscTools.hpp"
 
 /**
  * An OdeSolution class that that allows us to save the output data to file.
