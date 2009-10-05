@@ -228,7 +228,10 @@ private:
                 }
             }
 
-            mSolution_distri.Restore();            
+            mSolution_distri.Restore();
+            
+            VecDestroy(vm);
+            VecDestroy(phie);            
 
         }
         archive & mCurrentTime;
