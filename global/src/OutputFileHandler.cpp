@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "ArchiveLocationInfo.hpp"
 
+//#include "Debug.hpp"
+//static unsigned calls=0;
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
 {
@@ -45,6 +47,8 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         EXCEPTION("Will not create directory: " + rDirectory +
                 " due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
     }
+    //PRINT_VARIABLE(calls++);
+    //PetscTools::Barrier();//Catch where it's misbehaving
 
     mDirectory = MakeFoldersAndReturnFullPath(rDirectory);
 

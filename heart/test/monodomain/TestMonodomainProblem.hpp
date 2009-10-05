@@ -142,7 +142,7 @@ public:
             mVoltageReplicated1d2ms.push_back(voltage_replicated[index]);
         }
         //How close is our "standard" answer?
-        atol=2.5e-3;
+        atol=5e-3;
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[1], 20.7710232, atol);
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[3], 21.5319692, atol);
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[5], 22.9280817, atol);
@@ -182,7 +182,7 @@ public:
         ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
 
         /// \todo: If we request "relative" tolerance we shouldn't testing in an "absolute" manner
-        double atol=1e-5;
+        double atol=2e-5;
         TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
         TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
         TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
@@ -250,8 +250,9 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 2e-4);
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(atol/10.0);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-5);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(atol/20.0);
+        ///\todo this is dependent on the number of processes used
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 5e-6);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dAbsTol");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");

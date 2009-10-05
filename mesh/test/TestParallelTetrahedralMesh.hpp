@@ -853,6 +853,7 @@ private:
 public:    
     void TestConstructLinearMesh()
     {
+        ///\todo This test fails with more than 5 processes
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         ParallelTetrahedralMesh<1,1> read_mesh;
         read_mesh.ConstructFromMeshReader(mesh_reader);

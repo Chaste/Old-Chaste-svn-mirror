@@ -55,7 +55,7 @@ public:
         int time_var_id=-1, var1_id=-1, var2_id=-1;
 
         // Make a parallel data writer
-        TS_ASSERT_THROWS_NOTHING(mpParallelWriter = new ParallelColumnDataWriter("TestParallelColumnDataWriter", "ParallelColumnWriter"));
+        mpParallelWriter = new ParallelColumnDataWriter("TestParallelColumnDataWriter", "ParallelColumnWriter");
         TS_ASSERT_THROWS_NOTHING(time_var_id = mpParallelWriter->DefineUnlimitedDimension("Time", "msecs"));
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->DefineFixedDimension("Node", "dimensionless", num_nodes));
 
