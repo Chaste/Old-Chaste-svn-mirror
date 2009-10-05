@@ -56,9 +56,9 @@ void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(Tetrahedr
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::string CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(unsigned meshNum, double meshWidth)
 {
-    //The class has only been tested for ELEMENT_DIM == SPACE_DIM or ELEMENT_DIM == 1 && SPACE_DIM == 3 
+    //The class has only been tested for ELEMENT_DIM == SPACE_DIM or ELEMENT_DIM == 1 && SPACE_DIM == 3
     assert(ELEMENT_DIM == SPACE_DIM || (ELEMENT_DIM == 1 && SPACE_DIM == 3));
-    
+
     mMeshWidth = meshWidth;
     assert(meshNum < 30); //Sanity
     const std::string mesh_dir = "ConvergenceMesh";
@@ -76,9 +76,9 @@ std::string CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(unsigned me
     file_name_stream << "cube_" << ELEMENT_DIM << "D_2mm_" << mNumElements << "_elements";
     std::string mesh_filename = file_name_stream.str();
 
+    TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(mesh_dir, mesh_filename, false);
     if (PetscTools::AmMaster())
     {
-        TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(mesh_dir, mesh_filename, false);
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
     PetscTools::Barrier();
