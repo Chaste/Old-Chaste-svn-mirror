@@ -47,6 +47,8 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     }
 
     mDirectory = MakeFoldersAndReturnFullPath(rDirectory);
+    PRINT_VARIABLE(calls++);
+    
 
     // Clean the directory (default)
     if (rDirectory != "" && cleanOutputDirectory) // Don't clean CHASTE_TEST_OUTPUT
@@ -111,7 +113,7 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
         }
     }
     // Wait for master to finish before going on to use the directory.
-    PetscTools::Barrier();
+    //\todo  #1126 This is method is NOT YET collective PetscTools::Barrier();
 
     return directory;
 }
