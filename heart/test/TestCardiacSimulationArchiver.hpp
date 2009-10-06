@@ -31,9 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "PetscSetupAndFinalize.hpp"
-
 #include "CardiacSimulationArchiver.hpp"
+#include "PetscSetupAndFinalize.hpp"
 #include "BidomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
