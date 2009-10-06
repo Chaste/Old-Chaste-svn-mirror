@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <unistd.h> //For rmdir()
 #include <petsc.h>
+#include <sys/stat.h> //For chmod()
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -116,6 +117,18 @@ public:
 
         // We don't want other people using CHASTE_TEST_OUTPUT whilst we are messing with it!
         PetscTools::Barrier();
+
+        // Coverage of the case where we can't open a file for writing
+        OutputFileHandler handler6("no_write_access");
+        if (PetscTools::AmMaster())
+        {
+            command = handler6.GetOutputDirectoryFullPath();
+            chmod(command.c_str(),0444);
+            TS_ASSERT_THROWS_CONTAINS(p_file_stream = handler6.OpenOutputFile("test_file"),
+                    "Could not open file");
+            chmod(command.c_str(),0755);
+            rmdir(command.c_str());
+        }
     }
 
     void TestWeCanOnlyDeleteFoldersWeHaveMadeOurselves() throw(Exception)

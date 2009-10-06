@@ -132,7 +132,7 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
     out_stream p_output_file(new std::ofstream((mDirectory+rFileName).c_str(), mode));
     if (!p_output_file->is_open())
     {
-        EXCEPTION("Could not open file " + rFileName + " in " + mDirectory);
+        EXCEPTION("Could not open file \"" + rFileName + "\" in " + mDirectory);
     }
     return p_output_file;
 }
