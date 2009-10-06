@@ -797,6 +797,8 @@ private:
     template <unsigned DIM>
     void CompareParallelMeshOwnership(ParallelTetrahedralMesh<DIM,DIM> &readMesh, ParallelTetrahedralMesh<DIM,DIM> &constructedMesh)
     {
+        TS_ASSERT_EQUALS(constructedMesh.GetDistributedVectorFactory()->GetLocalOwnership(),
+                         readMesh.GetDistributedVectorFactory()->GetLocalOwnership());
         TS_ASSERT_EQUALS(constructedMesh.GetNumNodes(), readMesh.GetNumNodes());
         TS_ASSERT_EQUALS(constructedMesh.GetNumLocalNodes(), readMesh.GetNumLocalNodes());
         TS_ASSERT_EQUALS(constructedMesh.GetNumBoundaryNodes(), readMesh.GetNumBoundaryNodes());
@@ -857,7 +859,6 @@ private:
 public:    
     void TestConstructLinearMesh()
     {
-        ///\todo This test fails with more than 5 processes
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         ParallelTetrahedralMesh<1,1> read_mesh;
         read_mesh.ConstructFromMeshReader(mesh_reader);
@@ -946,6 +947,59 @@ public:
        
     }
     
+    void TestConstructLinearMeshSmall()
+    {
+        unsigned width=2;
+        //Works well with exactly 3 processors
+        if (PetscTools::GetNumProcs() != width + 1)
+        {
+            TS_TRACE("This test works with exactly 3 processes.");
+            return;
+        }
+        TetrahedralMesh<1,1> base_mesh;
+        base_mesh.ConstructLinearMesh(width);
+        TrianglesMeshWriter<1,1> mesh_writer("", "linear");
+        mesh_writer.WriteFilesUsingMesh(base_mesh);
+        PetscTools::Barrier();
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<1,1> mesh_reader(output_dir+"linear");
+        ParallelTetrahedralMesh<1,1> read_mesh(ParallelTetrahedralMesh<1,1>::DUMB);
+        read_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        ParallelTetrahedralMesh<1,1> constructed_mesh;
+        constructed_mesh.ConstructLinearMesh(width);
+        
+        //Double check
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), read_mesh.GetNumBoundaryNodes());
+        CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+    }
+    void TestConstructRetangularMeshSmall()
+    {
+        unsigned width=1;
+        unsigned height=2;
+        //Works well with exactly 3 processors
+        if (PetscTools::GetNumProcs() != height + 1)
+        {
+            TS_TRACE("This test works with exactly 3 processes.");
+            return;
+        }
+        TetrahedralMesh<2,2> base_mesh;
+        base_mesh.ConstructRectangularMesh(width, height);
+        TrianglesMeshWriter<2,2> mesh_writer("", "rectangle");
+        mesh_writer.WriteFilesUsingMesh(base_mesh);
+        PetscTools::Barrier();
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
+        ParallelTetrahedralMesh<2,2> read_mesh(ParallelTetrahedralMesh<2,2>::DUMB);
+        read_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        ParallelTetrahedralMesh<2,2> constructed_mesh;
+        constructed_mesh.ConstructRectangularMesh(width, height, false);
+        
+        TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), read_mesh.GetNumBoundaryNodes());
+        CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+    }
+
     void TestConstructRetangularMesh()
     {
         unsigned width=5;

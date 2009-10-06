@@ -762,20 +762,22 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
         {
             RegisterNode(node_index);
             this->mNodes.push_back(p_node); // create node
-        }
-        if (node_index==0) // create left boundary node and boundary element
-        {
-            this->mBoundaryNodes.push_back(p_node);
-            RegisterBoundaryElement(0);
-            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(0, p_node) );
-        }
-        if (node_index==width) // create right boundary node and boundary element
-        {
-            this->mBoundaryNodes.push_back(p_node);
-            RegisterBoundaryElement(1);
-            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
-        }
-
+        
+            //A boundary face has to be wholely owned by the process
+            //Since, when ELEMENT_DIM>1 we have *at least* boundary node as a non-halo
+            if (node_index==0) // create left boundary node and boundary element
+            {
+                this->mBoundaryNodes.push_back(p_node);
+                RegisterBoundaryElement(0);
+                this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(0, p_node) );
+            }
+            if (node_index==width) // create right boundary node and boundary element
+            {
+                this->mBoundaryNodes.push_back(p_node);
+                RegisterBoundaryElement(1);
+                this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(1, p_node) );
+            }
+            }
         if (node_index>lo_node) // create element
         {
             std::vector<Node<SPACE_DIM>*> nodes;
