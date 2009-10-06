@@ -12,3 +12,6 @@ postprocess_monodomain
 
 # bidomain simulation with <SaveSimulation> defined
 save_bidomain
+
+# bidomain simulation with <ResumeSimulation> defined
+resume_bidomain

@@ -295,6 +295,12 @@ public:
      */
     bool GetSaveSimulation() const;
 
+    // ResumeSimulation
+    /**
+     * Get directory where the archived simulation to resume is defined
+     */
+    std::string GetArchivedSimulationDir() const;
+
 
     // Physiological
     /**

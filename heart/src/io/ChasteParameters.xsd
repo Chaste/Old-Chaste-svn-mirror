@@ -314,8 +314,11 @@
 
   <xs:complexType name="resume_simulation_type">
     <xs:all>
-      <xs:element name="Directory" type="xs:string"/>
+      <!-- \todo: find a better name not to be confused with OutputDirectory -->
+      <xs:element name="Directory" type="xs:string" minOccurs="0"/>
       <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
+      <xs:element name="OutputFilenamePrefix" type="xs:string" minOccurs="0"/>      
+      <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
       <!-- \todo: I couldn't find out how to define this element to have no content-->
       <xs:element name="SaveSimulation" type="xs:string" minOccurs="0"/>
     </xs:all>      

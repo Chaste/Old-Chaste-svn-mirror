@@ -5,6 +5,9 @@
 	<ResumeSimulation>
 		<Directory>ChasteResults_10ms</Directory>
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
+
+		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>	    
+		<OutputDirectory>ChasteResults</OutputDirectory>	    
 		<SaveSimulation/>				
 	</ResumeSimulation>
 	

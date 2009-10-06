@@ -80,8 +80,8 @@ std::string parameter_file;
  * Defaults are required in the declaration due to the lack of default constructor.
  * Values will be ignored, though.
  */
-std::string  output_directory = "/";
 domain_type domain = domain_type::Mono;
+unsigned space_dimension = 3;
 
 ionic_models_available_type default_ionic_model = ionic_models_available_type::LuoRudyI;
 std::vector<ChasteCuboid> ionic_model_regions;
@@ -240,37 +240,46 @@ void ReadParametersFromFile()
         HeartConfig::Instance()->SetParametersFile(parameter_file);
     }
 
-    output_directory = HeartConfig::Instance()->GetOutputDirectory();
 
-    domain = HeartConfig::Instance()->GetDomain();
-
-    // Read and store default ionic model and possible region definitions
-    default_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
-    HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
-                                                  ionic_models_defined);
-
-    // Read and store Stimuli
-    try
+    if (HeartConfig::Instance()->IsSimulationDefined())
     {
-        HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
+        domain = HeartConfig::Instance()->GetDomain();
+        space_dimension = HeartConfig::Instance()->GetSpaceDimension();
+    
+        // Read and store default ionic model and possible region definitions
+        default_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
+        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
+                                                      ionic_models_defined);
+    
+        // Read and store Stimuli
+        try
+        {
+            HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
+        }
+        catch(Exception& e)
+        {
+            // No stimuli provided
+            std::cout << "Warning: No stimuli provided. Simulation will be run anyway." << std::endl;
+        }
+    
+        // Read and store Cell Heterogeneities
+        try
+        {
+            HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                            scale_factor_gks,
+                                                            scale_factor_ito,
+                                                            scale_factor_gkr);
+        }
+        catch(Exception& e)
+        {
+            // No cell heterogeneities provided
+        }
     }
-    catch(Exception& e)
+    else
     {
-        // No stimuli provided
-        std::cout << "Warning: No stimuli provided. Simulation will be run anyway." << std::endl;
-    }
-
-    // Read and store Cell Heterogeneities
-    try
-    {
-        HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
-                                                        scale_factor_gks,
-                                                        scale_factor_ito,
-                                                        scale_factor_gkr);
-    }
-    catch(Exception& e)
-    {
-        // No cell heterogeneities provided
+        /// \todo: #1134 bad bad bad...
+        domain = domain_type::Bi;
+        space_dimension = 3;
     }
 }
 
@@ -314,7 +323,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         {
             case domain_type::Mono :
             {
-                switch (HeartConfig::Instance()->GetSpaceDimension())
+                switch (space_dimension)
                 {
                     case 3:
                     {
@@ -361,23 +370,39 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
             case domain_type::Bi :
             {
-                switch (HeartConfig::Instance()->GetSpaceDimension())
+                switch (space_dimension)
                 {
                     case 3:
                     {
-                        ChasteSlabCellFactory<3> cell_factory;
-                        BidomainProblem<3> bi_problem( &cell_factory);
+                        BidomainProblem<3>* p_bi_problem;
+                        
+                        if (HeartConfig::Instance()->IsSimulationDefined())
+                        {
+                            ChasteSlabCellFactory<3> cell_factory;
+                            p_bi_problem = new BidomainProblem<3>(&cell_factory);
+    
+                            p_bi_problem->Initialise();
+    
+                            p_bi_problem->ConvertOutputToMeshalyzerFormat(true);
+                        }
+                        else // (HeartConfig::Instance()->IsSimulationResumed())
+                        {
+                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());
+                            
+                            /// \todo: #1143 after unarchiving HeartConfig points to the old config file.
+                            HeartConfig::Instance()->SetParametersFile(parameter_file);                                                       
+                        }
 
-                        bi_problem.ConvertOutputToMeshalyzerFormat(true);
-                        bi_problem.Initialise();
-                        bi_problem.Solve();
+                        p_bi_problem->Solve();
 
                         if (HeartConfig::Instance()->GetSaveSimulation())
                         {
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                            CardiacSimulationArchiver<BidomainProblem<3> >::Save(bi_problem, directory.str(), false);
+                            CardiacSimulationArchiver<BidomainProblem<3> >::Save(*p_bi_problem, directory.str(), false);
                         }
+
+                        delete p_bi_problem;
 
                         break;
                     }

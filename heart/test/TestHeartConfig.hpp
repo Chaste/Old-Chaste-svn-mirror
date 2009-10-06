@@ -772,6 +772,13 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationDefined());
         TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir(), "ChasteResults_10ms");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "SimulationResults");
+        TS_ASSERT( ! HeartConfig::Instance()->GetOutputVariablesProvided());
+        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
 
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSpaceDimension(), "SpaceDimension information is not available in a resumed simulation.")
 

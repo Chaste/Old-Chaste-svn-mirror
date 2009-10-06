@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include "PetscSetupAndFinalize.hpp"
 
 #include "CardiacSimulationArchiver.hpp"
 #include "BidomainProblem.hpp"
@@ -39,8 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ParallelTetrahedralMesh.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
-
-#include "PetscSetupAndFinalize.hpp"
 
 class TestCardiacSimulationArchiver : public CxxTest::TestSuite
 {
@@ -160,6 +159,18 @@ public:
      *  Test used to generate the results for the acceptance test save_bidomain.
      * 
      *  The idea is that the binary should generate the same results that this test.
+     * 
+     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
+     * 
+     *  save_bidomain:
+     *    h5dump save_bidomain/AbstractCardiacProblem_mSolution.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_bidomain/AbstractCardiacProblem_mSolution_h5.chaste
+     *    cp save_bidomain.arch.0 ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_bidomain/ChasteResults_10ms_arch_0.chaste
+     * 
+     *  resume_bidomain:
+     *    cd /tmp/chaste/testoutput
+     *    cp -r SaveBidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
+     *    cp -r save_bidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
+     * 
      */      
     void TestGenerateResultsForSaveBidomain()
     {
@@ -187,14 +198,50 @@ public:
 
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
         
-        /// \todo: add some more meaningful testing 
+        /// \todo: add a test that fails if the archiving format is modified.
     }
     
     /*
      *  Test used to generate the results for the acceptance test resume_bidomain.
      * 
      *  Here we run the whole simulation (20ms) and check
+     *
+     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
+     * 
+     *  resume_bidomain:
+     *    cd /tmp/chaste/testoutput/ResumeBidomain
+     *    h5dump BidomainLR91_1d.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/results_h5.chaste
      */
+    void TestGenerateResultsForResumeBidomain()
+    {
+        HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_bidomain/ChasteParameters.xml");
+        // We reset the mesh filename to include the relative path
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_1626_elements");
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(),
+                         "mesh/test/data/cube_1626_elements");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+                         ionic_models_available_type::Fox2002BackwardEuler);
+
+        // We simulate for 20ms to compare the output
+        HeartConfig::Instance()->SetSimulationDuration(20.0);
+
+        HeartConfig::Instance()->SetOutputDirectory("ResumeBidomain");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");      
+
+        // This cell factory should apply the same stimulus described in the xml config file.
+        PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
+        BidomainProblem<3> bidomain_problem( &cell_factory );
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        bidomain_problem.Initialise();
+        bidomain_problem.Solve();
+        
+        /// \todo: add a test that fails if the archiving format is modified.
+    }
+
 };
 
 #endif /*TESTCARDIACSIMULATIONARCHIVER_HPP_*/

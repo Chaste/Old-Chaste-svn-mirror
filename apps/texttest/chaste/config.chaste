@@ -6,6 +6,11 @@ link_test_path:ChasteDefaults.xml
 link_test_path:cube_1626_elements.ele
 link_test_path:cube_1626_elements.face
 link_test_path:cube_1626_elements.node
+# Directory containing an archived simulation
+link_test_path:save_bidomain
+# Directory with the results file to extend (copy over since h5 file will be extended)
+copy_test_path:SaveBidomain
+
 default_checkout:Chaste
 
 [collate_file]
@@ -23,14 +28,17 @@ UpstrokeTimeMap_minus_30_dat:ChasteResults/output/UpstrokeTimeMap_-30.dat
 
 # Extra files to test against in save_bidomain
 AbstractCardiacProblem_mSolution_h5:ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5
-# Not able to compare this one yet
+# \todo: #1143 Not able to compare this one yet
 #ChasteResults_10ms_arch_0:ChasteResults_10ms/ChasteResults_10ms.arch.0
+
+# Extra files to test agains in resume_bidomain
+resumed_h5:SaveBidomain/BidomainLR91_1d.h5
 
 [collate_script]
 # We need to translate hdf5 files into text in order to compare them with difff
 results_h5:h5dump
 AbstractCardiacProblem_mSolution_h5:h5dump
-
+resumed_h5:h5dump
 
 [checkout_location]
 Chaste:$HOME/eclipse/workspace/Chaste
@@ -53,6 +61,7 @@ output:(uname)
 output:from revision number
 results_h5:HDF5
 AbstractCardiacProblem_mSolution_h5:HDF5
+resumed_h5:HDF5
 #Handle absolute paths in error messages
 errors:{INTERNAL writedir}{REPLACE <texttest_dir>}
 #Handle source code line numbers

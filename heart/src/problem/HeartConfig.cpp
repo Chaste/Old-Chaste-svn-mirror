@@ -251,9 +251,18 @@ unsigned HeartConfig::GetSpaceDimension() const
 
 double HeartConfig::GetSimulationDuration() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().get().SimulationDuration(),
-                           & mpDefaultParameters->Simulation().get().SimulationDuration(),
-                           "SimulationDuration")->get();
+    if (IsSimulationDefined())
+    {
+        return DecideLocation( & mpUserParameters->Simulation().get().SimulationDuration(),
+                               & mpDefaultParameters->Simulation().get().SimulationDuration(),
+                               "Simulation/SimulationDuration")->get();        
+    }
+    else // IsSimulationResumed
+    {
+        return DecideLocation( & mpUserParameters->ResumeSimulation().get().SimulationDuration(),
+                               & mpDefaultParameters->Simulation().get().SimulationDuration(),
+                               "ResumeSimulation/SimulationDuration")->get();                
+    }
 }
 
 domain_type HeartConfig::GetDomain() const
@@ -605,20 +614,44 @@ void HeartConfig::GetConductivityHeterogeneities(
 
 std::string HeartConfig::GetOutputDirectory() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().get().OutputDirectory(),
-                           & mpDefaultParameters->Simulation().get().OutputDirectory(),
-                           "OutputDirectory")->get();
+    if (IsSimulationDefined())
+    {
+        return DecideLocation( & mpUserParameters->Simulation().get().OutputDirectory(),
+                               & mpDefaultParameters->Simulation().get().OutputDirectory(),
+                               "Simulation/OutputDirectory")->get();        
+    }
+    else // IsSimulationResumed
+    {
+        return DecideLocation( & mpUserParameters->ResumeSimulation().get().OutputDirectory(),
+                               & mpDefaultParameters->Simulation().get().OutputDirectory(),
+                               "ResumeSimulation/OutputDirectory")->get();                
+    }
 }
 
 std::string HeartConfig::GetOutputFilenamePrefix() const
 {
-    return DecideLocation( & mpUserParameters->Simulation().get().OutputFilenamePrefix(),
-                           & mpDefaultParameters->Simulation().get().OutputFilenamePrefix(),
-                           "OutputFilenamePrefix")->get();
+    if (IsSimulationDefined())
+    {
+        return DecideLocation( & mpUserParameters->Simulation().get().OutputFilenamePrefix(),
+                               & mpDefaultParameters->Simulation().get().OutputFilenamePrefix(),
+                               "Simulation/OutputFilenamePrefix")->get();        
+    }
+    else // IsSimulationResumed
+    {
+        return DecideLocation( & mpUserParameters->ResumeSimulation().get().OutputFilenamePrefix(),
+                               & mpDefaultParameters->Simulation().get().OutputFilenamePrefix(),
+                               "ResumeSimulation/OutputFilenamePrefix")->get();                
+    }
 }
 
 bool HeartConfig::GetOutputVariablesProvided() const
 {
+    /// \todo: #1143 this is a hack, we need a consistent way of handling the data we don't allow redifining.
+    if (IsSimulationResumed())
+    {
+        return false;
+    }   
+    
     try
     {
         DecideLocation( & mpUserParameters->Simulation().get().OutputVariables(),
@@ -654,9 +687,18 @@ bool HeartConfig::GetSaveSimulation() const
 {
     try
     {
-        DecideLocation( & mpUserParameters->Simulation().get().SaveSimulation(),
-                        & mpDefaultParameters->Simulation().get().SaveSimulation(),
-                        "SaveSimulation");                        
+        if (IsSimulationDefined())
+        {        
+            DecideLocation( & mpUserParameters->Simulation().get().SaveSimulation(),
+                            & mpDefaultParameters->Simulation().get().SaveSimulation(),
+                            "Simulation/SaveSimulation");
+        }
+        else
+        {
+            DecideLocation( & mpUserParameters->ResumeSimulation().get().SaveSimulation(),
+                            & mpDefaultParameters->Simulation().get().SaveSimulation(),
+                            "ResumeSimulation/SaveSimulation");            
+        }                        
         return true;
     }
     catch (Exception& e)
@@ -664,6 +706,17 @@ bool HeartConfig::GetSaveSimulation() const
         return false;
     }            
 }
+
+std::string HeartConfig::GetArchivedSimulationDir() const
+{
+    /// \todo: implement check
+    //CheckResumeSimulationIsDefined();
+
+    return DecideLocation( & mpUserParameters->ResumeSimulation().get().Directory(),
+                           & mpDefaultParameters->ResumeSimulation().get().Directory(),
+                           "ArchivedSimulationDir")->get();                                                       
+}
+
 
 void HeartConfig::GetIntracellularConductivities(c_vector<double, 3>& intraConductivities) const
 {
