@@ -518,13 +518,24 @@ class CellMLTranslator(object):
         Negative numbers will be prefixed by a space to avoid unwanted
         decrement operations.
         """
-        n = float(unicode(expr))
+        n = self.eval_number(expr)
         num = "%.12g" % n
         if num[0] == '-':
             num = ' ' + num
         if not '.' in num and not 'e' in num:
             num = num + '.0'
         self.write(num)
+
+    def eval_number(self, expr):
+        """Evaluate a number.
+
+        If a (unicode) string, convert to float.
+        If a cn element, call its evaluate method.
+        """
+        if isinstance(expr, mathml_cn):
+            return expr.evaluate()
+        else:
+            return float(unicode(expr))
 
     # Map from operator element names to C++ function names,
     # where the translation is straightforward.
@@ -2189,7 +2200,7 @@ class CellMLToMapleTranslator(CellMLTranslator):
         Negative numbers will be prefixed by a space to avoid unwanted
         decrement operations.
         """
-        n = float(unicode(expr))
+        n = self.eval_number(expr)
         num = "%.12g" % n
         if num[0] == '-':
             num = ' ' + num
@@ -2558,7 +2569,7 @@ class CellMLToHaskellTranslator(CellMLTranslator):
         With Haskell there is no need to force numbers to parse as doubles.
         We do need to bracket negative numbers.
         """
-        n = float(unicode(expr))
+        n = self.eval_number(expr)
         num = "%.12g" % n
         if num[0] == '-':
             num = "(" + num + ")"
@@ -2818,7 +2829,7 @@ class CellMLToMatlabTranslator(CellMLTranslator):
         Negative numbers will be prefixed by a space to avoid unwanted
         decrement operations.
         """
-        n = float(unicode(expr))
+        n = self.eval_number(expr)
         num = "%.12g" % n
         if num[0] == '-':
             num = ' ' + num

@@ -149,7 +149,7 @@ VarTypes = Enum('Unknown', 'Free', 'State', 'MaybeConstant', 'Constant',
 
 # Elements in the CellML subset of MathML
 CELLML_SUBSET_ELTS = frozenset(
-    ['math', 'cn', 'ci', 'apply', 'piecewise', 'piece', 'otherwise',
+    ['math', 'cn', 'sep', 'ci', 'apply', 'piecewise', 'piece', 'otherwise',
      'eq', 'neq', 'gt', 'lt', 'geq', 'leq',
      'plus', 'minus', 'times', 'divide', 'power', 'root', 'abs',
      'exp', 'ln', 'log', 'floor', 'ceiling', 'factorial',
@@ -3615,9 +3615,35 @@ class mathml_cn(mathml, mathml_units_mixin_tokens):
     def evaluate(self):
         """
         Convert the text content of this element to a floating point
-        value and return it.
+        value and return it.  Will handle the type attribute and, if
+        relevant to the type, the sep child element, but does not yet
+        handle the base attribute.
         """
-        return float(unicode(self))
+        if hasattr(self, u'base'):
+            raise ValueError('pycml does not yet support the base attribute on cn elements')
+        if hasattr(self, u'type'):
+            if self.type == u'real':
+                val = float(unicode(self))
+            elif self.type == u'integer':
+                val = int(unicode(self))
+            elif self.type == u'e-notation':
+                assert len(self.xml_children) == 3
+                assert self.xml_children[1] is self.sep
+                mantissa = unicode(self.xml_children[0]).strip()
+                exponent = unicode(self.xml_children[2]).strip()
+                val = float(mantissa + 'e' + exponent)
+            elif self.type == u'rational':
+                assert len(self.xml_children) == 3
+                assert self.xml_children[1] is self.sep
+                numer = int(unicode(self.xml_children[0]))
+                denom = int(unicode(self.xml_children[2]))
+                val = numer / denom
+            else:
+                raise ValueError('Unsupported type attribute for cn element: '
+                                 + self.type)
+        else:
+            val = float(unicode(self))
+        return val
 
     def _get_binding_time(self):
         """Return the binding time of this expression.
