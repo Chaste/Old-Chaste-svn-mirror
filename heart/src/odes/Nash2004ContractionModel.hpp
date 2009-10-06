@@ -74,8 +74,8 @@ public:
      */
     void SetInputParameters(ContractionModelInputParameters& rInputParameters)
     {
-        assert(rInputParameters.Voltage != DOUBLE_UNSET);
-        mVoltage = rInputParameters.Voltage;
+        assert(rInputParameters.voltage != DOUBLE_UNSET);
+        mVoltage = rInputParameters.voltage;
     }
     
     /** 

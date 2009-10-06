@@ -252,6 +252,10 @@ public:
                 }
             }
         }
+
+        //Scale it (for coverage)
+        mesh.Scale(2.0);
+
     }
 
     void TestEverythingIsAssignedMetisLibrary()

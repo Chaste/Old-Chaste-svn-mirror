@@ -49,9 +49,9 @@ typedef enum ContractionModel_
  */ 
 typedef struct ContractionModelInputParameters_
 {
-    double Voltage;
-    double IntracellularCalciumConcentration;
-    double Time;
+    double voltage;
+    double intracellularCalciumConcentration;
+    double time; //What time?
 } ContractionModelInputParameters;
     
 
@@ -83,11 +83,16 @@ public:
 
     /** 
      *  Set any input parameters (excl stretch and stretch rate). (Pure, to be implemented in the concrete class).
+     *
+     *  @param rInputParameters  contains various parameters such as voltage and intracellular calcium concentration
      */
     virtual void SetInputParameters(ContractionModelInputParameters& rInputParameters)=0;
 
     /** 
      *  Set the stretch and stretch rate. (Pure, to be implemented in the concrete class).
+     * 
+     * @param stretch  stretch (units?)
+     * @param stretchRate  stretch rate
      */
     virtual void SetStretchAndStretchRate(double stretch, double stretchRate)=0;
 

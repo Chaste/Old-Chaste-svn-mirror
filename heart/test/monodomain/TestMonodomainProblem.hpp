@@ -111,7 +111,11 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
-
+        // Set extra variable (to cover extension of HDF5 with named variables) in a later test
+        std::vector<std::string> output_variables;
+        output_variables.push_back("CaI");
+        HeartConfig::Instance()->SetOutputVariables( output_variables );
+   
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -838,7 +842,11 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
-
+            // Set extra variable (to cover extension of HDF5 with named variables) - in a later test
+            std::vector<std::string> output_variables;
+            output_variables.push_back("CaI");
+            HeartConfig::Instance()->SetOutputVariables( output_variables );
+   
             PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
             MonodomainProblem<1> monodomain_problem( &cell_factory );
 
@@ -913,6 +921,12 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
+        
+        // Set extra variable (to cover extension of HDF5 with named variables)
+        std::vector<std::string> output_variables;
+        output_variables.push_back("CaI");
+        HeartConfig::Instance()->SetOutputVariables( output_variables );
+        
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 

@@ -124,7 +124,7 @@ public:
             cellmech_model.SetStretchAndStretchRate(1.0, 0.0);
 
             ContractionModelInputParameters input_parameters;
-            input_parameters.IntracellularCalciumConcentration = Ca_I;    
+            input_parameters.intracellularCalciumConcentration = Ca_I;    
             cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
@@ -132,6 +132,8 @@ public:
 
             // IF electrophy model has CaTrop, get CaTrop from
             // cellular mechanics models and send to electrophy model
+            TS_ASSERT_EQUALS(has_Ca_trop, false);//NOTE - The following code is never activated....
+           
             if(has_Ca_trop)
             {
                 std::vector<double>& electrophys_model_state_vars = electrophys_model.rGetStateVariables();
@@ -230,7 +232,7 @@ public:
 
             cellmech_model.SetStretchAndStretchRate(lam, dlam_dt);
             ContractionModelInputParameters input_parameters;
-            input_parameters.IntracellularCalciumConcentration = Ca_I;
+            input_parameters.intracellularCalciumConcentration = Ca_I;
             cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
@@ -238,6 +240,9 @@ public:
 
             // IF electrophy model has CaTrop, get CaTrop from
             // cellular mechanics models and send to electrophy model
+            
+            TS_ASSERT_EQUALS(has_Ca_trop, false);//NOTE - The following code is never activated....
+           
             if(has_Ca_trop)
             {
                 std::vector<double>& electrophys_model_state_vars = electrophys_model.rGetStateVariables();

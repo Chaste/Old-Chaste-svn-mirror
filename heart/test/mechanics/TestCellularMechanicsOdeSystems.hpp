@@ -101,21 +101,21 @@ public :
         EulerIvpOdeSolver euler_solver;
                 
         ContractionModelInputParameters input_params;
-        input_params.IntracellularCalciumConcentration = DOUBLE_UNSET;
+        input_params.intracellularCalciumConcentration = DOUBLE_UNSET;
 
         TimeStepper stepper(0, 500, 1.0);  //ms
         std::cout << stepper.GetTime() << " " << kerchoffs_model.rGetStateVariables()[0] << " " << kerchoffs_model.GetActiveTension() <<  "\n";
 
         while(!stepper.IsTimeAtEnd())
         {
-            input_params.Time = stepper.GetTime();
+            input_params.time = stepper.GetTime();
             if( (stepper.GetTime()>100) && (stepper.GetTime()<600) )
             {
-                input_params.Voltage = 50;
+                input_params.voltage = 50;
             }
             else
             {
-                input_params.Voltage = -90;
+                input_params.voltage = -90;
             }
             kerchoffs_model.SetInputParameters(input_params);
                 
@@ -138,15 +138,15 @@ public :
         LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_stimulus);
         
         ContractionModelInputParameters input_params;
-        input_params.IntracellularCalciumConcentration = DOUBLE_UNSET;
-        input_params.Time = DOUBLE_UNSET;
+        input_params.intracellularCalciumConcentration = DOUBLE_UNSET;
+        input_params.time = DOUBLE_UNSET;
 
         TimeStepper stepper(0, 1000, 1); 
 
         while(!stepper.IsTimeAtEnd())
         {
             lr91.Compute(stepper.GetTime(), stepper.GetNextTime());
-            input_params.Voltage = lr91.GetVoltage();
+            input_params.voltage = lr91.GetVoltage();
             nash_model.SetInputParameters(input_params);
             p_euler_solver->SolveAndUpdateStateVariable(&nash_model, stepper.GetTime(), stepper.GetNextTime(), 0.01);
             

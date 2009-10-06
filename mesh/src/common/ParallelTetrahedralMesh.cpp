@@ -1172,7 +1172,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor
 {
     //Base class scale (scales node positions
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(xFactor, yFactor, zFactor);
-
     //Scales halos
     for (unsigned i=0; i<mHaloNodes.size(); i++)
     {

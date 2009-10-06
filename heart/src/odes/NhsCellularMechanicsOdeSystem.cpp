@@ -119,9 +119,9 @@ void NhsCellularMechanicsOdeSystem::SetStretchAndStretchRate(double lambda, doub
 
 void NhsCellularMechanicsOdeSystem::SetInputParameters(ContractionModelInputParameters& rInputParameters)
 {
-    assert(rInputParameters.IntracellularCalciumConcentration != DOUBLE_UNSET);
-    assert(rInputParameters.IntracellularCalciumConcentration > 0.0);
-    mCalciumI = rInputParameters.IntracellularCalciumConcentration;
+    assert(rInputParameters.intracellularCalciumConcentration != DOUBLE_UNSET);
+    assert(rInputParameters.intracellularCalciumConcentration > 0.0);
+    mCalciumI = rInputParameters.intracellularCalciumConcentration;
 }
 
 void NhsCellularMechanicsOdeSystem::SetIntracellularCalciumConcentration(double calciumConcentration)
@@ -131,12 +131,12 @@ void NhsCellularMechanicsOdeSystem::SetIntracellularCalciumConcentration(double 
 }
     
 
-#define COVERAGE_IGNORE // this is covered, but gcov is rubbish
+// this IS NOT covered - see TestElectroMechanicCellularModels lines 135 244
 double NhsCellularMechanicsOdeSystem::GetCalciumTroponinValue()
 {
+    EXCEPTION("Never reached");
     return mStateVariables[0];
 }
-#undef COVERAGE_IGNORE
 
 void NhsCellularMechanicsOdeSystem::EvaluateYDerivatives(double time,
                                                          const std::vector<double> &rY,

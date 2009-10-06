@@ -61,12 +61,12 @@ void ImplicitCardiacMechanicsAssembler<DIM>::SetCalciumVoltageAndTime(std::vecto
     assert(rVoltages.size() == this->mTotalQuadPoints);
 
     ContractionModelInputParameters input_parameters;
-    input_parameters.Time = time;
+    input_parameters.time = time;
     
     for(unsigned i=0; i<rCalciumConcentrations.size(); i++)
     {
-        input_parameters.IntracellularCalciumConcentration = rCalciumConcentrations[i];
-        input_parameters.Voltage = rVoltages[i];
+        input_parameters.intracellularCalciumConcentration = rCalciumConcentrations[i];
+        input_parameters.voltage = rVoltages[i];
         
         mCellMechSystems[i].SetInputParameters(input_parameters);
     }

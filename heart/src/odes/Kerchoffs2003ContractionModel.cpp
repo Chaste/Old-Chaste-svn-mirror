@@ -67,17 +67,17 @@ void Kerchoffs2003ContractionModel::EvaluateYDerivatives(double time,
 
 void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputParameters& rInputParameters)
 {
-    assert(rInputParameters.Time != DOUBLE_UNSET);
-    assert(rInputParameters.Voltage != DOUBLE_UNSET);
+    assert(rInputParameters.time != DOUBLE_UNSET);
+    assert(rInputParameters.voltage != DOUBLE_UNSET);
 
-    mCurrentTime = rInputParameters.Time;
-    if (mIsActivated && rInputParameters.Voltage< mDeactivationVoltage)
+    mCurrentTime = rInputParameters.time;
+    if (mIsActivated && rInputParameters.voltage< mDeactivationVoltage)
     {
         // inactive (resting)
         mIsActivated = false;
     }
     
-    if (!mIsActivated && rInputParameters.Voltage > mActivationVoltage )
+    if (!mIsActivated && rInputParameters.voltage > mActivationVoltage )
     {
         // activated
         mIsActivated = true;
