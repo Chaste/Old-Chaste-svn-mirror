@@ -360,10 +360,16 @@ public:
     unsigned GetSize() const;
 
     /**
-     * \todo Document this method and its parameters!
+     * Set the null basis of the linear system.
+     * In debug mode we test for orthonormality and throw EXCEPTIONs:
+     *  - each direction is of unit length (to within a tolerance)
+     *  - the directions are mutually orthogonal (to within a tolerance)
+     * Note that in NDEBUG (optimised mode) these tests are skipped and the parameters
+     * are passed directly into the LinearSystem.
      * 
-     * @param nullbasis
-     * @param numberOfBases
+     * @param nullbasis  an array PETSc vectors containing orthogonal directions in the nullspace
+     * @param numberOfBases the number of directions (size of nullbasis array)
+     * 
      */
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
 

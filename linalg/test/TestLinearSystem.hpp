@@ -296,6 +296,7 @@ public:
      */
     void TestNullBasis()
     {
+ #ifndef NDEBUG //Only do this test in debug mode, since functionality is skipped in optimized code
         unsigned size = 10;
 
         // Test it throws if one of the vectors in the base is not normal
@@ -347,6 +348,7 @@ public:
             VecDestroy(one_zeros);
             VecDestroy(zero_one_zeros);
         }
+#endif
     }
 
     // Test the 3rd constructor
