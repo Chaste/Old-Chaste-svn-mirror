@@ -1399,7 +1399,8 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
 
         // Perform a T2 swap on the middle triangle element
-        vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0));
+        VertexElement<2,2>* p_element_0 = vertex_mesh.GetElement(0);
+        vertex_mesh.PerformT2Swap(*p_element_0);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 4u);
@@ -1468,7 +1469,8 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
 
         // Attempt to perform a T2 swap on the middle triangle element
-        TS_ASSERT_THROWS_THIS( vertex_mesh.PerformT2Swap(vertex_mesh.GetElement(0)),
+        VertexElement<2,2>* p_element_0 = vertex_mesh.GetElement(0);
+        TS_ASSERT_THROWS_THIS( vertex_mesh.PerformT2Swap(*p_element_0),
                 "One of the neighbours of a small triangular element is also a triangle - "
                 "dealing with this has not been implemented yet" );
     }

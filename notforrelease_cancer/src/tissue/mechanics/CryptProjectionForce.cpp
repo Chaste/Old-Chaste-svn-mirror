@@ -84,12 +84,12 @@ void CryptProjectionForce::SetWntChemotaxis(bool includeWntChemotaxis)
     mIncludeWntChemotaxis = includeWntChemotaxis;
 }
 
-double CryptProjectionForce::CalculateCryptSurfaceHeightAtPoint(c_vector<double,2>& rNodeLocation)
+double CryptProjectionForce::CalculateCryptSurfaceHeightAtPoint(const c_vector<double,2>& rNodeLocation)
 {
     return mA*pow(norm_2(rNodeLocation), mB); // =z_coord;
 }
 
-double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(c_vector<double,2>& rNodeLocation)
+double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(const c_vector<double,2>& rNodeLocation)
 {
     return mA*mB*pow(norm_2(rNodeLocation), (mB - 1.0));
 }

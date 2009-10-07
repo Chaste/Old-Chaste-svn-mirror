@@ -135,7 +135,7 @@ public :
      *
      *  @return the z component corresponding to rNodeLocation
      */
-    double CalculateCryptSurfaceHeightAtPoint(c_vector<double,2>& rNodeLocation);
+    double CalculateCryptSurfaceHeightAtPoint(const c_vector<double,2>& rNodeLocation);
 
 
     /**
@@ -146,7 +146,7 @@ public :
      *  @param rNodeLocation the 2D location of a node
      *  @return the gradient
      */
-    double CalculateCryptSurfaceDerivativeAtPoint(c_vector<double,2>& rNodeLocation);
+    double CalculateCryptSurfaceDerivativeAtPoint(const c_vector<double,2>& rNodeLocation);
 
     /**
      * Overridden AddForceContribution method.

@@ -616,14 +616,14 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     }
 }
 
-void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements)
+void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned>& rMainSideElements)
 {
-    assert(mainSideElements.size() == 2);
+    assert(rMainSideElements.size() == 2);
 
     // We find the four nodes surrounding the dodgy meshing, on each side.
     std::set<unsigned> main_four_nodes;
-    for (std::set<unsigned>::iterator left_iter = mainSideElements.begin();
-         left_iter != mainSideElements.end();
+    for (std::set<unsigned>::iterator left_iter = rMainSideElements.begin();
+         left_iter != rMainSideElements.end();
          ++left_iter)
     {
         unsigned elem_index = *left_iter;
@@ -668,9 +668,9 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned> mainS
     }
     assert(corresponding_elements.size() == 2);
 
-    // Now corresponding_elements contains the two elements which are going to be replaced by mainSideElements
-    for (std::set<unsigned>::iterator iter = mainSideElements.begin();
-         iter != mainSideElements.end();
+    // Now corresponding_elements contains the two elements which are going to be replaced by rMainSideElements
+    for (std::set<unsigned>::iterator iter = rMainSideElements.begin();
+         iter != rMainSideElements.end();
          ++iter)
     {
         Element<2,2>* p_main_element = GetElement(*iter);

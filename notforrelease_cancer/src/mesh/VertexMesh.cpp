@@ -711,21 +711,21 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
 
             // Loop over elements to check for T2Swaps
             // Separate loops as need to check for T2Swaps first
-            for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
-                 iter != GetElementIteratorEnd();
-                 ++iter)
+            for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = GetElementIteratorBegin();
+                 elem_iter != GetElementIteratorEnd();
+                 ++elem_iter)
             {
                 if (!recheck_mesh)
                 {
-                    if (iter->GetNumNodes() == 3u)
+                    if (elem_iter->GetNumNodes() == 3u)
                     {
                         /*
                          * Perform T2 swaps where necesary
                          * Check there are only 3 nodes and the element is small enough
                          */
-                        if (GetAreaOfElement(iter->GetIndex()) < GetT2Threshold())
+                        if (GetAreaOfElement(elem_iter->GetIndex()) < GetT2Threshold())
                         {
-                            PerformT2Swap(&(*iter));
+                            PerformT2Swap(*elem_iter);
                             // Now remove the deleted nodes (if we don't do this then the search for T1Swap causes errors)
                             RemoveDeletedNodesAndElements(rElementMap);
                             recheck_mesh = true;
@@ -735,13 +735,13 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
                 }
             }
             // Loop over elements to check for T1Swaps
-            for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
-                 iter != GetElementIteratorEnd();
-                 ++iter)
+            for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = GetElementIteratorBegin();
+                 elem_iter != GetElementIteratorEnd();
+                 ++elem_iter)
             {
                 if (!recheck_mesh)
                 {
-                    unsigned num_nodes = iter->GetNumNodes();
+                    unsigned num_nodes = elem_iter->GetNumNodes();
                     assert(num_nodes > 0); // if not element should be deleted
 
                     unsigned new_num_nodes = num_nodes;
@@ -756,9 +756,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
                     for (unsigned local_index=0; local_index<num_nodes; local_index++)
                     {
                         // Find locations of current node and anticlockwise node
-                        Node<SPACE_DIM>* p_current_node = iter->GetNode(local_index);
+                        Node<SPACE_DIM>* p_current_node = elem_iter->GetNode(local_index);
                         unsigned local_index_plus_one = (local_index+1)%new_num_nodes; /// \todo Should use iterators to tidy this up
-                        Node<SPACE_DIM>* p_anticlockwise_node = iter->GetNode(local_index_plus_one);
+                        Node<SPACE_DIM>* p_anticlockwise_node = elem_iter->GetNode(local_index_plus_one);
 
                         // Find distance between nodes
                         double distance_between_nodes = this->GetDistanceBetweenNodes(p_current_node->GetIndex(), p_anticlockwise_node->GetIndex());
@@ -815,17 +815,17 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
 
         // Check that no nodes have overlapped elements
         /// \todo Only need to check this next bit if the element/node is on the boundary (see #933 and #943)
-        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator iter = GetElementIteratorBegin();
-             iter != GetElementIteratorEnd();
-             ++iter)
+        for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = GetElementIteratorBegin();
+             elem_iter != GetElementIteratorEnd();
+             ++elem_iter)
         {
-            unsigned num_nodes = iter->GetNumNodes();
+            unsigned num_nodes = elem_iter->GetNumNodes();
 
             // Loop over element vertices
             for (unsigned local_index=0; local_index<num_nodes; local_index++)
             {
                 // Find locations of current node and anticlockwise node
-                Node<SPACE_DIM>* p_current_node = iter->GetNode(local_index);
+                Node<SPACE_DIM>* p_current_node = elem_iter->GetNode(local_index);
 
                 if (p_current_node->IsBoundaryNode())
                 {
@@ -833,7 +833,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(VertexElementMap& rElementMap)
                          other_iter != GetElementIteratorEnd();
                          ++other_iter)
                     {
-                        if (other_iter != iter)
+                        if (other_iter != elem_iter)
                         {
                             if (ElementIncludesPoint(p_current_node->rGetLocation(), other_iter->GetIndex()))
                             {
@@ -1237,7 +1237,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformNodeMerge(Node<SPACE_DIM>* pNode
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
                                                        Node<SPACE_DIM>* pNodeB,
-                                                       std::set<unsigned> elementsContainingNodes)
+                                                       std::set<unsigned>& rElementsContainingNodes)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1306,8 +1306,8 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
     c_vector<double, SPACE_DIM>& r_nodeB_location = pNodeB->rGetModifiableLocation();
     r_nodeB_location = nodeD_location;
 
-    for (std::set<unsigned>::const_iterator it = elementsContainingNodes.begin();
-         it != elementsContainingNodes.end();
+    for (std::set<unsigned>::const_iterator it = rElementsContainingNodes.begin();
+         it != rElementsContainingNodes.end();
          ++it)
     {
         if (nodeA_elem_indices.find(*it) == nodeA_elem_indices.end()) // not in nodeA_elem_indices so element 3
@@ -1384,7 +1384,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT1Swap(Node<SPACE_DIM>* pNodeA,
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>& rElement)
 {
    // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1422,17 +1422,17 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
 
      // Assert that the triangle element has only three nodes (!)
 
-     assert(pElement->GetNumNodes() == 3u);
+     assert(rElement.GetNumNodes() == 3u);
 
-     c_vector<double, SPACE_DIM>& new_node_location = pElement->GetNode(0)->rGetModifiableLocation();
-     new_node_location = GetCentroidOfElement(pElement->GetIndex());
+     c_vector<double, SPACE_DIM>& new_node_location = rElement.GetNode(0)->rGetModifiableLocation();
+     new_node_location = GetCentroidOfElement(rElement.GetIndex());
 
      c_vector<unsigned, 3> neighbouring_elem_nums;
 
      for (unsigned i=0; i<3; i++)
      {
-         std::set<unsigned> elements_of_node_a = pElement->GetNode((i+1)%3)->rGetContainingElementIndices();
-         std::set<unsigned> elements_of_node_b = pElement->GetNode((i+2)%3)->rGetContainingElementIndices();
+         std::set<unsigned> elements_of_node_a = rElement.GetNode((i+1)%3)->rGetContainingElementIndices();
+         std::set<unsigned> elements_of_node_b = rElement.GetNode((i+2)%3)->rGetContainingElementIndices();
 
          std::set<unsigned> common_elements;
          std::set_intersection(elements_of_node_a.begin(), elements_of_node_a.end(),
@@ -1440,7 +1440,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
                                 std::inserter(common_elements, common_elements.begin()));
 
          assert(common_elements.size() == 2u);
-         common_elements.erase(pElement->GetIndex());
+         common_elements.erase(rElement.GetIndex());
          assert(common_elements.size() == 1u);
 
          neighbouring_elem_nums(i) = *(common_elements.begin());
@@ -1457,23 +1457,23 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEMENT_DIM
          && (p_neighbouring_element_2->GetNumNodes() > 3u) )
      {
          // Neighbour 0 - replace node 1 with node 0, delete node 2
-         p_neighbouring_element_0->ReplaceNode(pElement->GetNode(1), pElement->GetNode(0));
-         p_neighbouring_element_0->DeleteNode(p_neighbouring_element_0->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
+         p_neighbouring_element_0->ReplaceNode(rElement.GetNode(1), rElement.GetNode(0));
+         p_neighbouring_element_0->DeleteNode(p_neighbouring_element_0->GetNodeLocalIndex(rElement.GetNodeGlobalIndex(2)));
 
          // Neighbour 1 - delete node 2
-         p_neighbouring_element_1->DeleteNode(p_neighbouring_element_1->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(2)));
+         p_neighbouring_element_1->DeleteNode(p_neighbouring_element_1->GetNodeLocalIndex(rElement.GetNodeGlobalIndex(2)));
 
          // Neighbour 2 - delete node 1
-         p_neighbouring_element_2->DeleteNode(p_neighbouring_element_2->GetNodeLocalIndex(pElement->GetNodeGlobalIndex(1)));
+         p_neighbouring_element_2->DeleteNode(p_neighbouring_element_2->GetNodeLocalIndex(rElement.GetNodeGlobalIndex(1)));
 
          // Also have to mark pElement, pElement->GetNode(1), pElement->GetNode(2) as deleted.
-         mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(1));
-         mDeletedNodeIndices.push_back(pElement->GetNodeGlobalIndex(2));
-         pElement->GetNode(1)->MarkAsDeleted();
-         pElement->GetNode(2)->MarkAsDeleted();
+         mDeletedNodeIndices.push_back(rElement.GetNodeGlobalIndex(1));
+         mDeletedNodeIndices.push_back(rElement.GetNodeGlobalIndex(2));
+         rElement.GetNode(1)->MarkAsDeleted();
+         rElement.GetNode(2)->MarkAsDeleted();
 
-         mDeletedElementIndices.push_back(pElement->GetIndex());
-         pElement->MarkAsDeleted();
+         mDeletedElementIndices.push_back(rElement.GetIndex());
+         rElement.MarkAsDeleted();
      }
      else
      {

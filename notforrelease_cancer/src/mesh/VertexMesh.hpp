@@ -108,9 +108,9 @@ protected:
      *
      * @param pNodeA one of the nodes to perform the swap with
      * @param pNodeB the other node to perform the swap
-     * @param elementsContainingNodes set of common elements
+     * @param rElementsContainingNodes set of common elements
      */
-    void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, std::set<unsigned> elementsContainingNodes);
+    void PerformT1Swap(Node<SPACE_DIM>* pNodeA, Node<SPACE_DIM>* pNodeB, std::set<unsigned>& rElementsContainingNodes);
 
     /**
      * Divide an element along the axis passing through two of its nodes.
@@ -511,9 +511,9 @@ public:
      *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
-     * @param pElement is the element to remove
+     * @param rElement the element to remove
      */
-    void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
+    void PerformT2Swap(VertexElement<ELEMENT_DIM,SPACE_DIM>& rElement);
 
     /**
      * Mark an element as deleted. Note that it DOES NOT deal with the associated

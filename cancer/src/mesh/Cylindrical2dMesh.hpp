@@ -177,9 +177,9 @@ private:
      * elements which are connected in the same way. We should then be able to reconstruct
      * the cylindrical mesh properly.
      *
-     * @param mainSideElements  two elements (usually in a square) which have been meshed differently on the opposite boundary
+     * @param rMainSideElements  two elements (usually in a square) which have been meshed differently on the opposite boundary
      */
-    void UseTheseElementsToDecideMeshing(std::set<unsigned> mainSideElements);
+    void UseTheseElementsToDecideMeshing(std::set<unsigned>& rMainSideElements);
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
