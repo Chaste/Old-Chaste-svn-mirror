@@ -56,7 +56,8 @@ class AbstractCardiacCellFactory
 {
 private:
     /** The mesh is automatically set in MonodomainProblem and BidomainProblem.
-     *  This member variable should be accessed through GetMesh(), which will check if it has been set before.*/
+     *  This member variable should be accessed through GetMesh(), which will check if it has been set before
+     *  and throw an exception otherwise.*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
     
     /**

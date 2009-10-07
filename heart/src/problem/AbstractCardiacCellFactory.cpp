@@ -85,7 +85,10 @@ void AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::SetMesh(AbstractTetrahed
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::GetMesh()
 {
-    assert(mpMesh != NULL);
+    if (mpMesh == NULL)
+    {
+        EXCEPTION("The mesh object has not been set in the cell factory");
+    }
     return mpMesh;
 }
 
