@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMeshWriter.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 
+#include "ParallelTetrahedralMesh.hpp"
+
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
@@ -43,73 +45,19 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMeshWr
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
-     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
-{
-    NodeMap node_map(rMesh.GetNumAllNodes());
-    unsigned new_index = 0;
-    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
-    {
-        Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
-
-        if (p_node->IsDeleted() == false)
-        {
-            std::vector<double> coords(SPACE_DIM);
-            for (unsigned j=0; j<SPACE_DIM; j++)
-            {
-                coords[j] = p_node->GetPoint()[j];
-            }
-            this->SetNextNode(coords);
-            node_map.SetNewIndex(i, new_index++);
-        }
-        else
-        {
-            node_map.SetDeleted(i);
-        }
-    }
-    assert(new_index==(unsigned)rMesh.GetNumNodes());
-
-    // Get an iterator over the elements of the mesh
-    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
-         iter != rMesh.GetElementIteratorEnd();
-         ++iter)
-    {
-        std::vector<unsigned> indices(iter->GetNumNodes());
-
-        for (unsigned j=0; j<indices.size(); j++)
-        {
-            unsigned old_index = iter->GetNodeGlobalIndex(j);
-            indices[j] = node_map.GetNewIndex(old_index);
-        }
-        this->SetNextElement(indices);
-    }
-
-    // Get a iterator over the boundary elements of the mesh
-    typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator boundary_iter =
-        rMesh.GetBoundaryElementIteratorBegin();
-    while (boundary_iter != rMesh.GetBoundaryElementIteratorEnd())
-    {
-        if ((*boundary_iter)->IsDeleted() == false)
-        {
-            std::vector<unsigned> indices(ELEMENT_DIM);
-            for (unsigned j=0; j<ELEMENT_DIM; j++)
-            {
-                unsigned old_index = (*boundary_iter)->GetNodeGlobalIndex(j);
-                indices[j] = node_map.GetNewIndex(old_index);
-            }
-            this->SetNextBoundaryFace(indices);
-        }
-        boundary_iter++;
-    }
-    this->WriteFiles();
-}
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
      const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
+    //Have we got a parallel mesh?
+    const ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = dynamic_cast<const ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
+    if (p_mesh != NULL)
+    {
+        //It's a parallel mesh
+        WriteFilesUsingParallelMesh(*p_mesh);
+    }
     NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index = 0;
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)
@@ -166,7 +114,12 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
     this->WriteFiles();
 }
-
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParallelMesh(
+     const ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
+{
+    EXCEPTION("Not yet implemented");
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

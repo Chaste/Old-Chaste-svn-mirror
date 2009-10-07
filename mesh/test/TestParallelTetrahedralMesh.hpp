@@ -1108,5 +1108,16 @@ public:
         
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
     }
+    void TestParallelWrting()
+    {
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        ParallelTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        TrianglesMeshWriter<3,3> mesh_writer("TestParallelWriter", "cube_2mm_12_elements");
+        TS_ASSERT_THROWS_THIS(mesh_writer.WriteFilesUsingMesh(mesh),"Not yet implemented");
+        TrianglesMeshWriter<3,3> mesh_writer2("TestParallelWriter", "cube_2mm_12_elements_via_abstract");
+        AbstractTetrahedralMesh<3,3> *p_mesh = &mesh; 
+        TS_ASSERT_THROWS_THIS(mesh_writer2.WriteFilesUsingMesh(*p_mesh),"Not yet implemented");
+    }
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

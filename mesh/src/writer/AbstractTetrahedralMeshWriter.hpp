@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMesh;
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class ParallelTetrahedralMesh;
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -48,12 +51,15 @@ class AbstractTetrahedralMesh;
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
-protected:
+private:
+    /**
+     * Write a parallel const mesh to file. Used by the serialization methods and avoids iterators...
+     *
+     * @param rMesh the mesh
+     */
+    virtual void WriteFilesUsingParallelMesh(const ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
-    ///\todo The following three members aren't used anywhere - remove them? (#1076)
-    std::vector< std::vector<double> >::iterator mpNodeIterator; /**< Is an iterator for the node data */
-    std::vector< std::vector<unsigned> >::iterator mpElementIterator; /**< Is an iterator for the element data */
-    std::vector< std::vector<unsigned> >::iterator mpBoundaryFaceIterator; /**< Is an iterator for the boundary face data */
+protected:
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
     bool mWriteMetaFile; /**< Whether to write a metafile (only used by MeshylazerMeshWriter) */
@@ -71,21 +77,13 @@ public:
                        const std::string& rBaseName,
                        const bool clearOutputDir=true);
 
-    /**
-     * Write a mesh to file.
-     *
-     * @param rMesh the mesh
-     */
-    void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
     /**
      * Write a const mesh to file. Used by the serialization methods and avoids iterators...
      *
-     * \todo This is a very smelly method which has copied code from the above method...
-     *
      * @param rMesh the mesh
      */
-    void WriteFilesUsingMesh(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    virtual void WriteFilesUsingMesh(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
 };
 
