@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<ChasteParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters.xsd">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
 
   <Simulation>
     <SpaceDimension>3</SpaceDimension>

@@ -42,7 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TimeStepper.hpp"
 
 #include "HeartConfig.hpp"
-#include "ChasteParameters.hpp"
 
 #include "AbstractStimulusFunction.hpp"
 #include "MultiStimulus.hpp"

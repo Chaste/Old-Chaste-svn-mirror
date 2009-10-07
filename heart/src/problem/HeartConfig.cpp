@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cassert>
 
+#include <xercesc/util/PlatformUtils.hpp>
+
 // Coping with changes to XSD interface
 #if (XSD_INT_VERSION >= 3000000L)
 #define XSD_SEQUENCE_TYPE(base) base##_sequence
@@ -156,12 +158,16 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
     //Note - this location is relative to where we are storing the xml
     ::xml_schema::namespace_infomap map;
     char buf[10000];
-    std::string absolute_path_to_xsd=getcwd(buf, 10000);
-    absolute_path_to_xsd += "/heart/src/io/ChasteParameters.xsd";
-    map[""].schema = absolute_path_to_xsd;
+    std::string absolute_path_to_xsd = getcwd(buf, 10000);
+    absolute_path_to_xsd += "/heart/src/io/";
+    // Release 1.1 (and earlier) didn't use a namespace
+    map[""].schema = absolute_path_to_xsd + "ChasteParameters_1_1.xsd";
+    // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
+    map["cp12"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/1_2";
+    map["cp12"].schema = absolute_path_to_xsd + "ChasteParameters_1_2.xsd";
 
-    ChasteParameters(*p_parameters_file, *mpUserParameters, map);
-    ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
+    cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
+    cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
 }
 
 boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::string& rFileName)
@@ -170,16 +176,38 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
     ::xml_schema::properties p;
     if (mUseFixedSchemaLocation)
     {
-        std::string chaste_root = GetChasteRoot();
-        p.no_namespace_schema_location(chaste_root + "/heart/src/io/ChasteParameters.xsd");
+        std::string root_dir = std::string(GetChasteRoot()) + "/heart/src/io/";
+        // Release 1.1 (and earlier) didn't use a namespace
+        p.no_namespace_schema_location(root_dir + "ChasteParameters_1_1.xsd");
+        // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
+        p.schema_location("https://chaste.comlab.ox.ac.uk/nss/parameters/1_2",
+                          root_dir + "ChasteParameters_1_2.xsd");
     }
 
     // get the parameters using the method 'ChasteParameters(rFileName)',
     // which returns a std::auto_ptr. We convert to a shared_ptr for easier semantics.
     try
     {
-        std::auto_ptr<cp::chaste_parameters_type> p_default(cp::ChasteParameters(rFileName, 0, p));
-        return boost::shared_ptr<cp::chaste_parameters_type>(p_default);
+        // Initialise Xerces
+        xercesc::XMLPlatformUtils::Initialize();
+        // Parse XML to DOM
+        xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc = ReadFileToDomDocument(rFileName);
+        // Test the namespace on the root element
+        xercesc::DOMElement* p_root_elt = p_doc->getDocumentElement();
+        std::string namespace_uri(xsd::cxx::xml::transcode<char>(p_root_elt->getNamespaceURI()));
+        if (namespace_uri == "")
+        {
+            // Pretend it's a version 1.2 file
+            AddNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/1_2");
+        }
+        // Parse DOM to object model
+        std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, xml_schema::flags::dont_initialize, p));
+        // Get rid of the DOM stuff
+        p_doc.reset();
+        // Shut down Xerces
+        xercesc::XMLPlatformUtils::Terminate();
+        
+        return boost::shared_ptr<cp::chaste_parameters_type>(p_params);
     }
     catch (const xml_schema::exception& e)
     {
@@ -1221,8 +1249,7 @@ void HeartConfig::SetSaveSimulation(bool saveSimulation)
 {
     if (saveSimulation)
     {
-        /// \todo: find a way of defining an empty element, so we don't have to pass a simulation_type::SaveSimulation_type object here.
-        mpUserParameters->Simulation().get().SaveSimulation().set(cp::simulation_type::XSD_NESTED_TYPE(SaveSimulation)(""));
+        mpUserParameters->Simulation().get().SaveSimulation().set(cp::simulation_type::XSD_NESTED_TYPE(SaveSimulation)());
     }
     else
     {
@@ -1515,4 +1542,160 @@ void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVe
 void HeartConfig::SetUseFixedSchemaLocation(bool useFixedSchemaLocation)
 {
     mUseFixedSchemaLocation = useFixedSchemaLocation;
+}
+
+
+/**********************************************************************
+ *                                                                    *
+ *                                                                    *
+ *                Utility methods for reading files                   *
+ *                                                                    *
+ *                                                                    *
+ **********************************************************************/
+
+#include <string>
+#include <istream>
+#include <fstream>
+
+#include <xercesc/util/XMLUniDefs.hpp> // chLatin_*
+#include <xercesc/framework/Wrapper4InputSource.hpp>
+#include <xercesc/validators/common/Grammar.hpp>
+
+#include <xsd/cxx/xml/string.hxx>
+#include <xsd/cxx/xml/dom/auto-ptr.hxx>
+#include <xsd/cxx/xml/sax/std-input-source.hxx>
+#include <xsd/cxx/xml/dom/bits/error-handler-proxy.hxx>
+
+#include <xsd/cxx/tree/exceptions.hxx>
+#include <xsd/cxx/tree/error-handler.hxx>
+
+
+xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDocument(
+        const std::string& rFileName)
+{
+    using namespace xercesc;
+    namespace xml = xsd::cxx::xml;
+    namespace tree = xsd::cxx::tree;
+    
+    // Open the file
+    std::ifstream ifs(rFileName.c_str());
+
+    // Get an implementation of the Load-Store (LS) interface.
+    const XMLCh ls_id [] = {chLatin_L, chLatin_S, chNull};
+    DOMImplementation* p_impl(DOMImplementationRegistry::getDOMImplementation(ls_id));
+
+#if _XERCES_VERSION >= 30000
+    // Xerces-C++ 3.0.0 and later.
+    xml::dom::auto_ptr<DOMLSParser> p_parser(p_impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0));
+    DOMConfiguration* p_conf(p_parser->getDomConfig());
+
+    // Discard comment nodes in the document.
+    p_conf->setParameter(XMLUni::fgDOMComments, false);
+
+    // Enable datatype normalization.
+    p_conf->setParameter(XMLUni::fgDOMDatatypeNormalization, true);
+
+    // Do not create EntityReference nodes in the DOM tree.  No
+    // EntityReference nodes will be created, only the nodes
+    // corresponding to their fully expanded substitution text
+    // will be created.
+    p_conf->setParameter(XMLUni::fgDOMEntities, false);
+
+    // Perform namespace processing.
+    p_conf->setParameter(XMLUni::fgDOMNamespaces, true);
+
+    // Do not include ignorable whitespace in the DOM tree.
+    p_conf->setParameter(XMLUni::fgDOMElementContentWhitespace, false);
+
+    // Enable validation.
+    p_conf->setParameter(XMLUni::fgDOMValidate, true);
+    p_conf->setParameter(XMLUni::fgXercesSchema, true);
+    p_conf->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
+    if (mUseFixedSchemaLocation)
+    {
+        std::string schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_2.xsd";
+        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
+        schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_1.xsd";
+        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
+        p_conf->setParameter(XMLUni::fgXercesUseCachedGrammarInParse, true);
+    }
+
+    // We will release the DOM document ourselves.
+    p_conf->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);
+
+    // Set error handler.
+    tree::error_handler<char> eh;
+    xml::dom::bits::error_handler_proxy<char> ehp(eh);
+    p_conf->setParameter(XMLUni::fgDOMErrorHandler, &ehp);
+
+#else // _XERCES_VERSION >= 30000
+    // Same as above but for Xerces-C++ 2 series.
+    xml::dom::auto_ptr<DOMBuilder> p_parser(p_impl->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0));
+
+    p_parser->setFeature(XMLUni::fgDOMComments, false);
+    p_parser->setFeature(XMLUni::fgDOMDatatypeNormalization, true);
+    p_parser->setFeature(XMLUni::fgDOMEntities, false);
+    p_parser->setFeature(XMLUni::fgDOMNamespaces, true);
+    p_parser->setFeature(XMLUni::fgDOMWhitespaceInElementContent, false);
+    p_parser->setFeature(XMLUni::fgDOMValidation, true);
+    p_parser->setFeature(XMLUni::fgXercesSchema, true);
+    p_parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+    if (mUseFixedSchemaLocation)
+    {
+        std::string schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_2.xsd";
+        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
+        schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_1.xsd";
+        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
+        p_parser->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
+    }
+    p_parser->setFeature(XMLUni::fgXercesUserAdoptsDOMDocument, true);
+
+    tree::error_handler<char> eh;
+    xml::dom::bits::error_handler_proxy<char> ehp(eh);
+    p_parser->setErrorHandler(&ehp);
+
+#endif // _XERCES_VERSION >= 30000
+
+    // Prepare input stream.
+    xml::sax::std_input_source isrc(ifs, rFileName);
+    Wrapper4InputSource wrap(&isrc, false);
+
+#if _XERCES_VERSION >= 30000
+    xml::dom::auto_ptr<DOMDocument> p_doc(p_parser->parse(&wrap));
+#else
+    xml::dom::auto_ptr<DOMDocument> p_doc(p_parser->parse(wrap));
+#endif
+
+    eh.throw_if_failed<tree::parsing<char> > ();
+
+    return p_doc;
+}
+
+xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
+                                               xercesc::DOMElement* pElement,
+                                               const XMLCh* pNamespace)
+{
+    using namespace xercesc;
+
+    DOMElement* p_new_elt = static_cast<DOMElement*>(
+        pDocument->renameNode(pElement, pNamespace, pElement->getLocalName()));
+
+    for (DOMNode* p_node = p_new_elt->getFirstChild();
+         p_node != NULL;
+         p_node = p_node->getNextSibling())
+    {
+        if (p_node->getNodeType() == DOMNode::ELEMENT_NODE)
+        {
+            p_node = AddNamespace(pDocument, static_cast<DOMElement*>(p_node), pNamespace);
+        }
+    }
+
+    return p_new_elt;
+}
+
+xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
+                                               xercesc::DOMElement* pElement,
+                                               const std::string& rNamespace)
+{
+    return AddNamespace(pDocument, pElement, xsd::cxx::xml::string(rNamespace).c_str());
 }

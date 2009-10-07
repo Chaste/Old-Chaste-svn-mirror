@@ -27,14 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTSPIRALPARAMETERSREADER_HPP_
-#define TESTSPIRALPARAMETERSREADER_HPP_
+#ifndef TESTCHASTEPARAMETERSREADER_HPP_
+#define TESTCHASTEPARAMETERSREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <memory>
-#include "ChasteParameters.hpp"
+#include "ChasteParameters_1_2.hpp"
 
-namespace cp = chaste::parameters;
+namespace cp = chaste::parameters::v1_2;
 
 using std::auto_ptr;
 
@@ -143,4 +143,4 @@ public:
     }
 
 };
-#endif /*TESTSPIRALPARAMETERSREADER_HPP_*/
+#endif /*TESTCHASTEPARAMETERSREADER_HPP_*/

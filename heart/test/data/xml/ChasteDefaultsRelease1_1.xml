@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
+<ChasteParameters
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
 
 	<Simulation>
 		<SpaceDimension>3</SpaceDimension>
@@ -24,8 +26,10 @@
 		<KSPTolerances>
 			<KSPAbsolute>2e-4</KSPAbsolute>
 		</KSPTolerances>
-		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>jacobi</KSPPreconditioner>
+		<KSPSolver>cg</KSPSolver>
+		<KSPPreconditioner>bjacobi</KSPPreconditioner>
 	</Numerical>
-			    
+	
+	<PostProcessing>
+    </PostProcessing>    
 </ChasteParameters>

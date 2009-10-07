@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
+       xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="heart/src/io/ChasteParameters.xsd">
+       xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 heart/src/io/ChasteParameters_1_2.xsd">
 
 	<Simulation>
 		<SpaceDimension>3</SpaceDimension>

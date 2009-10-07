@@ -260,13 +260,11 @@ env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
 # 'Builder' for running xsd to generate parser code from an XML schema.
 # Getting this to integrate with the build is non-trivial, so we cheat.
 def run_xsd(schema_file):
-    base = os.path.basename(schema_file)
     output_dir = os.path.dirname(schema_file)
-    base = os.path.splitext(base)[0]
-    command=' '.join([build.tools['xsd'], 'cxx-tree',
-                      '--output-dir', output_dir,
-                      '--options-file', 'heart/src/io/XsdOptions.txt',
-                      '--root-element', base, schema_file])
+    command = ' '.join([build.tools['xsd'], 'cxx-tree',
+                        '--output-dir', output_dir,
+                        '--options-file', 'heart/src/io/XsdOptions.txt',
+                        schema_file])
     print "Running xsd on", schema_file
     os.system(command)
 # Check if we need to run XSD (and that 'xsd' is really xsd...)
@@ -281,11 +279,12 @@ else:
     print xsd_version_string
     sys.exit(1)
 # If it's the old version, always run XSD; otherwise only run if generated code is out of date
-if (xsd_version == 2 or
-    not os.path.exists('heart/src/io/ChasteParameters.cpp') or
-    os.stat('heart/src/io/ChasteParameters.xsd').st_mtime
-      > os.stat('heart/src/io/ChasteParameters.cpp').st_mtime):
-    run_xsd('heart/src/io/ChasteParameters.xsd')
+for schema_file in glob.glob('heart/src/io/ChasteParameters*.xsd'):
+    cpp_file = schema_file[:-3] + 'cpp'
+    if (xsd_version == 2 or
+        not os.path.exists(cpp_file) or
+        os.stat(schema_file).st_mtime > os.stat(cpp_file).st_mtime):
+        run_xsd(schema_file)
 
 # Find full path to valgrind, as parallel memory testing needs it to be
 # given explicitly.

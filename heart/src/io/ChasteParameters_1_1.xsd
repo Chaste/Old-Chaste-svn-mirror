@@ -49,27 +49,9 @@
       </xs:simpleContent>
   </xs:complexType>
   
-  
-  <xs:complexType name="layer_specification_type">
-    <xs:sequence>
-      <xs:element name="EpiLayerPercentage" type="xs:double"/>
-      <xs:element name="MidLayerPercentagee" type="xs:double"/>
-    </xs:sequence>
-  </xs:complexType>
-  
-  <xs:complexType name="heart_layer_type">
-    <xs:sequence>
-      <xs:element name="EpiSurfaceFile" type="xs:string"/>
-      <xs:element name="MidSurfaceFile" type="xs:string"/>
-      <xs:element name="EndoSurfaceFile" type="xs:string"/>
-      <xs:element name="Percentages" type="layer_specification_type"/>
-    </xs:sequence>
-  </xs:complexType>
-  
   <xs:complexType name="location_type">
       <xs:choice>
       <xs:element name="Cuboid" type="box_type"/>
-      <xs:element name="TransmuralHeterogeneities" type="heart_layer_type"/>
     </xs:choice>
     <xs:attribute name="unit" type="xs:string" use="required" fixed="cm"/>
   </xs:complexType>
@@ -116,11 +98,6 @@
   </xs:complexType>
   
   <xs:complexType name="upstrokes_map_type">
-    <xs:attribute name="threshold" type="xs:double" use="required"/>
-    <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
-  </xs:complexType>
-  
-  <xs:complexType name="max_upstrokes_velocity_map_type">
     <xs:attribute name="threshold" type="xs:double" use="required"/>
     <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
   </xs:complexType>
@@ -203,8 +180,9 @@
       <xs:attribute name="conductivity_media" type="media_type" use="required"/>
   </xs:complexType>
 
+
   <xs:complexType name="mesh_type">
-    <xs:choice>
+      <xs:choice>
       <xs:element name="Slab" type="slab_type"/>
       <xs:element name="Sheet" type="sheet_type"/>
       <xs:element name="Fibre" type="fibre_type"/>
@@ -218,16 +196,6 @@
     <xs:attribute name="trans" type="xs:double" use="required"/>
     <xs:attribute name="normal" type="xs:double" use="required"/>  
     <xs:attribute name="unit" type="xs:string" use="required" fixed="mS/cm"/>
-  </xs:complexType>
-
-  <xs:complexType name="var_type">
-    <xs:attribute name="name" type="xs:string" use="required"/> 
-  </xs:complexType>
-  
-  <xs:complexType name="output_variables_type">
-    <xs:sequence>
-      <xs:element name="Var" type="var_type" minOccurs="0" maxOccurs="unbounded"/>  
-    </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="time_steps_type">
@@ -305,20 +273,7 @@
 
       <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
       <xs:element name="OutputFilenamePrefix" type="xs:string" minOccurs="0"/>      
-      <xs:element name="OutputVariables" type="output_variables_type" minOccurs="0"/>
-
-      <!-- \todo: I couldn't find out how to define this element to have no content-->
-      <xs:element name="SaveSimulation" type="xs:string" minOccurs="0"/>
     </xs:all>
-  </xs:complexType>    
-
-  <xs:complexType name="resume_simulation_type">
-    <xs:all>
-      <xs:element name="ArchiveDirectory" type="xs:string"/>
-      <xs:element name="SimulationDuration" type="time_type"/>
-      <!-- \todo: I couldn't find out how to define this element to have no content-->
-      <xs:element name="SaveSimulation" type="xs:string" minOccurs="0"/>
-    </xs:all>      
   </xs:complexType>    
 
   <xs:complexType name="physiological_type">
@@ -345,17 +300,14 @@
     <xs:sequence>  
       <xs:element name="ActionPotentialDurationMap" type="apd_map_type" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="UpstrokeTimeMap" type="upstrokes_map_type" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="MaxUpstrokeVelocityMap" type="max_upstrokes_velocity_map_type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="MaxUpstrokeVelocityMap" type="empty_type" minOccurs="0"/>
       <xs:element name="ConductionVelocityMap" type="conduction_velocity_map_type" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>      
   </xs:complexType> 
   
   <xs:complexType name="chaste_parameters_type">
     <xs:sequence>
-      <xs:choice>      
-	      <xs:element name="Simulation" type="simulation_type"/>
-    	  <xs:element name="ResumeSimulation" type="resume_simulation_type"/>
-      </xs:choice>
+      <xs:element name="Simulation" type="simulation_type"/>
       <xs:element name="Physiological" type="physiological_type"/>
       <xs:element name="Numerical" type="numerical_type"/>
       <xs:element name="PostProcessing" type="postprocessing_type" minOccurs="0"/>

@@ -173,6 +173,7 @@ public:
      */      
     void TestGenerateResultsForSaveBidomain()
     {
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_bidomain/ChasteParameters.xml");
         // We reset the mesh filename to include the relative path
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_1626_elements");

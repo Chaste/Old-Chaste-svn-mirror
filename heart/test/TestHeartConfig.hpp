@@ -692,6 +692,8 @@ public :
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
+        
+        HeartConfig::Instance()->Reset();
     }
 
     void TestGetOuputVariablesFromXML()

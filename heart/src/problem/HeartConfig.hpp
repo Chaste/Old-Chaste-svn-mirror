@@ -36,9 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 
 #include "ArchiveLocationInfo.hpp"
-#include "ChasteParameters.hpp"
+//#include "ChasteParameters_1_1.hpp"
+#include "ChasteParameters_1_2.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
+
+
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMElement.hpp>
+
 
 #include <boost/shared_ptr.hpp>
 
@@ -48,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-namespace cp = chaste::parameters;
+namespace cp = chaste::parameters::v1_2;
 
 /**
  * A singleton class containing configuration parameters for heart simulations.
@@ -126,7 +133,46 @@ private:
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+    /**
+     * Read an XML file into a DOM document.
+     * Useful for figuring out what version of the parameters file we're dealing with,
+     * so we can construct the right version of the object model.
+     * 
+     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_to_a_Xerces-C.2B.2B_DOM_document.3F
+     * 
+     * Requires the Xerces runtime to have been initialised.
+     * 
+     * @param rFileName  the file to read.
+     */
+    xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadFileToDomDocument(const std::string& rFileName);
+    
+    /**
+     * Fake having a namespace in older configuration files, by adding a namespace
+     * to each element in a tree.
+     * 
+     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
+     * 
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pElement  the root of the tree to be transformed
+     * @param rNamespace  the namespace to put elements in
+     */
+    xercesc::DOMElement* AddNamespace(xercesc::DOMDocument* pDocument,
+                                      xercesc::DOMElement* pElement,
+                                      const std::string& rNamespace);
 
+    /**
+     * Fake having a namespace in older configuration files, by adding a namespace
+     * to each element in a tree.
+     * 
+     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
+     * 
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pElement  the root of the tree to be transformed
+     * @param pNamespace  the namespace to put elements in
+     */
+    xercesc::DOMElement* AddNamespace(xercesc::DOMDocument* pDocument,
+                                      xercesc::DOMElement* pElement,
+                                      const XMLCh* pNamespace);
 
 public:
     /**
@@ -161,6 +207,12 @@ public:
      *                                if true, then use ArchiveLocationInfo
      */
     void Write(bool useArchiveLocationInfo=false);
+
+    /**
+     * Utility method to parse an XML parameters file.
+     * @param rFileName  Name of XML file
+     */
+    boost::shared_ptr<cp::chaste_parameters_type> ReadFile(const std::string& rFileName);
 
     /**
      * Throw away the current instance by resetting auto_ptr #mpInstance to NULL.
@@ -706,12 +758,6 @@ private:
      * @param callingMethod string describing the get method performing the check.
      */
      void CheckSimulationIsDefined(std::string callingMethod="") const;
-
-    /**
-     * Utility method to parse an XML parameters file.
-     * @param rFileName  Name of XML file
-     */
-    boost::shared_ptr<cp::chaste_parameters_type> ReadFile(const std::string& rFileName);
 
 };
 
