@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMesh.hpp"
 
 #include "ParallelTetrahedralMesh.hpp"
+#include "Debug.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -57,6 +58,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     {
         //It's a parallel mesh
         WriteFilesUsingParallelMesh(*p_mesh);
+        return;
     }
     NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index = 0;
@@ -118,7 +120,47 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParallelMesh(
      const ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
-    EXCEPTION("Not yet implemented");
+    //Concentrate node information to the master
+    
+    MPI_Status status;
+    double raw_coords[SPACE_DIM];
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumNodes(); i++)
+    {
+        try 
+        {
+            Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
+            assert (p_node->IsDeleted() == false);
+            for (unsigned j=0; j<SPACE_DIM; j++)
+            {
+                raw_coords[j] = p_node->GetPoint()[j];
+            }
+            MPI_Send(raw_coords, SPACE_DIM, MPI_DOUBLE, 0, i, PETSC_COMM_WORLD);
+        }
+        catch (Exception e)
+        {
+        }
+        if (PetscTools::AmMaster())
+        {
+            MPI_Recv(raw_coords, SPACE_DIM, MPI_DOUBLE, MPI_ANY_SOURCE, i, PETSC_COMM_WORLD, &status);
+            std::vector<double> coords(SPACE_DIM);
+            for (unsigned j=0; j<SPACE_DIM; j++)
+            {
+                coords[j] = raw_coords[j];
+            }
+            this->SetNextNode(coords);
+        }
+        else
+        {
+            assert(this->GetNumNodes() == 0);
+        }            
+    }
+    
+    TRACE("Only node file can be written at this stage");
+    //Master writes as usual
+    if (PetscTools::AmMaster())
+    {
+        this->WriteFiles();
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
