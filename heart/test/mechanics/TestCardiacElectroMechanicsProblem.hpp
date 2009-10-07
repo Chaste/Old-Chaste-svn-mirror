@@ -59,6 +59,16 @@ public:
                                                      0.01,/* nhs ode timestep */
                                                      "");
 
+//       CardiacElectroMechProbRegularGeom<2> problem(KERCHOFFS2003,
+//                                                     0.05, /* width (cm) */
+//                                                     1,    /* mech mesh size*/
+//                                                     5,    /* elec elem each dir */
+//                                                     &cell_factory,
+//                                                     500, /* end time */
+//                                                     100,  /* 100*0.01ms mech dt */
+//                                                     0.01, /* NHS ode timestep */
+//                                                     "TestC
+
         c_vector<double,2> pos;
         pos(0) = 1.0;
         pos(1) = 0.0;

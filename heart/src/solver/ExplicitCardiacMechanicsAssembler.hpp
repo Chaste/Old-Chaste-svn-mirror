@@ -86,6 +86,7 @@ private:
                                           double& rLambda)
     {
         rActiveTension = mContractionModelSystems[currentQuadPointGlobalIndex]->GetActiveTension();
+        //std::cout << rActiveTension << " ";
     }
 
 public:
