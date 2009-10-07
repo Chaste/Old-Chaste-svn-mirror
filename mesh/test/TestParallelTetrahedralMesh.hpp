@@ -1149,8 +1149,7 @@ public:
         
         TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.node "+ output_dir + "/seq_cube_2mm_12_elements.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.ele "+ output_dir + "/seq_cube_2mm_12_elements.ele").c_str()), 0);
-        //TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.face "+ output_dir + "/seq_cube_2mm_12_elements.face").c_str()), 0);
-  
+        TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.face "+ output_dir + "/seq_cube_2mm_12_elements.face").c_str()), 0);
     }
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

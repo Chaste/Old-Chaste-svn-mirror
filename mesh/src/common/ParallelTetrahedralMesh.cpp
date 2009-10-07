@@ -359,8 +359,21 @@ bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
     catch(Exception e)      // either we don't own the element or we don't own node 0 of a shared element
     {
         return false;
+    }        
+}
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) const
+{
+    try
+    {
+        unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0); // throws an exception if we don't own the element
+        SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
+        return true;   
     }
-        
+    catch(Exception e)      // either we don't own the element or we don't own node 0 of a shared element
+    {
+        return false;
+    }        
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

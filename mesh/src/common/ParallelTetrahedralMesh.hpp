@@ -199,6 +199,14 @@ public:
      * @param elementIndex is the global index of the element
      */
     bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex ) const;
+
+    /**
+     * Determine whether or not the current process owns node 0 of this boundary element (tie breaker to determine which process writes
+     * to file for when two or more share ownership of a face).
+     * 
+     * @param faceIndex is the global index of the face
+     */
+    bool CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) const;
          
     /**
      * Construct a 1D linear grid on [0,width]

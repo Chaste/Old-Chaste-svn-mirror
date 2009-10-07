@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMesh.hpp"
 
 #include "ParallelTetrahedralMesh.hpp"
-#include "Debug.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -151,6 +150,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
         }
     }
     
+    PetscTools::Barrier(); //Make sure that tagged messages are all received before we reuse tags 
     unsigned raw_indices[ELEMENT_DIM+1];
     for (unsigned i=0; i<(unsigned)rMesh.GetNumElements(); i++)
     {
@@ -166,8 +166,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                     raw_indices[j] = p_element->GetNodeGlobalIndex(j);
                 }
                 MPI_Send(raw_indices, ELEMENT_DIM+1, MPI_UNSIGNED, 0, i, PETSC_COMM_WORLD);
-            }
-            
+            }        
         }
         catch (Exception e)
         {
@@ -183,8 +182,38 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
             this->SetNextElement(indices);
         }
     }
+    PetscTools::Barrier(); //Make sure that tagged messages are all received before we reuse tags 
+    unsigned raw_face_indices[ELEMENT_DIM];
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumBoundaryElements(); i++)
+    {
+        try
+        {
+            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = rMesh.GetBoundaryElement(i);
+            assert(p_boundary_element->IsDeleted() == false);
+            if ( rMesh.CalculateDesignatedOwnershipOfBoundaryElement( i ) == true )
+            {
+                for (unsigned j=0; j<ELEMENT_DIM; j++)
+                {
+                    raw_face_indices[j] = p_boundary_element->GetNodeGlobalIndex(j);
+                }
+                MPI_Send(raw_face_indices, ELEMENT_DIM, MPI_UNSIGNED, 0, i, PETSC_COMM_WORLD);
+            }
+        }
+        catch (Exception e)
+        {
+        }
+        if (PetscTools::AmMaster())
+        {
+            MPI_Recv(raw_face_indices, ELEMENT_DIM, MPI_UNSIGNED, MPI_ANY_SOURCE, i, PETSC_COMM_WORLD, &status);
+            std::vector<unsigned> indices(ELEMENT_DIM);
+            for (unsigned j=0; j<indices.size(); j++)
+            {
+                indices[j] = raw_face_indices[j];
+            }
+            this->SetNextBoundaryFace(indices);
+        }
+    }
     
-    TRACE("Only node and element files can be written at this stage");
     //Master writes as usual
     if (PetscTools::AmMaster())
     {
