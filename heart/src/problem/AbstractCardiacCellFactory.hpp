@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMesh.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
+#include "HeartGeometryInformation.hpp"
 #include "ZeroStimulus.hpp"
 
 /**
@@ -57,6 +58,12 @@ private:
     /** The mesh is automatically set in MonodomainProblem and BidomainProblem.
      *  This member variable should be accessed through GetMesh(), which will check if it has been set before.*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
+    
+    /**
+     * A pointer to an HeartGeometryInformation information object
+     * Can be accessed via get and set methods in this class.
+     */
+    HeartGeometryInformation<SPACE_DIM>* mpHeartGeometryInformation;
 
 protected:
     /** For use at un-stimulated cells. */
@@ -122,6 +129,18 @@ public:
      * @return  the mesh used to create the cells.
      */
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* GetMesh();
+    
+    /**
+     * Set the HeartGeometryInformation object
+     * 
+     * @param pHeartGeometryInformation the HeartGeometryInformation object that is to be set
+     */
+    void SetHeartGeometryInformation(HeartGeometryInformation<SPACE_DIM>* pHeartGeometryInformation);
+    
+    /**
+     * @return the HeartGeometryInformation object 
+     */
+    HeartGeometryInformation<SPACE_DIM>* GetHeartGeometryInformation();
 
 };
 

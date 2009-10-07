@@ -63,6 +63,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
         boost::shared_ptr<AbstractIvpOdeSolver> pSolver)
     : mpMesh(NULL),
+      mpHeartGeometryInformation(NULL),
       mpZeroStimulus(new ZeroStimulus),
       mpSolver(pSolver),
       mpFakeCell(new FakeBathCell(mpSolver, mpZeroStimulus))
@@ -88,6 +89,21 @@ AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacCellFactory<ELEME
     return mpMesh;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::SetHeartGeometryInformation(HeartGeometryInformation<SPACE_DIM>* pHeartGeometryInformation)
+{
+    mpHeartGeometryInformation = pHeartGeometryInformation;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+HeartGeometryInformation<SPACE_DIM>* AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::GetHeartGeometryInformation()
+{
+    if (mpHeartGeometryInformation == NULL)
+    {
+        EXCEPTION("HeartGeometryInformation object has not been set in the cell factory");
+    }
+    return mpHeartGeometryInformation;
+}
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

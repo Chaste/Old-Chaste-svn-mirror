@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "HeartGeometryInformation.hpp"
 
 class TestPlaneStimulusCellFactory : public CxxTest::TestSuite
 {
@@ -75,7 +76,54 @@ public:
         }
 
     }
+    void TestHeartGeometryIntoCellFactory() throw(Exception)
+    {
+         TetrahedralMesh<2,2> mesh;
+        //This mesh will have 6 nodes per face, spaced by 1
+        mesh.ConstructRectangularMesh(5, 5);
 
+        std::vector<unsigned> left_face;
+        std::vector<unsigned> right_face;
+
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        {  
+            // Get the nodes at the left face of the square
+            if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
+            {
+                left_face.push_back(index);
+            }
+            // Get the nodes at the right face of the square
+            if (fabs(mesh.GetNode(index)->rGetLocation()[0]-5.0) < 1e-6)
+            {
+                right_face.push_back(index);
+            }
+            
+        }           
+        HeartGeometryInformation<2> info(mesh, left_face, right_face);
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory_1;
+        
+        HeartGeometryInformation<2>* p_info_from_cell_factory = NULL;
+        //get it from the cell factory before setting it, it should throw...(covers the exception)
+        TS_ASSERT_THROWS_THIS(cell_factory_1.GetHeartGeometryInformation(), "HeartGeometryInformation object has not been set in the cell factory");
+        
+        //set the heart geometry information
+        cell_factory_1.SetHeartGeometryInformation(&info);
+        //now we get it from the cell factory
+        p_info_from_cell_factory = cell_factory_1.GetHeartGeometryInformation();
+        
+        //check that the object obtained from the cell factory is the same as the one created above.
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        {
+            double x = mesh.GetNode(index)->rGetLocation()[0];
+            TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
+            TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),p_info_from_cell_factory->CalculateRelativeWallPosition(index));
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],p_info_from_cell_factory->rGetDistanceMapEpicardium()[index]);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],p_info_from_cell_factory->rGetDistanceMapEndocardium()[index]);         
+        }
+    }
 };
 
 #endif /*TESTPLANESTIMULUSCELLFACTORY_HPP_*/
