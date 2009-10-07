@@ -47,9 +47,9 @@ template<unsigned SPACE_DIM>
 HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                                                               std::string mEpiFile,
                                                               std::string mEndoFile)
-   : mrMesh(rMesh)
+   : mpMesh(&rMesh)
 {
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
 
     // Get nodes defining each surface
     GetNodesAtSurface(mEpiFile, mEpiSurface);
@@ -67,9 +67,9 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::string mEpiFile,
                                                                std::string mLVFile,
                                                                std::string mRVFile)
-    : mrMesh(rMesh)
+    : mpMesh(&rMesh)
 {
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
 
     // Get nodes defining each surface
     GetNodesAtSurface(mEpiFile, mEpiSurface);
@@ -88,10 +88,10 @@ template<unsigned SPACE_DIM>
 HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                                                                std::vector<unsigned>& rNodesAtEpi,
                                                                std::vector<unsigned>& rNodesAtEndo)
-    : mrMesh(rMesh)
+    : mpMesh(&rMesh)
 
 {
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
@@ -105,9 +105,9 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
                                                                std::vector<unsigned>& rNodesAtEpi,
                                                                std::vector<unsigned>& rNodesAtLv,
                                                                std::vector<unsigned>& rNodesAtRv)
-    : mrMesh(rMesh)
+    : mpMesh(&rMesh)
 {
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(mrMesh);
+    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
@@ -116,6 +116,57 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
     mNumberOfSurfacesProvided = 3;
 }
 
+template<unsigned SPACE_DIM>
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeHeterogeneityFileName)
+{
+    mpMesh = NULL;
+    std::ifstream heterogeneity_file;
+    heterogeneity_file.open(nodeHeterogeneityFileName.c_str());
+
+    if (!(heterogeneity_file.is_open()))
+    {        
+        heterogeneity_file.close();
+        std::stringstream ss;
+        ss << "Could not open heterogeneities file (" << nodeHeterogeneityFileName << ")";
+        EXCEPTION(ss.str());
+    }
+
+    while(!heterogeneity_file.eof())
+    {
+        int value;
+
+        heterogeneity_file >> value;
+
+        // format error (for example read a double), or value not equal to 0, 1, or 2.        
+        if( (heterogeneity_file.fail() && !heterogeneity_file.eof()) || value < 0 || value > 2)
+        {
+            heterogeneity_file.close();
+            std::stringstream ss;
+            ss << "A value in the heterogeneities file (" << nodeHeterogeneityFileName 
+               << ") is out of range (or not an integer). It should be epi = 0, mid = 1, endo = 2";
+            EXCEPTION(ss.str());
+        }
+        
+        if(!heterogeneity_file.eof())
+        {
+            if(value==0)
+            {
+                mLayerForEachNode.push_back(EPI);
+            }
+            else if(value==1)
+            {
+                mLayerForEachNode.push_back(MID);
+            }
+            else
+            {
+                assert(value==2);
+                mLayerForEachNode.push_back(ENDO);
+            }
+        }
+    }
+
+    heterogeneity_file.close();
+}
 
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
@@ -316,8 +367,8 @@ void HeartGeometryInformation<SPACE_DIM>::DetermineLayerForEachNode(double epiFr
         EXCEPTION("A fraction of a layer must be positive");
     }
 
-    mLayerForEachNode.resize(mrMesh.GetNumNodes());
-    for(unsigned i=0; i<mrMesh.GetNumNodes(); i++)
+    mLayerForEachNode.resize(mpMesh->GetNumNodes());
+    for(unsigned i=0; i<mpMesh->GetNumNodes(); i++)
     {
         double position = CalculateRelativeWallPosition(i);
         if (position<endoFraction)
@@ -345,7 +396,7 @@ void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outp
         out_stream p_file = handler.OpenOutputFile(file);
 
         assert(mLayerForEachNode.size()>0);
-        for(unsigned i=0; i<mrMesh.GetNumNodes(); i++)
+        for(unsigned i=0; i<mpMesh->GetNumNodes(); i++)
         {
             if(mLayerForEachNode[i]==EPI)
             {

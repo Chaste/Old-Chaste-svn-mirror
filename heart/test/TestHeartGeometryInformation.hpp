@@ -271,7 +271,7 @@ public:
         } 
     }
     
-    void TestDetermineLayerForEachNode() throw (Exception)
+    void TestDetermineLayerForEachNodeWritingAndReading() throw (Exception)
     {
         TetrahedralMesh<3,3> mesh;
         //This mesh will have 31 nodes per side, spaced by 1, it is a cube
@@ -329,7 +329,35 @@ public:
             {
                 TS_ASSERT_EQUALS(info.rGetLayerForEachNode()[index],ENDO);
             }            
-        }        
+        }
+
+        //now we test the constructor that takes in the node heterogeneity file
+        std::string file = OutputFileHandler::GetChasteTestOutputDirectory() + "TestHeartGeom/layers.het";
+        HeartGeometryInformation<3> info_2(file);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), info_2.rGetLayerForEachNode().size());
+        
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        {
+            double x = mesh.GetNode(index)->rGetLocation()[0];
+            
+            if (x < 3 || x > 27)
+            {
+                TS_ASSERT_EQUALS(info_2.rGetLayerForEachNode()[index],EPI);
+            }
+            else if (x < 5 || x > 25)
+            {
+                TS_ASSERT_EQUALS(info_2.rGetLayerForEachNode()[index],MID);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(info_2.rGetLayerForEachNode()[index],ENDO);
+            }   
+        }
+        
+        //covering exceptions
+        TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info_non_existent_file("rubbish"), "Could not open heterogeneities file (rubbish)");
+        TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info_bad_file("heart/test/data/ValidPseudoEcg1D.dat"), "A value in the heterogeneities file (heart/test/data/ValidPseudoEcg1D.dat) is out of range (or not an integer). It should be epi = 0, mid = 1, endo = 2");
     }
     
     void TestHeartGeometryTakingFiles() throw (Exception)

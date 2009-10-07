@@ -105,7 +105,7 @@ private:
     double GetDistanceToEpi(unsigned nodeIndex);
 
     /** The mesh of the problem*/
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh;
+    TetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
     
     /** Vector to store the distance map to epicardium*/
     std::vector<double> mDistMapEpicardium;
@@ -175,7 +175,17 @@ public:
                               std::vector<unsigned>& rNodesAtLv,
                               std::vector<unsigned>& rNodesAtRv);
                              
-
+    /**
+     * Alternative constructor that takes in the file containing a list of numbers (as many as the number of nodes).
+     * Each number specifies the layer for the corresponding node.
+     * 
+     * This constructor should be called if the heterogeneities have /already/ been computed 
+     * by an instance of this class and written to file by the WriteLayerForEachNode() method.
+     * 
+     * @param nodeHeterogeneityFileName the file name.
+     */
+    HeartGeometryInformation (std::string nodeHeterogeneityFileName);
+    
     /**
      * @param nodeIndex index is the index of the node in the mesh
      * @returns the region type based on the relative distances to epi and endocardial surfaces 
