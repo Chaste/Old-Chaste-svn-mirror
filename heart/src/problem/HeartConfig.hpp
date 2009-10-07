@@ -99,11 +99,30 @@ private:
     template<class Archive>
     void load(Archive & archive, const unsigned int version)
     {
+        /*
+         *  This method implements the logic required by HeartConfig to be able to handle resuming a simulation via the executable.
+         *  
+         *  When the control reaches the method mpUserParameters and mpDefaultParameters point to the files specified as resuming parameters.
+         *  However SetDefaultsFile() and SetParametersFile() will set those variables to point to the archived parameters.
+         *  
+         *  We make a temporary copy of mpUserParameters so we don't lose its content. At the end of the method we update the new mpUserParameters
+         *  with the resuming parameters.
+         */
+        assert(mpUserParameters.use_count() > 0); 
+        boost::shared_ptr<cp::chaste_parameters_type> p_new_parameters = mpUserParameters;                 
+                
         std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";
         HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
 
         std::string parameters_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";
         HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);
+
+        // If we are resuming a simulation update the simulation duration (and any other to come...)
+        if (p_new_parameters->ResumeSimulation().present())        
+        {
+            HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
+            HeartConfig::Instance()->SetSaveSimulation(p_new_parameters->ResumeSimulation().get().SaveSimulation().present());      
+        }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 

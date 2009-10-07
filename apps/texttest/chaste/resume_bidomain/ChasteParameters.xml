@@ -2,10 +2,8 @@
 <ChasteParameters>
 
 	<ResumeSimulation>
-		<Directory>save_bidomain</Directory>
+		<ArchiveDirectory>save_bidomain</ArchiveDirectory>
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
-	    <OutputDirectory>SaveBidomain</OutputDirectory>
-    	<OutputFilenamePrefix>BidomainLR91_1d</OutputFilenamePrefix>
 	</ResumeSimulation>
 	
 	<Physiological>

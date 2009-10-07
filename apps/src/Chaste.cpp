@@ -387,10 +387,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
-                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());
-                            
-                            /// \todo: #1143 after unarchiving HeartConfig points to the old config file.
-                            HeartConfig::Instance()->SetParametersFile(parameter_file);                                                       
+                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
                         }
 
                         p_bi_problem->Solve();

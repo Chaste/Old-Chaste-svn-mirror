@@ -610,6 +610,7 @@ public :
 
         cp::ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
         TS_ASSERT( user_ionic == cp::ionic_models_available_type::FaberRudy2000 );
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);        
 
         std::ofstream ofs(archive_filename.c_str());
         boost::archive::text_oarchive output_arch(ofs);
@@ -626,8 +627,10 @@ public :
         boost::archive::text_iarchive input_arch(ifs);
 
         HeartConfig* p_heart_config = HeartConfig::Instance();
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");        
         input_arch >> (*p_heart_config);
 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
         TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
     }
 
@@ -774,10 +777,7 @@ public :
         TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());
         
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir(), "ChasteResults_10ms");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "SimulationResults");
-        TS_ASSERT( ! HeartConfig::Instance()->GetOutputVariablesProvided());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
         TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
 
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSpaceDimension(), "SpaceDimension information is not available in a resumed simulation.")

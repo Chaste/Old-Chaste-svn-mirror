@@ -3,11 +3,8 @@
 		          xsi:noNamespaceSchemaLocation="../../../src/io/ChasteParameters.xsd">
        
 	<ResumeSimulation>
-		<Directory>ChasteResults_10ms</Directory>
-	    <SimulationDuration unit="ms">10.0</SimulationDuration>
-
-		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>	    
-		<OutputDirectory>ChasteResults</OutputDirectory>	    
+		<ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
+	    <SimulationDuration unit="ms">20.0</SimulationDuration>
 		<SaveSimulation/>				
 	</ResumeSimulation>
 	
