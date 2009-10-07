@@ -69,13 +69,13 @@ public :
 
         TS_ASSERT(HeartConfig::Instance()->mpDefaultParameters->Simulation().present());
 
-        ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().get().IonicModels().get().Default();
-        TS_ASSERT_EQUALS(default_ionic_model, ionic_models_available_type::LuoRudyI);
+        cp::ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().get().IonicModels().get().Default();
+        TS_ASSERT_EQUALS(default_ionic_model, cp::ionic_models_available_type::LuoRudyI);
 
-        ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().get().IonicModels().get().Default();
-        TS_ASSERT_EQUALS(user_ionic_model, ionic_models_available_type::FaberRudy2000);
+        cp::ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().get().IonicModels().get().Default();
+        TS_ASSERT_EQUALS(user_ionic_model, cp::ionic_models_available_type::FaberRudy2000);
 
-        ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
+        cp::ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
         TS_ASSERT_EQUALS(user_ionic_model, get_ionic_model);
 
      }
@@ -91,13 +91,13 @@ public :
                          10.0);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(),
-                         domain_type::Mono);
+                         cp::domain_type::Mono);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
-                          ionic_models_available_type::FaberRudy2000);
+                         cp::ionic_models_available_type::FaberRudy2000);
 
         std::vector<ChasteCuboid> ionic_model_regions;
-        std::vector<ionic_models_available_type> ionic_models_defined;
+        std::vector<cp::ionic_models_available_type> ionic_models_defined;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models_defined);
 
@@ -105,8 +105,8 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined.size(), 2u);
 
         TS_ASSERT(ionic_model_regions[0].DoesContain(ChastePoint<3>(-1.95, 0, 0)));
-        TS_ASSERT_EQUALS(ionic_models_defined[0], ionic_models_available_type::LuoRudyI);
-        TS_ASSERT_EQUALS(ionic_models_defined[1], ionic_models_available_type::DifrancescoNoble);
+        TS_ASSERT_EQUALS(ionic_models_defined[0], cp::ionic_models_available_type::LuoRudyI);
+        TS_ASSERT_EQUALS(ionic_models_defined[1], cp::ionic_models_available_type::DifrancescoNoble);
 
         TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
@@ -230,7 +230,7 @@ public :
         TS_ASSERT(!HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(), "foo");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetConductivityMedia(), media_type::NoFibreOrientation);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetConductivityMedia(), cp::media_type::NoFibreOrientation);
 
         //Try reading through an empty parameters file into a fully-populated default
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
@@ -334,23 +334,23 @@ public :
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
 
-        HeartConfig::Instance()->SetDomain(domain_type::Bi);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(), domain_type::Bi);
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Bi);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(), cp::domain_type::Bi);
 
-        HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::LuoRudyIBackwardEuler);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::LuoRudyIBackwardEuler);
+        HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::LuoRudyIBackwardEuler);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::LuoRudyIBackwardEuler);
 
-        HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::MahajanShiferaw);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::MahajanShiferaw);
+        HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::MahajanShiferaw);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::MahajanShiferaw);
 
-        HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::HodgkinHuxley);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::HodgkinHuxley);
+        HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::HodgkinHuxley);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::HodgkinHuxley);
 
-        HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::tenTusscher2006);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::tenTusscher2006);
+        HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::tenTusscher2006);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::tenTusscher2006);
 
-        HeartConfig::Instance()->SetDefaultIonicModel(ionic_models_available_type::DifrancescoNoble);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), ionic_models_available_type::DifrancescoNoble);
+        HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::DifrancescoNoble);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::DifrancescoNoble);
 
         TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
@@ -608,8 +608,8 @@ public :
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
-        ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
-        TS_ASSERT( user_ionic == ionic_models_available_type::FaberRudy2000 );
+        cp::ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
+        TS_ASSERT( user_ionic == cp::ionic_models_available_type::FaberRudy2000 );
 
         std::ofstream ofs(archive_filename.c_str());
         boost::archive::text_oarchive output_arch(ofs);
@@ -620,7 +620,7 @@ public :
 
         HeartConfig::Instance()->Reset();
 
-        TS_ASSERT( HeartConfig::Instance()->GetDefaultIonicModel() == ionic_models_available_type::LuoRudyI );
+        TS_ASSERT( HeartConfig::Instance()->GetDefaultIonicModel() == cp::ionic_models_available_type::LuoRudyI );
 
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
         boost::archive::text_iarchive input_arch(ifs);

@@ -181,7 +181,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(),
                          "mesh/test/data/cube_1626_elements");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
-                         ionic_models_available_type::Fox2002BackwardEuler);
+                         cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");      
@@ -221,7 +221,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(),
                          "mesh/test/data/cube_1626_elements");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
-                         ionic_models_available_type::Fox2002BackwardEuler);
+                         cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         // We simulate for 20ms to compare the output
         HeartConfig::Instance()->SetSimulationDuration(20.0);

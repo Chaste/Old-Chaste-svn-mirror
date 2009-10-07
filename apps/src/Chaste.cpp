@@ -80,12 +80,12 @@ std::string parameter_file;
  * Defaults are required in the declaration due to the lack of default constructor.
  * Values will be ignored, though.
  */
-domain_type domain = domain_type::Mono;
+cp::domain_type domain = cp::domain_type::Mono;
 unsigned space_dimension = 3;
 
-ionic_models_available_type default_ionic_model = ionic_models_available_type::LuoRudyI;
+cp::ionic_models_available_type default_ionic_model = cp::ionic_models_available_type::LuoRudyI;
 std::vector<ChasteCuboid> ionic_model_regions;
-std::vector<ionic_models_available_type> ionic_models_defined;
+std::vector<cp::ionic_models_available_type> ionic_models_defined;
 
 std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
 std::vector<ChasteCuboid> stimulated_areas;
@@ -106,7 +106,7 @@ public:
 
     AbstractCardiacCell* CreateCellWithIntracellularStimulus(boost::shared_ptr<AbstractStimulusFunction> intracellularStimulus, unsigned node)
     {
-        ionic_models_available_type ionic_model = default_ionic_model;
+        cp::ionic_models_available_type ionic_model = default_ionic_model;
 
         for (unsigned ionic_model_region_index = 0;
              ionic_model_region_index < ionic_model_regions.size();
@@ -121,27 +121,27 @@ public:
 
         switch(ionic_model)
         {
-            case(ionic_models_available_type::LuoRudyI):
+            case(cp::ionic_models_available_type::LuoRudyI):
                 return new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
 
-            case(ionic_models_available_type::LuoRudyIBackwardEuler):
+            case(cp::ionic_models_available_type::LuoRudyIBackwardEuler):
                 return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
                 break;
 
-            case(ionic_models_available_type::Fox2002BackwardEuler):
+            case(cp::ionic_models_available_type::Fox2002BackwardEuler):
                 return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
                 break;
 
-            case(ionic_models_available_type::DifrancescoNoble):
+            case(cp::ionic_models_available_type::DifrancescoNoble):
                 return new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
 
-            case(ionic_models_available_type::MahajanShiferaw):
+            case(cp::ionic_models_available_type::MahajanShiferaw):
                 return new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
 
-            case(ionic_models_available_type::tenTusscher2006):
+            case(cp::ionic_models_available_type::tenTusscher2006):
                 {
                     TenTusscher2006OdeSystem*  tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
 
@@ -162,11 +162,11 @@ public:
                 }
 
 
-            case(ionic_models_available_type::HodgkinHuxley):
+            case(cp::ionic_models_available_type::HodgkinHuxley):
                 return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
                 break;
 
-            case(ionic_models_available_type::FaberRudy2000):
+            case(cp::ionic_models_available_type::FaberRudy2000):
                 {
                     FaberRudy2000Version3*  faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
 
@@ -186,7 +186,7 @@ public:
                     break;
                 }
 
-            case(ionic_models_available_type::FaberRudy2000Optimised):
+            case(cp::ionic_models_available_type::FaberRudy2000Optimised):
                 return new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
                 break;
 
@@ -277,8 +277,8 @@ void ReadParametersFromFile()
     }
     else
     {
-        /// \todo: #1134 bad bad bad...
-        domain = domain_type::Bi;
+        /// \todo: #1143 bad bad bad...
+        domain = cp::domain_type::Bi;
         space_dimension = 3;
     }
 }
@@ -321,7 +321,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
         switch(domain)
         {
-            case domain_type::Mono :
+            case cp::domain_type::Mono :
             {
                 switch (space_dimension)
                 {
@@ -368,7 +368,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                 break;
             }
 
-            case domain_type::Bi :
+            case cp::domain_type::Bi :
             {
                 switch (space_dimension)
                 {

@@ -580,7 +580,7 @@ public:
     void TestCompareOrthotropicWithAxisymmetricBidomain() throw (Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
-        HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Orthotropic);
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", cp::media_type::Orthotropic);
         HeartConfig::Instance()->SetOutputDirectory("OrthotropicBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("ortho3d");
 
@@ -598,7 +598,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // axisymmetric
         ///////////////////////////////////////////////////////////////////
-        HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", media_type::Axisymmetric);
+        HeartConfig::Instance()->SetMeshFileName("heart/test/data/box_shaped_heart/box_heart", cp::media_type::Axisymmetric);
         HeartConfig::Instance()->SetOutputDirectory("AxisymmetricBidomain");
         HeartConfig::Instance()->SetOutputFilenamePrefix("axi3d");
 

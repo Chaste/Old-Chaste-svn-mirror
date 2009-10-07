@@ -131,17 +131,17 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
     {
         switch (mpConfig->GetConductivityMedia())
         {
-            case media_type::Orthotropic:
+            case cp::media_type::Orthotropic:
                 mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".ortho");
                 break;
 
-            case media_type::Axisymmetric:
+            case cp::media_type::Axisymmetric:
                 mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".axi");
                 break;
 
-            case media_type::NoFibreOrientation:
+            case cp::media_type::NoFibreOrientation:
                 /// \todo Create a class defining constant tensors to be used when no fibre orientation is provided.
                 mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
                 break;

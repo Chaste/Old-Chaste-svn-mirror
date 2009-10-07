@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
+namespace cp = chaste::parameters;
 
 /**
  * A singleton class containing configuration parameters for heart simulations.
@@ -175,7 +176,7 @@ public:
      *
      * @return domain type of simulation bi- mono-domain
      */
-    domain_type GetDomain() const;
+    cp::domain_type GetDomain() const;
     /**
      * Default cardiac cell model to use at all mesh nodes
      * (unless otherwise specified by IonicModelRegions)
@@ -183,7 +184,7 @@ public:
      *
      * @return  type of model
      */
-    ionic_models_available_type GetDefaultIonicModel() const;
+    cp::ionic_models_available_type GetDefaultIonicModel() const;
 
     /**
      * Regions where we need to use a different cell model (think infarction)
@@ -197,7 +198,7 @@ public:
      * \todo No set method
      */
      void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
-                               std::vector<ionic_models_available_type>& ionicModels) const;
+                               std::vector<cp::ionic_models_available_type>& ionicModels) const;
 
 
     bool IsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
@@ -223,7 +224,7 @@ public:
 
     std::string GetMeshName() const;/**< @return path/basename of mesh files*/
 
-    media_type GetConductivityMedia() const;/**< @return media (Orthotropic/Axisymmetric/NoFibreOrientation) so that we know whether to read a .ortho/.axi file*/
+    cp::media_type GetConductivityMedia() const;/**< @return media (Orthotropic/Axisymmetric/NoFibreOrientation) so that we know whether to read a .ortho/.axi file*/
 
     /**
      * Return a number of stimulated regions (Axis-aligned boxes)
@@ -431,7 +432,7 @@ public:
      *
      * @param domain type of simulation bi- mono-domain
      */
-    void SetDomain(domain_type domain);
+    void SetDomain(cp::domain_type domain);
     /**
      * Set the configuration to place the given cardiac cell models at all mesh nodes
      * (unless otherwise specified by IonicModelRegions)
@@ -439,7 +440,7 @@ public:
      *
      * @param ionicModel  type of model
      */
-    void SetDefaultIonicModel(ionic_models_available_type ionicModel);
+    void SetDefaultIonicModel(cp::ionic_models_available_type ionicModel);
 
     /**
      * Set dimensions of simulation for use with a cuboid mesh generated on the fly.  3-D.
@@ -469,7 +470,7 @@ public:
      * @param fibreDefinition  if set (Orthotropic/Axisymmetric) then a (.ortho/.axi) file should also be read
      * \todo There is no Get method
      */
-    void SetMeshFileName(std::string meshPrefix, media_type fibreDefinition=media_type::NoFibreOrientation);
+    void SetMeshFileName(std::string meshPrefix, cp::media_type fibreDefinition=cp::media_type::NoFibreOrientation);
 
     /**
      * Set a number of heterogeneous regions (Axis-aligned boxes)
@@ -649,11 +650,11 @@ private:
     /** Pointer to parameters read from the user's input XML file
      * (override those given by #mpDefaultParameters).
      */
-    boost::shared_ptr<chaste_parameters_type> mpUserParameters;
+    boost::shared_ptr<cp::chaste_parameters_type> mpUserParameters;
     /** Pointer to parameters read from the default input XML file (to be read before
      * #mpUserParameters, but may be subsequently overridden).
      */
-    boost::shared_ptr<chaste_parameters_type> mpDefaultParameters;
+    boost::shared_ptr<cp::chaste_parameters_type> mpDefaultParameters;
 
     /** The single instance of the class */
     static std::auto_ptr<HeartConfig> mpInstance;
@@ -691,7 +692,7 @@ private:
      * Utility method to parse an XML parameters file.
      * @param rFileName  Name of XML file
      */
-    boost::shared_ptr<chaste_parameters_type> ReadFile(const std::string& rFileName);
+    boost::shared_ptr<cp::chaste_parameters_type> ReadFile(const std::string& rFileName);
 
 };
 

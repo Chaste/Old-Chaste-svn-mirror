@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include "ChasteParameters.hpp"
 
+namespace cp = chaste::parameters;
 
 using std::auto_ptr;
 
@@ -44,13 +45,13 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters( "heart/test/data/xml/ChasteParametersFullFormat.xml"));
+            auto_ptr<cp::chaste_parameters_type> params (cp::ChasteParameters( "heart/test/data/xml/ChasteParametersFullFormat.xml"));
 
             TS_ASSERT(params->Simulation().present());
-            simulation_type simulation_params = params->Simulation().get();
+            cp::simulation_type simulation_params = params->Simulation().get();
 
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
-            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
+            TS_ASSERT_EQUALS(simulation_params.Domain().get(), cp::domain_type::Mono);
 
             TS_ASSERT(simulation_params.Mesh().present());
             TS_ASSERT(simulation_params.Mesh().get().LoadMesh() == NULL);
@@ -61,11 +62,11 @@ public:
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->z(), 2.0);
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->inter_node_space(), 0.1);
 
-            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), ionic_models_available_type::FaberRudy2000);
+            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), cp::ionic_models_available_type::FaberRudy2000);
 
             TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
 
-            physiological_type physiological_params = params->Physiological();
+            cp::physiological_type physiological_params = params->Physiological();
 
             TS_ASSERT(physiological_params.IntracellularConductivities().present());
             TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().longi(), 1.75);
@@ -88,14 +89,14 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/xml/ChasteParametersLoadMesh.xml"));
+            auto_ptr<cp::chaste_parameters_type> params (cp::ChasteParameters("heart/test/data/xml/ChasteParametersLoadMesh.xml"));
 
             TS_ASSERT(params->Simulation().present());
-            simulation_type simulation_params = params->Simulation().get();
+            cp::simulation_type simulation_params = params->Simulation().get();
 
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
-            TS_ASSERT_EQUALS(simulation_params.Domain().get(), domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), ionic_models_available_type::FaberRudy2000);
+            TS_ASSERT_EQUALS(simulation_params.Domain().get(), cp::domain_type::Mono);
+            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), cp::ionic_models_available_type::FaberRudy2000);
 
             TS_ASSERT(simulation_params.Mesh().present());
             TS_ASSERT(simulation_params.Mesh().get().LoadMesh() != NULL);
@@ -103,7 +104,7 @@ public:
 
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().LoadMesh()->name(), "foo");
 
-            physiological_type physiological_params = params->Physiological();
+            cp::physiological_type physiological_params = params->Physiological();
 
             TS_ASSERT(physiological_params.IntracellularConductivities().present());
             TS_ASSERT_EQUALS(physiological_params.IntracellularConductivities().get().longi(), 1.75);
@@ -128,8 +129,8 @@ public:
     {
         try
         {
-            auto_ptr<chaste_parameters_type> params (ChasteParameters("heart/test/data/xml/ChasteParametersLoadMesh.xml"));
-            physiological_type physiological_params = params->Physiological();
+            auto_ptr<cp::chaste_parameters_type> params (cp::ChasteParameters("heart/test/data/xml/ChasteParametersLoadMesh.xml"));
+            cp::physiological_type physiological_params = params->Physiological();
 
             physiological_params.ExtracellularConductivities().get().longi() = 9.0;
             TS_ASSERT_EQUALS(physiological_params.ExtracellularConductivities().get().longi(), 9.0);
