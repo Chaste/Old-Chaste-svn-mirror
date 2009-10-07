@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HeartConfig.hpp"
 #include "OutputFileHandler.hpp"
+#include "ChasteCuboid.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
@@ -770,7 +771,10 @@ public :
         TS_ASSERT(!HeartConfig::Instance()->GetSaveSimulation());
         HeartConfig::Instance()->SetSaveSimulation(true);
         TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
-
+        
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetArchivedSimulationDir(),
+                              "GetArchivedSimulationDir information is not available in a standard (non-resumed) simulation.");
+        
         // Get the singleton in a clean state
         HeartConfig::Instance()->Reset();
 
@@ -782,8 +786,67 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
         TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
 
+        // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSpaceDimension(), "SpaceDimension information is not available in a resumed simulation.")
-
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDomain(), "Domain information is not available in a resumed simulation.")
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
+        
+        std::vector<ChasteCuboid> definedRegions;
+        std::vector<cp::ionic_models_available_type> ionicModels;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionicModels), 
+                              "IonicModelRegions information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->IsMeshProvided(), "Mesh information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateMesh(), "Mesh information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateSlab(), "Mesh information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateSheet(), "Mesh information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateFibre(), "Mesh information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetLoadMesh(), "Mesh information is not available in a resumed simulation.");
+        
+        c_vector<double, 3> slabDimensions;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSlabDimensions(slabDimensions), 
+                              "Slab information is not available in a resumed simulation.");
+        c_vector<double, 2> sheet_dimensions;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions), 
+                              "Sheet information is not available in a resumed simulation.");
+        c_vector<double, 1> fibre_dimensions;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetFibreLength(fibre_dimensions), 
+                              "Fibre information is not available in a resumed simulation.");
+        
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetInterNodeSpace(), "InterNodeSpace information is not available in a resumed simulation.")
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetMeshName(), "LoadMesh information is not available in a resumed simulation.")
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityMedia(), "LoadMesh information is not available in a resumed simulation.")
+        
+        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
+        std::vector<ChasteCuboid> stimulated_area;        
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area), "Stimuli information is not available in a resumed simulation.")
+        
+        std::vector<ChasteCuboid> cell_heterogeneity_areas;
+        std::vector<double> scale_factor_gks;
+        std::vector<double> scale_factor_ito;
+        std::vector<double> scale_factor_gkr;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas, scale_factor_gks, scale_factor_ito, scale_factor_gkr),
+                              "CellHeterogeneities information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided(), 
+                              "CellHeterogeneities information is not available in a resumed simulation.");
+        
+        std::vector<ChasteCuboid> conductivitiesHeterogeneityAreas;
+        std::vector< c_vector<double,3> > intraConductivities;
+        std::vector< c_vector<double,3> > extraConductivities;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivitiesHeterogeneityAreas,
+                                                                                      intraConductivities, extraConductivities), 
+                              "CellHeterogeneities information is not available in a resumed simulation.");
+                              
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputDirectory(), 
+                              "Simulation/OutputDirectory information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputFilenamePrefix(), 
+                              "Simulation/OutputFilenamePrefix information is not available in a resumed simulation.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputVariablesProvided(), 
+                              "OutputVariables information is not available in a resumed simulation.");
+        
+        std::vector<std::string> output_variables;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputVariables(output_variables), 
+                              "OutputVariables information is not available in a resumed simulation.");
+        
     }
 };
 

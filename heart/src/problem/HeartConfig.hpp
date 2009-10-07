@@ -497,6 +497,7 @@ public:
      * @param simulationDuration duration of the simulation (ms)
      */
     void SetSimulationDuration(double simulationDuration);
+    
     /**
      * Set the configuration to run mono or bidomain
      * domain_type is an xsd convenience class type
@@ -758,6 +759,17 @@ private:
      * @param callingMethod string describing the get method performing the check.
      */
      void CheckSimulationIsDefined(std::string callingMethod="") const;
+     
+    /**
+     * CheckSimulationIsDefined is a convience method for checking if the "<"ResumeSimulation">" element
+     * has been defined and therefore is safe to use the ResumeSimulation().get() pointer to access
+     * other data.
+     * 
+     * Throws and exception if not.
+     * 
+     * @param callingMethod string describing the get method performing the check.
+     */
+     void CheckResumeSimulationIsDefined(std::string callingMethod="") const;
 
 };
 

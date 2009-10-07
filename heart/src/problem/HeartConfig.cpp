@@ -262,9 +262,17 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
 
 void HeartConfig::CheckSimulationIsDefined(std::string callingMethod) const
 {
-    if(!mpUserParameters->Simulation().present())
+    if(IsSimulationResumed())
     {
         EXCEPTION(callingMethod + " information is not available in a resumed simulation.");
+    }   
+}
+
+void HeartConfig::CheckResumeSimulationIsDefined(std::string callingMethod) const
+{
+    if(IsSimulationDefined())
+    {
+        EXCEPTION(callingMethod + " information is not available in a standard (non-resumed) simulation.");
     }   
 }
 
@@ -293,6 +301,8 @@ double HeartConfig::GetSimulationDuration() const
 
 cp::domain_type HeartConfig::GetDomain() const
 {
+    CheckSimulationIsDefined("Domain");
+
     return DecideLocation( & mpUserParameters->Simulation().get().Domain(),
                            & mpDefaultParameters->Simulation().get().Domain(),
                            "Domain")->get();
@@ -300,6 +310,8 @@ cp::domain_type HeartConfig::GetDomain() const
 
 cp::ionic_models_available_type HeartConfig::GetDefaultIonicModel() const
 {
+    CheckSimulationIsDefined("DefaultIonicModel");
+
     return DecideLocation( & mpUserParameters->Simulation().get().IonicModels(),
                            & mpDefaultParameters->Simulation().get().IonicModels(),
                            "IonicModel")->get().Default();
@@ -308,6 +320,8 @@ cp::ionic_models_available_type HeartConfig::GetDefaultIonicModel() const
 void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
                                        std::vector<cp::ionic_models_available_type>& ionicModels) const
 {
+    CheckSimulationIsDefined("IonicModelRegions");
+
     XSD_SEQUENCE_TYPE(cp::ionic_models_type::Region)&
          regions = DecideLocation( & mpUserParameters->Simulation().get().IonicModels(),
                                    & mpDefaultParameters->Simulation().get().IonicModels(),
@@ -340,6 +354,8 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions
 
 bool HeartConfig::IsMeshProvided() const
 {
+    CheckSimulationIsDefined("Mesh");    
+    
     try
     {
         DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
@@ -355,6 +371,8 @@ bool HeartConfig::IsMeshProvided() const
 
 bool HeartConfig::GetCreateMesh() const
 {
+    CheckSimulationIsDefined("Mesh");    
+
     cp::mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
                                          & mpDefaultParameters->Simulation().get().Mesh(),
                                          "Mesh")->get();
@@ -364,6 +382,8 @@ bool HeartConfig::GetCreateMesh() const
 
 bool HeartConfig::GetCreateSlab() const
 {
+    CheckSimulationIsDefined("Mesh");    
+
     cp::mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
                                          & mpDefaultParameters->Simulation().get().Mesh(),
                                          "Mesh")->get();
@@ -373,6 +393,8 @@ bool HeartConfig::GetCreateSlab() const
 
 bool HeartConfig::GetCreateSheet() const
 {
+    CheckSimulationIsDefined("Mesh");    
+
     cp::mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
                                          & mpDefaultParameters->Simulation().get().Mesh(),
                                          "Mesh")->get();
@@ -382,6 +404,8 @@ bool HeartConfig::GetCreateSheet() const
 
 bool HeartConfig::GetCreateFibre() const
 {
+    CheckSimulationIsDefined("Mesh");    
+
     cp::mesh_type mesh = DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
                                          & mpDefaultParameters->Simulation().get().Mesh(),
                                          "Mesh")->get();
@@ -392,6 +416,8 @@ bool HeartConfig::GetCreateFibre() const
 
 bool HeartConfig::GetLoadMesh() const
 {
+    CheckSimulationIsDefined("Mesh");    
+
     return (DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
                             & mpDefaultParameters->Simulation().get().Mesh(),
                             "Mesh")->get().LoadMesh().present());
@@ -399,6 +425,8 @@ bool HeartConfig::GetLoadMesh() const
 
 void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
 {
+    CheckSimulationIsDefined("Slab");    
+    
     if (GetSpaceDimension()!=3 || !GetCreateSlab())
     {
         EXCEPTION("Tissue slabs can only be defined in 3D");
@@ -415,6 +443,8 @@ void HeartConfig::GetSlabDimensions(c_vector<double, 3>& slabDimensions) const
 
 void HeartConfig::GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const
 {
+    CheckSimulationIsDefined("Sheet");    
+    
     if (GetSpaceDimension()!=2 || !GetCreateSheet())
     {
         EXCEPTION("Tissue sheets can only be defined in 2D");
@@ -430,6 +460,8 @@ void HeartConfig::GetSheetDimensions(c_vector<double, 2>& sheetDimensions) const
 
 void HeartConfig::GetFibreLength(c_vector<double, 1>& fibreLength) const
 {
+    CheckSimulationIsDefined("Fibre");  
+        
     if (GetSpaceDimension()!=1 || !GetCreateFibre())
     {
         EXCEPTION("Tissue fibres can only be defined in 1D");
@@ -445,6 +477,7 @@ void HeartConfig::GetFibreLength(c_vector<double, 1>& fibreLength) const
 
 double HeartConfig::GetInterNodeSpace() const
 {
+    CheckSimulationIsDefined("InterNodeSpace"); 
     assert(GetCreateMesh());
 
     switch(GetSpaceDimension())
@@ -473,6 +506,7 @@ double HeartConfig::GetInterNodeSpace() const
 
 std::string HeartConfig::GetMeshName() const
 {
+    CheckSimulationIsDefined("LoadMesh"); 
     assert(GetLoadMesh());
 
     return DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
@@ -482,6 +516,7 @@ std::string HeartConfig::GetMeshName() const
 
 cp::media_type HeartConfig::GetConductivityMedia() const
 {
+    CheckSimulationIsDefined("LoadMesh"); 
     assert(GetLoadMesh());
 
     return DecideLocation( & mpUserParameters->Simulation().get().Mesh(),
@@ -492,6 +527,7 @@ cp::media_type HeartConfig::GetConductivityMedia() const
 void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied,
                              std::vector<ChasteCuboid>& rStimulatedAreas) const
 {
+    CheckSimulationIsDefined("Stimuli"); 
     XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, Stimuli, Stimulus)&
          stimuli = DecideLocation( & mpUserParameters->Simulation().get().Stimuli(),
                            & mpDefaultParameters->Simulation().get().Stimuli(),
@@ -528,6 +564,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
                                          std::vector<double>& scaleFactorIto,
                                          std::vector<double>& scaleFactorGkr) const
 {
+    CheckSimulationIsDefined("CellHeterogeneities"); 
     XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity)&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().CellHeterogeneities(),
                                                  & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
@@ -561,8 +598,9 @@ void HeartConfig::GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeteroge
 
 bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
 {
+    CheckSimulationIsDefined("CellHeterogeneities");
     try
-    {
+    {         
         DecideLocation( & mpUserParameters->Simulation().get().ConductivityHeterogeneities(),
                         & mpDefaultParameters->Simulation().get().ConductivityHeterogeneities(),
                         "CellHeterogeneities");
@@ -579,6 +617,7 @@ void HeartConfig::GetConductivityHeterogeneities(
         std::vector< c_vector<double,3> >& intraConductivities,
         std::vector< c_vector<double,3> >& extraConductivities) const
 {
+    CheckSimulationIsDefined("CellHeterogeneities");
     XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity)&
          conductivity_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().ConductivityHeterogeneities(),
                                                       & mpDefaultParameters->Simulation().get().ConductivityHeterogeneities(),
@@ -640,6 +679,7 @@ void HeartConfig::GetConductivityHeterogeneities(
 
 std::string HeartConfig::GetOutputDirectory() const
 {
+    CheckSimulationIsDefined("Simulation/OutputDirectory");
     return DecideLocation( & mpUserParameters->Simulation().get().OutputDirectory(),
                            & mpDefaultParameters->Simulation().get().OutputDirectory(),
                            "Simulation/OutputDirectory")->get();        
@@ -647,6 +687,7 @@ std::string HeartConfig::GetOutputDirectory() const
 
 std::string HeartConfig::GetOutputFilenamePrefix() const
 {
+    CheckSimulationIsDefined("Simulation/OutputFilenamePrefix");
     return DecideLocation( & mpUserParameters->Simulation().get().OutputFilenamePrefix(),
                            & mpDefaultParameters->Simulation().get().OutputFilenamePrefix(),
                            "Simulation/OutputFilenamePrefix")->get();        
@@ -654,11 +695,7 @@ std::string HeartConfig::GetOutputFilenamePrefix() const
 
 bool HeartConfig::GetOutputVariablesProvided() const
 {
-    /// \todo: #1143 this is a hack, we need a consistent way of handling the data we don't allow redifining.
-    if (IsSimulationResumed())
-    {
-        return false;
-    }   
+    CheckSimulationIsDefined("OutputVariables");
     
     try
     {
@@ -675,6 +712,7 @@ bool HeartConfig::GetOutputVariablesProvided() const
 
 void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) const
 {
+    CheckSimulationIsDefined("OutputVariables");
     XSD_SEQUENCE_TYPE(cp::output_variables_type::Var)&
          output_variables = DecideLocation( & mpUserParameters->Simulation().get().OutputVariables(),
                                             & mpDefaultParameters->Simulation().get().OutputVariables(),
@@ -696,13 +734,15 @@ bool HeartConfig::GetSaveSimulation() const
     try
     {
         if (IsSimulationDefined())
-        {        
+        {
+            CheckSimulationIsDefined("GetSaveSimulation");
             DecideLocation( & mpUserParameters->Simulation().get().SaveSimulation(),
                             & mpDefaultParameters->Simulation().get().SaveSimulation(),
                             "Simulation/SaveSimulation");
         }
         else
-        {
+        {       
+            CheckResumeSimulationIsDefined("GetSaveSimulation"); 
             DecideLocation( & mpUserParameters->ResumeSimulation().get().SaveSimulation(),
                             & mpDefaultParameters->Simulation().get().SaveSimulation(),
                             "ResumeSimulation/SaveSimulation");            
@@ -717,8 +757,7 @@ bool HeartConfig::GetSaveSimulation() const
 
 std::string HeartConfig::GetArchivedSimulationDir() const
 {
-    /// \todo: implement check
-    //CheckResumeSimulationIsDefined();
+    CheckResumeSimulationIsDefined("GetArchivedSimulationDir");
 
     return mpUserParameters->ResumeSimulation().get().ArchiveDirectory();
 }
@@ -859,7 +898,7 @@ double HeartConfig::GetPrintingTimeStep() const
 
 bool HeartConfig::GetUseAbsoluteTolerance() const
 {
-     return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
+    return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                             & mpDefaultParameters->Numerical().KSPTolerances(),
                             "KSPTolerances")->get().KSPAbsolute().present();
 }
@@ -888,7 +927,6 @@ double HeartConfig::GetRelativeTolerance() const
     {
         EXCEPTION("Relative tolerance is not set in Chaste parameters");
     }
-
     return DecideLocation( & mpUserParameters->Numerical().KSPTolerances(),
                            & mpDefaultParameters->Numerical().KSPTolerances(),
                            "KSPTolerances")->get().KSPRelative().get();
