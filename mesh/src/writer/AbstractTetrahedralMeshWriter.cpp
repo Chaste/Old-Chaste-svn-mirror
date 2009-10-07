@@ -149,18 +149,49 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
             }
             this->SetNextNode(coords);
         }
-        else
-        {
-            assert(this->GetNumNodes() == 0);
-        }            
     }
     
-    TRACE("Only node file can be written at this stage");
+    unsigned raw_indices[ELEMENT_DIM+1];
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumElements(); i++)
+    {
+        try
+        {
+            Element<ELEMENT_DIM, SPACE_DIM>* p_element = rMesh.GetElement(i);
+            assert( p_element->IsDeleted() == false );
+            
+            if ( rMesh.CalculateDesignatedOwnershipOfElement( i ) == true )
+            {      
+                for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+                {
+                    raw_indices[j] = p_element->GetNodeGlobalIndex(j);
+                }
+                MPI_Send(raw_indices, ELEMENT_DIM+1, MPI_UNSIGNED, 0, i, PETSC_COMM_WORLD);
+            }
+            
+        }
+        catch (Exception e)
+        {
+        }
+        if (PetscTools::AmMaster())
+        {
+            MPI_Recv(raw_indices, ELEMENT_DIM+1, MPI_UNSIGNED, MPI_ANY_SOURCE, i, PETSC_COMM_WORLD, &status);
+            std::vector<unsigned> indices(ELEMENT_DIM+1);
+            for (unsigned j=0; j<indices.size(); j++)
+            {
+                indices[j] = raw_indices[j];
+            }
+            this->SetNextElement(indices);
+        }
+    }
+    
+    TRACE("Only node and element files can be written at this stage");
     //Master writes as usual
     if (PetscTools::AmMaster())
     {
         this->WriteFiles();
     }
+    
+    PetscTools::Barrier();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

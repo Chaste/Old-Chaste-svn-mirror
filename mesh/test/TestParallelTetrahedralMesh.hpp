@@ -1108,12 +1108,34 @@ public:
         
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
     }
-    void TestParallelWriting()
+    
+    void TestParallelWriting1D()
+    {
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
+        TetrahedralMesh<1,1> sequential_mesh;
+        sequential_mesh.ConstructFromMeshReader(reader);
+        TrianglesMeshWriter<1,1> mesh_writer1("TestParallelMeshWriter", "seq_line_10_elements");
+        mesh_writer1.WriteFilesUsingMesh(sequential_mesh);
+
+        ParallelTetrahedralMesh<1,1> parallel_mesh(ParallelTetrahedralMesh<1,1>::DUMB); //Makes sure that there is no permutation
+        AbstractTetrahedralMesh<1,1> *p_parallel_mesh = &parallel_mesh; //Hide the fact that it's parallel from the compiler
+        reader.Reset();
+        parallel_mesh.ConstructFromMeshReader(reader);
+        TrianglesMeshWriter<1,1> mesh_writer2("TestParallelMeshWriter", "par_line_10_elements", false);
+        mesh_writer2.WriteFilesUsingMesh(*p_parallel_mesh);
+        
+        std::string output_dir = mesh_writer1.GetOutputDirectory();
+        
+        TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_line_10_elements.node "+ output_dir + "/seq_line_10_elements.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_line_10_elements.ele "+ output_dir + "/seq_line_10_elements.ele").c_str()), 0);  
+    }
+    
+    void TestParallelWriting3D()
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> sequential_mesh;
         sequential_mesh.ConstructFromMeshReader(reader);
-        TrianglesMeshWriter<3,3> mesh_writer1("TestParallelMeshWriter", "seq_cube_2mm_12_elements");
+        TrianglesMeshWriter<3,3> mesh_writer1("TestParallelMeshWriter", "seq_cube_2mm_12_elements", false);
         mesh_writer1.WriteFilesUsingMesh(sequential_mesh);
 
         ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); //Makes sure that there is no permutation
@@ -1126,7 +1148,7 @@ public:
         std::string output_dir = mesh_writer1.GetOutputDirectory();
         
         TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.node "+ output_dir + "/seq_cube_2mm_12_elements.node").c_str()), 0);
-        //TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.ele "+ output_dir + "/seq_cube_2mm_12_elements.ele").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.ele "+ output_dir + "/seq_cube_2mm_12_elements.ele").c_str()), 0);
         //TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.face "+ output_dir + "/seq_cube_2mm_12_elements.face").c_str()), 0);
   
     }

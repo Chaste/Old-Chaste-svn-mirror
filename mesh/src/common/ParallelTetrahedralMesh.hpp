@@ -191,7 +191,16 @@ public:
      */
     void SetElementOwnerships(unsigned lo, unsigned hi);
 
-     /**
+
+    /**
+     * Determine whether or not the current process owns node 0 of this element (tie breaker to determine which process writes
+     * to file for when two or more share ownership of an element).
+     * 
+     * @param elementIndex is the global index of the element
+     */
+    bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex ) const;
+         
+    /**
      * Construct a 1D linear grid on [0,width]
      * 
      * Throws if there are more processes than the number of nodes (width+1)

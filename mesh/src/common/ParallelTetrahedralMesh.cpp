@@ -348,6 +348,22 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsig
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfElement( unsigned elementIndex ) const
+{
+    try
+    {
+        unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0); // throws an exception if we don't own the element
+        SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
+        return true;   
+    }
+    catch(Exception e)      // either we don't own the element or we don't own node 0 of a shared element
+    {
+        return false;
+    }
+        
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterNode(unsigned index)
 {
     mNodesMapping[index] = this->mNodes.size();
