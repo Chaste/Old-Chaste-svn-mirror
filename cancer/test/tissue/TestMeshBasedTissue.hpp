@@ -521,7 +521,7 @@ public:
     // This test checks that the cells and nodes are correctly archived.
     void TestArchivingMeshBasedTissue() throw (Exception)
     {
-        OutputFileHandler handler("archive",false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mesh_based_tissue.arch";
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"mesh_based_tissue_mesh");
 

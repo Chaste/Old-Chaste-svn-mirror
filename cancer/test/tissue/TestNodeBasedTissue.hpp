@@ -648,7 +648,7 @@ public:
 
     void TestArchivingTissue() throw (Exception)
     {
-        OutputFileHandler handler("archive",false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "NodeBasedTissue.arch";
 
         // Archive a simple tissue

@@ -101,14 +101,14 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     double rest_length = 1.0;
 
-    double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
-    double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
+    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
+
+    double ageA = r_cell_A.GetAge();
+    double ageB = r_cell_B.GetAge();
 
     assert(!std::isnan(ageA));
     assert(!std::isnan(ageB));
-
-    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
     /*
      * If the cells are both newly divided, then the rest length of the spring
@@ -148,14 +148,14 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      * If either of the cells has begun apoptosis, then the length of the spring
      * connecting them decreases linearly with time.
      */
-    if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    if (r_cell_A.HasApoptosisBegun())
     {
-        double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
+        double time_until_death_a = r_cell_A.GetTimeUntilDeath();
         a_rest_length = a_rest_length*(time_until_death_a)/(TissueConfig::Instance()->GetApoptosisTime());
     }
-    if (rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    if (r_cell_B.HasApoptosisBegun())
     {
-        double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
+        double time_until_death_b = r_cell_B.GetTimeUntilDeath();
         b_rest_length = b_rest_length*(time_until_death_b)/(TissueConfig::Instance()->GetApoptosisTime());
     }
 
@@ -172,12 +172,13 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
-    double multiplication_factor = 1.0;
-    multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
+    double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
+    double spring_stiffness = TissueConfig::Instance()->GetSpringStiffness();
+    double overlap = distance_between_nodes - rest_length;
 
     if (rTissue.HasMesh())
     {
-        return multiplication_factor * TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+        return multiplication_factor * spring_stiffness * unit_difference * overlap;
     }
     else
     {
@@ -185,7 +186,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         if (distance_between_nodes > rest_length)
         {
             double alpha = 5;
-            c_vector<double, DIM> temp = TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length)*exp(-alpha*(distance_between_nodes-rest_length));
+            c_vector<double, DIM> temp = spring_stiffness * unit_difference * overlap * exp(-alpha * overlap);
             for (unsigned i=0; i<DIM; i++)
             {
                 assert(!std::isnan(temp[i]));
@@ -194,7 +195,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         }
         else
         {
-            c_vector<double, DIM> temp = TissueConfig::Instance()->GetSpringStiffness() * unit_difference * log(1 + distance_between_nodes - rest_length);
+            c_vector<double, DIM> temp = spring_stiffness * unit_difference * log(1 + overlap);
             for (unsigned i=0; i<DIM; i++)
             {
                 assert(!std::isnan(temp[i]));

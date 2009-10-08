@@ -130,7 +130,7 @@ void TissueSimulationWithNutrients<DIM>::SetupSolve()
 template<unsigned DIM>
 void TissueSimulationWithNutrients<DIM>::SetupWriteNutrient()
 {
-    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/",false);
+    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory+"/", false);
     if (PetscTools::AmMaster())
     {
         mpNutrientResultsFile = output_file_handler.OpenOutputFile("results.viznutrient");
@@ -288,11 +288,12 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPde()
         bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
     }
 
-    // Set up assembler - note this is a purpose-made elliptic assembler
-    // that interpolates the source terms from node onto gauss points,
-    // as for a nutrients simulation the source will only be known at the
-    // cells (nodes), not the gauss points
-    TissueSimulationWithNutrientsAssembler<DIM> assembler(&r_mesh,mpPde,&bcc);
+    /*
+     * Set up assembler. This is a purpose-made elliptic assembler which must
+     * interpolate contributions to source terms from nodes onto Gauss points,
+     * because the nutrient concentration is only stored at the cells (nodes).
+     */
+    TissueSimulationWithNutrientsAssembler<DIM> assembler(&r_mesh, mpPde, &bcc);
 
     PetscInt size_of_soln_previous_step = 0;
 
@@ -454,7 +455,7 @@ void TissueSimulationWithNutrients<DIM>::SolveNutrientPdeUsingCoarseMesh()
     // the cell locations
     ReplicatableVector nutrient_repl(mNutrientSolution);
 
-    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
         cell_iter != this->mrTissue.End();
         ++cell_iter)
     {
@@ -528,11 +529,15 @@ void TissueSimulationWithNutrients<DIM>::PostSolve()
     }
 
 #define COVERAGE_IGNORE
-    // Note: The number of timesteps per day is equal to 2880=24*120
-    if ( mWriteDailyAverageRadialNutrientResults &&
-         (p_time->GetTimeStepsElapsed()+1)%2880==0 )
+    if (mWriteDailyAverageRadialNutrientResults)
     {
-        WriteAverageRadialNutrientDistribution(time_next_step, mNumRadialIntervals);
+        ///\todo Worry about round-off errors
+        unsigned num_timesteps_per_day = (unsigned) (DBL_EPSILON + 24/SimulationTime::Instance()->GetTimeStep());
+
+        if ((p_time->GetTimeStepsElapsed()+1) % num_timesteps_per_day == 0)
+        {
+            WriteAverageRadialNutrientDistribution(time_next_step, mNumRadialIntervals);
+        }
     }
 #undef COVERAGE_IGNORE
 
@@ -552,21 +557,21 @@ void TissueSimulationWithNutrients<DIM>::WriteNutrient(double time)
 
         (*mpNutrientResultsFile) << time << "\t";
 
-        unsigned global_index;
-        double x;
-        double y;
-        double nutrient;
-
         for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
              cell_iter != this->mrTissue.End();
              ++cell_iter)
         {
-            global_index = this->mrTissue.GetLocationIndexUsingCell(*cell_iter);
-            x = this->mrTissue.GetLocationOfCellCentre(*cell_iter)[0];
-            y = this->mrTissue.GetLocationOfCellCentre(*cell_iter)[1];
-            nutrient = CellwiseData<DIM>::Instance()->GetValue(*cell_iter);
+            unsigned global_index = this->mrTissue.GetLocationIndexUsingCell(*cell_iter);
+            (*mpNutrientResultsFile) << global_index << " ";
 
-            (*mpNutrientResultsFile) << global_index << " " << x << " " << y << " " << nutrient << " ";
+            const c_vector<double,DIM>& position = this->mrTissue.GetLocationOfCellCentre(*cell_iter);
+            for (unsigned i=0; i<DIM; i++)
+            {
+                (*mpNutrientResultsFile) << position[i] << " ";
+            }
+
+            double nutrient = CellwiseData<DIM>::Instance()->GetValue(*cell_iter);
+            (*mpNutrientResultsFile) << nutrient << " ";
         }
         (*mpNutrientResultsFile) << "\n";
     }
@@ -585,27 +590,27 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
 {
     (*mpAverageRadialNutrientResultsFile) << time << " ";
 
-    // Get reference to the mesh and its size
-    TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
-    unsigned num_nodes = r_mesh.GetNumNodes();
-
     // Calculate the centre of the tissue
     c_vector<double,DIM> centre = zero_vector<double>(DIM);
-    for (unsigned i=0; i< num_nodes; i++)
+    double num_nodes_as_double = (double) this->mrTissue.GetNumNodes();
+
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+         cell_iter != this->mrTissue.End();
+         ++cell_iter)
     {
-        centre += r_mesh.GetNode(i)->rGetLocation();
+       centre += (this->mrTissue.GetLocationOfCellCentre(*cell_iter)) / num_nodes_as_double; 
     }
-    centre /= (double) num_nodes;
 
     // Calculate the distance between each node and the centre of the tissue, as well as the maximum of these
     std::map<double, TissueCell*> distance_cell_map;
 
     double max_distance_from_centre = 0.0;
-
-    for (unsigned i=0; i<this->mrTissue.GetNumRealCells(); i++)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+         cell_iter != this->mrTissue.End();
+         ++cell_iter)
     {
-        double distance = norm_2(r_mesh.GetNode(i)->rGetLocation() - centre);
-        distance_cell_map[distance] = &(this->mrTissue.rGetCellUsingLocationIndex(i));
+        double distance = norm_2(this->mrTissue.GetLocationOfCellCentre(*cell_iter) - centre);
+        distance_cell_map[distance] = &(*cell_iter);
 
         if (distance > max_distance_from_centre)
         {
@@ -649,7 +654,6 @@ void TissueSimulationWithNutrients<DIM>::WriteAverageRadialNutrientDistribution(
     }
     (*mpAverageRadialNutrientResultsFile) << "\n";
 }
-
 
 
 /////////////////////////////////////////////////////////////////////////////

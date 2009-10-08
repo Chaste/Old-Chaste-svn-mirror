@@ -133,14 +133,14 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
 
     double rest_length = 1.0;
 
-    double ageA = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).GetAge();
-    double ageB = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).GetAge();
+    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
+
+    double ageA = r_cell_A.GetAge();
+    double ageB = r_cell_B.GetAge();
 
     assert(!std::isnan(ageA));
     assert(!std::isnan(ageB));
-
-    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
 
     /*
      * If the cells are both newly divided, then the rest length of the spring
@@ -172,14 +172,14 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
      * If either of the cells has begun apoptosis, then the length of the spring
      * connecting them decreases linearly with time.
      */
-    if (rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).HasApoptosisBegun())
+    if (r_cell_A.HasApoptosisBegun())
     {
-        double time_until_death_a = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex).TimeUntilDeath();
+        double time_until_death_a = r_cell_A.GetTimeUntilDeath();
         a_rest_length = a_rest_length*(time_until_death_a)/(TissueConfig::Instance()->GetApoptosisTime());
     }
-    if (rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).HasApoptosisBegun())
+    if (r_cell_B.HasApoptosisBegun())
     {
-        double time_until_death_b = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex).TimeUntilDeath();
+        double time_until_death_b = r_cell_B.GetTimeUntilDeath();
         b_rest_length = b_rest_length*(time_until_death_b)/(TissueConfig::Instance()->GetApoptosisTime());
     }
 

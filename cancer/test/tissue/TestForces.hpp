@@ -734,7 +734,7 @@ public:
             input_arch >> p_linear_force;
 
             // Test the member data
-            TS_ASSERT_EQUALS(p_linear_force->mUseCutoffPoint,true);
+            TS_ASSERT_EQUALS(p_linear_force->mUseCutoffPoint, true);
             TS_ASSERT_EQUALS(TissueConfig::Instance()->GetMechanicsCutOffLength(), 1.1);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);

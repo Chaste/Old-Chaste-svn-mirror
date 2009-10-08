@@ -35,38 +35,38 @@ DiscreteSystemForceCalculator::DiscreteSystemForceCalculator(MeshBasedTissue<2>&
 {
 }
 
+
 std::vector< std::vector<double> > DiscreteSystemForceCalculator::CalculateExtremalNormalForces()
 {
+    unsigned num_nodes = mrTissue.GetNumNodes();
+
     std::vector< std::vector<double> > extremal_normal_forces;
+    std::vector<double> minimum_normal_forces(num_nodes);
+    std::vector<double> maximum_normal_forces(num_nodes);
 
-    TetrahedralMesh<2,2>& r_mesh = mrTissue.rGetMesh();
-
-    std::vector<double> minimum_normal_forces(r_mesh.GetNumNodes());
-    std::vector<double> maximum_normal_forces(r_mesh.GetNumNodes());
-
-    for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<num_nodes; i++)
     {
         std::vector<double> sampling_angles = GetSamplingAngles(i);
-        std::vector<double> extremal_angles = GetExtremalAngles(i,sampling_angles);
+        std::vector<double> extremal_angles = GetExtremalAngles(i, sampling_angles);
 
         double minimum_normal_force_for_node_i = DBL_MAX;
         double maximum_normal_force_for_node_i = -DBL_MAX;
 
-        double current_normal_force;
-
         for (unsigned j=0; j<extremal_angles.size(); j++)
         {
-            current_normal_force = CalculateFtAndFn(i,extremal_angles[j])[1];
+            double current_normal_force = CalculateFtAndFn(i, extremal_angles[j])[1];
+
             if (current_normal_force > maximum_normal_force_for_node_i)
             {
                 maximum_normal_force_for_node_i = current_normal_force;
             }
-
             if (current_normal_force < minimum_normal_force_for_node_i)
             {
                 minimum_normal_force_for_node_i = current_normal_force;
             }
         }
+
+        assert( minimum_normal_force_for_node_i <= maximum_normal_force_for_node_i);
 
         minimum_normal_forces[i] = minimum_normal_force_for_node_i;
         maximum_normal_forces[i] = maximum_normal_force_for_node_i;
@@ -84,9 +84,9 @@ void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOut
     double time = SimulationTime::Instance()->GetTime();
     std::ostringstream time_string;
     time_string << time;
-    std::string results_directory = simulationOutputDirectory +"/results_from_time_" + time_string.str();
+    std::string results_directory = simulationOutputDirectory + "/results_from_time_" + time_string.str();
 
-    OutputFileHandler output_file_handler2(results_directory+"/",false);
+    OutputFileHandler output_file_handler2(results_directory+"/", false);
     mpStressResultsFile = output_file_handler2.OpenOutputFile("results.vizstress");
 
     (*mpStressResultsFile) <<  time << "\t";
@@ -110,12 +110,14 @@ void DiscreteSystemForceCalculator::WriteResultsToFile(std::string simulationOut
 
         minimum = extremal_normal_forces[0][i];
         maximum = extremal_normal_forces[1][i];
+
         (*mpStressResultsFile) << global_index << " " << x << " " << y << " " << minimum << " " << maximum << " ";
     }
 
     (*mpStressResultsFile) << "\n";
     mpStressResultsFile->close();
 }
+
 
 std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(unsigned index)
 {
@@ -141,6 +143,7 @@ std::set<unsigned> DiscreteSystemForceCalculator::GetNeighbouringNodeIndices(uns
     }
     return neighbouring_node_indices;
 }
+
 
 std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned index, double theta)
 {
@@ -171,7 +174,7 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
 
             // Iterate over vector of forces present and add up forces between nodes
             for (std::vector<AbstractTwoBodyInteractionForce<2>*>::iterator force_iter = mForceCollection.begin();
-                 force_iter !=mForceCollection.end();
+                 force_iter != mForceCollection.end();
                  force_iter++)
             {
                force_between_nodes += (*force_iter)->CalculateForceBetweenNodes(index, *iter, mrTissue);
@@ -192,6 +195,7 @@ std::vector<double> DiscreteSystemForceCalculator::CalculateFtAndFn(unsigned ind
 
     return ret;
 }
+
 
 std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned index)
 {
@@ -264,6 +268,7 @@ std::vector<double> DiscreteSystemForceCalculator::GetSamplingAngles(unsigned in
     return sampling_angles;
 }
 
+
 double DiscreteSystemForceCalculator::GetLocalExtremum(unsigned index, double angle1, double angle2)
 {
     // We always pass in angle1 and angle2 such that angle1<angle2,
@@ -289,11 +294,12 @@ double DiscreteSystemForceCalculator::GetLocalExtremum(unsigned index, double an
         counter++;
     }
 
-    assert( current_angle>angle1 && current_angle<angle2 );
-    assert( current_error < tolerance );
+    assert(current_angle>angle1 && current_angle<angle2);
+    assert(current_error < tolerance);
 
     return current_angle;
 }
+
 
 std::vector<double> DiscreteSystemForceCalculator::GetExtremalAngles(unsigned index, std::vector<double> samplingAngles)
 {

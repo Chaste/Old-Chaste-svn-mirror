@@ -479,7 +479,7 @@ void Cylindrical2dMesh::SetNode(unsigned index, ChastePoint<2> point, bool concr
         // Move point to the left
         point.SetCoordinate(0, point.rGetLocation()[0] - mWidth);
     }
-    if (point.rGetLocation()[0] < 0.0)
+    else if (point.rGetLocation()[0] < 0.0)
     {
         // Move point to the right
         point.SetCoordinate(0, point.rGetLocation()[0] + mWidth);

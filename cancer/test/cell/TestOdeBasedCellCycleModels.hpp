@@ -808,7 +808,7 @@ public:
             TissueCell cell(TRANSIT, HEALTHY, p_model);
             cell.InitialiseCellCycleModel();
 
-            TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);
+            TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
 
             p_model->SetBirthTime(-1.0);
 
@@ -841,7 +841,7 @@ public:
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
 
             // Test archiving
-            TS_ASSERT_EQUALS(p_model->ReadyToDivide(),true);
+            TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
             TS_ASSERT_DELTA(p_model->GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(),101.0,1e-12);
             delete p_cell;
@@ -867,9 +867,9 @@ public:
             stem_cell.InitialiseCellCycleModel();
 
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),false);
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),true);
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), true);
 
             // Should be in G2 after a couple of timesteps
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
@@ -944,9 +944,9 @@ public:
             stem_cell.InitialiseCellCycleModel();
 
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),false);
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(),true);
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), true);
 
             stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
 
@@ -1033,8 +1033,8 @@ public:
                 p_simulation_time->IncrementTimeOneStep();
             }
 
-            TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->ReadyToDivide(),false);
-            TS_ASSERT_EQUALS(wnt_cell.GetCellCycleModel()->ReadyToDivide(),false);
+            TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->ReadyToDivide(), false);
+            TS_ASSERT_EQUALS(wnt_cell.GetCellCycleModel()->ReadyToDivide(), false);
             TS_ASSERT_EQUALS(stoc_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_ONE_PHASE);
 
             // When the above tests are included here they pass, so we

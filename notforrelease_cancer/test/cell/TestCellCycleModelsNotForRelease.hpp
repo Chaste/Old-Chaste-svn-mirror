@@ -188,10 +188,10 @@ public:
 
         // Check that the cell cycle phase and ready to divide
         // are updated correctly
-        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_hepa_one_model->GetCurrentCellCyclePhase(),M_PHASE);
 
-        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(),false);
+        TS_ASSERT_EQUALS(p_diff_model->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_diff_model->GetCurrentCellCyclePhase(),G_ZERO_PHASE);
 
         for (unsigned i=0; i<num_steps; i++)
@@ -203,7 +203,7 @@ public:
         }
 
         TS_ASSERT_DELTA(p_hepa_one_model->GetAge(), p_simulation_time->GetTime(), 1e-9);
-        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(),true);
+        TS_ASSERT_EQUALS(p_hepa_one_model->ReadyToDivide(), true);
 
         // Check that cell division correctly resets the cell cycle phase
         TS_ASSERT_EQUALS(hepa_one_cell.ReadyToDivide(), true);

@@ -219,7 +219,7 @@ double TissueCell::GetStartOfApoptosisTime() const
     return mStartOfApoptosisTime;
 }
 
-double TissueCell::TimeUntilDeath() const
+double TissueCell::GetTimeUntilDeath() const
 {
     if (!mUndergoingApoptosis || mDeathTime==DBL_MAX)
     {

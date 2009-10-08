@@ -179,6 +179,6 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
 
 std::vector<TissueCell*> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop)
 {
-   return GetCryptSection(xBottom,xTop,yTop,true);
+   return GetCryptSection(xBottom, xTop, yTop, true);
 }
 

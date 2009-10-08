@@ -260,7 +260,7 @@ public:
     /**
      * @return How long until the cell dies (if it is in apoptosis, throws an exception if not)
      */
-    double TimeUntilDeath() const;
+    double GetTimeUntilDeath() const;
 
     /**
      * Return whether the cell is dead or undergoing apoptosis.

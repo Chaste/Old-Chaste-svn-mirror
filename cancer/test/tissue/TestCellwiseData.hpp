@@ -163,7 +163,7 @@ public:
         MeshBasedTissue<2> tissue(mesh,cells);
 
         // Work out where to put the archive
-        OutputFileHandler handler("archive",false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cellwise_data.arch";
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cellwise_data_mesh");
 

@@ -79,7 +79,7 @@ void CellwiseDataGradient<DIM>::SetupGradients()
                 break;
             }
 
-            // If no ghost element, get nutrient conc
+            // If no ghost element, get nutrient concentration
             TissueCell& r_cell = r_tissue.rGetCellUsingLocationIndex(node_global_index);
             double nutrient_concentration = CellwiseData<DIM>::Instance()->GetValue(r_cell, 0);
 

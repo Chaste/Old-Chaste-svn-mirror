@@ -976,34 +976,34 @@ public:
         TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
         cell.InitialiseCellCycleModel();
 
-        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
-        TS_ASSERT_EQUALS(cell.IsDead(),false);
-        TS_ASSERT_THROWS_THIS(cell.TimeUntilDeath(),"Shouldn\'t be checking time until apoptosis as it isn\'t set");
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(), false);
+        TS_ASSERT_EQUALS(cell.IsDead(), false);
+        TS_ASSERT_THROWS_THIS(cell.GetTimeUntilDeath(),"Shouldn\'t be checking time until apoptosis as it isn\'t set");
 
         p_simulation_time->IncrementTimeOneStep(); // t=0.2
 
         cell.StartApoptosis();
         TS_ASSERT_THROWS_THIS(cell.StartApoptosis(),"StartApoptosis() called when already undergoing apoptosis");
 
-        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
-        TS_ASSERT_EQUALS(cell.IsDead(),false);
-        TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.25,1e-12);
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(), true);
+        TS_ASSERT_EQUALS(cell.IsDead(), false);
+        TS_ASSERT_DELTA(cell.GetTimeUntilDeath(),0.25,1e-12);
 
         // Check that we can copy a cell that has started apoptosis
         TissueCell cell2(cell);
 
         p_simulation_time->IncrementTimeOneStep(); // t=0.4
-        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
-        TS_ASSERT_EQUALS(cell.IsDead(),false);
-        TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.05,1e-12);
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(), true);
+        TS_ASSERT_EQUALS(cell.IsDead(), false);
+        TS_ASSERT_DELTA(cell.GetTimeUntilDeath(),0.05,1e-12);
 
-        TS_ASSERT_EQUALS(cell2.HasApoptosisBegun(),true);
-        TS_ASSERT_EQUALS(cell2.IsDead(),false);
-        TS_ASSERT_DELTA(cell2.TimeUntilDeath(),0.05,1e-12);
+        TS_ASSERT_EQUALS(cell2.HasApoptosisBegun(), true);
+        TS_ASSERT_EQUALS(cell2.IsDead(), false);
+        TS_ASSERT_DELTA(cell2.GetTimeUntilDeath(),0.05,1e-12);
 
         p_simulation_time->IncrementTimeOneStep(); // t=0.6
-        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
-        TS_ASSERT_EQUALS(cell.IsDead(),true);
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(), true);
+        TS_ASSERT_EQUALS(cell.IsDead(), true);
     }
 
 
@@ -1117,7 +1117,7 @@ public:
 
     void TestArchiveCell() throw(Exception)
     {
-        OutputFileHandler handler("archive",false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cell.arch";
 
         // Archive a cell

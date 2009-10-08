@@ -689,7 +689,7 @@ public:
 
         TS_ASSERT_LESS_THAN(later_apoptotic_target_area, initial_apoptotic_target_area);
 
-        TS_ASSERT_DELTA(tissue.rGetCellUsingLocationIndex(0).TimeUntilDeath(), 0.125, 1e-6);
+        TS_ASSERT_DELTA(tissue.rGetCellUsingLocationIndex(0).GetTimeUntilDeath(), 0.125, 1e-6);
 
         for (unsigned i=0; i<tissue.GetNumNodes(); i++)
         {

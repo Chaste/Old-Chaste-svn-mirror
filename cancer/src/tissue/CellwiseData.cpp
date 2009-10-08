@@ -27,15 +27,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "CellwiseData.hpp"
 
-/** Pointer to the single instance */
+
 template<unsigned DIM>
 CellwiseData<DIM>* CellwiseData<DIM>::mpInstance = NULL;
 
 
-/*
- * Return a pointer to the CellwiseData object.
- * The first time this is called, the object is created.
- */
 template<unsigned DIM>
 CellwiseData<DIM>* CellwiseData<DIM>::Instance()
 {
@@ -75,6 +71,7 @@ void CellwiseData<DIM>::Destroy()
     }
 }
 
+
 template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
 {
@@ -94,6 +91,7 @@ double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
     return mData[vector_index];
 }
 
+
 template<unsigned DIM>
 void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variableNumber)
 {
@@ -102,6 +100,7 @@ void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variab
     unsigned vector_index = pNode->GetIndex()*mNumberOfVariables + variableNumber;
     mData[vector_index] = value;
 }
+
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetTissue(MeshBasedTissue<DIM>& rTissue)
@@ -113,6 +112,7 @@ void CellwiseData<DIM>::SetTissue(MeshBasedTissue<DIM>& rTissue)
 
     mpTissue=&rTissue;
 }
+
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>& CellwiseData<DIM>::rGetTissue()
@@ -129,7 +129,7 @@ void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfV
         EXCEPTION("SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
     }
 
-    assert(numberOfVariables>0);
+    assert(numberOfVariables > 0);
     assert(mAllocatedMemory==false);
 
     mNumberOfVariables = numberOfVariables;
@@ -139,11 +139,13 @@ void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfV
     mAllocatedMemory = true;
 }
 
+
 template<unsigned DIM>
 bool CellwiseData<DIM>::IsSetUp()
 {
     return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpTissue!=NULL));
 }
+
 
 template<unsigned DIM>
 void CellwiseData<DIM>::ReallocateMemory()
@@ -158,6 +160,7 @@ void CellwiseData<DIM>::ReallocateMemory()
         mData.resize(num_nodes * mNumberOfVariables, 0.0);
     }
 }
+
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double> values)

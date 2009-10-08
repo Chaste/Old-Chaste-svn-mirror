@@ -263,7 +263,7 @@ public:
 
     void TestArchiveWntConcentration()
     {
-        OutputFileHandler handler("archive",false);
+        OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_grad.arch";
 
         // Create an output archive

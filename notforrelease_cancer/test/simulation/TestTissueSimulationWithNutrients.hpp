@@ -466,7 +466,7 @@ public:
          */
 
         // Work out where the previous test wrote its files
-        OutputFileHandler handler("TestSpheroidStatistics",false);
+        OutputFileHandler handler("TestSpheroidStatistics", false);
         std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/tissueareas.dat";
         TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " notforrelease_cancer/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
 
@@ -790,7 +790,7 @@ public:
         TS_ASSERT_DELTA(node_15_location[1], 2.5977, 1e-4);
 
         // Test CellwiseData was set up correctly
-        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(),true);
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
         // Test the CellwiseData result
         TS_ASSERT_DELTA(p_data->GetValue(p_simulator->rGetTissue().rGetCellUsingLocationIndex(5)), 0.9604, 1e-4);

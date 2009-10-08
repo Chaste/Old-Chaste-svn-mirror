@@ -372,7 +372,7 @@ public:
 //        new_location[1] = -1.760;
 //        ChastePoint<2> boundary_point(new_location);
 //        // We just move one of the bottom boundary nodes and then...
-//        p_mesh->SetNode(0, boundary_point,false);
+//        p_mesh->SetNode(0, boundary_point, false);
 //        // check that all the nodes on this boundary have moved down
 //        for (unsigned i=0; i<3; i++)
 //        {
@@ -383,7 +383,7 @@ public:
 //        new_location = p_mesh->GetNode(19)->rGetLocation();
 //        new_location[1] = 4.0;
 //        ChastePoint<2> boundary_point2(new_location);
-//        p_mesh->SetNode(19, boundary_point2,false);
+//        p_mesh->SetNode(19, boundary_point2, false);
 //        // check that all the nodes on this boundary have moved up
 //        for (unsigned i=18; i<21; i++)
 //        {
@@ -410,7 +410,7 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 1.0000, 1e-4);
 
         new_point.SetCoordinate(0, 3.0001);
-        p_mesh->SetNode(0, new_point,false);
+        p_mesh->SetNode(0, new_point, false);
 
         // This node was on right and is now on the left
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 0.0001, 1e-4);
