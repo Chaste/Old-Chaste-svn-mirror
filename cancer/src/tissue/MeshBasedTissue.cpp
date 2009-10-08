@@ -418,16 +418,40 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
 
     *mpElementFile <<  SimulationTime::Instance()->GetTime() << "\t";
 
+    bool element_contains_dead_cells_or_deleted_nodes = false;
+    
     for (typename MutableMesh<DIM,DIM>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
          elem_iter != mrMesh.GetElementIteratorEnd();
          ++elem_iter)
     {
+        // Hack that covers the case where the element contains a node that is associated with a cell that has just been killed (#1129)
+        ///\todo Improve this!
         for (unsigned i=0; i<DIM+1; i++)
         {
-            *mpElementFile << elem_iter->GetNodeGlobalIndex(i) << " ";
+            unsigned node_index = elem_iter->GetNodeGlobalIndex(i);
+    
+            if (this->GetNode(node_index)->IsDeleted())
+            {
+                element_contains_dead_cells_or_deleted_nodes = true;
+                break;
+            }
+            else if (this->mLocationCellMap[node_index])
+            {
+                if (this->mLocationCellMap[node_index]->IsDead())
+                {
+                    element_contains_dead_cells_or_deleted_nodes = true;
+                    break;
+                }
+            }
+        }
+        if (!element_contains_dead_cells_or_deleted_nodes)
+        {
+            for (unsigned i=0; i<DIM+1; i++)
+            {
+                *mpElementFile << elem_iter->GetNodeGlobalIndex(i) << " ";
+            }
         }
     }
-
     *mpElementFile << "\n";
 
     switch (DIM)

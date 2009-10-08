@@ -48,21 +48,15 @@ c_vector<double, 2> Cylindrical2dVertexMesh::GetVectorFromAtoB(const c_vector<do
 {
     assert(mWidth > 0.0);
 
-    c_vector<double, 2> location1 = rLocation1;
-    c_vector<double, 2> location2 = rLocation2;
-
-    location1[0] = fmod(location1[0], mWidth);
-    location2[0] = fmod(location2[0], mWidth);
-
-    c_vector<double, 2> vector = location2 - location1;
-
-    // We handle the cylindrical condition here: if the points are more than halfway
-    // around the cylinder apart, measure the other way
+    c_vector<double, 2> vector = rLocation2 - rLocation1;
+    vector[0] = fmod(vector[0], mWidth);
+    
+    // If the points are more than halfway around the cylinder apart, measure the other way
     if (vector[0] > mWidth/2.0)
     {
         vector[0] -= mWidth;
     }
-    if (vector[0] < -mWidth/2.0)
+    else if (vector[0] < -mWidth/2.0)
     {
         vector[0] += mWidth;
     }
@@ -79,7 +73,7 @@ void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
         // Move point to the left
         point.SetCoordinate(0, x_coord - mWidth);
     }
-    if (x_coord < 0.0)
+    else if (x_coord < 0.0)
     {
         // Move point to the right
         point.SetCoordinate(0, x_coord + mWidth);
@@ -92,8 +86,8 @@ void Cylindrical2dVertexMesh::SetNode(unsigned nodeIndex, ChastePoint<2> point)
 double Cylindrical2dVertexMesh::GetWidth(const unsigned& rDimension) const
 {
     double width = 0.0;
-    assert(rDimension==0u || rDimension==1u);
-    if (rDimension==0u)
+    assert(rDimension==0 || rDimension==1);
+    if (rDimension==0)
     {
         width = mWidth;
     }
