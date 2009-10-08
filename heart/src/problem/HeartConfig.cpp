@@ -1681,6 +1681,7 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDoc
     if (mUseFixedSchemaLocation)
     {
         ///\todo #1131 - avoid the repetition with ReadFile
+        /// Use xsd/cxx/xml/dom/parsing-source.txx to read props and set fgXercesSchemaExternalSchemaLocation etc.
         std::string schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_2.xsd";
         p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
         schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_1.xsd";
@@ -1704,6 +1705,11 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDoc
 #else
     xml::dom::auto_ptr<DOMDocument> p_doc(p_parser->parse(wrap));
 #endif
+
+    if (ehp.failed())
+    {
+        p_doc.reset();
+    }
 
     eh.throw_if_failed<tree::parsing<char> > ();
 
