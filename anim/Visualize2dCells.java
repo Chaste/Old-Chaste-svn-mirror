@@ -32,13 +32,15 @@ import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.text.DecimalFormat;
 import java.util.StringTokenizer;
 import java.lang.Math;
 import javax.imageio.ImageIO;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable
 {
@@ -1983,30 +1985,46 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     }
     
     private void drawNutrientColourBar() 
-    {   
+    {
     	int panelHeight = (int) (0.8 * vis.frame.getHeight());
         int panelWidth = (int) (0.8 * vis.frame.getWidth());
-        int num_blocks = 10;        
+
+        int num_blocks = 100;
+        int blockWidth = panelWidth/25;
         int blockHeight = panelHeight/(2*num_blocks);
-        int blockWidth = blockHeight;
-        
-    	String[] labels = {"1.0", "0.9", "0.8", "0.7", "0.6", "0.5", "0.4", "0.3", "0.2", "0.1", "0.0"};
-                
+
+    	// Draw nutrient colour bar
         for (int i=1; i<=num_blocks; i++)
         {       
             // Calculate colour 
             double conc = (double)(num_blocks - i)/(double)(num_blocks);
             int g = (int)(255.0 * conc);
             int b = (int)(200.0 - 80.0*conc); 
-            
-            Color colour = new Color(0,g,b);
-            g2.setColor(colour);
-            
-            g2.fillRect(panelWidth, i*blockHeight, blockWidth, blockHeight);
+
+            g2.setColor(new Color(0,g,b));
+            g2.fillRect(panelWidth, i*blockHeight+5, blockWidth, blockHeight);
+        }
+
+        // Populate vector of labels for nutrient colour bar
+        // If num_labels > 11 then change the decimal format as appropriate
+        int num_labels = 11;
+    	String[] labels = new String[num_labels];
+        NumberFormat formatter = new DecimalFormat("#0.0");
+
+    	for (int i=0; i<num_labels; i++)
+    	{
+    		double this_label_as_number = ((double) num_labels-1-i)*(1.0 / (double) (num_labels-1));
+    		String this_label_as_string = formatter.format(this_label_as_number).toString();
+    		labels[i] = this_label_as_string;
+    	}
+
+        // Draw labels next to nutrient colour bar
+    	int block_multiple = num_blocks / (num_labels-1);
+        for (int i=0; i<num_labels; i++)
+        {
             g2.setColor(Color.black);
-            g2.drawString(labels[i], panelWidth + blockWidth + 5, (i+1)*blockHeight); 
-        }   
-        g2.drawString(labels[0], panelWidth + blockWidth + 5, blockHeight);        
+            g2.drawString(labels[i], panelWidth + blockWidth + 5, (1 + block_multiple*i)*blockHeight + 5); 
+        }     
     }
     
     private void drawBetaCateninColourBar()  
