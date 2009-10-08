@@ -1,7 +1,0 @@
---generate-serialization
---hxx-suffix .hpp
---cxx-suffix .cpp
---prologue-file heart/src/io/XsdPrologue.txt
---epilogue-file heart/src/io/XsdEpilogue.txt
---namespace-regex X.* $Xchaste::parametersX
---namespace-regex X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X

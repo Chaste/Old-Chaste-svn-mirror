@@ -262,8 +262,13 @@ env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
 def run_xsd(schema_file):
     output_dir = os.path.dirname(schema_file)
     command = ' '.join([build.tools['xsd'], 'cxx-tree',
+                        '--generate-serialization',
                         '--output-dir', output_dir,
-                        '--options-file', 'heart/src/io/XsdOptions.txt',
+                        '--hxx-suffix', '.hpp', '--cxx-suffix', '.cpp',
+                        '--prologue-file', 'heart/src/io/XsdPrologue.txt',
+                        '--epilogue-file', 'heart/src/io/XsdEpilogue.txt',
+                        '--namespace-regex', "'X.* $Xchaste::parametersX'",
+                        '--namespace-regex', "'X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X'",
                         schema_file])
     print "Running xsd on", schema_file
     os.system(command)
