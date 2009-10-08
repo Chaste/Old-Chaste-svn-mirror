@@ -46,7 +46,8 @@ class NodeBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
     friend class TestNodeBasedTissue;
     friend class TestNodeBoxCollection;
-private:
+    
+protected:
 
     /** List of nodes. */
     std::vector<Node<DIM>* > mNodes;
@@ -56,6 +57,8 @@ private:
 
     /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
+    
+private:
 
     /** Pointer to a Node box collection */
     NodeBoxCollection<DIM>* mpNodeBoxCollection;

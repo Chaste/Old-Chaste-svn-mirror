@@ -68,10 +68,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean ancestorsFilePresent = false;
     public static boolean fibresFilePresent = false;
     public static boolean nutrientFilePresent = false;
+    public static boolean orientationFilePresent = false;
     public static boolean betaCateninFilePresent = false;
     public static boolean stressFilePresent = false;
     public static boolean elementFilePresent = true;
     public static boolean isSparseMesh = false;
+    public static boolean drawOrientations = false;
     // by default the last timestep isn't read or visualised; this
     // allows the visualiser to be run as a simulation is being run.
     // To visualise the last timestep, use "showlaststep" as an argument
@@ -104,6 +106,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static RealPoint[][] positions;
     public static RealPoint[][] fibres;
+    public static RealPoint[][] orientations;
     
     public static Scrollbar delay_slider = new Scrollbar(Scrollbar.HORIZONTAL, delay, 1, 1, 100);
     public static Scrollbar time_slider = new Scrollbar(Scrollbar.HORIZONTAL, timeStep, 1, 0, 2);
@@ -121,6 +124,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox ancestors = new Checkbox("Clonal Populations");
     public static Checkbox axes = new Checkbox("Axes");
     public static Checkbox axes_equal = new Checkbox("Axes Equal");
+    public static Checkbox orientation = new Checkbox("Orientation");
     
     public static JLabel nearest_label = new JLabel();
     
@@ -133,6 +137,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static File ancestors_file;
     public static File fibre_file;
     public static File setup_file;
+    public static File orientation_file;
     
     public static Button refresh;
     
@@ -362,6 +367,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
             System.out.println("Drawing clonal populations = " + drawAncestors); 
         }
+        else if (cb == orientation)
+        {
+            drawOrientations = state;
+            System.out.println("Drawing cell orientations = " + drawOrientations); 
+        }
         canvas.drawBufferedImage();
         canvas.repaint();
     }
@@ -473,6 +483,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         axes.addItemListener(this);
         axes_equal.addItemListener(this);
         ancestors.addItemListener(this);
+        orientation.addItemListener(this);
+        
         
         checkPanel.add(output);
         checkPanel.add(springs);
@@ -481,6 +493,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(circles);
         checkPanel.add(axes);
         checkPanel.add(axes_equal);
+        checkPanel.add(orientation);
         checkPanel.add(nutrient);
         checkPanel.add(beta_catenin);
         checkPanel.add(fibre);
@@ -488,7 +501,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(difference_stress);
         checkPanel.add(ancestors);
         checkPanel.add(nearest_label);
-                
+        
+        
         JPanel southPanel = new JPanel(new GridLayout(2,0));
         southPanel.add(scrollPanel_time);
         southPanel.add(checkPanel);
@@ -513,6 +527,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         axes.setState(true);
         axes_equal.setState(false);
         ancestors.setState(false);
+        orientation.setState(false);
         
         // Update states for options according to input args
         for (int i=1; i<args.length; i++)
@@ -580,6 +595,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 drawAncestors = true;
                 ancestors.setState(true);
             }
+            else if (args[i].equals("orientation"))
+            {
+                drawOrientations = true;
+                orientation.setState(true);
+            }
             else
             {
                 System.out.println("Input option not recognised");
@@ -595,6 +615,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         beta_catenin_file = new File(args[0]+"/results.vizbetacatenin");
         stress_file = new File(args[0]+"/results.vizstress");
         ancestors_file = new File(args[0]+"/results.vizancestors");
+        fibre_file = new File(args[0]+"/results.vizfibres");
+        orientation_file = new File(args[0]+"/results.vizorientation");
                 
         if (!node_file.isFile())
         {
@@ -662,8 +684,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             ancestors.setState(true);
             drawAncestors = true;
         }
-    
-        fibre_file = new File(args[0]+"/results.vizfibres");
+       
         if (!fibre_file.isFile())
         {
             fibre.setVisible(false);
@@ -675,6 +696,20 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             drawFibres = true;
             fibresFilePresent = true;
         }
+        
+        if (!orientation_file.isFile())
+        {
+            orientation.setVisible(false);
+            orientation.setState(false);
+            drawOrientations = false;
+        }
+        else
+        {
+        	orientationFilePresent = true;
+        	orientation.setState(true);
+            drawOrientations = true;
+        }
+        
         
         setup_file = new File(args[0]+"/results.vizsetup");
         if (!setup_file.isFile())
@@ -787,7 +822,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
             if (fibresFilePresent)
             {
-            	fibres =  new RealPoint[num_lines][];
+            	fibres = new RealPoint[num_lines][];
             }
             if (nutrientFilePresent)
             {
@@ -805,6 +840,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             {
             	ancestor_values = new int[num_lines][];
             }
+            if (orientationFilePresent)
+            {
+            	orientations = new RealPoint[num_lines][];
+            }
             
             String line_fibre = "";
             BufferedReader in_fibre_file = null;
@@ -815,6 +854,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 line_fibre = in_fibre_file.readLine();
             }
 
+            String line_orientation = "";
+            BufferedReader in_orientation_file = null;
+            if (drawOrientations)
+            {
+                orientations = new RealPoint[num_lines][]; 
+                in_orientation_file = new BufferedReader(new FileReader(orientation_file));
+                line_orientation = in_orientation_file.readLine();
+            }
+            
             String line_nutrient = "";
             BufferedReader in_nutrient_file = null;
             if (drawNutrient)
@@ -887,6 +935,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 StringTokenizer st_ancestors = null;
                 StringTokenizer st_beta_catenin = null;
                 StringTokenizer st_stress = null;
+                StringTokenizer st_orientation = null;
+                
                 
                 Double time = Double.valueOf(st_node.nextToken());
                 Double cell_type_time = Double.valueOf(st_cell_type.nextToken());
@@ -898,6 +948,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     //fibre_time unused
                 }
                 
+                
+                if (drawOrientations)
+                {
+                    st_orientation = new StringTokenizer(line_orientation);
+                    Double orientation_time = Double.valueOf(st_orientation.nextToken());
+                    //orientation_time unused
+                }
                 if (drawNutrient)
                 {
                     st_nutrient = new StringTokenizer(line_nutrient);
@@ -1008,7 +1065,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 positions[row] = new RealPoint[memory_factor*numCells[row]];
                 if (fibresFilePresent)
                 {
-                	fibres[row] = new RealPoint[numCells[row]];
+                	fibres[row] = new RealPoint[memory_factor*numCells[row]];
+                }
+                
+                if (orientationFilePresent)
+                {
+                	orientations[row] = new RealPoint[memory_factor*numCells[row]];
                 }
                 
                 if (nutrientFilePresent)
@@ -1043,6 +1105,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         double f1 = Double.valueOf(st_fibre.nextToken()).doubleValue();
                         double f2 = Double.valueOf(st_fibre.nextToken()).doubleValue();
                         fibres[row][i] = new RealPoint(f1,f2);
+                    }
+                    
+                    if (drawOrientations)
+                    {
+                        double o1 = Double.valueOf(st_orientation.nextToken()).doubleValue();
+                        double o2 = Double.valueOf(st_orientation.nextToken()).doubleValue();
+                        orientations[row][i] = new RealPoint(o1,o2);
                     }
                     
                     cell_type[row][i] = Integer.parseInt(st_cell_type.nextToken());
@@ -1144,6 +1213,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                     line_fibre = in_fibre_file.readLine();
                 }
+                if (drawOrientations)
+                {
+                	line_orientation = in_orientation_file.readLine();
+                }
                 if (drawNutrient)
                 {
                 	line_nutrient = in_nutrient_file.readLine();
@@ -1177,7 +1250,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             System.out.println("Drawing axes = "+ drawAxes);
             System.out.println("Drawing axes equal = "+ axesEqual);
             System.out.println("Drawing clonal populations = "+ drawAncestors);
+            System.out.println("Drawing orientations = "+ drawOrientations);
             System.out.println("Using sparse mesh = "+ isSparseMesh);
+            
             
             if (drawCylinder) 
             {
@@ -1852,6 +1927,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 
         // Draw nodes second so that dots are on top of lines
         double fibre_length = 1.2*node_radius;
+        double orientation_length = 5*node_radius;
         for (int i=0; i<vis.numCells[vis.timeStep]; i++) 
         {
         	PlotPoint p = scale(vis.positions[vis.timeStep][i]);
@@ -1869,7 +1945,13 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         		// \todo: Larger simulations would be clearer with smaller nodes
         		g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
         	}
-
+        	if (vis.drawOrientations)
+            {
+        		g2.setColor(Color.magenta);
+        		
+        		RealPoint orientation = vis.orientations[vis.timeStep][i];
+        	    g2.drawLine((int) (p.x-orientation_length*orientation.x), (int) (p.y+orientation_length*orientation.y), (int) (p.x+orientation_length*orientation.x), (int) (p.y-orientation_length*orientation.y) );
+            }
         	if (vis.drawFibres)
         	{
         		g2.setColor(Color.magenta);
