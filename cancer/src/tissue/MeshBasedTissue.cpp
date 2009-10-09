@@ -436,8 +436,11 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
             }
             else if (this->mLocationCellMap[node_index])
             {
-                element_contains_dead_cells_or_deleted_nodes = this->mLocationCellMap[node_index]->IsDead();
-                break;
+                if (this->mLocationCellMap[node_index]->IsDead())
+                {
+                    element_contains_dead_cells_or_deleted_nodes = true;
+                    break;
+                }
             }
         }
         if (!element_contains_dead_cells_or_deleted_nodes)
