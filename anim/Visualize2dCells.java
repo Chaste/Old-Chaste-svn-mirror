@@ -1604,41 +1604,41 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	        	}
 	        }	        
         }
-              
+
         g2.setColor(Color.black);
         Shape original_clip = g2.getClip();
-        
+
         if (vis.elementFilePresent && !vis.isSparseMesh )
-        {        	
+        {
 	        // Draw elements first
 	        for (int i=0; i<vis.numElements[vis.timeStep]; i++)
-	        {       
+	        {
 	            // What nodes are we joining up?
 	        	int index[] = new int[3];
 	            index[0] = vis.element_nodes[vis.timeStep][3*i];
 	            index[1] = vis.element_nodes[vis.timeStep][3*i+1];
 	            index[2] = vis.element_nodes[vis.timeStep][3*i+2];
-	            
+
 	            RealPoint r1 = vis.positions[vis.timeStep][index[0]];
 	            RealPoint r2 = vis.positions[vis.timeStep][index[1]];
 	            RealPoint r3 = vis.positions[vis.timeStep][index[2]];
-	            
-	            RealPoint circumcentre = DrawCircumcentre(r1,r2,r3);
+
+	            RealPoint circumcentre = DrawCircumcentre(r1, r2, r3);
 	            PlotPoint plotcircumcentre = scale(circumcentre);
-	            
+
 	            // Where are they? Convert to integer pixels
 	            PlotPoint vertex[] = new PlotPoint[3];
 	            vertex[0] = scale(r1);
 	            vertex[1] = scale(r2);
 	            vertex[2] = scale(r3);
-	
+
 	            PlotPoint midpoint[] = new PlotPoint[3];
-	            midpoint[2] = scale(new RealPoint(r1,r2));
-	            midpoint[0] = scale(new RealPoint(r2,r3));
-	            midpoint[1] = scale(new RealPoint(r3,r1));
-	            
+	            midpoint[2] = scale(new RealPoint(r1, r2));
+	            midpoint[0] = scale(new RealPoint(r2, r3));
+	            midpoint[1] = scale(new RealPoint(r3, r1));
+
 	            g2.setColor(Color.black);
-	            
+
 	            if (vis.drawCells)
 	            {
 	                int clipx[] = new int[3];
@@ -1648,18 +1648,18 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	                	clipx[node] = vertex[node].x;
 	                    clipy[node] = vertex[node].y;
 	                }
-	                Polygon clip = new Polygon(clipx,clipy,3);
+	                Polygon clip = new Polygon(clipx, clipy, 3);
 	                boolean clip_me = false;
-	                 
-	                // Is circumcentre in the triangle? If not, then we'll clip 
-	                // the next bit of drawing to fit inside the triangle 
+
+	                // Is circumcentre in the triangle? If not, then we'll clip
+	                // the next bit of drawing to fit inside the triangle
 	                if (!clip.contains(new Point(plotcircumcentre.x, plotcircumcentre.y)))
 	                {
 	                	clip_me = true;
 	                    g2.setClip(clip);
 	                }
 	                for (int node=0; node<3; node++)
-	                {                	 
+	                {
 	                    SetCellColour(index[node]);
 	                    int xs[] = new int[4];
 	                    int ys[] = new int[4];
@@ -1673,9 +1673,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 	                    ys[3] = midpoint[(node+2)%3].y;
 	                    g2.fillPolygon(xs, ys, 4);
 	                }
-	                
+
 	                g2.setColor(Color.black);
-	                
+
 	                // Plot cell boundary lines
 	                if ( (vis.cell_type[vis.timeStep][index[0]]!= INVISIBLE_COLOUR) && (vis.cell_type[vis.timeStep][index[1]]!= INVISIBLE_COLOUR) )
 	                {

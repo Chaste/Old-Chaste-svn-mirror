@@ -96,6 +96,9 @@ double CryptProjectionForce::CalculateCryptSurfaceDerivativeAtPoint(const c_vect
 
 c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<2>& rTissue)
 {
+    // Helper pointer
+    TissueConfig* p_config = TissueConfig::Instance();
+
     assert(rTissue.HasMesh());
     MeshBasedTissue<2>* p_static_cast_tissue = static_cast<MeshBasedTissue<2>*>(&rTissue);
 
@@ -122,7 +125,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     // two nodes located a distance apart greater than mUseCutoffPoint
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= TissueConfig::Instance()->GetMechanicsCutOffLength())
+        if (distance_between_nodes >= p_config->GetMechanicsCutOffLength())
         {
             // Return zero (2D projected) force
             return zero_vector<double>(2);
@@ -142,11 +145,13 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     assert(!std::isnan(ageA));
     assert(!std::isnan(ageB));
 
+    double m_duration = p_config->GetMDuration();
+
     /*
      * If the cells are both newly divided, then the rest length of the spring
      * connecting them grows linearly with time, until 1 hour after division.
      */
-    if (ageA<TissueConfig::Instance()->GetMDuration() && ageB<TissueConfig::Instance()->GetMDuration() )
+    if (ageA < m_duration && ageB < m_duration )
     {
         /*
          * The spring rest length increases from a predefined small parameter
@@ -154,11 +159,11 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
          */
         if (p_static_cast_tissue->IsMarkedSpring(r_cell_A, r_cell_B))
         {
-            double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
-            rest_length = (lambda + (1.0 - lambda)*(ageA/(TissueConfig::Instance()->GetMDuration())));
+            double lambda = p_config->GetDivisionRestingSpringLength();
+            rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
         }
 
-        if (ageA+SimulationTime::Instance()->GetTimeStep() >= TissueConfig::Instance()->GetMDuration())
+        if (ageA+SimulationTime::Instance()->GetTimeStep() >= m_duration)
         {
             // This spring is about to go out of scope
             p_static_cast_tissue->UnmarkSpring(r_cell_A, r_cell_B);
@@ -175,12 +180,12 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     if (r_cell_A.HasApoptosisBegun())
     {
         double time_until_death_a = r_cell_A.GetTimeUntilDeath();
-        a_rest_length = a_rest_length*(time_until_death_a)/(TissueConfig::Instance()->GetApoptosisTime());
+        a_rest_length = a_rest_length * time_until_death_a / p_config->GetApoptosisTime();
     }
     if (r_cell_B.HasApoptosisBegun())
     {
         double time_until_death_b = r_cell_B.GetTimeUntilDeath();
-        b_rest_length = b_rest_length*(time_until_death_b)/(TissueConfig::Instance()->GetApoptosisTime());
+        b_rest_length = b_rest_length * time_until_death_b / p_config->GetApoptosisTime();
     }
 
     rest_length = a_rest_length + b_rest_length;
@@ -203,7 +208,7 @@ c_vector<double,2> CryptProjectionForce::CalculateForceBetweenNodes(unsigned nod
     multiplication_factor *= VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
 
     // Calculate the 3D force between the two points
-    c_vector<double,3> force_between_nodes = multiplication_factor * TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    c_vector<double,3> force_between_nodes = multiplication_factor * p_config->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 
     // Calculate an outward normal unit vector to the tangent plane of the crypt surface at the 3D point corresponding to node B
     c_vector<double,3> outward_normal_unit_vector;

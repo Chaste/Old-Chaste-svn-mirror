@@ -54,6 +54,9 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
                                                                                     unsigned nodeBGlobalIndex,
                                                                                     AbstractTissue<DIM>& rTissue)
 {
+    // Helper pointer
+    TissueConfig* p_config = TissueConfig::Instance();
+
     // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex != nodeBGlobalIndex);
 
@@ -91,7 +94,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      */
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= TissueConfig::Instance()->GetMechanicsCutOffLength())
+        if (distance_between_nodes >= p_config->GetMechanicsCutOffLength())
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }
@@ -110,11 +113,13 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     assert(!std::isnan(ageA));
     assert(!std::isnan(ageB));
 
+    double m_duration = p_config->GetMDuration();
+
     /*
      * If the cells are both newly divided, then the rest length of the spring
      * connecting them grows linearly with time, until 1 hour after division.
      */
-    if ( ageA<TissueConfig::Instance()->GetMDuration() && ageB<TissueConfig::Instance()->GetMDuration() )
+    if ( ageA < m_duration && ageB < m_duration )
     {
         if (rTissue.HasMesh())
         {
@@ -122,12 +127,11 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
             if (p_static_cast_tissue->IsMarkedSpring(r_cell_A, r_cell_B))
             {
-                // Spring rest length increases from ???? to normal rest length, 1.0, over 1 hour
-                ///\todo fix the comment above
-                double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
-                rest_length = lambda + (1.0-lambda)*(ageA/(TissueConfig::Instance()->GetMDuration()));
+                // Spring rest length increases from a small value to the normal rest length over 1 hour
+                double lambda = p_config->GetDivisionRestingSpringLength();
+                rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
             }
-            if (ageA+SimulationTime::Instance()->GetTimeStep() >= TissueConfig::Instance()->GetMDuration())
+            if (ageA + SimulationTime::Instance()->GetTimeStep() >= m_duration)
             {
                 // This spring is about to go out of scope
                 p_static_cast_tissue->UnmarkSpring(r_cell_A, r_cell_B);
@@ -136,8 +140,8 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         else
         {
             // Spring rest length increases from mDivisionRestingSpringLength to normal rest length, 1.0, over 1 hour
-            double lambda = TissueConfig::Instance()->GetDivisionRestingSpringLength();
-            rest_length = lambda + (1.0-lambda)*(ageA/(TissueConfig::Instance()->GetMDuration()));
+            double lambda = p_config->GetDivisionRestingSpringLength();
+            rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
         }
     }
 
@@ -151,29 +155,23 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     if (r_cell_A.HasApoptosisBegun())
     {
         double time_until_death_a = r_cell_A.GetTimeUntilDeath();
-        a_rest_length = a_rest_length*(time_until_death_a)/(TissueConfig::Instance()->GetApoptosisTime());
+        a_rest_length = a_rest_length * time_until_death_a / p_config->GetApoptosisTime();
     }
     if (r_cell_B.HasApoptosisBegun())
     {
         double time_until_death_b = r_cell_B.GetTimeUntilDeath();
-        b_rest_length = b_rest_length*(time_until_death_b)/(TissueConfig::Instance()->GetApoptosisTime());
+        b_rest_length = b_rest_length * time_until_death_b / p_config->GetApoptosisTime();
     }
 
     rest_length = a_rest_length + b_rest_length;
-
     assert(rest_length <= 1.0+1e-12);
 
-    bool is_closer_than_rest_length = true;
-
-    if (distance_between_nodes - rest_length > 0)
-    {
-        is_closer_than_rest_length = false;
-    }
+    bool is_closer_than_rest_length = (distance_between_nodes - rest_length <= 0);
 
     // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
     double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
-    double spring_stiffness = TissueConfig::Instance()->GetSpringStiffness();
+    double spring_stiffness = p_config->GetSpringStiffness();
     double overlap = distance_between_nodes - rest_length;
 
     if (rTissue.HasMesh())

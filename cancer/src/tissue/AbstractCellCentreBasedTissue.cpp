@@ -156,23 +156,19 @@ void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         // Hack that covers the case where the node is associated with a cell that has just been killed (#1129)
-        ///\todo Improve this!
         bool node_corresponds_to_dead_cell = false;
         if (this->mLocationCellMap[node_index])
         {
-            if (this->mLocationCellMap[node_index]->IsDead())
-            {
-                node_corresponds_to_dead_cell = true;
-            }
+            node_corresponds_to_dead_cell = this->mLocationCellMap[node_index]->IsDead();
         }
 
         // Write node data to file
         if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
         {
             this->GenerateCellResults(node_index,
-                                cell_type_counter,
-                                cell_mutation_state_counter,
-                                cell_cycle_phase_counter);
+                                      cell_type_counter,
+                                      cell_mutation_state_counter,
+                                      cell_cycle_phase_counter);
         }
     }
 

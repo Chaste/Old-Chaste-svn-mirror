@@ -425,7 +425,6 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
          ++elem_iter)
     {
         // Hack that covers the case where the element contains a node that is associated with a cell that has just been killed (#1129)
-        ///\todo Improve this!
         for (unsigned i=0; i<DIM+1; i++)
         {
             unsigned node_index = elem_iter->GetNodeGlobalIndex(i);
@@ -437,11 +436,8 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
             }
             else if (this->mLocationCellMap[node_index])
             {
-                if (this->mLocationCellMap[node_index]->IsDead())
-                {
-                    element_contains_dead_cells_or_deleted_nodes = true;
-                    break;
-                }
+                element_contains_dead_cells_or_deleted_nodes = this->mLocationCellMap[node_index]->IsDead();
+                break;
             }
         }
         if (!element_contains_dead_cells_or_deleted_nodes)

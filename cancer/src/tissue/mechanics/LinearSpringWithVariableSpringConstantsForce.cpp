@@ -82,6 +82,9 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     AbstractTissue<DIM>& rTissue,
     bool isCloserThanRestLength)
 {
+    // Helper pointer
+    TissueConfig* p_config = TissueConfig::Instance();
+
     double multiplication_factor = GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
                                                                                                             nodeBGlobalIndex,
                                                                                                             rTissue,
@@ -153,7 +156,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
         double min_beta_Cat_of_two_cells = std::min(beta_cat_on_cell_1_edge, beta_cat_on_cell_2_edge);
 
-        double beta_cat_scaling_factor = TissueConfig::Instance()->GetBetaCatSpringScaler();
+        double beta_cat_scaling_factor = p_config->GetBetaCatSpringScaler();
         multiplication_factor *= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
     }
 
@@ -161,33 +164,33 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         if (r_cell_A.GetCellProliferativeType()==APOPTOTIC || r_cell_B.GetCellProliferativeType()==APOPTOTIC)
         {
-            double spring_a_stiffness = 2.0*TissueConfig::Instance()->GetSpringStiffness();
-            double spring_b_stiffness = 2.0*TissueConfig::Instance()->GetSpringStiffness();
+            double spring_a_stiffness = 2.0 * p_config->GetSpringStiffness();
+            double spring_b_stiffness = 2.0 * p_config->GetSpringStiffness();
 
             if (r_cell_A.GetCellProliferativeType()==APOPTOTIC)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
-                    spring_a_stiffness = TissueConfig::Instance()->GetApoptoticSpringTensionStiffness();
+                    spring_a_stiffness = p_config->GetApoptoticSpringTensionStiffness();
                 }
                 else // if under compression
                 {
-                    spring_a_stiffness = TissueConfig::Instance()->GetApoptoticSpringCompressionStiffness();
+                    spring_a_stiffness = p_config->GetApoptoticSpringCompressionStiffness();
                 }
             }
             if (r_cell_B.GetCellProliferativeType()==APOPTOTIC)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
-                    spring_b_stiffness = TissueConfig::Instance()->GetApoptoticSpringTensionStiffness();
+                    spring_b_stiffness = p_config->GetApoptoticSpringTensionStiffness();
                 }
                 else // if under compression
                 {
-                    spring_b_stiffness = TissueConfig::Instance()->GetApoptoticSpringCompressionStiffness();
+                    spring_b_stiffness = p_config->GetApoptoticSpringCompressionStiffness();
                 }
             }
 
-            multiplication_factor *= 1.0 / (( 1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*TissueConfig::Instance()->GetSpringStiffness());
+            multiplication_factor /= (1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*p_config->GetSpringStiffness();
         }
     }
 
