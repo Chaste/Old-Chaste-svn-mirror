@@ -59,6 +59,11 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         WriteFilesUsingParallelMesh(*p_mesh);
         return;
     }
+    if (!PetscTools::AmMaster())
+    {
+        return;
+    }
+    
     NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index = 0;
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes(); i++)

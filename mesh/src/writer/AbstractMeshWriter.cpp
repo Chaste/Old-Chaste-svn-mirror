@@ -104,6 +104,10 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
+    if (!PetscTools::AmMaster())
+    {
+        return;
+    }
     for (unsigned i=0; i<rMeshReader.GetNumNodes(); i++)
     {
         SetNextNode(rMeshReader.GetNextNode());
@@ -130,6 +134,10 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     }
     else
     {
+        if (!PetscTools::AmMaster())
+        {
+            return;
+        }
         mNodeData.resize(rMeshReader.GetNumNodes());
         for (unsigned i=0; i<rMeshReader.GetNumNodes(); i++)
         {

@@ -95,39 +95,37 @@ private:
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                                ArchiveLocationInfo::GetMeshFilename(),
                                                                false);
-        if (PetscTools::AmMaster())
+            
+        if (this->IsMeshChanging())
         {
-                
-            if (this->IsMeshChanging())
+            mesh_writer.WriteFilesUsingMesh(*this);
+        }
+        else
+        {
+            try
             {
-                //#98 Why not do this everytime?  In the parallel case, then it means that we are saving with
-                //the permutation applied
-                mesh_writer.WriteFilesUsingMesh(*this);
+                /** 
+                 * If this mesh object has been constructed from a mesh reader we can get reference to it
+                 *
+                 * Rewrites mesh with a different name in its original format to the ArchiveLocationInfo.
+                 * This doesn't have the permutation applied.  It may be better to copy the mesh or to use
+                 * HeartConfig...
+                 * 
+                 * The advantage of having this here (rather than doing 
+                 * WriteFilesUsingMesh for every occasion) is that we don't have
+                 * to use up the memory of a single process for large meshes.
+                 */
+                TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
+                mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
             }
-            else
+            catch(Exception& e)
             {
-                try
-                {
-                    // If this mesh object has been constructed from a mesh reader we can get reference to it
-                    /**
-                     * Rewrites mesh with a different name in its original format to the ArchiveLocationInfo.
-                     * This doesn't have the permutation applied.  It may be better to copy the mesh or to use
-                     * HeartConfig...
-                     */
-                    TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
-                    mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
-                }
-                catch(Exception& e)
-                {
-                    /**
-                     * Caching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
-                     * That may mean it is a mesh constructed from a geometric description rather that read from file.
-                     *
-                     * \todo #98, you can use the line mesh_writer.WriteFilesUsingMesh(*this) from above here,
-                     *  but have to think about parallel meshes.
-                     */
-                    NEVER_REACHED;
-                }
+                /**
+                 * Catching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
+                 * That may mean it is a mesh constructed from a geometric description rather that read from file.
+                 *
+                 */
+                mesh_writer.WriteFilesUsingMesh(*this);
             }
         }
         PetscTools::Barrier();//Make sure that the files are written before slave processes proceed       

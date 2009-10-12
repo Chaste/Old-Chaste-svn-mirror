@@ -718,7 +718,8 @@ public:
 
             try
             {
-                Node<2>* p_node1 = p_mesh->GetNode(0);
+                ///\todo Note that we have to be sure of calling the derived method here!
+                Node<2>* p_node1 = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetNode(0);
                 Node<2>* p_node2 = p_mesh2->GetNode(0);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[1], p_node2->GetPoint()[1], 1e-6);
@@ -730,7 +731,7 @@ public:
 
             try
             {
-                Node<2>* p_node1 = p_mesh->GetNode(500);
+                Node<2>* p_node1 = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetNode(500);
                 Node<2>* p_node2 = p_mesh2->GetNode(500);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
             }
@@ -742,7 +743,7 @@ public:
             // Check first element has the right nodes
             try
             {
-                Element<2,2>* p_element = p_mesh->GetElement(0);
+                Element<2,2>* p_element = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetElement(0);
                 Element<2,2>* p_element2 = p_mesh2->GetElement(0);
                 TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
             }
@@ -753,7 +754,7 @@ public:
 
             try
             {
-                Element<2,2>* p_element = p_mesh->GetElement(500);
+                Element<2,2>* p_element = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetElement(500);
                 Element<2,2>* p_element2 = p_mesh2->GetElement(500);
                 TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
             }
@@ -797,6 +798,11 @@ private:
     template <unsigned DIM>
     void CompareParallelMeshOwnership(ParallelTetrahedralMesh<DIM,DIM> &readMesh, ParallelTetrahedralMesh<DIM,DIM> &constructedMesh)
     {
+        typedef ParallelTetrahedralMesh<DIM,DIM> MESH_TYPE; // To stop TS_ASSERT mistaking the comma for an argument            
+        //The read mesh has a dumb partition in the test
+        TS_ASSERT_EQUALS(readMesh.GetPartitionType(), MESH_TYPE::DUMB);
+        //All constructed meshes have dumb partitioning -- so that they are invariant under archiving
+        TS_ASSERT_EQUALS(constructedMesh.GetPartitionType(), MESH_TYPE::DUMB);
         TS_ASSERT_EQUALS(constructedMesh.GetDistributedVectorFactory()->GetLocalOwnership(),
                          readMesh.GetDistributedVectorFactory()->GetLocalOwnership());
         TS_ASSERT_EQUALS(constructedMesh.GetNumNodes(), readMesh.GetNumNodes());
@@ -1151,5 +1157,119 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.ele "+ output_dir + "/seq_cube_2mm_12_elements.ele").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + output_dir + "/par_cube_2mm_12_elements.face "+ output_dir + "/seq_cube_2mm_12_elements.face").c_str()), 0);
     }
+    
+  
+    void TestArchiveOfConstructedMesh() throw(Exception)
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        handler.SetArchiveDirectory();
+        archive_filename = handler.GetOutputDirectoryFullPath() + "parallel_rectangle.arch";
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "parallel_rectangle");
+
+        ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>;
+        //std::vector<unsigned> halo_node_indices;
+        std::vector<Node<2>*> halo_nodes;
+        unsigned num_nodes;
+        unsigned local_num_nodes;
+        unsigned num_elements;
+            
+        unsigned width=4;
+        unsigned height=4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
+        // archive
+        {
+        
+            p_mesh->ConstructRectangularMesh(width, height);
+            num_nodes = p_mesh->GetNumNodes();
+            local_num_nodes = p_mesh->GetNumLocalNodes();
+            num_elements = p_mesh->GetNumElements();
+            
+            halo_nodes = p_mesh->mHaloNodes;
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            AbstractTetrahedralMesh<2,2>* const p_mesh_abstract = static_cast<AbstractTetrahedralMesh<2,2>* >(p_mesh);
+            output_arch << p_mesh_abstract;
+        }
+
+        // restore
+        {
+            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // (but here AbstractMesh doesn't have the methods below).
+            AbstractTetrahedralMesh<2,2>* p_mesh_abstract2;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            // restore from the archive
+            input_arch >> p_mesh_abstract2;
+            // Check we have the right number of nodes & elements
+            ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract2);
+            
+            TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumLocalNodes(), local_num_nodes);
+            TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), num_elements);
+            
+            CompareParallelMeshOwnership(*p_mesh, *p_mesh2);
+            // Check some node co-ordinates
+            try
+            {
+                Node<2>* p_node1 =p_mesh->GetNode(0);
+                Node<2>* p_node2 = p_mesh2->GetNode(0);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[1], p_node2->GetPoint()[1], 1e-6);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[0], 0.0, 1e-6);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[1], 0.0, 1e-6);
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+
+            try
+            {
+                Node<2>* p_node1 = p_mesh->GetNode((width+1)*(height+1)-1);
+                Node<2>* p_node2 = p_mesh2->GetNode((width+1)*(height+1)-1);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[0], (double) width, 1e-6);
+                TS_ASSERT_DELTA(p_node1->GetPoint()[1], (double) height, 1e-6);
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+
+            // Check first element has the right nodes
+            try
+            {
+                Element<2,2>* p_element = p_mesh->GetElement(0);
+                Element<2,2>* p_element2 = p_mesh2->GetElement(0);
+                TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+
+            try
+            {
+                Element<2,2>* p_element = p_mesh->GetElement(width*height);
+                Element<2,2>* p_element2 = p_mesh2->GetElement(500);
+                TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
+            }
+            catch(Exception& e)
+            {
+                TS_ASSERT_DIFFERS((int)e.GetShortMessage().find("does not belong to processor"),-1);
+            }
+            
+            // Check the halo nodes are right
+            std::vector<Node<2>*> halo_nodes2 = p_mesh2->mHaloNodes;
+            TS_ASSERT_EQUALS(halo_nodes2.size(), halo_nodes.size());
+            delete p_mesh2;
+        }
+        delete p_mesh;
+    }
+    
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/

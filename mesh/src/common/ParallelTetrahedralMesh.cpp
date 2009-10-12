@@ -755,6 +755,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
+    //Use dumb partition so that archiving doesn't permute anything
+    mMetisPartitioning=DUMB;   
     mTotalNumNodes=width+1;
     mTotalNumBoundaryElements=2u;
     mTotalNumElements=width;
@@ -830,6 +832,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
+    //Use dumb partition so that archiving doesn't permute anything
+    mMetisPartitioning=DUMB;   
+    
     mTotalNumNodes=(width+1)*(height+1);
     mTotalNumBoundaryElements=(width+height)*2;
     mTotalNumElements=width*height*2;
@@ -990,6 +995,10 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
+
+    //Use dumb partition so that archiving doesn't permute anything
+    mMetisPartitioning=DUMB;   
+ 
     mTotalNumNodes=(width+1)*(height+1)*(depth+1);
     mTotalNumBoundaryElements=((width*height)+(width*depth)+(height*depth))*4;//*2 for top-bottom, *2 for tessellating each unit square
     mTotalNumElements=width*height*depth*6;
