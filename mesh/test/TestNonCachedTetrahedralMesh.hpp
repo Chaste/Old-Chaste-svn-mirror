@@ -63,8 +63,8 @@ private:
         EXPECT0(system, rm_command.c_str());
 
         return vsize;
-#elif
-        return 0
+#else
+        return 0;
 #endif
     }
 
