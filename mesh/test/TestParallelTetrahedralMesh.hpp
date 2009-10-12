@@ -674,7 +674,7 @@ public:
         archive_filename = handler.GetOutputDirectoryFullPath() + "parallel_tetrahedral_mesh.arch";
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "parallel_tetrahedral_mesh");
 
-        AbstractTetrahedralMesh<2,2>* const p_mesh = new ParallelTetrahedralMesh<2,2>(ParallelTetrahedralMesh<2,2>::DUMB);
+        ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>(ParallelTetrahedralMesh<2,2>::DUMB);
         //std::vector<unsigned> halo_node_indices;
         std::vector<Node<2>*> halo_nodes;
         unsigned num_nodes;
@@ -686,29 +686,31 @@ public:
 
             p_mesh->ConstructFromMeshReader(mesh_reader);
             num_nodes = p_mesh->GetNumNodes();
-            local_num_nodes = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetNumLocalNodes();
+            local_num_nodes = p_mesh->GetNumLocalNodes();
             num_elements = p_mesh->GetNumElements();
             
-            halo_nodes = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->mHaloNodes;
+            halo_nodes = p_mesh->mHaloNodes;
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            output_arch << p_mesh;
+            
+            AbstractTetrahedralMesh<2,2>* const p_mesh_abstract = static_cast<AbstractTetrahedralMesh<2,2>* >(p_mesh);
+            output_arch << p_mesh_abstract;
         }
 
         // restore
         {
             // Should archive the most abstract class you can to check boost knows what individual classes are.
             // (but here AbstractMesh doesn't have the methods below).
-            AbstractTetrahedralMesh<2,2>* p_mesh_abstract;
+            AbstractTetrahedralMesh<2,2>* p_mesh_abstract2;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             // restore from the archive
-            input_arch >> p_mesh_abstract;
+            input_arch >> p_mesh_abstract2;
             // Check we have the right number of nodes & elements
-            ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract);
+            ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract2);
             
             TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), num_nodes);
             TS_ASSERT_EQUALS(p_mesh2->GetNumLocalNodes(), local_num_nodes);
@@ -718,8 +720,7 @@ public:
 
             try
             {
-                ///\todo Note that we have to be sure of calling the derived method here!
-                Node<2>* p_node1 = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetNode(0);
+                Node<2>* p_node1 = p_mesh->GetNode(0);
                 Node<2>* p_node2 = p_mesh2->GetNode(0);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[1], p_node2->GetPoint()[1], 1e-6);
@@ -731,7 +732,7 @@ public:
 
             try
             {
-                Node<2>* p_node1 = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetNode(500);
+                Node<2>* p_node1 = p_mesh->GetNode(500);
                 Node<2>* p_node2 = p_mesh2->GetNode(500);
                 TS_ASSERT_DELTA(p_node1->GetPoint()[0], p_node2->GetPoint()[0], 1e-6);
             }
@@ -743,7 +744,7 @@ public:
             // Check first element has the right nodes
             try
             {
-                Element<2,2>* p_element = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetElement(0);
+                Element<2,2>* p_element = p_mesh->GetElement(0);
                 Element<2,2>* p_element2 = p_mesh2->GetElement(0);
                 TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
             }
@@ -754,7 +755,7 @@ public:
 
             try
             {
-                Element<2,2>* p_element = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh)->GetElement(500);
+                Element<2,2>* p_element = p_mesh->GetElement(500);
                 Element<2,2>* p_element2 = p_mesh2->GetElement(500);
                 TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), p_element2->GetNodeGlobalIndex(0));
             }
@@ -764,7 +765,7 @@ public:
             }
             
             // Check the halo nodes are right
-            std::vector<Node<2>*> halo_nodes2 = static_cast<ParallelTetrahedralMesh<2,2>* >(p_mesh2)->mHaloNodes;
+            std::vector<Node<2>*> halo_nodes2 = p_mesh2->mHaloNodes;
             TS_ASSERT_EQUALS(halo_nodes2.size(), halo_nodes.size());
             delete p_mesh2;
         }
