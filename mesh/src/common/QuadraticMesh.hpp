@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef QUADRATICMESH_HPP_
 #define QUADRATICMESH_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "TetrahedralMesh.hpp"
 
 #include <vector>
@@ -158,7 +161,29 @@ private:
      */
     void RunMesherAndReadMesh(std::string binary, std::string outputDir, std::string fileStem);
 
+    /** Needed for serialization.*/
+    friend class boost::serialization::access;
+    /**
+     * Serialize the mesh.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {        
+        archive & boost::serialization::base_object<TetrahedralMesh<DIM, DIM> >(*this);
+    }
+   
 public:
+
+    /**
+     * Constructor
+     *
+     */
+    QuadraticMesh()
+    {
+    }
 
     /**
      * Constructs a new Quadratic Mesh
@@ -215,6 +240,9 @@ public:
      */
     unsigned GetNumVertices();
 };
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(QuadraticMesh);
 
 
 #endif /*QUADRATICMESH_HPP_*/

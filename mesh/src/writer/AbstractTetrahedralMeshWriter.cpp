@@ -94,7 +94,6 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         if (p_element->IsDeleted() == false)
         {
             std::vector<unsigned> indices(p_element->GetNumNodes());
-
             for (unsigned j=0; j<indices.size(); j++)
             {
                 unsigned old_index = p_element->GetNodeGlobalIndex(j);

@@ -96,7 +96,16 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     // Write the element header
     unsigned num_elements = this->GetNumElements();
-    unsigned nodes_per_element = ELEMENT_DIM+1;
+    
+    assert( this->mElementData.size()>0 );//Read element size from the data we're given
+    unsigned nodes_per_element = this->mElementData[0].size();
+    if(nodes_per_element != ELEMENT_DIM+1)
+    {
+        //Check that this is a quadratic mesh
+        assert(ELEMENT_DIM == SPACE_DIM);
+        assert(nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
+     }
+        
 
     *p_element_file << num_elements << "\t";
     *p_element_file << nodes_per_element << "\t";

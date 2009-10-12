@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "CmguiWriter.hpp"
 #include "VtkWriter.hpp"
+#include "QuadraticMesh.hpp"
 
 class TestMeshWriters : public CxxTest::TestSuite
 {
@@ -298,7 +299,47 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 100u); // culling now occurs in the reader
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 100u);
     }
+    void TestQuadratic1D() throw (Exception)
+    {
+        QuadraticMesh<1> mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
+        TrianglesMeshWriter<1,1> mesh_writer("", "1d_quadratic");
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<1,1> mesh_reader(output_dir + "1d_quadratic", 2, 2);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 1u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 3u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 1u);
+    }
+
+    void TestQuadratic2D() throw (Exception)
+    {
+        QuadraticMesh<2> mesh("mesh/test/data/square_128_elements_fully_quadratic", false);
+        TrianglesMeshWriter<2,2> mesh_writer("", "2d_quadratic");
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,2> mesh_reader(output_dir + "2d_quadratic", 2, 2);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 2u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 6u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 3u);
+    }
+
+    void TestQuadratic3D() throw (Exception)
+    {
+        QuadraticMesh<3> mesh("mesh/test/data/3D_Single_tetrahedron_element_quadratic", false);
+        TrianglesMeshWriter<3,3> mesh_writer("", "3d_quadratic");
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<3,3> mesh_reader(output_dir + "3d_quadratic", 2, 2);
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 3u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 10u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 6u);
+    }
     void TestCmguiWriter() throw(Exception)
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");

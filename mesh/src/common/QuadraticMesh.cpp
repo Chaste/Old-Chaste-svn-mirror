@@ -44,6 +44,7 @@ QuadraticMesh<DIM>::QuadraticMesh(const std::string& rFileName, bool boundaryEle
 //    {
 //        EXCEPTION("Boundary element file should not have containing element info if it is quadratic");
 //    }
+    
     if(boundaryElemFileIsQuadratic)
     {
          ///\todo Fix coverage as above
@@ -74,7 +75,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     assert(yEnd>0);
     assert(numElemX>0);
     assert(numElemY>0);
-
+    
     unsigned num_nodes=(numElemX+1)*(numElemY+1);
     struct triangulateio triangle_input;
     triangle_input.pointlist = (double *) malloc( num_nodes * 2 * sizeof(double));

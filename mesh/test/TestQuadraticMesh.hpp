@@ -408,24 +408,24 @@ public:
                 "The quadratic mesh doesn\'t appear to have all vertices before the rest of the nodes");
     }
 
-/// \todo #1089 We need a method which can write out a QuadraticMesh before we can do archiving of it.
-//    void xTestArchiving() throw(Exception)
-//    {
-//        OutputFileHandler handler("archive",false);
-//        std::string archive_filename;
-//        handler.SetArchiveDirectory();
-//        archive_filename = handler.GetOutputDirectoryFullPath() + "quadratic_mesh.arch";
-//        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "quadratic_mesh");
-//
-//        AbstractTetrahedralMesh<3,3>* const p_mesh = new QuadraticMesh<3>("mesh/test/data/cube_1626_elements_quadratic", false);
-//
-//        {
-//            std::ofstream ofs(archive_filename.c_str());
-//            boost::archive::text_oarchive output_arch(ofs);
-//            output_arch << p_mesh;
-//        }
-//
-//        {
+    void TestArchiving() throw(Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        handler.SetArchiveDirectory();
+        archive_filename = handler.GetOutputDirectoryFullPath() + "quadratic_mesh.arch";
+        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "quadratic_mesh");
+
+        AbstractTetrahedralMesh<3,3>* const p_mesh = new QuadraticMesh<3>("mesh/test/data/cube_1626_elements_quadratic", false);
+
+        {
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            output_arch << p_mesh;
+        }
+
+        {
+            ///\todo #1089 Can't yet read a Quadratic mesh from an archive
 //            // Should archive the most abstract class you can to check boost knows what individual classes are.
 //            // (but here AbstractMesh doesn't have the methods below).
 //            AbstractTetrahedralMesh<3,3>* p_mesh2;
@@ -457,9 +457,9 @@ public:
 //            }
 //
 //            delete p_mesh2;
-//        }
-//        delete p_mesh;
-//    }
+        }
+        delete p_mesh;
+    }
 };
 
 #endif // _TESTQUADRATICMESH_HPP_

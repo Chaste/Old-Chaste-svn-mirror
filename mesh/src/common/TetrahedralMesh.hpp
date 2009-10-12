@@ -121,16 +121,6 @@ public:
     TetrahedralMesh();
 
     /**
-     * Constructor which takes in a number of elements.
-     *
-     * @param numElements
-     */
-    TetrahedralMesh(unsigned numElements);
-    //TetrahedralMesh(std::vector<Node<SPACE_DIM> *> nodes);
-
-    //virtual ~TetrahedralMesh();
-
-    /**
      * Construct the mesh using a MeshReader.
      *
      * @param rMeshReader the mesh reader
