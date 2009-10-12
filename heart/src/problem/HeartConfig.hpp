@@ -144,7 +144,10 @@ private:
      * 
      * @param rFileName  the file to read.
      */
-    xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadFileToDomDocument(const std::string& rFileName);
+    xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadFileToDomDocument(
+        const std::string& rFileName,
+        ::xml_schema::error_handler& rErrorHandler,
+        const ::xml_schema::properties& rProps);
     
     /**
      * Fake having a namespace in older configuration files, by adding a namespace

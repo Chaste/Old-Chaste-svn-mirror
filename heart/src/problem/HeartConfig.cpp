@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 
 #include <xercesc/util/PlatformUtils.hpp>
+#include <xsd/cxx/tree/error-handler.hxx>
 
 // Coping with changes to XSD interface
 #if (XSD_INT_VERSION >= 3000000L)
@@ -173,25 +174,29 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
 boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::string& rFileName)
 {
     // Determine whether to use the schema path given in the input XML, or our own schema
-    ::xml_schema::properties p;
+    ::xml_schema::properties props;
     if (mUseFixedSchemaLocation)
     {
         std::string root_dir = std::string(GetChasteRoot()) + "/heart/src/io/";
         // Release 1.1 (and earlier) didn't use a namespace
-        p.no_namespace_schema_location(root_dir + "ChasteParameters_1_1.xsd");
+        props.no_namespace_schema_location(root_dir + "ChasteParameters_1_1.xsd");
         // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
-        p.schema_location("https://chaste.comlab.ox.ac.uk/nss/parameters/1_2",
-                          root_dir + "ChasteParameters_1_2.xsd");
+        props.schema_location("https://chaste.comlab.ox.ac.uk/nss/parameters/1_2",
+                              root_dir + "ChasteParameters_1_2.xsd");
     }
 
-    // get the parameters using the method 'ChasteParameters(rFileName)',
+    // Get the parameters using the method 'ChasteParameters(rFileName)',
     // which returns a std::auto_ptr. We convert to a shared_ptr for easier semantics.
     try
     {
-        // Initialise Xerces
-        xercesc::XMLPlatformUtils::Initialize();
+        // Make sure Xerces initialization & finalization happens
+        ::xsd::cxx::xml::auto_initializer init_fini(true, true);
+        // Set up an error handler
+        ::xsd::cxx::tree::error_handler<char> error_handler;
         // Parse XML to DOM
-        xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc = ReadFileToDomDocument(rFileName);
+        xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc = ReadFileToDomDocument(rFileName, error_handler, props);
+        // Any errors?
+        error_handler.throw_if_failed< ::xsd::cxx::tree::parsing< char > >();
         // Test the namespace on the root element
         xercesc::DOMElement* p_root_elt = p_doc->getDocumentElement();
         std::string namespace_uri(xsd::cxx::xml::transcode<char>(p_root_elt->getNamespaceURI()));
@@ -201,11 +206,9 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
             AddNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/1_2");
         }
         // Parse DOM to object model
-        std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, xml_schema::flags::dont_initialize, p));
+        std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, ::xml_schema::flags::dont_initialize, props));
         // Get rid of the DOM stuff
         p_doc.reset();
-        // Shut down Xerces
-        xercesc::XMLPlatformUtils::Terminate();
         
         return boost::shared_ptr<cp::chaste_parameters_type>(p_params);
     }
@@ -1609,14 +1612,13 @@ void HeartConfig::SetUseFixedSchemaLocation(bool useFixedSchemaLocation)
 
 
 xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDocument(
-        const std::string& rFileName)
+        const std::string& rFileName,
+        ::xml_schema::error_handler& rErrorHandler,
+        const ::xml_schema::properties& rProps)
 {
     using namespace xercesc;
     namespace xml = xsd::cxx::xml;
     namespace tree = xsd::cxx::tree;
-    
-    // Open the file
-    std::ifstream ifs(rFileName.c_str());
 
     // Get an implementation of the Load-Store (LS) interface.
     const XMLCh ls_id [] = {chLatin_L, chLatin_S, chNull};
@@ -1649,21 +1651,28 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDoc
     p_conf->setParameter(XMLUni::fgDOMValidate, true);
     p_conf->setParameter(XMLUni::fgXercesSchema, true);
     p_conf->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
-    if (mUseFixedSchemaLocation)
+    // Code taken from xsd/cxx/xml/dom/parsing-source.txx
+    if (!rProps.schema_location().empty())
     {
-        std::string schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_2.xsd";
-        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
-        schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_1.xsd";
-        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
-        p_conf->setParameter(XMLUni::fgXercesUseCachedGrammarInParse, true);
+        xml::string locn(rProps.schema_location());
+        const void* p_locn(locn.c_str());
+        p_conf->setParameter(XMLUni::fgXercesSchemaExternalSchemaLocation,
+                             const_cast<void*>(p_locn));
+    }
+    if (!rProps.no_namespace_schema_location().empty())
+    {
+        xml::string locn(rProps.no_namespace_schema_location());
+        const void* p_locn(locn.c_str());
+      
+        p_conf->setParameter(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
+                             const_cast<void*>(p_locn));
     }
 
     // We will release the DOM document ourselves.
     p_conf->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);
 
     // Set error handler.
-    tree::error_handler<char> eh;
-    xml::dom::bits::error_handler_proxy<char> ehp(eh);
+    xml::dom::bits::error_handler_proxy<char> ehp(rErrorHandler);
     p_conf->setParameter(XMLUni::fgDOMErrorHandler, &ehp);
 
 #else // _XERCES_VERSION >= 30000
@@ -1678,40 +1687,38 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDoc
     p_parser->setFeature(XMLUni::fgDOMValidation, true);
     p_parser->setFeature(XMLUni::fgXercesSchema, true);
     p_parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
-    if (mUseFixedSchemaLocation)
-    {
-        ///\todo #1131 - avoid the repetition with ReadFile
-        /// Use xsd/cxx/xml/dom/parsing-source.txx to read props and set fgXercesSchemaExternalSchemaLocation etc.
-        std::string schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_2.xsd";
-        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
-        schema = std::string(GetChasteRoot()) + "/heart/src/io/ChasteParameters_1_1.xsd";
-        p_parser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType, true);
-        p_parser->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
-    }
     p_parser->setFeature(XMLUni::fgXercesUserAdoptsDOMDocument, true);
 
-    tree::error_handler<char> eh;
-    xml::dom::bits::error_handler_proxy<char> ehp(eh);
+    // Code taken from xsd/cxx/xml/dom/parsing-source.txx
+    if (!rProps.schema_location().empty())
+    {
+        xml::string locn(rProps.schema_location());
+        const void* p_locn(locn.c_str());
+        p_parser->setProperty(XMLUni::fgXercesSchemaExternalSchemaLocation,
+                              const_cast<void*>(p_locn));
+    }
+
+    if (!rProps.no_namespace_schema_location().empty())
+    {
+        xml::string locn(rProps.no_namespace_schema_location());
+        const void* p_locn(locn.c_str());
+      
+        p_parser->setProperty(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation,
+                              const_cast<void*>(p_locn));
+    }
+
+    xml::dom::bits::error_handler_proxy<char> ehp(rErrorHandler);
     p_parser->setErrorHandler(&ehp);
 
 #endif // _XERCES_VERSION >= 30000
 
-    // Prepare input stream.
-    xml::sax::std_input_source isrc(ifs, rFileName);
-    Wrapper4InputSource wrap(&isrc, false);
-
-#if _XERCES_VERSION >= 30000
-    xml::dom::auto_ptr<DOMDocument> p_doc(p_parser->parse(&wrap));
-#else
-    xml::dom::auto_ptr<DOMDocument> p_doc(p_parser->parse(wrap));
-#endif
+    // Do the parse
+    xml::dom::auto_ptr<DOMDocument> p_doc(p_parser->parseURI(rFileName.c_str()));
 
     if (ehp.failed())
     {
         p_doc.reset();
     }
-
-    eh.throw_if_failed<tree::parsing<char> > ();
 
     return p_doc;
 }

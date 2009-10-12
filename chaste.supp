@@ -135,12 +135,7 @@
    fun:_ZN11xercesc_2_710XMLScanner10scanPrologEv
    fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
    fun:_ZN11xercesc_2_710XMLScanner12scanDocumentEPKt
-   fun:_ZN11xercesc_2_717AbstractDOMParser5parseEPKt
-   fun:_ZN11xercesc_2_714DOMBuilderImpl8parseURIEPKt
-   fun:_ZN3xsd3cxx3xml3dom5parseIcEENS2_8auto_ptrIN11xercesc_2_711DOMDocumentEEERKSbIT_St11char_traitsIS8_ESaIS8_EERNS5_15DOMErrorHandlerERKNS1_10propertiesIS8_EEm
-   fun:_ZN3xsd3cxx3xml3dom5parseIcEENS2_8auto_ptrIN11xercesc_2_711DOMDocumentEEERKSbIT_St11char_traitsIS8_ESaIS8_EERNS1_13error_handlerIS8_EERKNS1_10propertiesIS8_EEm
 }
-
 
 #
 # getpwuid on Debian-based systems

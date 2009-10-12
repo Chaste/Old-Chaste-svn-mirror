@@ -591,7 +591,7 @@ class MemoryTesting(GccDebug):
     """
     _petsc_flags = "-malloc_debug -malloc_dump -memory_info"
     _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes --num-callers=50 --suppressions=chaste.supp"
-#    _valgrind_flags +=" --gen-suppressions=yes"
+#    _valgrind_flags +=" --gen-suppressions=all"
     def __init__(self, *args, **kwargs):
         GccDebug.__init__(self, *args, **kwargs)
         #self._cc_flags.append('-DPETSC_MEMORY_TRACING')
