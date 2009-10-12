@@ -2713,7 +2713,7 @@ class CellMLToMatlabTranslator(CellMLTranslator):
         if len(name) > 60:
             # Take end part so we get version/variant info if present
             name = name[-60:]
-        return 
+        return name
 
     def translate(self, doc, *args, **kwargs):
         """Generate code for the model or its Jacobian matrix."""
@@ -2735,6 +2735,9 @@ class CellMLToMatlabTranslator(CellMLTranslator):
         if len(self.class_name) > 60:
             # Take end part so we get version/variant info if present
             self.class_name = self.class_name[-60:]
+            # Strip leading underscores
+            while self.class_name[0] == '_':
+                self.class_name = self.class_name[1:]
         
         if self.use_lookup_tables:
             self.writeln('function dy_fun_ptr = ', self.class_name, '_lt(step)')
@@ -2747,19 +2750,23 @@ class CellMLToMatlabTranslator(CellMLTranslator):
             self.output_lut_lookups()
             self.writeln('tables = generate_tables(step);')
         else:
-            self.writeln('function [dy_fun_ptr initial_values V_index t_units] = ',
-                         self.class_name, '(',t,', y)')
+            self.writeln('function [dy_fun_ptr initial_values V_index t_units state_var_names] = ',
+                         self.class_name, '()')
             self.output_comment('Get evaluation function and metadata for the model ',
                                 self.model.name, '.')
-            self.output_comment('Returns the function f (where dU/dt = f(t, U)),\n'
+            self.output_comment('\nReturns the function f (where dU/dt = f(t, U)),\n'
                                 'suitable initial values for the system,\n'
                                 'the index of the transmembrane potential within '
                                 'the state variable vector,\n'
-                                'and the multiplicative factor of the time units.')
+                                'the multiplicative factor of the time units,\n'
+                                'and the names of the state variables.')
             self.set_indent(offset=1)
             self.writeln('V_index = ', self.v_index+1, ';')
+            self.writeln('state_var_names = cell(1, ', len(self.state_vars), ');')
             self.writeln('initial_values = zeros(1, ', len(self.state_vars), ');')
             for i, var in enumerate(self.state_vars):
+                self.writeln('state_var_names{', i+1, '}', self.EQ_ASSIGN,
+                             "'", var.fullname(), "';")
                 self.writeln('initial_values(', i+1, ')', self.EQ_ASSIGN,
                              getattr(var, u'initial_value', 'NaN'), ';')
             t_var = self.free_vars[0]
