@@ -314,19 +314,31 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     {
         case STEM:
             colour = STEM_COLOUR;
-            rCellProliferativeTypeCounter[0] += 1*(p_config->GetOutputCellProliferativeTypes());
+            if (p_config->GetOutputCellProliferativeTypes())
+            {
+                rCellProliferativeTypeCounter[0]++;
+            }
             break;
         case TRANSIT:
             colour = TRANSIT_COLOUR;
-            rCellProliferativeTypeCounter[1] += 1*(p_config->GetOutputCellProliferativeTypes());
+            if (p_config->GetOutputCellProliferativeTypes())
+            {
+                rCellProliferativeTypeCounter[1]++;
+            }
             break;
         case DIFFERENTIATED:
             colour = DIFFERENTIATED_COLOUR;
-            rCellProliferativeTypeCounter[2] += 1*(p_config->GetOutputCellProliferativeTypes());
+            if (p_config->GetOutputCellProliferativeTypes())
+            {
+                rCellProliferativeTypeCounter[2]++;
+            }
             break;
         case APOPTOTIC:
             colour = APOPTOSIS_COLOUR;
-            rCellProliferativeTypeCounter[3] += 1*(p_config->GetOutputCellProliferativeTypes());
+            if (p_config->GetOutputCellProliferativeTypes())
+            {
+                rCellProliferativeTypeCounter[3]++;
+            }
             break;
         default:
             NEVER_REACHED;
