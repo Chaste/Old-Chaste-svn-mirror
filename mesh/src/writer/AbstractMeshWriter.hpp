@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <iomanip>
 
-#include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "AbstractMeshReader.hpp"
 

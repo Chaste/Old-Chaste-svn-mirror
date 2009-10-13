@@ -26,8 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractMeshWriter.hpp"
 #include <cassert>
+#include "AbstractMeshWriter.hpp"
+#include "PetscTools.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
