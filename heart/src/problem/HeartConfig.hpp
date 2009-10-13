@@ -142,7 +142,9 @@ private:
      * 
      * Requires the Xerces runtime to have been initialised.
      * 
-     * @param rFileName  the file to read.
+     * @param rFileName  the file to read
+     * @param rErrorHandler  handler for any parsing errors
+     * @param rProps  properties that specify fixed schema locations, if wanted
      */
     xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadFileToDomDocument(
         const std::string& rFileName,
