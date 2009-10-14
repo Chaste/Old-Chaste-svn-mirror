@@ -291,6 +291,10 @@ def _summary(req, type, revision, machine=None, buildType=None):
     else:
       build = buildTypesModule.GetBuildType(buildType)
   testsuite_status, overall_status, colour, runtime, graphs = _getTestStatus(test_set_dir, build)
+  # Store overall status for the standalone script case
+  if _standalone:
+    global _overall_status
+    _overall_status = overall_status
 
   # Get the timestamp on the directory
   st = os.stat(test_set_dir)
@@ -1074,3 +1078,5 @@ if __name__ == '__main__':
   _fp.close()
 
   print "Test summary generated in", os.path.join(_dir, 'index.html')
+  print "Overall test status:", _overall_status
+
