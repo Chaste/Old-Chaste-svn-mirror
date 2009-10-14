@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "OutputFileHandler.hpp"
 #include "ChasteCuboid.hpp"
+#include "Version.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
@@ -639,16 +640,6 @@ public :
         TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
     }
 
-    /**
-     *  The following test is aimed at checking that the ChasteParameters.xml file,
-     *  which is distributed with the executable, remains valid.
-     */
-    void TestChasteParametersFile() throw (Exception)
-    {
-        HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
-    }
-
     void TestExceptions() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
@@ -675,6 +666,16 @@ public :
     }
 
     /**
+     *  The following test is aimed at checking that the ChasteParameters.xml file,
+     *  which is distributed with the executable, remains valid.
+     */
+    void TestChasteParametersFile() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
+    }
+
+    /**
      * And here we try to check that using old XML or XSD files does The Right Thing.
      */
     void TestVersioning()
@@ -684,19 +685,46 @@ public :
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"),
                 "XML parsing error in configuration file: heart/test/data/xml/BrokenSchema.xml");
-
-        // Check that release 1 xml can be loaded with latest schema
+        // But if we use the fixed schema location, it should be OK.
         HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), false);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
-
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        TS_ASSERT_THROWS_NOTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"));
+        
         // Can release 1 xml be loaded with release 1 schema?
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
+        
+        // Check that release 1 xml can be loaded with release 1.1 schema
+        HeartConfig::Instance()->Reset();
+        HeartConfig::SchemaLocationsMap schema_locations;
+        schema_locations[""] = std::string(GetChasteRoot()) + "/heart/test/data/xml/ChasteParametersRelease1_1.xsd";
+        HeartConfig::Instance()->SetFixedSchemaLocations(schema_locations);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
+
+        // Check that release 1 xml can be loaded with latest schema
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        
+        // Check that release 1.1 xml can be loaded with release 1.1 schema
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1_1.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
+
+        // Check that release 1.1 xml can be loaded with latest schema
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1_1.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
         
         HeartConfig::Instance()->Reset();
     }

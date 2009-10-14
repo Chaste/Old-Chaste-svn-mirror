@@ -105,6 +105,7 @@ HeartConfig::HeartConfig()
 {
     assert(mpInstance.get() == NULL);
     mUseFixedSchemaLocation = true;
+    SetDefaultSchemaLocations();
 
     SetDefaultsFile("ChasteDefaults.xml");
 
@@ -171,18 +172,47 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
     cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
 }
 
+void HeartConfig::SetDefaultSchemaLocations()
+{
+    mSchemaLocations.clear();
+    // Location of schemas in the source tree
+    std::string root_dir = std::string(GetChasteRoot()) + "/heart/src/io/";
+    // Release 1.1 (and earlier) didn't use a namespace
+    mSchemaLocations[""] = root_dir + "ChasteParameters_1_1.xsd";
+    // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
+    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/1_2"] = root_dir + "ChasteParameters_1_2.xsd";
+}
+
+void HeartConfig::SetFixedSchemaLocations(const SchemaLocationsMap& rSchemaLocations)
+{
+    mSchemaLocations = rSchemaLocations;
+    SetUseFixedSchemaLocation(true);
+}
+
+void HeartConfig::SetUseFixedSchemaLocation(bool useFixedSchemaLocation)
+{
+    mUseFixedSchemaLocation = useFixedSchemaLocation;
+}
+
 boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::string& rFileName)
 {
     // Determine whether to use the schema path given in the input XML, or our own schema
     ::xml_schema::properties props;
     if (mUseFixedSchemaLocation)
     {
-        std::string root_dir = std::string(GetChasteRoot()) + "/heart/src/io/";
-        // Release 1.1 (and earlier) didn't use a namespace
-        props.no_namespace_schema_location(root_dir + "ChasteParameters_1_1.xsd");
-        // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
-        props.schema_location("https://chaste.comlab.ox.ac.uk/nss/parameters/1_2",
-                              root_dir + "ChasteParameters_1_2.xsd");
+        for (SchemaLocationsMap::iterator it = mSchemaLocations.begin();
+             it != mSchemaLocations.end();
+             ++it)
+        {
+            if (it->first == "")
+            {
+                props.no_namespace_schema_location(it->second);
+            }
+            else
+            {
+                props.schema_location(it->first, it->second);
+            }
+        }
     }
 
     // Get the parameters using the method 'ChasteParameters(rFileName)',
@@ -1588,11 +1618,6 @@ void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVe
         cp::conduction_velocity_map_type temp(conductionVelocityMaps[i]);        
         conduction_velocity_maps_sequence.push_back(temp);
     }
-}
-
-void HeartConfig::SetUseFixedSchemaLocation(bool useFixedSchemaLocation)
-{
-    mUseFixedSchemaLocation = useFixedSchemaLocation;
 }
 
 

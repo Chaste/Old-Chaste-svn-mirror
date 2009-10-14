@@ -57,6 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 namespace cp = chaste::parameters::v1_2;
 
+
 /**
  * A singleton class containing configuration parameters for heart simulations.
  *
@@ -156,6 +157,24 @@ private:
         ::xml_schema::error_handler& rErrorHandler,
         const ::xml_schema::properties& rProps);
     
+public:
+    /**
+     * Our type for specifying schema location properties: a map from namespace URI
+     * to schema URI.  The default namespace is specified by an empty namespace URI.
+     */
+    typedef std::map<std::string, std::string> SchemaLocationsMap;
+
+private:
+    /**
+     * Fixed location of schema files for the different Chaste parameters namespaces.
+     */
+    SchemaLocationsMap mSchemaLocations;
+
+    /**
+     * Set default schema locations in the Chaste source tree.
+     */
+    void SetDefaultSchemaLocations();
+    
     /**
      * Fake having a namespace in older configuration files, by adding a namespace
      * to each element in a tree.
@@ -195,9 +214,17 @@ public:
     /**
      * @param useFixedSchemaLocation  whether to read the schema location from the XML
      *    file (false) or use the schema located at heart/src/io/ChasteParameters.xsd
-     *    in the Chaste source tree (true).
+     *    in the Chaste source tree (or specified with SetFixedSchemaLocations()) (true).
      */
     void SetUseFixedSchemaLocation(bool useFixedSchemaLocation);
+    
+    /**
+     * Set the schema files to use.
+     * Also calls SetUseFixedSchemaLocation(true).
+     * 
+     * @param rSchemaLocations  map from namespace URI to schema URI
+     */
+    void SetFixedSchemaLocations(const SchemaLocationsMap& rSchemaLocations);
 
     /**
      * @param rFileName The name of the default file - set by default to "ChasteDefaults.xml" on construction
