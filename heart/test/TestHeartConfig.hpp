@@ -628,6 +628,10 @@ public :
         boost::archive::text_iarchive input_arch(ifs);
 
         HeartConfig* p_heart_config = HeartConfig::Instance();
+        
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationWrongDimension.xml");        
+        TS_ASSERT_THROWS_THIS(input_arch >> (*p_heart_config), "Problem type and space dimension should match when restarting a simulation.");        
+        
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");        
         input_arch >> (*p_heart_config);
 
@@ -787,8 +791,6 @@ public :
         TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
 
         // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSpaceDimension(), "SpaceDimension information is not available in a resumed simulation.")
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDomain(), "Domain information is not available in a resumed simulation.")
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
         
         std::vector<ChasteCuboid> definedRegions;

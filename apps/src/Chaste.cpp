@@ -276,9 +276,8 @@ void ReadParametersFromFile()
     }
     else
     {
-        /// \todo: #1143 bad bad bad...
-        domain = cp::domain_type::Bi;
-        space_dimension = 3;
+        domain = HeartConfig::Instance()->GetDomain();
+        space_dimension = HeartConfig::Instance()->GetSpaceDimension();
     }
 }
 
@@ -326,38 +325,96 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                 {
                     case 3:
                     {
-                        ChasteSlabCellFactory<3> cell_factory;
-                        MonodomainProblem<3> mono_problem( &cell_factory);
+                        MonodomainProblem<3>* p_mono_problem;
+                        
+                        if (HeartConfig::Instance()->IsSimulationDefined())
+                        {
+                            ChasteSlabCellFactory<3> cell_factory;
+                            p_mono_problem = new MonodomainProblem<3>(&cell_factory);
+    
+                            p_mono_problem->Initialise();
+    
+                            p_mono_problem->ConvertOutputToMeshalyzerFormat(true);
+                        }
+                        else // (HeartConfig::Instance()->IsSimulationResumed())
+                        {
+                            p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
+                        }
 
-                        mono_problem.ConvertOutputToMeshalyzerFormat(true);
-                        mono_problem.Initialise();
-                        mono_problem.Solve();
+                        p_mono_problem->Solve();
+
+                        if (HeartConfig::Instance()->GetSaveSimulation())
+                        {
+                            std::stringstream directory;
+                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+                            CardiacSimulationArchiver<MonodomainProblem<3> >::Save(*p_mono_problem, directory.str(), false);
+                        }
+
+                        delete p_mono_problem;
 
                         break;
                     }
 
                     case 2:
                     {
-                        ChasteSlabCellFactory<2> cell_factory;
-                        MonodomainProblem<2> mono_problem( &cell_factory);
+                        MonodomainProblem<2>* p_mono_problem;
+                        
+                        if (HeartConfig::Instance()->IsSimulationDefined())
+                        {
+                            ChasteSlabCellFactory<2> cell_factory;
+                            p_mono_problem = new MonodomainProblem<2>(&cell_factory);
+    
+                            p_mono_problem->Initialise();
+    
+                            p_mono_problem->ConvertOutputToMeshalyzerFormat(true);
+                        }
+                        else // (HeartConfig::Instance()->IsSimulationResumed())
+                        {
+                            p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<2> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
+                        }
 
-                        mono_problem.ConvertOutputToMeshalyzerFormat(true);
+                        p_mono_problem->Solve();
 
-                        mono_problem.Initialise();
-                        mono_problem.Solve();
+                        if (HeartConfig::Instance()->GetSaveSimulation())
+                        {
+                            std::stringstream directory;
+                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+                            CardiacSimulationArchiver<MonodomainProblem<2> >::Save(*p_mono_problem, directory.str(), false);
+                        }
+
+                        delete p_mono_problem;
 
                         break;
                     }
 
                     case 1:
                     {
-                        ChasteSlabCellFactory<1> cell_factory;
-                        MonodomainProblem<1> mono_problem( &cell_factory);
+                        MonodomainProblem<1>* p_mono_problem;
+                        
+                        if (HeartConfig::Instance()->IsSimulationDefined())
+                        {
+                            ChasteSlabCellFactory<1> cell_factory;
+                            p_mono_problem = new MonodomainProblem<1>(&cell_factory);
+    
+                            p_mono_problem->Initialise();
+    
+                            p_mono_problem->ConvertOutputToMeshalyzerFormat(true);
+                        }
+                        else // (HeartConfig::Instance()->IsSimulationResumed())
+                        {
+                            p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<1> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
+                        }
 
-                        mono_problem.ConvertOutputToMeshalyzerFormat(true);
+                        p_mono_problem->Solve();
 
-                        mono_problem.Initialise();
-                        mono_problem.Solve();
+                        if (HeartConfig::Instance()->GetSaveSimulation())
+                        {
+                            std::stringstream directory;
+                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+                            CardiacSimulationArchiver<MonodomainProblem<1> >::Save(*p_mono_problem, directory.str(), false);
+                        }
+
+                        delete p_mono_problem;
 
                         break;
                     }
@@ -404,23 +461,63 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
                     }
                     case 2:
                     {
-                        ChasteSlabCellFactory<2> cell_factory;
-                        BidomainProblem<2> bi_problem( &cell_factory);
+                        BidomainProblem<2>* p_bi_problem;
+                        
+                        if (HeartConfig::Instance()->IsSimulationDefined())
+                        {
+                            ChasteSlabCellFactory<2> cell_factory;
+                            p_bi_problem = new BidomainProblem<2>(&cell_factory);
+    
+                            p_bi_problem->Initialise();
+    
+                            p_bi_problem->ConvertOutputToMeshalyzerFormat(true);
+                        }
+                        else // (HeartConfig::Instance()->IsSimulationResumed())
+                        {
+                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
+                        }
 
-                        bi_problem.ConvertOutputToMeshalyzerFormat(true);
-                        bi_problem.Initialise();
-                        bi_problem.Solve();
+                        p_bi_problem->Solve();
+
+                        if (HeartConfig::Instance()->GetSaveSimulation())
+                        {
+                            std::stringstream directory;
+                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+                            CardiacSimulationArchiver<BidomainProblem<2> >::Save(*p_bi_problem, directory.str(), false);
+                        }
+
+                        delete p_bi_problem;
 
                         break;
                     }
                     case 1:
                     {
-                        ChasteSlabCellFactory<1> cell_factory;
-                        BidomainProblem<1> bi_problem( &cell_factory);
+                        BidomainProblem<1>* p_bi_problem;
+                        
+                        if (HeartConfig::Instance()->IsSimulationDefined())
+                        {
+                            ChasteSlabCellFactory<1> cell_factory;
+                            p_bi_problem = new BidomainProblem<1>(&cell_factory);
+    
+                            p_bi_problem->Initialise();
+    
+                            p_bi_problem->ConvertOutputToMeshalyzerFormat(true);
+                        }
+                        else // (HeartConfig::Instance()->IsSimulationResumed())
+                        {
+                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
+                        }
 
-                        bi_problem.ConvertOutputToMeshalyzerFormat(true);
-                        bi_problem.Initialise();
-                        bi_problem.Solve();
+                        p_bi_problem->Solve();
+
+                        if (HeartConfig::Instance()->GetSaveSimulation())
+                        {
+                            std::stringstream directory;
+                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+                            CardiacSimulationArchiver<BidomainProblem<1> >::Save(*p_bi_problem, directory.str(), false);
+                        }
+
+                        delete p_bi_problem;
 
                         break;
                     }

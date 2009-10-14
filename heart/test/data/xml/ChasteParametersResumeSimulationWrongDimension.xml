@@ -6,7 +6,7 @@
        
 	<ResumeSimulation>
 		<ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
-		<SpaceDimension>3</SpaceDimension>
+		<SpaceDimension>2</SpaceDimension>
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 		<SaveSimulation/>				

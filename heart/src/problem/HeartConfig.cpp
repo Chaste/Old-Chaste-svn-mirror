@@ -281,11 +281,16 @@ void HeartConfig::CheckResumeSimulationIsDefined(std::string callingMethod) cons
 
 unsigned HeartConfig::GetSpaceDimension() const
 {
-    CheckSimulationIsDefined("SpaceDimension");
-    
-    return DecideLocation( & mpUserParameters->Simulation().get().SpaceDimension(),
-                           & mpDefaultParameters->Simulation().get().SpaceDimension(),
-                           "SpaceDimension")->get();
+    if (IsSimulationDefined())
+    {        
+        return DecideLocation( & mpUserParameters->Simulation().get().SpaceDimension(),
+                               & mpDefaultParameters->Simulation().get().SpaceDimension(),
+                               "SpaceDimension")->get();
+    }
+    else
+    {
+        return mpUserParameters->ResumeSimulation().get().SpaceDimension();
+    }
 }
 
 double HeartConfig::GetSimulationDuration() const
@@ -304,11 +309,16 @@ double HeartConfig::GetSimulationDuration() const
 
 cp::domain_type HeartConfig::GetDomain() const
 {
-    CheckSimulationIsDefined("Domain");
-
-    return DecideLocation( & mpUserParameters->Simulation().get().Domain(),
-                           & mpDefaultParameters->Simulation().get().Domain(),
-                           "Domain")->get();
+    if (IsSimulationDefined())
+    {        
+        return DecideLocation( & mpUserParameters->Simulation().get().Domain(),
+                               & mpDefaultParameters->Simulation().get().Domain(),
+                               "Domain")->get();
+    }
+    else
+    {
+        return mpUserParameters->ResumeSimulation().get().Domain();
+    }
 }
 
 cp::ionic_models_available_type HeartConfig::GetDefaultIonicModel() const

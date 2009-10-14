@@ -124,9 +124,14 @@ private:
         std::string parameters_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";
         HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);
 
-        // If we are resuming a simulation update the simulation duration (and any other to come...)
+        // If we are resuming a simulation, update the simulation duration (and any other parameters to come...)
         if (p_new_parameters->ResumeSimulation().present())        
         {
+            if ( (p_new_parameters->ResumeSimulation().get().SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension()) 
+                 ||(p_new_parameters->ResumeSimulation().get().Domain() != HeartConfig::Instance()->GetDomain()))
+             {
+                EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
+             }
             HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
             HeartConfig::Instance()->SetSaveSimulation(p_new_parameters->ResumeSimulation().get().SaveSimulation().present());      
         }

@@ -315,8 +315,10 @@
   </xs:complexType>    
 
   <xs:complexType name="resume_simulation_type">
-    <xs:all>
+    <xs:all>    
       <xs:element name="ArchiveDirectory" type="xs:string"/>
+      <xs:element name="SpaceDimension" type="xs:integer"/>
+      <xs:element name="Domain" type="domain_type"/>      
       <xs:element name="SimulationDuration" type="time_type"/>
       <xs:element name="SaveSimulation" type="empty_type" minOccurs="0"/>
     </xs:all>      
