@@ -137,9 +137,29 @@ public:
     /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()). */
     ElementData GetNextEdgeData();
     
-//    /** Returns the next containing element for each face in turn */
-//    unsigned GetNextContainingElementOfBoundaryElement();
-
+    /** 
+     * @return the expected order of the element file (1=linear, 2=quadratic)
+     */
+    unsigned GetOrderOfElements()
+    {
+        return mOrderOfElements;
+    }
+    /** 
+     * @return the expected order of the boundary element file (1=linear, 2=quadratic)
+     */
+    unsigned GetOrderOfBoundaryElements()
+    {
+        return mOrderOfBoundaryElements;
+    }
+     
+    /** 
+     * @return true if the boundary element file is linear, but contains information about neighbouring elements 
+     */
+    bool GetReadContainingElementOfBoundaryElement()
+    {
+        return mReadContainingElementOfBoundaryElement;
+    }
+    
 private:
 
     /** Open mesh files. */

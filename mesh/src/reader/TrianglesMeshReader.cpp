@@ -63,6 +63,10 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 {
     // Only linear and quadratic elements
     assert(orderOfElements==1 || orderOfElements==2);
+    if ( mOrderOfBoundaryElements == 2 &&  mReadContainingElementOfBoundaryElement)
+    {
+        EXCEPTION("Boundary element file should not have containing element info if it is quadratic");
+    }
     if (mOrderOfElements==1)
     {
         mNodesPerElement = ELEMENT_DIM+1;

@@ -278,7 +278,7 @@ public:
     {
         QuadraticMesh<1> quad_mesh;
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratic",2,1,false);
-        quad_mesh.ConstructFromMeshReader(mesh_reader, false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader);
 
         BoundaryConditionsContainer<1,1,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
@@ -307,7 +307,7 @@ public:
         // Solve using quadratics..
         QuadraticMesh<2> quad_mesh;
         TrianglesMeshReader<2,2> mesh_reader1("mesh/test/data/square_128_elements_quadratic",2,1,false);
-        quad_mesh.ConstructFromMeshReader(mesh_reader1, false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader1);
 
         BoundaryConditionsContainer<2,2,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
@@ -364,7 +364,7 @@ public:
         // Solve using quadratics..
         QuadraticMesh<3> quad_mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/cube_1626_elements_quadratic",2,1,false);
-        quad_mesh.ConstructFromMeshReader(mesh_reader1, false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader1);
         
         BoundaryConditionsContainer<3,3,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);

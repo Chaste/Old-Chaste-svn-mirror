@@ -325,6 +325,10 @@ public:
         // This should fail because SPACE_DIM doesn't match the dimension in the file
         TS_ASSERT_THROWS_THIS( READER_1D mesh_reader("mesh/test/data/disk_984_elements"),
                 "SPACE_DIM  != dimension read from file ");
+        //Indexed quadratic faces
+        TS_ASSERT_THROWS_THIS( READER_1D mesh_reader2("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", 2, 2, true),        
+                "Boundary element file should not have containing element info if it is quadratic");
+        
     }
 
     ////////////////////////////////////////////////////////
