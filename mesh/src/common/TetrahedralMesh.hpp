@@ -125,7 +125,7 @@ public:
      *
      * @param rMeshReader the mesh reader
      */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
+    virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
 
     /**
      * Read in the number of nodes per processor from file.

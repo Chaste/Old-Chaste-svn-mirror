@@ -37,34 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef REAL
 #undef VOID
 
-template<unsigned DIM>
-QuadraticMesh<DIM>::QuadraticMesh(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo)
-{
-//    if(boundaryElemFileIsQuadratic && boundaryElemFileHasContainingElementInfo)
-//    {
-//        EXCEPTION("Boundary element file should not have containing element info if it is quadratic");
-//    }
-    
-    if(boundaryElemFileIsQuadratic)
-    {
-         ///\todo Fix coverage as above
-         assert(boundaryElemFileHasContainingElementInfo == false);
-    }
-    LoadFromFile(rFileName, boundaryElemFileIsQuadratic, boundaryElemFileHasContainingElementInfo);
-
-    // Check each boundary element has a quadratic number of nodes
-#ifndef NDEBUG
-    unsigned expected_num_nodes = DIM*(DIM+1)/2;
-    for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
-          = this->GetBoundaryElementIteratorBegin();
-          iter != this->GetBoundaryElementIteratorEnd();
-          ++iter)
-    {
-        assert((*iter)->GetNumNodes()==expected_num_nodes);
-    }
-#endif
-}
-
 
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY)
@@ -296,7 +268,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     return_value = system(command.c_str());
 
     // load
-    LoadFromFile( fileStem + ".1", false, false); // false as tetgen/triangle has been used and therefore boundary elems will be linear
+    ConstructFromMeshReader( fileStem + ".1", false, false); // false as tetgen/triangle has been used and therefore boundary elems will be linear
     ///\todo: Could use the '-nn' flag when calling tetgen and then face file would have containing element info and second false
     // could be a true instead. Currently though there is the intermediate step of having to delete manually the attribute values
     // column after using this flag.
@@ -311,13 +283,18 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo)
+void QuadraticMesh<DIM>::ConstructFromMeshReader(const std::string& rFileName, bool boundaryElemFileIsQuadratic, bool boundaryElemFileHasContainingElementInfo)
 {
+    if(boundaryElemFileIsQuadratic && boundaryElemFileHasContainingElementInfo)
+    {
+        EXCEPTION("Boundary element file should not have containing element info if it is quadratic");
+    }
+    
     unsigned order_of_boundary_elements = boundaryElemFileIsQuadratic ? 2 : 1;
 
     TrianglesMeshReader<DIM,DIM> mesh_reader(rFileName, 2, order_of_boundary_elements, boundaryElemFileHasContainingElementInfo); // 2=quadratic mesh
 
-    ConstructFromMeshReader(mesh_reader);
+    TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(mesh_reader);
     assert(this->GetNumBoundaryElements()>0);
 
     // set up the information on whether a node is an internal node or not (if not,
@@ -396,6 +373,18 @@ void QuadraticMesh<DIM>::LoadFromFile(const std::string& rFileName, bool boundar
             AddNodesToBoundaryElements(boundaryElemFileHasContainingElementInfo, &mesh_reader);
         }
     }
+        
+    // Check each boundary element has a quadratic number of nodes
+#ifndef NDEBUG
+    unsigned expected_num_nodes = DIM*(DIM+1)/2;
+    for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
+          = this->GetBoundaryElementIteratorBegin();
+          iter != this->GetBoundaryElementIteratorEnd();
+          ++iter)
+    {
+        assert((*iter)->GetNumNodes()==expected_num_nodes);
+    }
+#endif
 }
 
 template<unsigned DIM>
