@@ -176,6 +176,15 @@ private:
     void SetDefaultSchemaLocations();
     
     /**
+     * Helper method for URL-escaping spaces in file paths, to avoid confusing Xerces
+     * regarding schema locations.  Note that this is a very specific fix: it doesn't
+     * do general URL-escaping.
+     * 
+     * @param rPath  the path to escape
+     */
+    std::string EscapeSpaces(const std::string& rPath);
+    
+    /**
      * Fake having a namespace in older configuration files, by adding a namespace
      * to each element in a tree.
      * 

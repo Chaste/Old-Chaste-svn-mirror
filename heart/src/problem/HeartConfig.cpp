@@ -160,7 +160,7 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
     //Note - this location is relative to where we are storing the xml
     ::xml_schema::namespace_infomap map;
     char buf[10000];
-    std::string absolute_path_to_xsd = getcwd(buf, 10000);
+    std::string absolute_path_to_xsd = EscapeSpaces(getcwd(buf, 10000));
     absolute_path_to_xsd += "/heart/src/io/";
     // Release 1.1 (and earlier) didn't use a namespace
     map[""].schema = absolute_path_to_xsd + "ChasteParameters_1_1.xsd";
@@ -194,6 +194,23 @@ void HeartConfig::SetUseFixedSchemaLocation(bool useFixedSchemaLocation)
     mUseFixedSchemaLocation = useFixedSchemaLocation;
 }
 
+std::string HeartConfig::EscapeSpaces(const std::string& rPath)
+{
+    std::string escaped_path;
+    for (std::string::const_iterator it = rPath.begin(); it != rPath.end(); ++it)
+    {
+        if (*it == ' ')
+        {
+            escaped_path += "%20";
+        }
+        else
+        {
+            escaped_path += *it;
+        }
+    }
+    return escaped_path;
+}
+
 boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::string& rFileName)
 {
     // Determine whether to use the schema path given in the input XML, or our own schema
@@ -206,11 +223,11 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         {
             if (it->first == "")
             {
-                props.no_namespace_schema_location(it->second);
+                props.no_namespace_schema_location(EscapeSpaces(it->second));
             }
             else
             {
-                props.schema_location(it->first, it->second);
+                props.schema_location(it->first, EscapeSpaces(it->second));
             }
         }
     }

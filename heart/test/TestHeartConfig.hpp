@@ -728,6 +728,22 @@ public :
         
         HeartConfig::Instance()->Reset();
     }
+    
+    /**
+     * Test whether we can use a schema that has spaces in the pathname.
+     * This gives some indication of whether Chaste will cope being checked out into
+     * a path with spaces.
+     */
+    void TestSpacesInPath()
+    {
+        HeartConfig::Instance()->Reset();
+        HeartConfig::SchemaLocationsMap schema_locations;
+        schema_locations[""] = std::string(GetChasteRoot()) + "/heart/test/data/xml/schema with spaces.xsd";
+        HeartConfig::Instance()->SetFixedSchemaLocations(schema_locations);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1_1.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
+        HeartConfig::Instance()->Reset();
+    }
 
     void TestGetOuputVariablesFromXML()
     {
