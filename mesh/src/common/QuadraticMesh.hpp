@@ -180,7 +180,7 @@ public:
      * @param rMeshReader the mesh reader
      * 
      */
-    void ConstructFromMeshReader(TrianglesMeshReader<DIM, DIM>& rMeshReader);
+    void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
     
     /**
      * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)

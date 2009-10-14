@@ -286,15 +286,18 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::ConstructFromMeshReader(TrianglesMeshReader<DIM, DIM>& rMeshReader)
+void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rAbsMeshReader)
 {
+    TrianglesMeshReader<DIM, DIM>* p_mesh_reader=dynamic_cast<TrianglesMeshReader<DIM, DIM>*>(&rAbsMeshReader);
+    assert(p_mesh_reader != NULL); 
     
-    if (rMeshReader.GetOrderOfElements() == 1)
+    
+    if (p_mesh_reader->GetOrderOfElements() == 1)
     {
         EXCEPTION("Supplied mesh reader is reading a linear mesh into quadratic mesh");
     }
     
-    TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(rMeshReader);
+    TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(*p_mesh_reader);
     assert(this->GetNumBoundaryElements()>0);
 
     // set up the information on whether a node is an internal node or not (if not,
@@ -329,14 +332,14 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(TrianglesMeshReader<DIM, DIM>& 
         }
     }
 
-    rMeshReader.Reset();
+    p_mesh_reader->Reset();
 
 
     // add the extra nodes (1 extra node in 1D, 3 in 2D, 6 in 3D) to the element
     // data.
     for (unsigned i=0; i<this->GetNumElements(); i++)
     {
-        std::vector<unsigned> nodes = rMeshReader.GetNextElementData().NodeIndices;
+        std::vector<unsigned> nodes = p_mesh_reader->GetNextElementData().NodeIndices;
         assert(nodes.size()==(DIM+1)*(DIM+2)/2);
         assert(this->GetElement(i)->GetNumNodes()==DIM+1); // element is initially linear
         // add extra nodes to make it a quad element
@@ -349,15 +352,15 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(TrianglesMeshReader<DIM, DIM>& 
     if (DIM > 1)
     {
         // if  OrderOfBoundaryElements is 2 it can read in the extra nodes for each boundary element, other have to compute them.
-        if (rMeshReader.GetOrderOfBoundaryElements() == 2u)
+        if (p_mesh_reader->GetOrderOfBoundaryElements() == 2u)
         {
-            rMeshReader.Reset();
+            p_mesh_reader->Reset();
             for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
                   = this->GetBoundaryElementIteratorBegin();
                  iter != this->GetBoundaryElementIteratorEnd();
                  ++iter)
             {
-                std::vector<unsigned> nodes = rMeshReader.GetNextFaceData().NodeIndices;
+                std::vector<unsigned> nodes = p_mesh_reader->GetNextFaceData().NodeIndices;
 
                 assert((*iter)->GetNumNodes()==DIM); // so far just the vertices
                 assert(nodes.size()==DIM*(DIM+1)/2); // the reader should have got 6 nodes (3d) for each face
@@ -370,7 +373,7 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(TrianglesMeshReader<DIM, DIM>& 
         }
         else
         {
-            AddNodesToBoundaryElements(&(rMeshReader));
+            AddNodesToBoundaryElements(p_mesh_reader);
         }
     }
         
