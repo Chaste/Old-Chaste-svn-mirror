@@ -62,6 +62,7 @@ private:
     TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used by the calculator*/
     ChastePoint<SPACE_DIM>& mrX; /**<The point from where we want to calculate the pseudoECG*/
     double mDiffusionCoefficient;/**<The diffusion coefficient D*/
+    std::string mVariableName;/**< the variable for which we want to calculate the pseudo ecg, defaults to "V"*/
 
     /**
      * Get the integrand.
@@ -102,6 +103,7 @@ public:
                          ChastePoint<SPACE_DIM>& rX,
                          std::string directory,
                          std::string hdf5File,
+                         std::string variableName = "V",
                          bool makeAbsolute = true);
 
     /**

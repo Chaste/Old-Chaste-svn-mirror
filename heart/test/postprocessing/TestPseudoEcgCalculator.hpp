@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
+#include "HeartConfig.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestPseudoEcgCalculator : public CxxTest::TestSuite
@@ -114,7 +115,7 @@ public:
         ChastePoint<1> electrode;
         electrode.SetCoordinate(0, 15.0);
         
-        PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "gradient_V", true);
+        PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "gradient_V");
         double pseudo_ecg;      
         
         // The expected result is the integral of: - d(gradV)*dgrad(1/r) in dx
@@ -202,9 +203,9 @@ public:
         
         ChastePoint<1> electrode;
         
-        electrode.SetCoordinate(0, 15.0);
+        electrode.SetCoordinate(0, 15.0); 
         
-        PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "parabolic_V", true);
+        PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "parabolic_V", "V", true);
         
         double pseudo_ecg; //stores the results
         
@@ -233,6 +234,67 @@ public:
         }
         
     }
+    
+//    void TestCalculatorRealistic3D() throw (Exception)
+//    {
+//        EXIT_IF_PARALLEL;
+//        
+//        //get the mesh, whole heart mesh
+//        TrianglesMeshReader<3,3> reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
+//        TetrahedralMesh<3,3> mesh;
+//        mesh.ConstructFromMeshReader(reader);
+//     
+//        Hdf5DataReader h5_reader(".", "3D", false);   
+//                
+//        unsigned number_nodes = mesh.GetNumNodes();
+//        unsigned number_of_time_steps = 4;
+//
+//        DistributedVectorFactory factory(number_nodes);
+//
+//        Hdf5DataWriter writer(factory, "testingecg", "3D_forecg", false);//needs to be false not to clean the directory!
+//        //get the ID
+//        int V_id = writer.DefineVariable("V", "mV");
+//        writer.DefineUnlimitedDimension("t","ms");
+//        
+//        writer.DefineFixedDimension(number_nodes);
+//        writer.EndDefineMode();
+//        for (unsigned i = 0;i < number_of_time_steps; i++)
+//        {
+//            //read in the values
+//            Vec solution_at_one_time_step = PetscTools::CreateVec(number_nodes);    
+//            h5_reader.GetVariableOverNodes(solution_at_one_time_step, "V" , i);
+//            writer.PutVector(V_id, solution_at_one_time_step);
+//            writer.PutUnlimitedVariable(i);
+//            writer.AdvanceAlongUnlimitedDimension();
+//            VecDestroy(solution_at_one_time_step);
+//        }
+//        writer.Close();
+//
+//        Hdf5DataReader reader_2("testingecg", "3D_forecg", true);
+//
+//        std::cout<<reader_2.GetUnlimitedDimensionValues().size()<<std::endl;
+//        std::vector<double> var_over_time = reader_2.GetVariableOverTime("V", 56u);
+//        TS_ASSERT_EQUALS(var_over_time.size(),number_of_time_steps);
+//        
+//        Vec solution = PetscTools::CreateVec(number_nodes); 
+//        reader_2.GetVariableOverNodes(solution, "V" , 2);
+////
+//        ///////////////////////////////////////////////////
+//        // Now we compute the pseudo ECG. We set an electrode at x=2.2, y=6, z=1.85.
+//        ///////////////////////////////////////////////////
+//        
+//        ChastePoint<3> electrode;
+//        
+//        electrode.SetCoordinate(0, 2.2);
+//        electrode.SetCoordinate(1, 6.0);
+//        electrode.SetCoordinate(2, 1.85);
+//        PseudoEcgCalculator<3,3,1> calculator (mesh, electrode, "testingecg", "3D_forecg", "V", true);
+//        
+//        calculator.SetDiffusionCoefficient(1.0);
+//        //write out the pseudoECG
+//        calculator.WritePseudoEcg();   
+//        
+//    }
 };
 
 
