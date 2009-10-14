@@ -62,7 +62,7 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
 
     // Solve and write to file
     OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
-    solution.WriteToFile("TestIonicModels",filename,pOdeSystem,"ms",stepPerRow,false);
+    solution.WriteToFile("TestIonicModels",filename,pOdeSystem,"ms",stepPerRow,false,4);
 }
 
 std::vector<double> GetVoltages(ColumnDataReader& rReader)

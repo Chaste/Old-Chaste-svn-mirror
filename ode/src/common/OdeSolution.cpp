@@ -68,14 +68,15 @@ void OdeSolution::WriteToFile(std::string directoryName,
                               AbstractOdeSystem* pOdeSystem,
                               std::string timeUnits,
                               unsigned stepsPerRow,
-                              bool cleanDirectory)
+                              bool cleanDirectory,
+                              unsigned precision)
 {
     assert(stepsPerRow > 0);
     assert(mTimes.size() > 0);
     assert(mTimes.size() == mSolutions.size());
 
     // Write data to a file using ColumnDataWriter
-    ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory);
+    ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory, precision);
     
     if (!PetscTools::AmMaster())
     {

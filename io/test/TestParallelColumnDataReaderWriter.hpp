@@ -91,8 +91,8 @@ public:
 
         for (int global_index=lo; global_index<hi; global_index++)
         {
-            var1_array[global_index-lo]=global_index;
-            var2_array[global_index-lo]=global_index+100;
+            var1_array[global_index-lo] = global_index;
+            var2_array[global_index-lo] = -global_index * 1e100;
         }
 
         VecRestoreArray(var1, &var1_array);
@@ -131,6 +131,7 @@ public:
 
         // Change the data
         VecSqrt(var1);
+        VecAbs(var2);
         VecSqrt(var2);
 
         // Write out the data again (Conventional)
@@ -214,7 +215,7 @@ public:
         delete p_parallel_writer;
     }
 
-    // Read back the data written in the test above
+    // Read back the data written in the test TestParallelColumnWriter above
     void TestColumnReader() throw(Exception)
     {
         /*
@@ -224,7 +225,7 @@ public:
          */
 
         // Make a parallel data writer
-        mpReader = new ColumnDataReader("TestParallelColumnDataWriter","ParallelColumnWriter");
+        mpReader = new ColumnDataReader("TestParallelColumnDataWriter", "ParallelColumnWriter");
 
         // Check that there's the correct number of files
         std::vector<double> time_stamps;
@@ -236,12 +237,12 @@ public:
         // Check that some of the data is correct
         std::vector<double> var1_node4;
         var1_node4 = mpReader->GetValues("Var1",4);
-        TS_ASSERT_EQUALS(var1_node4[0],4.0); //First time step
-        TS_ASSERT_EQUALS(var1_node4[1],2.0); //Second time step
+        TS_ASSERT_EQUALS(var1_node4[0], 4.0); //First time step
+        TS_ASSERT_EQUALS(var1_node4[1], 2.0); //Second time step
         std::vector<double> var2_node4;
         var2_node4 = mpReader->GetValues("Var2",4);
-        TS_ASSERT_EQUALS(var2_node4[0],104.0); //First time step
-        TS_ASSERT_DELTA(var2_node4[1],sqrt(104.0),1e-4); //Second time step
+        TS_ASSERT_EQUALS(var2_node4[0], -4 * 1e100); //First time step
+        TS_ASSERT_DELTA(var2_node4[1], sqrt(4 * 1e100), 1e-4); //Second time step
 
         TS_ASSERT_THROWS_THIS(mpReader->GetValues("LifeSigns",4),"Unknown variable");
         TS_ASSERT_THROWS(mpReader->GetValues("Var1",10),std::out_of_range);

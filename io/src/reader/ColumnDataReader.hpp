@@ -83,7 +83,16 @@ private:
 public:
 
     /**
-     * Read data from the given files into memory.
+     * Read data from the given files into memory.  The files should be formatted as if
+     * written by ColumnDataWriter, with fixed width columns (except for the header line)
+     * and fields in scientific notation.
+     * 
+     * This will attempt to determine the field width from the input file.  However, it
+     * needs some data to work with in order to do so.  Provided at least one correctly
+     * formatted entry exists, it will be able to determine the field width, assuming
+     * that space is allowed for 3 digits in the exponent.  Release 1.1 and earlier of
+     * Chaste only allowed 2 digits for the exponent; we can cope with this provided that
+     * the first data entry in the file has another entry immediately to the right of it.
      *
      * @param rDirectory  The directory the files are stored in
      * @param rBaseName  The base name of the files to read (i.e. without the extensions)

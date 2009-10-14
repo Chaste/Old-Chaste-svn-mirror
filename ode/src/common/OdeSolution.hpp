@@ -100,13 +100,17 @@ public:
      * @param stepsPerRow  the solution to the ODE system is written to file every
      *                    this number of timesteps (defaults to 1)
      * @param cleanDirectory  whether to clean the directory (defaults to true)
+     * @param precision the precision with which to write the data (i.e. exactly
+     *    how many digits to display after the decimal point).  Defaults to 8.
+     *    Must be between 2 and 20 (inclusive).
      */
     void WriteToFile(std::string directoryName,
                      std::string baseResultsFilename,
                      AbstractOdeSystem* pOdeSystem,
                      std::string timeUnits,
                      unsigned stepsPerRow=1,
-                     bool cleanDirectory=true);
+                     bool cleanDirectory=true,
+                     unsigned precision=8);
 };
 
 #endif //_ODESOLUTION_HPP_

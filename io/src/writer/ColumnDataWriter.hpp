@@ -53,7 +53,7 @@ protected:
     bool mIsInDefineMode; /**< Is the DataWriter in define mode or not */
     bool mIsFixedDimensionSet; /**< Is the fixed dimension set */
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
-    long mUnlimitedDimensionPosition; /**< The position along the unlimited dimension that writing of variables will take place*/
+    long mUnlimitedDimensionPosition; /**< The position along the unlimited dimension that writing of variables will take place */
     long mFixedDimensionSize; /**< The size of the fixed dimension */
     out_stream mpCurrentOutputFile; /**< Filestream currently being addressed */
     out_stream mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) eg. time file*/
@@ -68,18 +68,18 @@ protected:
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
 
-    const unsigned mFieldWidth; /**< Width of each column in the text file (excludes column headers)*/
+    const unsigned mFieldWidth; /**< Width of each column in the text file (excludes column headers) */
     const unsigned mPrecision; /**< Precision used in writing the data */
     static const int SPACING = 2; /**< Space between columns (includes minus sign) */
     static const int FIXED_DIMENSION_VAR_ID = -1; /**< id of fixed dimension variable */
-    static const int UNLIMITED_DIMENSION_VAR_ID = -2;/**< id of unlimited dimension variable */
+    static const int UNLIMITED_DIMENSION_VAR_ID = -2; /**< id of unlimited dimension variable */
 
     std::string mFileExtension; /**< Extension of output files */
 
-    int mRowStartPosition; /**< The position of the file pointer when its at the beginning of the current row*/
+    int mRowStartPosition; /**< The position of the file pointer when it's at the beginning of the current row */
     int mRowWidth; /**< The width in characters of a row in the file */
 
-    int mAncillaryRowStartPosition; /**< The position of the ancillary file pointer when it's at the beginning of the current row*/
+    int mAncillaryRowStartPosition; /**< The position of the ancillary file pointer when it's at the beginning of the current row */
     int mAncillaryRowWidth; /**< The width in characters of a row in the ancillary file */
 
     bool mHasPutVariable; /**< Whether a variable value has been output to a file. */
@@ -126,7 +126,9 @@ public:
      * @param rDirectory  the directory in which to write the data to file
      * @param rBaseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
-     * @param precision the precision with which to write the data. Defaults to 8. Must be between 2 and 20 (inclusive).
+     * @param precision the precision with which to write the data (i.e. exactly
+     *    how many digits to display after the decimal point).  Defaults to 8.
+     *    Must be between 2 and 20 (inclusive).
      */
     ColumnDataWriter(const std::string& rDirectory,
                      const std::string& rBaseName,

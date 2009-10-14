@@ -170,37 +170,46 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
     }
     
     // Now read the first line of proper data to determine the field width used when this
-    // file was created. Do this by reading the first entry and measuring it's length (ignoring
-    // preceding '-'s)
+    // file was created. Do this by reading the first entry and measuring the distance from
+    // the decimal point to the 'e'.  This gives the precision; the field width is then
+    // precision + 7.
     // eg, if the first entry is
-    //   6.3124e+01         => field width = 10 // chaste release 1 and 1.1
-    //  -3.5124e+01         => field width = 10 // chaste release 1 and 1.1
-    //  +1.00000000e+00     => field width = 14
-    //  -1.20000000e+01     => field width = 14
+    //   6.3124e+01         => field width = 11 // chaste release 1 and 1.1
+    //  -3.5124e+01         => field width = 11 // chaste release 1 and 1.1
+    //  +1.00000000e+00     => field width = 15
+    //  -1.20000000e+01     => field width = 15
+    //  -1.12345678e-321    => field width = 15
     //
     std::string first_line;
     std::string first_entry;
     
     // read the first entry of the line. If there is no first entry, move to the next line..
-    while(first_entry.length()==0 && !datafile.eof())
+    while (first_entry.length()==0 && !datafile.eof())
     {
         std::getline(datafile, first_line);
         std::stringstream stream(first_line);
         stream >> first_entry;
     }
 
-    if(datafile.eof() && first_entry.length()==0)
+    if (datafile.eof() && first_entry.length()==0)
     {
         EXCEPTION("Unable to determine field width from file as cannot find any data entries");
     }
 
-    if(first_entry[0]=='-' || first_entry[0]=='+')
+    size_t dot_pos = first_entry.find(".");
+    size_t e_pos = first_entry.find("e");
+    if (dot_pos == std::string::npos || e_pos == std::string::npos)
     {
-        mFieldWidth = (unsigned)(first_entry.length()-1);
+        EXCEPTION("Badly formatted scientific data field");
     }
-    else
+    mFieldWidth = e_pos - dot_pos - 1 + 7;
+    // Attempt to account for old format files (which only allowed 2 characters for the exponent)
+    dot_pos = first_line.find(".");
+    size_t second_dot_pos = first_line.find(".", dot_pos+1);
+    if ((second_dot_pos != std::string::npos) && 
+        (second_dot_pos - dot_pos == mFieldWidth + SPACING - 1))
     {
-        mFieldWidth = first_entry.length();
+        mFieldWidth--;
     }
     
     infofile.close();

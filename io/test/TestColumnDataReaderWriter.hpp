@@ -62,14 +62,14 @@ private:
 
         while (getline(testfile, teststring))
         {
-            getline(goodfile,goodstring);
+            getline(goodfile, goodstring);
             if (teststring != goodstring)
             {
                 matching = false;
             }
         }
 
-        if (getline(goodfile,goodstring))
+        if (getline(goodfile, goodstring))
         {
             matching = false;
         }
@@ -77,6 +77,16 @@ private:
         testfile.close();
         goodfile.close();
         return matching;
+    }
+    
+    // Note: not using references so we can pass in temporary vectors
+    void CompareVectors(std::vector<double> v1, std::vector<double> v2, double precision)
+    {
+        TS_ASSERT_EQUALS(v1.size(), v2.size());
+        for (unsigned i=0; i<v1.size(); i++)
+        {
+            TS_ASSERT_DELTA(v1[i], v2[i], precision);
+        }
     }
 
 public:
@@ -95,7 +105,7 @@ public:
     void TestCreateColumnReader() throw(Exception)
     {
         // File does not exist
-        TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"),"Couldn\'t open info file: ");
+        TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"), "Couldn\'t open info file: ");
 
         // File contains corrupt data
         TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testbad", false), "Couldn\'t read info file correctly");
@@ -111,17 +121,21 @@ public:
 
     void TestDetermineFieldWidth() throw(Exception)
     {
-        mpTestReader = new ColumnDataReader("io/test/data","testfixed_good",false);
-        TS_ASSERT_EQUALS(mpTestReader->GetFieldWidth(), 9u);
+        mpTestReader = new ColumnDataReader("io/test/data", "testfixed_good", false);
+        TS_ASSERT_EQUALS(mpTestReader->GetFieldWidth(), 10u);
 
         delete mpTestReader;
 
-        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testdefine_good", false), "Unable to determine field width from file as cannot find any data entries");
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testenddefine_good", false),
+                              "Unable to determine field width from file as cannot find any data entries");
+
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "malformed_e_notation", false),
+                              "Badly formatted scientific data field");
     }
 
     void TestDefineUnlimitedDimension() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testdefineunlimited", false));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineUnlimitedDimension("Time", "msecs"),
                 "Unlimited dimension already set. Cannot be defined twice");
@@ -138,7 +152,7 @@ public:
 
     void TestDefineFixedDimension() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testdefinefixed", false));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
 
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000),
@@ -153,7 +167,7 @@ public:
 
     void TestDefineVariable() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testdefinevariable", false));
         int ina_var_id = 0;
         int ik_var_id = 0;
 
@@ -177,7 +191,7 @@ public:
 
     void TestEndDefineMode() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testenddefine", false));
 
         TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(0, 0, 0), "Cannot put variables when in Define mode");
 
@@ -202,14 +216,14 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(FilesMatch(output_dir + "testdefine.dat", "io/test/data/testdefine_good.dat"));
+        TS_ASSERT(FilesMatch(output_dir + "testenddefine.dat", "io/test/data/testenddefine_good.dat"));
 
-        TS_ASSERT(FilesMatch(output_dir + "testdefine.info", "io/test/data/testdefine_good.info"));
+        TS_ASSERT(FilesMatch(output_dir + "testenddefine.info", "io/test/data/testenddefine_good.info"));
     }
 
     void TestCantAddUnlimitedAfterEndDefine() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testdefine", false));
         int ina_var_id = 0;
         int ik_var_id = 0;
 
@@ -226,7 +240,7 @@ public:
 
     void TestPutVariableInUnlimitedFile() throw(Exception)
     {
-        mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimited");
+        mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimited", false);
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -241,7 +255,7 @@ public:
         {
             mpTestWriter->PutVariable(time_var_id, (double)(i)/10 - 0.1);
             mpTestWriter->PutVariable(ina_var_id, 12.0);
-            mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0);
+            mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))*1e150); // NB: Last column
             mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0);
             mpTestWriter->AdvanceAlongUnlimitedDimension();
         }
@@ -249,7 +263,7 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        mpTestReader = new ColumnDataReader("TestColumnDataReaderWriter","testunlimited");
+        mpTestReader = new ColumnDataReader("TestColumnDataReaderWriter", "testunlimited");
 
         std::vector<double> values_ik = mpTestReader->GetValues("I_K");
 
@@ -261,7 +275,7 @@ public:
         std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
         for (int i=0; i < 10; i++)
         {
-            TS_ASSERT_DELTA(time_values[i],i*0.1-0.1,1e-3);
+            TS_ASSERT_DELTA(time_values[i], i*0.1-0.1, 1e-3);
         }
 
         // Test for coverage
@@ -269,11 +283,19 @@ public:
         TS_ASSERT_THROWS_THIS(mpTestReader->GetValues("BadVar"), "Unknown variable");
 
         delete mpTestReader;
+        
+        // Compare with known good data using ColumnDataReader
+        ColumnDataReader good_reader("io/test/data", "testunlimited", false);
+        ColumnDataReader our_reader("TestColumnDataReaderWriter", "testunlimited");
+        CompareVectors(our_reader.GetUnlimitedDimensionValues(), good_reader.GetUnlimitedDimensionValues(), 1e-6);
+        CompareVectors(our_reader.GetValues("I_Na"), good_reader.GetValues("I_Na"), 1e-6);
+        CompareVectors(our_reader.GetValues("I_K"), good_reader.GetValues("I_K"), 1e-6);
+        CompareVectors(our_reader.GetValues("I_Ca"), good_reader.GetValues("I_Ca"), 1e-6);
     }
 
     void TestPutNegativeVariable() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimitednegative"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimitednegative", false));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -281,18 +303,23 @@ public:
         TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time", "msecs"));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K", "milliamperes"));
-        TS_ASSERT_THROWS_THIS(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"), "Variable name: Time already in use as unlimited dimension");
+        TS_ASSERT_THROWS_THIS(time_var_id = mpTestWriter->DefineVariable("Time", "msecs"),
+                              "Variable name: Time already in use as unlimited dimension");
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca", "milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, -0.2));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i));
+        // Check very small values are OK now.
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, -1.1e-321));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -3.3124e-321));
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) -i));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 33.124));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553));
         mpTestWriter->AdvanceAlongUnlimitedDimension();
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) -i));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553e99));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 3.124e123));
 
         // Check that an incorrect var id causes an exception:
         TS_ASSERT_THROWS_THIS(mpTestWriter->PutVariable(234, -33.124), "variableID unknown");
@@ -301,11 +328,19 @@ public:
         delete mpTestWriter;
 
         TS_ASSERT(FilesMatch(output_dir + "testunlimitednegative.dat", "io/test/data/testunlimitednegative_good.dat"));
+        
+        // Compare with known good data using ColumnDataReader
+        ColumnDataReader good_reader("io/test/data", "testunlimitednegative_good", false);
+        ColumnDataReader our_reader("TestColumnDataReaderWriter", "testunlimitednegative");
+        CompareVectors(our_reader.GetUnlimitedDimensionValues(), good_reader.GetUnlimitedDimensionValues(), 1e-6);
+        CompareVectors(our_reader.GetValues("I_Na"), good_reader.GetValues("I_Na"), 1e-6);
+        CompareVectors(our_reader.GetValues("I_K"), good_reader.GetValues("I_K"), 1e-6);
+        CompareVectors(our_reader.GetValues("I_Ca"), good_reader.GetValues("I_Ca"), 1e-6);
     }
 
     void TestPutVariableInFixedFileAndPrecision() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testfixed", true, 3)); // precision = 3
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testfixed", false, 3)); // precision = 3
 
         int node_var_id = 0;
         int ina_var_id = 0;
@@ -383,12 +418,23 @@ public:
                 "Precision must be between 2 and 20 (inclusive)");
         TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,21),
                 "Precision must be between 2 and 20 (inclusive)");
+        
+        // Compare with known good data using ColumnDataReader
+        ColumnDataReader good_reader("io/test/data", "testfixed_good", false);
+        ColumnDataReader our_reader("TestColumnDataReaderWriter", "testfixed");
+        for (int i=0; i<4; i++)
+        {
+            CompareVectors(our_reader.GetValues("I_Na", i), good_reader.GetValues("I_Na", i), 1e-6);
+            CompareVectors(our_reader.GetValues("I_K", i), good_reader.GetValues("I_K", i), 1e-6);
+            CompareVectors(our_reader.GetValues("I_Ca", i), good_reader.GetValues("I_Ca", i), 1e-6);
+            CompareVectors(our_reader.GetValues("Short_column", i), good_reader.GetValues("Short_column", i), 1e-6);
+        }
     }
 
     void TestPutNegativeVariableInFixedFile() throw(Exception)
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testfixed_negatives"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testfixed_negatives", false));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -417,12 +463,23 @@ public:
         std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-        TS_ASSERT(FilesMatch(output_dir + "testfixed_negatives.dat", "io/test/data/testfixed_negatives_good.dat"));
+        // This won't be true, as we use an old-format 'good' file, for coverage
+        //TS_ASSERT(FilesMatch(output_dir + "testfixed_negatives.dat", "io/test/data/testfixed_negatives_good.dat"));
+        
+        // Compare with known good data using ColumnDataReader
+        ColumnDataReader good_reader("io/test/data", "testfixed_negatives_good", false);
+        ColumnDataReader our_reader("TestColumnDataReaderWriter", "testfixed_negatives");
+        for (int i=0; i<4; i++)
+        {
+            CompareVectors(our_reader.GetValues("I_Na", i), good_reader.GetValues("I_Na", i), 1e-6);
+            CompareVectors(our_reader.GetValues("I_K", i), good_reader.GetValues("I_K", i), 1e-6);
+            CompareVectors(our_reader.GetValues("I_Ca", i), good_reader.GetValues("I_Ca", i), 1e-6);
+        }
     }
 
     void TestPutVariableInFixedandUnlimitedFile() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("","testfixedandunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testfixedandunlimited", false));
 
         int time_var_id = 0;
         int node_var_id = 0;
@@ -444,8 +501,17 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(node_var_id, 0, 0));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i,0));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i,1));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124,3));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3));
+        // Last column
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 1.1e130, 0));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -1.1e130, 1));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 1.1e-130, 2));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124, 3));
+        // Penultimate column
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, -3.3e111, 0));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 3.3e-111, 1));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, -3.3e-111, 2));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553, 3));
+        
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(node_var_id, 0, 0));
@@ -458,12 +524,12 @@ public:
         delete mpTestWriter;
 
         TS_ASSERT(FilesMatch(output_dir + "testfixedandunlimited_unlimited.dat",
-                             "io/test/data/testfixedandunlimited_unlimited_good.dat"));
+                             "io/test/data/testfixedandunlimited_unlimited.dat"));
 
         TS_ASSERT(FilesMatch(output_dir + "testfixedandunlimited_000001.dat",
-                             "io/test/data/testfixedandunlimited_000001_good.dat"));
+                             "io/test/data/testfixedandunlimited_000001.dat"));
 
-        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testfixedandunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("TestColumnDataReaderWriter", "testfixedandunlimited"));
 
         std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
         std::vector<double> ica_values = mpTestReader->GetValues("I_Ca", 3);
@@ -477,6 +543,17 @@ public:
         TS_ASSERT_THROWS_THIS(ica_values = mpTestReader->GetValues("I_Ca"), "Data file has fixed dimension which must be specified");
 
         delete mpTestReader;
+        
+        // Compare with known good data using ColumnDataReader
+        ColumnDataReader good_reader("io/test/data", "testfixedandunlimited", false);
+        ColumnDataReader our_reader("TestColumnDataReaderWriter", "testfixedandunlimited");
+        for (int i=0; i<4; i++)
+        {
+            CompareVectors(our_reader.GetValues("I_Na", i), good_reader.GetValues("I_Na", i), 1e-6);
+            CompareVectors(our_reader.GetValues("I_K", i), good_reader.GetValues("I_K", i), 1e-6);
+            CompareVectors(our_reader.GetValues("I_Ca", i), good_reader.GetValues("I_Ca", i), 1e-6);
+        }
+        CompareVectors(our_reader.GetUnlimitedDimensionValues(), good_reader.GetUnlimitedDimensionValues(), 1e-6);
     }
 
     /*
@@ -486,7 +563,7 @@ public:
      */
     void TestNegativeWithFixedAndUnlimitedDefined() throw(Exception)
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimitednegative2"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "testunlimitednegative2", false));
 
         int time_var_id = 0;
         int node_var_id = 0;
@@ -497,10 +574,21 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, -0.2));
+        // Make sure there's a data value to read the field width from
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 1.1e-130, 2));
 
         // Remember to delete - this closes the writer cleanly and means any data left
         // unwritten will be written to the datafile
         delete mpTestWriter;
+        
+        // Compare with known good data using ColumnDataReader
+        ColumnDataReader good_reader("io/test/data", "testunlimitednegative2", false);
+        ColumnDataReader our_reader("TestColumnDataReaderWriter", "testunlimitednegative2");
+        for (int i=0; i<4; i++)
+        {
+            CompareVectors(our_reader.GetValues("I_Ca", i), good_reader.GetValues("I_Ca", i), 1e-6);
+        }
+        CompareVectors(our_reader.GetUnlimitedDimensionValues(), good_reader.GetUnlimitedDimensionValues(), 1e-6);
     }
 };
 
