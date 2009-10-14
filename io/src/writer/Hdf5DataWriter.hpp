@@ -135,7 +135,6 @@ public:
      * @param rVariableName The name of the dimension
      * @param rVariableUnits The physical units of the dimension
      *
-     * @return The identifier of the variable
      */
     void DefineUnlimitedDimension(const std::string& rVariableName, const std::string& rVariableUnits);
 
