@@ -55,6 +55,7 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsig
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMesh()
+    : mMeshIsLinear(true)
 {
 }
 

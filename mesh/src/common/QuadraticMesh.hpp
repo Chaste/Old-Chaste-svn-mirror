@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include "TetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 
 #include <vector>
 
@@ -60,7 +61,7 @@ private:
      * @param pMeshReader Pointer to the reader. Only used if boundaryElemFileHasContainElementInfo==true (can be null if not).
      */
     void AddNodesToBoundaryElements(bool boundaryElemFileHasContainingElementInfo,
-                                    TrianglesMeshReader<DIM,DIM>* pMeshReader);
+                                    AbstractMeshReader<DIM,DIM>* pMeshReader);
 
     /**
      * This method adds the given node (defined by an element and a node index)
@@ -172,19 +173,20 @@ public:
      */
     QuadraticMesh()
     {
+        this->mMeshIsLinear=false;
     }
 
     /**
      * Load a quadratic mesh from a file.
      *
-     * @param rFileName  the name of the file to load the mesh from.
+     * @param rMeshReader the mesh reader
      * @param boundaryElemFileIsQuadratic Whether the boundary element file has a quadratic number of nodes (eg 3 in 2d)
      *  or linear number. Note tetgen with '-o2' creates files with quadratic elements but linear boundary elements.
      *  QuadraticMesh will compute the extra info in boundaryElemFileIsQuadratic==false (slow).
      * @param boundaryElemFileHasContainingElementInfo Whether the (linear) boundary element file has the containing element info
      *  in which case the conversion to quadratic is more efficient. Must be false if boundaryElemFileIsQuadratic==true. 
      */
-    void ConstructFromMeshReader(const std::string& rFileName, bool boundaryElemFileIsQuadratic=true, bool boundaryElemFileHasContainingElementInfo=false);
+    void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader, bool boundaryElemFileIsQuadratic=true, bool boundaryElemFileHasContainingElementInfo=false);
     
     /**
      * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)

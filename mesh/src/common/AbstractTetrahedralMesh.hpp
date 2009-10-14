@@ -53,6 +53,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
 {
+protected:
+    /**
+     * Most tet meshes are linear (set to true).  Set to false in quadratics.
+     */
+    bool mMeshIsLinear;
+    
 private:
     /**
      * Pure virtual solve element mapping method. For an element with a given
@@ -91,6 +97,7 @@ private:
     {
         //Only the master process writes any meshes to disk
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
+        archive & mMeshIsLinear;
         // Create a mesh writer pointing to the correct file and directory.
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                                ArchiveLocationInfo::GetMeshFilename(),
@@ -141,6 +148,8 @@ private:
     void load(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
+        archive & mMeshIsLinear;
+        assert(mMeshIsLinear);
         TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
         this->ConstructFromMeshReader(mesh_reader);
     }

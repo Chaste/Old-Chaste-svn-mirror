@@ -302,7 +302,8 @@ public:
     void TestQuadratic1D() throw (Exception)
     {
         QuadraticMesh<1> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
+        TrianglesMeshReader<1,1> mesh_reader1("mesh/test/data/1D_0_to_1_10_elements_quadratic", 2, 1, false);
+        mesh.ConstructFromMeshReader(mesh_reader1,false);
         TrianglesMeshWriter<1,1> mesh_writer("", "1d_quadratic");
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
@@ -317,7 +318,8 @@ public:
     void TestQuadratic2D() throw (Exception)
     {
         QuadraticMesh<2> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/square_128_elements_fully_quadratic");
+        TrianglesMeshReader<2,2> mesh_reader1("mesh/test/data/square_128_elements_fully_quadratic", 2, 2, false);
+        mesh.ConstructFromMeshReader(mesh_reader1,true);
         TrianglesMeshWriter<2,2> mesh_writer("", "2d_quadratic");
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
@@ -332,7 +334,8 @@ public:
     void TestQuadratic3D() throw (Exception)
     {
         QuadraticMesh<3> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/3D_Single_tetrahedron_element_quadratic", false);
+        TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic", 2, 1, false);
+        mesh.ConstructFromMeshReader(mesh_reader1,false);
         TrianglesMeshWriter<3,3> mesh_writer("", "3d_quadratic");
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 

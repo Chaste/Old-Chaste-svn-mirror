@@ -277,7 +277,8 @@ public:
     void TestSolveLaplacianWithQuadratics1d() throw (Exception)
     {
         QuadraticMesh<1> quad_mesh;
-        quad_mesh.ConstructFromMeshReader("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratic",2,1,false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader, false);
 
         BoundaryConditionsContainer<1,1,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
@@ -305,7 +306,8 @@ public:
     {
         // Solve using quadratics..
         QuadraticMesh<2> quad_mesh;
-        quad_mesh.ConstructFromMeshReader("mesh/test/data/square_128_elements_quadratic", false);
+        TrianglesMeshReader<2,2> mesh_reader1("mesh/test/data/square_128_elements_quadratic",2,1,false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader1, false);
 
         BoundaryConditionsContainer<2,2,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
@@ -361,7 +363,8 @@ public:
     {
         // Solve using quadratics..
         QuadraticMesh<3> quad_mesh;
-        quad_mesh.ConstructFromMeshReader("mesh/test/data/cube_1626_elements_quadratic", false);
+        TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/cube_1626_elements_quadratic",2,1,false);
+        quad_mesh.ConstructFromMeshReader(mesh_reader1, false);
         
         BoundaryConditionsContainer<3,3,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);

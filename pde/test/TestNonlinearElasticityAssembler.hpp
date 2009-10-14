@@ -90,7 +90,8 @@ public:
     void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/square_128_elements_quadratic", false);
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
+        mesh.ConstructFromMeshReader(mesh_reader, false);
         ExponentialMaterialLaw<2> law(2,3);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
@@ -214,7 +215,8 @@ public:
         EXIT_IF_PARALLEL; // defined in PetscTools
 
         QuadraticMesh<2> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/square_128_elements_quadratic", false);
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
+        mesh.ConstructFromMeshReader(mesh_reader, false);
 
         double c1 = 3.0;
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(c1);
@@ -307,7 +309,8 @@ public:
         EXIT_IF_PARALLEL; // defined in PetscTools
 
         QuadraticMesh<2> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/square_128_elements_quadratic", false);
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
+        mesh.ConstructFromMeshReader(mesh_reader, false);
 
         MooneyRivlinMaterialLaw<2> law(0.02);
         c_vector<double,2> body_force;

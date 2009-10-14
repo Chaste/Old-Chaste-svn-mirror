@@ -42,7 +42,8 @@ public:
     {
         //QuadraticMesh<1> mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
         QuadraticMesh<1> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/1D_0_to_1_10_elements_quadratic",false);
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratic",2,1,false);
+        mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
 
@@ -70,7 +71,8 @@ public:
     void TestQuadraticMesh2d() throw(Exception)
     {
         QuadraticMesh<2> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/square_128_elements_quadratic", false);
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1, false);
+        mesh.ConstructFromMeshReader(mesh_reader,false);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 289u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 128u);
@@ -131,7 +133,8 @@ public:
     void TestQuadraticMesh3d() throw(Exception)
     {
         QuadraticMesh<3> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/3D_Single_tetrahedron_element_quadratic", false);
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1, false);
+        mesh.ConstructFromMeshReader(mesh_reader,false);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
 
@@ -150,7 +153,8 @@ public:
 
         // Lots of internal and boundary nodes in this mesh..
         QuadraticMesh<3> mesh2;
-        mesh2.ConstructFromMeshReader("mesh/test/data/cube_1626_elements_quadratic", false);
+        TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/cube_1626_elements_quadratic",2,1, false);
+        mesh2.ConstructFromMeshReader(mesh_reader2,false);
 
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 2570u);
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 1626u);
@@ -325,7 +329,8 @@ public:
     {
         // read in a quadratic mesh with linear boundary elements
         QuadraticMesh<2> mesh1;
-        mesh1.ConstructFromMeshReader("mesh/test/data/square_128_elements_quadratic", false);
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
+        mesh1.ConstructFromMeshReader(mesh_reader, false);
 
         // write the computed quadratic boundary elements
         mesh1.WriteBoundaryElementFile("TestQuadraticMesh","generated2d.face");
@@ -336,7 +341,8 @@ public:
 
         // read in the same quadratic mesh with /quadratic/ boundary elements
         QuadraticMesh<2> mesh2;
-        mesh2.ConstructFromMeshReader("mesh/test/data/square_128_elements_fully_quadratic", true);
+        TrianglesMeshReader<2,2> mesh_reader2("mesh/test/data/square_128_elements_fully_quadratic",2,2,false);
+        mesh2.ConstructFromMeshReader(mesh_reader2, true);
 
         // compare the boundary elements of both meshes, should be identical (as one was created from the other)
         QuadraticMesh<2>::BoundaryElementIterator iter1
@@ -362,7 +368,8 @@ public:
     {
         // read in a quadratic mesh with linear boundary elements
         QuadraticMesh<3> mesh1;
-        mesh1.ConstructFromMeshReader("mesh/test/data/cube_1626_elements_quadratic", false);
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements_quadratic",2,1,false);
+        mesh1.ConstructFromMeshReader(mesh_reader, false);
 
         // write the computed quadratic boundary elements
         mesh1.WriteBoundaryElementFile("TestQuadraticMesh","generated3d.face");
@@ -373,7 +380,8 @@ public:
 
         // read in the same quadratic mesh with /quadratic/ boundary elements
         QuadraticMesh<3> mesh2;
-        mesh2.ConstructFromMeshReader("mesh/test/data/cube_1626_elements_fully_quadratic", true);
+        TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/cube_1626_elements_fully_quadratic",2,2,false);
+        mesh2.ConstructFromMeshReader(mesh_reader2, true);
 
         // compare the boundary elements of both meshes, should be identical (as one was created from the other)
         QuadraticMesh<3>::BoundaryElementIterator iter1
@@ -400,7 +408,8 @@ public:
         // This mesh has quadratic node and ele files, a linear face file that has containing element
         // info
         QuadraticMesh<3> mesh;
-        mesh.ConstructFromMeshReader("mesh/test/data/cube_2mm_152_elements_v3", false, true);
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_152_elements_v3",2,1,true);
+        mesh.ConstructFromMeshReader(mesh_reader, false, true);
 
         for (QuadraticMesh<3>::BoundaryElementIterator iter
                = mesh.GetBoundaryElementIteratorBegin();
@@ -415,9 +424,12 @@ public:
     void TestExceptions() throw(Exception)
     {
         QuadraticMesh<1> mesh;
-        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", false),
+        TrianglesMeshReader<1,1> mesh_reader1("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic",2,1, false);
+        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader1),
                 "The quadratic mesh doesn\'t appear to have all vertices before the rest of the nodes");
-        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader("", true, true), 
+                
+        TrianglesMeshReader<1,1> mesh_reader2("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", 2, 2, true);        
+        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader2,true,true), 
                 "Boundary element file should not have containing element info if it is quadratic");
          
     }
@@ -431,7 +443,8 @@ public:
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "quadratic_mesh");
 
         AbstractTetrahedralMesh<3,3>* const p_mesh = new QuadraticMesh<3>;
-        static_cast<QuadraticMesh<3>*>(p_mesh)->ConstructFromMeshReader("mesh/test/data/cube_1626_elements_quadratic", false);
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements_quadratic", 2, 1, false);        
+        static_cast<QuadraticMesh<3>*>(p_mesh)->ConstructFromMeshReader(mesh_reader,false);
 
         {
             std::ofstream ofs(archive_filename.c_str());
