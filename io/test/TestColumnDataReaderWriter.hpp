@@ -312,8 +312,8 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, -0.2));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i));
         // Check very small values are OK now.
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, -1.1e-321));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -3.3124e-321));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, -1.1e-123));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -3.3124e-123));
 
         mpTestWriter->AdvanceAlongUnlimitedDimension();
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));

@@ -266,6 +266,8 @@ public:
     {
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
+        // We reset the mesh filename to include the relative path
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_1626_elements");
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
@@ -302,6 +304,8 @@ public:
     void TestGenerateResultsForResumeMonodomain()
     {
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
+        // We reset the mesh filename to include the relative path
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_1626_elements");
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
