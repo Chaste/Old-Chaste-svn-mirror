@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CardiacSimulationArchiver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "BidomainProblem.hpp"
+#include "MonodomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ParallelTetrahedralMesh.hpp"
@@ -238,6 +239,88 @@ public:
 
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
+        
+        /// \todo: add a test that fails if the archiving format is modified.
+    }
+
+
+    /*
+     *  Test used to generate the results for the acceptance test save_monodomain.
+     * 
+     *  The idea is that the binary should generate the same results that this test.
+     * 
+     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
+     * 
+     *  save_monodomain:
+     *    cd /tmp/chaste/testoutput
+     *    h5dump save_monodomain/AbstractCardiacProblem_mSolution.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_monodomain/AbstractCardiacProblem_mSolution_h5.chaste
+     *    cp save_monodomain/save_monodomain.arch.0 ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_monodomain/ChasteResults_10ms_arch_0.chaste
+     * 
+     *  resume_monodomain:
+     *    cd /tmp/chaste/testoutput
+     *    cp -r SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/
+     *    cp -r save_monodomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/
+     * 
+     */      
+    void TestGenerateResultsForSaveMonodomain()
+    {
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+                         cp::ionic_models_available_type::Fox2002BackwardEuler);
+
+        HeartConfig::Instance()->SetOutputDirectory("SaveMonodomain");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");      
+
+        // This cell factory should apply the same stimulus described in the xml config file.
+        PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
+
+        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();
+
+        CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, "save_monodomain", false);
+        
+        /// \todo: add a test that fails if the archiving format is modified.
+    }
+    
+    /*
+     *  Test used to generate the results for the acceptance test resume_monodomain.
+     * 
+     *  Here we run the whole simulation (20ms) and check
+     *
+     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
+     * 
+     *  resume_monodomain:
+     *    cd /tmp/chaste/testoutput/ResumeMonodomain
+     *    h5dump MonodomainLR91_1d.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/resumed_mono_h5.chaste
+     */
+    void TestGenerateResultsForResumeMonodomain()
+    {
+        HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+                         cp::ionic_models_available_type::Fox2002BackwardEuler);
+
+        // We simulate for 20ms to compare the output
+        HeartConfig::Instance()->SetSimulationDuration(20.0);
+
+        HeartConfig::Instance()->SetOutputDirectory("ResumeMonodomain");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");      
+
+        // This cell factory should apply the same stimulus described in the xml config file.
+        PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
+
+        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();
         
         /// \todo: add a test that fails if the archiving format is modified.
     }

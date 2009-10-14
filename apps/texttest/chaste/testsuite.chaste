@@ -15,3 +15,9 @@ save_bidomain
 
 # bidomain simulation with <ResumeSimulation> defined
 resume_bidomain
+
+# monodomain 2D simulation with <SaveSimulation> defined
+save_monodomain
+
+# monodomain 2D simulation with <ResumeSimulation> defined
+resume_monodomain

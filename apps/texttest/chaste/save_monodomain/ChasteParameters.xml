@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
+
+	<Simulation>       
+		<!-- 
+			Problem definition 
+		-->    
+	    <SimulationDuration unit="ms">10.0</SimulationDuration>
+	    <Domain>Bi</Domain>
+	    <IonicModels>
+	    	<Default>Fox2002BackwardEuler</Default>
+    	</IonicModels>
+	    
+		<!-- 
+			Mesh definition 
+		-->    
+		<Mesh unit="cm">
+			<LoadMesh name="cube_1626_elements" conductivity_media="NoFibreOrientation"/>
+	  	</Mesh>
+		    
+	    <!-- 
+	    	Stimuli (as many <Stimulus> definitions as needed) 
+	   	-->
+   		<Stimuli>
+			<Stimulus> <!-- #1 -->
+				<Strength unit="uA/cm^3">-80000.0</Strength>
+				<Duration unit="ms">1.0</Duration>
+				<Delay unit="ms">0.0</Delay>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
+						<UpperCoordinates x="0.1" y="1.0" z="1.0"/>
+					</Cuboid>
+				</Location>
+			</Stimulus>	
+		</Stimuli>
+		
+		<!-- 
+			Output 
+		-->
+		<OutputDirectory>ChasteResults</OutputDirectory>
+		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
+		
+		<!--
+			Save Simulation
+		-->
+		<SaveSimulation/>			
+	</Simulation>
+	
+	<Physiological>
+	    <!--
+	        Conductivities
+	    -->
+	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" unit="mS/cm"/>
+	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" unit="mS/cm"/>
+	    <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio>
+	    <Capacitance unit="uF/cm^2"> 1.0 </Capacitance>
+	</Physiological>
+
+	<Numerical>
+		<TimeSteps ode="0.01" pde="0.1" printing="0.1" unit="ms"/>
+		<KSPTolerances>
+			<KSPAbsolute>2e-4</KSPAbsolute>
+		</KSPTolerances>
+		<KSPSolver>gmres</KSPSolver>
+		<KSPPreconditioner>jacobi</KSPPreconditioner>
+	</Numerical>		
+		    
+</ChasteParameters>
