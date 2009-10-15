@@ -26,10 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+// Disable PETSc logging of MPI calls (we don't use this, anyway) to fix
+// "right-hand operand of comma has no effect" warnings when building with
+// PETSc 2.2.1.
+#define PETSC_HAVE_BROKEN_RECURSIVE_MACRO
+
 #include "AbstractTetrahedralMeshWriter.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 
 #include "ParallelTetrahedralMesh.hpp"
+
+#include <mpi.h> // For MPI_Send, MPI_Recv
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
