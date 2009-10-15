@@ -8,10 +8,8 @@ The following new files/directories were created:
 ------------.chaste_deletable_folder
 ------------ChasteDefaults.xml
 ------------ChasteParameters.xml
-------------SimulationResults_Phi_e.dat
 ------------SimulationResults_V.dat
 ------------SimulationResults_mesh.pts
-------------SimulationResults_mesh.tetra
 ------------SimulationResults_mesh.tri
 ------------SimulationResults_times.info
 ----ChasteResults_10ms
@@ -20,6 +18,6 @@ The following new files/directories were created:
 --------ChasteDefaults.xml
 --------ChasteParameters.xml
 --------ChasteResults_10ms.arch.0
+--------mesh.edge
 --------mesh.ele
---------mesh.face
 --------mesh.node

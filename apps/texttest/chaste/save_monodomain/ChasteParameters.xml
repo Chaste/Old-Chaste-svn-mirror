@@ -5,8 +5,9 @@
 		<!-- 
 			Problem definition 
 		-->    
+		<SpaceDimension>2</SpaceDimension>		
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
-	    <Domain>Bi</Domain>
+	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default>Fox2002BackwardEuler</Default>
     	</IonicModels>
@@ -15,7 +16,7 @@
 			Mesh definition 
 		-->    
 		<Mesh unit="cm">
-			<LoadMesh name="cube_1626_elements" conductivity_media="NoFibreOrientation"/>
+			<Sheet inter_node_space="0.01" x="0.2" y="0.2"/>
 	  	</Mesh>
 		    
 	    <!-- 
