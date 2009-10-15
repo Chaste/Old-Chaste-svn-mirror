@@ -149,9 +149,18 @@ private:
     {
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mMeshIsLinear;
-        assert(mMeshIsLinear);
-        TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
-        this->ConstructFromMeshReader(mesh_reader);
+        if (mMeshIsLinear)
+        {
+            //I am a linear mesh
+            TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
+            this->ConstructFromMeshReader(mesh_reader);
+        }
+        else
+        {
+            //I am a quadratic mesh and need quadratic information from the reader
+            TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename(), 2, 2);
+            this->ConstructFromMeshReader(mesh_reader);
+        }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 

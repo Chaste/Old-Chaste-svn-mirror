@@ -115,8 +115,8 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = rMesh.GetBoundaryElement(i);
         if (p_boundary_element->IsDeleted() == false)
         {
-            std::vector<unsigned> indices(ELEMENT_DIM);
-            for (unsigned j=0; j<ELEMENT_DIM; j++)
+            std::vector<unsigned> indices(p_boundary_element->GetNumNodes());
+            for (unsigned j=0; j<p_boundary_element->GetNumNodes(); j++)
             {
                 unsigned old_index = p_boundary_element->GetNodeGlobalIndex(j);
                 indices[j] = node_map.GetNewIndex(old_index);

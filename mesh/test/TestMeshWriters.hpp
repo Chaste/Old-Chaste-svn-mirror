@@ -309,10 +309,18 @@ public:
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(output_dir + "1d_quadratic", 2, 2);
-
+        
+        //Test that reader is reading correctly
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 1u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 3u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 1u);
+        
+        //Test that mesh can be reconstructed
+        QuadraticMesh<1> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNumNodes(), 1U);
+        TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNodeGlobalIndex(0), mesh.GetBoundaryElement(0)->GetNodeGlobalIndex(0));
     }
 
     void TestQuadratic2D() throw (Exception)
@@ -326,9 +334,17 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,2> mesh_reader(output_dir + "2d_quadratic", 2, 2);
 
+        //Test that reader is reading correctly
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 2u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 6u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 3u);
+        
+        //Test that mesh can be reconstructed
+        QuadraticMesh<2> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNumNodes(), 3U);
+        TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNodeGlobalIndex(2), mesh.GetBoundaryElement(0)->GetNodeGlobalIndex(2));
     }
 
     void TestQuadratic3D() throw (Exception)
@@ -342,9 +358,17 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<3,3> mesh_reader(output_dir + "3d_quadratic", 2, 2);
 
+        //Test that reader is reading correctly
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 3u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 10u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 6u);
+        
+        //Test that mesh can be reconstructed
+        QuadraticMesh<3> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNumNodes(), 6U);
+        TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNodeGlobalIndex(5), mesh.GetBoundaryElement(0)->GetNodeGlobalIndex(5));
     }
     void TestCmguiWriter() throw(Exception)
     {

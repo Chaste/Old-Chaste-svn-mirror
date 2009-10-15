@@ -89,15 +89,12 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<unsigned> nextElement)
 {
-    ///\todo The assertion below is only true for tetrahedral meshes - move to AbstractTetrahedralMeshWriter method?
-//    assert(nextElement.size() == ELEMENT_DIM+1);
     mElementData.push_back(nextElement);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector<unsigned> nextFace)
 {
-    assert(nextFace.size() == ELEMENT_DIM);
     mBoundaryFaceData.push_back(nextFace);
 }
 

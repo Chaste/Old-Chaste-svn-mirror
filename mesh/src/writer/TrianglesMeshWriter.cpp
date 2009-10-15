@@ -155,7 +155,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     {
         std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
         *p_face_file << item_num;
-        for (unsigned i=0; i<ELEMENT_DIM; i++)
+        for (unsigned i=0; i<current_item.size(); i++)
         {
             *p_face_file << "\t" << current_item[i];
         }
@@ -193,6 +193,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteElementsAsFaces()
 
     // Write the element header
     unsigned num_elements = this->GetNumElements();
+    assert(SPACE_DIM != ELEMENT_DIM);
     unsigned nodes_per_element = ELEMENT_DIM+1;
     unsigned num_attr = 0;
 
@@ -250,7 +251,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     {
         std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
         *p_face_file << item_num;
-        for (unsigned i=0; i<ELEMENT_DIM; i++)
+        for (unsigned i=0; i<current_item.size(); i++)
         {
             *p_face_file << "\t" << current_item[i];
         }

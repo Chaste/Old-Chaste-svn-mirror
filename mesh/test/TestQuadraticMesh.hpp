@@ -448,7 +448,7 @@ public:
         ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "quadratic_mesh");
 
         AbstractTetrahedralMesh<3,3>* const p_mesh = new QuadraticMesh<3>;
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements_quadratic", 2, 1, false);        
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements_fully_quadratic", 2, 2, false);        
         static_cast<QuadraticMesh<3>*>(p_mesh)->ConstructFromMeshReader(mesh_reader);
 
         {
@@ -459,37 +459,37 @@ public:
 
         {
             ///\todo #1089 Can't yet read a Quadratic mesh from an archive
-//            // Should archive the most abstract class you can to check boost knows what individual classes are.
-//            // (but here AbstractMesh doesn't have the methods below).
-//            AbstractTetrahedralMesh<3,3>* p_mesh2;
-//
-//            // Create an input archive
-//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-//            boost::archive::text_iarchive input_arch(ifs);
-//
-//            // restore from the archive
-//            input_arch >> p_mesh2;
-//
-//            // compare the boundary elements of both meshes, should be identical (as one was created from the other)
-//            QuadraticMesh<3>::BoundaryElementIterator iter1
-//                   = p_mesh->GetBoundaryElementIteratorBegin();
-//
-//            for (QuadraticMesh<3>::BoundaryElementIterator iter2
-//                   = p_mesh2->GetBoundaryElementIteratorBegin();
-//                 iter2 != p_mesh2->GetBoundaryElementIteratorEnd();
-//                 ++iter2)
-//            {
-//                TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 6u );
-//                TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 6u );
-//
-//                for(unsigned i=0; i<6; i++)
-//                {
-//                   TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
-//                }
-//                iter1++;
-//            }
-//
-//            delete p_mesh2;
+            // Should archive the most abstract class you can to check boost knows what individual classes are.
+            // (but here AbstractMesh doesn't have the methods below).
+            AbstractTetrahedralMesh<3,3>* p_mesh2;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // restore from the archive
+            input_arch >> p_mesh2;
+
+            // compare the boundary elements of both meshes, should be identical (as one was created from the other)
+            QuadraticMesh<3>::BoundaryElementIterator iter1
+                   = p_mesh->GetBoundaryElementIteratorBegin();
+
+            for (QuadraticMesh<3>::BoundaryElementIterator iter2
+                   = p_mesh2->GetBoundaryElementIteratorBegin();
+                 iter2 != p_mesh2->GetBoundaryElementIteratorEnd();
+                 ++iter2)
+            {
+                TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 6u );
+                TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 6u );
+
+                for(unsigned i=0; i<6; i++)
+                {
+                   TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
+                }
+                iter1++;
+            }
+
+            delete p_mesh2;
         }
         delete p_mesh;
     }
