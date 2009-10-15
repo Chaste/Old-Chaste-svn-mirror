@@ -60,13 +60,8 @@ public:
     void RunConvergenceTester(AbstractUntemplatedConvergenceTester* pTester, StimulusType stimulusType)
     {
         pTester->Stimulus = stimulusType;
-        if ( stimulusType == REGION )
-        {
-            pTester->MeshNum = 6u;
-        }
         HeartConfig::Instance()->SetUseAbsoluteTolerance(5e-4);
-        //pTester->SetKspAbsoluteTolerance(5e-4);
-
+ 
         pTester->Converge("Automated_test");
         TS_ASSERT(pTester->Converged);
     }
@@ -89,14 +84,7 @@ public:
             //Block Jacobi with CG can detect zero pivots in a 1-D convergence test
             SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulusType);
-            if (stimulusType != REGION)
-            {
-                TS_ASSERT_EQUALS(tester.MeshNum, 5u);
-            }
-            else
-            {
-                TS_ASSERT_EQUALS(tester.MeshNum, 6u);
-            }
+            TS_ASSERT_EQUALS(tester.MeshNum, 5u);
         }
 
         {
@@ -104,14 +92,9 @@ public:
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetAbsoluteTolerance(), 5.0e-4);
             KspConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulusType);
-            if (stimulusType != REGION)
-            {
-                TS_ASSERT_DELTA(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-3, 1e-10);
-            }
-            else
-            {
-                TS_ASSERT_DELTA(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-4, 1e-10);
-            }
+            //Result of KSP tester:
+            TS_ASSERT_DELTA(HeartConfig::Instance()->GetAbsoluteTolerance(), 1e-3, 1e-10);
+
             //See above - we've fiddled with HeartConfig...
             HeartConfig::Instance()->SetUseAbsoluteTolerance(5.0e-4);
         }
@@ -165,7 +148,7 @@ public:
 
     void TestStimulateRegionin1D() throw(Exception)
     {
-        ConvergeInVarious(REGION);
+        ConvergeInVarious(QUARTER);
     }
     
 
@@ -193,12 +176,12 @@ public:
         HeartConfig::Instance()->SetKSPSolver("symmlq");
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
-        tester.Stimulus = REGION;
+        tester.Stimulus = QUARTER;
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
         
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.MeshNum, 6u);
+        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
         HeartConfig::Instance()->Reset();
     }
 
