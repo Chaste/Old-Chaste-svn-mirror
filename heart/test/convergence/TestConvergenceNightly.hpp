@@ -122,6 +122,19 @@ public:
 
 public:
 
+
+
+    void TestStimulatePlanein1D() throw(Exception)
+    {
+        ConvergeInVarious(PLANE);
+    }
+
+    void TestStimulateRegionin1D() throw(Exception)
+    {
+        ConvergeInVarious(QUARTER);
+    }
+    
+
     void TestFullActionPotential() throw(Exception)
     {
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
@@ -141,16 +154,25 @@ public:
         TS_ASSERT_DELTA(0.0588, tester.ConductionVelocity, 1e-3);
     }
 
-    void TestStimulatePlanein1D() throw(Exception)
+    void TestFullActionPotentialWithRampedStimulus() throw(Exception)
     {
-        ConvergeInVarious(PLANE);
+        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<1>, 1, 2> tester;
+        tester.SimulateFullActionPotential=true;
+        //Time steps are okay for giving a sensible upstroke
+        tester.PdeTimeStep=0.1;
+        tester.OdeTimeStep=0.1;
+        tester.Stimulus = QUARTER;
+        
+        tester.Converge(__FUNCTION__);
+        TS_ASSERT(tester.IsConverged());
+        
+        ///Note that long plateau phase will force convergence to happen earlier 
+        TS_ASSERT_EQUALS(tester.MeshNum, 4u);
+        
+        TS_ASSERT_DELTA(329.0, tester.Apd90FirstQn, 1.5);
+        TS_ASSERT_DELTA(329.0, tester.Apd90ThirdQn, 1.5);
+        TS_ASSERT_DELTA(0.0588, tester.ConductionVelocity, 1e-3);
     }
-
-    void TestStimulateRegionin1D() throw(Exception)
-    {
-        ConvergeInVarious(QUARTER);
-    }
-    
 
     //Current test takes about 20 mins.
     //This is much longer (1 hour?) with default ksp

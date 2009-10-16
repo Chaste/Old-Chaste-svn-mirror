@@ -69,22 +69,25 @@ template <class CELL, unsigned DIM>
 class RampedQuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
-    //boost::shared_ptr<SimpleStimulus> mpStimulus;
     /** define a new vector  of stimuluses - one for each step in x-direction*/
     std::vector< boost::shared_ptr<SimpleStimulus> > mpStimuli;
     /** Width (x-width) of mesh*/
     double mMeshWidth;
+    /** Step size of mesh is derived from the width and the number of elements across*/ 
     double mStepSize;
+    /** The number of stimulated levels covering 0 <= x < mMeshWidth/4.
+     * Note that the nodes on the quarter level are not included and are unstimulated
+     */
     unsigned mLevels;
 public:
 
     /** Constructor
      * @param meshWidth x-width of mesh
+     * @param numElemAcross this allows us to deduce the mesh step size.
      */
 
     RampedQuarterStimulusCellFactory(double meshWidth, unsigned numElemAcross)
         : AbstractCardiacCellFactory<DIM>(),
-          //mpStimulus(new SimpleStimulus(-1000000, 0.5)),
           mMeshWidth(meshWidth),
           mStepSize(meshWidth/numElemAcross),
           mLevels(numElemAcross/4)
@@ -95,7 +98,7 @@ public:
         for (unsigned level=0; level<mLevels; level++)
         {
             double this_stim=full_stim - (level*full_stim)/mLevels;
-            //this_stim is full_stim at the first level and would be zero at level=mLevels  
+            //this_stim is full_stim at the zero level and would be zero at level=mLevels  
             mpStimuli.push_back((boost::shared_ptr<SimpleStimulus>)new SimpleStimulus(this_stim, 0.5));
         }
     }
@@ -103,11 +106,6 @@ public:
 
     /**
      * Create cell model
-     *
-     * \todo - I thought that the concept here was to ramp the stimulus down
-     * over the first quarter, in order to make sure that there is no interface
-     * between stimulated region and un-stimulated region where the FEM linear interpolation
-     * makes the stimulus mesh-dependant.
      *
      * @param node Global node index
      */
@@ -126,15 +124,6 @@ public:
         {
             return new CELL(this->mpSolver, this->mpZeroStimulus);
         }
-        
-//        if (x<=mMeshWidth*0.25+1e-10)
-//        {
-//            return new CELL(this->mpSolver, this->mpStimulus);
-//        }
-//        else
-//        {
-//            return new CELL(this->mpSolver, this->mpZeroStimulus);
-//        }
     }
 };
 
