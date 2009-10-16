@@ -224,20 +224,17 @@ void ReadParametersFromFile()
 {
     try
     {
-        // Try using the schema location given in the XML first
-        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        // Try the hardcoded schema location first
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile(parameter_file);
     }
     catch (Exception& e)
     {
         if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
         {
-            // Use the fixed location, but warn the user
-            std::cerr << "Failed to load parameters file using schema specified in file"
-                      << " (error was: " << e.GetMessage() << ");"
-                      << " using built-in default schema location." << std::endl << std::flush;
+            // Try using the schema location given in the XML
             HeartConfig::Instance()->Reset();
-            HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+            HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
             HeartConfig::Instance()->SetParametersFile(parameter_file);
         }
         else
