@@ -644,7 +644,7 @@ public :
     {
         HeartConfig::Instance()->Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"),
-                "XML parsing error in configuration file: DoesNotExist.xml");
+                "Missing file parsing configuration file: DoesNotExist.xml");
         HeartConfig::Instance()->Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteInconsistent.xml"),
                 "Ode time-step should not be greater than pde time-step");
