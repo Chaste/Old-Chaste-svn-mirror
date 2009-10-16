@@ -230,13 +230,20 @@ void ReadParametersFromFile()
     }
     catch (Exception& e)
     {
-        // Use the fixed location, but warn the user
-        std::cerr << "Failed to load parameters file using schema specified in file"
-                  << " (error was: " << e.GetMessage() << ");"
-                  << " using built-in default schema location." << std::endl << std::flush;
-        HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
-        HeartConfig::Instance()->SetParametersFile(parameter_file);
+        if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
+        {
+            // Use the fixed location, but warn the user
+            std::cerr << "Failed to load parameters file using schema specified in file"
+                      << " (error was: " << e.GetMessage() << ");"
+                      << " using built-in default schema location." << std::endl << std::flush;
+            HeartConfig::Instance()->Reset();
+            HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+            HeartConfig::Instance()->SetParametersFile(parameter_file);
+        }
+        else
+        {
+            throw;
+        }
     }
 
 

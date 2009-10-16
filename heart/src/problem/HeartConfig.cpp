@@ -259,13 +259,32 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         
         return boost::shared_ptr<cp::chaste_parameters_type>(p_params);
     }
+    catch (const xml_schema::parsing& e)
+    {
+        // Make sure we don't store invalid parameters
+        mpUserParameters.reset();
+        mpDefaultParameters.reset();
+        // Test for missing schema/xml file
+        const xml_schema::diagnostics& diags = e.diagnostics();
+        const xml_schema::error& first_error = diags[0];
+        if (first_error.line() == 0u)
+        {
+            std::cerr << first_error << std::endl;
+            EXCEPTION("Missing file parsing configuration file: " + rFileName);
+        }
+        else
+        {
+            std::cerr << e << std::endl;
+            EXCEPTION("XML parsing error in configuration file: " + rFileName);
+        }
+    }
     catch (const xml_schema::exception& e)
     {
-         std::cerr << e << std::endl;
-         // Make sure we don't store invalid parameters
-         mpUserParameters.reset();
-         mpDefaultParameters.reset();
-         EXCEPTION("XML parsing error in configuration file: " + rFileName);
+        std::cerr << e << std::endl;
+        // Make sure we don't store invalid parameters
+        mpUserParameters.reset();
+        mpDefaultParameters.reset();
+        EXCEPTION("XML parsing error in configuration file: " + rFileName);
     }
 }
 
