@@ -612,7 +612,7 @@ public :
 
         cp::ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
         TS_ASSERT( user_ionic == cp::ionic_models_available_type::FaberRudy2000 );
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
 
         std::ofstream ofs(archive_filename.c_str());
         boost::archive::text_oarchive output_arch(ofs);
@@ -625,19 +625,27 @@ public :
 
         TS_ASSERT( HeartConfig::Instance()->GetDefaultIonicModel() == cp::ionic_models_available_type::LuoRudyI );
 
-        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-        boost::archive::text_iarchive input_arch(ifs);
-
-        HeartConfig* p_heart_config = HeartConfig::Instance();
+        // We split the two load attempts into their own scopes to avoid a
+        // memory leak (uninitialised value).
+        {
+            // Try a load that fails
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            HeartConfig* p_heart_config = HeartConfig::Instance();
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationWrongDimension.xml");
+            TS_ASSERT_THROWS_THIS(input_arch >> (*p_heart_config), "Problem type and space dimension should match when restarting a simulation.");
+        }
         
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationWrongDimension.xml");        
-        TS_ASSERT_THROWS_THIS(input_arch >> (*p_heart_config), "Problem type and space dimension should match when restarting a simulation.");        
-        
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");        
-        input_arch >> (*p_heart_config);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
-        TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
+        {
+            // Try a correct load
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            HeartConfig* p_heart_config = HeartConfig::Instance();
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
+            input_arch >> (*p_heart_config);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
+            TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
+        }
     }
 
     void TestExceptions() throw (Exception)
@@ -663,6 +671,12 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(),"Could not open XML file in HeartConfig");
         chmod(command.c_str(), 0755);
         rmdir(command.c_str());
+        
+        // A non-parsing exception, for coverage. Very hard to get in practice!
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/EmptyRoot.xml"),
+                              "XML parsing error in configuration file: heart/test/data/xml/EmptyRoot.xml");
     }
 
     /**
