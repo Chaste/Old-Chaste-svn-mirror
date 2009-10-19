@@ -265,8 +265,13 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         mpUserParameters.reset();
         mpDefaultParameters.reset();
         // Test for missing schema/xml file
+#if (XSD_INT_VERSION >= 3000000L)
         const xml_schema::diagnostics& diags = e.diagnostics();
         const xml_schema::error& first_error = diags[0];
+#else
+        const xml_schema::errors& errors = e.errors();
+        const xml_schema::error& first_error = errors[0];
+#endif
         if (first_error.line() == 0u)
         {
             std::cerr << first_error << std::endl;
