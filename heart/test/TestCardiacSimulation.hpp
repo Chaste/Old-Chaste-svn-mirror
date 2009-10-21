@@ -128,6 +128,45 @@ public:
         return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value,0); 
     }
+    
+    // requires TestCardiacSimulationSaveMonodomain() to have been run
+    void TestCardiacSimulationResumeMonodomain() throw(Exception)
+    {
+        // run a bidomain simulation
+        CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_short.xml");
+        std::string foldername = "SaveMonodomainShort";
+        
+        // convert the binary output to a text file using h5dump        
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "h5dump " + testoutput_dir + foldername + "/SimulationResults.h5 > " +  testoutput_dir + foldername + "/dumped.txt";
+        system(command.c_str());
+        
+        // compare the files, ignoring the first line, which looks like, for example, 'HDF5 "/tmp/chaste/testout/BaseBidomain/SimulationResults.h5" {' 
+        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/resume_monodomain_short_results.h5 " +  testoutput_dir + foldername + "/dumped.txt ";
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+    }
+    
+    // requires TestCardiacSimulationSaveBidomain() to have been run
+    void TestCardiacSimulationResumeBidomain() throw(Exception)
+    {
+        // run a bidomain simulation
+        CardiacSimulation simulation("heart/test/data/xml/resume_bidomain_short.xml");
+        std::string foldername = "SaveBidomainShort";
+        
+        // convert the binary output to a text file using h5dump        
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "h5dump " + testoutput_dir + foldername + "/SimulationResults.h5 > " +  testoutput_dir + foldername + "/dumped.txt";
+        system(command.c_str());
+        
+        // compare the files, ignoring the first line, which looks like, for example, 'HDF5 "/tmp/chaste/testout/BaseBidomain/SimulationResults.h5" {' 
+        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/resume_bidomain_short_results.h5 " +  testoutput_dir + foldername + "/dumped.txt ";
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+    }
+    
+    
 };
 
 #endif /*TESTCARDIACSIMULATION_HPP_*/
+

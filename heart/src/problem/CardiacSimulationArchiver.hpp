@@ -104,7 +104,10 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(std::string direct
     std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath(directory + ".arch");
 
     std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-    assert(ifs.is_open());
+    if(!ifs.is_open())
+    {
+        EXCEPTION("Cannot load file: " + archive_filename);
+    }
     boost::archive::text_iarchive input_arch(ifs);
 
     PROBLEM_CLASS *p_unarchived_simulation;
