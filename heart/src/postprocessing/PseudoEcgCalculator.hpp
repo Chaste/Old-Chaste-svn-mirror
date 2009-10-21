@@ -80,7 +80,7 @@ private:
      * Calculates the pseudo-ECG and stores the results in a vector
      *
      * @param timeStep the time step where we want to calculate the pseudoecg
-     * @return the pseudo ECG at teh given time step.
+     * @return the pseudo ECG at the given time step.
      *
      */
     double ComputePseudoEcgAtOneTimeStep (unsigned timeStep);
@@ -94,10 +94,11 @@ public:
      * @param rX The location of the recording electrode
      * @param directory The directory where the simulation results are stored
      * @param hdf5File The file name  where the simulation results are stored
+     * @param variableName  The name of the voltage variable (hardcoded to V - see todo)
      * @param makeAbsolute whether to make the path of directory absolute (using the OutputFileHandler)
      *
      *
-     * ///\ todo pass in the name of the variable in the hdf5 file? it is currently hardcoded to "V"
+     * ///\ todo pass in the name of the variable in the hdf5 file? it is currently hardcoded to "V".  See Doxygen above
      */
     PseudoEcgCalculator (TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
                          ChastePoint<SPACE_DIM>& rX,
