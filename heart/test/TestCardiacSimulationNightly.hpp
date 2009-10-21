@@ -37,19 +37,96 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacSimulationNightly : public CxxTest::TestSuite
 {
 public:
-    void TestCardiacSimulationConstructor() throw(Exception)
+    void TestCardiacSimulationBasicBidomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/base_bidomain.xml");
-
+        std::string foldername = "BaseBidomain/";
+        
         // convert the binary output to a text file using h5dump        
         std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "h5dump " + testoutput_dir + "BaseBidomain/SimulationResults.h5 > " +  testoutput_dir + "BaseBidomain/dumped.txt";
+        std::string command = "h5dump " + testoutput_dir + foldername + "SimulationResults.h5 > " +  testoutput_dir + foldername + "dumped.txt";
         system(command.c_str());
         
         // compare the files, ignoring the first line, which looks like, for example, 'HDF5 "/tmp/chaste/testout/BaseBidomain/SimulationResults.h5" {' 
-        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/base_bidomain_results.h5 " +  testoutput_dir + "BaseBidomain/dumped.txt ";
+        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/base_bidomain_results.h5 " +  testoutput_dir + foldername + "dumped.txt ";
         int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+    }
+    
+    void TestCardiacSimulationBasicMonodomain() throw(Exception)
+    {
+        // run a bidomain simulation
+        CardiacSimulation simulation("heart/test/data/xml/base_monodomain.xml");
+        std::string foldername = "BaseMonodomain/";
+        
+        // convert the binary output to a text file using h5dump        
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "h5dump " + testoutput_dir + foldername + "SimulationResults.h5 > " +  testoutput_dir + foldername + "dumped.txt";
+        system(command.c_str());
+        
+        // compare the files, ignoring the first line, which looks like, for example, 'HDF5 "/tmp/chaste/testout/BaseBidomain/SimulationResults.h5" {' 
+        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/base_monodomain_results.h5 " +  testoutput_dir + foldername + "dumped.txt ";
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+    }
+    
+    void TestCardiacSimulationPostprocessMonodomain() throw(Exception)
+    {
+        // run a bidomain simulation
+        CardiacSimulation simulation("heart/test/data/xml/postprocess_monodomain.xml");
+        std::string foldername = "PostprocessMonodomain/";
+        
+        // convert the binary output to a text file using h5dump        
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "h5dump " + testoutput_dir + foldername + "SimulationResults.h5 > " +  testoutput_dir + foldername + "dumped.txt";
+        system(command.c_str());
+        
+        // compare the files, ignoring the first line, which looks like, for example, 'HDF5 "/tmp/chaste/testout/BaseBidomain/SimulationResults.h5" {' 
+        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/postprocess_monodomain_results.h5 " +  testoutput_dir + foldername + "dumped.txt ";
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+    }
+    
+    void TestCardiacSimulationSaveBidomain() throw(Exception)
+    {
+        // run a bidomain simulation
+        CardiacSimulation simulation("heart/test/data/xml/save_bidomain.xml");
+        std::string foldername = "SaveBidomain";
+        
+        // convert the binary output to a text file using h5dump        
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "h5dump " + testoutput_dir + foldername + "/SimulationResults.h5 > " +  testoutput_dir + foldername + "/dumped.txt";
+        system(command.c_str());
+        
+        // compare the files, ignoring the first line, which looks like, for example, 'HDF5 "/tmp/chaste/testout/BaseBidomain/SimulationResults.h5" {' 
+        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/save_bidomain_results.h5 " +  testoutput_dir + foldername + "/dumped.txt ";
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+
+        command = "test -e " +  testoutput_dir + foldername + "_10ms/" + foldername + "_10ms.arch.0"; 
+        return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+    }
+    
+    void TestCardiacSimulationSaveMonodomain() throw(Exception)
+    {
+        // run a bidomain simulation
+        CardiacSimulation simulation("heart/test/data/xml/save_monodomain.xml");
+        std::string foldername = "SaveMonodomain";
+        
+        // convert the binary output to a text file using h5dump        
+        std::string testoutput_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "h5dump " + testoutput_dir + foldername + "/SimulationResults.h5 > " +  testoutput_dir + foldername + "/dumped.txt";
+        system(command.c_str());
+        
+        // compare the files, ignoring the first line, which looks like, for example, 'HDF5 "/tmp/chaste/testout/BaseBidomain/SimulationResults.h5" {' 
+        command = "diff --ignore-matching-lines=HDF5 heart/test/data/cardiac_simulations/save_monodomain_results.h5 " +  testoutput_dir + foldername + "/dumped.txt ";
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+
+        command = "test -e " +  testoutput_dir + foldername + "_10ms/" + foldername + "_10ms.arch.0"; 
+        return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value,0); 
     }
 };
