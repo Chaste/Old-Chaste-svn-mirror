@@ -68,6 +68,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     mWriteInfo = false;
     mPrintOutput = true;
     mCallChaste2Meshalyzer = false;
+    mCallChaste2Cmgui = false;
     mpCardiacPde = NULL;
     mpAssembler = NULL;
     mSolution = NULL;
@@ -597,8 +598,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         //Write the mesh
         CmguiWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
         cmgui_mesh_writer.SetAdditionalFieldNames(mFieldNames);
-        //vector is filled when creating the problem object and shouldn't be empty
-        assert(mFieldNames.size() != 0);
+
         if (PetscTools::AmMaster())
         {
             try
