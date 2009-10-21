@@ -168,7 +168,7 @@ public:
      * 
      *  resume_bidomain:
      *    cd /tmp/chaste/testoutput
-     *    cp -r SaveBidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
+     *    cp -r SaveBidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_bidomain/
      *    cp -r save_bidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
      * 
      */      
