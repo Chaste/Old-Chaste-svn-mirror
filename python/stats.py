@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 import glob
 import os
 import time
+import shutil
+import sys
 
 def get_files(dirs):
   file_pairs=[]
@@ -76,13 +78,29 @@ def print_stats():
   print revision,'\t',epoch,'\t',source_stats[0],'\t',source_stats[1],'\t',test_stats[0],'\t',test_stats[1],'\t',test_stats[2],'\t',test_stats[3]
 
 
-last_revision=10000
-#os.popen("svnversion").read().strip()
-step=10
-step=1000
+svn_revision=os.popen("svnversion").read().strip()
+if (svn_revision[-1]=='M'):
+	svn_revision=svn_revision[0:-1]
+last_revision=int(svn_revision)
+	
+
+
+dir='../temp_lines_of_code'
+
+print('###Starting a fresh checkout in '+dir)
+print('###')
+if os.path.isdir(dir):
+    print('###Erasing previous '+dir)
+    shutil.rmtree(dir)
+print('###')
+os.system('svn co -r 1 https://chaste.comlab.ox.ac.uk/svn/chaste/trunk '+dir+' > /dev/null')
+os.chdir(dir)
 print '#rev\ttime\tsrc_files\tsrc_loc\ttest_files\ttests_loc\ttest_suites\ttests'
-for rev in range(1,last_revision):
-  if (rev%step == 0):
-    os.system('svn up --non-interactive -r '+str(rev)+' > /dev/null')
-    #print rev
-    #print_stats()
+sys.stdout.flush()
+
+step=10
+
+for rev in range(step,last_revision,step):
+  os.system('svn up --non-interactive -r '+str(rev)+' > /dev/null')
+  print_stats()
+  sys.stdout.flush()
