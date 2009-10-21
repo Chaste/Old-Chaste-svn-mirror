@@ -62,8 +62,24 @@ public:
      * 
      *  @param directory directory where the multiple files defining the checkpoint are located
      */
-    static PROBLEM_CLASS* Load(std::string directory); 
-
+    static PROBLEM_CLASS* Load(std::string directory);
+    
+     /**
+     *  Archives a simulation in the directory specified.
+     * 
+     *  @param simulationToArchive object defining the simulation to archive
+     *  @param directory directory where the multiple files defining the checkpoint will be stored
+     *  @param clearDirectory whether the directory needs to be cleared or not.
+     */
+    static void SaveAsSequential(PROBLEM_CLASS& simulationToArchive, std::string directory, bool clearDirectory=true);
+ 
+    /**
+     * Take a parallel archive and convert it to a sequential one
+     * @param inputDirectory
+     * @param outputDirectory
+     * @param clearDirectory whether the directory needs to be cleared or not.
+     */
+    static void MigrateToSequential(std::string inputDirectory, std::string outputDirectory, bool clearDirectory=true);
 };
 
 
@@ -97,4 +113,40 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(std::string direct
     return p_unarchived_simulation;
 }
 
+template<class PROBLEM_CLASS>
+void CardiacSimulationArchiver<PROBLEM_CLASS>::SaveAsSequential(PROBLEM_CLASS& simulationToArchive, std::string directory, bool clearDirectory)
+{
+    OutputFileHandler handler(directory, clearDirectory);
+    handler.SetArchiveDirectory();
+    std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath(directory + ".arch");
+
+    std::ofstream ofs(archive_filename.c_str());
+    boost::archive::text_oarchive output_arch(ofs);
+    PROBLEM_CLASS* const p_simulation_to_archive = &simulationToArchive;
+   ///\todo #1159 
+    output_arch & p_simulation_to_archive;
+}
+
+template<class PROBLEM_CLASS>
+void CardiacSimulationArchiver<PROBLEM_CLASS>::MigrateToSequential(std::string inputDirectory, std::string outputDirectory, bool clearDirectory)
+{
+    OutputFileHandler handler(inputDirectory, false);
+    handler.SetArchiveDirectory();
+    std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath(inputDirectory + ".arch");
+    
+    //Assume that the archive has been written for the right number of processors
+    if (PetscTools::IsSequential())
+    {
+        EXCEPTION("Archive doesn't need to be migrated since it is already sequential");
+    }
+    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+    assert(ifs.is_open());
+    boost::archive::text_iarchive input_arch(ifs);
+
+    PROBLEM_CLASS *p_unarchived_simulation;
+    input_arch >> p_unarchived_simulation;
+    
+    SaveAsSequential(*p_unarchived_simulation, outputDirectory, clearDirectory);
+    delete p_unarchived_simulation;
+}
 #endif /*CARDIACSIMULATIONARCHIVER_HPP_*/

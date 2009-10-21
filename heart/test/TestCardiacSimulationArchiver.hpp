@@ -186,7 +186,7 @@ public:
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveBidomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");      
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");  ///\todo this is not a 1D simulation    
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
@@ -229,7 +229,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(20.0);
 
         HeartConfig::Instance()->SetOutputDirectory("ResumeBidomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");      
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");  ///\todo this is not a 1D simulation    
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
@@ -272,7 +272,7 @@ public:
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveMonodomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");      
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");///\todo this is not a 1D simulation      
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);
@@ -311,7 +311,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(20.0);
 
         HeartConfig::Instance()->SetOutputDirectory("ResumeMonodomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");      
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");///\todo this is not a 1D simulation      
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);
@@ -324,6 +324,47 @@ public:
         
         /// \todo: add a test that fails if the archiving format is modified.
     }
+    
+    void TestMigrateArchiveToSequential()
+    {
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.25);
+        HeartConfig::Instance()->SetSimulationDuration(1.0);
+   
+        
+        HeartConfig::Instance()->SetOutputDirectory("SaveBidomainSlab");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");      
+        //We need the numbers matching in the h5 files:
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);      
+        
+        // This cell factory should apply the same stimulus described in the xml config file.
+        PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
+        BidomainProblem<3> bidomain_problem( &cell_factory );
+
+        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+        bidomain_problem.Initialise();
+        bidomain_problem.Solve();
+
+        std::string archive_directory = "bidomain_for_migration";
+        if (PetscTools::IsSequential())
+        {
+            archive_directory = "bidomain_for_comparison";
+        }
+        CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, archive_directory, true);
+        
+        if (PetscTools::IsSequential())
+        {
+           TS_ASSERT_THROWS_THIS(
+                CardiacSimulationArchiver<BidomainProblem<3> >::MigrateToSequential(archive_directory, "stuff", true),
+                "Archive doesn't need to be migrated since it is already sequential");
+        }
+        else
+        {
+            CardiacSimulationArchiver<BidomainProblem<3> >::MigrateToSequential(archive_directory, "bidomain_migrated", true);
+        }
+    }
+    
+    ///\todo #1159 - check that the migrated archive is identical to the sequential one
 
 };
 

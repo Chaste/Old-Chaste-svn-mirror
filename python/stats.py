@@ -76,11 +76,13 @@ def print_stats():
   print revision,'\t',epoch,'\t',source_stats[0],'\t',source_stats[1],'\t',test_stats[0],'\t',test_stats[1],'\t',test_stats[2],'\t',test_stats[3]
 
 
-last_revision=3578
+last_revision=10000
+#os.popen("svnversion").read().strip()
 step=10
-
+step=1000
 print '#rev\ttime\tsrc_files\tsrc_loc\ttest_files\ttests_loc\ttest_suites\ttests'
 for rev in range(1,last_revision):
   if (rev%step == 0):
-    os.system('svn up -r '+str(rev)+' > /dev/null')
-    print_stats()
+    os.system('svn up --non-interactive -r '+str(rev)+' > /dev/null')
+    #print rev
+    #print_stats()
