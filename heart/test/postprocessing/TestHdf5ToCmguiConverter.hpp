@@ -72,11 +72,11 @@ public :
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_0.exnode"
+        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_1.exnode"
+        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
@@ -98,11 +98,11 @@ public :
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_0.exnode"
+        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/output/cube_2mm_12_elements_1.exnode"
+        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }

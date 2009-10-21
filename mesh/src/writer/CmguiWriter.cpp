@@ -31,16 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
-
-CmguiWriter::CmguiWriter(const std::string &rDirectory,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+CmguiWriter<ELEMENT_DIM,SPACE_DIM>::CmguiWriter(const std::string &rDirectory,
                          const std::string &rBaseName,
                          const bool &rCleanDirectory)
-        : AbstractTetrahedralMeshWriter<3,3>(rDirectory, rBaseName, rCleanDirectory)
+        : AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero = false;
 }
-
-void CmguiWriter::WriteFiles()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 {
     //////////////////////////
     // Write the exnode file
@@ -58,7 +58,7 @@ void CmguiWriter::WriteFiles()
         std::vector<double> current_item = this->mNodeData[item_num];
 
         *p_node_file << "Node:\t" << item_num+1 << "\t";
-        for (unsigned i=0; i<3; i++)
+        for (unsigned i=0; i<ELEMENT_DIM; i++)
         {
             *p_node_file << current_item[i] << "\t";
         }
@@ -104,7 +104,7 @@ void CmguiWriter::WriteFiles()
         std::vector<unsigned> current_element = this->mElementData[item_num];
 
         *p_elem_file << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
-        for (unsigned i=0; i<4; i++)
+        for (unsigned i=0; i<(ELEMENT_DIM+1); i++)
         {
             *p_elem_file << current_element[i]+1 << "\t";
         }
@@ -113,9 +113,19 @@ void CmguiWriter::WriteFiles()
     }
     p_elem_file->close();
 }
-
-void CmguiWriter::SetAdditionalFieldNames(std::vector<std::string>& rFieldNames)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector<std::string>& rFieldNames)
 {
     mAdditionalFieldNames = rFieldNames;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////////////
+
+template class CmguiWriter<1,1>;
+template class CmguiWriter<1,2>;
+template class CmguiWriter<1,3>;
+template class CmguiWriter<2,2>;
+template class CmguiWriter<2,3>;
+template class CmguiWriter<3,3>;

@@ -312,6 +312,10 @@ protected:
     bool mPrintOutput;
     /** Whether to convert the output from HDF5 to meshalyzer readable format */
     bool mCallChaste2Meshalyzer;
+    /** Whether to convert the output from HDF5 to Cmgui readable format */   
+    bool mCallChaste2Cmgui;
+    /** Tells the Cmguimeshwriter which additional field names it needs to print (V and Phie for bidomain, V only for monodomain*/
+    std::vector<std::string> mFieldNames;
 
     /** If only outputing voltage for selected nodes, which nodes to output at */
     std::vector<unsigned> mNodesToOutput;
@@ -446,6 +450,16 @@ public:
      * @param call whether to call the script
      */
     void ConvertOutputToMeshalyzerFormat(bool call = true);
+    
+    /**
+     *  Set whether to call the Chaste2Cmgui script.
+     *  This script gets everything ready to visualize the results with Cmgui
+     *  and is useful in testing. By default the script is not called.
+     *  In performance testing for example it desirable to disable the script.
+     * 
+     * @param call whether to call the script
+     */
+    void ConvertOutputToCmguiFormat(bool call = false);
 
     /**
      * This only needs to be called if a mesh filename has not been set.

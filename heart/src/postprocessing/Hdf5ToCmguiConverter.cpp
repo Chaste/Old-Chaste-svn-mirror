@@ -43,7 +43,7 @@ void Hdf5ToCmguiConverter::Write(std::string type)
 {
     assert(type=="Mono" || type=="Bi");
     out_stream p_file=out_stream(NULL);
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output", false);
 
     unsigned num_nodes = mpReader->GetNumberOfRows();
     unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();

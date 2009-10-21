@@ -183,6 +183,9 @@ BidomainProblem<DIM>::BidomainProblem(
       mpElectrodes(NULL)
 {
     mFixedExtracellularPotentialNodes.resize(0);
+    //For the cmgui mesh writer
+    this->mFieldNames.push_back("V");
+    this->mFieldNames.push_back("Phi_e");
 }
 
 template<unsigned DIM>
@@ -193,6 +196,9 @@ BidomainProblem<DIM>::BidomainProblem()
       mpElectrodes(NULL)
 {
     mFixedExtracellularPotentialNodes.resize(0);
+    //For the cmgui mesh writer
+    this->mFieldNames.push_back("V");
+    this->mFieldNames.push_back("Phi_e");
 }
 
 

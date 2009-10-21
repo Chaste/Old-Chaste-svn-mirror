@@ -70,6 +70,7 @@ MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCell
         : AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>(pCellFactory),
           mpMonodomainPde(NULL)
 {
+    this->mFieldNames.push_back("V");
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

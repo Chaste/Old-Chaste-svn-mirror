@@ -124,7 +124,8 @@ static const char CmguiAdditonalFieldHeader[] = " field, rectangular cartesian, 
  *  gfx read elem base_file generate_faces_and_lines
  *  gfx cr win
  */
-class CmguiWriter : public AbstractTetrahedralMeshWriter<3,3>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class CmguiWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>
 {
 private:
     

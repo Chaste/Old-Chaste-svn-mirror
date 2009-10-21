@@ -376,7 +376,7 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        CmguiWriter writer("TestCmguiWriter", "cube_2mm_12_elements");
+        CmguiWriter<3,3> writer("TestCmguiWriter", "cube_2mm_12_elements");
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
@@ -385,7 +385,7 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exelem").c_str()), 0);
         
         //now test the set method for additional fields. We set two fields.
-        CmguiWriter writer2("TestCmguiWriterAdditionalHeaders", "cube_2mm_12_elements");
+        CmguiWriter<3,3> writer2("TestCmguiWriterAdditionalHeaders", "cube_2mm_12_elements");
         
         std::vector<std::string> field_names;
         field_names.push_back("V");

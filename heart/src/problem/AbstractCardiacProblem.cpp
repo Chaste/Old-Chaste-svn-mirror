@@ -48,6 +48,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ProgressReporter.hpp"
 #include "LinearSystem.hpp"
 #include "PostProcessingWriter.hpp"
+#include "CmguiWriter.hpp"
+#include "Hdf5ToCmguiConverter.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
@@ -87,6 +89,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mWriteInfo(false),
       mPrintOutput(true),
       mCallChaste2Meshalyzer(false),
+      mCallChaste2Cmgui(false),
       mVoltageColumnId(UINT_MAX),
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
@@ -325,6 +328,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToMeshalyzerFormat(bool call)
 {
     mCallChaste2Meshalyzer=call;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToCmguiFormat(bool call)
+{
+    mCallChaste2Cmgui=call;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -573,6 +582,37 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         }
         //Write the parameters out
         HeartConfig::Instance()->Write();
+    }
+    
+    // Only if results files were written and we are outputting all nodes
+    if (mCallChaste2Cmgui && mNodesToOutput.empty())
+    {
+                
+        //Convert simulation data to Cmgui format
+        Hdf5ToCmguiConverter converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
+        
+        //Write mesh in a suitable form for cmgui
+        std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
+        std::cout<<output_directory<<std::endl;
+        //Write the mesh
+        CmguiWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
+        cmgui_mesh_writer.SetAdditionalFieldNames(mFieldNames);
+        //vector is filled when creating the problem object and shouldn't be empty
+        assert(mFieldNames.size() != 0);
+        if (PetscTools::AmMaster())
+        {
+            try
+            {
+                // If this mesh object has been constructed from a mesh reader we can get reference to it
+                TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_reader(mpMesh->GetMeshFileBaseName());
+                cmgui_mesh_writer.WriteFilesUsingMeshReader(cmgui_mesh_reader, mpMesh->rGetNodePermutation());
+            }
+            catch(Exception& e)
+            {
+                //If there isn't a MeshReader available we will use the data contained in the actual mesh object.
+                cmgui_mesh_writer.WriteFilesUsingMesh(*mpMesh);
+            }
+        }
     }
 
     if(HeartConfig::Instance()->IsPostProcessingRequested())
