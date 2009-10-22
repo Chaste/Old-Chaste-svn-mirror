@@ -830,23 +830,164 @@ class Fle(BuildType):
     return self.tools['mpirun'] + ' -machinefile /home/southern/.mpihosts' + ' -np ' \
              + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
 
+class FleDebug(Fle):
+    "Intel compilers with debugging enabled on FLE cluster."
+    def __init__(self, *args, **kwargs):
+        Fle.__init__(self, *args, **kwargs)
+        self._cc_flags.append('-g')
+        self.build_dir = 'fle_debug'
+
 class FleProfile(Fle):
+  "Intel compilers with no optimisation on FLE cluster."
+  def __init__(self, *args, **kwargs):
+    Fle.__init__(self, *args, **kwargs)
+    self._cc_flags.extend(['-p', '-g'])
+    self._link_flags.extend(['-p', '-g'])
+    self.build_dir = 'fle_profile'
+
+class FleItcProfile(Fle):
   "Intel compilers with no optimisation on FLE cluster."
   def __init__(self, *args, **kwargs):
     Fle.__init__(self, *args, **kwargs)
     self._cc_flags.extend(['-DITC'])
     self._link_flags.extend(['-DITC', '-L/opt/intel/ict/3.0/itac/7.0/itac/lib_mpich', '-lVT', '-ldwarf', '-lelf', '-lnsl', '-lm', '-ldl', '-lpthread'])
-    self.build_dir = 'fle_profile'
-
+    self.build_dir = 'fle_itc_profile'
 
 class FleNonopt(Fle):
   "Intel compilers with no optimisation on FLE cluster."
   def __init__(self, *args, **kwargs):
     Fle.__init__(self, *args, **kwargs)
-    self._cc_flags = ['-i-dynamic', '-wr470', '-wr186', '-O0', '-xK']
+    self._cc_flags = ['-i-dynamic', '-wr470', '-wr186', '-O0']
     self.build_dir = 'fle_nonopt'
     self.is_optimised = False
 				    
+class FleMemoryTesting(FleDebug):
+    """
+    Compile using intel compilers with debugging turned on, and run tests under valgrind on FLE cluster.
+    """
+    _petsc_flags = "-malloc_debug -malloc_dump -memory_info"
+    _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes --num-callers=50 --suppressions=chaste.supp --suppressions=fle.supp"
+
+    def __init__(self, *args, **kwargs):
+        FleDebug.__init__(self, *args, **kwargs)
+        #self._cc_flags.append('-DPETSC_MEMORY_TRACING')
+        #self.build_dir += '_mem'
+
+    def GetTestRunnerCommand(self, exefile, exeflags=''):
+        "Run all tests using valgrind to check for memory leaks."
+        test_suite = os.path.basename(exefile)
+        log_prefix = self.GetTestReportDir() + test_suite
+        cmd = ' '.join([self.tools['valgrind'], self._valgrind_flags % log_prefix,
+                                        exefile, exeflags, self._petsc_flags,
+                                        ';', self.tools['cat'], log_prefix + '*',
+                                        ';', self.tools['rm'], log_prefix + '*'])
+        return cmd
+    
+    def SetNumProcesses(self, np):
+        """Can't run profiling in parallel (yet)."""
+        raise ValueError("Use ParallelMemoryTesting to run memory tests in parallel.")
+    
+    def StatusColour(self, status):
+        """
+        Return a colour string indicating whether the given status string
+        represents a 'successful' test suite under this build type.
+        """
+        if status == 'OK':
+            return 'green'
+        elif status == 'Warn':
+            return 'orange'
+        else:
+            return 'red'
+        
+    def DisplayStatus(self, status):
+        "Return a (more) human readable version of the given status string."
+        if status == 'OK':
+            return 'No leaks found'
+        elif status == 'Unknown':
+            return 'Test output unrecognised'
+        elif status == 'Warn':
+            return 'Possible leak found'
+        else:
+            return 'Memory leaks found'
+
+    def EncodeStatus(self, exitCode, logFile, outputLines=None):
+        """
+        Encode the output from a test program as a status string.
+        The output from valgrind needs to be parsed to check for a leak summary.
+        If one is found the status is 'Leaky', otherwise 'OK'.
+        Return the encoded status.
+        """
+        status = 'Unknown'
+        
+        # Regexps to check for
+        import re
+        invalid = re.compile('==\d+== Invalid ')
+        glibc = re.compile('__libc_freeres')
+        leaks = re.compile('==\d+== LEAK SUMMARY:')
+        lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: ([0-9,]+) bytes in ([0-9,]+) blocks.')
+        petsc = re.compile('\[0]Total space allocated (\d+) bytes')
+        uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
+        open_files = re.compile('==(\d+)== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
+        
+        if outputLines is None:
+            outputLines = logFile.readlines()
+        for lineno in range(len(outputLines)):
+            m = petsc.match(outputLines[lineno])
+            if m and int(m.group(1)) > 0:
+                # PETSc Vec or Mat allocated and not destroyed
+                status = 'Leaky'
+                break
+                
+            m = uninit.match(outputLines[lineno])
+            if m:
+                # Uninitialised values problem
+                status = 'Uninit'
+                break
+        
+            m = invalid.match(outputLines[lineno])
+            if m:
+                # Invalid read/write/free()/etc. found. This is bad, unless it's glibc's fault.
+                match = glibc.search(outputLines[lineno+3])
+                if not match:
+                    status = 'Leaky'
+                    break
+                    
+            m = leaks.match(outputLines[lineno])
+            if m:
+                # Check we have really lost some memory
+                # (i.e. ignore 'still reachable' memory)
+                status = 'OK'
+                lineno += 1
+                match = lost.match(outputLines[lineno])
+                while match:
+                    blocks = match.group(3).replace(',', '')
+                    if int(blocks) > 0:
+                        # Hack for chaste-bob
+                        bytes = match.group(2).replace(',', '')
+                        if match.group(1) == 'indirectly' and \
+                           int(bytes) == 240 and \
+                           int(blocks) == 10:
+                            status = 'Warn'
+                        else:
+                            status = 'Leaky'
+                        break
+                    lineno += 1
+                    match = lost.match(outputLines[lineno])
+                break
+                
+            m = open_files.match(outputLines[lineno])
+            if m:
+                # There's a file open that shouldn't be.
+                # Descriptors 0, 1 and 2 are ok, as are names /dev/urandom
+                # and /home/bob/eclipse/lockfile, and the log files.
+                # All these OK files are inherited from the parent process.
+                if not outputLines[lineno+1].strip().endswith("<inherited from parent>"):
+                    status = 'Openfile'
+                    break
+        else:
+            # No leak summary found
+            status = 'OK'
+        return status
 
 class IntelNonopt(Intel):
     """Intel compilers with no optimisation."""
