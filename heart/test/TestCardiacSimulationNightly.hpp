@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "PetscSetupAndFinalize.hpp"
 #include "CardiacSimulation.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestCardiacSimulationNightly : public CxxTest::TestSuite
 {
