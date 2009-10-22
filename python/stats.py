@@ -64,7 +64,7 @@ def print_stats():
   date_time=date_line[3]+' '+date_line[4]
   pattern = '%Y-%m-%d %H:%M:%S'
   epoch = int(time.mktime(time.strptime(date_time, pattern))) - rev1_epoch
-  
+  epoch_weeks = epoch / (3600*7*24.0)
   
   source_dirs=glob.glob('*/src')
   test_dirs=glob.glob('*/test')+glob.glob('*/tests')
@@ -75,7 +75,8 @@ def print_stats():
   test_stats=file_stats(test_files)
   source_stats=file_stats(source_files)
 
-  print revision,'\t',epoch,'\t',source_stats[0],'\t',source_stats[1],'\t',test_stats[0],'\t',test_stats[1],'\t',test_stats[2],'\t',test_stats[3]
+  print revision,'\t',epoch_weeks,'\t',source_stats[0],'\t',source_stats[1],\
+   '\t',test_stats[0],'\t',test_stats[1],'\t',test_stats[2],'\t',test_stats[3],'\t',source_stats[1]+test_stats[1]
 
 
 svn_revision=os.popen("svnversion").read().strip()
@@ -95,12 +96,21 @@ if os.path.isdir(dir):
 print('###')
 os.system('svn co -r 1 https://chaste.comlab.ox.ac.uk/svn/chaste/trunk '+dir+' > /dev/null')
 os.chdir(dir)
-print '#rev\ttime\tsrc_files\tsrc_loc\ttest_files\ttests_loc\ttest_suites\ttests'
+print '#rev\ttime (weeks)\tsrc_files\tsrc_loc\ttest_files\ttests_loc\ttest_suites\ttests\ttotal_loc'
 sys.stdout.flush()
 
 step=10
+start=10 
 
-for rev in range(step,last_revision,step):
+for rev in range(start,last_revision,step):
   os.system('svn up --non-interactive -r '+str(rev)+' > /dev/null')
   print_stats()
   sys.stdout.flush()
+
+# Cut'n'paste for gnuplot:
+#
+# set xlabel 'weeks'                                                                                                                    
+# set term png                                                                                                                          
+# set out 'loc.png'                                                                                                                     
+# plot 'nohup.out' u 2:4  w l title 'lines of source', 'nohup.out' u 2:6 w l title 'lines of tests', 'nohup.out' u 2:9 w l title 'total'
+# exit      
