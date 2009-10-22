@@ -70,10 +70,7 @@ MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCell
         : AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>(pCellFactory),
           mpMonodomainPde(NULL)
 {
-    if (this->mCallChaste2Cmgui==true)
-    {
-        this->mFieldNames.push_back("V");
-    }
+    this->mFieldNames.push_back("V");
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -81,10 +78,9 @@ MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem()
     : AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>(),
       mpMonodomainPde(NULL)
 {
-    if (this->mCallChaste2Cmgui==true)
-    {
-        this->mFieldNames.push_back("V");
-    }
+
+    this->mFieldNames.push_back("V");
+    
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

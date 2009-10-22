@@ -594,7 +594,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         
         //Write mesh in a suitable form for cmgui
         std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
-        std::cout<<output_directory<<std::endl;
         //Write the mesh
         CmguiWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
         cmgui_mesh_writer.SetAdditionalFieldNames(mFieldNames);
