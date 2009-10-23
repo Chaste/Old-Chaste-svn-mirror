@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "PCBlockDiagonal.hpp"
+#include "PCLDUFactorisation.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 #include <petscvec.h>
@@ -58,6 +59,7 @@ class LinearSystem
 {
     friend class TestLinearSystem;
     friend class TestPCBlockDiagonal;
+    friend class TestPCLDUFactorisation;
 
 private:
 
@@ -94,6 +96,8 @@ private:
 
     /** Stores a pointer to a purpose-build preconditioner*/
     PCBlockDiagonal* mpBlockDiagonalPC;
+    PCLDUFactorisation* mpLDUFactorisationPC;
+
 
 #ifdef TRACE_KSP
     unsigned mNumSolves;

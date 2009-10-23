@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 
 
-class TestPCBlockDiagonal : public CxxTest::TestSuite
+class TestPCLDUFactorisation : public CxxTest::TestSuite
 {
 public:
 
@@ -68,7 +68,7 @@ public:
         
         ls.SetAbsoluteTolerance(1e-9);
         ls.SetKspType("cg");
-        ls.SetPcType("blockdiagonal");
+        ls.SetPcType("ldufactorisation");
 
         ls.AssembleFinalLinearSystem();
         
@@ -95,7 +95,7 @@ public:
         }
 
         // Coverage (setting PC type after first solve)
-        ls.SetPcType("blockdiagonal");
+        ls.SetPcType("ldufactorisation");
 
         MatDestroy(system_matrix);
         VecDestroy(rhs);
@@ -135,7 +135,7 @@ public:
             
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
-            ls.SetPcType("none");            
+            ls.SetPcType("bjacobi");            
             
             Vec solution = ls.Solve();
 
@@ -160,7 +160,7 @@ public:
             
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
-            ls.SetPcType("blockdiagonal");
+            ls.SetPcType("ldufactorisation");
                         
             Vec solution = ls.Solve();
 
@@ -170,7 +170,7 @@ public:
             VecDestroy(system_rhs);
             VecDestroy(solution);                        
         }
-        Timer::Print("Block diagonal preconditioner");
+        Timer::Print("LDU factorisation preconditioner");
 
         std::cout << block_diag_its << " " << point_jacobi_its << std::endl;
         TS_ASSERT_LESS_THAN_EQUALS(block_diag_its, point_jacobi_its);

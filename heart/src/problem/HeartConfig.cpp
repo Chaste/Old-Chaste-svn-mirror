@@ -1050,6 +1050,8 @@ const char* HeartConfig::GetKSPPreconditioner() const
             return "hypre";
         case cp::ksp_preconditioner_type::blockdiagonal :
             return "blockdiagonal";
+        case cp::ksp_preconditioner_type::ldufactorisation :
+            return "ldufactorisation";
         case cp::ksp_preconditioner_type::none :
             return "none";
 
@@ -1581,6 +1583,11 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
     if ( strcmp(kspPreconditioner, "blockdiagonal") == 0)
     {
         mpUserParameters->Numerical().KSPPreconditioner().set(cp::ksp_preconditioner_type::blockdiagonal);
+        return;
+    }
+    if ( strcmp(kspPreconditioner, "ldufactorisation") == 0)
+    {
+        mpUserParameters->Numerical().KSPPreconditioner().set(cp::ksp_preconditioner_type::ldufactorisation);
         return;
     }
     if ( strcmp(kspPreconditioner, "none") == 0)

@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include <cassert>
 #include "HeartEventHandler.hpp"
+#include "Timer.hpp"
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -572,6 +573,15 @@ void LinearSystem::SetPcType(const char* pcType)
             }
             mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
         }
+        else if (mPcType == "ldufactorisation")
+        {
+            if (mpBlockDiagonalPC)
+            {
+                // If the preconditioner has been set to "blockdiagonal" before, we need to free the pointer.
+                delete mpLDUFactorisationPC;
+            }
+            mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
+        }
         else
         {        
             PC prec;
@@ -640,6 +650,15 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             {
                 mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
             }
+            else if (mPcType == "ldufactorisation")
+            {
+                if (mpBlockDiagonalPC)
+                {
+                    // If the preconditioner has been set to "blockdiagonal" before, we need to free the pointer.
+                    delete mpLDUFactorisationPC;
+                }
+                mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
+            }            
             else
             {            
                 PCSetType(prec, mPcType.c_str());
@@ -735,7 +754,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     try
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
+        Timer::Reset();
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
+        Timer::Print("Solve time:");
         HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
         // Check that solver converged and throw if not

@@ -65,7 +65,7 @@ std::string CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(unsigned me
     OutputFileHandler output_file_handler(mesh_dir);
 
     // Create the mesh
-    unsigned mesh_size = (unsigned) pow(2, meshNum+2); // number of elements in each dimension
+    unsigned mesh_size = (unsigned) pow(2, meshNum+1); // number of elements in each dimension
     double scaling = mMeshWidth/(double) mesh_size;
     TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
     ConstructHyperCube(mesh, mesh_size);

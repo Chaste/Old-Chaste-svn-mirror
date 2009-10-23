@@ -269,6 +269,7 @@
       <xs:enumeration value="bjacobi"/>
       <xs:enumeration value="hypre"/>
       <xs:enumeration value="blockdiagonal"/>
+      <xs:enumeration value="ldufactorisation"/>
       <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>   
