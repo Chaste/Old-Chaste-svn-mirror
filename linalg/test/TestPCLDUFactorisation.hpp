@@ -135,7 +135,7 @@ public:
             
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
-            ls.SetPcType("bjacobi");            
+            ls.SetPcType("none");            
             
             Vec solution = ls.Solve();
 

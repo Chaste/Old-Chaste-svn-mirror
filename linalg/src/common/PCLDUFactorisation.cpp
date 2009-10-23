@@ -118,9 +118,9 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 void PCLDUFactorisation::PCLDUFactorisationSetUp()
 {
     // These options will get read by PCSetFromOptions
-    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");        
-    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");            
-    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");        
+//    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");        
+//    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");            
+//    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");        
 
     // Set up amg preconditioner for block A11
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
