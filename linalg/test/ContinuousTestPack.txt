@@ -2,5 +2,5 @@ TestFourthOrderTensor.hpp
 TestLinearSystem.hpp
 TestNonlinearSolvers.hpp
 TestPCBlockDiagonal.hpp
+TestPCLDUFactorisation.hpp
 TestUblasCustomFunctions.hpp
-

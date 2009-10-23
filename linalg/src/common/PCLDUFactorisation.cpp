@@ -198,8 +198,8 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterBegin(A11_scatter_ctx, x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd(A11_scatter_ctx, x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD);
 #else
     VecScatterBegin(x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
     VecScatterEnd(x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
