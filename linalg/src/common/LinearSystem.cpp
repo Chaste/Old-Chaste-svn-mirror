@@ -53,17 +53,17 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mpBlockDiagonalPC(NULL)
 {
     SetupVectorAndMatrix(matType);
-    
+
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
     mKspType = "gmres";
     mPcType = "jacobi";
-    
+
 #ifdef TRACE_KSP
     mNumSolves = 0;
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
-#endif        
+#endif
 }
 
 LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType)
@@ -81,14 +81,14 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector,
     // Conveniently, PETSc Mats and Vecs are actually pointers
     mLhsMatrix = lhsMatrix;
     mRhsVector = rhsVector;
-    
+
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
-    
+
 #ifdef TRACE_KSP
     mNumSolves = 0;
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
-#endif        
+#endif
 }
 
 LinearSystem::LinearSystem(Vec templateVector)
@@ -117,7 +117,7 @@ LinearSystem::LinearSystem(Vec templateVector)
     mNumSolves = 0;
     mTotalNumIterations = 0;
     mMaxNumIterations = 0;
-#endif        
+#endif
 }
 
 LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
@@ -169,7 +169,7 @@ LinearSystem::~LinearSystem()
     {
         delete mpBlockDiagonalPC;
     }
-    
+
     if (mDestroyMatAndVec)
     {
         VecDestroy(mRhsVector);
@@ -191,18 +191,18 @@ LinearSystem::~LinearSystem()
         ///\todo Never tested in linalg component
         VecDestroy(mDirichletBoundaryConditionsVector);
     }
-    
+
 #ifdef TRACE_KSP
     if (mNumSolves > 0)
     {
         double ave_num_iterations = mTotalNumIterations/(double)mNumSolves;
-    
+
         std::cout << std::endl << "KSP iterations report:" << std::endl;
         std::cout << "mNumSolves" << "\t" << "mTotalNumIterations" << "\t" << "mMaxNumIterations" << "\t" << "mAveNumIterations" << std::endl;
         std::cout << mNumSolves << "\t" << mTotalNumIterations << "\t" << mMaxNumIterations << "\t" << ave_num_iterations << std::endl;
     }
-#endif    
-    
+#endif
+
 }
 
 void LinearSystem::SetupVectorAndMatrix(MatType matType)
@@ -399,9 +399,9 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
         if (fabs(l2_norm-1.0) > 1e-08)
         {
             EXCEPTION("One of the vectors in the null space is not normal");
-        }        
+        }
     }
-    
+
     // Check all the vectors of the base are orthogonal
     for (unsigned vec_index=1; vec_index<numberOfBases; vec_index++)
     {
@@ -409,20 +409,20 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
         unsigned num_vectors_ahead = numberOfBases-vec_index;
         PetscScalar dot_products[num_vectors_ahead];
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-        VecMDot(num_vectors_ahead, nullBasis[vec_index-1], &nullBasis[vec_index], dot_products); 
+        VecMDot(num_vectors_ahead, nullBasis[vec_index-1], &nullBasis[vec_index], dot_products);
 #else
-        VecMDot(nullBasis[vec_index-1], num_vectors_ahead, &nullBasis[vec_index], dot_products); 
+        VecMDot(nullBasis[vec_index-1], num_vectors_ahead, &nullBasis[vec_index], dot_products);
 #endif
         for (unsigned index=0; index<num_vectors_ahead; index++)
-        {            
+        {
             if (fabs(dot_products[index]) > 1e-08 )
             {
-                EXCEPTION("The null space is not orthogonal.");                
+                EXCEPTION("The null space is not orthogonal.");
             }
-        }        
-         
+        }
+
     }
-            
+
 #endif
 
     PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullBasis, &mMatNullSpace) );
@@ -465,10 +465,10 @@ double LinearSystem::GetRhsVectorElement(PetscInt row)
 unsigned LinearSystem::GetNumIterations() const
 {
     assert(this->mKspIsSetup);
-    
+
     PetscInt num_its;
     KSPGetIterationNumber(this->mKspSolver, &num_its);
-    
+
     return (unsigned) num_its;
 }
 
@@ -503,8 +503,8 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
     if (isSymmetric)
     {
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
-        MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_TRUE); 
-        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_TRUE); 
+        MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_TRUE);
+        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_TRUE);
 #else
         MatSetOption(mLhsMatrix, MAT_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL);
@@ -513,15 +513,15 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
     else
     {
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
-        MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_FALSE); 
-        MatSetOption(mLhsMatrix, MAT_STRUCTURALLY_SYMMETRIC, PETSC_FALSE); 
-        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_FALSE); 
+        MatSetOption(mLhsMatrix, MAT_SYMMETRIC, PETSC_FALSE);
+        MatSetOption(mLhsMatrix, MAT_STRUCTURALLY_SYMMETRIC, PETSC_FALSE);
+        MatSetOption(mLhsMatrix, MAT_SYMMETRY_ETERNAL, PETSC_FALSE);
 #else
         MatSetOption(mLhsMatrix, MAT_NOT_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_NOT_STRUCTURALLY_SYMMETRIC);
         MatSetOption(mLhsMatrix, MAT_NOT_SYMMETRY_ETERNAL);
 #endif
-    }        
+    }
 }
 
 void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
@@ -583,7 +583,7 @@ void LinearSystem::SetPcType(const char* pcType)
             mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
         }
         else
-        {        
+        {
             PC prec;
             KSPGetPC(mKspSolver, &prec);
             PCSetType(prec, pcType);
@@ -658,9 +658,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                     delete mpLDUFactorisationPC;
                 }
                 mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
-            }            
+            }
             else
-            {            
+            {
                 PCSetType(prec, mPcType.c_str());
             }
         }
@@ -682,7 +682,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         KSPSetUp(mKspSolver);
 
         mKspIsSetup = true;
-                
+
         HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
     }
     else
@@ -754,17 +754,17 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     try
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
-        Timer::Reset();
+        //Timer::Reset();
         PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
-        Timer::Print("Solve time:");
+        //Timer::Print("Solve time:");
         HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
         // Check that solver converged and throw if not
         KSPConvergedReason reason;
         KSPGetConvergedReason(mKspSolver, &reason);
         KSPEXCEPT(reason);
-        
-#ifdef TRACE_KSP        
+
+#ifdef TRACE_KSP
         PetscInt num_it;
         KSPGetIterationNumber(mKspSolver, &num_it);
         std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << std::endl << std::flush;
@@ -774,9 +774,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         if ((unsigned) num_it > mMaxNumIterations)
         {
             mMaxNumIterations = num_it;
-        } 
-#endif    
-        
+        }
+#endif
+
     }
     catch (const Exception& e)
     {

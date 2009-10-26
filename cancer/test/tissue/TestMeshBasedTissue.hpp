@@ -436,6 +436,13 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         cells[0].SetCellProliferativeType(APOPTOTIC); // coverage
 
+        // Cover mutation state reporting.
+        cells[0].SetMutationState(HEALTHY);
+        cells[1].SetMutationState(APC_ONE_HIT);
+        cells[2].SetMutationState(APC_TWO_HIT);
+        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
+        cells[4].SetMutationState(LABELLED);
+
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
@@ -455,11 +462,9 @@ public:
         TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         TissueConfig::Instance()->SetOutputCellAges(true);
 
-        TS_ASSERT_THROWS_NOTHING(tissue.CreateOutputFiles(output_directory, false));
-
+        tissue.CreateOutputFiles(output_directory, false);
         tissue.WriteResultsToFiles();
-
-        TS_ASSERT_THROWS_NOTHING(tissue.CloseOutputFiles());
+        tissue.CloseOutputFiles();
 
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -468,15 +473,14 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cancer/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cancer/test/data/TestTissueWriters/results.vizcelltypes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cancer/test/data/TestTissueWriters/tissueareas.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat       cancer/test/data/TestTissueWriters/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cancer/test/data/TestTissueWriters/cellareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
         std::vector<unsigned> cell_mutation_states = tissue.rGetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
-        TS_ASSERT_EQUALS(cell_mutation_states[0], tissue.GetNumRealCells());
-        for (unsigned i=1; i<cell_mutation_states.size(); i++)
-        {
-            TS_ASSERT_EQUALS(cell_mutation_states[i], 0u);
+        for (unsigned i=0; i<cell_mutation_states.size(); i++)
+        {   // There should be one of each kind of mutation in the results files.
+            TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
         }
 
         // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
