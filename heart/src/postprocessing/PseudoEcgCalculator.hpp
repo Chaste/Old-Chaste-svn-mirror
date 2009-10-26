@@ -77,7 +77,7 @@ private:
 
 
     /**
-     * Calculates the pseudo-ECG and stores the results in a vector
+     * Calculates the pseudo-ECG and returns its value at the given time step.
      *
      * @param timeStep the time step where we want to calculate the pseudoecg
      * @return the pseudo ECG at the given time step.
