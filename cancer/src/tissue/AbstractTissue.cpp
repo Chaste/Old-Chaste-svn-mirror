@@ -57,14 +57,55 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
         mCellLocationMap[&(*it)] = index;
     }
 
-    // Initialise cell counts
+    // Initialise cell counts to zero
     /**
      * \todo remove explicit use of NUM_CRYPT_CELL_MUTATION_STATES, NUM_CELL_PROLIFERATIVE_TYPES
      *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1138)
      */    
     mCellMutationStateCount = std::vector<unsigned>(NUM_CRYPT_CELL_MUTATION_STATES);
+    for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
+    {
+        mCellMutationStateCount[i] = 0;
+    }
+
     mCellProliferativeTypeCount = std::vector<unsigned>(NUM_CELL_PROLIFERATIVE_TYPES);
+    for (unsigned i=0; i<mCellProliferativeTypeCount.size(); i++)
+    {
+        mCellProliferativeTypeCount[i] = 0;
+    }
+
     mCellCyclePhaseCount = std::vector<unsigned>(NUM_CELL_CYCLE_PHASES);
+    for (unsigned i=0; i<mCellCyclePhaseCount.size(); i++)
+    {
+        mCellCyclePhaseCount[i] = 0;
+    }
+}
+
+template<unsigned DIM>
+AbstractTissue<DIM>::AbstractTissue()
+{
+    // Initialise cell counts to zero
+    /**
+     * \todo remove explicit use of NUM_CRYPT_CELL_MUTATION_STATES, NUM_CELL_PROLIFERATIVE_TYPES
+     *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1138)
+     */    
+    mCellMutationStateCount = std::vector<unsigned>(NUM_CRYPT_CELL_MUTATION_STATES);
+    for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
+    {
+        mCellMutationStateCount[i] = 0;
+    }
+
+    mCellProliferativeTypeCount = std::vector<unsigned>(NUM_CELL_PROLIFERATIVE_TYPES);
+    for (unsigned i=0; i<mCellProliferativeTypeCount.size(); i++)
+    {
+        mCellProliferativeTypeCount[i] = 0;
+    }
+
+    mCellCyclePhaseCount = std::vector<unsigned>(NUM_CELL_CYCLE_PHASES);
+    for (unsigned i=0; i<mCellCyclePhaseCount.size(); i++)
+    {
+        mCellCyclePhaseCount[i] = 0;
+    }
 }
 
 template<unsigned DIM>

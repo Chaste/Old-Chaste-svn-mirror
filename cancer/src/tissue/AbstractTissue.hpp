@@ -137,8 +137,7 @@ public:
      * Constructor for use by archiving - doesn't take in cells, since these are dealt
      * with by the serialize method.
      */
-    AbstractTissue()
-    {}
+    AbstractTissue();
 
     /**
      * Base class with virtual methods needs a virtual destructor.
