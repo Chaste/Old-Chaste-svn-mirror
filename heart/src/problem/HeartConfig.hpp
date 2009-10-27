@@ -359,9 +359,9 @@ public:
      * \todo - do we assume the vectors are initially empty?
      * The returned std::vectors are all of the same length
      * @param cellHeterogeneityAreas  cellHeterogeneityAreas[0] is the first region
-     * @param scaleFactorGks  scaleFactorGks[0] is a scaling factorfor the first region
-     * @param scaleFactorIto  scaleFactorIto[0] is a scaling factorfor the first region
-     * @param scaleFactorGkr  scaleFactorGkr[0] is a scaling factorfor the first region
+     * @param scaleFactorGks  scaleFactorGks[0] is a scaling factor for the first region
+     * @param scaleFactorIto  scaleFactorIto[0] is a scaling factor for the first region
+     * @param scaleFactorGkr  scaleFactorGkr[0] is a scaling factor for the first region
      * \todo There is no set method
      */
     void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,

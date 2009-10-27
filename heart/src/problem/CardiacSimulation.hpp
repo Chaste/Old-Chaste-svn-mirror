@@ -81,17 +81,26 @@ template<unsigned SPACE_DIM>
 class HeartConfigRelatedCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>
 {
 private:
+    /** Default cardiac cell model to be used in all tissue (except heterogeneous regions)*/
     cp::ionic_models_available_type mDefaultIonicModel;
+    /** List of axis-aligned box regions which contain heterogeneous cardiac ionic model types*/
     std::vector<ChasteCuboid> mIonicModelRegions;
+    /** List of ionic model (size matches that of mIonicModelRegions)*/
     std::vector<cp::ionic_models_available_type> mIonicModelsDefined;
     
-    std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
+    /** List of axis-aligned box regions which represent areas to stimulate*/
     std::vector<ChasteCuboid> mStimulatedAreas;
+    /** List of intracellular current stimuli to apply (size matches that of mStimulatedAreas)*/
+    std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
     
-    std::vector<double> mScaleFactorGks;
-    std::vector<double> mScaleFactorIto;
-    std::vector<double> mScaleFactorGkr;
+    /** List of axis-aligned box regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)*/
     std::vector<ChasteCuboid> mCellHeterogeneityAreas;
+    /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
+    std::vector<double> mScaleFactorGks;
+    /** List of scale factors for Ito scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
+    std::vector<double> mScaleFactorIto;
+    /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
+    std::vector<double> mScaleFactorGkr;
 
 public:
     HeartConfigRelatedCellFactory()
@@ -129,7 +138,12 @@ public:
     }
 
 
-    AbstractCardiacCell* CreateCellWithIntracellularStimulus(boost::shared_ptr<AbstractStimulusFunction> intracellularStimulus, unsigned node)
+    /**
+     * Create the correct tissue cell for a given region in the mesh
+     * @param intracellularStimulus is computed in CreateCardiacCellForTissueNode determined by the list of stimulation regions
+     * @param nodeIndex is the global index within the mesh
+     */
+    AbstractCardiacCell* CreateCellWithIntracellularStimulus(boost::shared_ptr<AbstractStimulusFunction> intracellularStimulus, unsigned nodeIndex)
     {
         cp::ionic_models_available_type ionic_model = mDefaultIonicModel;
 
@@ -137,7 +151,7 @@ public:
              ionic_model_region_index < mIonicModelRegions.size();
              ++ionic_model_region_index)
         {
-            if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
+            if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(node_index)->GetPoint()) )
             {
                 ionic_model = mIonicModelsDefined[ionic_model_region_index];
                 break;
@@ -184,7 +198,7 @@ public:
                      ht_index < mCellHeterogeneityAreas.size();
                      ++ht_index)
                 {
-                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
+                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(node_index)->GetPoint()) )
                     {
                         p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
                         p_tt06_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
@@ -210,7 +224,7 @@ public:
                      ht_index < mCellHeterogeneityAreas.size();
                      ++ht_index)
                 {
-                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
+                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(node_index)->GetPoint()) )
                     {
                         p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
                         p_faber_rudy_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
@@ -238,7 +252,14 @@ public:
     }
 
 
-    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
+    /**
+     * Create the correct stimulated tissue cell for a given region in the mesh
+     * The stimulus is determined in this method (using the list of stimulation regions).  
+     * The cardiac cell type (and parameters) are 
+     * determined in the CreateCellWithIntracellularStimulus method
+     * @param nodeIndex is the global index within the mesh
+     */
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
         boost::shared_ptr<MultiStimulus> node_specific_stimulus(new MultiStimulus());
 
@@ -247,7 +268,7 @@ public:
              stimulus_index < mStimuliApplied.size();
              ++stimulus_index)
         {
-            if ( mStimulatedAreas[stimulus_index].DoesContain(this->GetMesh()->GetNode(node)->GetPoint()) )
+            if ( mStimulatedAreas[stimulus_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
             {
                 node_specific_stimulus->AddStimulus(mStimuliApplied[stimulus_index]);
             }

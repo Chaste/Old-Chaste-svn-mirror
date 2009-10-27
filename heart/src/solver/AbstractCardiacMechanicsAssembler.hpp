@@ -106,9 +106,10 @@ protected:
      * 
      *  @param C Green-deformation tension
      *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement
+     *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
      *  @param rActiveTension The returned active tension
-     *  @param rActiveTension The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit assemblers
-     *  @param rActiveTension The returned dT_dLamDot, derivative of active tension wrt stretch rate.  Only should be set in implicit assemblers
+     *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit assemblers
+     *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate.  Only should be set in implicit assemblers
      *  @param rLambda The stretch (computed from C) as AssembleOnElement needs to use this too.  Only should be set in implicit assemblers
      */
     virtual void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 

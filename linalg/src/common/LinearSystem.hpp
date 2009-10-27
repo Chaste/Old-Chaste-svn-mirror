@@ -96,6 +96,7 @@ private:
 
     /** Stores a pointer to a purpose-build preconditioner*/
     PCBlockDiagonal* mpBlockDiagonalPC;
+    /** Stores a pointer to a purpose-build preconditioner*/
     PCLDUFactorisation* mpLDUFactorisationPC;
 
 

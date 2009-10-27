@@ -49,9 +49,9 @@ typedef enum ContractionModel_
  */ 
 typedef struct ContractionModelInputParameters_
 {
-    double voltage;
-    double intracellularCalciumConcentration;
-    double time; //What time?
+    double voltage; /**< Input voltage (mV)*/
+    double intracellularCalciumConcentration; /**< Input calcium concentration (don't know the units)*/
+    double time; /**< Input time mSec(for time dependent models)*/
 } ContractionModelInputParameters;
     
 
