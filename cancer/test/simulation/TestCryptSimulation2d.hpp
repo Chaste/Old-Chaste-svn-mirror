@@ -420,6 +420,9 @@ public:
         // Run simulation
         simulator.Solve();
 
+        std::vector<unsigned> cell_mutation_states = crypt.rGetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_states[0], crypt.GetNumRealCells());
+
         // Test we have the same number of cells and nodes at the end of each time
         // (if we do then the boundaries are probably working!)
         std::vector<bool> ghost_cells = crypt.rGetGhostNodes();
@@ -1489,7 +1492,7 @@ public:
     /**
      * Test that the cell count vectors are correctly initialized when a
      * simulation is saved then loaded.
-     */ 
+     */
     void TestCellCountInitialization()
     {
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
@@ -1557,7 +1560,7 @@ public:
         // Run simulation
         simulator.Solve();
 
-        // Each cell count has now been computed since WriteCellResultsToFiles() has been called 
+        // Each cell count has now been computed since WriteCellResultsToFiles() has been called
         std::vector<unsigned> cell_mutation_state_count3 = simulator.rGetTissue().rGetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count3.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[0], 13u);
@@ -1587,14 +1590,15 @@ public:
         // Load the simulation
         CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount",1.0);
 
-        // In the loaded simulation, the cell mutation state count has been initialized to the correct size, but not yet computed
+        // In the loaded simulation, we want the various cell counts to be saved
+        // (so that simulations which quit when a certain population is removed don't stop too soon)
         std::vector<unsigned> cell_mutation_state_count4 = p_simulator->rGetTissue().rGetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count4.size(), 5u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[0], 0u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[1], 0u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[2], 0u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[3], 0u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[4], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4[0], 13u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4[1], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4[2], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4[3], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4[4], 1u);
 
         std::vector<unsigned> cell_type_count4 = crypt.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count4.size(), 4u);
@@ -1615,7 +1619,7 @@ public:
         p_simulator->SetEndTime(2.0);
         p_simulator->Solve();
 
-        // The cell mutation state count has now been computed since WriteCellResultsToFiles() has been called 
+        // The cell mutation state count has now been computed since WriteCellResultsToFiles() has been called
         std::vector<unsigned> cell_mutation_state_count5 = simulator.rGetTissue().rGetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count5.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_state_count5[0], 13u);

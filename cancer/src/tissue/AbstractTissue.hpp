@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <climits> // work around boost bug
 #include <boost/serialization/access.hpp>
 #include "ClassIsAbstract.hpp"
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 
@@ -64,6 +65,9 @@ private:
         archive & mCells;
         archive & mLocationCellMap;
         archive & mCellLocationMap;
+        archive & mCellMutationStateCount;
+        archive & mCellProliferativeTypeCount;
+        archive & mCellCyclePhaseCount;
         archive & mTissueContainsMesh;
     }
 
@@ -125,7 +129,7 @@ protected:
 public:
 
     /**
-     * Default constructor.
+     * AbstractTissue Constructor.
      *
      * @param rCells a vector of cells
      * @param locationIndices an optional vector of location indices that correspond to real cells
@@ -134,10 +138,12 @@ public:
                    const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
-     * Constructor for use by archiving - doesn't take in cells, since these are dealt
+     * Constructor for use by archiving only. Please use the other constructor.
+     *
+     * doesn't take in cells, since these are dealt
      * with by the serialize method.
      */
-    AbstractTissue();
+    AbstractTissue(){};
 
     /**
      * Base class with virtual methods needs a virtual destructor.
@@ -392,7 +398,7 @@ public:
     void WriteTimeAndNodeResultsToFiles();
 
     /**
-     * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
+     * Calls GenerateCellResults() on each cell then calls WriteCellResultsToFiles().
      */
     virtual void GenerateCellResultsAndWriteToFiles()=0;
 
