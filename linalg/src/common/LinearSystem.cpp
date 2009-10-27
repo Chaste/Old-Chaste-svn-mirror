@@ -50,7 +50,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
-    mpBlockDiagonalPC(NULL)
+    mpBlockDiagonalPC(NULL),
+    mpLDUFactorisationPC(NULL)
 {
     SetupVectorAndMatrix(matType);
 
@@ -76,7 +77,8 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector,
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
-    mpBlockDiagonalPC(NULL)
+    mpBlockDiagonalPC(NULL),
+    mpLDUFactorisationPC(NULL)
 {
     // Conveniently, PETSc Mats and Vecs are actually pointers
     mLhsMatrix = lhsMatrix;
@@ -99,7 +101,8 @@ LinearSystem::LinearSystem(Vec templateVector)
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
-    mpBlockDiagonalPC(NULL)
+    mpBlockDiagonalPC(NULL),
+    mpLDUFactorisationPC(NULL)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -128,7 +131,8 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mTolerance(1e-6),
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
-    mpBlockDiagonalPC(NULL)
+    mpBlockDiagonalPC(NULL),
+    mpLDUFactorisationPC(NULL)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -168,6 +172,11 @@ LinearSystem::~LinearSystem()
     if (mpBlockDiagonalPC)
     {
         delete mpBlockDiagonalPC;
+    }
+    
+    if (mpLDUFactorisationPC)
+    {
+        delete mpLDUFactorisationPC;
     }
 
     if (mDestroyMatAndVec)
@@ -575,9 +584,9 @@ void LinearSystem::SetPcType(const char* pcType)
         }
         else if (mPcType == "ldufactorisation")
         {
-            if (mpBlockDiagonalPC)
+            if (mpLDUFactorisationPC)
             {
-                // If the preconditioner has been set to "blockdiagonal" before, we need to free the pointer.
+                // If this preconditioner has been set before, we need to free the pointer.
                 delete mpLDUFactorisationPC;
             }
             mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
@@ -652,11 +661,6 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             }
             else if (mPcType == "ldufactorisation")
             {
-                if (mpBlockDiagonalPC)
-                {
-                    // If the preconditioner has been set to "blockdiagonal" before, we need to free the pointer.
-                    delete mpLDUFactorisationPC;
-                }
                 mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
             }
             else
