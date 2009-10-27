@@ -151,7 +151,7 @@ public:
              ionic_model_region_index < mIonicModelRegions.size();
              ++ionic_model_region_index)
         {
-            if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(node_index)->GetPoint()) )
+            if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
             {
                 ionic_model = mIonicModelsDefined[ionic_model_region_index];
                 break;
@@ -198,7 +198,7 @@ public:
                      ht_index < mCellHeterogeneityAreas.size();
                      ++ht_index)
                 {
-                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(node_index)->GetPoint()) )
+                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
                     {
                         p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
                         p_tt06_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
@@ -224,7 +224,7 @@ public:
                      ht_index < mCellHeterogeneityAreas.size();
                      ++ht_index)
                 {
-                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(node_index)->GetPoint()) )
+                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
                     {
                         p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
                         p_faber_rudy_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
@@ -274,7 +274,7 @@ public:
             }
         }
 
-        return CreateCellWithIntracellularStimulus(node_specific_stimulus, node);
+        return CreateCellWithIntracellularStimulus(node_specific_stimulus, nodeIndex);
     }
 
     ~HeartConfigRelatedCellFactory(void)
