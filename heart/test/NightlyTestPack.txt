@@ -14,5 +14,6 @@ TestPapillaryFibreCalculatorLong.hpp
 performance/Test1dBidomainProblemForEfficiency.hpp
 performance/TestPerformance.hpp
 performance/TestPerformanceOfAssembly.hpp
+postprocessing/TestPseudoEcgCalculatorNightly.hpp
 TestRunningBidomainSimulationsTutorial.hpp
 TestStreeterFibreGeneratorNightly.hpp
