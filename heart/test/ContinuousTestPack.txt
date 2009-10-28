@@ -4,7 +4,7 @@ bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
 bidomain/TestBidomainWithBathAssembler.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
-mechanics/TestCellularMechanicsOdeSystems.hpp
+mechanics/TestContractionModels.hpp
 mechanics/TestImplicitCardiacMechanicsAssembler.hpp
 mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestCardiacSimulation.hpp

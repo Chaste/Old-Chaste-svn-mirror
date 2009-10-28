@@ -1,7 +1,7 @@
 bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
 postprocessing/TestCellProperties.hpp
-mechanics/TestCellularMechanicsOdeSystems.hpp
+mechanics/TestContractionModels.hpp
 convergence/TestConvergenceTester.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
