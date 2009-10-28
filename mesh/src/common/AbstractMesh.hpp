@@ -68,6 +68,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & mMeshChangesDuringSimulation;
+        archive & mpDistributedVectorFactory;
     }
 
 protected:  // Give access of these variables to subclasses

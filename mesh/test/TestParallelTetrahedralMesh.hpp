@@ -784,7 +784,7 @@ public:
             else
             {
 
-                // Should not read this archive - \todo - broken, see #1089
+                /// Should not read this archive - \todo - broken, see #1089
                 TS_ASSERT_THROWS_THIS(input_arch >> p_mesh3, 
                         "This archive was written for a different number of processors");
             }            

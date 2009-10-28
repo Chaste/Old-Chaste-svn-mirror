@@ -46,12 +46,12 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
       mStride(stride),
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
-      mpDistributedVectorFactory(pCellFactory->GetMesh()->GetDistributedVectorFactory()),
-      mFactoryMeshUnarchived(false)
+      mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
+      mMeshUnarchived(false)
 {
     //This constructor is called from the Initialise() method of the CardiacProblem class
-    assert(pCellFactory!=NULL);
-    assert(pCellFactory->GetMesh()!=NULL);
+    assert(pCellFactory != NULL);
+    assert(pCellFactory->GetMesh() != NULL);
 
     unsigned num_local_nodes = mpDistributedVectorFactory->GetLocalOwnership();
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
@@ -64,8 +64,8 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
     }
 
     pCellFactory->FinaliseCellCreation(&mCellsDistributed,
-                                       pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetLow(),
-                                       pCellFactory->GetMesh()->GetDistributedVectorFactory()->GetHigh());
+                                       mpDistributedVectorFactory->GetLow(),
+                                       mpDistributedVectorFactory->GetHigh());
 
 
     mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
@@ -85,7 +85,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
       mDoCacheReplication(true),
       mDoOneCacheReplication(true),
       mpDistributedVectorFactory(mpMesh->GetDistributedVectorFactory()),
-      mFactoryMeshUnarchived(true)
+      mMeshUnarchived(true)
 {
     mIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     mIntracellularStimulusCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
@@ -114,10 +114,9 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
         delete mpIntracellularConductivityTensors;
     }
     
-    // If the distributed vector factory was unarchived we need to free it explicitly.
-    if (mFactoryMeshUnarchived)
+    // If the mesh was unarchived we need to free it explicitly.
+    if (mMeshUnarchived)
     {
-        delete mpDistributedVectorFactory;
         delete mpMesh;
     }
 }

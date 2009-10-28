@@ -77,9 +77,9 @@ private:
         archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
         archive & mDt;
         archive & mSetVoltageDerivativeToZero;
-        // archive & mVoltageIndex; - always set by constructor
-        // archive & mpOdeSolver; - always set by constructor
-        // archive & mpIntracellularStimulus; - always set by constructor
+        // archive & mVoltageIndex; - always set by constructor - called by concrete class
+        // archive & mpOdeSolver; - always set by constructor - called by concrete class
+        // archive & mpIntracellularStimulus; - always set by constructor - called by concrete class
     }
 
 protected:

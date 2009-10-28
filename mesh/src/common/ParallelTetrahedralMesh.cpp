@@ -287,6 +287,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             num_owned = mTotalNumNodes - proc_offsets[rank];
         }
 
+        assert(!this->mpDistributedVectorFactory);
         this->mpDistributedVectorFactory = new DistributedVectorFactory(this->GetNumNodes(), num_owned);
     }
     else
@@ -474,8 +475,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
 {
-    DistributedVectorFactory factory(mTotalNumNodes); /// \todo: to be removed
-
+    assert(!this->mpDistributedVectorFactory);
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
     for (unsigned node_index = this->mpDistributedVectorFactory->GetLow();
          node_index < this->mpDistributedVectorFactory->GetHigh();
@@ -762,6 +762,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
     mTotalNumElements=width;
 
     //Use DistributedVectorFactory to make a dumb partition of the nodes
+    assert(!this->mpDistributedVectorFactory);
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
 
     unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
@@ -844,6 +845,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
     unsigned lo_y = y_partition.GetLow();
     unsigned hi_y = y_partition.GetHigh();
     //Dumb partition of nodes has to be such that each process gets complete slices
+    assert(!this->mpDistributedVectorFactory);
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes, (width+1)*y_partition.GetLocalOwnership());
 
     if (!PetscTools::AmMaster())
@@ -1008,6 +1010,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
     unsigned lo_z = z_partition.GetLow();
     unsigned hi_z = z_partition.GetHigh();
     //Dumb partition of nodes has to be such that each process gets complete slices
+    assert(!this->mpDistributedVectorFactory);
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes, (width+1)*(height+1)*z_partition.GetLocalOwnership());
     if (!PetscTools::AmMaster())
     {

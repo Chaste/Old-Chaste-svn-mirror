@@ -91,7 +91,7 @@ DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVe
 {
     if (mpDistributedVectorFactory == NULL)
     {
-        mpDistributedVectorFactory=new DistributedVectorFactory(GetNumNodes());
+        mpDistributedVectorFactory = new DistributedVectorFactory(GetNumNodes());
     }
     return mpDistributedVectorFactory;
 }

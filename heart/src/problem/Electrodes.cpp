@@ -37,6 +37,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                        double magnitude,
                        double duration)
 {
+    /// \todo what on earth is this for???
     DistributedVectorFactory factory(rMesh.GetDistributedVectorFactory()->GetProblemSize(), 
                                      rMesh.GetDistributedVectorFactory()->GetLocalOwnership());
     assert(index < DIM);

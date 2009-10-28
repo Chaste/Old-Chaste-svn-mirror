@@ -423,7 +423,6 @@ if ARGUMENTS.get('exe', 0):
     assert use_chaste_libs
     env = env.Copy()
     # Build information to supply to the executable
-    #svn_rev = os.popen("svnversion").read().strip()
     uname = ' '.join(os.uname()).replace(' ', '-')
     
     env.Append(CCFLAGS=' -DUNAME=\'"'+uname+'"\' -DBUILD_TYPE=\'"'+build_type+'"\' ')

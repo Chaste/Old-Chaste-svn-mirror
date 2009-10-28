@@ -47,7 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "ArchiveLocationInfo.hpp"
 
-
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
 // ie "class AbstractCardiacPde : public virtual AbstractPde"
@@ -96,10 +95,10 @@ private:
         archive & mDoOneCacheReplication;
         archive & mpDistributedVectorFactory;
         
-        ///\todo Fix assertion
-        //This may only work in sequential and in parallel with dumb partitioning (because the mesh isn't archiving the factory)
+        ///\todo #1159 Fix when migrating, hence re-partitioning.
+        ///This will only work in sequential and in parallel with dumb partitioning. 
         assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
-        // archive & mFactoryWasUnarchived; Not archived since set to true when archiving constructor is called.
+        // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
     }
 
     /**
@@ -163,13 +162,16 @@ protected:
      * Local pointer to the distributed vector factory associated with the mesh object used.
      *
      * Used to retrieve node ownership range when needed.
+     * 
+     * NB: This is set from mpMesh->GetDistributedVectorFactory() and thus always equal to
+     * that.  We never assume ownership of the object.
      */
     DistributedVectorFactory* mpDistributedVectorFactory;
 
     /**
-     * Whether the distributed vector factory and mesh were unarchived or got from elsewhere.
+     * Whether the mesh was unarchived or got from elsewhere.
      */
-    bool mFactoryMeshUnarchived;
+    bool mMeshUnarchived;
 
 public:
     /**

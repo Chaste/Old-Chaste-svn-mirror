@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <vector>
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
@@ -67,7 +69,7 @@ public:
 
         monodomain_problem.SetNodesPerProcessorFilename("heart/test/data/11_nodes_2_processors.txt");
 
-        if(PetscTools::GetNumProcs() == 2)
+        if (PetscTools::GetNumProcs() == 2)
         {
             monodomain_problem.Initialise();
 
@@ -86,7 +88,7 @@ public:
             PetscInt petsc_lo, petsc_hi;
             VecGetOwnershipRange(monodomain_problem.GetSolution(),&petsc_lo,&petsc_hi);
 
-            if(PetscTools::GetMyRank() == 0)
+            if (PetscTools::GetMyRank() == 0)
             {
                 TS_ASSERT_EQUALS(0, petsc_lo);
                 TS_ASSERT_EQUALS(8, petsc_hi);
@@ -113,6 +115,7 @@ public:
             HeartEventHandler::Reset();
         }
     }
+    
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestBidomainTwoUnevenProcessors()
     {
@@ -128,7 +131,7 @@ public:
 
         bidomain_problem.SetNodesPerProcessorFilename("heart/test/data/11_nodes_2_processors.txt");
 
-        if(PetscTools::GetNumProcs() == 2)
+        if (PetscTools::GetNumProcs() == 2)
         {
             bidomain_problem.Initialise();
 
@@ -140,7 +143,7 @@ public:
             PetscInt petsc_lo, petsc_hi;
             VecGetOwnershipRange(bidomain_problem.GetSolution(),&petsc_lo,&petsc_hi);
 
-            if(PetscTools::GetMyRank() == 0)
+            if (PetscTools::GetMyRank() == 0)
             {
                 TS_ASSERT_EQUALS(0, petsc_lo);
                 TS_ASSERT_EQUALS(8*2, petsc_hi);
@@ -154,6 +157,87 @@ public:
         else
         {
             TS_ASSERT_THROWS_THIS(bidomain_problem.Initialise(),
+                    "Number of processes doesn\'t match the size of the nodes-per-processor file");
+            HeartEventHandler::Reset();
+        }
+    }
+    
+    // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
+    void TestMonodomainTwoUnevenProcessorsArchiving()
+    {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetOutputDirectory("MonodomainUnevenArchived");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+        
+        OutputFileHandler handler("MonodomainUnevenArchived", false);
+        handler.SetArchiveDirectory();
+        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("monodomain_problem.arch");
+
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+
+        monodomain_problem.SetNodesPerProcessorFilename("heart/test/data/11_nodes_2_processors.txt");
+
+        if (PetscTools::GetNumProcs() == 2)
+        {
+            monodomain_problem.Initialise();
+
+            { // save
+                HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
+                monodomain_problem.Solve();
+    
+                std::ofstream ofs(archive_filename.c_str());
+                boost::archive::text_oarchive output_arch(ofs);
+                AbstractCardiacProblem<1,1,1>* const p_monodomain_problem = &monodomain_problem;
+                output_arch & p_monodomain_problem;
+            }
+            
+            { //load
+                std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+                boost::archive::text_iarchive input_arch(ifs);
+
+                AbstractCardiacProblem<1,1,1> *p_monodomain_problem;
+                input_arch >> p_monodomain_problem;
+
+                HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+                p_monodomain_problem->Solve();
+
+                // Test whether voltages and gating variables are in correct ranges
+                CheckMonoLr91Vars<1>(static_cast<MonodomainProblem<1>&>(*p_monodomain_problem));
+
+                // Check some voltages
+                ReplicatableVector voltage_replicated(p_monodomain_problem->GetSolution());
+    
+                PetscInt petsc_lo, petsc_hi;
+                VecGetOwnershipRange(p_monodomain_problem->GetSolution(), &petsc_lo, &petsc_hi);
+    
+                if (PetscTools::GetMyRank() == 0)
+                {
+                    TS_ASSERT_EQUALS(0, petsc_lo);
+                    TS_ASSERT_EQUALS(8, petsc_hi);
+                }
+                else
+                {
+                    TS_ASSERT_EQUALS(8, petsc_lo);
+                    TS_ASSERT_EQUALS(11, petsc_hi);
+                }
+    
+                double atol = 5e-3;
+    
+                TS_ASSERT_DELTA(voltage_replicated[1], 20.7710232, atol);
+                TS_ASSERT_DELTA(voltage_replicated[3], 21.5319692, atol);
+                TS_ASSERT_DELTA(voltage_replicated[5], 22.9280817, atol);
+                TS_ASSERT_DELTA(voltage_replicated[7], 24.0611303, atol);
+                TS_ASSERT_DELTA(voltage_replicated[9], -0.770330519, atol);
+                TS_ASSERT_DELTA(voltage_replicated[10], -19.2234919, atol);
+            }
+        }
+        else
+        {
+            TS_ASSERT_THROWS_THIS(monodomain_problem.Initialise(),
                     "Number of processes doesn\'t match the size of the nodes-per-processor file");
             HeartEventHandler::Reset();
         }

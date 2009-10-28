@@ -149,6 +149,11 @@ private:
     {
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mMeshIsLinear;
+        
+        // Store the DistributedVectorFactory loaded from the archive
+        DistributedVectorFactory* p_factory = this->mpDistributedVectorFactory;
+        this->mpDistributedVectorFactory = NULL;
+        
         if (mMeshIsLinear)
         {
             //I am a linear mesh
@@ -160,6 +165,27 @@ private:
             //I am a quadratic mesh and need quadratic information from the reader
             TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename(), 2, 2);
             this->ConstructFromMeshReader(mesh_reader);
+        }
+        
+        // Sanity check that we still have the same distribution of nodes
+        if (p_factory)
+        {
+            if (!this->mpDistributedVectorFactory)
+            {
+                // If we're not using a ParallelTetrahedralMesh, ConstructFromMeshReader won't set
+                // this->mpDistributedVectorFactory.
+                this->mpDistributedVectorFactory = p_factory;
+            }
+            else
+            {
+                assert(p_factory->GetLow() == this->mpDistributedVectorFactory->GetLow());
+                assert(p_factory->GetHigh() == this->mpDistributedVectorFactory->GetHigh());
+                assert(p_factory->GetProblemSize() == this->mpDistributedVectorFactory->GetProblemSize());
+                // Replace our new factory with the original, so AbstractCardiacPde isn't pointing at
+                // a deleted factory.
+                delete this->mpDistributedVectorFactory;
+                this->mpDistributedVectorFactory = p_factory;
+            }
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()

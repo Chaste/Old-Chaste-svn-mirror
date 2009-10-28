@@ -31,7 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "CardiacSimulationArchiver.hpp"
+#include "CardiacSimulationArchiver.hpp" // Needs to be before other Chaste code
+
 #include "PetscSetupAndFinalize.hpp"
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
