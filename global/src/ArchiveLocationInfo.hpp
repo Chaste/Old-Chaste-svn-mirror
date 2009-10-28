@@ -58,8 +58,14 @@ private:
     /** Directory that archives are being written to. */
     static std::string mDirPath;
 
+    /** Whether mDirPath is relative to CHASTE_TEST_OUTPUT
+     *  true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD 
+     */
+    static bool mDirIsRelativeToChasteTestOutput;
+
     /** Mesh filename (relative to #mDirPath). */
     static std::string mMeshFilename;
+    
 
 public:
     /**
@@ -130,14 +136,18 @@ public:
      * Set the directory that archives are being written to.
      *
      * @param rDirectory  the directory in question.
+     * @param relativeToChasteTestOutput  Whether to convert directory to an absolute path using the
+     *                      OutputFileHandler (defaults to true)
      */
-    static void SetArchiveDirectory(const std::string& rDirectory)
+    static void SetArchiveDirectory(const std::string& rDirectory, bool relativeToChasteTestOutput=true)
     {
         mDirPath = rDirectory;
         if (! ( *(mDirPath.end()-1) == '/'))
         {
             mDirPath = mDirPath + "/";
         }
+        
+        mDirIsRelativeToChasteTestOutput = relativeToChasteTestOutput;        
     }
 
     /**
@@ -148,16 +158,32 @@ public:
      */
     static std::string GetArchiveRelativePath()
     {
-        std::string chaste_output=OutputFileHandler::GetChasteTestOutputDirectory();
-        //Find occurrence of CHASTE_TEST_OUTPUT in string
-        std::string::size_type pos=mDirPath.find(chaste_output, 0);
-        if (pos == std::string::npos)
+        if (mDirIsRelativeToChasteTestOutput)
         {
-            EXCEPTION("Full path doesn't give a directory relative to CHASTE_TEST_OUTPUT");
+            std::string chaste_output=OutputFileHandler::GetChasteTestOutputDirectory();
+            //Find occurrence of CHASTE_TEST_OUTPUT in string
+            std::string::size_type pos=mDirPath.find(chaste_output, 0);
+            if (pos == std::string::npos)
+            {
+                EXCEPTION("Full path doesn't give a directory relative to CHASTE_TEST_OUTPUT");
+            }
+            assert(pos == 0); //Expect this as a prefix, not in the middle of the string
+    
+            return mDirPath.substr(chaste_output.length());
         }
-        assert(pos == 0); //Expect this as a prefix, not in the middle of the string
-
-        return mDirPath.substr(chaste_output.length());
+        else
+        {
+            return mDirPath;
+        }
+    }
+    
+    /**
+     *  Get wheter the directory provided is relative to CHASTE_TEST_OUTPUT
+     *  @return true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to PWD 
+     */
+    static bool GetIsDirRelativeToChasteTestOutput()
+    {
+        return mDirIsRelativeToChasteTestOutput;
     }
 };
 

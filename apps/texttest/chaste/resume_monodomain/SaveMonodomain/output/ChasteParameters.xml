@@ -13,13 +13,13 @@
     </cp12:IonicModels>
     <cp12:Stimuli>
       <cp12:Stimulus>
-        <cp12:Strength unit="uA/cm^3">-600000</cp12:Strength>
+        <cp12:Strength unit="uA/cm^3">-80000</cp12:Strength>
         <cp12:Duration unit="ms">1</cp12:Duration>
         <cp12:Delay unit="ms">0</cp12:Delay>
         <cp12:Location unit="cm">
           <cp12:Cuboid>
             <cp12:LowerCoordinates x="0" y="0" z="0"/>
-            <cp12:UpperCoordinates x="0.005" y="1" z="1"/>
+            <cp12:UpperCoordinates x="0.1" y="1" z="1"/>
           </cp12:Cuboid>
         </cp12:Location>
       </cp12:Stimulus>

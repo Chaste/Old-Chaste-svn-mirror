@@ -59,6 +59,7 @@ public:
         TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetArchiveRelativePath(),"Full path doesn\'t give a directory relative to CHASTE_TEST_OUTPUT");
         ArchiveLocationInfo::SetArchiveDirectory(OutputFileHandler::GetChasteTestOutputDirectory() + "relative_archive_dir");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveRelativePath(), "relative_archive_dir/");
+        TS_ASSERT(ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput());
     }
 
     void TestProcessUniqueNaming()

@@ -189,7 +189,7 @@ private:
             Vec vm = mpMesh->GetDistributedVectorFactory()->CreateVec();
             Vec phie = mpMesh->GetDistributedVectorFactory()->CreateVec();
 
-            Hdf5DataReader reader(ArchiveLocationInfo::GetArchiveRelativePath(), "AbstractCardiacProblem_mSolution");
+            Hdf5DataReader reader(ArchiveLocationInfo::GetArchiveRelativePath(), "AbstractCardiacProblem_mSolution", ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput());
             reader.GetVariableOverNodes(vm, "Vm", 0);
 
             if (PROBLEM_DIM==1)

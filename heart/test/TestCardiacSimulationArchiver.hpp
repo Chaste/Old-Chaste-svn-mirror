@@ -155,24 +155,23 @@ public:
 
     }
     
-    /*
-     *  Test used to generate the results for the acceptance test save_bidomain.
+    /**
+     *  Test used to generate data for the acceptance test resume_bidomain. We run the same simulation as in save_bidomain
+     *  and archive it. resume_bidomain will load it and resume the simulation.
      * 
-     *  The idea is that the binary should generate the same results that this test.
+     *  If the archiving format changes, both the acceptance test and the second part of this test will fail. Do the
+     *  following to fix it.
      * 
-     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
-     * 
-     *  save_bidomain:
-     *    h5dump save_bidomain/AbstractCardiacProblem_mSolution.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_bidomain/AbstractCardiacProblem_mSolution_h5.chaste
-     *    cp save_bidomain.arch.0 ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_bidomain/ChasteResults_10ms_arch_0.chaste
-     * 
-     *  resume_bidomain:
+     *  Change into the output directory
      *    cd /tmp/chaste/testoutput
-     *    cp -r SaveBidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_bidomain/
+     * 
+     *  Copy the archive generated.
      *    cp -r save_bidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
      * 
+     *  Copy the h5 results directory so it can be extended.
+     *    cp -r SaveBidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
      */      
-    void TestGenerateResultsForSaveBidomain()
+    void TestGenerateResultsForResumeBidomain()
     {
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_bidomain/ChasteParameters.xml");
@@ -199,70 +198,36 @@ public:
 
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
         
-        /// \todo: add a test that fails if the archiving format is modified.
-    }
-    
-    /*
-     *  Test used to generate the results for the acceptance test resume_bidomain.
-     * 
-     *  Here we run the whole simulation (20ms) and check
-     *
-     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
-     * 
-     *  resume_bidomain:
-     *    cd /tmp/chaste/testoutput/ResumeBidomain
-     *    h5dump BidomainLR91_1d.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/results_h5.chaste
-     */
-    void TestGenerateResultsForResumeBidomain()
-    {
-        HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_bidomain/ChasteParameters.xml");
-        // We reset the mesh filename to include the relative path
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/cube_1626_elements");
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(),
-                         "mesh/test/data/cube_1626_elements");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
-                         cp::ionic_models_available_type::Fox2002BackwardEuler);
-
-        // We simulate for 20ms to compare the output
-        HeartConfig::Instance()->SetSimulationDuration(20.0);
-
-        HeartConfig::Instance()->SetOutputDirectory("ResumeBidomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");  ///\todo this is not a 1D simulation    
-
-        // This cell factory should apply the same stimulus described in the xml config file.
-        PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
-        BidomainProblem<3> bidomain_problem( &cell_factory );
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
-        bidomain_problem.Initialise();
-        bidomain_problem.Solve();
+        {
+            ArchiveLocationInfo::SetArchiveDirectory("apps/texttest/chaste/resume_bidomain/save_bidomain/", false);            
+            BidomainProblem<3> *p_bidomain_problem;
+            std::ifstream ifs("apps/texttest/chaste/resume_bidomain/save_bidomain/save_bidomain.arch.0", std::ios::binary);
+            assert(ifs.is_open());
+            boost::archive::text_iarchive input_arch(ifs);
         
-        /// \todo: add a test that fails if the archiving format is modified.
-    }
+            TS_ASSERT_THROWS_NOTHING(input_arch >> p_bidomain_problem);
+            delete p_bidomain_problem;
+        }
+    }    
 
 
-    /*
-     *  Test used to generate the results for the acceptance test save_monodomain.
+    /**
+     *  Test used to generate data for the acceptance test resume_monodomain. We run the same simulation as in save_monodomain
+     *  and archive it. resume_monodomain will load it and resume the simulation.
      * 
-     *  The idea is that the binary should generate the same results that this test.
+     *  If the archiving format changes, both the acceptance test and the second part of this test will fail. Do the
+     *  following to fix it.
      * 
-     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
-     * 
-     *  save_monodomain:
+     *  Change into the output directory
      *    cd /tmp/chaste/testoutput
-     *    h5dump save_monodomain/AbstractCardiacProblem_mSolution.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_monodomain/AbstractCardiacProblem_mSolution_h5.chaste
-     *    cp save_monodomain/save_monodomain.arch.0 ~/eclipse/workspace/Chaste/apps/texttest/chaste/save_monodomain/ChasteResults_10ms_arch_0.chaste
      * 
-     *  resume_monodomain:
-     *    cd /tmp/chaste/testoutput
-     *    cp -r SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/
+     *  Copy the archive generated.
      *    cp -r save_monodomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/
      * 
+     *  Copy the h5 results directory so it can be extended.
+     *    cp -r SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/
      */      
-    void TestGenerateResultsForSaveMonodomain()
+    void TestGenerateResultsForResumeMonodomain()
     {
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
@@ -285,45 +250,18 @@ public:
 
         CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, "save_monodomain", false);
         
-        /// \todo: add a test that fails if the archiving format is modified.
+        {
+            ArchiveLocationInfo::SetArchiveDirectory("apps/texttest/chaste/resume_monodomain/save_monodomain/", false);
+            MonodomainProblem<2> *p_monodomain_problem;
+            std::ifstream ifs("apps/texttest/chaste/resume_monodomain/save_monodomain/save_monodomain.arch.0", std::ios::binary);
+            assert(ifs.is_open());
+            boost::archive::text_iarchive input_arch(ifs);
+        
+            TS_ASSERT_THROWS_NOTHING(input_arch >> p_monodomain_problem);            
+            delete p_monodomain_problem;
+        }
     }
     
-    /*
-     *  Test used to generate the results for the acceptance test resume_monodomain.
-     * 
-     *  Here we run the whole simulation (20ms) and check
-     *
-     *  If the archiving format changes you will need to update two convergence tests based on the result of this test:
-     * 
-     *  resume_monodomain:
-     *    cd /tmp/chaste/testoutput/ResumeMonodomain
-     *    h5dump MonodomainLR91_1d.h5 > ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/resumed_mono_h5.chaste
-     */
-    void TestGenerateResultsForResumeMonodomain()
-    {
-        HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
-                         cp::ionic_models_available_type::Fox2002BackwardEuler);
-
-        // We simulate for 20ms to compare the output
-        HeartConfig::Instance()->SetSimulationDuration(20.0);
-
-        HeartConfig::Instance()->SetOutputDirectory("ResumeMonodomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");///\todo this is not a 1D simulation      
-
-        // This cell factory should apply the same stimulus described in the xml config file.
-        PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);
-        MonodomainProblem<2> monodomain_problem( &cell_factory );
-
-        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
-        monodomain_problem.Initialise();
-        monodomain_problem.Solve();
-        
-        /// \todo: add a test that fails if the archiving format is modified.
-    }
     
     void TestMigrateArchiveToSequential()
     {

@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
+#include "Debug.hpp"
 
 #include <cassert>
 
@@ -52,7 +53,7 @@ Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
     else
     {
         results_dir = rDirectory;
-        
+
         // Add a trailing slash if needed
         if ( !(*(rDirectory.end()-1) == '/'))
         {

@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
+<cp12:ChasteParameters xmlns:cp12="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 /home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_2.xsd">
 
-  <Simulation>
-    <SimulationDuration unit="ms">10</SimulationDuration>
-    <Domain>Bi</Domain>
-    <Mesh unit="cm">
-      <LoadMesh conductivity_media="NoFibreOrientation" name="mesh/test/data/cube_1626_elements"/>
-    </Mesh>
-    <IonicModels>
-      <Default>Fox2002BackwardEuler</Default>
-    </IonicModels>
-    <Stimuli>
-      <Stimulus>
-        <Strength unit="uA/cm^3">-80000</Strength>
-        <Duration unit="ms">1</Duration>
-        <Delay unit="ms">0</Delay>
-        <Location unit="cm">
-          <Cuboid>
-            <LowerCoordinates x="0" y="0" z="0"/>
-            <UpperCoordinates x="0.1" y="1" z="1"/>
-          </Cuboid>
-        </Location>
-      </Stimulus>
-    </Stimuli>
-    <OutputDirectory>SaveBidomain</OutputDirectory>
-    <OutputFilenamePrefix>BidomainLR91_1d</OutputFilenamePrefix>
-    <SaveSimulation></SaveSimulation>
-  </Simulation>
+  <cp12:Simulation>
+    <cp12:SimulationDuration unit="ms">10</cp12:SimulationDuration>
+    <cp12:Domain>Bi</cp12:Domain>
+    <cp12:Mesh unit="cm">
+      <cp12:LoadMesh conductivity_media="NoFibreOrientation" name="mesh/test/data/cube_1626_elements"/>
+    </cp12:Mesh>
+    <cp12:IonicModels>
+      <cp12:Default>Fox2002BackwardEuler</cp12:Default>
+    </cp12:IonicModels>
+    <cp12:Stimuli>
+      <cp12:Stimulus>
+        <cp12:Strength unit="uA/cm^3">-80000</cp12:Strength>
+        <cp12:Duration unit="ms">1</cp12:Duration>
+        <cp12:Delay unit="ms">0</cp12:Delay>
+        <cp12:Location unit="cm">
+          <cp12:Cuboid>
+            <cp12:LowerCoordinates x="0" y="0" z="0"/>
+            <cp12:UpperCoordinates x="0.1" y="1" z="1"/>
+          </cp12:Cuboid>
+        </cp12:Location>
+      </cp12:Stimulus>
+    </cp12:Stimuli>
+    <cp12:OutputDirectory>SaveBidomain</cp12:OutputDirectory>
+    <cp12:OutputFilenamePrefix>BidomainLR91_1d</cp12:OutputFilenamePrefix>
+    <cp12:SaveSimulation/>
+  </cp12:Simulation>
 
-  <Physiological>
-    <IntracellularConductivities longi="1.75" normal="1.75" trans="1.75" unit="mS/cm"/>
-    <ExtracellularConductivities longi="7" normal="7" trans="7" unit="mS/cm"/>
-    <SurfaceAreaToVolumeRatio unit="1/cm">1400</SurfaceAreaToVolumeRatio>
-    <Capacitance unit="uF/cm^2">1</Capacitance>
-  </Physiological>
+  <cp12:Physiological>
+    <cp12:IntracellularConductivities longi="1.75" normal="1.75" trans="1.75" unit="mS/cm"/>
+    <cp12:ExtracellularConductivities longi="7" normal="7" trans="7" unit="mS/cm"/>
+    <cp12:SurfaceAreaToVolumeRatio unit="1/cm">1400</cp12:SurfaceAreaToVolumeRatio>
+    <cp12:Capacitance unit="uF/cm^2">1</cp12:Capacitance>
+  </cp12:Physiological>
 
-  <Numerical>
-    <TimeSteps ode="0.01" pde="0.1" printing="0.1" unit="ms"/>
-    <KSPTolerances>
-      <KSPAbsolute>0.0002</KSPAbsolute>
-    </KSPTolerances>
-    <KSPSolver>gmres</KSPSolver>
-    <KSPPreconditioner>jacobi</KSPPreconditioner>
-  </Numerical>
+  <cp12:Numerical>
+    <cp12:TimeSteps ode="0.01" pde="0.1" printing="0.1" unit="ms"/>
+    <cp12:KSPTolerances>
+      <cp12:KSPAbsolute>0.0002</cp12:KSPAbsolute>
+    </cp12:KSPTolerances>
+    <cp12:KSPSolver>gmres</cp12:KSPSolver>
+    <cp12:KSPPreconditioner>jacobi</cp12:KSPPreconditioner>
+  </cp12:Numerical>
 
-</ChasteParameters>
+</cp12:ChasteParameters>

@@ -28,4 +28,5 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 
 std::string ArchiveLocationInfo::mDirPath = "";
+bool ArchiveLocationInfo::mDirIsRelativeToChasteTestOutput = true;
 std::string ArchiveLocationInfo::mMeshFilename = "mesh";
