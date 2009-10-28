@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 typedef enum ContractionModel_
 {
-    NASH2004,
     KERCHOFFS2003,
     NHS
 } ContractionModel;

@@ -36,18 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCellFactory.hpp"
 #include "MonodomainProblem.hpp"
-#include "ImplicitCardiacMechanicsAssembler.hpp"
-#include "ExplicitCardiacMechanicsAssembler.hpp"
-//#include "ExplicitNhsCardiacMechanicsAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "QuadraticMesh.hpp"
+#include "AbstractOdeBasedContractionModel.hpp"
+#include "AbstractCardiacMechanicsAssembler.hpp"
 
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
 
 
 /** \todo Go through and tidy/refactor, perhaps make elements and weights safer
- *  Think about architecture (of AbstractCardiacProblem) when this is done properly..
  */
 
 

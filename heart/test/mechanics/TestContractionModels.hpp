@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
-#include "Nash2004ContractionModel.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
@@ -75,6 +74,8 @@ public :
         // Note: CalculateT0(z) is a private method.
         TS_ASSERT_DELTA(nhs_system.CalculateT0(0), 0, 1e-12);
         TS_ASSERT_DELTA(nhs_system.CalculateT0(1), 58.0648, 1e-3);
+
+        TS_ASSERT_DELTA(nhs_system.GetCalciumTroponinValue(), 0.0, 0.01);
 
         boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver);
 

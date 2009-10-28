@@ -43,7 +43,7 @@ class Kerchoffs2003ContractionModel : public AbstractOdeBasedContractionModel
 private:
     static const double a6;  /**< See reference. 2.0 um^{-1} */
     static const double a7;  /**< See reference. 1.5 um */ 
-    static const double T0;  /**< See reference. 180 kPa - SHOULD THIS BE PASCALS??????? */
+    static const double T0;  /**< See reference. 180 kPa */
     static const double Ea;  /**< See reference. 20 um^{-1} */
     static const double v0;  /**< See reference. 0.0075 um/ms */
     static const double ls0; /**< See reference. 1.9 um */ 

@@ -130,11 +130,8 @@ void NhsCellularMechanicsOdeSystem::SetIntracellularCalciumConcentration(double 
     mCalciumI = calciumConcentration;
 }
     
-
-// this IS NOT covered - see TestElectroMechanicCellularModels lines 135 244
 double NhsCellularMechanicsOdeSystem::GetCalciumTroponinValue()
 {
-    EXCEPTION("Never reached");
     return mStateVariables[0];
 }
 

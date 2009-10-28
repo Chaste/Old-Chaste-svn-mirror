@@ -59,16 +59,6 @@ public:
                                                      0.01,/* nhs ode timestep */
                                                      "");
 
-//       CardiacElectroMechProbRegularGeom<2> problem(KERCHOFFS2003,
-//                                                     0.05, /* width (cm) */
-//                                                     1,    /* mech mesh size*/
-//                                                     5,    /* elec elem each dir */
-//                                                     &cell_factory,
-//                                                     500, /* end time */
-//                                                     100,  /* 100*0.01ms mech dt */
-//                                                     0.01, /* NHS ode timestep */
-//                                                     "TestC
-
         c_vector<double,2> pos;
         pos(0) = 1.0;
         pos(1) = 0.0;
@@ -93,7 +83,7 @@ public:
     }
 
 
-    void Test2dOneMechanicsElement() throw(Exception)
+    void TestImplicitNhs2dOneMechanicsElement() throw(Exception)
     {
         EXIT_IF_PARALLEL;
 
@@ -132,6 +122,43 @@ public:
         MechanicsEventHandler::Report();
 
     }
+    
+    void TestExplicitSolverWithKerchoffs() throw(Exception)
+    {
+        EXIT_IF_PARALLEL;
+
+        HeartEventHandler::Disable();
+
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+
+        CardiacElectroMechProbRegularGeom<2> problem(KERCHOFFS2003,
+                                                     0.05, /* width (cm) */
+                                                     1,    /* mech mesh size*/
+                                                     5,    /* elec elem each dir */
+                                                     &cell_factory,
+                                                     5, /* end time */                    // dies between 7ms and 8ms
+                                                     1,  /* n times 0.01ms mech dt */
+                                                     0.01, /* NHS ode timestep */
+                                                     "TestExplicitWithKerchoffs");
+
+        c_vector<double,2> pos;
+        pos(0) = 0.05;
+        pos(1) = 0.0;
+        
+        problem.SetWatchedPosition(pos);
+        problem.SetNoElectricsOutput();
+        problem.Initialise();
+
+        problem.Solve();
+        
+        //visualise to verify
+        
+        // hardcoded result
+        TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0496, 0.002);
+    }
+
+    
 
 //// Don't delete
 //    void TestCinverseDataStructure() throw(Exception)

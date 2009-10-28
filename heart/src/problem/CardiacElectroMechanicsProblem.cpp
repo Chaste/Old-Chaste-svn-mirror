@@ -43,9 +43,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshalyzerMeshWriter.hpp"
 #include "PetscTools.hpp"
 
+#include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "ExplicitCardiacMechanicsAssembler.hpp"
+//#include "ExplicitNhsCardiacMechanicsAssembler.hpp"
+//#include "ImplicitKerchoffsCardiacMechanicsAssembler.hpp"
+
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
 
+
+#include "MooneyRivlinMaterialLaw.hpp"
 
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
@@ -287,19 +294,22 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
     mpMonodomainProblem->Initialise();
 
+//for TestingContractionModel
+//MooneyRivlinMaterialLaw<DIM>* law = new MooneyRivlinMaterialLaw<DIM>(10, 0.0);
+
     // construct mechanics assembler
     switch(mContractionModel)
     {
-        case NASH2004:
+        //case NASH2004:
         case KERCHOFFS2003:
             mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            // mpCardiacMechAssembler = new ImplicitKerchoffsCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         case NHS:
             mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         default:
-            EXCEPTION("Unknown contraction model");
-            break;
+            NEVER_REACHED;
     }
 
     // find the element nums and weights for each gauss point in the mechanics mesh

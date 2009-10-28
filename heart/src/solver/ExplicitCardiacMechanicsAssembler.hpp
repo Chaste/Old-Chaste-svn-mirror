@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "AbstractOdeBasedContractionModel.hpp"
-
-#include "Nash2004ContractionModel.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
 
 
@@ -46,8 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  The general explicit solution procedure is to do, each timestep:
  *  (0) [solve the electrics and interpolate Ca and voltage onto quad points
  *  (i) pass Ca and voltage to the contraction models
- *  (ii) integrate the contraction models in order to get the active tension
- *  (iii) solve for the deformation using this active tension. 
+ *  (ii) pass the fibre stretch to the contraction models in case this is needed.
+ *  (iii) integrate the contraction models in order to get the active tension
+ *  (iv) solve for the deformation using this active tension. 
  */
 template<unsigned DIM>
 class ExplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembler<DIM>
@@ -59,6 +58,12 @@ private:
      *  Vector of contraction model (pointers). One for each quadrature point.
      */
     std::vector<AbstractOdeBasedContractionModel*> mContractionModelSystems;
+    
+    /**
+     *  Stored stretches (in fibre direction, at each quadrature point) from the 
+     *  previous timestep, to pass to contraction models if needed.
+     */
+    std::vector<double> mStretches;
 
     /** This solver is an explicit solver (overloaded pure method) */
     bool IsImplicitSolver()
@@ -68,26 +73,34 @@ private:
 
     /**
      *  Get the active tension and other info at the given quadrature point. This is an explicit 
-     *  assembler so just sets the active tension, it doesn't set the derivatives or the stretch.
+     *  assembler so just sets the active tension, it doesn't set the derivatives. It stores the
+     *  stretch for the next timestep.
      * 
-     *  @param C Green-deformation tension. Unused.
-     *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement.
+     *  @param currentFibreStretch The stretch in the fibre direction
+     *  @param currentQuadPointGlobalIndex Quadrature point integrand currently being evaluated at in AssembleOnElement.
      *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
      *  @param rActiveTension The returned active tension. 
-     *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Unset.
-     *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate. Unset.
-     *  @param rLambda The stretch (computed from C) as AssembleOnElement needs to use this too. Unset.
+     *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Unset in this explicit solver.
+     *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate. Unset in this explicit solver.
      */   
-    void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
+    void GetActiveTensionAndTensionDerivs(double currentFibreStretch, 
                                           unsigned currentQuadPointGlobalIndex,
                                           bool assembleJacobian,
                                           double& rActiveTension,
                                           double& rDerivActiveTensionWrtLambda,
-                                          double& rDerivActiveTensionWrtDLambdaDt,
-                                          double& rLambda)
+                                          double& rDerivActiveTensionWrtDLambdaDt)
     {
+        // the active tensions have already been computed for each contraction model, so can 
+        // return it straightaway..
         rActiveTension = mContractionModelSystems[currentQuadPointGlobalIndex]->GetActiveTension();
-        //std::cout << rActiveTension << " ";
+
+        // these are unset
+        rDerivActiveTensionWrtLambda = 0.0;
+        rDerivActiveTensionWrtDLambdaDt = 0.0;
+
+        // store the value of given for this quad point, so that it can be used when computing 
+        // the active tension at the next timestep
+        mStretches[currentQuadPointGlobalIndex] = currentFibreStretch;
     }
 
 public:
@@ -113,14 +126,17 @@ public:
     {
         switch(contractionModel)
         {
-            case NASH2004:
-            {
-                mContractionModelSystems.resize(this->mTotalQuadPoints, new Nash2004ContractionModel());
-                break;
-            }
+            //case NASH2004:
+            //{
+            //    mContractionModelSystems.resize(this->mTotalQuadPoints, new Nash2004ContractionModel());
+            //    break;
+            //}
             case KERCHOFFS2003: //stretch dependent, will this work with explicit??
             {
-                mContractionModelSystems.resize(this->mTotalQuadPoints, new Kerchoffs2003ContractionModel());
+                for(unsigned i=0; i<this->mTotalQuadPoints; i++)
+                {
+                    mContractionModelSystems.push_back(new Kerchoffs2003ContractionModel());
+                }
                 break;
             }
             default:
@@ -129,13 +145,15 @@ public:
             } 
         }
         
+        mStretches.resize(this->mTotalQuadPoints);        
         assert(!(mContractionModelSystems[0]->IsStretchRateDependent()));
     }
+    
     /**
      *  Destructor
      */
     virtual ~ExplicitCardiacMechanicsAssembler()
-    {
+    {        
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
             delete mContractionModelSystems[i];
@@ -190,10 +208,16 @@ public:
         this->mCurrentTime = time;
         this->mNextTime = nextTime;
         this->mOdeTimestep = odeTimestep;        
+
+        // assemble the residual again so that mStretches is set (in GetActiveTensionAndTensionDerivs)
+        // using the current deformation.
+        this->AssembleSystem(true,false);
                 
+        // integrate contraction models
         EulerIvpOdeSolver euler_solver;
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
+            mContractionModelSystems[i]->SetStretchAndStretchRate(mStretches[i], 0.0);
             euler_solver.SolveAndUpdateStateVariable(mContractionModelSystems[i], time, nextTime, odeTimestep);
         }   
         

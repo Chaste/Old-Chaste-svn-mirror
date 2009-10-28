@@ -108,32 +108,30 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
 
 
 template<unsigned DIM>
-void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
+void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch, 
                                                                               unsigned currentQuadPointGlobalIndex,
                                                                               bool assembleJacobian,
                                                                               double& rActiveTension,
                                                                               double& rDerivActiveTensionWrtLambda,
-                                                                              double& rDerivActiveTensionWrtDLambdaDt,
-                                                                              double& rLambda)
+                                                                              double& rDerivActiveTensionWrtDLambdaDt)
 {
 /////
 // better comments
 /////
-    mLambda[currentQuadPointGlobalIndex] = sqrt(C(0,0));
-    rLambda = sqrt(C(0,0));
+    mLambda[currentQuadPointGlobalIndex] = currentFibreStretch;
 
-    double dlam_dt = (rLambda-mLambdaLastTimeStep[currentQuadPointGlobalIndex])/(this->mNextTime-this->mCurrentTime);
+    double dlam_dt = (currentFibreStretch-mLambdaLastTimeStep[currentQuadPointGlobalIndex])/(this->mNextTime-this->mCurrentTime);
 
-    NhsSystemWithImplicitSolver& system = mCellMechSystems[currentQuadPointGlobalIndex];
+    NhsSystemWithImplicitSolver& r_system = mCellMechSystems[currentQuadPointGlobalIndex];
 
     // get proper active tension
     // see NOTE below
-    system.SetStretchAndStretchRate(rLambda, dlam_dt);
+    r_system.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
 
     try
     {
-        system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        rActiveTension = system.GetActiveTensionAtNextTime();
+        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        rActiveTension = r_system.GetActiveTensionAtNextTime();
     }
     catch (Exception& e)
     {
@@ -149,16 +147,16 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(c_
     if(assembleJacobian)
     {
         // get active tension for (lam+h,dlamdt)
-        double h1 = std::max(1e-6, rLambda/100);
-        system.SetStretchAndStretchRate(rLambda+h1, dlam_dt);
-        system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_lam_plus_h = system.GetActiveTensionAtNextTime();
+        double h1 = std::max(1e-6, currentFibreStretch/100);
+        r_system.SetStretchAndStretchRate(currentFibreStretch+h1, dlam_dt);
+        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_lam_plus_h = r_system.GetActiveTensionAtNextTime();
 
         // get active tension for (lam,dlamdt+h)
         double h2 = std::max(1e-6, dlam_dt/100);
-        system.SetStretchAndStretchRate(rLambda, dlam_dt+h2);
-        system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_dlamdt_plus_h = system.GetActiveTensionAtNextTime();
+        r_system.SetStretchAndStretchRate(currentFibreStretch, dlam_dt+h2);
+        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_dlamdt_plus_h = r_system.GetActiveTensionAtNextTime();
 
         rDerivActiveTensionWrtLambda = (active_tension_at_lam_plus_h - rActiveTension)/h1;
         rDerivActiveTensionWrtDLambdaDt = (active_tension_at_dlamdt_plus_h - rActiveTension)/h2;
@@ -167,13 +165,13 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(c_
     // NOTE - have to get the active tension again, this must be done last!!
     // As if this turns out to be the correct solution, the state vars will be updated!
     /// \todo: sort out this inefficiency
-    system.SetStretchAndStretchRate(rLambda, dlam_dt);
-    system.SetActiveTensionInitialGuess(rActiveTension);
+    r_system.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
+    r_system.SetActiveTensionInitialGuess(rActiveTension);
 
     try
     {
-        system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        assert( fabs(system.GetActiveTensionAtNextTime()-rActiveTension)<1e-8);
+        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        assert( fabs(r_system.GetActiveTensionAtNextTime()-rActiveTension)<1e-8);
     }
     catch (Exception& e)
     {

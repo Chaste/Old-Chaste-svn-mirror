@@ -97,28 +97,23 @@ protected:
 
 
     /**
-     *  A method called by AbstractCardiacMechanicsAssembler::AssembleOnElement(), providing
+     *  Pure method called in AbstractCardiacMechanicsAssembler::AssembleOnElement(), which needs to provide
      *  the active tension (and other info if implicit (if the contraction model depends on stretch
-     *  or stretch rate)) at a particular quadrature point. This version uses C to determine the 
-     *  current stretch and stretch rate, and integrates the NHS ODEs to determine
-     *  the active tension, and derivatives of the active tension with respect to stretch and
-     *  stretch rate.
+     *  or stretch rate)) at a particular quadrature point. Takes in the current fibre stretch.
      * 
-     *  @param C Green-deformation tension
+     *  @param currentFibreStretch The stretch in the fibre direction
      *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement
      *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
      *  @param rActiveTension The returned active tension
      *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit assemblers
      *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate.  Only should be set in implicit assemblers
-     *  @param rLambda The stretch (computed from C) as AssembleOnElement needs to use this too.  Only should be set in implicit assemblers
      */
-    virtual void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
+    virtual void GetActiveTensionAndTensionDerivs(double currentFibreStretch, 
                                                   unsigned currentQuadPointGlobalIndex,
                                                   bool assembleJacobian,
                                                   double& rActiveTension,
                                                   double& rDerivActiveTensionWrtLambda,
-                                                  double& rDerivActiveTensionWrtDLambdaDt,
-                                                  double& rLambda)=0;
+                                                  double& rDerivActiveTensionWrtDLambdaDt)=0;
 public:
     /**
      * Constructor
@@ -372,13 +367,16 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
         
 ////////////////////////
-        double lambda = 1.0;
+        double lambda = sqrt(C(0,0));
+
         double active_tension = 0;
         double d_act_tension_dlam = 0.0;     //Set and used if assembleJacobian==true
         double d_act_tension_d_dlamdt = 0.0; //Set and used if assembleJacobian==true
 
-        GetActiveTensionAndTensionDerivs(C, current_quad_point_global_index, assembleJacobian, 
-                                         active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt, lambda);  
+
+
+        GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian, 
+                                         active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);  
 
 /////////////////////////
 

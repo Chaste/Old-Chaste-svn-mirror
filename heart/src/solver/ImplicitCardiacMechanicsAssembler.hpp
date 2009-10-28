@@ -86,19 +86,16 @@ private:
      * 
      *  @param C Green-deformation tension
      *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement
-     *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
      *  @param rActiveTension The returned active tension
-     *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch
-     *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate
-     *  @param rLambda The stretch (computed from C) as AssembleOnElement needs to use this too.
+     *  @param rActiveTension The returned dT_dLam, derivative of active tension wrt stretch
+     *  @param rActiveTension The returned dT_dLamDot, derivative of active tension wrt stretch rate
      */
-    void GetActiveTensionAndTensionDerivs(c_matrix<double,DIM,DIM>& C, 
+    void GetActiveTensionAndTensionDerivs(double currentFibreStretch,  
                                           unsigned currentQuadPointGlobalIndex,
                                           bool assembleJacobian,
                                           double& rActiveTension,
                                           double& rDerivActiveTensionWrtLambda,
-                                          double& rDerivActiveTensionWrtDLambdaDt,
-                                          double& rLambda);
+                                          double& rDerivActiveTensionWrtDLambdaDt);
 
 public:
     /**
