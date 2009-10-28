@@ -68,7 +68,7 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
     
     PCSetType(mPetscPCObject, PCSHELL);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply, (void*) &mPCContext);
+    PCShellSetApply(mPetscPCObject, PCLDUFactorisationApply, (void*) &mPCContext);
 #else
     // Register PC context so it gets passed to PCBlockDiagonalApply
     PCShellSetContext(mPetscPCObject, &mPCContext);
@@ -224,16 +224,26 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     
     //z  = inv(A11)*x1
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->x11, block_diag_context->z);
-
+    double minus_one = -1.0;
     //y2 = inv(A22)*(x2 - B*z)
     MatMult(block_diag_context->B_matrix_subblock,block_diag_context->z,block_diag_context->temp); //temp = B*z    
-    VecAYPX(block_diag_context->temp, -1.0, block_diag_context->x22); // temp <-- x2 - temp
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    VecAYPX(&minus_one, block_diag_context->x22, block_diag_context->temp); // temp <-- x2 - temp
+#else
+    VecAYPX(block_diag_context->temp, minus_one, block_diag_context->x22); // temp <-- x2 - temp
+#endif
     PCApply(block_diag_context->PC_amg_A22, block_diag_context->temp, block_diag_context->y22); // y2 = inv(A22)*temp
     
     //y1 = z - inv(A11)(B*y2)
     MatMult(block_diag_context->B_matrix_subblock,block_diag_context->y22,block_diag_context->temp); //temp = B*y2 
+    ///\todo Are these lines in the correct order Miguel?
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->temp, block_diag_context->y11); // y1 = inv(A11)*temp
-    VecAYPX(block_diag_context->y11, -1.0, block_diag_context->z); // y1 <-- z - y1
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    VecAYPX(&minus_one, block_diag_context->z, block_diag_context->y11); // y1 <-- z - y1
+
+#else
+    VecAYPX(block_diag_context->y11, minus_one, block_diag_context->z); // y1 <-- z - y1
+#endif
                 
     ////////////////////
 
