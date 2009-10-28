@@ -28,11 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "Kerchoffs2003ContractionModel.hpp"
+#include "TimeStepper.hpp"
 #include <iostream>
 
 const double Kerchoffs2003ContractionModel::a6 = 2.0; // 1/um 
 const double Kerchoffs2003ContractionModel::a7 = 1.5; // um 
-const double Kerchoffs2003ContractionModel::T0 = 0.180; // kPa            // <--- changed 180 to 0.180 
+const double Kerchoffs2003ContractionModel::T0 = 180; // kPa 
 const double Kerchoffs2003ContractionModel::Ea = 20;  // 1/um 
 const double Kerchoffs2003ContractionModel::v0 = 0.0075; // um/ms 
 const double Kerchoffs2003ContractionModel::ls0 = 1.9; // um  
@@ -44,15 +45,17 @@ const double Kerchoffs2003ContractionModel::ld = -0.4; // um
 Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel() 
     : AbstractOdeBasedContractionModel(1) 
 {
-    this->mpSystemInfo = OdeSystemInformation<Kerchoffs2003ContractionModel>::Instance();
+    mpSystemInfo = OdeSystemInformation<Kerchoffs2003ContractionModel>::Instance();
 
     mSarcomereLength = ls0;
 
-    this->mStateVariables.push_back(mSarcomereLength-1.0/Ea); //steady state
+    mStateVariables.push_back(mSarcomereLength-1.0/Ea); //steady state
 
     mIsActivated = false;
     mActivationTime = 0.0;
     mCurrentTime = 0.0;
+    
+    //mTempStateVariable = mStateVariables[0];
 }
 
 
@@ -70,14 +73,15 @@ void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputPara
     assert(rInputParameters.time != DOUBLE_UNSET);
     assert(rInputParameters.voltage != DOUBLE_UNSET);
 
+
     mCurrentTime = rInputParameters.time;
-    if (mIsActivated && rInputParameters.voltage< mDeactivationVoltage)
+    if (mIsActivated && (rInputParameters.voltage < mDeactivationVoltage))
     {
         // inactive (resting)
         mIsActivated = false;
     }
     
-    if (!mIsActivated && rInputParameters.voltage > mActivationVoltage )
+    if (!mIsActivated && (rInputParameters.voltage > mActivationVoltage))
     {
         // activated
         mIsActivated = true;
@@ -90,10 +94,9 @@ void Kerchoffs2003ContractionModel::SetStretchAndStretchRate(double stretch, dou
     mSarcomereLength = stretch*ls0;
 }
 
-double Kerchoffs2003ContractionModel::GetActiveTension()
+
+double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
 {
-    double lc = mStateVariables[0];
-    
     double f_iso = 0;
     if(lc > a7)
     {
@@ -108,14 +111,64 @@ double Kerchoffs2003ContractionModel::GetActiveTension()
 
         if(t_a < t_max)
         {
-            f_twitch = pow(tanh(t_a/tr)*tanh((t_max-t_a)/td),2);
+            f_twitch = pow( tanh(t_a/tr)*tanh((t_max-t_a)/td), 2);
         }
     }
-//std::cout << mIsActivated << " " << (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea << "\n";
+    
+    // one set of results with implicit, different with explicit, where get instabilities (earlier for small dt!)
     return (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea;
+
+    /////// non-phys, independent of lc, doesn't have stability problems with explicit, dt=0.01. 
+    ///////Implicit gives similar results, translated across slightly
+    ////return (mSarcomereLength/ls0)*T0*f_twitch*(mSarcomereLength)*Ea;
 }
 
 
+double Kerchoffs2003ContractionModel::GetActiveTension()
+{
+    return GetActiveTension(mStateVariables[0]);
+}
+ 
+//double Kerchoffs2003ContractionModel::GetActiveTensionAtNextTime()
+//{
+//    return GetActiveTension(mTempStateVariable);
+//}
+//
+// 
+//void Kerchoffs2003ContractionModel::SolveDoNotUpdate(double startTime, double endTime, double timestep)
+//{
+////    double lc = mStateVariables[0];
+////    TimeStepper stepper(startTime, endTime, timestep);
+////    while(!stepper.IsTimeAtEnd())
+////    {
+////        double dlc = ( Ea*(mSarcomereLength-lc) - 1 )*v0;
+////        lc += timestep*dlc;
+////        stepper.AdvanceOneTimeStep();
+////    }
+////    mTempStateVariable = lc;
+//
+//
+//    TimeStepper stepper(startTime, endTime, timestep);
+//    
+//    std::vector<double> lc(1);
+//    std::vector<double> dlc(1);
+//    lc[0] = mStateVariables[0];
+//    
+//    while(!stepper.IsTimeAtEnd())
+//    {
+//        EvaluateYDerivatives(stepper.GetTime(), lc, dlc);
+//        lc[0] += timestep*dlc[0];
+//        stepper.AdvanceOneTimeStep();
+//    }
+//    
+//    mTempStateVariable = lc[0];
+//}
+//
+// 
+//void Kerchoffs2003ContractionModel::UpdateStateVariables()
+//{
+//    mStateVariables[0] = mTempStateVariable;
+//}
 
 template<>
 void OdeSystemInformation<Kerchoffs2003ContractionModel>::Initialise()

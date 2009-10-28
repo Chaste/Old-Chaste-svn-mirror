@@ -452,17 +452,35 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     {
         mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
     }
-
     // compute residual
-    AssembleSystem(true, false);
-    double norm_resid = CalculateResidualNorm();
-    std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << norm_resid << "\n" << std::flush;
+    double norm_resid;
+    try
+    {
+        AssembleSystem(true, false);
+        norm_resid = CalculateResidualNorm();
+    }
+    catch(Exception& e)
+    {
+        norm_resid = DBL_MAX;
+    }
+
+    std::cout << "\tTesting s = " << damping_values[index] << ", |f| = ";
+    if(norm_resid==DBL_MAX)
+    {
+        std::cout << "undefined\n" << std::flush;
+    }
+    else
+    {
+        std::cout << norm_resid << "\n" << std::flush;
+    }
 
     double next_norm_resid = -DBL_MAX;
     index = 1;
 
+//WHAT A MESS. REFACTOR.
+
     // exit loop when next norm of the residual first increases
-    while (next_norm_resid < norm_resid  && index<damping_values.size())
+    while ( (next_norm_resid < norm_resid || next_norm_resid==DBL_MAX)  && index<damping_values.size())
     {
         if (index!=1)
         {
@@ -475,17 +493,35 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
         }
 
         // compute residual
-        AssembleSystem(true, false);
-        next_norm_resid = CalculateResidualNorm();
-        std::cout << "\tTesting s = " << damping_values[index] << ", |f| = " << next_norm_resid << "\n" << std::flush;
+        try
+        {
+            AssembleSystem(true, false);
+            next_norm_resid = CalculateResidualNorm();
+        }
+        catch(Exception& e)
+        {
+            next_norm_resid = DBL_MAX;
+        }
+        
+        std::cout << "\tTesting s = " << damping_values[index] << ", |f| = ";
+        if(next_norm_resid==DBL_MAX)
+        {
+            std::cout << "undefined\n" << std::flush;
+        }
+        else
+        {
+            std::cout << next_norm_resid << "\n" << std::flush;
+        }
         index++;
     }
-
-    if (initial_norm_resid < norm_resid)
+    
+    if (initial_norm_resid < norm_resid)// && !( (index==damping_values.size()) && (initial_norm_resid > next_norm_resid) ) )
     {
         #define COVERAGE_IGNORE
-        assert(0); // assert here as sometimes the following causes a seg fault - don't know why
-        EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
+// incorrectly gets here when 0.05 is correct choice! fix and then make sure 0.05 is taken
+        std::cout << "Chaste error (AbstractNonlinearElasticityAssembler.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;
+        assert(0); // assert here as the following exception causes a seg fault - don't know why
+        //EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
         #undef COVERAGE_IGNORE
     }
     else

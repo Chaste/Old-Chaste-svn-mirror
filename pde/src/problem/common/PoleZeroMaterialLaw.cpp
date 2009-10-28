@@ -106,7 +106,8 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                 double k = mK[M][N];
 
                 //if this fails one of the strain values got too large for the law
-                assert(e < a);
+if(e>=a){EXCEPTION("FILL ME IN");}
+//                assert(e < a);
 
                 rT(M,N) =   k
                           * e

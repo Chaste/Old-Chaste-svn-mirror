@@ -5,7 +5,6 @@ convergence/TestConvergenceEfficiency.hpp
 convergence/TestConvergenceNeumannStimulus.hpp
 convergence/TestConvergenceNightly.hpp
 TestCardiacSimulationNightly.hpp
-mechanics/TestElectroMechanicCellularModels.hpp
 ionicmodels/TestIonicModelsLong.hpp
 monodomain/TestMonodomainProblemLong.hpp
 monodomain/TestMonodomainHeartApex.hpp

@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class NhsCellularMechanicsOdeSystem  : public AbstractOdeBasedContractionModel
 {
-friend class TestCellularMechanicsOdeSystems;
+friend class TestContractionModels;
 
 protected :
     /** The stretch. To be specified by the caller */

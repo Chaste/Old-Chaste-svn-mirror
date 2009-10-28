@@ -66,6 +66,16 @@ private:
     /** Current time (ms)*/
     double mCurrentTime;
 
+    /** 
+     *  Get the active tension as a function of length of contractile element. This is private. The public 
+     *  GetActiveTension() calls this using the value of lc in the state variable
+     *  @param lengthOfContractileElement length of contractile element (the state variable in this model).
+     */
+    double GetActiveTension(double lengthOfContractileElement);
+    
+    // for implicit solver
+    //double mTempStateVariable;    
+
 public:
     /** Constructor */
     Kerchoffs2003ContractionModel();
@@ -113,6 +123,19 @@ public:
     {
         return false;
     }
+
+//// for implicit solver
+//    void SolveDoNotUpdate(double startTime, double endTime, double timestep);
+//
+//    double GetActiveTensionAtNextTime();
+// 
+//    void UpdateStateVariables();
+//    
+//    double GetLambda()
+//    {
+//        assert(0);
+//        return mSarcomereLength/ls0;
+//    }
 };
 
 

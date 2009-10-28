@@ -49,9 +49,9 @@ typedef enum ContractionModel_
  */ 
 typedef struct ContractionModelInputParameters_
 {
-    double voltage; /**< Input voltage (mV)*/
-    double intracellularCalciumConcentration; /**< Input calcium concentration (don't know the units)*/
-    double time; /**< Input time mSec(for time dependent models)*/
+    double voltage;                           /**< Input voltage (mV)*/
+    double intracellularCalciumConcentration; /**< Input calcium concentration (mMol) */
+    double time;                              /**< Input time (ms) (for time dependent contraction models) */
 } ContractionModelInputParameters;
     
 
@@ -84,17 +84,27 @@ public:
     /** 
      *  Set any input parameters (excl stretch and stretch rate). (Pure, to be implemented in the concrete class).
      *
-     *  @param rInputParameters  contains various parameters such as voltage and intracellular calcium concentration
+     *  @param rInputParameters  contains various parameters: voltage, intracellular calcium concentration and 
+     *  time (at next timestep)
      */
     virtual void SetInputParameters(ContractionModelInputParameters& rInputParameters)=0;
 
     /** 
      *  Set the stretch and stretch rate. (Pure, to be implemented in the concrete class).
      * 
-     * @param stretch  stretch (units?)
-     * @param stretchRate  stretch rate
+     *  @param stretch  fibre stretch (dimensionless)
+     *  @param stretchRate  fibre stretch rate (1/ms)
      */
     virtual void SetStretchAndStretchRate(double stretch, double stretchRate)=0;
+    
+    /** Safe setting of stretch-only, for stretch-rate independent models ONLY
+     *  @oaram stretch Stretch in fibre direction
+     */
+    void SetStretch(double stretch)
+    {
+        assert(!IsStretchRateDependent());
+        SetStretchAndStretchRate(stretch, 0.0);
+    }
 
     /** 
      *  Get the current active tension (note, actually a stress). (Pure, to be implemented in the concrete class).
