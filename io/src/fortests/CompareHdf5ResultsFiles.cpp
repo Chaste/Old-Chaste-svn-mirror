@@ -101,8 +101,8 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
     if (is_complete1 != is_complete2)
     {
         std::cout<<"One of the readers has incomplete data and the other doesn't\n";
-            return false;
-        }
+        return false;
+    }
 
         if (is_complete1)
         {
@@ -132,12 +132,12 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
                     if (difference_norm > 1e-10)
                     {
                         std::cout << "Vectors differ in NORM_2 by " << difference_norm << std::endl;
-                    return false;
+                        return false;
                 }
             }
         }
-       VecDestroy(data1);
-       VecDestroy(data2);
+        VecDestroy(data1);
+        VecDestroy(data2);
     }
     else
     {

@@ -15,7 +15,7 @@
 			Mesh definition 
 		-->    
 		<Mesh unit="cm">
-			<LoadMesh name="mesh/test/data/cube_1626_elements" conductivity_media="NoFibreOrientation"/>
+			<Slab inter_node_space="0.01" x="0.1" y="0.1" z="0.1"/>
 	  	</Mesh>
 		    
 	    <!-- 
@@ -38,7 +38,7 @@
 		<!-- 
 			Output 
 		-->
-		<OutputDirectory>SaveBidomain</OutputDirectory>
+		<OutputDirectory>SaveBidomainNightly</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 		
 		<!--

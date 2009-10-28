@@ -39,7 +39,7 @@
 		<!-- 
 			Output 
 		-->
-		<OutputDirectory>SaveMonodomain</OutputDirectory>
+		<OutputDirectory>SaveMonodomainNightly</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 		
 		<!--

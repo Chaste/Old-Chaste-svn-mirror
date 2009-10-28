@@ -39,7 +39,7 @@
 		<!-- 
 			Output 
 		-->
-		<OutputDirectory>PostprocessMonodomain</OutputDirectory>
+		<OutputDirectory>PostprocessMonodomainNightly</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 	</Simulation>
 	

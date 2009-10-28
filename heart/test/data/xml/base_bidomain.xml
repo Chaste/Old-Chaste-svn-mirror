@@ -38,7 +38,7 @@
 		<!-- 
 			Output 
 		-->
-		<OutputDirectory>BaseBidomain</OutputDirectory>
+		<OutputDirectory>BaseBidomainNightly</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 	</Simulation>
 	

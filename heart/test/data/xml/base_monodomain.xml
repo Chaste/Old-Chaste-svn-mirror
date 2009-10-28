@@ -38,7 +38,7 @@
 		<!-- 
 			Output 
 		-->
-		<OutputDirectory>BaseMonodomain</OutputDirectory>
+		<OutputDirectory>BaseMonodomainNightly</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 	</Simulation>
 	
