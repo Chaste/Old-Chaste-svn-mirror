@@ -97,7 +97,7 @@ public:
     virtual void SetStretchAndStretchRate(double stretch, double stretchRate)=0;
     
     /** Safe setting of stretch-only, for stretch-rate independent models ONLY
-     *  @oaram stretch Stretch in fibre direction
+     *  @param stretch Stretch in fibre direction
      */
     void SetStretch(double stretch)
     {
