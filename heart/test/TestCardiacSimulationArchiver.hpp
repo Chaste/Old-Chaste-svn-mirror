@@ -152,6 +152,13 @@ public:
             // Free memory
             delete p_bidomain_problem;            
         }
+        
+        {
+            // Coverage of "couldn't find file" exception
+            BidomainProblem<1> *p_bidomain_problem;            
+            TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("missing_directory"),
+                                      "Cannot load file:");
+        }
 
     }
     
@@ -185,7 +192,7 @@ public:
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveBidomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");  ///\todo this is not a 1D simulation    
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_3d");    
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
@@ -237,7 +244,7 @@ public:
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveMonodomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");///\todo this is not a 1D simulation      
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2d");      
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);

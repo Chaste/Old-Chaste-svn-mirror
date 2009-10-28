@@ -519,6 +519,9 @@ public :
         HeartConfig::Instance()->SetKSPPreconditioner("blockdiagonal");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "blockdiagonal")==0);
 
+        HeartConfig::Instance()->SetKSPPreconditioner("ldufactorisation");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ldufactorisation")==0);
+
         HeartConfig::Instance()->SetKSPPreconditioner("none");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "none")==0);
 
