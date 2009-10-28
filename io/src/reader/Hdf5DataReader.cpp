@@ -51,10 +51,12 @@ Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
     }
     else
     {
+        results_dir = rDirectory;
+        
         // Add a trailing slash if needed
         if ( !(*(rDirectory.end()-1) == '/'))
         {
-            results_dir = rDirectory + "/";
+            results_dir = results_dir + "/";
         }
     }
 
