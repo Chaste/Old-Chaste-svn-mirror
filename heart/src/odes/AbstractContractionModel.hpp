@@ -40,7 +40,9 @@ typedef enum ContractionModel_
 {
     KERCHOFFS2003,
     NHS,
-    TEST1
+    NONPHYSIOL1,
+    NONPHYSIOL2,
+    NONPHYSIOL3
 } ContractionModel;
 
 

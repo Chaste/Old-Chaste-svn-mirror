@@ -27,8 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ImplicitCardiacMechanicsAssembler.hpp"
+
 #include "Kerchoffs2003ContractionModel.hpp"
 #include "NhsModelWithImplicitSolver.hpp"
+#include "NonPhysiologicalContractionModel.hpp"
 
 template<unsigned DIM>
 ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
@@ -44,6 +46,17 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
 {
     switch(contractionModel)
     {
+        case NONPHYSIOL1:
+        case NONPHYSIOL2:
+        case NONPHYSIOL3:
+        {
+            unsigned option = (contractionModel==NONPHYSIOL1 ? 1 : (contractionModel==NONPHYSIOL2? 2 : 3)); 
+            for(unsigned i=0; i<this->mTotalQuadPoints; i++)
+            {
+                this->mContractionModelSystems.push_back(new NonPhysiologicalContractionModel(option));
+            }
+            break;
+        }
         case NHS:
         {
             for(unsigned i=0; i<this->mTotalQuadPoints; i++)
@@ -54,17 +67,17 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
         }
         case KERCHOFFS2003: //stretch dependent
         {
-            assert(0);
             for(unsigned i=0; i<this->mTotalQuadPoints; i++)
             {
-                Kerchoffs2003ContractionModel* p_model = new Kerchoffs2003ContractionModel();
-                this->mContractionModelSystems.push_back(p_model);
+                this->mContractionModelSystems.push_back(new Kerchoffs2003ContractionModel());
             }
             break;
         }
         default:
         {
-            EXCEPTION("Unknown or stretch-rate-dependent contraction model");
+            #define COVERAGE_IGNORE // currently all available contraction models are acceptable for implicit  
+            EXCEPTION("Unknown or disallowed contraction model");
+            #undef COVERAGE_IGNORE
         } 
     }
 
@@ -77,7 +90,7 @@ ImplicitCardiacMechanicsAssembler<DIM>::~ImplicitCardiacMechanicsAssembler()
 {
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
-        //// memory leak as this is commented out. But get glibc failure with it in... (EMTODO2)
+        //// memory leak as this is commented out. But get glibc failure with it in... 
         //delete this->mContractionModelSystems[i];
     }
 }
@@ -155,6 +168,8 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
         // if this failed during assembling the residual, the stretches are too large, so we just
         // set the active tension to infinity so that the residual will be infinite
         rActiveTension = DBL_MAX;
+        std::cout << "WARNING: could solve contraction model with this stretch and stretch rate. "
+                  << "Setting active tension to infinity (DBL_MAX) so that the residual(-norm) is also infinite\n" << std::flush; 
         assert(0); // just to see if we get here, can be removed..
         return;
         #undef COVERAGE_IGNORE

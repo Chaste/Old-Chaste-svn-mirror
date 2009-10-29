@@ -122,7 +122,7 @@ public:
         MechanicsEventHandler::Report();
         
         // coverage
-        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(TEST1,0.05,1,5,&cell_factory,1,100,0.01,"");
+        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,100,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid");
     }
     

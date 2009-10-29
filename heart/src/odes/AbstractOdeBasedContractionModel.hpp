@@ -60,6 +60,10 @@ public:
     {
         mTemporaryStateVariables.resize(numStateVariables);
     }
+
+
+    // EMTODO_future: v inefficient if only used in explicit (soln: add a RunAndUpdate method, and a bool in constructor
+    // oldUsedInExplicit which if true means mTemporaryStateVariables stays empty    
     
     /**
      *  Solves the ODEs, but doesn't update the state variables, instead keeps them in
@@ -70,10 +74,6 @@ public:
      *  @param startTime start time
      *  @param endTime end time
      *  @param timestep timestep for integrating ODEs
-     * 
-     *  EMTODO2: v inefficient if only used in explicit (soln: add a RunAndUpdate method, and a bool in constructor
-     *  oldUsedInExplicit which if true means mTemporaryStateVariables stays empty
-     * 
      */
     virtual void RunDoNotUpdate(double startTime, double endTime, double timeStep)
     {

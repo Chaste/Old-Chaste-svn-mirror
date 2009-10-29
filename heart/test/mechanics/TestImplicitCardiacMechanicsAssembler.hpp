@@ -282,6 +282,23 @@ public:
         // hardcoded test
         TS_ASSERT_DELTA(lambda[34], 0.9753, 1e-4);
     }
+
+
+    // cover all other contraction model options which are allowed but not been used in a test 
+    // so far (or in TestExplicitCardiacMechanicsAssembler)
+    void TestCoverage() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+
+        MooneyRivlinMaterialLaw<2> law(1);
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
+
+        ImplicitCardiacMechanicsAssembler<2> expl_solver1(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> expl_solver2(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
+
+        // call with TS_ASSERT_THROWS_CONTAINS with any disallowed contraction models here:
+    }
 };
 
 #endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/
