@@ -458,7 +458,6 @@ public:
         }
 
         {
-            ///\todo #1089 Can't yet read a Quadratic mesh from an archive
             // Should archive the most abstract class you can to check boost knows what individual classes are.
             // (but here AbstractMesh doesn't have the methods below).
             AbstractTetrahedralMesh<3,3>* p_mesh2;

@@ -181,6 +181,7 @@ public:
      */      
     void TestGenerateResultsForResumeBidomain()
     {
+        EXIT_IF_PARALLEL;
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_bidomain/ChasteParameters.xml");
         // We reset the mesh filename to include the relative path
@@ -237,6 +238,7 @@ public:
      */      
     void TestGenerateResultsForResumeMonodomain()
     {
+        EXIT_IF_PARALLEL;
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
 
