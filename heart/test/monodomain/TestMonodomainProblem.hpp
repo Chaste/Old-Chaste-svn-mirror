@@ -654,7 +654,22 @@ public:
                 compare_command += " ";
                 compare_command += "heart/test/data/Monodomain2d/";
                 compare_command += test_file_names[i];
-                TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
+                
+                //Compare the new test file with one from the repository
+                unsigned diff_result=system(compare_command.c_str());
+                //TS_ASSERT_EQUALS(diff_result, 0U);
+                
+                /* In case of failure, compare with known working alternative.
+                 * This is for backward compatibility with XSD 2-3, in which case the
+                 * above failure will be a little bit noisy (diff output goes to the screen)
+                 * but we can live with that if the XSD 2-3 users can.
+                 */ 
+                
+                if (diff_result != 0)
+                {
+                    compare_command += "_alt";
+                    TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
+                }
             }
         }
     }

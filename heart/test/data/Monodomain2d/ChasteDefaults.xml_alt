@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<cp12:ChasteParameters xmlns:cp12="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 /home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_2.xsd">
+
+  <cp12:Simulation>
+    <cp12:SpaceDimension>3</cp12:SpaceDimension>
+    <cp12:SimulationDuration unit="ms">0.100000000000000006</cp12:SimulationDuration>
+    <cp12:Domain>Mono</cp12:Domain>
+    <cp12:IonicModels>
+      <cp12:Default>LuoRudyI</cp12:Default>
+    </cp12:IonicModels>
+    <cp12:OutputDirectory>Monodomain2d</cp12:OutputDirectory>
+    <cp12:OutputFilenamePrefix>monodomain2d</cp12:OutputFilenamePrefix>
+  </cp12:Simulation>
+
+  <cp12:Physiological>
+    <cp12:IntracellularConductivities longi="0.0005" normal="0" trans="0.0005" unit="mS/cm"/>
+    <cp12:ExtracellularConductivities longi="7" normal="7" trans="7" unit="mS/cm"/>
+    <cp12:BathConductivity unit="mS/cm">7.000000000000000000</cp12:BathConductivity>
+    <cp12:SurfaceAreaToVolumeRatio unit="1/cm">1.000000000000000000</cp12:SurfaceAreaToVolumeRatio>
+    <cp12:Capacitance unit="uF/cm^2">1.000000000000000000</cp12:Capacitance>
+  </cp12:Physiological>
+
+  <cp12:Numerical>
+    <cp12:TimeSteps ode="0.01" pde="0.01" printing="0.01" unit="ms"/>
+    <cp12:KSPTolerances>
+      <cp12:KSPAbsolute>0.0002</cp12:KSPAbsolute>
+    </cp12:KSPTolerances>
+    <cp12:KSPSolver>cg</cp12:KSPSolver>
+    <cp12:KSPPreconditioner>bjacobi</cp12:KSPPreconditioner>
+  </cp12:Numerical>
+
+  <cp12:PostProcessing>
+    <cp12:ConductionVelocityMap origin_node="0"/>
+  </cp12:PostProcessing>
+
+</cp12:ChasteParameters>
