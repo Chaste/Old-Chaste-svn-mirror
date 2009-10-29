@@ -167,8 +167,12 @@ public:
      *  Test used to generate data for the acceptance test resume_bidomain. We run the same simulation as in save_bidomain
      *  and archive it. resume_bidomain will load it and resume the simulation.
      * 
-     *  If the archiving format changes, both the acceptance test and the second part of this test will fail. Do the
-     *  following to fix it.
+     *  If the archiving format changes, both acceptance tests (save_bidomain and resume_bidomain) and the second part of this 
+     *  test will fail. Do the following to fix them.
+     * 
+     *  Updated save_bidomain/ChasteResults_10ms_arch_0.chaste
+     *    This can be easily done with texttest GUI. Run save_bidomain test to find that ChasteResults_10ms_arch_0.chaste
+     *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.    
      * 
      *  Change into the output directory
      *    cd /tmp/chaste/testoutput
@@ -224,8 +228,12 @@ public:
      *  Test used to generate data for the acceptance test resume_monodomain. We run the same simulation as in save_monodomain
      *  and archive it. resume_monodomain will load it and resume the simulation.
      * 
-     *  If the archiving format changes, both the acceptance test and the second part of this test will fail. Do the
-     *  following to fix it.
+     *  If the archiving format changes, both acceptance tests (save_monodomain and resume_monodomain) and the second part of this 
+     *  test will fail. Do the following to fix them.
+     * 
+     *  Updated save_monodomain/ChasteResults_10ms_arch_0.chaste
+     *    This can be easily done with texttest GUI. Run save_monodomain test to find that ChasteResults_10ms_arch_0.chaste
+     *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.    
      * 
      *  Change into the output directory
      *    cd /tmp/chaste/testoutput
