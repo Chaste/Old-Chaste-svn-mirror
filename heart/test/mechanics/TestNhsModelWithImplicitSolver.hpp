@@ -27,17 +27,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTNHSSYSTEMWITHIMPLICITSOLVER_HPP_
-#define TESTNHSSYSTEMWITHIMPLICITSOLVER_HPP_
+#ifndef TESTNHSMODELWITHIMPLICITSOLVER_HPP_
+#define TESTNHSMODELWITHIMPLICITSOLVER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "NhsSystemWithImplicitSolver.hpp"
+#include "NhsModelWithImplicitSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ZeroStimulus.hpp"
 
 
-class TestNhsSystemWithImplicitSolver : public CxxTest::TestSuite
+class TestNhsModelWithImplicitSolver : public CxxTest::TestSuite
 {
 private:
     double GetSampleCaIValue()
@@ -51,7 +51,7 @@ private:
 public:
     void TestSolverSingleTimestep()
     {
-        NhsSystemWithImplicitSolver system_with_solver;
+        NhsModelWithImplicitSolver system_with_solver;
 
         // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
         system_with_solver.SetStretchAndStretchRate(0.5, 0.1);
@@ -61,7 +61,7 @@ public:
         // solve system (but don't update state vars yet
         system_with_solver.RunDoNotUpdate(0, 0.1, 0.1); // one timestep
 
-        NhsCellularMechanicsOdeSystem system_for_euler_solver;
+        NhsContractionModel system_for_euler_solver;
 
         unsigned num_vars = system_with_solver.GetNumberOfStateVariables();
         for(unsigned i=0; i<num_vars; i++)
@@ -103,7 +103,7 @@ public:
         {
             clock_t ck_start, ck_end;
 
-            NhsSystemWithImplicitSolver system_with_solver;
+            NhsModelWithImplicitSolver system_with_solver;
 
             // lam=const, dlamdt not zero doesn't make much sense, just for testing purposes
             system_with_solver.SetStretchAndStretchRate(0.5, 0.1);
@@ -133,7 +133,7 @@ public:
                             1e-12);
 
             // solve system with euler
-            NhsCellularMechanicsOdeSystem system_for_euler_solver;
+            NhsContractionModel system_for_euler_solver;
             system_for_euler_solver.SetStretchAndStretchRate(0.5, 0.1);
             system_for_euler_solver.SetIntracellularCalciumConcentration(10*Ca_I);
             EulerIvpOdeSolver euler_solver;
@@ -165,14 +165,14 @@ public:
 //// test how large a timestep the implicit solver can get away with. needs more study
 //    void TestImplicitSolverWithLargeTimeSteps()
 //    {
-//        NhsSystemWithImplicitSolver system_with_solver;
+//        NhsModelWithImplicitSolver system_with_solver;
 //        system_with_solver.SetStretchAndStretchRate(0.5, 0.1);
 //        system_with_solver.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
 //        system_with_solver.RunDoNotUpdate(0, 100, 0.01);
 //        system_with_solver.UpdateStateVariables();
 //
-//        NhsSystemWithImplicitSolver system_with_solver2;
+//        NhsModelWithImplicitSolver system_with_solver2;
 //        system_with_solver2.SetStretchAndStretchRate(0.5, 0.1);
 //        system_with_solver2.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
@@ -196,7 +196,7 @@ public:
     // difference
     void TestRunDoesNotUpdate()
     {
-        NhsSystemWithImplicitSolver system;
+        NhsModelWithImplicitSolver system;
 
         double Ca_I = GetSampleCaIValue();
         system.SetIntracellularCalciumConcentration(Ca_I);
@@ -248,7 +248,7 @@ public:
 
     void TestGetActiveTension()
     {
-        NhsSystemWithImplicitSolver system;
+        NhsModelWithImplicitSolver system;
 
         double Ca_I = GetSampleCaIValue();
         system.SetIntracellularCalciumConcentration(Ca_I);
@@ -265,4 +265,4 @@ public:
     }
 };
 
-#endif /*TESTNHSSYSTEMWITHIMPLICITSOLVER_HPP_*/
+#endif /*TESTNHSMODELWITHIMPLICITSOLVER_HPP_*/

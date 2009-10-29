@@ -25,10 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef NHSSYSTEMWITHIMPLICITSOLVER_HPP_
-#define NHSSYSTEMWITHIMPLICITSOLVER_HPP_
+#ifndef NHSMODELWITHIMPLICITSOLVER_HPP_
+#define NHSMODELWITHIMPLICITSOLVER_HPP_
 
-#include "NhsCellularMechanicsOdeSystem.hpp"
+#include "NhsContractionModel.hpp"
 
 
 /**
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Reference: J.P. Whiteley, M.J. Bishop, D.J. Gavaghan "Soft Tissue Modelling of Cardiac
  *  Fibres for Use in Coupled Mechano-Electric Simulations"
  */
-class NhsSystemWithImplicitSolver : public NhsCellularMechanicsOdeSystem
+class NhsModelWithImplicitSolver : public NhsContractionModel
 {
 private:
     /**
@@ -142,7 +142,7 @@ public :
     /**
      *  Constructor
      */
-    NhsSystemWithImplicitSolver();
+    NhsModelWithImplicitSolver();
 
     /**
      *  Set a current active tension guess. Generally not needed as the current
@@ -192,4 +192,4 @@ public :
     double GetNextActiveTension();
 };
 
-#endif /*NHSSYSTEMWITHIMPLICITSOLVER_HPP_*/
+#endif /*NHSMODELWITHIMPLICITSOLVER_HPP_*/

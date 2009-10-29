@@ -119,7 +119,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
     // compute dlam/dt
     double dlam_dt = (currentFibreStretch-mLambdaLastTimeStep[currentQuadPointGlobalIndex])/(this->mNextTime-this->mCurrentTime);
 
-    NhsSystemWithImplicitSolver& r_contraction_model = mCellMechSystems[currentQuadPointGlobalIndex];
+    NhsModelWithImplicitSolver& r_contraction_model = mCellMechSystems[currentQuadPointGlobalIndex];
 
     // Set this stretch and stretch rate
     r_contraction_model.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);

@@ -25,7 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "NhsSystemWithImplicitSolver.hpp"
+#include "NhsModelWithImplicitSolver.hpp"
 #include "TimeStepper.hpp"
 #include <cmath>
 #include "LogFile.hpp"
@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *=========================== PRIVATE METHODS ==============================
  */
 
-void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
+void NhsModelWithImplicitSolver::ImplicitSolveForActiveTension()
 {
     // solve a 1d nonlinear problem for the active tension
 
@@ -63,7 +63,7 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
     if(counter >= 15) // not sure what to do here, after having got a case where resid stagnated on +/- 5.500502e-10
     {
         #define COVERAGE_IGNORE
-        LOG(1, "\nWARNING in NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension(), counter="<<counter<<",resids=");
+        LOG(1, "\nWARNING in NhsModelWithImplicitSolver::ImplicitSolveForActiveTension(), counter="<<counter<<",resids=");
         for (unsigned i=0; i<old_residuals.size(); i++)
         {
             LOG(1,old_residuals[i]);
@@ -72,7 +72,7 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
         if(residual > 100*mTolerance)
         {
             LOG(1,"Residual > 100*mTol, throwing exception\n");
-            EXCEPTION("NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension() failed to converge");
+            EXCEPTION("NhsModelWithImplicitSolver::ImplicitSolveForActiveTension() failed to converge");
         }
         #undef COVERAGE_IGNORE
     }
@@ -87,7 +87,7 @@ void NhsSystemWithImplicitSolver::ImplicitSolveForActiveTension()
     mActiveTensionSolution = current_active_tension;
 }
 
-double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensionGuess)
+double NhsModelWithImplicitSolver::CalcActiveTensionResidual(double activeTensionGuess)
 {
     // to calculate the active tension residual, we solve use the current active tension,
     // solve for Ca_trop implicitly, then z implicitly, then Q implicitly, then see
@@ -142,7 +142,7 @@ double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensi
 // Assume the active tension is known and solve for the Ca_trop at the next time
 // implicitly using backward euler. This can be done directly as the rhs is linear
 // in Ca_trop
-double NhsSystemWithImplicitSolver::ImplicitSolveForCaTrop(double newActiveTension)
+double NhsModelWithImplicitSolver::ImplicitSolveForCaTrop(double newActiveTension)
 {
     double old_Ca_trop = mCurrentStateVars[0];
 
@@ -154,7 +154,7 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForCaTrop(double newActiveTensi
 
 // Assume the Ca_trop is known and solve for the z at the next time
 // implicitly using backward euler. Uses Newton's method
-double NhsSystemWithImplicitSolver::ImplicitSolveForZ(double newCaTrop)
+double NhsModelWithImplicitSolver::ImplicitSolveForZ(double newCaTrop)
 {
     double current_z = mCurrentStateVars[1];
     double residual = CalcZResidual(current_z, newCaTrop);
@@ -175,7 +175,7 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForZ(double newCaTrop)
 }
 
 
-double NhsSystemWithImplicitSolver::CalcZResidual(double z, double newCaTrop)
+double NhsModelWithImplicitSolver::CalcZResidual(double z, double newCaTrop)
 {
     double ca_trop_to_ca_trop50_ratio_to_n = pow(newCaTrop/mCalciumTrop50, mN);
     double dzdt =  mAlpha0 * ca_trop_to_ca_trop50_ratio_to_n * (1-z)
@@ -191,7 +191,7 @@ double NhsSystemWithImplicitSolver::CalcZResidual(double z, double newCaTrop)
 // implicitly in the linear terms on the rhs of dzdt (the (1-z) and (z) terms), and
 // explicitly in the nonlinear term (the z^nr/(z^nr + K^nr) term. This means the
 // problem can be solved directly and no Newton iterations are needed.
-double NhsSystemWithImplicitSolver::ImplicitExplicitSolveForZ(double newCaTrop)
+double NhsModelWithImplicitSolver::ImplicitExplicitSolveForZ(double newCaTrop)
 {
     double ca_trop_to_ca_trop50_ratio_to_n = pow(newCaTrop/mCalciumTrop50, mN);
     double old_z = mCurrentStateVars[1];
@@ -205,7 +205,7 @@ double NhsSystemWithImplicitSolver::ImplicitExplicitSolveForZ(double newCaTrop)
 
 
 // Solve for Q1, Q2, Q3 implicitly and directly
-double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
+double NhsModelWithImplicitSolver::ImplicitSolveForQ()
 {
     double old_Q1 = mCurrentStateVars[2];
     double old_Q2 = mCurrentStateVars[3];
@@ -223,7 +223,7 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
 }
 
 
-//double NhsSystemWithImplicitSolver::QuasiStaticSolveForQ()
+//double NhsModelWithImplicitSolver::QuasiStaticSolveForQ()
 //{
 //    double new_Q1 = mA1*mDLambdaDt/mAlpha1;
 //    double new_Q2 = mA2*mDLambdaDt/mAlpha2;
@@ -242,22 +242,22 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
  *=========================== PUBLIC METHODS ==============================
  */
 
-NhsSystemWithImplicitSolver::NhsSystemWithImplicitSolver()
-    : NhsCellularMechanicsOdeSystem()
+NhsModelWithImplicitSolver::NhsModelWithImplicitSolver()
+    : NhsContractionModel()
 {
     mActiveTensionInitialGuess = GetActiveTension();
     mUseImplicitExplicitSolveForZ = false;
 
-    mActiveTensionSolution = NhsCellularMechanicsOdeSystem::GetActiveTension();
+    mActiveTensionSolution = NhsContractionModel::GetActiveTension();
 }
 
-void NhsSystemWithImplicitSolver::SetActiveTensionInitialGuess(double activeTensionInitialGuess)
+void NhsModelWithImplicitSolver::SetActiveTensionInitialGuess(double activeTensionInitialGuess)
 {
     mActiveTensionInitialGuess = activeTensionInitialGuess;
 }
 
 
-void NhsSystemWithImplicitSolver::RunDoNotUpdate(double startTime,
+void NhsModelWithImplicitSolver::RunDoNotUpdate(double startTime,
                                                  double endTime,
                                                  double timestep)
 {
@@ -282,12 +282,12 @@ void NhsSystemWithImplicitSolver::RunDoNotUpdate(double startTime,
 }
 
 
-void NhsSystemWithImplicitSolver::UseImplicitExplicitSolveForZ(bool useImplicitExplicitSolveForZ)
+void NhsModelWithImplicitSolver::UseImplicitExplicitSolveForZ(bool useImplicitExplicitSolveForZ)
 {
     mUseImplicitExplicitSolveForZ = useImplicitExplicitSolveForZ;
 }
 
-double NhsSystemWithImplicitSolver::GetNextActiveTension()
+double NhsModelWithImplicitSolver::GetNextActiveTension()
 {
     return mActiveTensionSolution;
 }

@@ -1,14 +1,13 @@
 bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
 postprocessing/TestCellProperties.hpp
-mechanics/TestContractionModels.hpp
+mechanics/TestCardiacElectroMechanicsProblem.hpp
 convergence/TestConvergenceTester.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 monodomain/TestMonodomainPde.hpp
-mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestPlaneStimulusCellFactory.hpp
 postprocessing/TestPropagationPropertiesCalculator.hpp
 TestStimulus.hpp

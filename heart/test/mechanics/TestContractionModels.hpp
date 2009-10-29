@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <string>
 #include "NonPhysiologicalContractionModel.hpp"
-#include "NhsCellularMechanicsOdeSystem.hpp"
+#include "NhsContractionModel.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
@@ -109,7 +109,7 @@ public :
 
     void TestNhsContractionModelSimple() throw(Exception)
     {
-        NhsCellularMechanicsOdeSystem nhs_system;
+        NhsContractionModel nhs_system;
         
         TS_ASSERT_THROWS_CONTAINS(nhs_system.GetNextActiveTension(), "If using this in an 'explicit manner'");
         
@@ -179,7 +179,7 @@ public :
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_stimulus);
-        NhsCellularMechanicsOdeSystem cellmech_model;
+        NhsContractionModel cellmech_model;
 
         // find out if electrophys model has CaTrop
         unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");
@@ -287,7 +287,7 @@ public :
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_zero_stimulus);
-        NhsCellularMechanicsOdeSystem cellmech_model;
+        NhsContractionModel cellmech_model;
 
         // find out if electrophys model has CaTrop
         unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");

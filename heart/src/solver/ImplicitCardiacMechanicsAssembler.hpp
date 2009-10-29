@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacMechanicsAssembler.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include "LinearBasisFunction.hpp"
-#include "NhsSystemWithImplicitSolver.hpp"
+#include "NhsModelWithImplicitSolver.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
 #include "LogFile.hpp"
 #include <cfloat>
@@ -58,7 +58,7 @@ private:
      *  [Ca]_i and return Ta. Note the indexing: the i-th entry corresponds to
      *  the i-th global quad point, when looping over elements and then
      *  quad points */
-    std::vector<NhsSystemWithImplicitSolver> mCellMechSystems;
+    std::vector<NhsModelWithImplicitSolver> mCellMechSystems;
 
     /** The stretch ratio (in the fibre direction) at the last timestep.
      *  Note the indexing: the i-th entry corresponds to the i-th global

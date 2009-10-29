@@ -25,7 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "NhsCellularMechanicsOdeSystem.hpp"
+#include "NhsContractionModel.hpp"
 #include "OdeSystemInformation.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include <cmath>
@@ -35,34 +35,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //
 // Model-scope constant parameters
 //
-const double NhsCellularMechanicsOdeSystem::mKon = 100;
-const double NhsCellularMechanicsOdeSystem::mKrefoff = 0.2;
-const double NhsCellularMechanicsOdeSystem::mGamma = 2;
-const double NhsCellularMechanicsOdeSystem::mCalciumTroponinMax = 0.07;
-const double NhsCellularMechanicsOdeSystem::mAlphaR1 = 0.002;
-const double NhsCellularMechanicsOdeSystem::mAlphaR2 = 0.00175;
-const double NhsCellularMechanicsOdeSystem::mKZ = 0.15;
-const double NhsCellularMechanicsOdeSystem::mNr = 3;
-const double NhsCellularMechanicsOdeSystem::mBeta1 = -4;
-const double NhsCellularMechanicsOdeSystem::mAlpha0 = 0.008;
-const double NhsCellularMechanicsOdeSystem::mN = 3;
-const double NhsCellularMechanicsOdeSystem::mZp = 0.85;
-const double NhsCellularMechanicsOdeSystem::mCalcium50ref = 0.00105;
-const double NhsCellularMechanicsOdeSystem::mTref = 56.2;
-const double NhsCellularMechanicsOdeSystem::mBeta0 = 4.9;
-const double NhsCellularMechanicsOdeSystem::mA = 0.35;
-const double NhsCellularMechanicsOdeSystem::mA1 = -29;
-const double NhsCellularMechanicsOdeSystem::mA2 = 138;
-const double NhsCellularMechanicsOdeSystem::mA3 = 129;
-const double NhsCellularMechanicsOdeSystem::mAlpha1 = 0.03;
-const double NhsCellularMechanicsOdeSystem::mAlpha2 = 0.130;
-const double NhsCellularMechanicsOdeSystem::mAlpha3 = 0.625;
+const double NhsContractionModel::mKon = 100;
+const double NhsContractionModel::mKrefoff = 0.2;
+const double NhsContractionModel::mGamma = 2;
+const double NhsContractionModel::mCalciumTroponinMax = 0.07;
+const double NhsContractionModel::mAlphaR1 = 0.002;
+const double NhsContractionModel::mAlphaR2 = 0.00175;
+const double NhsContractionModel::mKZ = 0.15;
+const double NhsContractionModel::mNr = 3;
+const double NhsContractionModel::mBeta1 = -4;
+const double NhsContractionModel::mAlpha0 = 0.008;
+const double NhsContractionModel::mN = 3;
+const double NhsContractionModel::mZp = 0.85;
+const double NhsContractionModel::mCalcium50ref = 0.00105;
+const double NhsContractionModel::mTref = 56.2;
+const double NhsContractionModel::mBeta0 = 4.9;
+const double NhsContractionModel::mA = 0.35;
+const double NhsContractionModel::mA1 = -29;
+const double NhsContractionModel::mA2 = 138;
+const double NhsContractionModel::mA3 = 129;
+const double NhsContractionModel::mAlpha1 = 0.03;
+const double NhsContractionModel::mAlpha2 = 0.130;
+const double NhsContractionModel::mAlpha3 = 0.625;
 
 
 /*
  * ============================== PRIVATE FUNCTIONS =====================================
  */
-void NhsCellularMechanicsOdeSystem::CalculateCalciumTrop50()
+void NhsContractionModel::CalculateCalciumTrop50()
 {
     double one_plus_beta1_times_lam_minus_one = 1 + mBeta1*(mLambda-1);
 
@@ -71,7 +71,7 @@ void NhsCellularMechanicsOdeSystem::CalculateCalciumTrop50()
 }
 
 
-double NhsCellularMechanicsOdeSystem::CalculateT0(double z)
+double NhsContractionModel::CalculateT0(double z)
 {
     double calcium_ratio_to_n = pow(mCalciumTrop50/mCalciumTroponinMax, mN);
 
@@ -87,10 +87,10 @@ double NhsCellularMechanicsOdeSystem::CalculateT0(double z)
  * ============================== PUBLIC FUNCTIONS =====================================
  */
 
-NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
+NhsContractionModel::NhsContractionModel()
     :   AbstractOdeBasedContractionModel(5) // five state variables
 {
-    mpSystemInfo = OdeSystemInformation<NhsCellularMechanicsOdeSystem>::Instance();
+    mpSystemInfo = OdeSystemInformation<NhsContractionModel>::Instance();
     SetStateVariables(GetInitialConditions());
 
     mLambda = 1.0;
@@ -109,7 +109,7 @@ NhsCellularMechanicsOdeSystem::NhsCellularMechanicsOdeSystem()
     mK2 *= 1 - mNr*pow(mKZ,mNr)/zp_to_n_plus_K_to_n;
 }
 
-void NhsCellularMechanicsOdeSystem::SetStretchAndStretchRate(double lambda, double dlambdaDt)
+void NhsContractionModel::SetStretchAndStretchRate(double lambda, double dlambdaDt)
 {
     assert(lambda>0.0);
     mLambda = lambda;
@@ -118,27 +118,27 @@ void NhsCellularMechanicsOdeSystem::SetStretchAndStretchRate(double lambda, doub
     CalculateCalciumTrop50();
 }
 
-void NhsCellularMechanicsOdeSystem::SetInputParameters(ContractionModelInputParameters& rInputParameters)
+void NhsContractionModel::SetInputParameters(ContractionModelInputParameters& rInputParameters)
 {
     assert(rInputParameters.intracellularCalciumConcentration != DOUBLE_UNSET);
     assert(rInputParameters.intracellularCalciumConcentration > 0.0);
     mCalciumI = rInputParameters.intracellularCalciumConcentration;
 }
 
-void NhsCellularMechanicsOdeSystem::SetIntracellularCalciumConcentration(double calciumConcentration)
+void NhsContractionModel::SetIntracellularCalciumConcentration(double calciumConcentration)
 {
     assert(calciumConcentration > 0.0);
     mCalciumI = calciumConcentration;
 }
     
-double NhsCellularMechanicsOdeSystem::GetCalciumTroponinValue()
+double NhsContractionModel::GetCalciumTroponinValue()
 {
     return mStateVariables[0];
 }
 
-void NhsCellularMechanicsOdeSystem::EvaluateYDerivatives(double time,
-                                                         const std::vector<double> &rY,
-                                                         std::vector<double> &rDY)
+void NhsContractionModel::EvaluateYDerivatives(double time,
+                                               const std::vector<double> &rY,
+                                               std::vector<double> &rDY)
 {
     const double& calcium_troponin = rY[0];
     const double& z = rY[1];
@@ -192,7 +192,7 @@ void NhsCellularMechanicsOdeSystem::EvaluateYDerivatives(double time,
 }
 
 
-double NhsCellularMechanicsOdeSystem::GetActiveTension()
+double NhsContractionModel::GetActiveTension()
 {
     double T0 = CalculateT0(mStateVariables[1]);
     double Q = mStateVariables[2]+mStateVariables[3]+mStateVariables[4];
@@ -208,7 +208,7 @@ double NhsCellularMechanicsOdeSystem::GetActiveTension()
 }
 
 template<>
-void OdeSystemInformation<NhsCellularMechanicsOdeSystem>::Initialise(void)
+void OdeSystemInformation<NhsContractionModel>::Initialise(void)
 {
     this->mVariableNames.push_back("CalciumTroponin");
     this->mVariableUnits.push_back("microMols");

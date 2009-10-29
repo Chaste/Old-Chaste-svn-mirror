@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define EXPLICITCARDIACMECHANICSASSEMBLER_HPP_
 
 #include "AbstractCardiacMechanicsAssembler.hpp"
-#include "NhsCellularMechanicsOdeSystem.hpp"
 #include "AbstractContractionModel.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
 #include "NonPhysiologicalContractionModel.hpp"

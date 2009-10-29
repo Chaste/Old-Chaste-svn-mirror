@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef NHSCELLULARMECHANICSODESYSTEM_HPP_
-#define NHSCELLULARMECHANICSODESYSTEM_HPP_
+#ifndef NHSCONTRACTIONMODEL_HPP_
+#define NHSCONTRACTIONMODEL_HPP_
 
 #include "AbstractOdeBasedContractionModel.hpp"
 
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  The active tension is returned in KPa.
  */
-class NhsCellularMechanicsOdeSystem  : public AbstractOdeBasedContractionModel
+class NhsContractionModel  : public AbstractOdeBasedContractionModel
 {
 friend class TestContractionModels;
 
@@ -152,7 +152,7 @@ public :
      *  Constructor. Initialises all state variables to zero, lambda to 1, dlambda_dt
      *  to 0 and intracellular calcium concentration to 0
      */
-    NhsCellularMechanicsOdeSystem();
+    NhsContractionModel();
 
     /**
      *  Set the current stretch and the stretch rate of the cell/fibre
@@ -198,11 +198,11 @@ public :
     /**
      *  GetNextActiveTension() normally returns the active tension corresponding to the state variables
      *  that have been computed in RunDoNotUpdate. However, this only applies to when an implicit cardiac
-     *  mechanics solver is used, in which case the NhsSystemWithImplicitSolver should be used.
+     *  mechanics solver is used, in which case the NhsModelWithImplicitSolver should be used.
      */
     double GetNextActiveTension()
     {
-        EXCEPTION("If using this in an 'explicit manner' call UpdateStateVariables() and then GetActiveTension(), otherwise use NhsSystemWithImplicitSolver");
+        EXCEPTION("If using this in an 'explicit manner' call UpdateStateVariables() and then GetActiveTension(), otherwise use NhsModelWithImplicitSolver");
     }
         
    /** 
@@ -221,4 +221,4 @@ public :
         return true;
     }
 };
-#endif /*NHSCELLULARMECHANICSODESYSTEM_HPP_*/
+#endif /*NHSCONTRACTIONMODEL_HPP_*/
