@@ -45,8 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "NodewiseData.hpp"
 
 
-/** \todo Go through and tidy/refactor, perhaps make elements and weights safer
- */
+// EMTODO? Go through and tidy/refactor, perhaps make elements and weights safer
 
 
 
@@ -163,6 +162,7 @@ protected :
     void DetermineWatchedNodes();
 
 
+//EMTODO
     /**
      *  Write info (x, y, V, and Ca) for the watched node. Note: the Ca is written,
      *  but this ASSUMES LUO-RUDY IS USED

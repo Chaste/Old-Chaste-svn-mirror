@@ -45,9 +45,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ImplicitCardiacMechanicsAssembler.hpp"
 #include "ExplicitCardiacMechanicsAssembler.hpp"
-//#include "ExplicitNhsCardiacMechanicsAssembler.hpp"
-//#include "ImplicitKerchoffsCardiacMechanicsAssembler.hpp"
-
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
 
@@ -294,22 +291,22 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
     mpMonodomainProblem->Initialise();
 
-//for TestingContractionModel
-//MooneyRivlinMaterialLaw<DIM>* law = new MooneyRivlinMaterialLaw<DIM>(10, 0.0);
-
-    // construct mechanics assembler
+    // Construct mechanics assembler
+    // Here we pick the best solver for each particular contraction models. Commented out versions are 
+    // for experimentations.
     switch(mContractionModel)
     {
-        //case NASH2004:
         case KERCHOFFS2003:
+            // the implicit would seem the best (only) choice of kerchoffs but keeping explicit for the moment
+            // for coverage...
             mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
-            // mpCardiacMechAssembler = new ImplicitKerchoffsCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            //mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         case NHS:
             mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         default:
-            EXCEPTION("Invalid contraction model, use KECHOFFS2003 or NHS");
+            EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");
     }
 
     // find the element nums and weights for each gauss point in the mechanics mesh
