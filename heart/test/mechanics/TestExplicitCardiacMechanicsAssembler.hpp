@@ -75,7 +75,7 @@ public:
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[4](1), -0.0867, 1e-2);
     }
     
-    //EMTODO: compare with implicit when stretch independent (also when stretch dependent?)
+    //EMTODO1: compare with implicit when stretch independent (also when stretch dependent?)
 };
 
 #endif /*TESTEXPLICITCARDIACMECHANICSASSEMBLER_HPP_*/

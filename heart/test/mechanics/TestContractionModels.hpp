@@ -145,7 +145,6 @@ public :
         // to be done outside the solver is done in TestElectroMechanicCellularModels,
         // where NHS is coupled to a cell model
         nhs_system.SetStretchAndStretchRate(0.5, 0.1);
-        TS_ASSERT_DELTA(nhs_system.GetLambda(), 0.5, 1e-12);
         nhs_system.SetIntracellularCalciumConcentration(Ca_I);
 
         nhs_system.RunDoNotUpdate(0, 10, 0.01);
@@ -377,6 +376,48 @@ public :
         TS_ASSERT_DELTA(times[6000], 60, 1e-2);
         TS_ASSERT_DELTA(active_tensions[6000], -0.0031, 1e-3);
     }
+    
+    void TestRunDoNotUpdateEtcUsingKerchoff() throw(Exception)
+    {
+        Kerchoffs2003ContractionModel kerchoffs_model;
+        kerchoffs_model.SetStretchAndStretchRate(0.85,0.0);
+ 
+        ContractionModelInputParameters input_params;
+        input_params.voltage = 50;
+        kerchoffs_model.SetInputParameters(input_params);
+
+        double initial_state_var = kerchoffs_model.rGetStateVariables()[0];
+        double initial_active_tension = kerchoffs_model.GetActiveTension();
+
+        TS_ASSERT_DELTA(initial_active_tension, 0.0, 1e-12);
+
+        kerchoffs_model.RunDoNotUpdate(0,1,0.01);
+
+        // check the state variable has not changed.
+        TS_ASSERT_DELTA(initial_state_var, kerchoffs_model.rGetStateVariables()[0], 1e-10);
+                
+        // get the active tension for next time
+        double new_active_tension = kerchoffs_model.GetNextActiveTension();
+        
+        // update
+        kerchoffs_model.UpdateStateVariables();
+        TS_ASSERT_DELTA(new_active_tension, kerchoffs_model.GetActiveTension(), 1e-10);
+        
+        double new_state_var = kerchoffs_model.rGetStateVariables()[0];
+        
+        // run using second model and euler solver
+        Kerchoffs2003ContractionModel kerchoffs_model2;
+        kerchoffs_model2.SetStretchAndStretchRate(0.85,0.0);
+        kerchoffs_model2.SetInputParameters(input_params);
+        EulerIvpOdeSolver euler_solver;
+        
+        euler_solver.SolveAndUpdateStateVariable(&kerchoffs_model2, 0, 1, 0.01);
+        
+        kerchoffs_model2.mTime = 1.0;
+        
+        TS_ASSERT_DELTA(new_state_var, kerchoffs_model2.rGetStateVariables()[0], 1e-10);
+        TS_ASSERT_DELTA(new_active_tension, kerchoffs_model2.GetActiveTension(), 1e-10);
+    }        
 
     void TestKerchoffs2003ContractionModelConstantStretch() throw(Exception)
     {
@@ -487,7 +528,7 @@ public :
         data.push_back(active_tensions);
         SimpleDataWriter writer("TestKerchoffContractionModel", "linear_lam.dat", data, false);
         
-        // visualise to verify validity.. // EMTODO
+        // visualise to verify validity.. // EMTODO2
 
         // hardcoded test, somewhere near the two peaks       
         TS_ASSERT_DELTA(times[100], 100, 1e-2);

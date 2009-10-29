@@ -160,7 +160,7 @@ public:
     {        
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
-            //// memory leak as this is commented out. But get glibc failure with it in... (EMTODO)
+            //// memory leak as this is commented out. But get glibc failure with it in... (EMTODO2)
             //delete mContractionModelSystems[i];
         }
     }        

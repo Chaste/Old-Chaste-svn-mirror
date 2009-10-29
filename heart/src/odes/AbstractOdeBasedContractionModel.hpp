@@ -71,10 +71,8 @@ public:
      *  @param endTime end time
      *  @param timestep timestep for integrating ODEs
      * 
-     *  EMTODO: v inefficient if only used in explicit (soln: add a RunAndUpdate method, and a bool in constructor
+     *  EMTODO2: v inefficient if only used in explicit (soln: add a RunAndUpdate method, and a bool in constructor
      *  oldUsedInExplicit which if true means mTemporaryStateVariables stays empty
-     * 
-     *  EMTODO: proper test versus seperate solver
      * 
      */
     virtual void RunDoNotUpdate(double startTime, double endTime, double timeStep)

@@ -477,7 +477,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     double next_norm_resid = -DBL_MAX;
     index = 1;
 
-// EMTODO: WHAT. A. MESS. REFACTOR.
+// EMTODO3: WHAT. A. MESS. REFACTOR.
 
     // exit loop when next norm of the residual first increases
     while ( (next_norm_resid < norm_resid || next_norm_resid==DBL_MAX)  && index<damping_values.size())

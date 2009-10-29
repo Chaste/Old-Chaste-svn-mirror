@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class Kerchoffs2003ContractionModel : public AbstractOdeBasedContractionModel
 {
+friend class TestContractionModels;
+    
 private:
     static const double a6;  /**< See reference. 2.0 um^{-1} */
     static const double a7;  /**< See reference. 1.5 um */ 

@@ -99,7 +99,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
         for (unsigned N=0; N<DIM; N++)
         {
             double e = E(M,N);
-          //  if (e > 0)  // EMTODO: check this
+          //  if (e > 0)  // EMTODO4: check this
             {
                 double b = mB[M][N];
                 double a = mA[M][N];

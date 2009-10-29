@@ -204,12 +204,6 @@ public :
     {
         EXCEPTION("If using this in an 'explicit manner' call UpdateStateVariables() and then GetActiveTension(), otherwise use NhsSystemWithImplicitSolver");
     }
-
-
-    /**
-     *  Get the current stretch rate
-     */
-    double GetLambda();
         
    /** 
     *  This model is stretch-dependent

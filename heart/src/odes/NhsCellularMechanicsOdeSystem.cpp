@@ -207,12 +207,6 @@ double NhsCellularMechanicsOdeSystem::GetActiveTension()
     }
 }
 
-double NhsCellularMechanicsOdeSystem::GetLambda()
-{
-    return mLambda;
-}
-
-
 template<>
 void OdeSystemInformation<NhsCellularMechanicsOdeSystem>::Initialise(void)
 {

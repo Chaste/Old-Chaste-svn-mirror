@@ -99,7 +99,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
     for(unsigned i=0; i<mCellMechSystems.size(); i++)
     {
          mCellMechSystems[i].UpdateStateVariables();
-         mLambdaLastTimeStep[i] = mCellMechSystems[i].GetLambda();
+         mLambdaLastTimeStep[i] = mLambda[i];
     }
 }
 
@@ -113,74 +113,71 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
                                                                               double& rDerivActiveTensionWrtLambda,
                                                                               double& rDerivActiveTensionWrtDLambdaDt)
 {
-/////
-// EMTODO: better comments and tidy
-/////
+    // save this fibre stretch
     mLambda[currentQuadPointGlobalIndex] = currentFibreStretch;
 
+    // compute dlam/dt
     double dlam_dt = (currentFibreStretch-mLambdaLastTimeStep[currentQuadPointGlobalIndex])/(this->mNextTime-this->mCurrentTime);
 
-    NhsSystemWithImplicitSolver& r_system = mCellMechSystems[currentQuadPointGlobalIndex];
+    NhsSystemWithImplicitSolver& r_contraction_model = mCellMechSystems[currentQuadPointGlobalIndex];
 
-    // get proper active tension
-    // see NOTE below
-    r_system.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
+    // Set this stretch and stretch rate
+    r_contraction_model.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
 
+    // Call RunDoNotUpdate() on the contraction model to solve it using this stretch, and get the active tension
     try
     {
-        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        rActiveTension = r_system.GetNextActiveTension();
+        r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        rActiveTension = r_contraction_model.GetNextActiveTension();
     }
     catch (Exception& e)
     {
         #define COVERAGE_IGNORE
+        // if this failed during assembling the Jacobian this is a fatal error. 
         if(assembleJacobian)
         {
-            EXCEPTION("Failed in solving NHS systems when assembling Jacobian");
+            // probably shouldn't be able to get here
+            EXCEPTION("Failure in solving contraction models using current stretches for assembling Jacobian");
         }
+        // if this failed during assembling the residual, the stretches are too large, so we just
+        // set the active tension to infinity so that the residual will be infinite
+        rActiveTension = DBL_MAX;
+        assert(0); // just to see if we get here, can be removed..
+        return;
         #undef COVERAGE_IGNORE
     }
 
-
+    // if assembling the Jacobian, numerically evaluate dTa/dlam & dTa/d(lamdot)
     if(assembleJacobian)
     {
         // get active tension for (lam+h,dlamdt)
         double h1 = std::max(1e-6, currentFibreStretch/100);
-        r_system.SetStretchAndStretchRate(currentFibreStretch+h1, dlam_dt);
-        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_lam_plus_h = r_system.GetNextActiveTension();
+        r_contraction_model.SetStretchAndStretchRate(currentFibreStretch+h1, dlam_dt);
+        r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_lam_plus_h = r_contraction_model.GetNextActiveTension();
 
         // get active tension for (lam,dlamdt+h)
         double h2 = std::max(1e-6, dlam_dt/100);
-        r_system.SetStretchAndStretchRate(currentFibreStretch, dlam_dt+h2);
-        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_dlamdt_plus_h = r_system.GetNextActiveTension();
+        r_contraction_model.SetStretchAndStretchRate(currentFibreStretch, dlam_dt+h2);
+        r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_dlamdt_plus_h = r_contraction_model.GetNextActiveTension();
 
         rDerivActiveTensionWrtLambda = (active_tension_at_lam_plus_h - rActiveTension)/h1;
         rDerivActiveTensionWrtDLambdaDt = (active_tension_at_dlamdt_plus_h - rActiveTension)/h2;
     }
 
-    // NOTE - have to get the active tension again, this must be done last!!
-    // As if this turns out to be the correct solution, the state vars will be updated!
-    /// \todo: sort out this inefficiency
-    r_system.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
-    r_system.SetActiveTensionInitialGuess(rActiveTension);
-
-    try
-    {
-        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        assert( fabs(r_system.GetNextActiveTension()-rActiveTension)<1e-8);
-    }
-    catch (Exception& e)
-    {
-        #define COVERAGE_IGNORE
-        LOG(2, "WARNING in ImplicitCardiacMechanicsAssembler!\n");
-//todo: huh?!
-        assert(0);
-        //rActiveTension = 1e10;
-        //// should have done something above..
-        #undef COVERAGE_IGNORE
-    }
+    // Re-set the stretch and stretch rate and recompute the active tension so that
+    // if this guess turns out to the solution, we can just update the state variables
+    //  -- not needed as AssembleSystem(true,false) [ie assemble residual] is
+    //     called in ImplicitCardiacMechanicsAssembler<DIM>::Solve() above
+    //     after the solve and before the update.
+    //  -- The SetActiveTensionInitialGuess() would make this very fast
+    //     (compared to AssembleSystem(true,false) above), but the NHS class uses the last
+    //     active tension as the initial guess anyway..
+    //r_contraction_model.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
+    //r_contraction_model.SetActiveTensionInitialGuess(rActiveTension);
+    //r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+    //assert( fabs(r_contraction_model.GetNextActiveTension()-rActiveTension)<1e-8);
 }    
 
 

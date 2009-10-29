@@ -122,6 +122,10 @@ public:
 
     /** 
      *  Get the current active tension (note, actually a stress). (Pure, to be implemented in the concrete class).
+     * 
+     *  DO NOT call inbetween RunDoNotUpdate() and UpdateStateVariables() as the old state variables but
+     *  the next time would then be used in calculating Ta. Instead, use GetNextActiveTension(), or 
+     *  call UpdateStateVariables() and then this.
      */
     virtual double GetActiveTension()=0;
     
