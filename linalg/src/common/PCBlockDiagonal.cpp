@@ -42,6 +42,12 @@ PCBlockDiagonal::~PCBlockDiagonal()
     
     PCDestroy(mPCContext.PC_amg_A11);
     PCDestroy(mPCContext.PC_amg_A22);
+    
+    VecDestroy(mPCContext.x1_subvector);
+    VecDestroy(mPCContext.y1_subvector);
+
+    VecDestroy(mPCContext.x2_subvector);
+    VecDestroy(mPCContext.y2_subvector);    
 }
 
 void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
@@ -84,7 +90,13 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
     MatGetSubMatrix(system_matrix, A22_rows, A22_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
 
     ISDestroy(A22_rows);
-    ISDestroy(A22_columns);    
+    ISDestroy(A22_columns);
+    
+    // Allocate memory
+    mPCContext.x1_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.x2_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.y1_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.y2_subvector = PetscTools::CreateVec(num_rows/2);               
 }
 
 void PCBlockDiagonal::PCBlockDiagonalSetUp()
@@ -112,7 +124,6 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 {
     /// \todo refactoring: create a method for scattering and another for reversing
-    /// \todo optimisation: don't create x11, x22, y11, y22 everytime the method is called. Store them in the PC context.
     
     // Cast the pointer to a PC context to our defined type
     PCBlockDiagonal::PCBlockDiagonalContext* block_diag_context = (PCBlockDiagonal::PCBlockDiagonalContext*) pc_context;
@@ -122,63 +133,58 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     PetscInt num_rows;
     VecGetSize(x, &num_rows);
 
-    Vec x11 = PetscTools::CreateVec(num_rows/2);
-    Vec x22 = PetscTools::CreateVec(num_rows/2);
-    Vec y11 = PetscTools::CreateVec(num_rows/2);
-    Vec y22 = PetscTools::CreateVec(num_rows/2);
-
     IS A11_rows;    
     ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_rows);    
     
     VecScatter A11_scatter_ctx;
-    VecScatterCreate(x, A11_rows, x11, PETSC_NULL, &A11_scatter_ctx);
+    VecScatterCreate(x, A11_rows, block_diag_context->x1_subvector, PETSC_NULL, &A11_scatter_ctx);
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(A11_scatter_ctx, x, x11, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterBegin(A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd(A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
 #else
-    VecScatterBegin(x, x11, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
-    VecScatterEnd(x, x11, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
+    VecScatterBegin(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
+    VecScatterEnd(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
 #endif    
 
     IS A22_rows;
     ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 1, 2, &A22_rows);
 
     VecScatter A22_scatter_ctx;
-    VecScatterCreate(x, A22_rows, x22, PETSC_NULL, &A22_scatter_ctx);
+    VecScatterCreate(x, A22_rows, block_diag_context->x2_subvector, PETSC_NULL, &A22_scatter_ctx);
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A22_scatter_ctx, x, x22, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(A22_scatter_ctx, x, x22, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterBegin(A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd(A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
 #else
-    VecScatterBegin(x, x22, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
-    VecScatterEnd(x, x22, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
+    VecScatterBegin(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
+    VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
 #endif    
     
     
-    PCApply(block_diag_context->PC_amg_A11, x11, y11);
-    PCApply(block_diag_context->PC_amg_A22, x22, y22);
+    PCApply(block_diag_context->PC_amg_A11, block_diag_context->x1_subvector, block_diag_context->y1_subvector);
+    PCApply(block_diag_context->PC_amg_A22, block_diag_context->x2_subvector, block_diag_context->y2_subvector);
 
     ////////////////////
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A11_scatter_ctx, y11, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(A11_scatter_ctx, y11, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterBegin(A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterEnd(A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
-    VecScatterBegin(y11, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
-    VecScatterEnd(y11, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
+    VecScatterBegin(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
+    VecScatterEnd(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
 #endif    
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A22_scatter_ctx, y22, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(A22_scatter_ctx, y22, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterBegin(A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterEnd(A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
-    VecScatterBegin(y22, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
-    VecScatterEnd(y22, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
+    VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
+    VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
 #endif    
     
     ////////////////////
@@ -187,14 +193,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
     ISDestroy(A22_rows);
         
     VecScatterDestroy(A11_scatter_ctx);
-    VecScatterDestroy(A22_scatter_ctx);    
-    
-    VecDestroy(x11);
-    VecDestroy(y11);
-
-    VecDestroy(x22);
-    VecDestroy(y22);
-
+    VecScatterDestroy(A22_scatter_ctx);
     
     return 0;
 }    

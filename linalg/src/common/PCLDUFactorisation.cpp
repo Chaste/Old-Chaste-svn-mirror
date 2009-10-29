@@ -44,11 +44,11 @@ PCLDUFactorisation::~PCLDUFactorisation()
     PCDestroy(mPCContext.PC_amg_A11);
     PCDestroy(mPCContext.PC_amg_A22);
     
-    VecDestroy(mPCContext.x11);
-    VecDestroy(mPCContext.y11);
+    VecDestroy(mPCContext.x1_subvector);
+    VecDestroy(mPCContext.y1_subvector);
 
-    VecDestroy(mPCContext.x22);
-    VecDestroy(mPCContext.y22);
+    VecDestroy(mPCContext.x2_subvector);
+    VecDestroy(mPCContext.y2_subvector);
 
     VecDestroy(mPCContext.z);
     VecDestroy(mPCContext.temp);
@@ -68,6 +68,7 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
     
     PCSetType(mPetscPCObject, PCSHELL);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    // Register PC context and call-back function
     PCShellSetApply(mPetscPCObject, PCLDUFactorisationApply, (void*) &mPCContext);
 #else
     // Register PC context so it gets passed to PCBlockDiagonalApply
@@ -107,10 +108,10 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
     ISDestroy(B_columns);
     
     // Allocate memory
-    mPCContext.x11 = PetscTools::CreateVec(num_rows/2);
-    mPCContext.x22 = PetscTools::CreateVec(num_rows/2);
-    mPCContext.y11 = PetscTools::CreateVec(num_rows/2);
-    mPCContext.y22 = PetscTools::CreateVec(num_rows/2);       
+    mPCContext.x1_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.x2_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.y1_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.y2_subvector = PetscTools::CreateVec(num_rows/2);       
     mPCContext.z = PetscTools::CreateVec(num_rows/2);
     mPCContext.temp = PetscTools::CreateVec(num_rows/2);
 }
@@ -118,60 +119,68 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 void PCLDUFactorisation::PCLDUFactorisationSetUp()
 {
     // These options will get read by PCSetFromOptions
-//    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");        
-//    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");            
-//    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");        
+    PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");        
+    PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");            
+    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");        
 
-    // Set up amg preconditioner for block A11
+    /*
+     *  Set up preconditioner for block A11
+     */
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
     PCSetOperators(mPCContext.PC_amg_A11, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
 
+    // Choose between the two following blocks in order to approximate inv(A11) with one AMG cycle
+    // or with an CG solve with high tolerance
 ////////
-//    PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+    PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
 ////////
-    PCSetType(mPCContext.PC_amg_A11, PCKSP);
-    KSP ksp1;
-    PCKSPGetKSP(mPCContext.PC_amg_A11,&ksp1);
-    KSPSetType(ksp1, KSPCG);
-    KSPSetTolerances(ksp1, 0.1, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);        
-
-    PC prec1;
-    KSPGetPC(ksp1, &prec1);
-    PCSetType(prec1, PCBJACOBI);
-    PCSetFromOptions(prec1);
-    PCSetOperators(prec1, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
-    PCSetUp(prec1);
-
-    KSPSetFromOptions(ksp1);
-    KSPSetUp(ksp1);
+//    PCSetType(mPCContext.PC_amg_A11, PCKSP);
+//    KSP ksp1;
+//    PCKSPGetKSP(mPCContext.PC_amg_A11,&ksp1);
+//    KSPSetType(ksp1, KSPCG);
+//    KSPSetTolerances(ksp1, 0.1, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);        
+//
+//    PC prec1;
+//    KSPGetPC(ksp1, &prec1);
+//    PCSetType(prec1, PCBJACOBI);
+//    PCSetFromOptions(prec1);
+//    PCSetOperators(prec1, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
+//    PCSetUp(prec1);
+//
+//    KSPSetFromOptions(ksp1);
+//    KSPSetUp(ksp1);
 ////////
 
     PCSetFromOptions(mPCContext.PC_amg_A11);
     PCSetUp(mPCContext.PC_amg_A11);
 
 
-    // Set up amg preconditioner for block A22
+    /*
+     *  Set up amg preconditioner for block A22
+     */
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A22));
     PCSetOperators(mPCContext.PC_amg_A22, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
 
+    // Choose between the two following blocks in order to approximate inv(A11) with one AMG cycle
+    // or with an CG solve with high tolerance
 ////////
-//    PCSetType(mPCContext.PC_amg_A22, PCHYPRE);
+    PCSetType(mPCContext.PC_amg_A22, PCHYPRE);
 ////////
-    PCSetType(mPCContext.PC_amg_A22, PCKSP);
-    KSP ksp2;
-    PCKSPGetKSP(mPCContext.PC_amg_A22,&ksp2);
-    KSPSetType(ksp2, KSPCG);
-    KSPSetTolerances(ksp2, 0.1, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);    
-
-    PC prec2;
-    KSPGetPC(ksp2, &prec2);
-    PCSetType(prec2, PCBJACOBI);
-    PCSetFromOptions(prec2);
-    PCSetOperators(prec2, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);    
-    PCSetUp(prec2);
-
-    KSPSetFromOptions(ksp2);
-    KSPSetUp(ksp2);
+//    PCSetType(mPCContext.PC_amg_A22, PCKSP);
+//    KSP ksp2;
+//    PCKSPGetKSP(mPCContext.PC_amg_A22,&ksp2);
+//    KSPSetType(ksp2, KSPCG);
+//    KSPSetTolerances(ksp2, 0.1, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);    
+//
+//    PC prec2;
+//    KSPGetPC(ksp2, &prec2);
+//    PCSetType(prec2, PCBJACOBI);
+//    PCSetFromOptions(prec2);
+//    PCSetOperators(prec2, mPCContext.A22_matrix_subblock, mPCContext.A22_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);    
+//    PCSetUp(prec2);
+//
+//    KSPSetFromOptions(ksp2);
+//    KSPSetUp(ksp2);
 ////////
 
     PCSetFromOptions(mPCContext.PC_amg_A22);
@@ -186,7 +195,9 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     PCLDUFactorisation::PCLDUFactorisationContext* block_diag_context = (PCLDUFactorisation::PCLDUFactorisationContext*) pc_context;
     assert(block_diag_context!=NULL); 
     
-    /////////////////////
+    /*
+     *  Split vector x into two. x = [x1 x2]'
+     */
     PetscInt num_rows;
     VecGetSize(x, &num_rows);
 
@@ -194,79 +205,88 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_rows);    
     
     VecScatter A11_scatter_ctx;
-    VecScatterCreate(x, A11_rows, block_diag_context->x11, PETSC_NULL, &A11_scatter_ctx);
+    VecScatterCreate(x, A11_rows, block_diag_context->x1_subvector, PETSC_NULL, &A11_scatter_ctx);
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A11_scatter_ctx, x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(A11_scatter_ctx, x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterBegin(A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd(A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
 #else
-    VecScatterBegin(x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
-    VecScatterEnd(x, block_diag_context->x11, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
+    VecScatterBegin(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
+    VecScatterEnd(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
 #endif    
 
     IS A22_rows;
     ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 1, 2, &A22_rows);
 
     VecScatter A22_scatter_ctx;
-    VecScatterCreate(x, A22_rows, block_diag_context->x22, PETSC_NULL, &A22_scatter_ctx);
+    VecScatterCreate(x, A22_rows, block_diag_context->x2_subvector, PETSC_NULL, &A22_scatter_ctx);
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A22_scatter_ctx, x, block_diag_context->x22, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(A22_scatter_ctx, x, block_diag_context->x22, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterBegin(A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd(A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
 #else
-    VecScatterBegin(x, block_diag_context->x22, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
-    VecScatterEnd(x, block_diag_context->x22, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
+    VecScatterBegin(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
+    VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
 #endif    
 
-    ////////////////////
-    
+
+    /*
+     *  Apply preconditioner: [y1 y2]' = inv(P)[x1 x2]' o
+     * 
+     *     z  = inv(A11)*x1
+     *     y2 = inv(A22)*(x2 - B*z)
+     *     y1 = z - inv(A11)(B*y2)
+     */         
     //z  = inv(A11)*x1
-    PCApply(block_diag_context->PC_amg_A11, block_diag_context->x11, block_diag_context->z);
-    double minus_one = -1.0;
+    PCApply(block_diag_context->PC_amg_A11, block_diag_context->x1_subvector, block_diag_context->z);
+
     //y2 = inv(A22)*(x2 - B*z)
     MatMult(block_diag_context->B_matrix_subblock,block_diag_context->z,block_diag_context->temp); //temp = B*z    
+    double minus_one = -1.0;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    VecAYPX(&minus_one, block_diag_context->x22, block_diag_context->temp); // temp <-- x2 - temp
+    VecAYPX(&minus_one, block_diag_context->x2_subvector, block_diag_context->temp); // temp <-- x2 - temp
 #else
-    VecAYPX(block_diag_context->temp, minus_one, block_diag_context->x22); // temp <-- x2 - temp
+    VecAYPX(block_diag_context->temp, minus_one, block_diag_context->x2_subvector); // temp <-- x2 - temp
 #endif
-    PCApply(block_diag_context->PC_amg_A22, block_diag_context->temp, block_diag_context->y22); // y2 = inv(A22)*temp
+    PCApply(block_diag_context->PC_amg_A22, block_diag_context->temp, block_diag_context->y2_subvector); // y2 = inv(A22)*temp
     
     //y1 = z - inv(A11)(B*y2)
-    MatMult(block_diag_context->B_matrix_subblock,block_diag_context->y22,block_diag_context->temp); //temp = B*y2 
+    MatMult(block_diag_context->B_matrix_subblock,block_diag_context->y2_subvector,block_diag_context->temp); //temp = B*y2 
     ///\todo Are these lines in the correct order Miguel?
-    PCApply(block_diag_context->PC_amg_A11, block_diag_context->temp, block_diag_context->y11); // y1 = inv(A11)*temp
+    PCApply(block_diag_context->PC_amg_A11, block_diag_context->temp, block_diag_context->y1_subvector); // y1 = inv(A11)*temp
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    VecAYPX(&minus_one, block_diag_context->z, block_diag_context->y11); // y1 <-- z - y1
-
+    VecAYPX(&minus_one, block_diag_context->z, block_diag_context->y1_subvector); // y1 <-- z - y1
 #else
-    VecAYPX(block_diag_context->y11, minus_one, block_diag_context->z); // y1 <-- z - y1
+    VecAYPX(block_diag_context->y1_subvector, minus_one, block_diag_context->z); // y1 <-- z - y1
 #endif
                 
-    ////////////////////
-
+    
+    /*
+     *  Gather vectors y1 and y2. y = [y1 y2]'
+     */   
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A11_scatter_ctx, block_diag_context->y11, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(A11_scatter_ctx, block_diag_context->y11, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterBegin(A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterEnd(A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
-    VecScatterBegin(block_diag_context->y11, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
-    VecScatterEnd(block_diag_context->y11, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
+    VecScatterBegin(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
+    VecScatterEnd(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
 #endif    
 
 //PETSc-3.x.x or PETSc-2.3.3 
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A22_scatter_ctx, block_diag_context->y22, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(A22_scatter_ctx, block_diag_context->y22, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterBegin(A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterEnd(A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
-    VecScatterBegin(block_diag_context->y22, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
-    VecScatterEnd(block_diag_context->y22, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
+    VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
+    VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
 #endif    
     
-    ////////////////////
-
+    /*
+     *  Clean up
+     */
     ISDestroy(A11_rows);
     ISDestroy(A22_rows);
         

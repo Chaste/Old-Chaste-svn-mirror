@@ -83,6 +83,10 @@ public:
         Mat A22_matrix_subblock; /**< Mat object that stores the A22 subblock.  See \todo - don't create this every iteration but save it first time is needed. */
         PC  PC_amg_A11; /**<  inv(A11) is approximated by an AMG cycle. We compute it with HYPRE via a PC object. See \todo - don't create this every iteration but save it first time is needed. */
         PC  PC_amg_A22; /**<  inv(A22) is approximated by an AMG cycle. We compute it with HYPRE via a PC object. See \todo - don't create this every iteration but save it first time is needed. */
+        Vec x1_subvector;/**<  Used to store the first half of the vector to be preconditioned*/
+        Vec x2_subvector;/**<  Used to store the second half of the vector to be preconditioned*/
+        Vec y1_subvector;/**<  Used to store the first half of the preconditioned vector*/
+        Vec y2_subvector;/**<  Used to store the second half of the preconditioned vector*/
         
     } PCBlockDiagonalContext;
 

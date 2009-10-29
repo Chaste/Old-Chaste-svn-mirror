@@ -108,10 +108,10 @@ public:
         Mat B_matrix_subblock; /**< Mat object that stores the B subblock.  See \todo - don't create this every iteration but save it first time is needed. */
         PC  PC_amg_A11; /**<  inv(A11) is approximated by an AMG cycle. We compute it with HYPRE via a PC object. See \todo - don't create this every iteration but save it first time is needed. */
         PC  PC_amg_A22; /**<  inv(A22) is approximated by an AMG cycle. We compute it with HYPRE via a PC object. See \todo - don't create this every iteration but save it first time is needed. */
-        Vec x11;/**<  Used to store ??? PetscTools::CreateVec(num_rows/2);*/
-        Vec x22;/**<  Used to store ??? PetscTools::CreateVec(num_rows/2);*/
-        Vec y11;/**<  Used to store ??? PetscTools::CreateVec(num_rows/2);*/
-        Vec y22;/**<  Used to store ??? PetscTools::CreateVec(num_rows/2);*/
+        Vec x1_subvector;/**<  Used to store the first half of the vector to be preconditioned*/
+        Vec x2_subvector;/**<  Used to store the second half of the vector to be preconditioned*/
+        Vec y1_subvector;/**<  Used to store the first half of the preconditioned vector*/
+        Vec y2_subvector;/**<  Used to store the second half of the preconditioned vector*/
         Vec z;/**<    Used to store ??? PetscTools::CreateVec(num_rows/2);*/
         Vec temp;/**< Used to store ??? PetscTools::CreateVec(num_rows/2);*/                                    
     } PCLDUFactorisationContext;
