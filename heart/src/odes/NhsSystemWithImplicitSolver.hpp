@@ -63,14 +63,13 @@ private:
     /** See SetUseImplicitExplicitSolveForZ() */
     bool mUseImplicitExplicitSolveForZ;
 
-    /** Temporary stored state variables - current guesses to the current solution */
-    std::vector<double> mTempStoredStateVariables;
+
     /** Current state variables to be used in the next timestep */
     std::vector<double> mCurrentStateVars;
 
     /** Initial guess for the active tension */
     double mActiveTensionInitialGuess;
-    /** The solution for the active tension after a SolveDoNotUpdate() has been called */
+    /** The solution for the active tension after a RunDoNotUpdate() has been called */
     double mActiveTensionSolution;
 
     /**
@@ -86,6 +85,7 @@ private:
      *  Compute T0, Q and then T_a
      */
     void ImplicitSolveForActiveTension();
+    
     /** The residual function for the main Newton solve. See ImplicitSolveForActiveTension()
      * 
      * @param activeTensionGuess
@@ -127,9 +127,11 @@ private:
      */
     double ImplicitSolveForQ();
 
+
+//// possible simplification for speedup, but doesn't give same results (see Pathmanathan&Whiteley 2009).
 //    /**
 //     *  Instead of solving an ODE for Qi, assume that the Qi equations reach a static
-//     *  solution on a timescale much smaller than thatt of the deformation, and therefore
+//     *  solution on a timescale much smaller than that of the deformation, and therefore
 //     *  solve the algebraic equation 0 = A_i lambda_dot - alpha_i Q_i to Q_i(t).
 //     *
 //     *  This method returns Q = Q1+Q2+Q3
@@ -146,7 +148,7 @@ public :
      *  Set a current active tension guess. Generally not needed as the current
      *  active tension is used if this isn't called.
      * 
-     * @param activeTensionInitialGuess
+     *  @param activeTensionInitialGuess
      */
     void SetActiveTensionInitialGuess(double activeTensionInitialGuess);
 
@@ -154,23 +156,20 @@ public :
      *  Solves for the new state variables at the given end time using the implicit
      *  method. Note that the internal state variables are not altered, the solution
      *  is saved instead. Call UpdateStateVariables() to update, and
-     *  GetActiveTensionAtNextTime() to get the solved active tension
+     *  GetNextActiveTension() to get the solved active tension
      *
      *  The state variables are not updated because this solve will be called as part
      *  of the newton iteration (ie guess stretch, see what the new active tension is)
-     *  in a fully implicit method
+     *  in a fully implicit method.
      * 
-     * @param startTime
-     * @param endTime
-     * @param timestep
+     *  Note: overloaded from the method in AbstractOdeBasedContractionModel, which
+     *  just does a simple Euler solve
+     * 
+     *  @param startTime
+     *  @param endTime
+     *  @param timestep
      */
-    void SolveDoNotUpdate(double startTime, double endTime, double timestep);
-
-    /**
-     *  Update the state variables using the stored solution. Call after
-     *  SolveDoNotUpdate() if the solution is to be accepted
-     */
-    void UpdateStateVariables();
+    void RunDoNotUpdate(double startTime, double endTime, double timestep);
 
     /**
      *  Solve for z semi-implicitly instead of fully implicitly. If we assume we know
@@ -185,12 +184,12 @@ public :
 
     /**
      *  Get the active tension corresponding to the stored state variables computed
-     *  from the last SolveDoNoUpdate(), ie the active tension at the next time.
+     *  from the last RunDoNotUpdate(), ie the active tension at the next time.
      *  Note that calling GetActiveTension() on the base class will use the internal
      *  state variables and return the active tension at the last time, if
-     *  SolveDoNoUpdate() has been called but UpdateStateVariables() has not
+     *  RunDoNotUpdate() has been called but UpdateStateVariables() has not
      */
-    double GetActiveTensionAtNextTime();
+    double GetNextActiveTension();
 };
 
 #endif /*NHSSYSTEMWITHIMPLICITSOLVER_HPP_*/

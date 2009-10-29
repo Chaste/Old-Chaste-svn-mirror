@@ -52,16 +52,14 @@ ImplicitCardiacMechanicsAssembler<DIM>::~ImplicitCardiacMechanicsAssembler()
 
 
 template<unsigned DIM>
-void ImplicitCardiacMechanicsAssembler<DIM>::SetCalciumVoltageAndTime(std::vector<double>& rCalciumConcentrations, 
-                                                                      std::vector<double>& rVoltages,
-                                                                      double time)
+void ImplicitCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
+                                                                  std::vector<double>& rVoltages)
                                         
 {
     assert(rCalciumConcentrations.size() == this->mTotalQuadPoints);
     assert(rVoltages.size() == this->mTotalQuadPoints);
 
     ContractionModelInputParameters input_parameters;
-    input_parameters.time = time;
     
     for(unsigned i=0; i<rCalciumConcentrations.size(); i++)
     {
@@ -116,7 +114,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
                                                                               double& rDerivActiveTensionWrtDLambdaDt)
 {
 /////
-// better comments
+// EMTODO: better comments and tidy
 /////
     mLambda[currentQuadPointGlobalIndex] = currentFibreStretch;
 
@@ -130,8 +128,8 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
 
     try
     {
-        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        rActiveTension = r_system.GetActiveTensionAtNextTime();
+        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        rActiveTension = r_system.GetNextActiveTension();
     }
     catch (Exception& e)
     {
@@ -149,14 +147,14 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
         // get active tension for (lam+h,dlamdt)
         double h1 = std::max(1e-6, currentFibreStretch/100);
         r_system.SetStretchAndStretchRate(currentFibreStretch+h1, dlam_dt);
-        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_lam_plus_h = r_system.GetActiveTensionAtNextTime();
+        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_lam_plus_h = r_system.GetNextActiveTension();
 
         // get active tension for (lam,dlamdt+h)
         double h2 = std::max(1e-6, dlam_dt/100);
         r_system.SetStretchAndStretchRate(currentFibreStretch, dlam_dt+h2);
-        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_dlamdt_plus_h = r_system.GetActiveTensionAtNextTime();
+        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_dlamdt_plus_h = r_system.GetNextActiveTension();
 
         rDerivActiveTensionWrtLambda = (active_tension_at_lam_plus_h - rActiveTension)/h1;
         rDerivActiveTensionWrtDLambdaDt = (active_tension_at_dlamdt_plus_h - rActiveTension)/h2;
@@ -170,8 +168,8 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
 
     try
     {
-        r_system.SolveDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        assert( fabs(r_system.GetActiveTensionAtNextTime()-rActiveTension)<1e-8);
+        r_system.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        assert( fabs(r_system.GetNextActiveTension()-rActiveTension)<1e-8);
     }
     catch (Exception& e)
     {

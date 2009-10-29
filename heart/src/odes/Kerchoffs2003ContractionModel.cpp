@@ -53,9 +53,7 @@ Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel()
 
     mIsActivated = false;
     mActivationTime = 0.0;
-    mCurrentTime = 0.0;
-    
-    //mTempStateVariable = mStateVariables[0];
+    mTime = 0.0;
 }
 
 
@@ -70,11 +68,8 @@ void Kerchoffs2003ContractionModel::EvaluateYDerivatives(double time,
 
 void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputParameters& rInputParameters)
 {
-    assert(rInputParameters.time != DOUBLE_UNSET);
     assert(rInputParameters.voltage != DOUBLE_UNSET);
 
-
-    mCurrentTime = rInputParameters.time;
     if (mIsActivated && (rInputParameters.voltage < mDeactivationVoltage))
     {
         // inactive (resting)
@@ -85,7 +80,7 @@ void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputPara
     {
         // activated
         mIsActivated = true;
-        mActivationTime = mCurrentTime;
+        mActivationTime = mTime;
     }
 }
 
@@ -107,7 +102,7 @@ double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
     double t_max = b*(mSarcomereLength - ld);
     if(mIsActivated)
     {
-        double t_a = mCurrentTime - mActivationTime;
+        double t_a = mTime - mActivationTime;
 
         if(t_a < t_max)
         {
@@ -129,46 +124,10 @@ double Kerchoffs2003ContractionModel::GetActiveTension()
     return GetActiveTension(mStateVariables[0]);
 }
  
-//double Kerchoffs2003ContractionModel::GetActiveTensionAtNextTime()
-//{
-//    return GetActiveTension(mTempStateVariable);
-//}
-//
-// 
-//void Kerchoffs2003ContractionModel::SolveDoNotUpdate(double startTime, double endTime, double timestep)
-//{
-////    double lc = mStateVariables[0];
-////    TimeStepper stepper(startTime, endTime, timestep);
-////    while(!stepper.IsTimeAtEnd())
-////    {
-////        double dlc = ( Ea*(mSarcomereLength-lc) - 1 )*v0;
-////        lc += timestep*dlc;
-////        stepper.AdvanceOneTimeStep();
-////    }
-////    mTempStateVariable = lc;
-//
-//
-//    TimeStepper stepper(startTime, endTime, timestep);
-//    
-//    std::vector<double> lc(1);
-//    std::vector<double> dlc(1);
-//    lc[0] = mStateVariables[0];
-//    
-//    while(!stepper.IsTimeAtEnd())
-//    {
-//        EvaluateYDerivatives(stepper.GetTime(), lc, dlc);
-//        lc[0] += timestep*dlc[0];
-//        stepper.AdvanceOneTimeStep();
-//    }
-//    
-//    mTempStateVariable = lc[0];
-//}
-//
-// 
-//void Kerchoffs2003ContractionModel::UpdateStateVariables()
-//{
-//    mStateVariables[0] = mTempStateVariable;
-//}
+double Kerchoffs2003ContractionModel::GetNextActiveTension()
+{
+    return GetActiveTension(mTemporaryStateVariables[0]);
+}
 
 template<>
 void OdeSystemInformation<Kerchoffs2003ContractionModel>::Initialise()

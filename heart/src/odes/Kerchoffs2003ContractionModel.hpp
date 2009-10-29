@@ -63,8 +63,6 @@ private:
     double mActivationTime;
     /** Whether the cell is activated - whether the voltage has gone above 40mV without going below -70mV. */
     bool mIsActivated;
-    /** Current time (ms)*/
-    double mCurrentTime;
 
     /** 
      *  Get the active tension as a function of length of contractile element. This is private. The public 
@@ -72,13 +70,12 @@ private:
      *  @param lengthOfContractileElement length of contractile element (the state variable in this model).
      */
     double GetActiveTension(double lengthOfContractileElement);
-    
-    // for implicit solver
-    //double mTempStateVariable;    
+
 
 public:
     /** Constructor */
     Kerchoffs2003ContractionModel();
+   
 
     /** 
      *  The derivative function of the one state variable: "lc" in reference, the length of the contractile element 
@@ -124,18 +121,11 @@ public:
         return false;
     }
 
-//// for implicit solver
-//    void SolveDoNotUpdate(double startTime, double endTime, double timestep);
-//
-//    double GetActiveTensionAtNextTime();
-// 
-//    void UpdateStateVariables();
-//    
-//    double GetLambda()
-//    {
-//        assert(0);
-//        return mSarcomereLength/ls0;
-//    }
+    /**
+     *  Get the active tension corresponding to the temporary stored state variables 
+     *  produced by callign RunDoNotUpdate (and before calling UpdateStateVariables())
+     */
+    double GetNextActiveTension();
 };
 
 

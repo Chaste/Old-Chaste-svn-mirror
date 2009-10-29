@@ -30,85 +30,87 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTODEBASEDCONTRACTIONMODEL_
 
 #include "AbstractOdeSystem.hpp"
+#include "AbstractContractionModel.hpp"
+#include "AbstractIvpOdeSolver.hpp"
+#include "EulerIvpOdeSolver.hpp"
 
 /**
- *  Options for the different contraction models (both stretch-dependent and independent, ditto stretch-rate)
- *  that has been implemented
+ *  Abstract base class for ODE-based contraction models. Inherits from AbstractOdeSystem 
+ *  and AbstractContractionModel and deals with the ODE solving.
  */
-typedef enum ContractionModel_
+class AbstractOdeBasedContractionModel : public AbstractOdeSystem, public AbstractContractionModel
 {
-    KERCHOFFS2003,
-    NHS
-} ContractionModel;
+protected:
+    /** A second vector of state variables, where the results will go
+     *  when RunDoNotUpdate() is called */
+    std::vector<double> mTemporaryStateVariables;
 
+    /** The time (at the next timestep) to be used in GetActiveTension if required */
+    double mTime;
 
-/**
- *  Struct storing the input parameters that might be used by a contraction model (excl stretch and stretch-rate,
- *  as these may be set several times using the current deformation guess by the implicit assembler).
- */ 
-typedef struct ContractionModelInputParameters_
-{
-    double voltage;                           /**< Input voltage (mV)*/
-    double intracellularCalciumConcentration; /**< Input calcium concentration (mMol) */
-    double time;                              /**< Input time (ms) (for time dependent contraction models) */
-} ContractionModelInputParameters;
-    
-
-/**
- *  Abstract base class for ODE-based contraction models. Inherits from AbstractOdeSystem and defines
- *  a contraction-model interface.
- */
-class AbstractOdeBasedContractionModel : public AbstractOdeSystem
-{
 public:
-    /**
-     *  Constructor does nothing except pass through the number of state variables
-     *  @param numStateVariables Number of state variables in the ODEs
+    /** 
+     *  Constructor
+     *  @param numStateVariables number of state variables
      */
     AbstractOdeBasedContractionModel(unsigned numStateVariables)
-        : AbstractOdeSystem(numStateVariables)
+        : AbstractOdeSystem(numStateVariables),
+          AbstractContractionModel(),
+          mTime(0.0)
     {
+        mTemporaryStateVariables.resize(numStateVariables);
     }
     
-    /** 
-     *  Does the model depend on the stretch. (Pure, to be implemented in the concrete class).
-     */
-    virtual bool IsStretchDependent()=0;
-
-    /** 
-     *  Does the model depend on the stretch-rate. (Pure, to be implemented in the concrete class).
-     */
-    virtual bool IsStretchRateDependent()=0;
-
-    /** 
-     *  Set any input parameters (excl stretch and stretch rate). (Pure, to be implemented in the concrete class).
-     *
-     *  @param rInputParameters  contains various parameters: voltage, intracellular calcium concentration and 
-     *  time (at next timestep)
-     */
-    virtual void SetInputParameters(ContractionModelInputParameters& rInputParameters)=0;
-
-    /** 
-     *  Set the stretch and stretch rate. (Pure, to be implemented in the concrete class).
+    /**
+     *  Solves the ODEs, but doesn't update the state variables, instead keeps them in
+     *  a temporary store. Call UpdateStateVariables() to save the new values. Call 
+     *  GetNextActiveTension() to get the active tension corresponding to the new values (if
+     *  UpdateStateVariables() has not been called). Also saves the time (using endTime).
      * 
-     *  @param stretch  fibre stretch (dimensionless)
-     *  @param stretchRate  fibre stretch rate (1/ms)
+     *  @param startTime start time
+     *  @param endTime end time
+     *  @param timestep timestep for integrating ODEs
+     * 
+     *  EMTODO: v inefficient if only used in explicit (soln: add a RunAndUpdate method, and a bool in constructor
+     *  oldUsedInExplicit which if true means mTemporaryStateVariables stays empty
+     * 
+     *  EMTODO: proper test versus seperate solver
+     * 
      */
-    virtual void SetStretchAndStretchRate(double stretch, double stretchRate)=0;
-    
-    /** Safe setting of stretch-only, for stretch-rate independent models ONLY
-     *  @param stretch Stretch in fibre direction
-     */
-    void SetStretch(double stretch)
+    virtual void RunDoNotUpdate(double startTime, double endTime, double timeStep)
     {
-        assert(!IsStretchRateDependent());
-        SetStretchAndStretchRate(stretch, 0.0);
+        // save the state variables 
+        mTemporaryStateVariables = mStateVariables;
+        
+        // solve
+        EulerIvpOdeSolver solver;
+        solver.SolveAndUpdateStateVariable(this, startTime, endTime, timeStep);
+        
+        // put the solution in mTemporaryStateVariables and return the state variables to its 
+        // original state
+        for(unsigned i=0; i<mStateVariables.size(); i++)
+        {
+            double soln = mStateVariables[i];
+            mStateVariables[i] = mTemporaryStateVariables[i];
+            mTemporaryStateVariables[i] = soln;
+        }
+        
+        // save the time
+        mTime = endTime;
     }
-
+    
     /** 
-     *  Get the current active tension (note, actually a stress). (Pure, to be implemented in the concrete class).
+     *  After RunDoNotUpdate() has been called, this call be used to update the state
+     *  variables to the new (saved) values
      */
-    virtual double GetActiveTension()=0;
+    void UpdateStateVariables()
+    {
+        // save the state variables 
+        for(unsigned i=0; i<mStateVariables.size(); i++)
+        {
+            mStateVariables[i] = mTemporaryStateVariables[i];
+        }
+    }    
 };
 
 

@@ -6,6 +6,7 @@ bidomain/TestBidomainWithBathAssembler.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
 mechanics/TestContractionModels.hpp
 mechanics/TestImplicitCardiacMechanicsAssembler.hpp
+mechanics/TestExplicitCardiacMechanicsAssembler.hpp
 mechanics/TestNhsSystemWithImplicitSolver.hpp
 TestCardiacSimulation.hpp
 TestCardiacSimulationArchiver.hpp

@@ -59,7 +59,7 @@ public:
         system_with_solver.SetIntracellularCalciumConcentration(Ca_I);
 
         // solve system (but don't update state vars yet
-        system_with_solver.SolveDoNotUpdate(0, 0.1, 0.1); // one timestep
+        system_with_solver.RunDoNotUpdate(0, 0.1, 0.1); // one timestep
 
         NhsCellularMechanicsOdeSystem system_for_euler_solver;
 
@@ -120,15 +120,15 @@ public:
 
             // solve system and update
             ck_start = clock();
-            system_with_solver.SolveDoNotUpdate(0, 100, 0.01);
+            system_with_solver.RunDoNotUpdate(0, 100, 0.01);
             ck_end = clock();
             double implicit_solve_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 
             system_with_solver.UpdateStateVariables();
 
-            // GetActiveTensionAtNextTime should now be equal to baseclass::GetActiveTension(),
+            // GetNextActiveTension should now be equal to baseclass::GetActiveTension(),
             // as the state vars have been updated
-            TS_ASSERT_DELTA(system_with_solver.GetActiveTensionAtNextTime(),
+            TS_ASSERT_DELTA(system_with_solver.GetNextActiveTension(),
                             system_with_solver.GetActiveTension(),
                             1e-12);
 
@@ -169,14 +169,14 @@ public:
 //        system_with_solver.SetStretchAndStretchRate(0.5, 0.1);
 //        system_with_solver.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
-//        system_with_solver.SolveDoNotUpdate(0, 100, 0.01);
+//        system_with_solver.RunDoNotUpdate(0, 100, 0.01);
 //        system_with_solver.UpdateStateVariables();
 //
 //        NhsSystemWithImplicitSolver system_with_solver2;
 //        system_with_solver2.SetStretchAndStretchRate(0.5, 0.1);
 //        system_with_solver2.SetIntracellularCalciumConcentration(10*GetSampleCaIValue());
 //
-//        system_with_solver2.SolveDoNotUpdate(0, 100, 1);
+//        system_with_solver2.RunDoNotUpdate(0, 100, 1);
 //        system_with_solver2.UpdateStateVariables();
 //
 //        unsigned num_vars = system_with_solver.GetNumberOfStateVariables();
@@ -191,10 +191,10 @@ public:
 //        }
 //    }
 
-    // test that checks SolveDoNotUpdate does not do anything permanent on the class,
+    // test that checks RunDoNotUpdate does not do anything permanent on the class,
     // by checking by doing things repeatedly, and changing the order, makes no
     // difference
-    void TestSolveDoesNotUpdate()
+    void TestRunDoesNotUpdate()
     {
         NhsSystemWithImplicitSolver system;
 
@@ -205,14 +205,14 @@ public:
         double init_Ta = system.GetActiveTension();
 
         system.SetStretchAndStretchRate(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01);
+        system.RunDoNotUpdate(0, 1, 0.01);
 
-        double Ta1 = system.GetActiveTensionAtNextTime();
+        double Ta1 = system.GetNextActiveTension();
 
         system.SetStretchAndStretchRate(0.6, 0.2);
-        system.SolveDoNotUpdate(0, 1, 0.01);
+        system.RunDoNotUpdate(0, 1, 0.01);
 
-        double Ta2 = system.GetActiveTensionAtNextTime();
+        double Ta2 = system.GetNextActiveTension();
 
         // note that lam/end time etc must be large enough for there
         // to be non-zero Ta at the next time
@@ -220,27 +220,27 @@ public:
         TS_ASSERT_DIFFERS(init_Ta, Ta2);
 
         system.SetStretchAndStretchRate(0.6, 0.2);
-        system.SolveDoNotUpdate(0, 1, 0.01);
+        system.RunDoNotUpdate(0, 1, 0.01);
 
-        double should_be_Ta2 = system.GetActiveTensionAtNextTime();
+        double should_be_Ta2 = system.GetNextActiveTension();
 
         system.SetStretchAndStretchRate(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01);
+        system.RunDoNotUpdate(0, 1, 0.01);
 
-        double should_be_Ta1 = system.GetActiveTensionAtNextTime();
+        double should_be_Ta1 = system.GetNextActiveTension();
 
         TS_ASSERT_EQUALS(Ta1, should_be_Ta1);
         TS_ASSERT_EQUALS(Ta2, should_be_Ta2);
 
         system.SetStretchAndStretchRate(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01);
+        system.RunDoNotUpdate(0, 1, 0.01);
 
-        double should_also_be_Ta1 = system.GetActiveTensionAtNextTime();
+        double should_also_be_Ta1 = system.GetNextActiveTension();
 
         system.SetStretchAndStretchRate(0.6, 0.2);
-        system.SolveDoNotUpdate(0, 1, 0.01);
+        system.RunDoNotUpdate(0, 1, 0.01);
 
-        double should_also_be_Ta2 = system.GetActiveTensionAtNextTime();
+        double should_also_be_Ta2 = system.GetNextActiveTension();
 
         TS_ASSERT_EQUALS(Ta1, should_also_be_Ta1);
         TS_ASSERT_EQUALS(Ta2, should_also_be_Ta2);
@@ -253,9 +253,9 @@ public:
         double Ca_I = GetSampleCaIValue();
         system.SetIntracellularCalciumConcentration(Ca_I);
         system.SetStretchAndStretchRate(0.6, 0.1);
-        system.SolveDoNotUpdate(0, 1, 0.01);
+        system.RunDoNotUpdate(0, 1, 0.01);
 
-        double Ta_at_next_time_before_update = system.GetActiveTensionAtNextTime();
+        double Ta_at_next_time_before_update = system.GetNextActiveTension();
 
         system.UpdateStateVariables();
 

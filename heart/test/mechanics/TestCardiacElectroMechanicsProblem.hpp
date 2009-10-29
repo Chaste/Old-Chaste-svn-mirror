@@ -137,7 +137,7 @@ public:
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
                                                      5, /* end time */                    // dies between 7ms and 8ms
-                                                     1,  /* n times 0.01ms mech dt */
+                                                     1,   /* n times 0.01ms mech dt */
                                                      0.01, /* NHS ode timestep */
                                                      "TestExplicitWithKerchoffs");
 
@@ -155,7 +155,7 @@ public:
         
         // hardcoded result
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
-        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0496, 0.002);
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0496, 0.0002);
     }
 
     

@@ -476,7 +476,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
 
         // set [Ca], V, t
-        mpCardiacMechAssembler->SetCalciumVoltageAndTime(interpolated_calcium_concs, interpolated_voltages, stepper.GetTime());
+        mpCardiacMechAssembler->SetCalciumAndVoltage(interpolated_calcium_concs, interpolated_voltages);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::NON_MECH);
 
 

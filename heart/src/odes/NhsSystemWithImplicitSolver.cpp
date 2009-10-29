@@ -97,7 +97,7 @@ double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensi
     double new_Ca_Trop = ImplicitSolveForCaTrop(activeTensionGuess);
 
     // store the current Ca_trop solution, in case it turns out to be the current one
-    mTempStoredStateVariables[0] = new_Ca_Trop;
+    mTemporaryStateVariables[0] = new_Ca_Trop;
 
     // solve for new z implicitly (or with a mixed implicit-explicit scheme, if asked for)
     double new_z;
@@ -111,7 +111,7 @@ double NhsSystemWithImplicitSolver::CalcActiveTensionResidual(double activeTensi
     }
 
     // store the current z solution, in case it turns out to be the current one
-    mTempStoredStateVariables[1] = new_z;
+    mTemporaryStateVariables[1] = new_z;
 
     // get the new T0
     double new_T0 = CalculateT0(new_z);
@@ -215,9 +215,9 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
     double new_Q2 = (old_Q2 + mDt*mA2*mDLambdaDt)/(1 + mAlpha2*mDt);
     double new_Q3 = (old_Q3 + mDt*mA3*mDLambdaDt)/(1 + mAlpha3*mDt);
 
-    mTempStoredStateVariables[2] = new_Q1;
-    mTempStoredStateVariables[3] = new_Q2;
-    mTempStoredStateVariables[4] = new_Q3;
+    mTemporaryStateVariables[2] = new_Q1;
+    mTemporaryStateVariables[3] = new_Q2;
+    mTemporaryStateVariables[4] = new_Q3;
 
     return new_Q1 + new_Q2 + new_Q3;
 }
@@ -229,9 +229,9 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
 //    double new_Q2 = mA2*mDLambdaDt/mAlpha2;
 //    double new_Q3 = mA3*mDLambdaDt/mAlpha3;
 //
-//    mTempStoredStateVariables[2] = new_Q1;
-//    mTempStoredStateVariables[3] = new_Q2;
-//    mTempStoredStateVariables[4] = new_Q3;
+//    mTemporaryStateVariables[2] = new_Q1;
+//    mTemporaryStateVariables[3] = new_Q2;
+//    mTemporaryStateVariables[4] = new_Q3;
 //
 //    return new_Q1 + new_Q2 + new_Q3;
 //}
@@ -245,7 +245,6 @@ double NhsSystemWithImplicitSolver::ImplicitSolveForQ()
 NhsSystemWithImplicitSolver::NhsSystemWithImplicitSolver()
     : NhsCellularMechanicsOdeSystem()
 {
-    mTempStoredStateVariables.resize(GetNumberOfStateVariables());
     mActiveTensionInitialGuess = GetActiveTension();
     mUseImplicitExplicitSolveForZ = false;
 
@@ -258,9 +257,9 @@ void NhsSystemWithImplicitSolver::SetActiveTensionInitialGuess(double activeTens
 }
 
 
-void NhsSystemWithImplicitSolver::SolveDoNotUpdate(double startTime,
-                                                   double endTime,
-                                                   double timestep)
+void NhsSystemWithImplicitSolver::RunDoNotUpdate(double startTime,
+                                                 double endTime,
+                                                 double timestep)
 {
     assert(startTime < endTime);
 
@@ -274,7 +273,7 @@ void NhsSystemWithImplicitSolver::SolveDoNotUpdate(double startTime,
     while ( !stepper.IsTimeAtEnd() )
     {
         ImplicitSolveForActiveTension();
-        mCurrentStateVars = mTempStoredStateVariables;
+        mCurrentStateVars = mTemporaryStateVariables;
 
         stepper.AdvanceOneTimeStep();
     }
@@ -282,20 +281,13 @@ void NhsSystemWithImplicitSolver::SolveDoNotUpdate(double startTime,
     // note: state variables NOT updated.
 }
 
-void NhsSystemWithImplicitSolver::UpdateStateVariables()
-{
-    for(unsigned i=0; i<mStateVariables.size(); i++)
-    {
-        mStateVariables[i] = mCurrentStateVars[i];
-    }
-}
 
 void NhsSystemWithImplicitSolver::UseImplicitExplicitSolveForZ(bool useImplicitExplicitSolveForZ)
 {
     mUseImplicitExplicitSolveForZ = useImplicitExplicitSolveForZ;
 }
 
-double NhsSystemWithImplicitSolver::GetActiveTensionAtNextTime()
+double NhsSystemWithImplicitSolver::GetNextActiveTension()
 {
     return mActiveTensionSolution;
 }

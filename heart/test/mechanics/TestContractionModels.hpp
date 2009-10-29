@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <vector>
 #include <string>
+#include "NonPhysiologicalContractionModel.hpp"
 #include "NhsCellularMechanicsOdeSystem.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -64,9 +65,54 @@ double MyLamDeriv(double t, double endTime, double minLam)
 class TestContractionModels : public CxxTest::TestSuite
 {
 public :
+    void TestNonPhysiologicalContractionModel() throw(Exception)
+    {
+        NonPhysiologicalContractionModel model1(1);
+        NonPhysiologicalContractionModel model2(2);
+        NonPhysiologicalContractionModel model3(3);
+
+        ContractionModelInputParameters input_parameters;
+        
+        model1.SetInputParameters(input_parameters);
+        model1.SetStretchAndStretchRate(1.0, 0.0);
+
+        model2.SetInputParameters(input_parameters);
+        model2.SetStretchAndStretchRate(1.0, 0.0);
+
+        model3.SetInputParameters(input_parameters);
+        model3.SetStretchAndStretchRate(1.0, 0.0);
+
+        // call Run to set the end time = 0.0
+        model1.RunDoNotUpdate(-0.1,0,0.1);
+        model1.UpdateStateVariables(); // coverage
+        model2.RunDoNotUpdate(-0.1,0,0.1);
+        model3.RunDoNotUpdate(-0.1,0,0.1);
+
+        TS_ASSERT_DELTA(model1.GetActiveTension(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(model2.GetActiveTension(), 0.0, 1e-12);
+        TS_ASSERT_DELTA(model3.GetActiveTension(), 0.0, 1e-12);
+
+        model1.SetStretchAndStretchRate(0.8, 0.0);
+        model2.SetStretchAndStretchRate(0.8, 0.0);
+        model3.SetStretchAndStretchRate(0.8, 0.0);
+
+        // call Run to set the end time = 0.1
+        model1.RunDoNotUpdate(0,4,0.1); 
+        model2.RunDoNotUpdate(0,4,0.1);
+        model3.RunDoNotUpdate(0,4,0.1);
+
+        TS_ASSERT_DELTA(model1.GetActiveTension(), 5*sin(1.0), 1e-6);
+        TS_ASSERT_DELTA(model2.GetActiveTension(), 4*sin(1.0), 1e-6);
+        TS_ASSERT_DELTA(model3.GetActiveTension(), 5*exp(0.2)*sin(1.0), 1e-6);
+    }
+        
+
     void TestNhsContractionModelSimple() throw(Exception)
     {
         NhsCellularMechanicsOdeSystem nhs_system;
+        
+        TS_ASSERT_THROWS_CONTAINS(nhs_system.GetNextActiveTension(), "If using this in an 'explicit manner'");
+        
         TS_ASSERT_EQUALS(nhs_system.IsStretchDependent(), true);
         TS_ASSERT_EQUALS(nhs_system.IsStretchRateDependent(), true);
 
@@ -86,7 +132,9 @@ public :
         double Ca_I = lr91.rGetStateVariables()[Ca_i_index];
 
         // lambda1=1, dlamdt = 0, so there should be no active tension
-        p_euler_solver->SolveAndUpdateStateVariable(&nhs_system, 0, 1, 0.01);
+        nhs_system.RunDoNotUpdate(0, 1, 0.01);
+        nhs_system.UpdateStateVariables();
+
         TS_ASSERT_DELTA(nhs_system.GetActiveTension(), 0.0, 1e-12);
 
         // the following test doesn't make sense, as lambda=const, but dlam_dt > 0
@@ -99,14 +147,15 @@ public :
         nhs_system.SetStretchAndStretchRate(0.5, 0.1);
         TS_ASSERT_DELTA(nhs_system.GetLambda(), 0.5, 1e-12);
         nhs_system.SetIntracellularCalciumConcentration(Ca_I);
-        OdeSolution solution = p_euler_solver->Solve(&nhs_system, nhs_system.rGetStateVariables(), 0, 10, 0.01, 0.01);
 
-        unsigned num_timesteps = solution.GetNumberOfTimeSteps();
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][0],   0.0056, 1e-2 );
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][1],   0.0000, 1e-2 );
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][2], -25.0359, 1e-2 );
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][3],  77.2103, 1e-2 );
-        TS_ASSERT_DELTA( solution.rGetSolutions()[num_timesteps-1][4],  20.6006, 1e-2 );
+        nhs_system.RunDoNotUpdate(0, 10, 0.01);
+        nhs_system.UpdateStateVariables();
+
+        TS_ASSERT_DELTA( nhs_system.rGetStateVariables()[0],   0.0056, 1e-2 );
+        TS_ASSERT_DELTA( nhs_system.rGetStateVariables()[1],   0.0000, 1e-2 );
+        TS_ASSERT_DELTA( nhs_system.rGetStateVariables()[2], -25.0574, 1e-2 );
+        TS_ASSERT_DELTA( nhs_system.rGetStateVariables()[3],  77.2480, 1e-2 );
+        TS_ASSERT_DELTA( nhs_system.rGetStateVariables()[4],  20.6006, 1e-2 );
     }
     
 
@@ -173,7 +222,9 @@ public :
             cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
-            p_solver->SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
+            cellmech_model.RunDoNotUpdate(current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
+            cellmech_model.UpdateStateVariables();
+
 
             // IF electrophy model has CaTrop, get CaTrop from
             // cellular mechanics models and send to electrophy model
@@ -281,7 +332,9 @@ public :
             cellmech_model.SetInputParameters(input_parameters);
 
             // solve the cellular mechanics model
-            p_solver->SolveAndUpdateStateVariable(&cellmech_model, current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
+            cellmech_model.RunDoNotUpdate(current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
+            cellmech_model.UpdateStateVariables();
+
 
             // IF electrophy model has CaTrop, get CaTrop from
             // cellular mechanics models and send to electrophy model
@@ -347,8 +400,6 @@ public :
 
         while(!stepper.IsTimeAtEnd())
         {
-            input_params.time = stepper.GetTime();
-            
             // specify a step-change voltage since this model gets activated at V=0 and deactivated at V=-70
             if( (stepper.GetTime()>100) && (stepper.GetTime()<600) )
             {
@@ -360,7 +411,8 @@ public :
             }
             kerchoffs_model.SetInputParameters(input_params);
                 
-            euler_solver.SolveAndUpdateStateVariable(&kerchoffs_model, stepper.GetTime(), stepper.GetNextTime(), 0.01);
+            kerchoffs_model.RunDoNotUpdate(stepper.GetTime(), stepper.GetNextTime(), 0.01);
+            kerchoffs_model.UpdateStateVariables();
 
             times.push_back(stepper.GetTime());
             active_tensions.push_back(kerchoffs_model.GetActiveTension());
@@ -403,8 +455,6 @@ public :
 
         while(!stepper.IsTimeAtEnd())
         {
-            input_params.time = stepper.GetTime();
-            
             // specify a step-change voltage since this model gets activated at V=0 and deactivated at V=-70
             if( (stepper.GetTime()>0) && (stepper.GetTime()<500) )
             {
@@ -421,7 +471,8 @@ public :
                          
             kerchoffs_model.SetStretch(stretch);
                 
-            euler_solver.SolveAndUpdateStateVariable(&kerchoffs_model, stepper.GetTime(), stepper.GetNextTime(), 0.01);
+            kerchoffs_model.RunDoNotUpdate(stepper.GetTime(), stepper.GetNextTime(), 0.01);
+            kerchoffs_model.UpdateStateVariables();
 
             times.push_back(stepper.GetTime());
             stretches.push_back(stretch);
@@ -436,13 +487,13 @@ public :
         data.push_back(active_tensions);
         SimpleDataWriter writer("TestKerchoffContractionModel", "linear_lam.dat", data, false);
         
-        // visualise to verify validity..
+        // visualise to verify validity.. // EMTODO
 
-        // hardcoded test, somewhere near the two peaks        
+        // hardcoded test, somewhere near the two peaks       
         TS_ASSERT_DELTA(times[100], 100, 1e-2);
-        TS_ASSERT_DELTA(active_tensions[100], 16.9458, 1e-2);
+        TS_ASSERT_DELTA(active_tensions[100], 17.0696, 1e-2);
         TS_ASSERT_DELTA(times[250], 250, 1e-2);
-        TS_ASSERT_DELTA(active_tensions[250], 3.4358,  1e-2);
+        TS_ASSERT_DELTA(active_tensions[250], 3.3597,  1e-2);
 
         TS_ASSERT_DELTA(active_tensions[active_tensions.back()], 0.0,  1e-2);
     }

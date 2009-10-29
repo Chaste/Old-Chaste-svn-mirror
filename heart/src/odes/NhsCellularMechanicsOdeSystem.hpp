@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Reference: S.A. Niederer, N.P. Smith, P.J. Hunter, "New developments in a strongly
  *  coupled cardiac electro-mechanical model" Europace 7, S118-S127
  *
- *  THE ACTIVE TENSION IS RETURNED IN KILOPASCALS!!
+ *  The active tension is returned in KPa.
  */
 class NhsCellularMechanicsOdeSystem  : public AbstractOdeBasedContractionModel
 {
@@ -194,6 +194,17 @@ public :
      *  Get the active tension, which is a function of the constants and current state variables. KILOPASCALS
      */
     double GetActiveTension();
+
+    /**
+     *  GetNextActiveTension() normally returns the active tension corresponding to the state variables
+     *  that have been computed in RunDoNotUpdate. However, this only applies to when an implicit cardiac
+     *  mechanics solver is used, in which case the NhsSystemWithImplicitSolver should be used.
+     */
+    double GetNextActiveTension()
+    {
+        EXCEPTION("If using this in an 'explicit manner' call UpdateStateVariables() and then GetActiveTension(), otherwise use NhsSystemWithImplicitSolver");
+    }
+
 
     /**
      *  Get the current stretch rate

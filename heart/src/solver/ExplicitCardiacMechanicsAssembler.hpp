@@ -31,9 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacMechanicsAssembler.hpp"
 #include "NhsCellularMechanicsOdeSystem.hpp"
-#include "EulerIvpOdeSolver.hpp"
-#include "AbstractOdeBasedContractionModel.hpp"
+#include "AbstractContractionModel.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
+#include "NonPhysiologicalContractionModel.hpp"
 
 
 /**
@@ -57,7 +57,7 @@ private:
     /**
      *  Vector of contraction model (pointers). One for each quadrature point.
      */
-    std::vector<AbstractOdeBasedContractionModel*> mContractionModelSystems;
+    std::vector<AbstractContractionModel*> mContractionModelSystems;
     
     /**
      *  Stored stretches (in fibre direction, at each quadrature point) from the 
@@ -126,16 +126,20 @@ public:
     {
         switch(contractionModel)
         {
-            //case NASH2004:
-            //{
-            //    mContractionModelSystems.resize(this->mTotalQuadPoints, new Nash2004ContractionModel());
-            //    break;
-            //}
+            case TEST1:
+            {
+                for(unsigned i=0; i<this->mTotalQuadPoints; i++)
+                {
+                    mContractionModelSystems.push_back(new NonPhysiologicalContractionModel(1));
+                }
+                break;
+            }
             case KERCHOFFS2003: //stretch dependent, will this work with explicit??
             {
                 for(unsigned i=0; i<this->mTotalQuadPoints; i++)
                 {
-                    mContractionModelSystems.push_back(new Kerchoffs2003ContractionModel());
+                    Kerchoffs2003ContractionModel* p_model = new Kerchoffs2003ContractionModel();
+                    mContractionModelSystems.push_back(p_model);
                 }
                 break;
             }
@@ -156,32 +160,29 @@ public:
     {        
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
-            delete mContractionModelSystems[i];
+            //// memory leak as this is commented out. But get glibc failure with it in... (EMTODO)
+            //delete mContractionModelSystems[i];
         }
     }        
         
 
     /**
-     *  Set the intracellular Calcium concentrations and voltages at each quad point, and the current time.
+     *  Set the intracellular Calcium concentrations and voltages at each quad point.
      * 
      *  This explicit solver (for contraction models which are NOT functions of stretch) can then
      *  integrate the contraction models to get the active tension, although this is done in Solve.
      * 
      *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
      *  @param rVoltages Reference to a vector of voltages at each quadrature point
-     *  @param time Current time
      */
 
-    void SetCalciumVoltageAndTime(std::vector<double>& rCalciumConcentrations, 
-                                  std::vector<double>& rVoltages,
-                                  double time)
+    void SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
+                              std::vector<double>& rVoltages)
     {
         assert(rCalciumConcentrations.size()==mContractionModelSystems.size());
         assert(rVoltages.size()==mContractionModelSystems.size());
 
         ContractionModelInputParameters input_parameters;
-
-        input_parameters.time = time;
         
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
@@ -214,11 +215,11 @@ public:
         this->AssembleSystem(true,false);
                 
         // integrate contraction models
-        EulerIvpOdeSolver euler_solver;
         for(unsigned i=0; i<mContractionModelSystems.size(); i++)
         {
             mContractionModelSystems[i]->SetStretchAndStretchRate(mStretches[i], 0.0);
-            euler_solver.SolveAndUpdateStateVariable(mContractionModelSystems[i], time, nextTime, odeTimestep);
+            mContractionModelSystems[i]->RunDoNotUpdate(time, nextTime, odeTimestep);
+            mContractionModelSystems[i]->UpdateStateVariables();
         }   
         
         // solve
