@@ -27,9 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "Kerchoffs2003ContractionModel.hpp"
+#include "NhsModelWithImplicitSolver.hpp"
 
 template<unsigned DIM>
 ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
+                                  ContractionModel contractionModel,
                                   QuadraticMesh<DIM>* pQuadMesh,
                                   std::string outputDirectory,
                                   std::vector<unsigned>& rFixedNodes,
@@ -39,41 +42,51 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
                                              rFixedNodes,
                                              pMaterialLaw)
 {
+    switch(contractionModel)
+    {
+        case NHS:
+        {
+            for(unsigned i=0; i<this->mTotalQuadPoints; i++)
+            {
+                this->mContractionModelSystems.push_back(new NhsModelWithImplicitSolver);
+            }
+            break;
+        }
+        case KERCHOFFS2003: //stretch dependent
+        {
+            assert(0);
+            for(unsigned i=0; i<this->mTotalQuadPoints; i++)
+            {
+                Kerchoffs2003ContractionModel* p_model = new Kerchoffs2003ContractionModel();
+                this->mContractionModelSystems.push_back(p_model);
+            }
+            break;
+        }
+        default:
+        {
+            EXCEPTION("Unknown or stretch-rate-dependent contraction model");
+        } 
+    }
+
     // initialise stores
-    mLambda.resize(this->mTotalQuadPoints, 1.0);
-    mLambdaLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
-    mCellMechSystems.resize(this->mTotalQuadPoints);
+    mStretchesLastTimeStep.resize(this->mTotalQuadPoints, 1.0);
 }
 
 template<unsigned DIM>
 ImplicitCardiacMechanicsAssembler<DIM>::~ImplicitCardiacMechanicsAssembler()
 {
-}
-
-
-template<unsigned DIM>
-void ImplicitCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
-                                                                  std::vector<double>& rVoltages)
-                                        
-{
-    assert(rCalciumConcentrations.size() == this->mTotalQuadPoints);
-    assert(rVoltages.size() == this->mTotalQuadPoints);
-
-    ContractionModelInputParameters input_parameters;
-    
-    for(unsigned i=0; i<rCalciumConcentrations.size(); i++)
+    for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
-        input_parameters.intracellularCalciumConcentration = rCalciumConcentrations[i];
-        input_parameters.voltage = rVoltages[i];
-        
-        mCellMechSystems[i].SetInputParameters(input_parameters);
+        //// memory leak as this is commented out. But get glibc failure with it in... (EMTODO2)
+        //delete this->mContractionModelSystems[i];
     }
 }
 
+
 template<unsigned DIM>
-std::vector<double>& ImplicitCardiacMechanicsAssembler<DIM>::rGetLambda()
+std::vector<double>& ImplicitCardiacMechanicsAssembler<DIM>::rGetFibreStretches()
 {
-    return mLambda;
+    return this->mStretches;
 }
 
 
@@ -96,10 +109,10 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
 
     // now update state variables, and set lambda at last timestep. Note
     // lambda was set in AssembleOnElement
-    for(unsigned i=0; i<mCellMechSystems.size(); i++)
+    for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
-         mCellMechSystems[i].UpdateStateVariables();
-         mLambdaLastTimeStep[i] = mLambda[i];
+         this->mContractionModelSystems[i]->UpdateStateVariables();
+         mStretchesLastTimeStep[i] = this->mStretches[i];
     }
 }
 
@@ -114,21 +127,21 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
                                                                               double& rDerivActiveTensionWrtDLambdaDt)
 {
     // save this fibre stretch
-    mLambda[currentQuadPointGlobalIndex] = currentFibreStretch;
+    this->mStretches[currentQuadPointGlobalIndex] = currentFibreStretch;
 
     // compute dlam/dt
-    double dlam_dt = (currentFibreStretch-mLambdaLastTimeStep[currentQuadPointGlobalIndex])/(this->mNextTime-this->mCurrentTime);
+    double dlam_dt = (currentFibreStretch-mStretchesLastTimeStep[currentQuadPointGlobalIndex])/(this->mNextTime-this->mCurrentTime);
 
-    NhsModelWithImplicitSolver& r_contraction_model = mCellMechSystems[currentQuadPointGlobalIndex];
+    AbstractContractionModel* p_contraction_model = this->mContractionModelSystems[currentQuadPointGlobalIndex];
 
     // Set this stretch and stretch rate
-    r_contraction_model.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
+    p_contraction_model->SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
 
     // Call RunDoNotUpdate() on the contraction model to solve it using this stretch, and get the active tension
     try
     {
-        r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        rActiveTension = r_contraction_model.GetNextActiveTension();
+        p_contraction_model->RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        rActiveTension = p_contraction_model->GetNextActiveTension();
     }
     catch (Exception& e)
     {
@@ -152,15 +165,15 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
     {
         // get active tension for (lam+h,dlamdt)
         double h1 = std::max(1e-6, currentFibreStretch/100);
-        r_contraction_model.SetStretchAndStretchRate(currentFibreStretch+h1, dlam_dt);
-        r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_lam_plus_h = r_contraction_model.GetNextActiveTension();
+        p_contraction_model->SetStretchAndStretchRate(currentFibreStretch+h1, dlam_dt);
+        p_contraction_model->RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_lam_plus_h = p_contraction_model->GetNextActiveTension();
 
         // get active tension for (lam,dlamdt+h)
         double h2 = std::max(1e-6, dlam_dt/100);
-        r_contraction_model.SetStretchAndStretchRate(currentFibreStretch, dlam_dt+h2);
-        r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-        double active_tension_at_dlamdt_plus_h = r_contraction_model.GetNextActiveTension();
+        p_contraction_model->SetStretchAndStretchRate(currentFibreStretch, dlam_dt+h2);
+        p_contraction_model->RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+        double active_tension_at_dlamdt_plus_h = p_contraction_model->GetNextActiveTension();
 
         rDerivActiveTensionWrtLambda = (active_tension_at_lam_plus_h - rActiveTension)/h1;
         rDerivActiveTensionWrtDLambdaDt = (active_tension_at_dlamdt_plus_h - rActiveTension)/h2;
@@ -174,10 +187,10 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
     //  -- The SetActiveTensionInitialGuess() would make this very fast
     //     (compared to AssembleSystem(true,false) above), but the NHS class uses the last
     //     active tension as the initial guess anyway..
-    //r_contraction_model.SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
-    //r_contraction_model.SetActiveTensionInitialGuess(rActiveTension);
-    //r_contraction_model.RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
-    //assert( fabs(r_contraction_model.GetNextActiveTension()-rActiveTension)<1e-8);
+    //p_contraction_model->SetStretchAndStretchRate(currentFibreStretch, dlam_dt);
+    //p_contraction_model->SetActiveTensionInitialGuess(rActiveTension);   // this line would now need a cast
+    //p_contraction_model->RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
+    //assert( fabs(p_contraction_model->GetNextActiveTension()-rActiveTension)<1e-8);
 }    
 
 

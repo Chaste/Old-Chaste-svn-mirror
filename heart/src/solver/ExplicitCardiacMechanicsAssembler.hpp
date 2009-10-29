@@ -53,17 +53,6 @@ class ExplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembl
 friend class TestExplicitCardiacMechanicsAssembler;
 
 private:
-    /**
-     *  Vector of contraction model (pointers). One for each quadrature point.
-     */
-    std::vector<AbstractContractionModel*> mContractionModelSystems;
-    
-    /**
-     *  Stored stretches (in fibre direction, at each quadrature point) from the 
-     *  previous timestep, to pass to contraction models if needed.
-     */
-    std::vector<double> mStretches;
-
     /** This solver is an explicit solver (overloaded pure method) */
     bool IsImplicitSolver()
     {
@@ -87,20 +76,7 @@ private:
                                           bool assembleJacobian,
                                           double& rActiveTension,
                                           double& rDerivActiveTensionWrtLambda,
-                                          double& rDerivActiveTensionWrtDLambdaDt)
-    {
-        // the active tensions have already been computed for each contraction model, so can 
-        // return it straightaway..
-        rActiveTension = mContractionModelSystems[currentQuadPointGlobalIndex]->GetActiveTension();
-
-        // these are unset
-        rDerivActiveTensionWrtLambda = 0.0;
-        rDerivActiveTensionWrtDLambdaDt = 0.0;
-
-        // store the value of given for this quad point, so that it can be used when computing 
-        // the active tension at the next timestep
-        mStretches[currentQuadPointGlobalIndex] = currentFibreStretch;
-    }
+                                          double& rDerivActiveTensionWrtDLambdaDt);
 
 public:
     /**
@@ -117,79 +93,13 @@ public:
                                       QuadraticMesh<DIM>* pQuadMesh,
                                       std::string outputDirectory,
                                       std::vector<unsigned>& rFixedNodes,
-                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL)
-        : AbstractCardiacMechanicsAssembler<DIM>(pQuadMesh,
-                                                 outputDirectory,
-                                                 rFixedNodes,
-                                                 pMaterialLaw)
-    {
-        switch(contractionModel)
-        {
-            case TEST1:
-            {
-                for(unsigned i=0; i<this->mTotalQuadPoints; i++)
-                {
-                    mContractionModelSystems.push_back(new NonPhysiologicalContractionModel(1));
-                }
-                break;
-            }
-            case KERCHOFFS2003: //stretch dependent, will this work with explicit??
-            {
-                for(unsigned i=0; i<this->mTotalQuadPoints; i++)
-                {
-                    Kerchoffs2003ContractionModel* p_model = new Kerchoffs2003ContractionModel();
-                    mContractionModelSystems.push_back(p_model);
-                }
-                break;
-            }
-            default:
-            {
-                EXCEPTION("Unknown or stretch-rate-dependent contraction model");
-            } 
-        }
-        
-        mStretches.resize(this->mTotalQuadPoints);        
-        assert(!(mContractionModelSystems[0]->IsStretchRateDependent()));
-    }
+                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
     
     /**
      *  Destructor
      */
-    virtual ~ExplicitCardiacMechanicsAssembler()
-    {        
-        for(unsigned i=0; i<mContractionModelSystems.size(); i++)
-        {
-            //// memory leak as this is commented out. But get glibc failure with it in... (EMTODO2)
-            //delete mContractionModelSystems[i];
-        }
-    }        
+    virtual ~ExplicitCardiacMechanicsAssembler();
         
-
-    /**
-     *  Set the intracellular Calcium concentrations and voltages at each quad point.
-     * 
-     *  This explicit solver (for contraction models which are NOT functions of stretch) can then
-     *  integrate the contraction models to get the active tension, although this is done in Solve.
-     * 
-     *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
-     *  @param rVoltages Reference to a vector of voltages at each quadrature point
-     */
-
-    void SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
-                              std::vector<double>& rVoltages)
-    {
-        assert(rCalciumConcentrations.size()==mContractionModelSystems.size());
-        assert(rVoltages.size()==mContractionModelSystems.size());
-
-        ContractionModelInputParameters input_parameters;
-        
-        for(unsigned i=0; i<mContractionModelSystems.size(); i++)
-        {
-            input_parameters.intracellularCalciumConcentration = rCalciumConcentrations[i];
-            input_parameters.voltage = rVoltages[i];
-            mContractionModelSystems[i]->SetInputParameters(input_parameters);
-        }
-    }
     
     /**
      *  Solve for the deformation using quasi-static nonlinear elasticity.
@@ -202,28 +112,7 @@ public:
      *  @param nextTime the next time
      *  @param odeTimestep the ODE timestep
      */
-    void Solve(double time, double nextTime, double odeTimestep)
-    {
-        assert(time < nextTime);
-        this->mCurrentTime = time;
-        this->mNextTime = nextTime;
-        this->mOdeTimestep = odeTimestep;        
-
-        // assemble the residual again so that mStretches is set (in GetActiveTensionAndTensionDerivs)
-        // using the current deformation.
-        this->AssembleSystem(true,false);
-                
-        // integrate contraction models
-        for(unsigned i=0; i<mContractionModelSystems.size(); i++)
-        {
-            mContractionModelSystems[i]->SetStretchAndStretchRate(mStretches[i], 0.0);
-            mContractionModelSystems[i]->RunDoNotUpdate(time, nextTime, odeTimestep);
-            mContractionModelSystems[i]->UpdateStateVariables();
-        }   
-        
-        // solve
-        NonlinearElasticityAssembler<DIM>::Solve();
-    }
+    void Solve(double time, double nextTime, double odeTimestep);
 };
 
 #endif /*EXPLICITCARDIACMECHANICSASSEMBLER_HPP_*/

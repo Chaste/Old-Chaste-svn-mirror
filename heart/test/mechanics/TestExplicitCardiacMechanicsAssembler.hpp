@@ -49,7 +49,6 @@ public:
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
         MooneyRivlinMaterialLaw<2> law(1);
 
-
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 

@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NashHunterPoleZeroLaw.hpp"
 #include "QuadraticBasisFunction.hpp" // not included in NonlinearElasticityAssembler.hpp, just the cpp
 #include "LinearBasisFunction.hpp"
+#include "AbstractContractionModel.hpp"
 
 /**
  *  AbstractCardiacMechanicsAssembler
@@ -49,7 +50,21 @@ protected:
     static const unsigned STENCIL_SIZE = NonlinearElasticityAssembler<DIM>::STENCIL_SIZE;
     static const unsigned NUM_NODES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_NODES_PER_ELEMENT;
     static const unsigned NUM_VERTICES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_VERTICES_PER_ELEMENT;
-    
+
+    /**
+     *  Vector of contraction model (pointers). One for each quadrature point.
+     *  Note the indexing: the i-th entry corresponds to the i-th global quad 
+     *  point, when looping over elements and then quad points 
+     */
+    std::vector<AbstractContractionModel*> mContractionModelSystems;
+
+    /**
+     *  Stored stretches (in fibre direction, at each quadrature point). Should be stored
+     *  when GetActiveTensionAndTensionDerivs() is called, and can be used either in that
+     *  timestep (implicit solver), or the next timestep (explicit solver)
+     */
+    std::vector<double> mStretches;    
+
     /** Total number of quad points in the (mechanics) mesh */
     unsigned mTotalQuadPoints;
 
@@ -144,6 +159,9 @@ public:
         // note that if pMaterialLaw is NULL a new NashHunter law was sent to the
         // NonlinElas constuctor (see above)
         mAllocatedMaterialLawMemory = (pMaterialLaw==NULL);
+        
+        // initialise the store of fibre stretches
+        mStretches.resize(mTotalQuadPoints, 1.0);
     }
 
     /**
@@ -184,8 +202,8 @@ public:
      *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
      *  @param rVoltages Reference to a vector of voltages at each quadrature point
      */
-    virtual void SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
-                                      std::vector<double>& rVoltages)=0;
+    void SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
+                              std::vector<double>& rVoltages);
 
     /**
      *  Solve for the deformation, integrating the contraction model ODEs.
@@ -196,6 +214,27 @@ public:
      */
     virtual void Solve(double time, double nextTime, double odeTimestep)=0;
 };
+
+
+
+template<unsigned DIM>
+void AbstractCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
+                                                                  std::vector<double>& rVoltages)
+                                        
+{
+    assert(rCalciumConcentrations.size() == this->mTotalQuadPoints);
+    assert(rVoltages.size() == this->mTotalQuadPoints);
+
+    ContractionModelInputParameters input_parameters;
+    
+    for(unsigned i=0; i<rCalciumConcentrations.size(); i++)
+    {
+        input_parameters.intracellularCalciumConcentration = rCalciumConcentrations[i];
+        input_parameters.voltage = rVoltages[i];
+        
+        mContractionModelSystems[i]->SetInputParameters(input_parameters);
+    }
+}
 
 
 template<unsigned DIM>

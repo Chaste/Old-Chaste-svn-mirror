@@ -306,10 +306,10 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
             // mpCardiacMechAssembler = new ImplicitKerchoffsCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         case NHS:
-            mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         default:
-            NEVER_REACHED;
+            EXCEPTION("Invalid contraction model, use KECHOFFS2003 or NHS");
     }
 
     // find the element nums and weights for each gauss point in the mechanics mesh

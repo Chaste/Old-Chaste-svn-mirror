@@ -33,8 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacMechanicsAssembler.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include "LinearBasisFunction.hpp"
-#include "NhsModelWithImplicitSolver.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
+#include "AbstractContractionModel.hpp"
 #include "LogFile.hpp"
 #include <cfloat>
 
@@ -53,24 +53,17 @@ class ImplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembl
 friend class TestImplicitCardiacMechanicsAssembler;
 
 private:
-    /**
-     *  The NHS cell systems (with their own implicit solvers, which take in
-     *  [Ca]_i and return Ta. Note the indexing: the i-th entry corresponds to
-     *  the i-th global quad point, when looping over elements and then
-     *  quad points */
-    std::vector<NhsModelWithImplicitSolver> mCellMechSystems;
-
-    /** The stretch ratio (in the fibre direction) at the last timestep.
+    /** The stretch in the fibre direction at the last timestep, in order
+     *  to compute the stretch rate.
      *  Note the indexing: the i-th entry corresponds to the i-th global
      *  quad point, when looping over elements and then quad points
      */
-    std::vector<double> mLambdaLastTimeStep;
+    std::vector<double> mStretchesLastTimeStep;
 
     /** The current stretch ratio (in the fibre direction). Note the indexing:
      *  the i-th entry corresponds to the i-th global quad point, when looping
      *  over elements and then quad points
      */
-    std::vector<double> mLambda;
 
     /** This solver is an implicit solver (overloaded pure method) */
     bool IsImplicitSolver()
@@ -102,13 +95,15 @@ public:
     /**
      * Constructor
      *
+     * @param contractionModel The contraction model.
      * @param pQuadMesh A pointer to the mesh.
      * @param outputDirectory The output directory, relative to TEST_OUTPUT
      * @param rFixedNodes The fixed nodes
      * @param pMaterialLaw The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
-    ImplicitCardiacMechanicsAssembler(QuadraticMesh<DIM>* pQuadMesh,
+    ImplicitCardiacMechanicsAssembler(ContractionModel contractionModel,
+                                      QuadraticMesh<DIM>* pQuadMesh,
                                       std::string outputDirectory,
                                       std::vector<unsigned>& rFixedNodes,
                                       AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
@@ -120,26 +115,13 @@ public:
 
 
     /**
-     *  Set the intracellular Calcium concentrations and voltages at each quad point.
-     * 
-     *  This implicit solver with NHS cells takes in the calcium concentration and solves for the active tension 
-     *  implicitly together with the mechanics.    
-     *  
-     *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
-     *  @param rVoltages Reference to a vector of voltages at each quadrature point
-     */
-
-    void SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
-                              std::vector<double>& rVoltages);
-
-    /**
      *  Get lambda (the stretch ratio).
      *  NOTE: the i-th entry of this vector is assumed to be the i-th quad point
      *  obtained by looping over cells in the obvious way and then looping over
      *  quad points. These quad points, in the same order, can be obtained by
      *  using the QuadraturePointsGroup class.
      */
-    std::vector<double>& rGetLambda();
+    std::vector<double>& rGetFibreStretches();
 
     /**
      *  Solve for the deformation using quasi-static nonlinear elasticity.

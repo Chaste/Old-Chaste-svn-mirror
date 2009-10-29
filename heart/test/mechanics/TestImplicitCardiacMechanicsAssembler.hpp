@@ -52,7 +52,7 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"",fixed_nodes,&law);
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0);
         std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
@@ -114,7 +114,7 @@ public:
         MPI_Barrier(PETSC_COMM_WORLD);
 
         // coverage - test default material law works ok
-        ImplicitCardiacMechanicsAssembler<2> another_assembler(&mesh,"",fixed_nodes);
+        ImplicitCardiacMechanicsAssembler<2> another_assembler(NHS, &mesh,"",fixed_nodes);
         c_matrix<double,2,2> F = zero_matrix<double>(2,2);
         F(0,0)=F(1,1)=1.1;
         double pressure = 1;
@@ -136,7 +136,7 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
 
         TS_ASSERT_EQUALS(assembler.GetTotalNumQuadPoints(), mesh.GetNumElements()*9u);
 
@@ -178,7 +178,7 @@ public:
         fixed_nodes.push_back(1);
         fixed_nodes.push_back(81);
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
         std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
@@ -211,7 +211,7 @@ public:
         fixed_nodes[0] = 0;
         fixed_nodes[1] = 5;
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(&mesh,"ImplicityCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
         QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
 
         std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
@@ -234,7 +234,7 @@ public:
         TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 0.9413, 1e-3);
         TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 1.0582, 1e-3);
 
-        std::vector<double>& lambda = assembler.rGetLambda();
+        std::vector<double>& lambda = assembler.rGetFibreStretches();
 
         // the lambdas should be less than 1 (ie compression), and also
         // should be near the same for any particular value of Y, ie the
