@@ -268,6 +268,8 @@
       <xs:enumeration value="jacobi"/>
       <xs:enumeration value="bjacobi"/>
       <xs:enumeration value="hypre"/>
+      <xs:enumeration value="ml"/>
+      <xs:enumeration value="spai"/>      
       <xs:enumeration value="blockdiagonal"/>
       <xs:enumeration value="ldufactorisation"/>
       <xs:enumeration value="none"/>

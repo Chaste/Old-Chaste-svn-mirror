@@ -516,6 +516,12 @@ public :
         HeartConfig::Instance()->SetKSPPreconditioner("hypre");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "hypre")==0);
 
+        HeartConfig::Instance()->SetKSPPreconditioner("ml");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ml")==0);
+
+        HeartConfig::Instance()->SetKSPPreconditioner("spai");
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "spai")==0);
+
         HeartConfig::Instance()->SetKSPPreconditioner("blockdiagonal");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "blockdiagonal")==0);
 
