@@ -120,6 +120,7 @@ public:
         catch(Exception& e)
         {
             // No stimuli provided
+//assert(0);///\todo #1149
             std::cout << "Warning: No stimuli provided. Simulation will be run anyway." << std::endl;
         }
     
@@ -153,6 +154,7 @@ public:
         {
             if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
             {
+//assert(0);///\todo #1149
                 ionic_model = mIonicModelsDefined[ionic_model_region_index];
                 break;
             }
@@ -192,6 +194,7 @@ public:
 
             case(cp::ionic_models_available_type::tenTusscher2006):
             {
+//assert(0);///\todo #1149
                 TenTusscher2006OdeSystem*  p_tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
 
                 for (unsigned ht_index = 0;
@@ -218,6 +221,7 @@ public:
 
             case(cp::ionic_models_available_type::FaberRudy2000):
             {
+//assert(0);///\todo #1149
                 FaberRudy2000Version3*  p_faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
 
                 for (unsigned ht_index = 0;
@@ -244,7 +248,8 @@ public:
 
             default:
             {
-                EXCEPTION("Unknown ionic model!!!");
+               NEVER_REACHED;//If the ionic model is not in the current enumeration then the XML parser will have picked it up before now!
+               //EXCEPTION("Unknown ionic model!!!");
             }
         }
 
@@ -297,10 +302,6 @@ private:
      * Values will be ignored, though.
      */
      
-    /** Domain type, 'Mono' or 'Bi' in the xml */
-    cp::domain_type mDomain;
-    /** Space dimension (1,2 or 3) */
-    unsigned mSpaceDimension;
     
     /**
      * Read parameters from the HeartConfig XML file.
@@ -319,6 +320,7 @@ private:
         {
             if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
             {
+//assert(0);///\todo #1149
                 // Try using the schema location given in the XML
                 HeartConfig::Instance()->Reset();
                 HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
@@ -326,21 +328,9 @@ private:
             }
             else
             {
-                throw;
+//assert(0);///\todo #1149
+                throw e;
             }
-        }
-    
-    
-        if (HeartConfig::Instance()->IsSimulationDefined())
-        {
-            mDomain = HeartConfig::Instance()->GetDomain();
-            mSpaceDimension = HeartConfig::Instance()->GetSpaceDimension();
-
-        }
-        else
-        {
-            mDomain = HeartConfig::Instance()->GetDomain();
-            mSpaceDimension = HeartConfig::Instance()->GetSpaceDimension();
         }
     }
     
@@ -350,12 +340,11 @@ private:
     void Run()
     {
 //// TODO: remember to #include PetscArguments in executable, and #include PetscSetupAndFinalize in tests (as usual)
-        
-        switch(mDomain)
+        switch(HeartConfig::Instance()->GetDomain())
         {
             case cp::domain_type::Mono :
             {
-                switch (mSpaceDimension)
+                switch (HeartConfig::Instance()->GetSpaceDimension())
                 {
                     case 3:
                     {
@@ -372,6 +361,7 @@ private:
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
+//assert(0);///\todo #1149
                             p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
                         }
 
@@ -379,6 +369,7 @@ private:
 
                         if (HeartConfig::Instance()->GetSaveSimulation())
                         {
+//assert(0);///\todo #1149
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
                             CardiacSimulationArchiver<MonodomainProblem<3> >::Save(*p_mono_problem, directory.str(), false);
@@ -427,6 +418,7 @@ private:
                         
                         if (HeartConfig::Instance()->IsSimulationDefined())
                         {
+//assert(0);///\todo #1149
                             HeartConfigRelatedCellFactory<1> cell_factory;
                             p_mono_problem = new MonodomainProblem<1>(&cell_factory);
     
@@ -436,6 +428,7 @@ private:
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
+//assert(0);///\todo #1149
                             p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<1> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
                         }
 
@@ -453,14 +446,14 @@ private:
                         break;
                     }
                     default :
-                        EXCEPTION("Space dimension not supported: should be 1, 2 or 3");
+                        EXCEPTION("Monodomain space dimension not supported: should be 1, 2 or 3");
                 }
                 break;
             }
 
             case cp::domain_type::Bi :
             {
-                switch (mSpaceDimension)
+                switch (HeartConfig::Instance()->GetSpaceDimension())
                 {
                     case 3:
                     {
@@ -499,6 +492,7 @@ private:
                         
                         if (HeartConfig::Instance()->IsSimulationDefined())
                         {
+//assert(0);///\todo #1149
                             HeartConfigRelatedCellFactory<2> cell_factory;
                             p_bi_problem = new BidomainProblem<2>(&cell_factory);
     
@@ -508,6 +502,7 @@ private:
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
+//assert(0);///\todo #1149
                             p_bi_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
                         }
 
@@ -530,6 +525,7 @@ private:
                         
                         if (HeartConfig::Instance()->IsSimulationDefined())
                         {
+//assert(0);///\todo #1149
                             HeartConfigRelatedCellFactory<1> cell_factory;
                             p_bi_problem = new BidomainProblem<1>(&cell_factory);
     
@@ -539,6 +535,7 @@ private:
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
+//assert(0);///\todo #1149
                             p_bi_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
                         }
 
@@ -556,14 +553,14 @@ private:
                     }
                     default :
                     {
-                        EXCEPTION("Space dimension not supported: should be 1, 2 or 3");
+                        EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
                     }
                 }
                 break;
             }
             default :
             {
-                EXCEPTION("Unknown domain type: should be 'Mono' or 'Bi'");
+                NEVER_REACHED;//If the domain is not set correctly then the XML parser will have picked it up before now!
             }
         }
 
@@ -578,13 +575,16 @@ public:
      * 
      * This also runs the simulation immediately.
      * 
-     * @param parameterFileName  The name of the chaste parameters xml file to run a simulation with
+     * @param parameterFileName  The name of the chaste parameters xml file to use to run a simulation (not mandatory since HeartConfig may be set by hand)
      */
-    CardiacSimulation(std::string parameterFileName)
-        : mDomain(cp::domain_type::Mono),
-          mSpaceDimension(3u)
+    CardiacSimulation(std::string parameterFileName="")
     {
-        ReadParametersFromFile(parameterFileName);
+        //If we have been passed an XML file then parse the XML file, otherwise assume that 
+        //HeartConfig is ready to use
+        if (parameterFileName != "")
+        {
+            ReadParametersFromFile(parameterFileName);
+        }
         Run();
     }    
   

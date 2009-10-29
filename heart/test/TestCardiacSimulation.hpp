@@ -117,6 +117,7 @@ public:
     void TestCardiacSimulationResumeBidomain() throw(Exception)
     {
         // run a bidomain simulation
+        HeartConfig::Instance()->SetSpaceDimension(1);
         CardiacSimulation simulation("heart/test/data/xml/resume_bidomain_short.xml");
         std::string foldername = "SaveBidomainShort";
         
@@ -125,7 +126,14 @@ public:
                    foldername, "SimulationResults", true));
     }
     
-    
+    void TestExceptions() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSpaceDimension(8); //Electro-physio-super-string
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation, "Bidomain space dimension not supported: should be 1, 2 or 3");
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation, "Monodomain space dimension not supported: should be 1, 2 or 3");
+        
+    }
 };
 
 #endif /*TESTCARDIACSIMULATION_HPP_*/

@@ -143,7 +143,7 @@ class BuildType(object):
         elif status == 'MPI':
             return 'MPI semaphore error'
         else:
-            return status.replace('_', '/') + ' tests failed'
+            return status.replace('_', '/') + ' tests failed (RED)'
 
     def EncodeStatus(self, exitCode, logFile):
         """Encode the output from a test program as a status string.
@@ -379,7 +379,7 @@ class Coverage(GccDebug):
             if status.startswith('warn_'):
                 s = s + status[5:].replace('_', '/') + " lines 'spuriously' uncovered"
             else:
-                s = s + status.replace('_', '/') + ' lines marked uncovered'
+                s = s + status.replace('_', '/') + ' lines marked uncovered (RED)'
         return s
 
     def StatusColour(self, status):
@@ -410,7 +410,7 @@ class DoxygenCoverage(GccDebug):
             if status.startswith('warn_'):
                 s = s + status[5:].split('_')[0] + " Doxygen warnings"
             else:
-                s = s + status.split('_')[0] + ' Doxygen errors'
+                s = s + status.split('_')[0] + ' Doxygen errors (RED)'
         return s
     
     def GetTestRunnerCommand(self, exefile, exeflags=''):
@@ -528,7 +528,7 @@ class GoogleProfile(GccDebug):
         """
         ret = ''
         if status[-5:] == '_prof':
-            ret = 'Profiler failed. '
+            ret = 'Profiler failed.  (RED)'
             status = status[:-5]
         return ret + super(GoogleProfile, self).DisplayStatus(status)
 
@@ -632,7 +632,7 @@ class MemoryTesting(GccDebug):
         elif status == 'Warn':
             return 'Possible leak found'
         else:
-            return 'Memory leaks found'
+            return 'Memory leaks found (RED)'
 
     def EncodeStatus(self, exitCode, logFile, outputLines=None):
         """
@@ -908,7 +908,7 @@ class FleMemoryTesting(FleDebug):
         elif status == 'Warn':
             return 'Possible leak found'
         else:
-            return 'Memory leaks found'
+            return 'Memory leaks found (RED)'
 
     def EncodeStatus(self, exitCode, logFile, outputLines=None):
         """
