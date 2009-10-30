@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ExponentialMaterialLaw.hpp"
 #include "PolynomialMaterialLaw3d.hpp"
 #include "PoleZeroMaterialLaw.hpp"
-//#include "PoleZero3dIn1dLaw.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
 #include "SchmidCostaExponentialLaw2d.hpp"
 #include <cassert>
@@ -710,6 +709,9 @@ public:
         // the correct magnitude, which is dependent on whether the params
         // have been entered a Pa or KPa)
         TS_ASSERT_DELTA(T(0,0),2.0902,1e-3);
+        
+        C(0,0) = 10;
+        TS_ASSERT_THROWS_CONTAINS(law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true), "strain unacceptably large");
     }
 
     void TestDerivateInPoleZeroLaw2d() throw(Exception)

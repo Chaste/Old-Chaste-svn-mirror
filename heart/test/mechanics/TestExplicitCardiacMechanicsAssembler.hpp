@@ -45,7 +45,7 @@ class TestExplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
 public:
     void TestWithSimpleContractionModel() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // unlike above tests, this one doesn't pass in parallel (only written for sequential)
+        EXIT_IF_PARALLEL; 
 
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
         MooneyRivlinMaterialLaw<2> law(1);
@@ -78,6 +78,8 @@ public:
     // are identical 
     void TestCompareImplicitAndExplicitWithStretchIndependentContractionModel() throw(Exception)
     {
+        EXIT_IF_PARALLEL; 
+        
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
 
         MooneyRivlinMaterialLaw<2> law(1);
@@ -107,6 +109,8 @@ public:
     // with stretch-dependent contraction models the implicit and explicit schemes can be similar 
     void TestCompareImplicitAndExplicitWithStretchDependentContractionModel() throw(Exception)
     {
+        EXIT_IF_PARALLEL; 
+
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
 
         MooneyRivlinMaterialLaw<2> law(1);

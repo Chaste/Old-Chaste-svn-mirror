@@ -461,13 +461,15 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     }
     catch(Exception& e)
     {
-        NEVER_REACHED;//norm_resid = DBL_MAX;
+        NEVER_REACHED;
+        //norm_resid = DBL_MAX;
     }
 
     std::cout << "\tTesting s = " << damping_values[index] << ", |f| = ";
     if(norm_resid==DBL_MAX)
     {
-        NEVER_REACHED;//std::cout << "undefined\n" << std::flush;
+        NEVER_REACHED;
+        //std::cout << "undefined\n" << std::flush;
     }
     else
     {
@@ -500,13 +502,15 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
         }
         catch(Exception& e)
         {
-            NEVER_REACHED;//next_norm_resid = DBL_MAX;
+            NEVER_REACHED;
+            //next_norm_resid = DBL_MAX;
         }
         
         std::cout << "\tTesting s = " << damping_values[index] << ", |f| = ";
         if(next_norm_resid==DBL_MAX)
         {
-            NEVER_REACHED;//std::cout << "undefined\n" << std::flush;
+            NEVER_REACHED;
+            //std::cout << "undefined\n" << std::flush;
         }
         else
         {
