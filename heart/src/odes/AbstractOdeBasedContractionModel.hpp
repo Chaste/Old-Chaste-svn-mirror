@@ -73,7 +73,7 @@ public:
      * 
      *  @param startTime start time
      *  @param endTime end time
-     *  @param timestep timestep for integrating ODEs
+     *  @param timeStep timestep for integrating ODEs
      */
     virtual void RunDoNotUpdate(double startTime, double endTime, double timeStep)
     {

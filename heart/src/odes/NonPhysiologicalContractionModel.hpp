@@ -61,8 +61,8 @@ public:
     void SetInputParameters(ContractionModelInputParameters& rInputParameters);
     
     /** Set the fibre stretch and stretch-rate (only stretch is used)
-     *  @stretch stretch in the fibre direction
-     *  @stretchRate rate of change of stretch in the fibre direction (not used in this model).
+     *  @param stretch stretch in the fibre direction
+     *  @param stretchRate rate of change of stretch in the fibre direction (not used in this model).
      */
     void SetStretchAndStretchRate(double stretch, double stretchRate);
     

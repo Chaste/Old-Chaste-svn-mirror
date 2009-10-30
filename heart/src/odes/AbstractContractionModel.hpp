@@ -110,9 +110,9 @@ public:
      *  Run the contraction (ie if an ODE system) between the given times. This should NOT update any
      *  state variables. Call UpdateStateVariables() afterwards to update
      * 
-     *  @startTime start time
-     *  @endTime end time
-     *  @timestep timestep to use in ODE solving.
+     *  @param startTime start time
+     *  @param endTime end time
+     *  @param timestep timestep to use in ODE solving.
      */    
     virtual void RunDoNotUpdate(double startTime, double endTime, double timeStep)=0;
 
