@@ -72,6 +72,10 @@ public:
     {
     }
     
+    virtual ~AbstractContractionModel()
+    {
+    }
+    
     /** 
      *  Does the model depend on the stretch. (Pure, to be implemented in the concrete class).
      */
