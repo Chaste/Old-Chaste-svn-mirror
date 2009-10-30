@@ -39,7 +39,45 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacSimulation : public CxxTest::TestSuite
 {
 public:
-    void TestCardiacSimulationConstructor() throw(Exception)
+    void TestCardiacSimulationNoXmlConstructorNoStim() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.05);
+        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetPdeTimeStep(), 0.01);
+        HeartConfig::Instance()->SetSimulationDuration(0.01);
+        CardiacSimulation simulation;
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "no_stim", false,
+                   "ChasteResults", "SimulationResults", true));
+        HeartConfig::Instance()->Reset();
+    }
+
+    void TestMono1dNoStim() throw(Exception)
+    {
+        HeartConfig::Instance()->SetFibreLength(0.1, 0.05);
+        HeartConfig::Instance()->SetSimulationDuration(0.01);
+        HeartConfig::Instance()->SetSpaceDimension(1);
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
+        CardiacSimulation simulation;
+        HeartConfig::Instance()->Reset();
+    }    
+    void TestMono2dNoStim() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSheetDimensions(0.1, 0.1, 0.05);
+        HeartConfig::Instance()->SetSimulationDuration(0.01);
+        HeartConfig::Instance()->SetSpaceDimension(2);
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
+        CardiacSimulation simulation;
+        HeartConfig::Instance()->Reset();
+    }    
+    void TestMono3dNoStim() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.05);
+        HeartConfig::Instance()->SetSimulationDuration(0.01);
+        HeartConfig::Instance()->SetSpaceDimension(3);
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
+        CardiacSimulation simulation;
+        HeartConfig::Instance()->Reset();
+    }    
+    void TestCardiacSimulationBasicBidomainShort() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/base_bidomain_short.xml");

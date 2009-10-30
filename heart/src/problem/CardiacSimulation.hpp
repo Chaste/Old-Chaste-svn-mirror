@@ -120,7 +120,6 @@ public:
         catch(Exception& e)
         {
             // No stimuli provided
-//assert(0);///\todo #1149
             std::cout << "Warning: No stimuli provided. Simulation will be run anyway." << std::endl;
         }
     
@@ -155,6 +154,9 @@ public:
             if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
             {
 //assert(0);///\todo #1149
+
+//It would be good for HeartConfig to have 
+//SetIonicModelRegions to cover this and the list below!
                 ionic_model = mIonicModelsDefined[ionic_model_region_index];
                 break;
             }
@@ -418,7 +420,6 @@ private:
                         
                         if (HeartConfig::Instance()->IsSimulationDefined())
                         {
-//assert(0);///\todo #1149
                             HeartConfigRelatedCellFactory<1> cell_factory;
                             p_mono_problem = new MonodomainProblem<1>(&cell_factory);
     

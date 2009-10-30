@@ -116,7 +116,7 @@ public:
      * 
      *  @param startTime start time
      *  @param endTime end time
-     *  @param timestep timestep to use in ODE solving.
+     *  @param timeStep timestep to use in ODE solving.
      */    
     virtual void RunDoNotUpdate(double startTime, double endTime, double timeStep)=0;
 
