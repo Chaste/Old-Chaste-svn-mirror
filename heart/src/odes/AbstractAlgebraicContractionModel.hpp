@@ -49,6 +49,7 @@ public:
     AbstractAlgebraicContractionModel()
      : AbstractContractionModel()
     {
+        mTime = 0.0;
     }
 
     /** No ODE to run, so this does nothing except save the time (using the
