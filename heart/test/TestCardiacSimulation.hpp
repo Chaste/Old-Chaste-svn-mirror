@@ -42,6 +42,7 @@ public:
     void TestCardiacSimulationNoXmlConstructorNoStim() throw(Exception)
     {
         HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.05);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-2);
         TS_ASSERT_EQUALS( HeartConfig::Instance()->GetPdeTimeStep(), 0.01);
         HeartConfig::Instance()->SetSimulationDuration(0.01);
         CardiacSimulation simulation;
