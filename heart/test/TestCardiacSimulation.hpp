@@ -75,9 +75,40 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(0.01);
         HeartConfig::Instance()->SetSpaceDimension(3);
         HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
+        HeartConfig::Instance()->SetOutputDirectory("Mono3dNoStim");
+        HeartConfig::Instance()->SetSaveSimulation(true);
         CardiacSimulation simulation;
         HeartConfig::Instance()->Reset();
     }    
+
+    void TestBi1dNoStim() throw(Exception)
+    {
+        HeartConfig::Instance()->SetFibreLength(0.1, 0.05);
+        HeartConfig::Instance()->SetSimulationDuration(0.01);
+        HeartConfig::Instance()->SetSpaceDimension(1);
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Bi);
+        CardiacSimulation simulation;
+        HeartConfig::Instance()->Reset();
+    }    
+    void TestBi2dNoStim() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSheetDimensions(0.1, 0.1, 0.05);
+        HeartConfig::Instance()->SetSimulationDuration(0.01);
+        HeartConfig::Instance()->SetSpaceDimension(2);
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Bi);
+        CardiacSimulation simulation;
+        HeartConfig::Instance()->Reset();
+    }    
+    void TestBi3dNoStim() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.05);
+        HeartConfig::Instance()->SetSimulationDuration(0.01);
+        HeartConfig::Instance()->SetSpaceDimension(3);
+        HeartConfig::Instance()->SetDomain(cp::domain_type::Bi);
+        CardiacSimulation simulation;
+        HeartConfig::Instance()->Reset();
+    }    
+
     void TestCardiacSimulationBasicBidomainShort() throw(Exception)
     {
         // run a bidomain simulation
@@ -96,6 +127,16 @@ public:
         
        // compare the files, using the CompareFilesViaHdf5DataReader() method  
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_monodomain_short_results", false,
+                   foldername, "SimulationResults", true));
+    }
+   void TestCardiacSimulationPatchwork() throw(Exception)
+    {
+        // run a bidomain simulation
+        CardiacSimulation simulation("heart/test/data/xml/base_monodomain_patchwork.xml");
+        std::string foldername = "Patchwork";
+        
+       // compare the files, using the CompareFilesViaHdf5DataReader() method  
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
                    foldername, "SimulationResults", true));
     }
     
@@ -172,6 +213,7 @@ public:
         HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation, "Monodomain space dimension not supported: should be 1, 2 or 3");
         
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("no file"),"Missing file parsing configuration file: no file");
     }
 };
 

@@ -153,10 +153,6 @@ public:
         {
             if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
             {
-//assert(0);///\todo #1149
-
-//It would be good for HeartConfig to have 
-//SetIonicModelRegions to cover this and the list below!
                 ionic_model = mIonicModelsDefined[ionic_model_region_index];
                 break;
             }
@@ -203,6 +199,7 @@ public:
                      ht_index < mCellHeterogeneityAreas.size();
                      ++ht_index)
                 {
+//assert(0);///\todo #1149
                     if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
                     {
                         p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
@@ -223,13 +220,13 @@ public:
 
             case(cp::ionic_models_available_type::FaberRudy2000):
             {
-//assert(0);///\todo #1149
                 FaberRudy2000Version3*  p_faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
 
                 for (unsigned ht_index = 0;
                      ht_index < mCellHeterogeneityAreas.size();
                      ++ht_index)
                 {
+//assert(0);///\todo #1149
                     if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
                     {
                         p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
@@ -322,7 +319,6 @@ private:
         {
             if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
             {
-//assert(0);///\todo #1149
                 // Try using the schema location given in the XML
                 HeartConfig::Instance()->Reset();
                 HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
@@ -330,8 +326,9 @@ private:
             }
             else
             {
+                NEVER_REACHED;
 //assert(0);///\todo #1149
-                throw e;
+                //throw e;
             }
         }
     }
@@ -371,7 +368,6 @@ private:
 
                         if (HeartConfig::Instance()->GetSaveSimulation())
                         {
-//assert(0);///\todo #1149
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
                             CardiacSimulationArchiver<MonodomainProblem<3> >::Save(*p_mono_problem, directory.str(), false);
@@ -493,7 +489,6 @@ private:
                         
                         if (HeartConfig::Instance()->IsSimulationDefined())
                         {
-//assert(0);///\todo #1149
                             HeartConfigRelatedCellFactory<2> cell_factory;
                             p_bi_problem = new BidomainProblem<2>(&cell_factory);
     
@@ -526,7 +521,6 @@ private:
                         
                         if (HeartConfig::Instance()->IsSimulationDefined())
                         {
-//assert(0);///\todo #1149
                             HeartConfigRelatedCellFactory<1> cell_factory;
                             p_bi_problem = new BidomainProblem<1>(&cell_factory);
     
