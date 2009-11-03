@@ -70,6 +70,13 @@ public:
         ChastePoint<1> one_d_point_out(-4.0);
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(two_d_point_out), false);
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(one_d_point_out), false);
+        
+        ChastePoint<3> upper=cuboid_a_b.rGetUpperCorner();
+        c_vector<double, 3> diff_upper = upper.rGetLocation() - point_b.rGetLocation();
+        TS_ASSERT_DELTA(norm_2(diff_upper),0.0,1e-10);
+        ChastePoint<3> lower=cuboid_a_b.rGetLowerCorner();
+        c_vector<double, 3> diff_lower = lower.rGetLocation() - point_a.rGetLocation();
+        TS_ASSERT_DELTA(norm_2(diff_lower),0.0,1e-10);
     }
 };
 

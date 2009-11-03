@@ -40,44 +40,64 @@ class ChasteCuboid
 {
 private:
 
-    /** A vertex of the cuboid. */
-    ChastePoint<3> mrPointA;
+    /** Lower vertex of the cuboid. */
+    ChastePoint<3> mLowerCorner;
 
-    /** The space-diagonal opposite corner of mrPointA. */
-    ChastePoint<3> mrPointB;
+    /** Upper vertex of the cuboid.  The space-diagonal opposite corner of mLowerCorner. */
+    ChastePoint<3> mUpperCorner;
 
 public:
 
     /**
      * The cuboid is defined by any of its two space-diagonal opposite corners.
      *
-     * @param rPointA Any vertex of the cuboid.
-     * @param rPointB The space-diagonal opposite corner of pointA.
+     * @param rLowerPoint Lower vertex of the cuboid.
+     * @param rUpperPoint Upper vertex of the cuboid.
      */
-    ChasteCuboid(ChastePoint<3>& rPointA, ChastePoint<3>& rPointB);
+    ChasteCuboid(ChastePoint<3>& rLowerPoint, ChastePoint<3>& rUpperPoint):
+     mLowerCorner(rLowerPoint), 
+     mUpperCorner(rUpperPoint)
+{
+    for (unsigned dim=0; dim<3; dim++)
+    {
+        if (mLowerCorner[dim] > mUpperCorner[dim])
+        {
+            EXCEPTION("Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
+        }
+    }
+}
 
-    /// \todo: use a templated definition of the method below
-
+ 
     /**
      * Checks if a given 3D point is contained in the cuboid.
      *
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
-    bool DoesContain(const ChastePoint<3U>& rPointToCheck);
-
-    /**
-     * Checks if a given 2D point is contained in the cuboid.
-     *
-     * @param rPointToCheck Point to be checked to be contained in the cuboid.
-     */
-    bool DoesContain(const ChastePoint<2U>& rPointToCheck);
-
-    /**
-     * Checks if a given 1D point is contained in the cuboid.
-     *
-     * @param rPointToCheck Point to be checked to be contained in the cuboid.
-     */
-    bool DoesContain(const ChastePoint<1U>& rPointToCheck);
+    template <unsigned DIM> 
+    bool DoesContain(const ChastePoint<DIM>& rPointToCheck)
+    {
+        for (unsigned dim=0; dim<DIM; dim++)
+        {
+            if (rPointToCheck[dim] < mLowerCorner[dim] - 100*DBL_EPSILON
+                || mUpperCorner[dim] + 100* DBL_EPSILON < rPointToCheck[dim])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /** @return the upper vertex of the cuboid */
+    const ChastePoint<3U>& rGetUpperCorner() const
+    {
+        return mUpperCorner;
+    }
+    /** @return the lower vertex of the cuboid */
+    const ChastePoint<3U>& rGetLowerCorner()
+    {
+        return mLowerCorner;
+    }
+        
 };
 
 #endif /*CHASTECUBOID_HPP_*/
