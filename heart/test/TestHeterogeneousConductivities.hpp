@@ -79,19 +79,19 @@ public:
         problem.SetMesh(&mesh);
 
         /*tissue properties*/
-        std::vector< c_vector<double,3> > cornerA;
-        std::vector< c_vector<double,3> > cornerB;
-        std::vector< c_vector<double,3> > intraConductivities;
-        std::vector< c_vector<double,3> > extraConductivities;
-        cornerA.push_back( Create_c_vector(width/2, 0, 0) );
-        cornerB.push_back( Create_c_vector(width, height, depth) );
+        std::vector<ChasteCuboid> input_areas;
+        std::vector< c_vector<double,3> > intra_conductivities;
+        std::vector< c_vector<double,3> > extra_conductivities;
+        ChastePoint<3> corner_a(width/2, 0, 0);
+        ChastePoint<3> corner_b(width, height, depth);
 
+        input_areas.push_back(ChasteCuboid(corner_a, corner_b));
         //within the cuboid
-        intraConductivities.push_back( Create_c_vector(0.1, 0.1, 0.1) );
-        extraConductivities.push_back( Create_c_vector(0.0, 0.0, 0.0) );
+        intra_conductivities.push_back( Create_c_vector(0.1, 0.1, 0.1) );
+        extra_conductivities.push_back( Create_c_vector(0.0, 0.0, 0.0) );
         //This test should *fail* if you comment out the following line
         //(which blocks conductivity on the RHS of the slab).
-        HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);
+        HeartConfig::Instance()->SetConductivityHeterogeneities(input_areas, intra_conductivities, extra_conductivities);
 
         //elsewhere
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.2, 1.2, 1.2));

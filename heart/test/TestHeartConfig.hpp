@@ -356,22 +356,23 @@ public :
 
         TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
-        std::vector< c_vector<double,3> > cornerA;
-        std::vector< c_vector<double,3> > cornerB;
         std::vector< c_vector<double,3> > intraConductivities;
         std::vector< c_vector<double,3> > extraConductivities;
 
-        cornerA.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
-        cornerB.push_back( Create_c_vector( 1.0,  1.0,  1.0) );
+        std::vector<ChasteCuboid> input_areas;
+        ChastePoint<3> lower1(-1.0, -1.0, -1.0);
+        ChastePoint<3> upper1( 1.0,  1.0,  1.0);
+        input_areas.push_back(ChasteCuboid(lower1, upper1));
         intraConductivities.push_back( Create_c_vector(2.5, 2.5, 2.5) );
         extraConductivities.push_back( Create_c_vector(8.5, 8.5, 8.5) );
 
-        cornerA.push_back( Create_c_vector(-2.0, -2.0, -2.0) );
-        cornerB.push_back( Create_c_vector(-1.0, -1.0, -1.0) );
+        ChastePoint<3> lower2(-2.0, -2.0, -2.0);
+        ChastePoint<3> upper2(-1.0, -1.0, -1.0);
+        input_areas.push_back(ChasteCuboid(lower2, upper2));
         intraConductivities.push_back( Create_c_vector(1.0, 0.5, 0.4) );
         extraConductivities.push_back( Create_c_vector(7.0, 6.5, 6.4) );
 
-        HeartConfig::Instance()->SetConductivityHeterogeneities(cornerA, cornerB, intraConductivities, extraConductivities);
+        HeartConfig::Instance()->SetConductivityHeterogeneities(input_areas, intraConductivities, extraConductivities);
 
         TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
@@ -393,7 +394,27 @@ public :
 
         TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
-
+        
+        
+        std::vector<ChasteCuboid> ionic_model_regions;
+        std::vector<cp::ionic_models_available_type> ionic_models;
+        
+        //No ionic model regions
+        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
+                                                      ionic_models);
+        TS_ASSERT_EQUALS(ionic_model_regions.size(), 0u);
+        
+        //Set ionic regions
+        std::vector<cp::ionic_models_available_type> input_ionic_models;
+        input_ionic_models.push_back(cp::ionic_models_available_type::HodgkinHuxley);
+        input_ionic_models.push_back(cp::ionic_models_available_type::tenTusscher2006);
+        HeartConfig::Instance()->SetIonicModelRegions(input_areas, input_ionic_models);
+        
+        //No there are 2 ionic model regions
+        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
+                                                      ionic_models);
+        TS_ASSERT_EQUALS(ionic_model_regions.size(), 2u);
+        
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
 
@@ -861,8 +882,8 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
         
         std::vector<ChasteCuboid> definedRegions;
-        std::vector<cp::ionic_models_available_type> ionicModels;
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionicModels), 
+        std::vector<cp::ionic_models_available_type> ionic_models;
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionic_models), 
                               "IonicModelRegions information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->IsMeshProvided(), "Mesh information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateMesh(), "Mesh information is not available in a resumed simulation.");

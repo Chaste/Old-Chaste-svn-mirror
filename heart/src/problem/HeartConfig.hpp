@@ -307,22 +307,33 @@ public:
      * Regions where we need to use a different cell model (think infarction)
      * ionic_models_available_type is an xsd convenience class type.
      *
-     * \todo - do we assume the vectors are initially empty?
+     * Any content in the vectors is destroyed
      * The standard vectors returned are of the same length (one entry per region)
      *
      * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
      * @param ionicModels vector of models (one per cellular heterogeneity)
-     * \todo No set method
      */
      void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
                                std::vector<cp::ionic_models_available_type>& ionicModels) const;
 
+    /**
+     * Regions where we need to use a different cell model (think infarction)
+     * ionic_models_available_type is an xsd convenience class type.
+     *
+     * The input standard vectors are of the same length (one entry per region)
+     * otherwise the method throws
+     *
+     * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
+     * @param ionicModels vector of models (one per cellular heterogeneity)
+     */
+     void SetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
+                               std::vector<cp::ionic_models_available_type>& ionicModels) const;
 
     bool IsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
-    bool GetCreateMesh() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
-    bool GetCreateSlab() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
-    bool GetCreateSheet() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
-    bool GetCreateFibre() const; /**< @return true if it's cuboid simulation (no mesh on disk)*/
+    bool GetCreateMesh() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
+    bool GetCreateSlab() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
+    bool GetCreateSheet() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
+    bool GetCreateFibre() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
     bool GetLoadMesh() const; /**< @return true if a mesh file name is given and we are expecting to load a mesh from file*/
     ///\todo IsMeshProvided and GetLoadMesh are subtly different but very similar.  Can one of them go?
     /**
@@ -593,13 +604,11 @@ public:
     /**
      * Set a number of heterogeneous regions (Axis-aligned boxes)
      * It is assumed that the std::vectors are all of the same length
-     * @param cornerA  cornerA[0] is the lowest vertex of the first region
-     * @param cornerB  cornerB[0] is the highest vertex of the first region
+     * @param conductivityAreas conductivityAreas[0] is the first region
      * @param intraConductivities  intraConductivities[0] is conductivity vector for the first region
      * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
      */
-    void SetConductivityHeterogeneities(std::vector< c_vector<double,3> >& cornerA,
-                                        std::vector< c_vector<double,3> >& cornerB,
+    void SetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivityAreas,
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities);
 

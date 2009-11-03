@@ -405,7 +405,9 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions
                                        std::vector<cp::ionic_models_available_type>& ionicModels) const
 {
     CheckSimulationIsDefined("IonicModelRegions");
-
+    definedRegions.clear();
+    ionicModels.clear();
+    
     XSD_SEQUENCE_TYPE(cp::ionic_models_type::Region)&
          regions = DecideLocation( & mpUserParameters->Simulation().get().IonicModels(),
                                    & mpDefaultParameters->Simulation().get().IonicModels(),
@@ -1291,27 +1293,51 @@ void HeartConfig::SetMeshFileName(std::string meshPrefix, cp::media_type fibreDe
     mpUserParameters->Simulation().get().Mesh().get().LoadMesh().set(mesh_prefix);
 }
 
-void HeartConfig::SetConductivityHeterogeneities(
-        std::vector< c_vector<double,3> >& cornerA,
-        std::vector< c_vector<double,3> >& cornerB,
+void HeartConfig::SetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
+                                       std::vector<cp::ionic_models_available_type>& ionicModels) const
+{
+    assert(definedRegions.size() == ionicModels.size());
+    XSD_SEQUENCE_TYPE(cp::ionic_models_type::Region)&
+         regions =  mpUserParameters->Simulation().get().IonicModels().get().Region();
+    regions.clear();
+    for (unsigned region_index=0; region_index<definedRegions.size(); region_index++)
+    {
+        cp::point_type point_a(definedRegions[region_index].rGetLowerCorner()[0],
+                           definedRegions[region_index].rGetLowerCorner()[1],
+                           definedRegions[region_index].rGetLowerCorner()[2]);
+
+        cp::point_type point_b(definedRegions[region_index].rGetUpperCorner()[0],
+                           definedRegions[region_index].rGetUpperCorner()[1],
+                           definedRegions[region_index].rGetUpperCorner()[2]);
+       
+        XSD_CREATE_WITH_FIXED_ATTR(cp::location_type, locn, "cm");
+        locn.Cuboid().set(cp::box_type(point_a, point_b));
+        
+        
+        cp::ionic_model_region_type region(ionicModels[region_index], locn);
+        regions.push_back(region);
+    }
+
+}
+
+void HeartConfig::SetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivityAreas,
         std::vector< c_vector<double,3> >& intraConductivities,
         std::vector< c_vector<double,3> >& extraConductivities)
 {
-    assert ( cornerA.size() == cornerB.size() );
-    assert ( cornerB.size() == intraConductivities.size() );
+    assert ( conductivityAreas.size() == intraConductivities.size() );
     assert ( intraConductivities.size() == extraConductivities.size());
 
     XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity) heterogeneities_container;
 
-    for (unsigned region_index=0; region_index<cornerA.size(); region_index++)
+    for (unsigned region_index=0; region_index<conductivityAreas.size(); region_index++)
     {
-        cp::point_type point_a(cornerA[region_index][0],
-                           cornerA[region_index][1],
-                           cornerA[region_index][2]);
+        cp::point_type point_a(conductivityAreas[region_index].rGetLowerCorner()[0],
+                           conductivityAreas[region_index].rGetLowerCorner()[1],
+                           conductivityAreas[region_index].rGetLowerCorner()[2]);
 
-        cp::point_type point_b(cornerB[region_index][0],
-                           cornerB[region_index][1],
-                           cornerB[region_index][2]);
+        cp::point_type point_b(conductivityAreas[region_index].rGetUpperCorner()[0],
+                           conductivityAreas[region_index].rGetUpperCorner()[1],
+                           conductivityAreas[region_index].rGetUpperCorner()[2]);
     
         XSD_CREATE_WITH_FIXED_ATTR(cp::location_type, locn, "cm");
         locn.Cuboid().set(cp::box_type(point_a, point_b));
