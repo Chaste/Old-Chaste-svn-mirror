@@ -36,9 +36,8 @@
 			</Stimulus>	
 		</Stimuli>
 		
-		<!-- 
-			Output 
-		-->
+		<OutputDirectory>SaveBi2D</OutputDirectory>
+		<SaveSimulation/>
 	</Simulation>
 	
 

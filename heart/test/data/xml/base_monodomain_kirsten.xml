@@ -19,7 +19,8 @@
                 </Location>
             </Region><!-- REGION 1 -->
         </IonicModels>
-	    
+                
+ 	    
 		<!-- 
 			Mesh definition 
 		-->    
@@ -44,7 +45,20 @@
 			</Stimulus>	
 		</Stimuli>
 		
-		<!-- 
+        <CellHeterogeneities>
+            <CellHeterogeneity> <!-- #1 -->
+                <ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
+                <ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
+                <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
+                <Location unit="cm">
+                    <Cuboid>
+                        <LowerCoordinates x="-1.0" y="-0.1" z="-1.0"/>
+                        <UpperCoordinates x="10.0" y="0.1" z="1.0"/>
+                    </Cuboid>
+                </Location>
+            </CellHeterogeneity>    
+ 		</CellHeterogeneities>    
+ 		<!-- 
 			Output 
 		-->
 		<OutputDirectory>Kirsten</OutputDirectory>

@@ -45,27 +45,33 @@ public:
     {
         CardiacSimulation simulation("heart/test/data/xml/monodomain1d_small.xml");
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "mono_1d_small", false,
-                   "ChasteResults", "SimulationResults", true));
+                   "SaveMono1D", "SimulationResults", true));
+        CardiacSimulation simulation2("heart/test/data/xml/monodomain1d_resume.xml");           
     }    
     void TestMono2dSmall() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/monodomain2d_small.xml");
+        CardiacSimulation simulation2("heart/test/data/xml/monodomain2d_resume.xml");           
     }    
     void TestMono3dSmall() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/monodomain3d_small.xml");
+        CardiacSimulation simulation2("heart/test/data/xml/monodomain3d_resume.xml");           
     }    
     void TestBi1dSmall() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/bidomain1d_small.xml");
+        CardiacSimulation simulation2("heart/test/data/xml/bidomain1d_resume.xml");           
     }    
     void TestBi2dSmall() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/bidomain2d_small.xml");
+        CardiacSimulation simulation2("heart/test/data/xml/bidomain2d_resume.xml");           
     }    
     void TestBi3dSmall() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/bidomain3d_small.xml");
+        CardiacSimulation simulation2("heart/test/data/xml/bidomain3d_resume.xml");           
     }    
 
     void TestCardiacSimulationBasicBidomainShort() throw(Exception)

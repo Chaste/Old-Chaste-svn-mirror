@@ -36,9 +36,8 @@
 			</Stimulus>	
 		</Stimuli>
 		
-		<!-- 
-			Output 
-		-->
+		<OutputDirectory>SaveMono1D</OutputDirectory>
+		<SaveSimulation/>
 	</Simulation>
 	
 
