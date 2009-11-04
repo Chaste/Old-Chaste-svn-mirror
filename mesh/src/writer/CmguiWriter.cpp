@@ -211,5 +211,8 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector<std
 /////////////////////////////////////////////////////////////////////////////////////
 
 template class CmguiWriter<1,1>;
+template class CmguiWriter<1,2>;
+template class CmguiWriter<1,3>;
 template class CmguiWriter<2,2>;
+template class CmguiWriter<2,3>;
 template class CmguiWriter<3,3>;
