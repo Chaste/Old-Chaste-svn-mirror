@@ -137,7 +137,8 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
     switch (ELEMENT_DIM)
     {
         case 0:
-            NEVER_REACHED; //See specialised template for ELEMENT_DIM==0
+            //See specialised template for ELEMENT_DIM==0
+            NEVER_REACHED;
             break;
         case 1:
             // Linear edge in a 2D plane or in 3D

@@ -39,74 +39,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacSimulation : public CxxTest::TestSuite
 {
 public:
-    void TestCardiacSimulationNoXmlConstructorNoStim() throw(Exception)
+
+
+    void TestMono1dSmall() throw(Exception)
     {
-        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.05);
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-2);
-        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetPdeTimeStep(), 0.01);
-        HeartConfig::Instance()->SetSimulationDuration(0.01);
-        CardiacSimulation simulation;
-        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "no_stim", false,
+        CardiacSimulation simulation("heart/test/data/xml/monodomain1d_small.xml");
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "mono_1d_small", false,
                    "ChasteResults", "SimulationResults", true));
-        HeartConfig::Instance()->Reset();
-    }
-
-    void TestMono1dNoStim() throw(Exception)
-    {
-        HeartConfig::Instance()->SetFibreLength(0.1, 0.05);
-        HeartConfig::Instance()->SetSimulationDuration(0.01);
-        HeartConfig::Instance()->SetSpaceDimension(1);
-        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
-        CardiacSimulation simulation;
-        HeartConfig::Instance()->Reset();
     }    
-    void TestMono2dNoStim() throw(Exception)
+    void TestMono2dSmall() throw(Exception)
     {
-        HeartConfig::Instance()->SetSheetDimensions(0.1, 0.1, 0.05);
-        HeartConfig::Instance()->SetSimulationDuration(0.01);
-        HeartConfig::Instance()->SetSpaceDimension(2);
-        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
-        CardiacSimulation simulation;
-        HeartConfig::Instance()->Reset();
+        CardiacSimulation simulation("heart/test/data/xml/monodomain2d_small.xml");
     }    
-    void TestMono3dNoStim() throw(Exception)
+    void TestMono3dSmall() throw(Exception)
     {
-        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.05);
-        HeartConfig::Instance()->SetSimulationDuration(0.01);
-        HeartConfig::Instance()->SetSpaceDimension(3);
-        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
-        HeartConfig::Instance()->SetOutputDirectory("Mono3dNoStim");
-        HeartConfig::Instance()->SetSaveSimulation(true);
-        CardiacSimulation simulation;
-        HeartConfig::Instance()->Reset();
+        CardiacSimulation simulation("heart/test/data/xml/monodomain3d_small.xml");
     }    
-
-    void TestBi1dNoStim() throw(Exception)
+    void TestBi1dSmall() throw(Exception)
     {
-        HeartConfig::Instance()->SetFibreLength(0.1, 0.05);
-        HeartConfig::Instance()->SetSimulationDuration(0.01);
-        HeartConfig::Instance()->SetSpaceDimension(1);
-        HeartConfig::Instance()->SetDomain(cp::domain_type::Bi);
-        CardiacSimulation simulation;
-        HeartConfig::Instance()->Reset();
+        CardiacSimulation simulation("heart/test/data/xml/bidomain1d_small.xml");
     }    
-    void TestBi2dNoStim() throw(Exception)
+    void TestBi2dSmall() throw(Exception)
     {
-        HeartConfig::Instance()->SetSheetDimensions(0.1, 0.1, 0.05);
-        HeartConfig::Instance()->SetSimulationDuration(0.01);
-        HeartConfig::Instance()->SetSpaceDimension(2);
-        HeartConfig::Instance()->SetDomain(cp::domain_type::Bi);
-        CardiacSimulation simulation;
-        HeartConfig::Instance()->Reset();
+        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_small.xml");
     }    
-    void TestBi3dNoStim() throw(Exception)
+    void TestBi3dSmall() throw(Exception)
     {
-        HeartConfig::Instance()->SetSlabDimensions(0.1, 0.1, 0.1, 0.05);
-        HeartConfig::Instance()->SetSimulationDuration(0.01);
-        HeartConfig::Instance()->SetSpaceDimension(3);
-        HeartConfig::Instance()->SetDomain(cp::domain_type::Bi);
-        CardiacSimulation simulation;
-        HeartConfig::Instance()->Reset();
+        CardiacSimulation simulation("heart/test/data/xml/bidomain3d_small.xml");
     }    
 
     void TestCardiacSimulationBasicBidomainShort() throw(Exception)
@@ -129,16 +88,6 @@ public:
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_monodomain_short_results", false,
                    foldername, "SimulationResults", true));
     }
-   void TestCardiacSimulationPatchwork() throw(Exception)
-    {
-        // run a bidomain simulation
-        CardiacSimulation simulation("heart/test/data/xml/base_monodomain_patchwork.xml");
-        std::string foldername = "Patchwork";
-        
-       // compare the files, using the CompareFilesViaHdf5DataReader() method  
-        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
-                   foldername, "SimulationResults", true));
-    }
     
     void TestCardiacSimulationPostprocessMonodomain() throw(Exception)
     {
@@ -151,7 +100,7 @@ public:
                    foldername, "SimulationResults", true));
     }
     
-    void TestCardiacSimulationSaveBidomain() throw(Exception)
+    void TestCardiacSimulationArchiveBidomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_bidomain_short.xml");
@@ -166,7 +115,7 @@ public:
         TS_ASSERT_EQUALS(return_value,0); 
     }
     
-    void TestCardiacSimulationSaveMonodomain() throw(Exception)
+    void TestCardiacSimulationArchiveMonodomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_monodomain_short.xml");
@@ -185,6 +134,7 @@ public:
     void TestCardiacSimulationResumeMonodomain() throw(Exception)
     {
         // run a bidomain simulation
+        HeartConfig::Instance()->SetSpaceDimension(1);
         CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_short.xml");
         std::string foldername = "SaveMonodomainShort";
         
@@ -206,14 +156,30 @@ public:
                    foldername, "SimulationResults", true));
     }
     
+   void TestCardiacSimulationPatchwork() throw(Exception)
+    {
+        CardiacSimulation simulation("heart/test/data/xml/base_monodomain_patchwork.xml");
+        std::string foldername = "Patchwork";
+        
+       // compare the files, using the CompareFilesViaHdf5DataReader() method  
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
+                   foldername, "SimulationResults", true));
+    }
+    void TestCardiacSimulationKirsten() throw(Exception)
+    {
+        CardiacSimulation simulation("heart/test/data/xml/base_monodomain_kirsten.xml");
+    }
+
     void TestExceptions() throw(Exception)
     {
-        HeartConfig::Instance()->SetSpaceDimension(8); //Electro-physio-super-string
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation, "Bidomain space dimension not supported: should be 1, 2 or 3");
-        HeartConfig::Instance()->SetDomain(cp::domain_type::Mono);
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation, "Monodomain space dimension not supported: should be 1, 2 or 3");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/monodomain8d_small.xml"), "Monodomain space dimension not supported: should be 1, 2 or 3");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain8d_small.xml"), "Bidomain space dimension not supported: should be 1, 2 or 3");
+
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/base_monodomain_frankenstein.xml"),
+          "XML parsing error in configuration file: heart/test/data/xml/base_monodomain_frankenstein.xml");
         
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("no file"),"Missing file parsing configuration file: no file");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(""),"No XML file name given");
     }
 };
 

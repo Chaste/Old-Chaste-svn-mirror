@@ -63,8 +63,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
             return -1;
         }
 
-        std::string parameter_file = std::string(argv[1]);
-        CardiacSimulation simulation(parameter_file);
+        CardiacSimulation simulation(std::string(argv[1]));
 
         return 0;
     }

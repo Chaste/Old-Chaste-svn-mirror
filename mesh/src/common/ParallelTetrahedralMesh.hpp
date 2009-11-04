@@ -430,7 +430,8 @@ inline void load_construct_data(
     if (num_procs != PetscTools::GetNumProcs())
     {
         ///\todo There is something dodgy going on here with #1159 (see r7316)
-        NEVER_REACHED;//This should trip soon
+        NEVER_REACHED;
+        //This should trip soon
         //EXCEPTION("This archive was written for a different number of processors");
     }
     

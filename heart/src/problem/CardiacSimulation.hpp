@@ -119,8 +119,8 @@ public:
         }
         catch(Exception& e)
         {
-            // No stimuli provided
-            std::cout << "Warning: No stimuli provided. Simulation will be run anyway." << std::endl;
+            // No stimuli provided in XML so we should have hit a parsing exception
+            NEVER_REACHED;
         }
     
         // Read and store Cell Heterogeneities
@@ -192,7 +192,6 @@ public:
 
             case(cp::ionic_models_available_type::tenTusscher2006):
             {
-//assert(0);///\todo #1149
                 TenTusscher2006OdeSystem*  p_tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
 
                 for (unsigned ht_index = 0;
@@ -247,8 +246,8 @@ public:
 
             default:
             {
-               NEVER_REACHED;//If the ionic model is not in the current enumeration then the XML parser will have picked it up before now!
-               //EXCEPTION("Unknown ionic model!!!");
+               //If the ionic model is not in the current enumeration then the XML parser will have picked it up before now!
+               NEVER_REACHED;
             }
         }
 
@@ -326,9 +325,7 @@ private:
             }
             else
             {
-                NEVER_REACHED;
-//assert(0);///\todo #1149
-                //throw e;
+                throw e;
             }
         }
     }
@@ -338,7 +335,6 @@ private:
      */
     void Run()
     {
-//// TODO: remember to #include PetscArguments in executable, and #include PetscSetupAndFinalize in tests (as usual)
         switch(HeartConfig::Instance()->GetDomain())
         {
             case cp::domain_type::Mono :
@@ -555,7 +551,8 @@ private:
             }
             default :
             {
-                NEVER_REACHED;//If the domain is not set correctly then the XML parser will have picked it up before now!
+                //If the domain is not set correctly then the XML parser will have picked it up before now!
+                NEVER_REACHED;
             }
         }
 
@@ -572,14 +569,14 @@ public:
      * 
      * @param parameterFileName  The name of the chaste parameters xml file to use to run a simulation (not mandatory since HeartConfig may be set by hand)
      */
-    CardiacSimulation(std::string parameterFileName="")
+    CardiacSimulation(std::string parameterFileName)
     {
-        //If we have been passed an XML file then parse the XML file, otherwise assume that 
-        //HeartConfig is ready to use
-        if (parameterFileName != "")
+        //If we have been passed an XML file then parse the XML file, otherwise throw
+        if (parameterFileName == "")
         {
-            ReadParametersFromFile(parameterFileName);
+            EXCEPTION("No XML file name given");
         }
+        ReadParametersFromFile(parameterFileName);
         Run();
     }    
   
