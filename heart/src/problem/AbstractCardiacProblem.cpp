@@ -57,14 +57,15 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     : mMeshFilename(""),               // i.e. undefined
       mNodesPerProcessorFilename(""),  // i.e. undefined
       mUseMatrixBasedRhsAssembly(true),
-      mpBoundaryConditionsContainer(NULL),
-      mpDefaultBoundaryConditionsContainer(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
       mCurrentTime(0.0),
       mArchiveKSP(false),
       mpWriter(NULL)
 {
+    mpBoundaryConditionsContainer.reset();
+    mpDefaultBoundaryConditionsContainer.reset();
+    
     mWriteInfo = false;
     mPrintOutput = true;
     mCallChaste2Meshalyzer = false;
@@ -95,8 +96,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
       mpCardiacPde(NULL),
-      mpBoundaryConditionsContainer(NULL),
-      mpDefaultBoundaryConditionsContainer(NULL),
       mpAssembler(NULL),
       mpCellFactory(NULL),
       mpMesh(NULL),
@@ -105,17 +104,14 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mArchiveKSP(false),
       mpWriter(NULL)
 {
+    mpBoundaryConditionsContainer.reset();
+    mpDefaultBoundaryConditionsContainer.reset();
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
 {
-    if (mpDefaultBoundaryConditionsContainer)
-    {
-        delete mpDefaultBoundaryConditionsContainer;
-    }
-
     delete mpCardiacPde;
     if (mSolution)
     {
@@ -258,9 +254,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetNodesPerProce
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *bcc)
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetBoundaryConditionsContainer(boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc)
 {
-    this->mpBoundaryConditionsContainer = bcc;
+    this->mpBoundaryConditionsContainer = pBcc;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -393,7 +389,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     if (mpBoundaryConditionsContainer == NULL) // the user didn't supply a bcc
     {
         // set up the default bcc
-        mpDefaultBoundaryConditionsContainer = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>;
+        boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > p_allocated_memory(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
+        mpDefaultBoundaryConditionsContainer = p_allocated_memory;
         for (unsigned problem_index=0; problem_index<PROBLEM_DIM; problem_index++)
         {
             mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(mpMesh, problem_index);

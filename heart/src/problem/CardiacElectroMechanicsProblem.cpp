@@ -366,9 +366,9 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         Initialise();
     }
 
-    BoundaryConditionsContainer<DIM,DIM,1> bcc;
-    bcc.DefineZeroNeumannOnMeshBoundary(mpElectricsMesh, 0);
-    mpMonodomainProblem->SetBoundaryConditionsContainer(&bcc);
+    boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,1> > p_bcc(new BoundaryConditionsContainer<DIM,DIM,1>);
+    p_bcc->DefineZeroNeumannOnMeshBoundary(mpElectricsMesh, 0);
+    mpMonodomainProblem->SetBoundaryConditionsContainer(p_bcc);
 
     // get an electrics assembler from the problem. Note that we don't call
     // Solve() on the CardiacProblem class, we do the looping here.

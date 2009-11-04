@@ -118,7 +118,16 @@ AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
 
 template<unsigned DIM>
 AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssembler()
-{
+{    
+    /* 
+     * NOTE: The this->mpBoundaryConditionsContainer.get() lines below convert a
+     * boost::shared_ptr to a normal pointer, as this is what the assemblers are
+     * expecting. We have to be a bit careful though as boost could decide to delete
+     * them whenever it feels like as it won't count the assembers as using them.
+     * 
+     * As long as they are kept as member variables here for as long as they are 
+     * required in the assemblers it should all work OK. 
+     */
     if (mHasBath)
     {
         if (!this->mUseMatrixBasedRhsAssembly)
@@ -126,7 +135,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
             mpAssembler
                 = new BidomainWithBathAssembler<DIM,DIM>(this->mpMesh,
                                                          mpBidomainPde,
-                                                         this->mpBoundaryConditionsContainer,
+                                                         this->mpBoundaryConditionsContainer.get(),
                                                          2);
         }
         else
@@ -134,7 +143,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
             mpAssembler
                 = new BidomainWithBathMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
                                                             mpBidomainPde,
-                                                            this->mpBoundaryConditionsContainer,
+                                                            this->mpBoundaryConditionsContainer.get(),
                                                             2);
         }
 
@@ -146,7 +155,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
             mpAssembler
                 = new BidomainDg0Assembler<DIM,DIM>(this->mpMesh,
                                                     mpBidomainPde,
-                                                    this->mpBoundaryConditionsContainer,
+                                                    this->mpBoundaryConditionsContainer.get(),
                                                     2);
         }
         else
@@ -154,7 +163,7 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
             mpAssembler
                 = new BidomainMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
                                                             mpBidomainPde,
-                                                            this->mpBoundaryConditionsContainer,
+                                                            this->mpBoundaryConditionsContainer.get(),
                                                             2);
         }
     }
@@ -344,7 +353,8 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         // or Dirichlet fixed nodes
         if(this->mpDefaultBoundaryConditionsContainer==NULL)
         {
-            this->mpDefaultBoundaryConditionsContainer = new BoundaryConditionsContainer<DIM,DIM,2>;
+            boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > p_allocated_memory(new BoundaryConditionsContainer<DIM,DIM,2>);
+            this->mpDefaultBoundaryConditionsContainer = p_allocated_memory;
             for (unsigned problem_index=0; problem_index<2; problem_index++)
             {
                 this->mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(this->mpMesh, problem_index);
@@ -352,10 +362,9 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         }
         // Note, no point calling SetBoundaryConditionsContainer() as the
         // assembler has already been created..
-        mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer);
+        mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
-        // the same as the one being used in the assembler (and so the deletion
-        // works later)
+        // the same as the one being used in the assembler...
         this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;
     }
 }

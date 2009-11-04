@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTBOUNDARYCONDITIONCONTAINER_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/shared_ptr.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
@@ -717,10 +718,10 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         {
-            BoundaryConditionsContainer<2,2,2> bcc;
+            boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc(new BoundaryConditionsContainer<2,2,2>);
     
             // No BCs yet, so shouldn't validate
-            TS_ASSERT(!bcc.Validate(&mesh));
+            TS_ASSERT_EQUALS(p_bcc->Validate(&mesh), false);
     
             // Add some Neumann BCs
             ConstBoundaryCondition<2> *bc1 = new ConstBoundaryCondition<2>(2.0);
@@ -729,47 +730,48 @@ public:
             TetrahedralMesh<2,2>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorEnd();
             iter--;
-            bcc.AddNeumannBoundaryCondition(*iter, bc1, 0);
-            bcc.AddNeumannBoundaryCondition(*iter, bc2, 1);
+            p_bcc->AddNeumannBoundaryCondition(*iter, bc1, 0);
+            p_bcc->AddNeumannBoundaryCondition(*iter, bc2, 1);
             iter--;
-            bcc.AddNeumannBoundaryCondition(*iter, bc1, 0);
+            p_bcc->AddNeumannBoundaryCondition(*iter, bc1, 0);
             iter--;
-            bcc.AddNeumannBoundaryCondition(*iter, bc2, 1);
+            p_bcc->AddNeumannBoundaryCondition(*iter, bc2, 1);
             
             // Add some Dirichlet BCs
             ConstBoundaryCondition<2> *bc3 = new ConstBoundaryCondition<2>(2.0);
-            bcc.AddDirichletBoundaryCondition(mesh.GetNode(2), bc3);
-            bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), bc3);
+            p_bcc->AddDirichletBoundaryCondition(mesh.GetNode(2), bc3);
+            p_bcc->AddDirichletBoundaryCondition(mesh.GetNode(3), bc3);
         
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
-            bcc.SaveToArchive( output_arch );
+            p_bcc->SaveToArchive( output_arch );
         }
         
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            BoundaryConditionsContainer<2,2,2> bcc;
-            bcc.LoadFromArchive( input_arch, &mesh );
-            
+            // Object must exist (memory needs to be allocated) before calling LoadFromArchive.
+            boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc(new BoundaryConditionsContainer<2,2,2> );
+            p_bcc->LoadFromArchive( input_arch, &mesh );
+                                   
             TetrahedralMesh<2,2>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorEnd();
             iter--;
-            TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 2.0, 1e-9);
-            TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 2.0, 1e-9);
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
     
             iter--;
-            TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 2.0, 1e-9);
-            TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 2.0, 1e-9);
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 1), 0.0, 1e-9);
     
             iter--;
-            TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 0.0, 1e-9);
-            TS_ASSERT_DELTA(bcc.GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 0), 0.0, 1e-9);
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter, ChastePoint<2>(), 1), -3.0, 1e-9);
             
-            TS_ASSERT_DELTA(bcc.GetDirichletBCValue(mesh.GetNode(2)), 2.0, 1.e-6);
-            TS_ASSERT_DELTA(bcc.GetDirichletBCValue(mesh.GetNode(3)), 2.0, 1.e-6);
+            TS_ASSERT_DELTA(p_bcc->GetDirichletBCValue(mesh.GetNode(2)), 2.0, 1.e-6);
+            TS_ASSERT_DELTA(p_bcc->GetDirichletBCValue(mesh.GetNode(3)), 2.0, 1.e-6);
         }
         
     }

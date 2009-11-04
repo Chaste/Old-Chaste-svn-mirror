@@ -258,7 +258,7 @@ public:
 
         // create boundary conditions container
         double boundary_val = 1.0;
-        BoundaryConditionsContainer<1,1,2> bcc;
+        boost::shared_ptr<BoundaryConditionsContainer<1,1,2> > p_bcc(new BoundaryConditionsContainer<1,1,2>);
         ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(boundary_val);
         ConstBoundaryCondition<1>* p_zero_stim = new ConstBoundaryCondition<1>(0.0);
 
@@ -271,14 +271,14 @@ public:
             if (((*iter)->GetNodeLocation(0))[0]==1.0)
             {
                 /// \todo: I think you need to provide a boundary condition for unknown#1 if you are gonig to provide one for unknown#2?
-                bcc.AddNeumannBoundaryCondition(*iter, p_zero_stim, 0);
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim,   1);
+                p_bcc->AddNeumannBoundaryCondition(*iter, p_zero_stim, 0);
+                p_bcc->AddNeumannBoundaryCondition(*iter, p_bc_stim,   1);
             }
         }
 
         BidomainProblem<1> bidomain_problem( &cell_factory, true );
 
-        bidomain_problem.SetBoundaryConditionsContainer(&bcc);
+        bidomain_problem.SetBoundaryConditionsContainer(p_bcc);
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 

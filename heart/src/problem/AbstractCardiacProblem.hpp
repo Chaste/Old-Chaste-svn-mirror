@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include "ClassIsAbstract.hpp"
 
 #include <string>
@@ -242,7 +244,7 @@ private:
         mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
     }
     
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
     
     /**
      * Serialization helper method to save a boundary conditions container.
@@ -254,13 +256,13 @@ private:
     template<class Archive>
     void SaveBoundaryConditions(Archive & archive,
                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc) const
+                                boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc) const
     {
-       bool have_object = (pBcc != NULL);
+        bool have_object = (pBcc != NULL);
         archive & have_object;
         if (have_object)
         {
-            ///\todo #98 Fix archiving boundary conditions properly         
+            ///\todo #1169 Fix archiving boundary conditions properly         
             //pBcc->SaveToArchive(archive);
         }
     }
@@ -273,22 +275,29 @@ private:
      * @return  the loaded container
      */
     template<class Archive>
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* LoadBoundaryConditions(
+    boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > LoadBoundaryConditions(
             Archive & archive,
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
                                 
     {
+        // Create empty pointer
+        boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > p_bcc;
+                
+        // Check whether we archived a non-empty boundary conditions container...
         bool have_object;
-        
-        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBcc = NULL;
         archive & have_object;
+        
+        // ...if we did load it up.
         if (have_object)
         {
-            /// \todo #98 memory leak
-//            pBcc = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>;
-//            pBcc->LoadFromArchive(archive, pMesh);
+            /// \todo #1169 memory leak
+            //boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > p_allocated_memory(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
+            //p_bcc = p_allocated_memory;
+            //p_bcc->LoadFromArchive(archive, pMesh);
         }
-        return pBcc;
+        
+        // returns either a NULL or a loaded boundary conditions container.
+        return p_bcc;
     }
 
 protected:
@@ -333,9 +342,9 @@ protected:
     AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* mpCardiacPde;
 
     /** Boundary conditions container used in the simulation */
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditionsContainer;
+    boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > mpBoundaryConditionsContainer;
     /** It is convenient to also have a separate variable for default (zero-Neumann) boundary conditions */
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpDefaultBoundaryConditionsContainer;
+    boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > mpDefaultBoundaryConditionsContainer;
     /** The PDE solver */
     AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
     /** The cell factory creates the cells for each node */
@@ -423,7 +432,7 @@ public:
      *  Set the boundary conditions container.
      *  @param pbcc is a pointer to a boundary conditions container
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pbcc);
+    void SetBoundaryConditionsContainer(boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc);
 
     /**
      *  Performs a series of checks before solving.

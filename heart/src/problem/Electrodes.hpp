@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELECTRODES_HPP_
 #define ELECTRODES_HPP_
 
+#include <boost/shared_ptr.hpp>
+
 #include "AbstractTetrahedralMesh.hpp"
 #include "DistributedVector.hpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -55,7 +57,7 @@ private:
     /** Whether the second electrode is grounded */
     bool mGroundSecondElectrode;
     /** The created bcc, which BidomainProblem will use */
-    BoundaryConditionsContainer<DIM,DIM,2>* mpBoundaryConditionsContainer;
+    boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > mpBoundaryConditionsContainer;
     /** The time the electrodes are switched off */
     double mEndTime;
     /** Whether the electrodes are currently switched on */
@@ -79,19 +81,11 @@ public:
                double magnitude, double duration); // implemented in cpp
 
     /**
-     *  Delete the set up bcc
-     */
-    ~Electrodes()
-    {
-        delete mpBoundaryConditionsContainer;
-    }
-
-    /**
      *  Get the boundary conditions container in which is set up the Neumann
      *  fluxes for the first electrode, and the opposite fluxes for the second
      *  electrode if the the second electrode isn't grounded
      */
-    BoundaryConditionsContainer<DIM,DIM,2>* GetBoundaryConditionsContainer()
+    boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > GetBoundaryConditionsContainer()
     {
         assert(mAreActive);
         return mpBoundaryConditionsContainer;

@@ -395,7 +395,7 @@ public:
             }
 #endif
 
-            BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> bcc;
+            boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> > p_bcc(new BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM>);
             SimpleStimulus stim(NeumannStimulus, 0.5);
             if (Stimulus==NEUMANN)
             {
@@ -412,12 +412,12 @@ public:
                     double x = ((*iter)->CalculateCentroid())[0];
                     if (x*x<=1e-10)
                     {
-                        bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
+                        p_bcc->AddNeumannBoundaryCondition(*iter, p_bc_stim);
                     }
                     iter++;
                 }
                 // pass the bcc to the problem
-                cardiac_problem.SetBoundaryConditionsContainer(&bcc);
+                cardiac_problem.SetBoundaryConditionsContainer(p_bcc);
             }
 
             DisplayRun();

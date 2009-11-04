@@ -70,7 +70,7 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
         // create boundary conditions container
-        BoundaryConditionsContainer<1,1,1> bcc;
+        boost::shared_ptr<BoundaryConditionsContainer<1,1,1> > p_bcc(new BoundaryConditionsContainer<1,1,1>);
         ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
 
         // get mesh
@@ -83,13 +83,13 @@ public:
             // if the element is on the left of the mesh, add a stimulus to the bcc
             if (((*iter)->GetNodeLocation(0))[0]==0.0)
             {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
+                p_bcc->AddNeumannBoundaryCondition(*iter, p_bc_stim);
             }
             iter++;
         }
 
         // pass the bcc to the monodomain problem
-        monodomain_problem.SetBoundaryConditionsContainer(&bcc);
+        monodomain_problem.SetBoundaryConditionsContainer(p_bcc);
 
         monodomain_problem.Solve();
 
@@ -122,7 +122,7 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
         // create boundary conditions container
-        BoundaryConditionsContainer<1,1,1> bcc;
+        boost::shared_ptr<BoundaryConditionsContainer<1,1,1> > p_bcc(new BoundaryConditionsContainer<1,1,1>);
         SimpleStimulus stim(4*1.75/0.0005, 0.5);
         StimulusBoundaryCondition<1>* p_bc_stim = new StimulusBoundaryCondition<1>(&stim);
 
@@ -136,13 +136,13 @@ public:
             // if the element is on the left of the mesh, add a stimulus to the bcc
             if (((*iter)->GetNodeLocation(0))[0]==0.0)
             {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
+                p_bcc->AddNeumannBoundaryCondition(*iter, p_bc_stim);
             }
             iter++;
         }
 
         // pass the bcc to the monodomain problem
-        monodomain_problem.SetBoundaryConditionsContainer(&bcc);
+        monodomain_problem.SetBoundaryConditionsContainer(p_bcc);
 
         monodomain_problem.Solve();
 
@@ -177,7 +177,7 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1*1.75/0.0005);
 
         // create boundary conditions container
-        BoundaryConditionsContainer<1,1,1> bcc;
+        boost::shared_ptr<BoundaryConditionsContainer<1,1,1> > p_bcc(new BoundaryConditionsContainer<1,1,1>);
         ConstBoundaryCondition<1>* p_bc_stim = new ConstBoundaryCondition<1>(2*1.75/0.0005);
 
         // get mesh
@@ -190,13 +190,13 @@ public:
             // if the element is on the left of the mesh, add a stimulus to the bcc
             if (((*iter)->GetNodeLocation(0))[0]==0.0)
             {
-                bcc.AddNeumannBoundaryCondition(*iter, p_bc_stim);
+                p_bcc->AddNeumannBoundaryCondition(*iter, p_bc_stim);
             }
             iter++;
         }
 
         // pass the bcc to the monodomain problem
-        monodomain_problem.SetBoundaryConditionsContainer(&bcc);
+        monodomain_problem.SetBoundaryConditionsContainer(p_bcc);
 
         monodomain_problem.UseMatrixBasedRhsAssembly(false);
 

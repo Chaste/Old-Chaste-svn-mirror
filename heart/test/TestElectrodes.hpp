@@ -52,7 +52,7 @@ public:
         double duration = 2.0; //ms
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
 
-        BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
+        boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 
         for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter
            = mesh.GetBoundaryElementIteratorBegin();
@@ -113,7 +113,7 @@ public:
         double duration = 2.0;
         Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,duration);
 
-        BoundaryConditionsContainer<2,2,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
+        boost::shared_ptr<BoundaryConditionsContainer<2,2,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 
         for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
@@ -145,7 +145,7 @@ public:
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,true,1,0,10,magnitude,duration);
 
-        BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
+        boost::shared_ptr<BoundaryConditionsContainer<3,3,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 
         for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
@@ -184,7 +184,7 @@ public:
         double duration = 2.0;
         Electrodes<3> electrodes(mesh,false,1,0,10,magnitude,duration);
 
-        BoundaryConditionsContainer<3,3,2>* p_bcc = electrodes.GetBoundaryConditionsContainer();
+        boost::shared_ptr<BoundaryConditionsContainer<3,3,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 
         for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
@@ -205,6 +205,11 @@ public:
                 TS_ASSERT_DELTA(value,-magnitude,1e-12);
             }
         }
+    }
+    
+    void TestArchivingElectrodes() throw(Exception)
+    {
+        /// \todo #1169
     }
 };
 
