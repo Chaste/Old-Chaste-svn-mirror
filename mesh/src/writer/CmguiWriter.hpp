@@ -32,25 +32,57 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMeshWriter.hpp"
 
 /**
- * Header for node base file (.exnode)
+ * Header for node base file in 3D (.exnode)
  */
-static const char CmguiNodeFileHeader[] = " #Fields=1\n\
+static const char CmguiNodeFileHeader3D[] = " #Fields=1\n\
  1) coordinates, coordinate, rectangular cartesian, #Components=3\n\
    x.  Value index= 1, #Derivatives= 0\n\
    y.  Value index= 2, #Derivatives= 0\n\
    z.  Value index= 3, #Derivatives= 0\n";
 
 /**
- * Header for element base file (.exelem)
+ * Header for node base file in 2D (.exnode)
  */
-static const char CmguiElementFileHeader[] = "Shape.  Dimension=3, simplex(2;3)*simplex*simplex\n\
+static const char CmguiNodeFileHeader2D[] = " #Fields=1\n\
+ 1) coordinates, coordinate, rectangular cartesian, #Components=2\n\
+   x.  Value index= 1, #Derivatives= 0\n\
+   y.  Value index= 2, #Derivatives= 0\n";
+   
+   
+/**
+ * Header for node base file in 1D (.exnode)
+ */
+static const char CmguiNodeFileHeader1D[] = " #Fields=1\n\
+ 1) coordinates, coordinate, rectangular cartesian, #Components=1\n\
+   x.  Value index= 1, #Derivatives= 0\n";
+   
+/**
+ * Header for element base file in 3D (.exelem)
+ */
+static const char CmguiElementFileHeader3D[] = "Shape.  Dimension=3, simplex(2;3)*simplex*simplex\n\
  #Scale factor sets= 0\n\
  #Nodes= 4\n";
- 
+
 /**
- * Header for element base file (.exelem), this coems after the definition of the number of fields
+ * Header for element base file in 2D (.exelem)
  */
-static const char CmguiCoordinatesFileHeader[] = " 1) coordinates, coordinate, rectangular cartesian, #Components=3\n\
+static const char CmguiElementFileHeader2D[] = "Shape.  Dimension=2, simplex(2)*simplex\n\
+ #Scale factor sets= 0\n\
+ #Nodes= 3\n";
+ 
+ /**
+ * Header for element base file in 1D (.exelem)
+ */
+static const char CmguiElementFileHeader1D[] = "Shape.  Dimension=1, line\n\
+ #Scale factor sets= 0\n\
+ #Nodes= 2\n";
+
+
+
+/**
+ * Header for element base file in 3D (.exelem), this comes after the definition of the number of fields
+ */
+static const char CmguiCoordinatesFileHeader3D[] = " 1) coordinates, coordinate, rectangular cartesian, #Components=3\n\
    x.  l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n\
      #Nodes= 4\n\
       1.  #Values=1\n\
@@ -93,12 +125,53 @@ static const char CmguiCoordinatesFileHeader[] = " 1) coordinates, coordinate, r
       4.  #Values=1\n\
        Value indices:     1\n\
        Scale factor indices:   4\n";
-       
+
 /**
- * Header for additional fields in the element base file (.exelem), 
+ * Header for element base file in 2D (.exelem), this comes after the definition of the number of fields
+ */
+static const char CmguiCoordinatesFileHeader2D[] = " 1) coordinates, coordinate, rectangular cartesian, #Components=2\n\
+   x.  l.simplex(2)*l.simplex, no modify, standard node based.\n\
+     #Nodes= 3\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n\
+      3.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   3\n\
+   y.  l.simplex(2)*l.simplex, no modify, standard node based.\n\
+     #Nodes= 3\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n\
+      3.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   3\n";
+
+/**
+ * Header for element base file in 1D (.exelem), this comes after the definition of the number of fields
+ * Note that in 1D the simplex doesn't seem to work, we use Lagrange instead
+ */
+static const char CmguiCoordinatesFileHeader1D[] = " 1) coordinates, coordinate, rectangular cartesian, #Components=1\n\
+   x.  l.Lagrange, no modify, standard node based.\n\
+     #Nodes= 2\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n";    
+            
+/**
+ * Header for additional fields in the element base file in 3D (.exelem), 
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
-static const char CmguiAdditonalFieldHeader[] = " field, rectangular cartesian, #Components=1\n\
+static const char CmguiAdditonalFieldHeader3D[] = " field, rectangular cartesian, #Components=1\n\
    x.  l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n\
      #Nodes= 4\n\
       1.  #Values=1\n\
@@ -113,6 +186,38 @@ static const char CmguiAdditonalFieldHeader[] = " field, rectangular cartesian, 
       4.  #Values=1\n\
        Value indices:     1\n\
        Scale factor indices:   4\n";
+
+/**
+ * Header for additional fields in the element base file in 2D (.exelem), 
+ * Here we assume all additional fields will be interpolated by cmgui in the same way
+ */
+static const char CmguiAdditonalFieldHeader2D[] = " field, rectangular cartesian, #Components=1\n\
+   x.  l.simplex(2)*l.simplex, no modify, standard node based.\n\
+     #Nodes= 3\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n\
+      3.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   3\n";
+
+/**
+ * Header for additional fields in the element base file in 1D (.exelem), 
+ * Here we assume all additional fields will be interpolated by cmgui in the same way
+ */
+static const char CmguiAdditonalFieldHeader1D[] = " field, rectangular cartesian, #Components=1\n\
+   x.  l.Lagrange, no modify, standard node based.\n\
+     #Nodes= 2\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n";
+       
 /**
  *  CmguiWriter
  *

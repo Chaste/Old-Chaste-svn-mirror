@@ -50,7 +50,28 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 
     // Write the node header
     *p_node_file << "Group name: " << this->mBaseName << "\n";
-    *p_node_file << CmguiNodeFileHeader;
+    switch (ELEMENT_DIM)
+    {
+        case 1:
+        {
+            *p_node_file << CmguiNodeFileHeader1D;
+            break;
+        }
+        case 2:
+        {
+            *p_node_file << CmguiNodeFileHeader2D;
+            break;
+        }
+        case 3:
+        {
+            *p_node_file << CmguiNodeFileHeader3D;
+            break;
+        }
+        default:
+        {
+            NEVER_REACHED;
+        }
+    }
 
     // Write each node's data
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
@@ -75,7 +96,29 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 
     // Write the elem header
     *p_elem_file << "Group name: " << this->mBaseName << "\n";
-    *p_elem_file << CmguiElementFileHeader;
+    switch (ELEMENT_DIM)
+    {
+        case 1:
+        {
+            *p_elem_file << CmguiElementFileHeader1D;
+            break;
+        }
+        case 2:
+        {
+            *p_elem_file << CmguiElementFileHeader2D;
+            break;
+        }
+        case 3:
+        {
+            *p_elem_file << CmguiElementFileHeader3D;
+            break;
+        }
+        default:
+        {
+            NEVER_REACHED;
+        }
+    }
+
 
     //now we need to figure out how many additional fields we have
     unsigned number_of_fields = mAdditionalFieldNames.size();
@@ -86,7 +129,29 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     *p_elem_file << " #Fields="<<string_of_number_of_fields.str()<<"\n";
 
     //first field (the coordinates field is fixed and always there
-    *p_elem_file << CmguiCoordinatesFileHeader;
+    switch (ELEMENT_DIM)
+    {
+        case 1:
+        {
+            *p_elem_file << CmguiCoordinatesFileHeader1D;
+            break;
+        }
+        case 2:
+        {
+            *p_elem_file << CmguiCoordinatesFileHeader2D;
+            break;
+        }
+        case 3:
+        {
+            *p_elem_file << CmguiCoordinatesFileHeader3D;
+            break;
+        }
+        default:
+        {
+            NEVER_REACHED;
+        }
+    }
+
 
     //now write the specification for each additional field
     for (unsigned i = 0; i <  number_of_fields; i++)
@@ -95,7 +160,29 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         std::stringstream i_string;
         i_string << i+2;
         *p_elem_file<<i_string.str()<<")  "<<mAdditionalFieldNames[i]<<" ,";
-        *p_elem_file << CmguiAdditonalFieldHeader;
+        switch (ELEMENT_DIM)
+        {
+            case 1:
+            {
+                *p_elem_file << CmguiAdditonalFieldHeader1D;
+                break;
+            }
+            case 2:
+            {
+                *p_elem_file << CmguiAdditonalFieldHeader2D;
+                break;
+            }
+            case 3:
+            {
+                *p_elem_file << CmguiAdditonalFieldHeader3D;
+                break;
+            }
+            default:
+            {
+                NEVER_REACHED;
+            }
+        }
+
     }
 
     // Write each elements's data
@@ -124,8 +211,5 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector<std
 /////////////////////////////////////////////////////////////////////////////////////
 
 template class CmguiWriter<1,1>;
-template class CmguiWriter<1,2>;
-template class CmguiWriter<1,3>;
 template class CmguiWriter<2,2>;
-template class CmguiWriter<2,3>;
 template class CmguiWriter<3,3>;
