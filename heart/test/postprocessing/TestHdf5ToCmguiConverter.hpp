@@ -56,7 +56,7 @@ private :
     }
 
 public :
-    void TestMonodomainConversion() throw(Exception)
+    void TestMonodomainConversion3D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain";
         OutputFileHandler handler(working_directory);
@@ -82,7 +82,7 @@ public :
     }
 
 
-    void TestBidomainConversion() throw(Exception)
+    void TestBidomainConversion3D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_bidomain";
         OutputFileHandler handler(working_directory);
@@ -96,7 +96,7 @@ public :
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter converter(working_directory, "cube_2mm_12_elements");
 
-        // compare the voltage file with a correct version
+        // compare the voltage file with a correct version that is known to visualize correctly in Cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_0.exnode";
@@ -104,6 +104,56 @@ public :
 
         std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_1.exnode";
+        TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
+    }
+
+    void TestMonodomainConversion2D() throw(Exception)
+    {
+        std::string working_directory = "TestHdf5ToCmguiConverter_monodomain2D";
+        OutputFileHandler handler(working_directory);
+
+        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain2D,
+        // as that is where the reader reads from. This data file was generated
+        // on this mesh by TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh
+        CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements.h5",
+                                  working_directory);
+
+        // convert
+        HeartConfig::Instance()->SetOutputDirectory(working_directory);
+        Hdf5ToCmguiConverter converter(working_directory, "2D_0_to_1mm_400_elements");
+
+        // compare the voltage file with a correct version that visualizes bothe Vm correctly in cmgui
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_0.exnode"
+                                     + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_0.exnode";
+        TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
+
+        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_1.exnode"
+                                     + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_1.exnode";
+        TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
+    }
+    void TestBidomainConversion1D() throw(Exception)
+    {
+        std::string working_directory = "TestHdf5ToCmguiConverter_bidomain1D";
+        OutputFileHandler handler(working_directory);
+
+        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_bidomain1D,
+        // as that is where the reader reads from.
+        CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements.h5",
+                                  working_directory);
+
+        // convert
+        HeartConfig::Instance()->SetOutputDirectory(working_directory);
+        Hdf5ToCmguiConverter converter(working_directory, "1D_0_to_1_100_elements");
+
+        // compare the voltage file with a correct version that visualizes bothe Vm and Phie correctly in cmgui
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_0.exnode"
+                                     + " heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements_0.exnode";
+        TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
+
+        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_1.exnode"
+                                     + " heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 
