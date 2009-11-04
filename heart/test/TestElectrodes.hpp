@@ -29,9 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTELECTRODES_HPP_
 #define TESTELECTRODES_HPP_
 
-
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 #include <vector>
+
 #include "Electrodes.hpp"
 #include "ParallelTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
@@ -207,10 +209,74 @@ public:
         }
     }
     
+    /**
+     * Note - we have had to make the Electrodes class archive the mesh as well so it 
+     * can properly reconstruct itself. Becasue boost is clever it should still only 
+     * archive one copy of the mesh in an archive file.
+     */
     void TestArchivingElectrodes() throw(Exception)
     {
-        /// \todo #1169
+        OutputFileHandler handler("archive",false); 
+        handler.SetArchiveDirectory();
+        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("Electrodes.arch");
+        
+        // These values used for construction and testing later.
+        double magnitude = 543.324;
+        double duration = 2.0;
+        
+        {
+            // Make a mesh
+            TetrahedralMesh<3,3> mesh;
+            mesh.ConstructCuboid(10,10,10);
+            // Create Electrodes class - the const is required to prevent boost errors on compilation.
+            Electrodes<3>* const p_electrodes = new Electrodes<3>(mesh,false,1,0,10,magnitude,duration);
+            
+            // Create output archive    
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Save the electrodes to the archive...   
+            output_arch << p_electrodes;
+            delete p_electrodes;
+        }
+    
+        {
+            Electrodes<3>* p_electrodes;
+    
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+    
+            // restore from the archive
+            input_arch >> p_electrodes;
+    
+            // Repeat the above test TestElectrodeUngrounded3d() on the loaded Electrodes object.    
+            boost::shared_ptr<BoundaryConditionsContainer<3,3,2> > p_bcc = 
+                p_electrodes->GetBoundaryConditionsContainer();
+        
+            // (We can do this p_electrodes->mpMesh only because we are a friend class,
+            // this is the only place it is used so didn't want to make a GetMesh() method).
+            for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter 
+                     = p_electrodes->mpMesh->GetBoundaryElementIteratorBegin();
+               iter != p_electrodes->mpMesh->GetBoundaryElementIteratorEnd();
+               iter++)
+            {
+                if ( fabs((*iter)->CalculateCentroid()[1] - 0.0) < 1e-6 )
+                {
+                    double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);    
+                    TS_ASSERT_DELTA(value,magnitude,1e-12);
+                }   
+    
+                if ( fabs((*iter)->CalculateCentroid()[1] - 10.0) < 1e-6 )
+                {
+                    double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
+                    TS_ASSERT_DELTA(value,-magnitude,1e-12);
+                }
+            }    
+            delete p_electrodes;
+        }
     }
+    
 };
 
 

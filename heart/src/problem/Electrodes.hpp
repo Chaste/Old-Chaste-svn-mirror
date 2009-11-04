@@ -30,12 +30,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ELECTRODES_HPP_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/split_member.hpp> 
 
 #include "AbstractTetrahedralMesh.hpp"
 #include "DistributedVector.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
-
 
 /**
  *  A class for setting up the boundary conditions associated with electrodes.
@@ -47,11 +48,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  This class assumes the given mesh is cuboid, and the electrodes are taken to be
  *  the specified opposite surfaces.
+ * 
+ *  Note the class now includes a pointer to the mesh as a member variable, as this
+ *  is required to archive (reconstruct) itself. Because boost is clever it will
+ *  still only archive one copy of the mesh.
  */
 template<unsigned DIM>
 class Electrodes
 {
 friend class TestBidomainWithBathAssembler;
+friend class TestElectrodes;
 
 private:
     /** Whether the second electrode is grounded */
@@ -62,6 +68,62 @@ private:
     double mEndTime;
     /** Whether the electrodes are currently switched on */
     bool mAreActive;
+    /** Needs to save the mesh for archiving too (for some reason!) */
+    AbstractTetrahedralMesh<DIM,DIM>* mpMesh;
+    
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Save the Electrodes class
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void save(Archive & archive, const unsigned int version) const
+    {
+        archive & mGroundSecondElectrode;
+        archive & mEndTime;
+        archive & mAreActive;
+        archive & mpMesh;
+        // We only save the boundary conditions container if it exists.
+        bool hasBccSetUp = (mpBoundaryConditionsContainer!=NULL);
+        archive & hasBccSetUp;
+        if (hasBccSetUp)
+        {
+            mpBoundaryConditionsContainer->SaveToArchive(archive);
+        }
+    }
+    /**
+     * Load the Electrodes class
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        archive & mGroundSecondElectrode;
+        archive & mEndTime;
+        archive & mAreActive; 
+        archive & mpMesh;
+        bool hasBccSetUp;
+        archive & hasBccSetUp;
+        if (hasBccSetUp)
+        {
+            // Allocate a real object with new and assign control of memory to mpBoundaryConditionsContainer
+            boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > p_allocate_memory(new BoundaryConditionsContainer<DIM,DIM,2>);
+            mpBoundaryConditionsContainer = p_allocate_memory;
+            // Allow the new object to load itself from the archive.
+            mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
+        }
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
+    
+    /**
+     * Private default constructor for archiving only.
+     */
+    Electrodes(){};
 
 public:
     /** Constructor.
@@ -90,7 +152,7 @@ public:
         assert(mAreActive);
         return mpBoundaryConditionsContainer;
     }
-
+    
     /**
      *  Whether it is time to switch off the electrodes yet. THIS ONLY RETURNS
      *  TRUE ONCE - the first appropriate time. After that the electrodes assume
@@ -109,5 +171,8 @@ public:
         return false;
     }
 };
+
+#include "TemplatedExport.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(Electrodes);
 
 #endif /*ELECTRODES_HPP_*/

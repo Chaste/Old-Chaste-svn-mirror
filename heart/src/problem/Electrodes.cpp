@@ -36,10 +36,11 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                        double upperValue,
                        double magnitude,
                        double duration)
+    : mpMesh(&rMesh)
 {
     /// \todo what on earth is this for???
-    DistributedVectorFactory factory(rMesh.GetDistributedVectorFactory()->GetProblemSize(), 
-                                     rMesh.GetDistributedVectorFactory()->GetLocalOwnership());
+    DistributedVectorFactory factory(mpMesh->GetDistributedVectorFactory()->GetProblemSize(), 
+                                     mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);
@@ -50,8 +51,8 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
     double local_min = DBL_MAX;
     double local_max = -DBL_MAX;
     
-    for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
-         iter != rMesh.GetNodeIteratorEnd();
+    for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=mpMesh->GetNodeIteratorBegin();
+         iter != mpMesh->GetNodeIteratorEnd();
          ++iter)
     {
         double value = (*iter).rGetLocation()[index];
@@ -91,8 +92,8 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
     // loop over boundary elements and add a non-zero phi_e boundary condition (ie extracellular
     // stimulus) if (assuming index=0, etc) x=lowerValue (where x is the x-value of the centroid)
     for (typename AbstractTetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
-            = rMesh.GetBoundaryElementIteratorBegin();
-       iter != rMesh.GetBoundaryElementIteratorEnd();
+            = mpMesh->GetBoundaryElementIteratorBegin();
+       iter != mpMesh->GetBoundaryElementIteratorEnd();
        iter++)
     {
         if ( fabs((*iter)->CalculateCentroid()[index] - lowerValue) < 1e-6 )
@@ -115,8 +116,8 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
     {
         ConstBoundaryCondition<DIM>* p_zero_bc = new ConstBoundaryCondition<DIM>(0.0);
 
-        for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=rMesh.GetNodeIteratorBegin();
-             iter != rMesh.GetNodeIteratorEnd();
+        for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=mpMesh->GetNodeIteratorBegin();
+             iter != mpMesh->GetNodeIteratorEnd();
              ++iter)
         {
             if (fabs((*iter).rGetLocation()[index]-upperValue)<1e-6)
@@ -129,6 +130,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
         delete p_bc_flux_out;
     }
 }
+
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
