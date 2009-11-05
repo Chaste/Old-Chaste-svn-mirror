@@ -33,7 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Copyright (C) University of Oxford, 2005-2009 \n\n\
+    //Only show one copy of copyright/header
+    if (PetscTools::AmMaster())
+    {
+        std::cout << "Copyright (C) University of Oxford, 2005-2009 \n\n\
 \
 Chaste is free software: you can redistribute it and/or modify \n\
 it under the terms of the Lesser GNU General Public License as published by \n\
@@ -48,13 +51,22 @@ Lesser GNU General Public License for more details. \n\n\
 You should have received a copy of the Lesser GNU General Public License \n\
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
-    //Compilation information
-    std::cout<<"This version of Chaste was compiled on:\n";
-    std::cout<<UNAME<<" (uname)\n";
-    std::cout<<"from revision number "<<GetChasteVersion()<<" with build type "<<BUILD_TYPE<<".\n\n";
-
+        //Compilation information
+        std::cout<<"This version of Chaste was compiled on:\n";
+        std::cout<<UNAME<<" (uname)\n";
+        std::cout<<"from revision number "<<GetChasteVersion()<<" with build type "<<BUILD_TYPE<<".\n\n";
+    }
     PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
-    
+
+    if (!PetscTools::IsSequential())
+    {
+        ///Information to show that Chaste is being run in parallel
+        for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
+        {
+            std::cout<<"Chaste launched on process "<<PetscTools::GetRank()
+                <<" of "<< PetscTools::GetNumProcs()<<".\n";
+        }
+    }    
     try
     {
         if (argc<2)

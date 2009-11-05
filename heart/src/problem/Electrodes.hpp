@@ -118,7 +118,7 @@ private:
             mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
         }
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER();
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     
     /**
      * Private default constructor for archiving only.

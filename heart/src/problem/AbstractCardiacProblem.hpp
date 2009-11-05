@@ -244,7 +244,7 @@ private:
         mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
     }
     
-    BOOST_SERIALIZATION_SPLIT_MEMBER();
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     
     /**
      * Serialization helper method to save a boundary conditions container.
@@ -430,7 +430,7 @@ public:
 
     /**
      *  Set the boundary conditions container.
-     *  @param pbcc is a pointer to a boundary conditions container
+     *  @param pBcc is a pointer to a boundary conditions container
      */
     void SetBoundaryConditionsContainer(boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc);
 
