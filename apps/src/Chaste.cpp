@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 int main(int argc, char *argv[])
 {
+    PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
     //Only show one copy of copyright/header
     if (PetscTools::AmMaster())
     {
@@ -56,26 +57,32 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         std::cout<<UNAME<<" (uname)\n";
         std::cout<<"from revision number "<<GetChasteVersion()<<" with build type "<<BUILD_TYPE<<".\n\n";
     }
-    PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
 
     if (!PetscTools::IsSequential())
     {
         ///Information to show that Chaste is being run in parallel
         for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
         {
-            std::cout<<"Chaste launched on process "<<PetscTools::GetRank()
-                <<" of "<< PetscTools::GetNumProcs()<<".\n";
+            if (i==PetscTools::GetMyRank())
+            {
+                std::cout<<"Chaste launched on process "<<PetscTools::GetMyRank()
+                    <<" of "<< PetscTools::GetNumProcs()<<".\n"<<std::flush;
+            }
+            PetscTools::Barrier();
         }
     }    
     try
     {
         if (argc<2)
         {
-            std::cout  << "Usage: Chaste parameters_file\n";
+            if (PetscTools::AmMaster())
+            {
+                std::cout  << "Usage: Chaste parameters_file\n";
+            }
             return -1;
         }
-
-        CardiacSimulation simulation(std::string(argv[1]));
+        std::string xml_file_name=std::string(argv[1]);
+        CardiacSimulation simulation(xml_file_name);
 
         return 0;
     }
