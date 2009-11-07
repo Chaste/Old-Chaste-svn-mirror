@@ -209,8 +209,8 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
         }
     }
     
-    delete is_node_bath;
-    delete is_node_bath_reduced;
+    delete[] is_node_bath;
+    delete[] is_node_bath_reduced;
 }
 
 
