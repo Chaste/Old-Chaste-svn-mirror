@@ -68,7 +68,12 @@ private:
     double mEndTime;
     /** Whether the electrodes are currently switched on */
     bool mAreActive;
-    /** Needs to save the mesh for archiving too (for some reason!) */
+    /**
+     * This is only needed for the archiving tests of Electrodes:
+     * the boundary conditions refer to nodes and/or elements, so need
+     * the mesh to be archived, but don't have a pointer to the mesh itself.
+     * \todo consider whether to just archive the mesh separately in the test
+     */
     AbstractTetrahedralMesh<DIM,DIM>* mpMesh;
     
     /** Needed for serialization. */
@@ -162,7 +167,7 @@ public:
      */
     bool SwitchOff(double time)
     {
-        if(mAreActive && time>mEndTime)
+        if (mAreActive && time>mEndTime)
         {
             mAreActive = false;
             return true;

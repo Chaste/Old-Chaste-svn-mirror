@@ -273,6 +273,9 @@ public:
                     TS_ASSERT_DELTA(value,-magnitude,1e-12);
                 }
             }    
+            
+            // Free memory
+            delete p_electrodes->mpMesh;
             delete p_electrodes;
         }
     }
