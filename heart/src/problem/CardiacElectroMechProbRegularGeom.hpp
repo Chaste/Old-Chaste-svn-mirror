@@ -51,7 +51,7 @@ public:
      * @param pCellFactory factory to use to create cells
      * @param endTime the end time to use 
      * @param numElecTimeStepsPerMechTimestep simple ratio
-     * @param nhsOdeTimeStep Step size for NHS (Niederer, Hunter, Smith) model of active tension in cardiac cells.
+     * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
      * @param outputDirectory the output directory
      */
     CardiacElectroMechProbRegularGeom(ContractionModel contractionModel,
@@ -61,13 +61,13 @@ public:
                                       AbstractCardiacCellFactory<DIM>* pCellFactory,
                                       double endTime,
                                       unsigned numElecTimeStepsPerMechTimestep,
-                                      double nhsOdeTimeStep,
+                                      double contractionModelOdeTimeStep,
                                       std::string outputDirectory = "")
         : CardiacElectroMechanicsProblem<DIM>(contractionModel, 
                                               NULL, NULL, std::vector<unsigned>(), // all these set below
                                               pCellFactory, endTime,
                                               numElecTimeStepsPerMechTimestep,
-                                              nhsOdeTimeStep, outputDirectory)
+                                              contractionModelOdeTimeStep, outputDirectory)
     {
         assert(DIM==2); // the below assumes DIM==2
 

@@ -70,7 +70,7 @@ struct ElementAndWeights
  *  For solving full electro-mechanical problems.
  *
  *  Solves a monodomain problem (diffusion plus cell models) on a (fine) electrics
- *  mesh, and a mechanics problem (finite elasticity plus NHS cell models) on a coarse
+ *  mesh, and a mechanics problem (finite elasticity plus contraction model) on a coarse
  *  mesh. An implicit scheme (Jon Whiteley's algorithm) be be used.
  *
  *  For solving problems on regular grids use CardiacElectroMechProbRegularGeom
@@ -81,11 +81,11 @@ struct ElementAndWeights
  *  For every time:
  *    Solve the monodomain problem (ie integrate ODEs, solve PDE)
  *    Get intracellular [Ca] at each electrics node and interpolate on each mechanics quad point
- *    Set [Ca] on each NHS model (one for each point)
+ *    Set [Ca] on each contraction model (one for each point)
  *    Solve static finite elasticity problem implicity
  *       - guess solution
- *       - this gives the fibre stretch and stretch rate to be set on NHS models
- *       - integrate NHS models implicity for active tension
+ *       - this gives the fibre stretch and stretch rate to be set on contraction models
+ *       - integrate contraction models (implicitly if NHS) to get for active tension
  *       - use this active tension in computing the stress for that guess of the deformation
  *  end
  *
@@ -115,8 +115,8 @@ protected :
     double mMechanicsTimeStep;
     /** The number of electrics timesteps per mechanics timestep */
     unsigned mNumElecTimestepsPerMechTimestep;
-    /** Timestep to use when solving NHS models (for implicit version)*/
-    double mNhsOdeTimeStep;
+    /** Timestep to use when solving contraction models */
+    double mContractionModelOdeTimeStep;
 
     /** The mesh for the electrics */
     TetrahedralMesh<DIM,DIM>* mpElectricsMesh;

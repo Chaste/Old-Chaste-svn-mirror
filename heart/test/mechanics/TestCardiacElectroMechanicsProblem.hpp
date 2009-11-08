@@ -56,7 +56,7 @@ public:
                                                      &cell_factory,
                                                      1.0, /* end time */
                                                      100, /* 100*0.01ms mech dt */
-                                                     0.01,/* nhs ode timestep */
+                                                     0.01,/* contraction model ode timestep */
                                                      "");
 
         c_vector<double,2> pos;
@@ -96,7 +96,7 @@ public:
                                                      &cell_factory,
                                                      10.0, /* end time */
                                                      100,  /* 100*0.01ms mech dt */
-                                                     0.01, /* NHS ode timestep */
+                                                     0.01, /* contraction model ode timestep */
                                                      "TestCardiacElectroMechOneElement");
         c_vector<double,2> pos;
         pos(0) = 0.05;
@@ -173,7 +173,7 @@ public:
 //                                                           &cell_factory,
 //                                                           0.05, /* end time */
 //                                                           1,    /* 0.01ms mech dt */
-//                                                           0.01, /* nhs ode dt */
+//                                                           0.01, /* contraction model ode dt */
 //                                                           "TestCardiacElectroMechImplicitCinverse");
 //        implicit_problem.SetNoElectricsOutput();
 //        implicit_problem.Solve();

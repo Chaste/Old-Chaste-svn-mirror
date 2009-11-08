@@ -171,7 +171,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             AbstractCardiacCellFactory<DIM>* pCellFactory,
             double endTime,
             unsigned numElecTimeStepsPerMechTimestep,
-            double nhsOdeTimeStep,
+            double contractionModelOdeTimeStep,
             std::string outputDirectory = "")
 {
     // Start-up mechanics event handler..
@@ -195,7 +195,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     assert(endTime > 0);
     mEndTime = endTime;
 
-//EMTODO shouldn't be hardcoded
+//EMTODO shouldn't be hardcoded (also perhaps change numElecTimeStepsPerMechTimestep to instead take in mMechDt?)
     mElectricsTimeStep = 0.01;
 
     assert(numElecTimeStepsPerMechTimestep>0);
@@ -203,8 +203,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mNumElecTimestepsPerMechTimestep = numElecTimeStepsPerMechTimestep;
 
     mMechanicsTimeStep = mElectricsTimeStep*mNumElecTimestepsPerMechTimestep;
-    assert(nhsOdeTimeStep <= mMechanicsTimeStep+1e-14);
-    mNhsOdeTimeStep = nhsOdeTimeStep;
+    assert(contractionModelOdeTimeStep <= mMechanicsTimeStep+1e-14);
+    mContractionModelOdeTimeStep = contractionModelOdeTimeStep;
 
     // check whether output is required
     mWriteOutput = (outputDirectory!="");
@@ -235,7 +235,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     LogFile::Instance()->WriteHeader("Electromechanics");
     LOG(2, DIM << "d Implicit CardiacElectroMechanics Simulation:");
     LOG(2, "End time = " << mEndTime << ", electrics time step = " << mElectricsTimeStep << ", mechanics timestep = " << mMechanicsTimeStep << "\n");
-    LOG(2, "Nhs ode timestep " << mNhsOdeTimeStep);
+    LOG(2, "Contraction model ode timestep " << mContractionModelOdeTimeStep);
     LOG(2, "Output is written to " << mOutputDirectory << "/[deformation/electrics]");
 #define COVERAGE_IGNORE
 /// \todo Cover these lines
@@ -473,13 +473,12 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
         LOG(2, "  Setting Ca_I. max value = " << Max(interpolated_calcium_concs));
 
-        // NOTE: HERE WE SHOULD REALLY CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
+        // NOTE IF NHS: HERE WE SHOULD PERHAPS CHECK WHETHER THE CELL MODELS HAVE Ca_Trop
         // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
 
         // set [Ca], V, t
         mpCardiacMechAssembler->SetCalciumAndVoltage(interpolated_calcium_concs, interpolated_voltages);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::NON_MECH);
-
 
         // solve the mechanics
         LOG(2, "  Solving mechanics ");
@@ -487,7 +486,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         mpCardiacMechAssembler->SetWriteOutput(false);
 
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ALL_MECH);
-        mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mNhsOdeTimeStep);
+        mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mContractionModelOdeTimeStep);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::ALL_MECH);
 
         LOG(2, "    Number of newton iterations = " << mpCardiacMechAssembler->GetNumNewtonIterations());

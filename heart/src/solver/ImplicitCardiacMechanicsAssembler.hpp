@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  Implicit Cardiac Mechanics Assembler
  *
- *  Solves cardiac mechanics implicitly (together with the NHS cell
+ *  Solves cardiac mechanics implicitly (together with the contraction
  *  models for determining the active tension), taking in the intracellular
  *  calcium concentration. See CardiacElectroMechanicsProblem documentation
  *  for more detail.
@@ -73,7 +73,7 @@ private:
     /**
      *  A method called by AbstractCardiacMechanicsAssembler::AssembleOnElement(), providing
      *  the active tension (and other info) at a particular quadrature point. This version uses C to 
-     *  determine the current stretch and stretch rate, and integrates the NHS ODEs to determine
+     *  determine the current stretch and stretch rate, and integrates the contraction model ODEs to determine
      *  the active tension, and derivatives of the active tension with respect to stretch and
      *  stretch rate.
      * 

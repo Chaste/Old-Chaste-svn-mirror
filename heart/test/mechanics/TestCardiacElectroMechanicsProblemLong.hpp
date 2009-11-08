@@ -57,7 +57,7 @@ public:
                                                      &cell_factory,
                                                      125,  /* end time */
                                                      100,  /* 100*0.01ms mech dt */
-                                                     1.0,  /* NHS ode dt */
+                                                     1.0,  /* contraction model ode dt */
                                                      "TestCardiacElectroMechImplicit");
 
         problem.SetNoElectricsOutput();
@@ -95,7 +95,7 @@ public:
                                                   &cell_factory,
                                                   50,   /* end time */
                                                   100,  /* 100*0.01ms mech dt */
-                                                  1.0,  /* NHS ode dt */
+                                                  1.0,  /* contraction model ode dt */
                                                   "TestCardiacElectroMech3d");
 
         problem.SetNoElectricsOutput();

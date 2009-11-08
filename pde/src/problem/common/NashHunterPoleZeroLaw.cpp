@@ -41,9 +41,8 @@ NashHunterPoleZeroLaw<3>::NashHunterPoleZeroLaw()
     }
 
     /////////////////////////////////////////////////////////////////
-    // Everything here has been entered in kPa!!
-    // Currently the NHS cellular model returns the active tension
-    // in kPa so no scaling is needed
+    // Everything here has been entered in kPa.
+    // All contraction models should return Ta in kPa.
     /////////////////////////////////////////////////////////////////
     k[0][0] = 2; //ff
     k[1][0] = k[0][1] = 1; //fs
