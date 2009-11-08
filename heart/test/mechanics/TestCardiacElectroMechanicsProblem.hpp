@@ -139,9 +139,9 @@ public:
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     5, /* end time */                    // dies between 7ms and 8ms
+                                                     5, /* end time */                    // dies at 7.28 with explicit
                                                      1,   /* n times 0.01ms mech dt */
-                                                     0.01, /* NHS ode timestep */
+                                                     0.01, /* Kerchoffs ode timestep */
                                                      "TestExplicitWithKerchoffs");
 
         c_vector<double,2> pos;

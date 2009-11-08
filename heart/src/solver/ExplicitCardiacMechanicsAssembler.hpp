@@ -31,8 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacMechanicsAssembler.hpp"
 #include "AbstractContractionModel.hpp"
-#include "Kerchoffs2003ContractionModel.hpp"
-#include "NonPhysiologicalContractionModel.hpp"
 
 
 /**
@@ -58,6 +56,10 @@ private:
     {
         return false;
     }
+
+//    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
+//    std::vector<double> mStretchesLastTimestep;
+
 
     /**
      *  Get the active tension and other info at the given quadrature point. This is an explicit 

@@ -90,7 +90,6 @@ ImplicitCardiacMechanicsAssembler<DIM>::~ImplicitCardiacMechanicsAssembler()
 {
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
-        //// memory leak as this is commented out. But get glibc failure with it in... 
         delete this->mContractionModelSystems[i];
     }
 }

@@ -68,7 +68,7 @@ public:
         assembler.Solve(-0.01,0.0,0.01);        
         TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(),0u);
 
-        assembler.Solve(0.99,1.0,0.01);
+        assembler.Solve(0.24,0.25,0.01);
         
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[4](0),  0.8730, 1e-2);
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[4](1), -0.0867, 1e-2);
@@ -90,10 +90,11 @@ public:
         ExplicitCardiacMechanicsAssembler<2> expl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Exp"*/,fixed_nodes,&law);
         ImplicitCardiacMechanicsAssembler<2> impl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Imp"*/,fixed_nodes,&law);
 
-        for(unsigned t=0; t<10; t+=1)
+        double dt = 0.25;
+        for(double t=0; t<3; t+=dt)
         {
-            expl_solver.Solve(t,t+10,1);
-            impl_solver.Solve(t,t+10,1);
+            expl_solver.Solve(t,t+dt,dt);
+            impl_solver.Solve(t,t+dt,dt);
 
             // computations should be identical
             TS_ASSERT_EQUALS(expl_solver.GetNumNewtonIterations(), impl_solver.GetNumNewtonIterations()); 
@@ -127,8 +128,8 @@ public:
         unsigned counter = 1;
 
         double t0 = 0.0;
-        double t1 = 1.0; // 1.0 to be quite quick (min stretch ~=0.88), make this 5 say for min stretch < 0.7
-        double dt = 0.1;
+        double t1 = 0.25; // to be quite quick (min stretch ~=0.88), make this 5/4 (?) say for min stretch < 0.7
+        double dt = 0.025;
 
         for(double t=t0; t<t1; t+=dt)
         {
@@ -142,7 +143,7 @@ public:
             impl_solver.SetWriteOutput(false);
             impl_solver.Solve(t,t+dt,dt);
             impl_solver.SetWriteOutput();
-            impl_solver.WriteOutput(counter++);
+            impl_solver.WriteOutput(counter);
             
             // the solutions turn out to be very close to each other
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -160,6 +161,8 @@ public:
             //
             // close all; figure; hold on
             // for i=0:10, x2 = load(['TestCompareExplAndImplCardiacSolversStretch_Imp/solution_',num2str(i),'.nodes']); plot(x2(:,1),x2(:,2),'r*'); end
+            
+            counter++;
         }
         
         // check there was significant deformation - node 4 is (1,0)

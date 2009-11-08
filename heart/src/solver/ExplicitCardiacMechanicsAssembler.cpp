@@ -27,6 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ExplicitCardiacMechanicsAssembler.hpp"
+#include "Kerchoffs2003ContractionModel.hpp"
+#include "NonPhysiologicalContractionModel.hpp"
+//// for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
+//#include "NhsModelWithImplicitSolver.hpp"
 
 template<unsigned DIM>
 ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(ContractionModel contractionModel,
@@ -39,6 +43,9 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
                                              rFixedNodes,
                                              pMaterialLaw)
 {
+//    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
+//    mStretchesLastTimestep.resize(this->mTotalQuadPoints, 1.0);
+    
     switch(contractionModel)
     {
         case NONPHYSIOL1:
@@ -56,11 +63,20 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
         {
             for(unsigned i=0; i<this->mTotalQuadPoints; i++)
             {
-                Kerchoffs2003ContractionModel* p_model = new Kerchoffs2003ContractionModel();
-                this->mContractionModelSystems.push_back(p_model);
+                this->mContractionModelSystems.push_back(new Kerchoffs2003ContractionModel);
             }
             break;
         }
+        
+//        // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
+//        case NHS:
+//        {
+//            for(unsigned i=0; i<this->mTotalQuadPoints; i++)
+//            {
+//                this->mContractionModelSystems.push_back(new NhsModelWithImplicitSolver);
+//            }
+//            break;
+//        }
         default:
         {
             EXCEPTION("Unknown or stretch-rate-dependent contraction model");
@@ -75,7 +91,6 @@ ExplicitCardiacMechanicsAssembler<DIM>::~ExplicitCardiacMechanicsAssembler()
 {        
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
-        //// memory leak as this is commented out. But get glibc failure with it in... 
         delete this->mContractionModelSystems[i];
     }
 }        
@@ -116,13 +131,19 @@ void ExplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
     // integrate contraction models
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
-        this->mContractionModelSystems[i]->SetStretchAndStretchRate(this->mStretches[i], 0.0);
+//        // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
+//        double dlam_dt = (this->mStretches[i] - mStretchesLastTimestep[i])/(nextTime-time);
+        
+        this->mContractionModelSystems[i]->SetStretchAndStretchRate(this->mStretches[i], 0.0 /*dlam_dt*/);
         this->mContractionModelSystems[i]->RunDoNotUpdate(time, nextTime, odeTimestep);
         this->mContractionModelSystems[i]->UpdateStateVariables();
     }   
     
     // solve
     NonlinearElasticityAssembler<DIM>::Solve();
+
+//    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
+//    mStretchesLastTimestep = this->mStretches;
 }
 
 

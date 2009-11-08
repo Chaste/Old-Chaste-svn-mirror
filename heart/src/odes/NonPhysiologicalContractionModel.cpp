@@ -57,25 +57,19 @@ double NonPhysiologicalContractionModel::GetActiveTension()
     if(mOption==1)
     {
         // implicit and explicit are identical as they should be
-        return fabs(5*sin(mTime/4));
+        return fabs(5*sin(mTime));
     }
     else if(mOption==2)
     {
         // small error between them at lowest dt
         // next dt, small diff between explicit at lowest dt, mostly due to first timestep
         // largest dt (1ms) completely wrong after first timestep => solution translated across
-        return fabs(5*mStretch*sin(mTime/4));
+        return fabs(5*mStretch*sin(mTime));
     }
     else
     {
         // same conclusions as for above
-        return fabs(5*exp(1-mStretch)*sin(mTime/4));
+        return fabs(5*exp(1-mStretch)*sin(mTime));
     }
-
-    ///// Hmm..
-    // Implicit seems fine.
-    // Explicit fails for all dt - goes unstable. Goes unstable earlier (in time) as dt gets smaller. 
-    // Still unstable if h is reduced.
-    // return fabs(1*(0.9-mStretch)*(0.9-mStretch)*sin(mTime/4));
 }
 

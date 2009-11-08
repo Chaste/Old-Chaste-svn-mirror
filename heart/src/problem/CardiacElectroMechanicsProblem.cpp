@@ -194,7 +194,10 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     // save time infomation
     assert(endTime > 0);
     mEndTime = endTime;
+
+//EMTODO shouldn't be hardcoded
     mElectricsTimeStep = 0.01;
+
     assert(numElecTimeStepsPerMechTimestep>0);
 
     mNumElecTimestepsPerMechTimestep = numElecTimeStepsPerMechTimestep;
@@ -292,8 +295,8 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMonodomainProblem->Initialise();
 
     // Construct mechanics assembler
-    // Here we pick the best solver for each particular contraction models. Commented out versions are 
-    // for experimentations.
+    // Here we pick the best solver for each particular contraction model. Commented out versions are 
+    // for experimentation.
     switch(mContractionModel)
     {
         case KERCHOFFS2003:
@@ -304,6 +307,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
             break;
         case NHS:
             mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            //mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");

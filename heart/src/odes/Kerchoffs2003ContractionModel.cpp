@@ -110,12 +110,8 @@ double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
         }
     }
     
-    // one set of results with implicit, different with explicit, where get instabilities (earlier for small dt!)
+    // expl is unstable for dt = 0.01, 0.001, impl is fine
     return (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea;
-
-    /////// non-phys, independent of lc, doesn't have stability problems with explicit, dt=0.01. 
-    ///////Implicit gives similar results, translated across slightly
-    ////return (mSarcomereLength/ls0)*T0*f_twitch*(mSarcomereLength)*Ea;
 }
 
 
