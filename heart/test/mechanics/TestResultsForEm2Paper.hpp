@@ -56,8 +56,10 @@ class TestResultsForEm2Paper : public CxxTest::TestSuite
 {
 public:
     // 1. MAKE SURE  k=5 - ie change {{{return fabs(5*sin(mTime));}}} to {{{return fabs(sin(mTime));}}} in NonPhysiologicalContractionModel
-    void xTestWithStretchIndependent() throw(Exception)
+    void TestWithStretchIndependent() throw(Exception)
     {
+        return; // so compiles (not all tests xTested out) but doesn't run.
+        
         EXIT_IF_PARALLEL; 
         
         QuadraticMesh<2> mesh(1.0, 1.0, 5, 5);
