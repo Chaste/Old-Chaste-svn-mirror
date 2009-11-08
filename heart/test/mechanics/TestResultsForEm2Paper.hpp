@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 
-// Todo: move to pras's project folder when it let's me check that out..
+// Todo: move to pras's project folder when it lets me check that out..
 
 class TestResultsForEm2Paper : public CxxTest::TestSuite
 {
