@@ -254,7 +254,6 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
     
     //y1 = z - inv(A11)(B*y2)
     MatMult(block_diag_context->B_matrix_subblock,block_diag_context->y2_subvector,block_diag_context->temp); //temp = B*y2 
-    ///\todo Are these lines in the correct order Miguel?
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->temp, block_diag_context->y1_subvector); // y1 = inv(A11)*temp
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     VecAYPX(&minus_one, block_diag_context->z, block_diag_context->y1_subvector); // y1 <-- z - y1
