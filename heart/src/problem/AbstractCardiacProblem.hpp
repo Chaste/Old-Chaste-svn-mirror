@@ -85,6 +85,10 @@ class AbstractCardiacProblem
 {
 friend class TestBidomainWithBathAssembler;
 
+    /** To save typing */
+    typedef typename boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> >
+        BccType;
+    
 private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -150,7 +154,8 @@ private:
         
         // Save boundary conditions
         SaveBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
-        SaveBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer);
+        SaveBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer,
+                               mpBoundaryConditionsContainer == mpDefaultBoundaryConditionsContainer);
     }
     
     /**
@@ -241,7 +246,7 @@ private:
         
         // Load boundary conditions
         mpBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
-        mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
+        mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
     }
     
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -256,14 +261,19 @@ private:
     template<class Archive>
     void SaveBoundaryConditions(Archive & archive,
                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc) const
+                                BccType pBcc,
+                                bool alreadySaved=false) const
     {
-        bool have_object = pBcc;
-        archive & have_object;
-        if (have_object)
+        archive & alreadySaved;
+        if (!alreadySaved)
         {
-            ///\todo #1169 need more tests of this!
-            pBcc->SaveToArchive(archive);
+            bool have_object = pBcc;
+            archive & have_object;
+            if (have_object)
+            {
+                ///\todo #1169 need more tests of this!
+                pBcc->SaveToArchive(archive);
+            }
         }
     }
     
@@ -275,24 +285,35 @@ private:
      * @return  the loaded container
      */
     template<class Archive>
-    boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > LoadBoundaryConditions(
+    BccType LoadBoundaryConditions(
             Archive & archive,
-            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+            BccType pPreviousContainer=BccType())
                                 
     {
         // Create empty pointer
-        boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > p_bcc;
-                
-        // Check whether we archived a non-empty boundary conditions container...
-        bool have_object;
-        archive & have_object;
+        BccType p_bcc;
         
-        // ...if we did load it up.
-        if (have_object)
+        // Check if we've already loaded this object
+        bool already_loaded;
+        archive & already_loaded;
+        
+        if (already_loaded)
         {
-            /// \todo #1169 memory leak
-            p_bcc.reset(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
-            p_bcc->LoadFromArchive(archive, pMesh);
+            p_bcc = pPreviousContainer;
+        }
+        else
+        {
+            // Check whether we archived a non-empty boundary conditions container...
+            bool have_object;
+            archive & have_object;
+            
+            // ...if we did load it up.
+            if (have_object)
+            {
+                p_bcc.reset(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
+                p_bcc->LoadFromArchive(archive, pMesh);
+            }
         }
         
         // returns either a NULL or a loaded boundary conditions container.
@@ -341,9 +362,9 @@ protected:
     AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* mpCardiacPde;
 
     /** Boundary conditions container used in the simulation */
-    boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > mpBoundaryConditionsContainer;
+    BccType mpBoundaryConditionsContainer;
     /** It is convenient to also have a separate variable for default (zero-Neumann) boundary conditions */
-    boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > mpDefaultBoundaryConditionsContainer;
+    BccType mpDefaultBoundaryConditionsContainer;
     /** The PDE solver */
     AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
     /** The cell factory creates the cells for each node */
@@ -431,7 +452,7 @@ public:
      *  Set the boundary conditions container.
      *  @param pBcc is a pointer to a boundary conditions container
      */
-    void SetBoundaryConditionsContainer(boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc);
+    void SetBoundaryConditionsContainer(BccType pBcc);
 
     /**
      *  Performs a series of checks before solving.

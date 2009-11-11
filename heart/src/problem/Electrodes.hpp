@@ -117,8 +117,7 @@ private:
         if (hasBccSetUp)
         {
             // Allocate a real object with new and assign control of memory to mpBoundaryConditionsContainer
-            boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > p_allocate_memory(new BoundaryConditionsContainer<DIM,DIM,2>);
-            mpBoundaryConditionsContainer = p_allocate_memory;
+            mpBoundaryConditionsContainer.reset(new BoundaryConditionsContainer<DIM,DIM,2>);
             // Allow the new object to load itself from the archive.
             mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
         }

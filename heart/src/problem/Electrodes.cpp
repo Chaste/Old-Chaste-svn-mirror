@@ -83,8 +83,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
         EXCEPTION("Maximum value of coordinate is not the value given");
     }
 
-    boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > p_allocated_pointer(new BoundaryConditionsContainer<DIM,DIM,2>);
-    mpBoundaryConditionsContainer = p_allocated_pointer;
+    mpBoundaryConditionsContainer.reset(new BoundaryConditionsContainer<DIM,DIM,2>);
 
     ConstBoundaryCondition<DIM>* p_bc_flux_in = new ConstBoundaryCondition<DIM>(magnitude);
     ConstBoundaryCondition<DIM>* p_bc_flux_out = new ConstBoundaryCondition<DIM>(-magnitude);

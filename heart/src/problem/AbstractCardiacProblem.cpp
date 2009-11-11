@@ -63,9 +63,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mArchiveKSP(false),
       mpWriter(NULL)
 {
-    mpBoundaryConditionsContainer.reset();
-    mpDefaultBoundaryConditionsContainer.reset();
-    
     mWriteInfo = false;
     mPrintOutput = true;
     mCallChaste2Meshalyzer = false;
@@ -104,8 +101,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mArchiveKSP(false),
       mpWriter(NULL)
 {
-    mpBoundaryConditionsContainer.reset();
-    mpDefaultBoundaryConditionsContainer.reset();
 }
 
 
