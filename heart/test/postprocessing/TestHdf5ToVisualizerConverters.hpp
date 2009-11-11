@@ -27,21 +27,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTHDF5TOMCMGUICONVERTER_HPP_
-#define TESTHDF5TOCMGUICONVERTER_HPP_
+#ifndef TESTHDF5TOVISUALIZERCONVERTERS_HPP_
+#define TESTHDF5TOVISUALIZERCONVERTERS_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "Hdf5ToMeshalyzerConverter.hpp"
 #include "Hdf5ToCmguiConverter.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "HeartConfig.hpp"
 
-class TestHdf5ToCmguiConverter : public CxxTest::TestSuite
+class TestHdf5ToVisualizerConverters : public CxxTest::TestSuite
 {
 private :
-    // copies a file (relative to Chaste home to CHASTE_TEST_OUTPUT/dir)
+    // copies a file (relative to Chaste home to CHASTE_TEST_OUTPUT/dir
     void CopyToTestOutputDirectory(std::string file, std::string dir)
     {
         if (PetscTools::AmMaster())
@@ -56,7 +57,86 @@ private :
     }
 
 public :
-    void TestMonodomainConversion3D() throw(Exception)
+    void TestMonodomainMeshalyzerConversion() throw(Exception)
+    {
+        OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
+
+        // firstly, copy ./heart/test/data/MonoDg01d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // as that is where the reader reads from.
+        CopyToTestOutputDirectory("heart/test/data/Monodomain1d/MonodomainLR91_1d.h5",
+                                  "TestHdf5ToMeshalyzerConverter");
+
+        // convert
+        HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
+        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d");
+
+        // compare the voltage file with a correct version
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_V.dat "
+                                     + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_times.info "
+                                     + "heart/test/data/Monodomain1d/MonodomainLR91_1d_times.info";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        }
+
+
+    void TestBidomainMeshalyzerConversion() throw(Exception)
+    {
+        OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
+
+        // firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // as that is where the reader reads from.
+        CopyToTestOutputDirectory("heart/test/data/Bidomain1d/bidomain.h5",
+                                  "TestHdf5ToMeshalyzerConverter");
+
+        // convert
+        HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
+        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter",  "bidomain");
+
+        // compare the voltage file
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_V.dat "
+                                     + "heart/test/data/Bidomain1d/bidomain_V.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        // compare the Phi_e file
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_Phi_e.dat "
+                         + "heart/test/data/Bidomain1d/bidomain_Phi_e.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+       // compare the time information file
+        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_times.info "
+                         + "heart/test/data/Bidomain1d/bidomain_times.info";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+    }
+
+    void TestMeshalyzerExceptions() throw(Exception)
+    {
+        OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
+
+        CopyToTestOutputDirectory("io/test/data/hdf5_test_full_format.h5", // doesn't have one or two variables
+                                  "TestHdf5ToMeshalyzerConverter");
+
+        HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
+
+        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format"),
+                "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
+
+        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
+                                  "TestHdf5ToMeshalyzerConverter");
+
+        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1"),
+                "One variable, but it is not called \'V\'");
+
+        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
+                                  "TestHdf5ToMeshalyzerConverter");
+
+        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2"),
+                "Two variables, but they are not called \'V\' and \'Phi_e\'");
+    }
+    
+    void TestMonodomainCmguiConversion3D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain";
         OutputFileHandler handler(working_directory);
@@ -82,7 +162,7 @@ public :
     }
 
 
-    void TestBidomainConversion3D() throw(Exception)
+    void TestBidomainCmguiConversion3D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_bidomain";
         OutputFileHandler handler(working_directory);
@@ -107,7 +187,7 @@ public :
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 
-    void TestMonodomainConversion2D() throw(Exception)
+    void TestMonodomainCmguiConversion2D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain2D";
         OutputFileHandler handler(working_directory);
@@ -132,7 +212,7 @@ public :
                                      + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
-    void TestBidomainConversion1D() throw(Exception)
+    void TestBidomainCmguiConversion1D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_bidomain1D";
         OutputFileHandler handler(working_directory);
@@ -157,7 +237,7 @@ public :
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 
-    void TestExceptions() throw(Exception)
+    void TestCmguiExceptions() throw(Exception)
     {
         std::string bidomain_directory = "TestHdf5ToCmguiConverter_bidomain";
         std::string monodomain_directory = "TestHdf5ToCmguiConverter_monodomain";
@@ -181,6 +261,7 @@ public :
 
         TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter2(bidomain_directory, "bad_heart_data_2"),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
-    }
+    }    
+
 };
-#endif /*TESTHDF5TOCMGUICONVERTER_HPP_*/
+#endif /*TESTHDF5TOVISUALIZERCONVERTERS_HPP_*/

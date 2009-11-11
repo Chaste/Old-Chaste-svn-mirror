@@ -18,8 +18,7 @@ convergence/TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
 TestElectrodes.hpp
 ionicmodels/TestFaberRudyAgainstLimpet.hpp
-postprocessing/TestHdf5ToCmguiConverter.hpp
-postprocessing/TestHdf5ToMeshalyzerConverter.hpp
+postprocessing/TestHdf5ToVisualizerConverters.hpp
 TestHeartConfig.hpp
 TestHeartGeometryInformation.hpp
 TestHeterogeneousConductivities.hpp
