@@ -1268,9 +1268,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln('#include "AbstractStimulusFunction.hpp"')
         self.writeln()
-        self.output_comment('Needs to be included last')
-        self.writeln('#include <boost/serialization/export.hpp>')
-        self.writeln()
 
         if self.use_lookup_tables and self.separate_lut_class:
             self.output_lut_class()
@@ -1891,7 +1888,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln()
         # Serialization
         if not self.use_multi_cell_interface:
-            self.writeln('BOOST_CLASS_EXPORT(', self.class_name, ')')
+            self.output_comment('Needs to be included last')
+            self.writeln('#include "TemplatedExport.hpp"')
+            self.writeln('CHASTE_CLASS_EXPORT(', self.class_name, ')')
+            self.writeln()
             self.writeln('namespace boost')
             self.open_block()
             self.writeln('namespace serialization')
