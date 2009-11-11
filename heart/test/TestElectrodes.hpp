@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "DistributedVector.hpp"
+#include "ArchiveOpener.hpp"
 
 class TestElectrodes : public CxxTest::TestSuite
 {
@@ -216,9 +217,8 @@ public:
      */
     void TestArchivingElectrodes() throw(Exception)
     {
-        OutputFileHandler handler("archive",false); 
-        handler.SetArchiveDirectory();
-        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("Electrodes.arch");
+        std::string archive_dir = "archive";
+        std::string archive_file = "Electrodes.arch";
         
         // These values used for construction and testing later.
         double magnitude = 543.324;
@@ -231,12 +231,12 @@ public:
             // Create Electrodes class - the const is required to prevent boost errors on compilation.
             Electrodes<3>* const p_electrodes = new Electrodes<3>(mesh,false,1,0,10,magnitude,duration);
             
-            // Create output archive    
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Save the electrodes to the archive...   
-            output_arch << p_electrodes;
+            (*p_arch) << p_electrodes;
             delete p_electrodes;
         }
     
@@ -244,11 +244,11 @@ public:
             Electrodes<3>* p_electrodes;
     
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
     
             // restore from the archive
-            input_arch >> p_electrodes;
+            (*p_arch) >> p_electrodes;
     
             // Repeat the above test TestElectrodeUngrounded3d() on the loaded Electrodes object.    
             boost::shared_ptr<BoundaryConditionsContainer<3,3,2> > p_bcc = 

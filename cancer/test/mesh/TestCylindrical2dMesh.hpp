@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 
 #include "HoneycombMeshGenerator.hpp"
-
+#include "ArchiveOpener.hpp"
 
 class TestCylindrical2dMesh : public CxxTest::TestSuite
 {
@@ -548,11 +548,9 @@ public:
     // NB This checks that periodicity is maintained through archiving...
     void TestArchiving() throw (Exception)
     {
-        std::string dirname = "archive";
-        OutputFileHandler handler(dirname, false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cylindrical_mesh_base.arch";
-
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cylindrical_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file =  "cylindrical_mesh_base.arch";
+        ArchiveLocationInfo::SetMeshFilename("cylindrical_mesh");
 
         // Set up a mesh
         unsigned cells_across = 5;
@@ -576,12 +574,12 @@ public:
             double width = p_mesh->GetWidth(0);
             TS_ASSERT_DELTA(width, crypt_width, 1e-7);
 
-            // Archive the mesh
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // We have to serialize via a pointer here, or the derived class information is lost.
-            output_arch << p_mesh;
+            (*p_arch) << p_mesh;
         }
 
         {
@@ -589,11 +587,11 @@ public:
             AbstractTetrahedralMesh<2,2>* p_mesh2;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Restore from the archive
-            input_arch >> p_mesh2;
+            (*p_arch) >> p_mesh2;
 
             // Cylindrical2dMesh now remeshes itself on load (convert from TrianglesMeshReader to normal format)
 

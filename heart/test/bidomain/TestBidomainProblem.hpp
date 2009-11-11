@@ -49,6 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "ParallelTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "ArchiveOpener.hpp"
 
 #include "CompareHdf5ResultsFiles.hpp"
 
@@ -804,9 +805,8 @@ public:
      */
     void TestArchiving() throw(Exception)
     {
-        OutputFileHandler handler("bidomain_problem_archive", false);
-        handler.SetArchiveDirectory();
-        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("bidomain_problem.arch");
+        std::string archive_dir = "bidomain_problem_archive";
+        std::string archive_file = "bidomain_problem.arch";
 
         // Values to test against after load
         unsigned num_cells;
@@ -830,19 +830,20 @@ public:
 
             num_cells = bidomain_problem.GetPde()->GetCellsDistributed().size();
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+
             AbstractCardiacProblem<1,1,2>* const p_bidomain_problem = &bidomain_problem;
-            output_arch & p_bidomain_problem;
+            (*p_arch) & p_bidomain_problem;
         }
 
         // Load
         {
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             AbstractCardiacProblem<1,1,2> *p_bidomain_problem;
-            input_arch >> p_bidomain_problem;
+            (*p_arch) >> p_bidomain_problem;
 
             // Check values
             TS_ASSERT_EQUALS(p_bidomain_problem->GetPde()->GetCellsDistributed().size(),

@@ -179,7 +179,7 @@ public:
     
     /**
      *  Get wheter the directory provided is relative to CHASTE_TEST_OUTPUT
-     *  @return true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to PWD 
+     *  @return true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD 
      */
     static bool GetIsDirRelativeToChasteTestOutput()
     {

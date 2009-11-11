@@ -141,7 +141,7 @@ inline void save_construct_data(
     const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
     const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
 
-    ar & r_cells_distributed;
+    (*ProcessSpecificArchive<Archive>::Get()) & r_cells_distributed;
     ar & p_mesh;
 
     // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
@@ -162,7 +162,7 @@ inline void load_construct_data(
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
 
-    ar & cells_distributed;
+    (*ProcessSpecificArchive<Archive>::Get()) & cells_distributed;
     ar & p_mesh;
 
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.

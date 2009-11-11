@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+#include "ArchiveOpener.hpp"
 
 class TestMeshBasedTissue : public AbstractCancerTestSuite
 {
@@ -525,9 +525,9 @@ public:
     // This test checks that the cells and nodes are correctly archived.
     void TestArchivingMeshBasedTissue() throw (Exception)
     {
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mesh_based_tissue.arch";
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"mesh_based_tissue_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file = "mesh_based_tissue.arch";
+        ArchiveLocationInfo::SetMeshFilename("mesh_based_tissue_mesh");
 
         std::vector<c_vector<double,2> > cell_locations;
 
@@ -567,13 +567,13 @@ public:
             // Set area-based viscosity
             p_tissue->SetAreaBasedDampingConstant(true);
 
-            // Create an output archive
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Write the tissue to the archive
-            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
-            output_arch << p_tissue;
+            (*p_arch) << static_cast<const SimulationTime&> (*p_simulation_time);
+            (*p_arch) << p_tissue;
             SimulationTime::Destroy();
             delete p_tissue;
         }
@@ -589,12 +589,12 @@ public:
 
             MeshBasedTissue<2>* p_tissue;
 
-            // Restore the tissue
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-            input_arch >> *p_simulation_time;
+            // Create an input archive
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+            (*p_arch) >> *p_simulation_time;
 
-            input_arch >> p_tissue;
+            (*p_arch) >> p_tissue;
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.

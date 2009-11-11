@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <vector>
 
-//#include "ArchiveLocationInfo.hpp"
+#include "ArchiveOpener.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -147,14 +147,13 @@ public:
 
     void TestSaveAndLoadCardiacPDE()
     {
-        //Archive
-        OutputFileHandler handler("archive", false);
-        handler.SetArchiveDirectory();
-        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("bidomain_pde.arch");
+        // Archive settings
+        std::string archive_dir = "archive";
+        std::string archive_file = "bidomain_pde.arch";
+        
         bool cache_replication_saved = false;
         double saved_printing_timestep = 2.0;
         double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
-
 
         c_matrix<double, 1, 1> intra_tensor_before_archiving;
         c_matrix<double, 1, 1> extra_tensor_before_archiving;
@@ -175,13 +174,13 @@ public:
 
             intra_tensor_before_archiving = bidomain_pde.rGetIntracellularConductivityTensor(1);
             extra_tensor_before_archiving = bidomain_pde.rGetExtracellularConductivityTensor(1);
+            
+            // Save
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
             AbstractCardiacPde<1>* const p_archive_bidomain_pde = &bidomain_pde;
-            output_arch << p_archive_bidomain_pde;
-
-            ofs.close();
+            (*p_arch) << p_archive_bidomain_pde;
 
             HeartConfig::Reset();
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), default_printing_timestep, 1e-9);
@@ -189,11 +188,11 @@ public:
         }
 
         {
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             AbstractCardiacPde<1>* p_bidomain_pde;
-            input_arch >> p_bidomain_pde;
+            (*p_arch) >> p_bidomain_pde;
 
             const c_matrix<double, 1, 1>& intra_tensor_after_archiving = p_bidomain_pde->rGetIntracellularConductivityTensor(1);
             TS_ASSERT_DELTA(intra_tensor_before_archiving(0,0), intra_tensor_after_archiving(0,0), 1e-9);
@@ -205,8 +204,6 @@ public:
             TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
 
             delete p_bidomain_pde;
-
-            ifs.close();
         }
     }
 };

@@ -30,11 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _TESTCARDIACUNEVEN_HPP_
 #define _TESTCARDIACUNEVEN_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <vector>
+
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "HeartConfig.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "ArchiveOpener.hpp"
 
 class TestCardiacUneven : public CxxTest::TestSuite
 {
@@ -172,9 +173,8 @@ public:
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
         
-        OutputFileHandler handler("MonodomainUnevenArchived", false);
-        handler.SetArchiveDirectory();
-        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("monodomain_problem.arch");
+        std::string archive_dir = "MonodomainUnevenArchived";
+        std::string archive_file = "monodomain_problem.arch";
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -189,18 +189,20 @@ public:
                 HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
                 monodomain_problem.Solve();
     
-                std::ofstream ofs(archive_filename.c_str());
-                boost::archive::text_oarchive output_arch(ofs);
+                ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+                boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+                                 
                 AbstractCardiacProblem<1,1,1>* const p_monodomain_problem = &monodomain_problem;
-                output_arch & p_monodomain_problem;
+                (*p_arch) & p_monodomain_problem;
             }
             
             { //load
-                std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-                boost::archive::text_iarchive input_arch(ifs);
+
+                ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+                boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
                 AbstractCardiacProblem<1,1,1> *p_monodomain_problem;
-                input_arch >> p_monodomain_problem;
+                (*p_arch) >> p_monodomain_problem;
 
                 HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
                 p_monodomain_problem->Solve();

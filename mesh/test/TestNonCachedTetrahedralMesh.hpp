@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "NonCachedTetrahedralMesh.hpp"
 #include "OutputFileHandler.hpp"
-
+#include "ArchiveOpener.hpp"
 
 class TestNonCachedTetrahedralMesh : public CxxTest::TestSuite
 {
@@ -192,11 +192,9 @@ public:
 
     void TestArchiving()
     {
-        OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "non_cached_tetrahedral_mesh.arch";
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "non_cached_tetrahedral_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file = "non_cached_tetrahedral_mesh.arch";
+        ArchiveLocationInfo::SetMeshFilename("non_cached_tetrahedral_mesh");
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -204,10 +202,11 @@ public:
             AbstractTetrahedralMesh<2,2>* const p_mesh = new NonCachedTetrahedralMesh<2,2>;
             p_mesh->ConstructFromMeshReader(mesh_reader);
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-            output_arch << p_mesh;
+            (*p_arch) << p_mesh;
             delete p_mesh;
         }
 
@@ -217,11 +216,11 @@ public:
             AbstractTetrahedralMesh<2,2>* p_mesh2;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             // restore from the archive
-            input_arch >> p_mesh2;
+            (*p_arch) >> p_mesh2;
 
             // Check we have the right number of nodes & elements
             TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), 543u);

@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Node.hpp"
 #include "DistributedVectorFactory.hpp"
+#include "ProcessSpecificArchive.hpp"
 
 /**
  * Abstract base class for all meshes.
@@ -68,7 +69,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & mMeshChangesDuringSimulation;
-        archive & mpDistributedVectorFactory;
+        (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
     }
 
 protected:  // Give access of these variables to subclasses

@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VertexMesh.hpp"
+#include "ArchiveOpener.hpp"
 
 class TestVertexMesh : public CxxTest::TestSuite
 {
@@ -622,11 +623,9 @@ public:
     // This tests that a 'dummy' archive function does not throw any errors
     void TestArchiveVertexMesh()
     {
-        std::string dirname = "archive";
-        OutputFileHandler handler(dirname, false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "vertex_mesh_base.arch";
-
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "vertex_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file = "vertex_mesh_base.arch";
+        ArchiveLocationInfo::SetMeshFilename("vertex_mesh");
 
         HoneycombVertexMeshGenerator generator(5, 3);
         AbstractMesh<2,2>* const p_mesh = generator.GetMesh();
@@ -647,12 +646,12 @@ public:
             TS_ASSERT_EQUALS( (static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumNodes(), 46u);
             TS_ASSERT_EQUALS( (static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumElements(), 15u);
 
-            // Archive the mesh
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // We have to serialize via a pointer here, or the derived class information is lost
-            output_arch << p_mesh;
+            (*p_arch) << p_mesh;
         }
 
         {
@@ -660,11 +659,11 @@ public:
             AbstractMesh<2,2>* p_mesh2;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Restore from the archive
-            input_arch >> p_mesh2;
+            (*p_arch) >> p_mesh2;
 
             VertexMesh<2,2>* p_mesh_original = static_cast<VertexMesh<2,2>*>(p_mesh2);
             VertexMesh<2,2>* p_mesh_loaded = static_cast<VertexMesh<2,2>*>(p_mesh);

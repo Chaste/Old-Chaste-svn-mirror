@@ -46,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "ArchiveOpener.hpp"
 
 #include "CompareHdf5ResultsFiles.hpp"
 
@@ -859,9 +860,8 @@ public:
     void TestArchiving() throw(Exception)
     {
         // Based on TestMonodomainProblem1D()
-        OutputFileHandler handler("monodomain_problem_archive", false);
-        handler.SetArchiveDirectory();
-        std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("monodomain_problem.arch");
+        std::string archive_dir = "monodomain_problem_archive";
+        std::string archive_file = "monodomain_problem.arch";
 
         // Values to test against after load
         unsigned num_cells;
@@ -888,19 +888,20 @@ public:
 
             num_cells = monodomain_problem.GetPde()->GetCellsDistributed().size();
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+
             AbstractCardiacProblem<1,1,1>* const p_monodomain_problem = &monodomain_problem;
-            output_arch & p_monodomain_problem;
+            (*p_arch) & p_monodomain_problem;
         }
 
         // Load
         {
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             AbstractCardiacProblem<1,1,1> *p_monodomain_problem;
-            input_arch >> p_monodomain_problem;
+            (*p_arch) >> p_monodomain_problem;
 
             // Check values
             TS_ASSERT_EQUALS(p_monodomain_problem->GetPde()->GetCellsDistributed().size(),

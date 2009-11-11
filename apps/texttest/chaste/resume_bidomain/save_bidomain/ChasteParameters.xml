@@ -24,7 +24,7 @@
       </cp12:Stimulus>
     </cp12:Stimuli>
     <cp12:OutputDirectory>SaveBidomain</cp12:OutputDirectory>
-    <cp12:OutputFilenamePrefix>BidomainLR91_1d</cp12:OutputFilenamePrefix>
+    <cp12:OutputFilenamePrefix>BidomainLR91_3d</cp12:OutputFilenamePrefix>
     <cp12:SaveSimulation/>
   </cp12:Simulation>
 

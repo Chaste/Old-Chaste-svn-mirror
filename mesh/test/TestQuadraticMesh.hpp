@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 #include "QuadraticMesh.hpp"
 #include "OutputFileHandler.hpp"
+#include "ArchiveOpener.hpp"
 
 class TestQuadraticMesh : public CxxTest::TestSuite
 {
@@ -441,20 +442,19 @@ public:
 
     void TestArchiving() throw(Exception)
     {
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename;
-        handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "quadratic_mesh.arch";
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "quadratic_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file = "quadratic_mesh.arch";
+        ArchiveLocationInfo::SetMeshFilename("quadratic_mesh");
 
         AbstractTetrahedralMesh<3,3>* const p_mesh = new QuadraticMesh<3>;
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements_fully_quadratic", 2, 2, false);        
         static_cast<QuadraticMesh<3>*>(p_mesh)->ConstructFromMeshReader(mesh_reader);
 
         {
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
-            output_arch << p_mesh;
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+            (*p_arch) << p_mesh;
         }
 
         {
@@ -463,11 +463,11 @@ public:
             AbstractTetrahedralMesh<3,3>* p_mesh2;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             // restore from the archive
-            input_arch >> p_mesh2;
+            (*p_arch) >> p_mesh2;
 
             // compare the boundary elements of both meshes, should be identical (as one was created from the other)
             QuadraticMesh<3>::BoundaryElementIterator iter1

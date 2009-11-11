@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 #include "OutputFileHandler.hpp"
+#include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 /**
@@ -41,12 +42,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  *  The class is templated over the class defining the simulation (i.e. MonodomainProblem) 
  */
-
 template<class PROBLEM_CLASS>
 class CardiacSimulationArchiver
 {
 public:
-
     /**
      *  Archives a simulation in the directory specified.
      * 
@@ -86,32 +85,28 @@ public:
 template<class PROBLEM_CLASS>
 void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToArchive, std::string directory, bool clearDirectory)
 {
+    // Clear directory if requested (and make sure it exists)
     OutputFileHandler handler(directory, clearDirectory);
-    handler.SetArchiveDirectory();
-    std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath(directory + ".arch");
-
-    std::ofstream ofs(archive_filename.c_str());
-    boost::archive::text_oarchive output_arch(ofs);
+    
+    // Open the archive files
+    ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener(directory, directory + ".arch", true);
+    boost::archive::text_oarchive* p_main_archive = archive_opener.GetCommonArchive();
+    
+    // And save
     PROBLEM_CLASS* const p_simulation_to_archive = &simulationToArchive;
-    output_arch & p_simulation_to_archive;
+    (*p_main_archive) & p_simulation_to_archive;
 }
 
 template<class PROBLEM_CLASS>
 PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(std::string directory)
 {
-    OutputFileHandler handler(directory, false);
-    handler.SetArchiveDirectory();
-    std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath(directory + ".arch");
+    // Open the archive files
+    ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(directory, directory + ".arch", true);
+    boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
 
-    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-    if(!ifs.is_open())
-    {
-        EXCEPTION("Cannot load file: " + archive_filename);
-    }
-    boost::archive::text_iarchive input_arch(ifs);
-
+    // Load
     PROBLEM_CLASS *p_unarchived_simulation;
-    input_arch >> p_unarchived_simulation;
+    (*p_main_archive) >> p_unarchived_simulation;
 
     return p_unarchived_simulation;
 }
@@ -152,4 +147,6 @@ void CardiacSimulationArchiver<PROBLEM_CLASS>::MigrateToSequential(std::string i
     SaveAsSequential(*p_unarchived_simulation, outputDirectory, clearDirectory);
     delete p_unarchived_simulation;
 }
+
 #endif /*CARDIACSIMULATIONARCHIVER_HPP_*/
+

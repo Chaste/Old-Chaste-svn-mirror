@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCancerTestSuite.hpp"
+#include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 /**
@@ -163,9 +164,9 @@ public:
         MeshBasedTissue<2> tissue(mesh,cells);
 
         // Work out where to put the archive
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cellwise_data.arch";
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cellwise_data_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file = "cellwise_data.arch";
+        ArchiveLocationInfo::SetMeshFilename("cellwise_data_mesh");
 
         {
             // Set up the data store
@@ -185,12 +186,12 @@ public:
 
             TS_ASSERT(p_data->IsSetUp());
 
-            // Create an output archive
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Write to the archive
-            output_arch << static_cast<const CellwiseData<2>&>(*CellwiseData<2>::Instance());
+            (*p_arch) << static_cast<const CellwiseData<2>&>(*CellwiseData<2>::Instance());
 
             CellwiseData<2>::Destroy();
         }
@@ -199,10 +200,10 @@ public:
             CellwiseData<2>* p_data = CellwiseData<2>::Instance();
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            input_arch >> *p_data;
+            (*p_arch) >> *p_data;
 
             // Check the data
             TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());

@@ -93,7 +93,7 @@ private:
         // archive & mStride; // archiving constructor sets this.
         archive & mDoCacheReplication;
         archive & mDoOneCacheReplication;
-        archive & mpDistributedVectorFactory;
+        (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
         
         ///\todo #1159 Fix when migrating, hence re-partitioning.
         ///This will only work in sequential and in parallel with dumb partitioning. 

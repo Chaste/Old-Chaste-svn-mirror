@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "PetscTools.hpp"
+#include "ArchiveOpener.hpp"
 
 class TestParallelTetrahedralMesh : public CxxTest::TestSuite
 {
@@ -668,11 +669,9 @@ public:
 
     void TestArchiving() throw(Exception)
     {
-        OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "parallel_tetrahedral_mesh.arch";
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "parallel_tetrahedral_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file = "parallel_tetrahedral_mesh.arch";
+        ArchiveLocationInfo::SetMeshFilename("parallel_tetrahedral_mesh");
 
         ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>(ParallelTetrahedralMesh<2,2>::DUMB);
         //std::vector<unsigned> halo_node_indices;
@@ -691,11 +690,11 @@ public:
             
             halo_nodes = p_mesh->mHaloNodes;
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
             
             AbstractTetrahedralMesh<2,2>* const p_mesh_abstract = static_cast<AbstractTetrahedralMesh<2,2>* >(p_mesh);
-            output_arch << p_mesh_abstract;
+            (*p_arch) << p_mesh_abstract;
         }
 
         // restore
@@ -705,14 +704,14 @@ public:
             AbstractTetrahedralMesh<2,2>* p_mesh_abstract2;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
             
             ///\todo There is something dodgy going on here with #1159
             TS_TRACE("Fix this in parallel");
             EXIT_IF_PARALLEL;
             // restore from the archive
-            input_arch >> p_mesh_abstract2;
+            (*p_arch) >> p_mesh_abstract2;
             // Check we have the right number of nodes & elements
             ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract2);
             
@@ -776,20 +775,20 @@ public:
 
         // restore from a single processor archive
         {
-            std::ifstream ifs("mesh/test/data/parallel_tetrahedral_mesh.arch", std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
+                "mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
 
             if ( PetscTools::IsSequential() )
             {
-                TS_ASSERT_THROWS_NOTHING(input_arch >> p_mesh3);
+                (*p_arch) >> p_mesh3;
             }
             else
             {
-
                 /// Should not read this archive
-                TS_ASSERT_THROWS_THIS(input_arch >> p_mesh3, 
+                TS_ASSERT_THROWS_THIS((*p_arch) >> p_mesh3, 
                         "This archive was written for a different number of processors");
             }            
             delete p_mesh3;
@@ -1166,11 +1165,9 @@ public:
   
     void TestArchiveOfConstructedMesh() throw(Exception)
     {
-        OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "parallel_rectangle.arch";
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "parallel_rectangle");
+        std::string archive_dir = "archive";
+        std::string archive_file = "parallel_rectangle.arch";
+        ArchiveLocationInfo::SetMeshFilename("parallel_rectangle");
 
         ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>;
         //std::vector<unsigned> halo_node_indices;
@@ -1182,8 +1179,7 @@ public:
         unsigned width=4;
         unsigned height=4*PetscTools::GetNumProcs()-1; //4*NumProcs layers of nodes (ensure dumb partition works in slices)
         // archive
-        {
-        
+        {        
             p_mesh->ConstructRectangularMesh(width, height);
             num_nodes = p_mesh->GetNumNodes();
             local_num_nodes = p_mesh->GetNumLocalNodes();
@@ -1191,10 +1187,11 @@ public:
             
             halo_nodes = p_mesh->mHaloNodes;
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+            
             AbstractTetrahedralMesh<2,2>* const p_mesh_abstract = static_cast<AbstractTetrahedralMesh<2,2>* >(p_mesh);
-            output_arch << p_mesh_abstract;
+            (*p_arch) << p_mesh_abstract;
         }
 
         // restore
@@ -1204,10 +1201,11 @@ public:
             AbstractTetrahedralMesh<2,2>* p_mesh_abstract2;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+            
             // restore from the archive
-            input_arch >> p_mesh_abstract2;
+            (*p_arch) >> p_mesh_abstract2;
             // Check we have the right number of nodes & elements
             ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract2);
             

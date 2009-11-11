@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "AbstractCancerTestSuite.hpp"
-
+#include "ArchiveOpener.hpp"
 
 class TestVertexBasedTissue : public AbstractCancerTestSuite
 {
@@ -852,11 +852,11 @@ public:
     // just checks that the cells are correctly archived.
     void TestArchivingVertexBasedTissue() throw(Exception)
     {
-        OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue.arch";
+        std::string archive_dir = "archive";
+        std::string archive_file = "vertex_tissue.arch";
         // The following line is required because the loading of a tissue
         // is usually called by the method TissueSimulation::Load()
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(), "vertex_mesh");
+        ArchiveLocationInfo::SetMeshFilename("vertex_mesh");
 
         // Archive tissue
         {
@@ -885,13 +885,13 @@ public:
                 cell_iter->ReadyToDivide();
             }
 
-            // Create an output archive
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Write the tissue to the archive
-            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
-            output_arch << p_tissue;
+            (*p_arch) << static_cast<const SimulationTime&> (*p_simulation_time);
+            (*p_arch) << p_tissue;
 
             // Tidy up
             SimulationTime::Destroy();
@@ -907,14 +907,14 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, num_steps+1);
             p_simulation_time->IncrementTimeOneStep();
 
+            // Create an input archive
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+            
             // Restore the tissue
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
-            input_arch >> *p_simulation_time;
-
+            (*p_arch) >> *p_simulation_time;
             VertexBasedTissue<2>* p_tissue;
-
-            input_arch >> p_tissue;
+            (*p_arch) >> p_tissue;
 
             // Cells have been given birth times of 0, -1, -2, -3, -4.
             // this checks that individual cells and their models are archived.

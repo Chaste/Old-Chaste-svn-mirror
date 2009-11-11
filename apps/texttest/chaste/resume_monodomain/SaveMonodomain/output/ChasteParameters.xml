@@ -25,7 +25,7 @@
       </cp12:Stimulus>
     </cp12:Stimuli>
     <cp12:OutputDirectory>SaveMonodomain</cp12:OutputDirectory>
-    <cp12:OutputFilenamePrefix>MonodomainLR91_1d</cp12:OutputFilenamePrefix>
+    <cp12:OutputFilenamePrefix>MonodomainLR91_2d</cp12:OutputFilenamePrefix>
     <cp12:SaveSimulation/>
   </cp12:Simulation>
 

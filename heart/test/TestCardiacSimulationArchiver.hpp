@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ParallelTetrahedralMesh.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
+#include "ArchiveOpener.hpp"
 
 class TestCardiacSimulationArchiver : public CxxTest::TestSuite
 {
@@ -158,7 +159,7 @@ public:
             // Coverage of "couldn't find file" exception
             BidomainProblem<1> *p_bidomain_problem;            
             TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("missing_directory"),
-                                      "Cannot load file:");
+                                      "Cannot load main archive file:");
         }
 
     }
@@ -212,13 +213,14 @@ public:
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
         
         {
-            ArchiveLocationInfo::SetArchiveDirectory("apps/texttest/chaste/resume_bidomain/save_bidomain/", false);            
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
+                "apps/texttest/chaste/resume_bidomain/save_bidomain/",
+                "save_bidomain.arch",
+                false);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+            
             BidomainProblem<3> *p_bidomain_problem;
-            std::ifstream ifs("apps/texttest/chaste/resume_bidomain/save_bidomain/save_bidomain.arch.0", std::ios::binary);
-            assert(ifs.is_open());
-            boost::archive::text_iarchive input_arch(ifs);
-        
-            TS_ASSERT_THROWS_NOTHING(input_arch >> p_bidomain_problem);
+            TS_ASSERT_THROWS_NOTHING((*p_arch) >> p_bidomain_problem);
             delete p_bidomain_problem;
         }
     }    
@@ -269,13 +271,14 @@ public:
         CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, "save_monodomain", false);
         
         {
-            ArchiveLocationInfo::SetArchiveDirectory("apps/texttest/chaste/resume_monodomain/save_monodomain/", false);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
+                "apps/texttest/chaste/resume_monodomain/save_monodomain/",
+                "save_monodomain.arch",
+                false);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+            
             MonodomainProblem<2> *p_monodomain_problem;
-            std::ifstream ifs("apps/texttest/chaste/resume_monodomain/save_monodomain/save_monodomain.arch.0", std::ios::binary);
-            assert(ifs.is_open());
-            boost::archive::text_iarchive input_arch(ifs);
-        
-            TS_ASSERT_THROWS_NOTHING(input_arch >> p_monodomain_problem);            
+            TS_ASSERT_THROWS_NOTHING((*p_arch) >> p_monodomain_problem);
             delete p_monodomain_problem;
         }
     }

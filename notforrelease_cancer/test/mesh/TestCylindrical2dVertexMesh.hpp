@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "Cylindrical2dVertexMesh.hpp"
 #include "VertexMeshWriter.hpp"
+#include "ArchiveOpener.hpp"
 
 class TestCylindrical2dVertexMesh : public CxxTest::TestSuite
 {
@@ -304,11 +305,9 @@ public:
 
     void TestArchiving() throw (Exception)
     {
-        std::string dirname = "archive";
-        OutputFileHandler handler(dirname, false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cylindrical_vertex_mesh_base.arch";
-
-        ArchiveLocationInfo::SetMeshPathname(handler.GetOutputDirectoryFullPath(),"cylindrical_vertex_mesh");
+        std::string archive_dir = "archive";
+        std::string archive_file = "cylindrical_vertex_mesh_base.arch";
+        ArchiveLocationInfo::SetMeshFilename("cylindrical_vertex_mesh");
 
         // Create mesh
         unsigned num_cells_across = 4;
@@ -331,12 +330,12 @@ public:
             // Serialize the mesh
             TS_ASSERT_DELTA((static_cast<Cylindrical2dVertexMesh*>(p_saved_mesh))->GetWidth(0), crypt_width, 1e-7);
 
-            // Archive the mesh
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             // We have to serialize via a pointer here, or the derived class information is lost.
-            output_arch << p_saved_mesh;
+            (*p_arch) << p_saved_mesh;
         }
 
         {
@@ -344,11 +343,11 @@ public:
             AbstractMesh<2,2>* p_loaded_mesh;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             // Restore from the archive
-            input_arch >> p_loaded_mesh;
+            (*p_arch) >> p_loaded_mesh;
 
             // Compare the loaded mesh against the original
             Cylindrical2dVertexMesh* p_mesh2 = static_cast<Cylindrical2dVertexMesh*>(p_loaded_mesh);

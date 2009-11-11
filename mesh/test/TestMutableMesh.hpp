@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
+#include "ArchiveOpener.hpp"
 #include <cmath>
 #include <vector>
 
@@ -1106,11 +1107,9 @@ public:
 
     void TestArchiving() throw(Exception)
     {
-        OutputFileHandler handler("archive",false);
-        std::string archive_filename;
-        handler.SetArchiveDirectory();
-        archive_filename = handler.GetOutputDirectoryFullPath() + "mutable_mesh.arch";
-
+        std::string archive_dir = "archive";
+        std::string archive_file = "mutable_mesh.arch";
+       
         unsigned num_nodes;
         unsigned num_elements;
         unsigned total_num_nodes;
@@ -1124,8 +1123,9 @@ public:
             AbstractTetrahedralMesh<2,2>* const p_mesh = new MutableMesh<2,2>;
             p_mesh->ConstructFromMeshReader(mesh_reader);
 
-            std::ofstream ofs(archive_filename.c_str());
-            boost::archive::text_oarchive output_arch(ofs);
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
             NodeMap map(p_mesh->GetNumNodes());
             static_cast<MutableMesh<2,2>* >(p_mesh)->ReMesh(map);
@@ -1154,7 +1154,7 @@ public:
             total_num_nodes = p_mesh->GetNumAllNodes();
             total_num_elements = p_mesh->GetNumAllElements();
 
-            output_arch << p_mesh;
+            (*p_arch) << p_mesh;
             delete p_mesh;
         }
 
@@ -1164,11 +1164,11 @@ public:
             AbstractTetrahedralMesh<2,2>* p_mesh2;
 
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             // restore from the archive
-            input_arch >> p_mesh2;
+            (*p_arch) >> p_mesh2;
 
             // Check we have the right number of nodes & elements
             TS_ASSERT_EQUALS(num_nodes, p_mesh2->GetNumNodes());

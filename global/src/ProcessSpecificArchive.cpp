@@ -26,9 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ArchiveLocationInfo.hpp"
+// Must be included before any other serialisation headers
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
-std::string ArchiveLocationInfo::mDirPath = "";
-bool ArchiveLocationInfo::mDirIsRelativeToChasteTestOutput = true;
-std::string ArchiveLocationInfo::mMeshFilename = "mesh";
+#include "ProcessSpecificArchive.hpp"
+
+template <> boost::archive::text_oarchive* ProcessSpecificArchive<boost::archive::text_oarchive>::mpArchive = NULL;
+template <> boost::archive::text_iarchive* ProcessSpecificArchive<boost::archive::text_iarchive>::mpArchive = NULL;
 
