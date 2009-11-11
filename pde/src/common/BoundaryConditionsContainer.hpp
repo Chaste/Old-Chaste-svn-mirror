@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _BOUNDARYCONDITIONSCONTAINER_HPP_
 
 #include <map>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/map.hpp>
 
 #include "AbstractBoundaryConditionsContainer.hpp"
@@ -62,6 +64,9 @@ public:
     /** Type of a read-only iterator over Neumann boundary conditions. */
     typedef typename std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>*, const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         NeumannMapIterator;
+    
+    /** Base class type. */
+    typedef AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM> BaseClassType;
 
 private:
 
@@ -81,6 +86,9 @@ private:
     /** A zero boundary condition, used for other unknowns in ApplyNeumannBoundaryCondition */
     ConstBoundaryCondition<SPACE_DIM>* mpZeroBoundaryCondition;
 
+    /** Whether the contents of this container were originally loaded from an archive. */
+    bool mLoadedFromArchive;
+    
 public:
 
     /**
@@ -268,7 +276,10 @@ public:
     /**
      * Load a collection of boundary conditions from an archive.
      * 
-     * \todo assumes this collection is empty prior to being called
+     * \todo assumes this collection is empty prior to being called.
+     *
+     * This method only loads data if mLoadedFromArchive is false, to allow for multiple pointers
+     * to the same container to be handled correctly.  It sets mLoadedFromArchive when done.
      * 
      * @param archive  the archive to load from
      * @param pMesh  the mesh to use to resolve Node and BoundaryElement indices
@@ -276,6 +287,12 @@ public:
     template <class Archive>
     void LoadFromArchive(Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
     {
+        if (mLoadedFromArchive)
+        {
+            return;
+        }
+        mLoadedFromArchive = true;
+        
         typedef typename std::map<unsigned, AbstractBoundaryCondition<SPACE_DIM>*> archive_map_type;
         // Load Dirichlet conditions
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
@@ -308,27 +325,32 @@ public:
         }
     }
     
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+
     /**
-     * Save this collection of boundary conditions to an archive.
-     * 
-     * @param archive  the archive to save to
+     * Save this container and its contents.
+     *
+     * @param archive
+     * @param version
      */
-    template <class Archive>
-    void SaveToArchive(Archive & archive)
+    template<class Archive>
+    void save(Archive & archive, const unsigned int version) const
     {
         typedef typename std::map<unsigned, const AbstractBoundaryCondition<SPACE_DIM> *> archive_map_type;
         // Save Dirichlet conditions
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             archive_map_type bc_map;
-            this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
-            while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
+            typename BaseClassType::DirichletIteratorType it = this->mpDirichletMap[index_of_unknown]->begin();
+            while (it != this->mpDirichletMap[index_of_unknown]->end() )
             {
-                unsigned node_index = this->mDirichIterator->first->GetIndex();
-                const AbstractBoundaryCondition<SPACE_DIM> * p_cond = this->mDirichIterator->second;
+                unsigned node_index = it->first->GetIndex();
+                const AbstractBoundaryCondition<SPACE_DIM> * p_cond = it->second;
                 bc_map[node_index] = p_cond;
                 
-                this->mDirichIterator++;
+                it++;
             }
             archive & bc_map;
         }
@@ -348,6 +370,22 @@ public:
             archive & bc_map;
         }
     }
+
+    /**
+     * Load this container, but not its content.
+     * Objects loading a boundary conditions container should call LoadFromArchive
+     * on the new object immediately after loading it from the archive.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+    }
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 };
 
 

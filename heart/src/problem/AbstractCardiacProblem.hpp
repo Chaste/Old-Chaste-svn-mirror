@@ -154,8 +154,7 @@ private:
         
         // Save boundary conditions
         SaveBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
-        SaveBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer,
-                               mpBoundaryConditionsContainer == mpDefaultBoundaryConditionsContainer);
+        SaveBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer);
     }
     
     /**
@@ -246,7 +245,7 @@ private:
         
         // Load boundary conditions
         mpBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
-        mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
+        mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
     }
     
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -261,20 +260,10 @@ private:
     template<class Archive>
     void SaveBoundaryConditions(Archive & archive,
                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                BccType pBcc,
-                                bool alreadySaved=false) const
+                                BccType pBcc) const
     {
-        archive & alreadySaved;
-        if (!alreadySaved)
-        {
-            bool have_object = pBcc;
-            archive & have_object;
-            if (have_object)
-            {
-                ///\todo #1169 need more tests of this!
-                pBcc->SaveToArchive(archive);
-            }
-        }
+        ///\todo #1169 need more tests of this!
+        archive & pBcc;
     }
     
     /**
@@ -287,36 +276,19 @@ private:
     template<class Archive>
     BccType LoadBoundaryConditions(
             Archive & archive,
-            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            BccType pPreviousContainer=BccType())
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
                                 
     {
-        // Create empty pointer
+        // Load pointer from archive
         BccType p_bcc;
+        archive & p_bcc;
         
-        // Check if we've already loaded this object
-        bool already_loaded;
-        archive & already_loaded;
-        
-        if (already_loaded)
+        // Fill in the conditions, if we have a container and it's not already full
+        if (p_bcc)
         {
-            p_bcc = pPreviousContainer;
+            p_bcc->LoadFromArchive(archive, pMesh);
         }
-        else
-        {
-            // Check whether we archived a non-empty boundary conditions container...
-            bool have_object;
-            archive & have_object;
-            
-            // ...if we did load it up.
-            if (have_object)
-            {
-                p_bcc.reset(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
-                p_bcc->LoadFromArchive(archive, pMesh);
-            }
-        }
-        
-        // returns either a NULL or a loaded boundary conditions container.
+
         return p_bcc;
     }
 

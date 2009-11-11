@@ -718,7 +718,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         {
-            boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc(new BoundaryConditionsContainer<2,2,2>);
+            BoundaryConditionsContainer<2,2,2>* p_bcc = new BoundaryConditionsContainer<2,2,2>;
     
             // No BCs yet, so shouldn't validate
             TS_ASSERT_EQUALS(p_bcc->Validate(&mesh), false);
@@ -742,18 +742,21 @@ public:
             p_bcc->AddDirichletBoundaryCondition(mesh.GetNode(2), bc3);
             p_bcc->AddDirichletBoundaryCondition(mesh.GetNode(3), bc3);
         
+            // Archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
-            p_bcc->SaveToArchive( output_arch );
+            output_arch & p_bcc;
+            delete p_bcc;
         }
         
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
-            // Object must exist (memory needs to be allocated) before calling LoadFromArchive.
-            boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc(new BoundaryConditionsContainer<2,2,2> );
+            // Load container...
+            BoundaryConditionsContainer<2,2,2>* p_bcc;
+            input_arch >> p_bcc;
+            // ...and fill it
             p_bcc->LoadFromArchive( input_arch, &mesh );
                                    
             TetrahedralMesh<2,2>::BoundaryElementIterator iter
@@ -772,6 +775,8 @@ public:
             
             TS_ASSERT_DELTA(p_bcc->GetDirichletBCValue(mesh.GetNode(2)), 2.0, 1.e-6);
             TS_ASSERT_DELTA(p_bcc->GetDirichletBCValue(mesh.GetNode(3)), 2.0, 1.e-6);
+            
+            delete p_bcc;
         }
         
     }

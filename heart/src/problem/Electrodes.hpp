@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp> 
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractTetrahedralMesh.hpp"
 #include "DistributedVector.hpp"
@@ -91,13 +92,7 @@ private:
         archive & mEndTime;
         archive & mAreActive;
         archive & mpMesh;
-        // We only save the boundary conditions container if it exists.
-        bool hasBccSetUp = mpBoundaryConditionsContainer;
-        archive & hasBccSetUp;
-        if (hasBccSetUp)
-        {
-            mpBoundaryConditionsContainer->SaveToArchive(archive);
-        }
+        archive & mpBoundaryConditionsContainer;
     }
     /**
      * Load the Electrodes class
@@ -112,12 +107,10 @@ private:
         archive & mEndTime;
         archive & mAreActive; 
         archive & mpMesh;
-        bool hasBccSetUp;
-        archive & hasBccSetUp;
-        if (hasBccSetUp)
+
+        archive & mpBoundaryConditionsContainer;
+        if (mpBoundaryConditionsContainer)
         {
-            // Allocate a real object with new and assign control of memory to mpBoundaryConditionsContainer
-            mpBoundaryConditionsContainer.reset(new BoundaryConditionsContainer<DIM,DIM,2>);
             // Allow the new object to load itself from the archive.
             mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
         }
