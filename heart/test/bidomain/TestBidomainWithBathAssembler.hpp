@@ -26,14 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef TESTBIDOMAINWITHBATHASSEMBLER_HPP_
 #define TESTBIDOMAINWITHBATHASSEMBLER_HPP_
 
+#include "CardiacSimulationArchiver.hpp"
 
 #include <cxxtest/TestSuite.h>
 #include <vector>
-
 
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
@@ -552,6 +551,147 @@ public:
             TS_ASSERT_DELTA(matrix_based_voltage[index], non_matrix_based_voltage[index], 1e-7);
             //TS_ASSERT_DELTA(matrix_based_ex_pot[index], non_matrix_based_ex_pot[index], 1e-7);
             //std::cout << matrix_based_voltage[index] << std::endl;
+        }
+    }
+    
+    // #1169   
+    void TestArchivingBidomainProblemWithElectrodes(void) throw(Exception)
+    {
+        std::string archive_dir = "BidomainWithElectrodesArchiving";
+
+        // Create the mesh outside the save scope, so we can compare with the loaded version.
+        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        
+        { // save
+            HeartConfig::Instance()->SetSimulationDuration(3.0);  // ms
+            HeartConfig::Instance()->SetOutputDirectory(archive_dir + "Output");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_fluxes");
+            HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
+    
+            // need to create a cell factory but don't want any intra stim, so magnitude
+            // of stim is zero.
+            c_vector<double,2> centre;
+            centre(0) = 0.05; // cm
+            centre(1) = 0.05; // cm
+            BathCellFactory<2> cell_factory( 0.0, centre);
+    
+            BidomainProblem<2> bidomain_problem( &cell_factory, true );
+
+            // Set everything outside a central circle (radius 0.04cm) to be bath
+            for (unsigned i=0; i<mesh.GetNumElements(); i++)
+            {
+                double x = mesh.GetElement(i)->CalculateCentroid()[0];
+                double y = mesh.GetElement(i)->CalculateCentroid()[1];
+                if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
+                {
+                    mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+                }
+            }
+    
+            //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+            double boundary_flux = -11.0e3;
+            double duration = 1.9; // of the stimulus, in ms
+    
+            Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
+                 
+            bidomain_problem.SetElectrodes(electrodes);    
+            bidomain_problem.SetMesh(&mesh);
+            bidomain_problem.Initialise();    
+            bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+
+            // Save using helper class
+            CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, archive_dir, false);
+        }
+
+        { // load
+            AbstractCardiacProblem<2,2,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load(archive_dir);
+            
+            // get the new mesh
+            AbstractTetrahedralMesh<2,2>& r_mesh = p_abstract_problem->rGetMesh();
+            TS_ASSERT_EQUALS(mesh.GetNumElements(), r_mesh.GetNumElements());
+            
+            /// \todo #1169
+            /// Set everything outside a central circle (radius 0.04cm) to be bath,
+            /// since region annotations aren't yet checkpointed.
+            for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
+            {
+                double x = r_mesh.GetElement(i)->CalculateCentroid()[0];
+                double y = r_mesh.GetElement(i)->CalculateCentroid()[1];
+                if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
+                {
+                    r_mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
+                }
+            }
+            // Set node annotations based on element annotations
+            (static_cast<BidomainProblem<2>*>(p_abstract_problem))->AnalyseMeshForBath();
+            
+            // Check that the bath is in the right place
+            for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
+            {
+                double x = r_mesh.GetElement(i)->CalculateCentroid()[0];
+                double y = r_mesh.GetElement(i)->CalculateCentroid()[1];
+                if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
+                {
+                    TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), HeartRegionCode::BATH);
+                }
+                else
+                {
+                    TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), HeartRegionCode::TISSUE);
+                }
+                // Compare mesh before & after
+                TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), mesh.GetElement(i)->GetRegion());
+                TS_ASSERT_DELTA(x, mesh.GetElement(i)->CalculateCentroid()[0], 1e-12);
+                TS_ASSERT_DELTA(y, mesh.GetElement(i)->CalculateCentroid()[1], 1e-12);
+            }
+            
+            // Check that there's an exact correspondence between bath nodes and fake cells
+            for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+            {
+                TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), mesh.GetNode(i)->GetRegion());
+                FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_abstract_problem->GetPde()->GetCardiacCell(i));
+                if (r_mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+                {
+                    TS_ASSERT(p_fake != NULL);
+                }
+                else
+                {
+                    TS_ASSERT(p_fake == NULL);
+                }
+            }
+            
+            // This should only generate action potential if the electrodes were correctly saved and restored.
+            p_abstract_problem->Solve();
+
+            Vec sol = p_abstract_problem->GetSolution();
+            ReplicatableVector sol_repl(sol);
+    
+            bool ap_triggered = false;
+            /*
+             * We are checking the last time step. This test will only make sure that an upstroke is triggered.
+             * We ran longer simulation for 350 ms and a nice AP was observed.
+             */
+            for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+            {
+                // test V = 0 for all bath nodes and that an AP is triggered in the tissue
+                if (r_mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
+                {
+                    TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+                }
+                else if (sol_repl[2*i] > 0.0) //at the last time step
+                {
+                    ap_triggered = true;
+                }
+            }
+            
+            // We can get away with the following line only because this is a friend class and test.
+            Electrodes<2>* p_electrodes = static_cast<BidomainProblem<2>* >(p_abstract_problem)->mpElectrodes;
+            
+            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
+            TS_ASSERT_EQUALS(ap_triggered, true);
+            
+            delete p_abstract_problem;
         }
     }
 

@@ -258,12 +258,12 @@ private:
                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc) const
     {
-        bool have_object = (pBcc != NULL);
+        bool have_object = pBcc;
         archive & have_object;
         if (have_object)
         {
-            ///\todo #1169 Fix archiving boundary conditions properly         
-            //pBcc->SaveToArchive(archive);
+            ///\todo #1169 need more tests of this!
+            pBcc->SaveToArchive(archive);
         }
     }
     
@@ -291,9 +291,8 @@ private:
         if (have_object)
         {
             /// \todo #1169 memory leak
-            //boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > p_allocated_memory(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
-            //p_bcc = p_allocated_memory;
-            //p_bcc->LoadFromArchive(archive, pMesh);
+            p_bcc.reset(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
+            p_bcc->LoadFromArchive(archive, pMesh);
         }
         
         // returns either a NULL or a loaded boundary conditions container.

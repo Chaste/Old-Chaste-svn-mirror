@@ -92,7 +92,7 @@ private:
         archive & mAreActive;
         archive & mpMesh;
         // We only save the boundary conditions container if it exists.
-        bool hasBccSetUp = (mpBoundaryConditionsContainer!=NULL);
+        bool hasBccSetUp = mpBoundaryConditionsContainer;
         archive & hasBccSetUp;
         if (hasBccSetUp)
         {

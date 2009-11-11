@@ -35,9 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * This class sets up the LuoRudyIModel1991OdeSystem system of equations.
  */

@@ -386,11 +386,10 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 {
     PreSolveChecks();
 
-    if (mpBoundaryConditionsContainer == NULL) // the user didn't supply a bcc
+    if (!mpBoundaryConditionsContainer) // the user didn't supply a bcc
     {
-        // set up the default bcc
-        boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > p_allocated_memory(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
-        mpDefaultBoundaryConditionsContainer = p_allocated_memory;
+        // Set up the default bcc
+        mpDefaultBoundaryConditionsContainer.reset(new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>);
         for (unsigned problem_index=0; problem_index<PROBLEM_DIM; problem_index++)
         {
             mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(mpMesh, problem_index);
@@ -412,7 +411,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         initial_condition = CreateInitialCondition();
     }
 
-    TimeStepper stepper(mCurrentTime, HeartConfig::Instance()->GetSimulationDuration(),
+    TimeStepper stepper(mCurrentTime,
+                        HeartConfig::Instance()->GetSimulationDuration(),
                         HeartConfig::Instance()->GetPrintingTimeStep());
 
     std::string progress_reporter_dir;

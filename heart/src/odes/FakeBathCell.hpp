@@ -28,6 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef FAKEBATHCELL_HPP_
 #define FAKEBATHCELL_HPP_
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+
 #include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
@@ -39,9 +42,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * actually redefined in this class.  If further calls to cardiac cells are later
  * added to the simulation process, additional overrides may need to be added here.
  */
-
 class FakeBathCell : public AbstractCardiacCell
 {
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive this cell.  Just calls the base class version.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
+    }
+
 public:
     /**
      * Constructor uses the same signature as normal cells, for convenience.
@@ -80,6 +97,45 @@ public:
      */
     void ComputeExceptVoltage(double tStart, double tEnd);
 };
+
+
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(FakeBathCell);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Save the data needed to create a FakeBathCell.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const FakeBathCell * t, const unsigned int file_version)
+{
+    const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
+    const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
+    ar << p_solver;
+    ar << p_stimulus;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a FakeBathCell instance (using existing constructor)
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, FakeBathCell * t, const unsigned int file_version)
+{
+
+    boost::shared_ptr<AbstractIvpOdeSolver> p_solver;
+    boost::shared_ptr<AbstractStimulusFunction> p_stimulus;
+    ar >> p_solver;
+    ar >> p_stimulus;
+    ::new(t)FakeBathCell(p_solver, p_stimulus);
+}
+}
+} // namespace ...
 
 
 #endif /*FAKEBATHCELL_HPP_*/

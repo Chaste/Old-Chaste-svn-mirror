@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "HeartGeometryInformation.hpp"
 #include "ZeroStimulus.hpp"
+#include "FakeBathCell.hpp"
 
 /**
  * A factory to ease creating cardiac cell objects for use in a mono/bidomain simulation.
@@ -72,8 +73,13 @@ protected:
     /** The solver to give each of the cells */
     boost::shared_ptr<AbstractIvpOdeSolver> mpSolver;
 
-    /** A fake cell object to use at bath nodes. */
-    AbstractCardiacCell* mpFakeCell;
+    /**
+     * A fake cell object to use at bath nodes.
+     *
+     * We could use a base class pointer here, but that leads to confusing Boost serialization errors
+     * (unregistered class) as the FakeBathCell export line doesn't get seen by the archives.
+     */
+    FakeBathCell* mpFakeCell;
 
 public:
     /**

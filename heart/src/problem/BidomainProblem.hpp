@@ -72,12 +72,10 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
         //archive & mExtracelluarColumnId; // Created by InitialiseWriter, called from Solve
         archive & mRowForAverageOfPhiZeroed;
         archive & mHasBath;
-        /// \todo: archive electrodes
+        archive & mpElectrodes;
     }
 
     friend class TestBidomainWithBathAssembler;
-
-
 
 protected:
     /** The bidomain PDE */

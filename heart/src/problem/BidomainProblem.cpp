@@ -324,7 +324,7 @@ void BidomainProblem<DIM>::PreSolveChecks()
 template<unsigned DIM>
 void BidomainProblem<DIM>::SetElectrodes(Electrodes<DIM>& rElectrodes)
 {
-    if(!mHasBath)
+    if (!mHasBath)
     {
         EXCEPTION("Cannot set electrodes when problem has been defined to not have a bath");
     }
@@ -338,28 +338,21 @@ void BidomainProblem<DIM>::SetElectrodes(Electrodes<DIM>& rElectrodes)
 template<unsigned DIM>
 void BidomainProblem<DIM>::OnEndOfTimestep(double time)
 {
-    if( (mpElectrodes!=NULL) && (mpElectrodes->SwitchOff(time)) )
+    if ( (mpElectrodes!=NULL) && (mpElectrodes->SwitchOff(time)) )
     {
-        // at the moment mpBcc should exist and therefore
-        // mpDefaultBcc should be null
-        assert(this->mpBoundaryConditionsContainer!=NULL);
-        assert(this->mpDefaultBoundaryConditionsContainer==NULL);
+        // At the moment mpBcc should exist and therefore
+        // mpDefaultBcc should be empty
+        assert(this->mpBoundaryConditionsContainer);
+        assert(! this->mpDefaultBoundaryConditionsContainer);
 
-        //// Note we don't have to call delete this->mpBoundaryConditionsContainer
-        //// as the Electrodes class deletes the original bcc (which is natural
-        //// because normally bccs are set up in tests
-
-        // set up default boundary conditions container - no Neumann fluxes
+        // Set up default boundary conditions container - no Neumann fluxes
         // or Dirichlet fixed nodes
-        if(this->mpDefaultBoundaryConditionsContainer==NULL)
+        this->mpDefaultBoundaryConditionsContainer.reset(new BoundaryConditionsContainer<DIM,DIM,2>);
+        for (unsigned problem_index=0; problem_index<2; problem_index++)
         {
-            boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > p_allocated_memory(new BoundaryConditionsContainer<DIM,DIM,2>);
-            this->mpDefaultBoundaryConditionsContainer = p_allocated_memory;
-            for (unsigned problem_index=0; problem_index<2; problem_index++)
-            {
-                this->mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(this->mpMesh, problem_index);
-            }
+            this->mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(this->mpMesh, problem_index);
         }
+
         // Note, no point calling SetBoundaryConditionsContainer() as the
         // assembler has already been created..
         mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
