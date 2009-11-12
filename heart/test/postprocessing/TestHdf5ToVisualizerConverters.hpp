@@ -51,8 +51,11 @@ private :
         if (PetscTools::AmMaster())
         {
             std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-            std::string command = "cp " + file + " " + test_output_directory + dir+"/";
+            std::string command = "mkdir -p " + test_output_directory + dir;
             int return_value;
+            return_value = system(command.c_str());
+            assert(return_value==0);
+            command = "cp " + file + " " + test_output_directory + dir+"/";
             return_value = system(command.c_str());
             assert(return_value==0);
         }
@@ -137,7 +140,7 @@ public :
         TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2"),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
     }
-    
+
     void TestMonodomainCmguiConversion3D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain";
@@ -214,7 +217,7 @@ public :
                                      + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
-    
+
     void TestBidomainCmguiConversion1D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_bidomain1D";
@@ -264,8 +267,8 @@ public :
 
         TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter2(bidomain_directory, "bad_heart_data_2"),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
-    }    
-    
+    }
+
     void TestBidomainVtkConversion3D() throw(Exception)
     {
 #ifdef CHASTE_VTK
@@ -277,11 +280,11 @@ public :
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/cube_2mm_12_elements.h5",
                                   working_directory);
-                                  
+
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToVtkConverter<3> converter(working_directory, "cube_2mm_12_elements", &mesh);
@@ -302,11 +305,11 @@ public :
 
         CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements.h5",
                                   working_directory);
-                                 
+
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
- 
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToVtkConverter<2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
@@ -322,7 +325,7 @@ public :
 
     void TestVtkExceptions() throw(Exception)
     {
-        
+
         //These directories have already been created in the tests above
         std::string bidomain_directory = "TestHdf5ToVtkConverter_bidomain";
         std::string monodomain_directory = "TestHdf5ToVtkConverter_monodomain2D";
@@ -349,7 +352,7 @@ public :
 
         TS_ASSERT_THROWS_THIS( Hdf5ToVtkConverter<3> converter2(bidomain_directory, "bad_heart_data_2", &mesh),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
-    }        
+    }
 
 };
 #endif /*TESTHDF5TOVISUALIZERCONVERTERS_HPP_*/
