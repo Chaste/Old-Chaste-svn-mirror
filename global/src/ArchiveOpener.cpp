@@ -64,6 +64,7 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
     mpCommonStream = new std::ifstream(common_path.str().c_str(), std::ios::binary);
     if (!mpCommonStream->is_open())
     {
+        delete mpCommonStream;
         EXCEPTION("Cannot load main archive file: " + common_path.str());
     }
     mpCommonArchive = new boost::archive::text_iarchive(*mpCommonStream);
@@ -72,6 +73,9 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
     mpPrivateStream = new std::ifstream(private_path.c_str(), std::ios::binary);
     if (!mpPrivateStream->is_open())
     {
+        delete mpPrivateStream;
+        delete mpCommonArchive;
+        delete mpCommonStream;
         EXCEPTION("Cannot load secondary archive file: " + private_path);
     }
     mpPrivateArchive = new boost::archive::text_iarchive(*mpPrivateStream);
