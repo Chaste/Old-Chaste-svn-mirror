@@ -35,7 +35,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-// Loading
+/**
+ * Specialization for input archives.
+ * @param rDirectory
+ * @param rFileName
+ * @param relativeToChasteTestOutput
+ */
 template<>
 ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
         const std::string& rDirectory,
@@ -92,7 +97,12 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::~ArchiveOpener()
     delete mpCommonStream;
 }
 
-// Saving
+/**
+ * Specialization for output archives.
+ * @param rDirectory
+ * @param rFileName
+ * @param relativeToChasteTestOutput
+ */
 template<>
 ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
         const std::string& rDirectory,

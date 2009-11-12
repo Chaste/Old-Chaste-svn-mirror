@@ -68,6 +68,7 @@ protected:
         DirichletMapType;
     DirichletMapType* mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
 
+    /** To save typing */
     typedef typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
         DirichletIteratorType;
     DirichletIteratorType mDirichIterator; /**< Internal iterator over Dirichlet boundary conditions */

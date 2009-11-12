@@ -32,6 +32,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ProcessSpecificArchive.hpp"
 
-template <> boost::archive::text_oarchive* ProcessSpecificArchive<boost::archive::text_oarchive>::mpArchive = NULL;
-template <> boost::archive::text_iarchive* ProcessSpecificArchive<boost::archive::text_iarchive>::mpArchive = NULL;
+/** The process-specific output archive */
+template <>
+boost::archive::text_oarchive* ProcessSpecificArchive<boost::archive::text_oarchive>::mpArchive = NULL;
 
+/** The process-specific input archive */
+template <>
+boost::archive::text_iarchive* ProcessSpecificArchive<boost::archive::text_iarchive>::mpArchive = NULL;
