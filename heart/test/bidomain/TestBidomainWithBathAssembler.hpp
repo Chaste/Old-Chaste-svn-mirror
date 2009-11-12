@@ -647,6 +647,7 @@ public:
             }
             
             // Check that there's an exact correspondence between bath nodes and fake cells
+            FakeBathCell* p_fake_cell = NULL;
             for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
             {
                 TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), mesh.GetNode(i)->GetRegion());
@@ -654,6 +655,7 @@ public:
                 if (r_mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
                 {
                     TS_ASSERT(p_fake != NULL);
+                    p_fake_cell = p_fake;
                 }
                 else
                 {
@@ -692,6 +694,8 @@ public:
             TS_ASSERT_EQUALS(ap_triggered, true);
             
             delete p_abstract_problem;
+            delete p_electrodes;
+            delete p_fake_cell;
         }
     }
 

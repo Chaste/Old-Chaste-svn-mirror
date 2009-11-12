@@ -108,11 +108,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
         }
     }
 
-    /// \todo: #98 once the archiving constructor is creating the conductivity tensors properly we won't need this if statement
-    if (mpIntracellularConductivityTensors)
-    {
-        delete mpIntracellularConductivityTensors;
-    }
+    delete mpIntracellularConductivityTensors;
     
     // If the mesh was unarchived we need to free it explicitly.
     if (mMeshUnarchived)
