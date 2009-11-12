@@ -86,6 +86,7 @@ Hdf5ToVtkConverter<DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
     
     unsigned num_nodes = mpReader->GetNumberOfRows();
     DistributedVectorFactory factory(num_nodes);
+    ///\todo Can we get this as a std::vector?
     Vec data = factory.CreateVec();//for V
     
     unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
@@ -126,7 +127,7 @@ Hdf5ToVtkConverter<DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
             vtk_writer.AddPointData(Phi_point_data_name.str(), phi_for_vtk);              
         }  
     }
-    
+    VecDestroy(data);
     vtk_writer.WriteFilesUsingMesh( *mpMesh );
 #endif //CHASTE_VTK
 
