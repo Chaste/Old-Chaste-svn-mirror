@@ -156,7 +156,7 @@ Hdf5ToCmguiConverter::Hdf5ToCmguiConverter(std::string inputDirectory,
         Write("Bi");
     }
 
-    MPI_Barrier(PETSC_COMM_WORLD);
+    PetscTools::Barrier();
 
 
 }

@@ -38,8 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "ParallelTetrahedralMesh.hpp"
-#include "MeshalyzerMeshWriter.hpp"
-#include "Hdf5ToMeshalyzerConverter.hpp"
 #include "Exception.hpp"
 #include "HeartConfig.hpp"
 #include "HeartEventHandler.hpp"
@@ -50,7 +48,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSystem.hpp"
 #include "PostProcessingWriter.hpp"
 #include "CmguiWriter.hpp"
+#include "MeshalyzerMeshWriter.hpp"
+#include "Hdf5ToMeshalyzerConverter.hpp"
 #include "Hdf5ToCmguiConverter.hpp"
+#include "Hdf5ToVtkConverter.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
@@ -58,20 +59,21 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     : mMeshFilename(""),               // i.e. undefined
       mNodesPerProcessorFilename(""),  // i.e. undefined
       mUseMatrixBasedRhsAssembly(true),
+      mAllocatedMemoryForMesh(false),
+      mWriteInfo(false),
+      mPrintOutput(true),
+      mCallChaste2Meshalyzer(false),
+      mCallChaste2Cmgui(false),
+      mCallChaste2Vtk(false),
+      mpCardiacPde(NULL),
+      mpAssembler(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
+      mSolution(NULL),
       mCurrentTime(0.0),
       mArchiveKSP(false),
       mpWriter(NULL)
 {
-    mWriteInfo = false;
-    mPrintOutput = true;
-    mCallChaste2Meshalyzer = false;
-    mCallChaste2Cmgui = false;
-    mpCardiacPde = NULL;
-    mpAssembler = NULL;
-    mSolution = NULL;
-    mAllocatedMemoryForMesh = false;
     assert(mNodesToOutput.empty());
 
     HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
@@ -90,6 +92,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mPrintOutput(true),
       mCallChaste2Meshalyzer(false),
       mCallChaste2Cmgui(false),
+      mCallChaste2Vtk(false),
       mVoltageColumnId(UINT_MAX),
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
@@ -327,6 +330,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToCmguiFormat(bool call)
 {
     mCallChaste2Cmgui=call;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToVtkFormat(bool call)
+{
+    mCallChaste2Vtk=call;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -607,6 +616,14 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         }
     }
 
+    // Only if results files were written and we are outputting all nodes
+    if (mCallChaste2Vtk  && mNodesToOutput.empty())
+    {
+                
+        //Convert simulation data to Cmgui format
+        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
+    }
+    
     if(HeartConfig::Instance()->IsPostProcessingRequested())
     {
         //Test that we have a tetrahedral mesh

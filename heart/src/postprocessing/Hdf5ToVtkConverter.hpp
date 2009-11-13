@@ -37,13 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  This class converts from Hdf5 format to Vtk format. 
  *  The output will be one .vtu file with separate vtkPointData for each time step.
  */
-template <unsigned DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class Hdf5ToVtkConverter
 {
 private:
     Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
     std::string mFileBaseName; /**< Base name for the file [basename].vtu.*/
-    AbstractTetrahedralMesh<DIM,DIM>* mpMesh; /**< Pointer to the mesh. */
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
 
 
 public:
@@ -54,7 +54,7 @@ public:
      */
     Hdf5ToVtkConverter(std::string inputDirectory,
                               std::string fileBaseName,
-                              AbstractTetrahedralMesh<DIM,DIM> *pMesh);
+                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh);
 
     ~Hdf5ToVtkConverter();
 };

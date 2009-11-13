@@ -40,12 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "VtkWriter.hpp"
 
-template <unsigned DIM>
-Hdf5ToVtkConverter<DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
                           std::string fileBaseName,
-                          AbstractTetrahedralMesh<DIM,DIM> *pMesh) :
+                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) :
                     mpMesh(pMesh)
 {   
+    assert(ELEMENT_DIM==SPACE_DIM);
+    
     // store dir and filenames, and create the reader
     mFileBaseName = fileBaseName;
     mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
@@ -82,7 +84,7 @@ Hdf5ToVtkConverter<DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
 // Requires  "sudo aptitude install libvtk5-dev" or similar
 
     
-    VtkWriter<DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName);
+    VtkWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName);
     
     unsigned num_nodes = mpReader->GetNumberOfRows();
     DistributedVectorFactory factory(num_nodes);
@@ -133,8 +135,8 @@ Hdf5ToVtkConverter<DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
 
 }
 
-template <unsigned DIM>
-Hdf5ToVtkConverter<DIM>::~Hdf5ToVtkConverter()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM>::~Hdf5ToVtkConverter()
 {
     delete mpReader;
 }
@@ -144,5 +146,9 @@ Hdf5ToVtkConverter<DIM>::~Hdf5ToVtkConverter()
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class Hdf5ToVtkConverter<3>;
-template class Hdf5ToVtkConverter<2>;
+template class Hdf5ToVtkConverter<1,1>;
+template class Hdf5ToVtkConverter<1,2>;
+template class Hdf5ToVtkConverter<2,2>;
+template class Hdf5ToVtkConverter<1,3>;
+template class Hdf5ToVtkConverter<2,3>;
+template class Hdf5ToVtkConverter<3,3>;

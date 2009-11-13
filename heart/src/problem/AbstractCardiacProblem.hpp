@@ -315,6 +315,8 @@ protected:
     bool mCallChaste2Meshalyzer;
     /** Whether to convert the output from HDF5 to Cmgui readable format */   
     bool mCallChaste2Cmgui;
+    /** Whether to convert the output from HDF5 to Vtk readable format */   
+    bool mCallChaste2Vtk;
     /** Tells the Cmguimeshwriter which additional field names it needs to print (V and Phie for bidomain, V only for monodomain*/
     std::vector<std::string> mFieldNames;
 
@@ -443,24 +445,25 @@ public:
     virtual Vec CreateInitialCondition();
 
     /**
-     *  Set whether to call the Chaste2Meshalyzer script.
-     *  This script gets everything ready to visualize the results with meshalyser
-     *  and is useful in testing. By default the script is called.
-     *  In performance testing for example it desirable to disable the script.
+     *  Set whether to convert mesh and data to Meshalyzer format.
      * 
-     * @param call whether to call the script
+     * @param call whether to convert
      */
     void ConvertOutputToMeshalyzerFormat(bool call = true);
     
     /**
-     *  Set whether to call the Chaste2Cmgui script.
-     *  This script gets everything ready to visualize the results with Cmgui
-     *  and is useful in testing. By default the script is not called.
-     *  In performance testing for example it desirable to disable the script.
+     *  Set whether to convert mesh and data to Cmgui.
      * 
      * @param call whether to call the script
      */
     void ConvertOutputToCmguiFormat(bool call = false);
+
+    /**
+     *  Set whether to convert mesh and data to Vtk.
+     * 
+     * @param call whether to call the script
+     */
+    void ConvertOutputToVtkFormat(bool call = false);
 
     /**
      * This only needs to be called if a mesh filename has not been set.

@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
+typedef Hdf5ToVtkConverter<2,2> VTK_2D;
+typedef Hdf5ToVtkConverter<3,3> VTK_3D;
 
 class TestHdf5ToVisualizerConverters : public CxxTest::TestSuite
 {
@@ -287,7 +289,7 @@ public :
 
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToVtkConverter<3> converter(working_directory, "cube_2mm_12_elements", &mesh);
+        Hdf5ToVtkConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
 
         // compare the voltage file with a correct version that is known to visualize correctly in Vtk
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -312,7 +314,7 @@ public :
 
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToVtkConverter<2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
+        Hdf5ToVtkConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
 
         // compare the voltage file with a correct version that visualizes bothe Vm correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -338,19 +340,19 @@ public :
 
         HeartConfig::Instance()->SetOutputDirectory(bidomain_directory);
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToVtkConverter<3> converter(bidomain_directory, "hdf5_test_full_format", &mesh),
+        TS_ASSERT_THROWS_THIS( VTK_3D converter(bidomain_directory, "hdf5_test_full_format", &mesh),
                 "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
                                   monodomain_directory);
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToVtkConverter<3> converter2(monodomain_directory, "bad_heart_data_1", &mesh),
+        TS_ASSERT_THROWS_THIS( VTK_3D converter2(monodomain_directory, "bad_heart_data_1", &mesh),
                 "One variable, but it is not called \'V\'");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
                                   bidomain_directory);
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToVtkConverter<3> converter2(bidomain_directory, "bad_heart_data_2", &mesh),
+        TS_ASSERT_THROWS_THIS( VTK_3D converter2(bidomain_directory, "bad_heart_data_2", &mesh),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
     }
 

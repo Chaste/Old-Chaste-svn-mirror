@@ -458,7 +458,7 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter<3> writer("TestVtkWriter", "cube_2mm_12_elements");
+        VtkWriter<3,3> writer("TestVtkWriter", "cube_2mm_12_elements");
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
@@ -476,7 +476,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter<2> writer("TestVtkWriter", "2D_0_to_1mm_200_elements", false);
+        VtkWriter<2,2> writer("TestVtkWriter", "2D_0_to_1mm_200_elements", false);
 
         // Add distance from origin into the node "point" data
         std::vector<double> distance;
@@ -511,7 +511,7 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter<3> writer("TestVtkWriter", "heart_decimation", false);
+        VtkWriter<3,3> writer("TestVtkWriter", "heart_decimation", false);
 
         // Add element quality into the element "cell" data
         std::vector<double> quality;

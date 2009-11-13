@@ -50,8 +50,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Writes a mesh in VTK .vtu format (that's an XML-based, data compressed unstructured mesh)
  *
  */
-template <unsigned DIM>
-class VtkWriter : public AbstractTetrahedralMeshWriter<DIM, DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class VtkWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 
 //Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -89,11 +89,11 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
-template <unsigned DIM>
-VtkWriter<DIM>::VtkWriter(const std::string& rDirectory,
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VtkWriter<ELEMENT_DIM, SPACE_DIM>::VtkWriter(const std::string& rDirectory,
                      const std::string& rBaseName,
                      const bool& rCleanDirectory)
-    : AbstractTetrahedralMeshWriter<DIM, DIM>(rDirectory, rBaseName, rCleanDirectory)
+    : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero = true;
 
@@ -101,22 +101,23 @@ VtkWriter<DIM>::VtkWriter(const std::string& rDirectory,
     mpVtkUnstructedMesh = vtkUnstructuredGrid::New();
 }
 
-template <unsigned DIM>
-VtkWriter<DIM>::~VtkWriter()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VtkWriter<ELEMENT_DIM,SPACE_DIM>::~VtkWriter()
 {
     mpVtkUnstructedMesh->Delete(); // Reference counted
 }
 
-template <unsigned DIM>
-void VtkWriter<DIM>::MakeVtkMesh()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
 {
-    assert(DIM==3 || DIM == 2);
+    assert(SPACE_DIM==3 || SPACE_DIM == 2);
+    assert(SPACE_DIM==ELEMENT_DIM);
     vtkPoints* p_pts = vtkPoints::New(VTK_DOUBLE);
     p_pts->GetData()->SetName("Vertex positions");
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
-        if (DIM==2)
+        if (SPACE_DIM==2)
         {
             current_item.push_back(0.0);//For z-coordinate
         }
@@ -129,18 +130,18 @@ void VtkWriter<DIM>::MakeVtkMesh()
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
     {
         std::vector<unsigned> current_element = this->mElementData[item_num];
-        assert(current_element.size() == DIM + 1);
+        assert(current_element.size() == ELEMENT_DIM + 1);
         vtkCell* p_cell;
-        if (DIM == 3)
+        if (SPACE_DIM == 3)
         {
             p_cell = vtkTetra::New();
         }
-        if (DIM == 2)
+        if (SPACE_DIM == 2)
         {
             p_cell = vtkTriangle::New();
         }
         vtkIdList* p_cell_id_list = p_cell->GetPointIds();
-        for (unsigned j = 0; j < DIM+1; ++j)
+        for (unsigned j = 0; j < ELEMENT_DIM+1; ++j)
         {
             p_cell_id_list->SetId(j, current_element[j]);
         }
@@ -149,8 +150,8 @@ void VtkWriter<DIM>::MakeVtkMesh()
     }
 }
 
-template <unsigned DIM>
-void VtkWriter<DIM>::WriteFiles()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 {
     MakeVtkMesh();
     assert(mpVtkUnstructedMesh->CheckAttributes() == 0);
@@ -168,8 +169,8 @@ void VtkWriter<DIM>::WriteFiles()
     p_writer->Delete(); //Reference counted
 }
 
-template <unsigned DIM>
-void VtkWriter<DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
 {
     vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
@@ -183,8 +184,8 @@ void VtkWriter<DIM>::AddCellData(std::string dataName, std::vector<double> dataP
     p_scalars->Delete(); //Reference counted
 }
 
-template <unsigned DIM>
-void VtkWriter<DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
 {
     vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());

@@ -605,6 +605,8 @@ public:
 
         BidomainProblem<3> axisymmetric_bido( &cell_factory);
         axisymmetric_bido.ConvertOutputToCmguiFormat(true);
+        axisymmetric_bido.ConvertOutputToVtkFormat(true);
+        
         axisymmetric_bido.Initialise();
         axisymmetric_bido.Solve();
 
@@ -643,7 +645,11 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.exnode heart/test/data/CmguiData/bidomain/bidomain3dValid.exnode").c_str()), 0);
         //...and one data file as example
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_61.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData.exnode").c_str()), 0);
-    }
+        
+        //VTK
+        results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
+     }
 
     // Test the functionality for outputing the values of requested cell state variables
     void TestBidomainProblemPrintsMultipleVariables() throw (Exception)

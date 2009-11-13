@@ -743,6 +743,7 @@ public:
 
         monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
         monodomain_problem.ConvertOutputToCmguiFormat(true);
+        monodomain_problem.ConvertOutputToVtkFormat(true);
         monodomain_problem.Initialise();
 
         monodomain_problem.Solve();
@@ -771,6 +772,11 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exnode heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode").c_str()), 0);
         //...and one data file as example
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_43.exnode heart/test/data/CmguiData/monodomain/monodomain3dValidData.exnode").c_str()), 0);
+
+
+        //VTK
+        results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/vtk_output";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
     }
 
     // Test the functionality for outputing the values of requested cell state variables
