@@ -114,36 +114,37 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(std::string direct
 template<class PROBLEM_CLASS>
 void CardiacSimulationArchiver<PROBLEM_CLASS>::SaveAsSequential(PROBLEM_CLASS& simulationToArchive, std::string directory, bool clearDirectory)
 {
+    // Clear directory if requested (and make sure it exists)
     OutputFileHandler handler(directory, clearDirectory);
-    handler.SetArchiveDirectory();
-    std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath(directory + ".arch");
-
-    std::ofstream ofs(archive_filename.c_str());
-    boost::archive::text_oarchive output_arch(ofs);
+    
+    // Open the archive files
+    ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener(directory, directory + ".arch", true);
+    boost::archive::text_oarchive* p_main_archive = archive_opener.GetCommonArchive();
+    
+    // And save
+    ///\todo #1159
     PROBLEM_CLASS* const p_simulation_to_archive = &simulationToArchive;
-   ///\todo #1159 
-    output_arch & p_simulation_to_archive;
+    (*p_main_archive) & p_simulation_to_archive;
 }
 
 template<class PROBLEM_CLASS>
 void CardiacSimulationArchiver<PROBLEM_CLASS>::MigrateToSequential(std::string inputDirectory, std::string outputDirectory, bool clearDirectory)
 {
-    OutputFileHandler handler(inputDirectory, false);
-    handler.SetArchiveDirectory();
-    std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath(inputDirectory + ".arch");
-    
     //Assume that the archive has been written for the right number of processors
     if (PetscTools::IsSequential())
     {
         EXCEPTION("Archive doesn't need to be migrated since it is already sequential");
     }
-    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-    assert(ifs.is_open());
-    boost::archive::text_iarchive input_arch(ifs);
-
-    PROBLEM_CLASS *p_unarchived_simulation;
-    input_arch >> p_unarchived_simulation;
     
+    // Open the input archive files
+    ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(inputDirectory, inputDirectory + ".arch");
+    boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
+
+    // Load...
+    PROBLEM_CLASS *p_unarchived_simulation;
+    (*p_main_archive) >> p_unarchived_simulation;
+    
+    // ...and save
     SaveAsSequential(*p_unarchived_simulation, outputDirectory, clearDirectory);
     delete p_unarchived_simulation;
 }

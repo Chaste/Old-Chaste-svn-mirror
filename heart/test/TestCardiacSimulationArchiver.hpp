@@ -122,6 +122,10 @@ public:
                         
             CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, "bidomain_problem_archive_helper", false);
         }
+        
+        // The next part throws an exception on all but one process,
+        // and leads to deadlock as the process that doesn't throw waits for a response.
+        EXIT_IF_PARALLEL;
 
         // Load
         {
