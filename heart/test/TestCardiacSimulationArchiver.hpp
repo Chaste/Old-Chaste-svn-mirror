@@ -122,10 +122,6 @@ public:
                         
             CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, "bidomain_problem_archive_helper", false);
         }
-        
-        // The next part throws an exception on all but one process,
-        // and leads to deadlock as the process that doesn't throw waits for a response.
-        EXIT_IF_PARALLEL;
 
         // Load
         {
@@ -134,7 +130,7 @@ public:
 
             HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
             p_bidomain_problem->Solve();
-    
+
             // check some voltages
             ReplicatableVector solution_replicated(p_bidomain_problem->GetSolution());
             double atol=5e-3;

@@ -2,14 +2,14 @@
 The following existing files/directories changed their contents:
 <Test Directory>
 ----SaveBidomain
---------BidomainLR91_1d.h5
+--------BidomainLR91_3d.h5
 --------progress_status.txt
 --------output
-------------BidomainLR91_1d_Phi_e.dat
-------------BidomainLR91_1d_V.dat
-------------BidomainLR91_1d_mesh.pts
-------------BidomainLR91_1d_mesh.tetra
-------------BidomainLR91_1d_mesh.tri
-------------BidomainLR91_1d_times.info
+------------BidomainLR91_3d_Phi_e.dat
+------------BidomainLR91_3d_V.dat
+------------BidomainLR91_3d_mesh.pts
+------------BidomainLR91_3d_mesh.tetra
+------------BidomainLR91_3d_mesh.tri
+------------BidomainLR91_3d_times.info
 ------------ChasteDefaults.xml
 ------------ChasteParameters.xml

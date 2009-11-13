@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+///\todo get rid of this!
 // Note: the mArchiveKSP functionality will need to move into a HeartSimulationArchiver class...
 #define JC_ARCHIVE_HACK // Needed to get TestMonodomainProblem to link, for now
 #ifndef JC_ARCHIVE_HACK

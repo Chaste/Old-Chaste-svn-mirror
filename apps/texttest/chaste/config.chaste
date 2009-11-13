@@ -33,10 +33,11 @@ UpstrokeTimeMap_minus_30_dat:ChasteResults/output/UpstrokeTimeMap_-30.dat
 # Extra files to test against in save_monodomain and save_bidomain
 AbstractCardiacProblem_mSolution_h5:ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5
 ChasteResults_10ms_arch_0:ChasteResults_10ms/ChasteResults_10ms.arch.0
+ChasteResults_10ms_arch:ChasteResults_10ms/ChasteResults_10ms.arch
 
-# Extra files to test against in resume_monodomain
-resumed_bi_h5:SaveBidomain/BidomainLR91_1d.h5
-resumed_mono_h5:SaveMonodomain/MonodomainLR91_1d.h5
+# Extra files to test against in resume_monodomain & resume_bidomain
+resumed_bi_h5:SaveBidomain/BidomainLR91_3d.h5
+resumed_mono_h5:SaveMonodomain/MonodomainLR91_2d.h5
 
 [collate_script]
 # We need to translate hdf5 files into text in order to compare them with difff

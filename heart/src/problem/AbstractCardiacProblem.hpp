@@ -263,7 +263,7 @@ private:
                                 BccType pBcc) const
     {
         ///\todo #1169 need more tests of this!
-        archive & pBcc;
+        (*ProcessSpecificArchive<Archive>::Get()) & pBcc;
     }
     
     /**
@@ -281,12 +281,12 @@ private:
     {
         // Load pointer from archive
         BccType p_bcc;
-        archive & p_bcc;
+        (*ProcessSpecificArchive<Archive>::Get()) & p_bcc;
         
         // Fill in the conditions, if we have a container and it's not already full
         if (p_bcc)
         {
-            p_bcc->LoadFromArchive(archive, pMesh);
+            p_bcc->LoadFromArchive(*ProcessSpecificArchive<Archive>::Get(), pMesh);
         }
 
         return p_bcc;

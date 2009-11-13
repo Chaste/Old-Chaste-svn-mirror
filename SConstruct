@@ -315,7 +315,7 @@ if run_infrastructure_tests:
     os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
               str(out) + ' ' + build_type + ' --no-stdout')
     test_log_files.append(out)
-	# Check for duplicate file names in multiple directories
+    # Check for duplicate file names in multiple directories
     out = File(build.GetTestReportDir() + 'Copyrights.log')
     os.system('python/TestRunner.py python/CheckForCopyrights.py ' +
               str(out) + ' ' + build_type + ' --no-stdout')
@@ -348,7 +348,9 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
     
     # Any user projects?
     for project in glob.glob('projects/[_a-zA-z]*'):
-	if not os.path.exists(os.path.join(project, 'SConscript')):
+        if not os.path.isdir(project):
+            continue
+        if not os.path.exists(os.path.join(project, 'SConscript')):
             print >>sys.stderr, "Unexpected folder", project, "in projects folder."
             continue
         bld_dir = os.path.join(project, 'build', build_dir)
