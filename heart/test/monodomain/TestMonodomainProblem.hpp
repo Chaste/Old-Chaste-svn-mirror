@@ -774,9 +774,12 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_43.exnode heart/test/data/CmguiData/monodomain/monodomain3dValidData.exnode").c_str()), 0);
 
 
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
         //VTK
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/vtk_output";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
+#endif //CHASTE_VTK
     }
 
     // Test the functionality for outputing the values of requested cell state variables

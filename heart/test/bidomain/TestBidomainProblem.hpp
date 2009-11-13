@@ -646,9 +646,12 @@ public:
         //...and one data file as example
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_61.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData.exnode").c_str()), 0);
         
+#ifdef CHASTE_VTK
+// Requires  "sudo aptitude install libvtk5-dev" or similar
         //VTK
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
+#endif //CHASTE_VTK
      }
 
     // Test the functionality for outputing the values of requested cell state variables
