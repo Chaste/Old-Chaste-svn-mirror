@@ -286,7 +286,7 @@ public:
                 {
                     const double secs = ConvertTicksToSeconds(mCpuTime[event]);
                     printf(format, secs);
-                    printf("(%3.0f%%)  ", secs/total*100.0);
+                    printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
                 }
                 std::cout << "(seconds) \n";
             }
@@ -306,7 +306,7 @@ public:
                 {
                     const double secs = ConvertTicksToSeconds(total_cpu_time[event]);
                     printf(format, secs/PetscTools::GetNumProcs());
-                    printf("(%3.0f%%)  ", secs/total*100.0);
+                    printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
                 }
                 std::cout << "(seconds) \n";
             }
@@ -322,7 +322,7 @@ public:
                 {
                     const double secs = ConvertTicksToSeconds(max_cpu_time[event]);
                     printf(format, secs);
-                    printf("(%3.0f%%)  ", secs/total*100.0);
+                    printf("(%3.0f%%)  ", total == 0.0 ? 0.0 : (secs/total*100.0));
                 }
                 std::cout << "(seconds) \n";
             }
