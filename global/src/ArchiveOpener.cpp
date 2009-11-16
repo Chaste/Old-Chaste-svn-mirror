@@ -26,14 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ArchiveOpener.hpp"
-#include "ArchiveLocationInfo.hpp"
-#include "ProcessSpecificArchive.hpp"
-#include "OutputFileHandler.hpp"
-
 // Must be included before any other serialisation headers
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
+#include "ArchiveOpener.hpp"
+#include "ArchiveLocationInfo.hpp"
+#include "ProcessSpecificArchive.hpp"
+
 
 /**
  * Specialization for input archives.
