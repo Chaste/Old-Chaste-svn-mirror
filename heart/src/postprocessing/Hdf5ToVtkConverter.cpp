@@ -135,10 +135,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         }  
     }
     VecDestroy(data);
-    if (PetscTools::AmMaster())
-    {
-        vtk_writer.WriteFilesUsingMesh( *mpMesh );
-    }
+    vtk_writer.WriteFilesUsingMesh( *mpMesh );
     PetscTools::Barrier();
 #endif //CHASTE_VTK
 
