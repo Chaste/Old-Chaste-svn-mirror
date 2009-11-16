@@ -108,9 +108,11 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         std::ostringstream V_point_data_name;
         V_point_data_name << "V_" << std::setw(6) << std::setfill('0') << time_step; 
         
-        // Add V into the node "point" data
-        vtk_writer.AddPointData(V_point_data_name.str(), v_for_vtk);  
-        
+        if (PetscTools::AmMaster())
+        {
+            // Add V into the node "point" data
+            vtk_writer.AddPointData(V_point_data_name.str(), v_for_vtk);  
+        }
         if(variable_names.size()==2)
         {
             mpReader->GetVariableOverNodes(data, "Phi_e", time_step); // Gets Phi at this time step from HDF5 archive
@@ -125,12 +127,19 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
             std::ostringstream Phi_point_data_name;
             Phi_point_data_name << "Phi_e_" << std::setw(6) << std::setfill('0') << time_step; 
         
-            // Add Phi into the node "point" data
-            vtk_writer.AddPointData(Phi_point_data_name.str(), phi_for_vtk);              
+            if (PetscTools::AmMaster())
+            {
+                // Add Phi into the node "point" data
+                vtk_writer.AddPointData(Phi_point_data_name.str(), phi_for_vtk);
+            }              
         }  
     }
     VecDestroy(data);
-    vtk_writer.WriteFilesUsingMesh( *mpMesh );
+    if (PetscTools::AmMaster())
+    {
+        vtk_writer.WriteFilesUsingMesh( *mpMesh );
+    }
+    PetscTools::Barrier();
 #endif //CHASTE_VTK
 
 }

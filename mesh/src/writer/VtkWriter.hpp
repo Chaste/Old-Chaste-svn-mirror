@@ -131,7 +131,7 @@ void VtkWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
     {
         std::vector<unsigned> current_element = this->mElementData[item_num];
         assert(current_element.size() == ELEMENT_DIM + 1);
-        vtkCell* p_cell;
+        vtkCell* p_cell=NULL;
         if (SPACE_DIM == 3)
         {
             p_cell = vtkTetra::New();
