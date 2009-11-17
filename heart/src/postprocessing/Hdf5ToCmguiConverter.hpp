@@ -29,9 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef HDF5TOCMGUICONVERTER_HPP_
 #define HDF5TOCMGUICONVERTER_HPP_
 
-#include <string>
-#include "Hdf5DataReader.hpp"
-#include "AbstractTetrahedralMesh.hpp"
+#include "AbstractHdf5Converter.hpp"
 
 /**
  *  This class converts from Hdf5 format to Cmgui format. 
@@ -56,13 +54,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   .....
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class Hdf5ToCmguiConverter
+class Hdf5ToCmguiConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-    Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
-    std::string mFileBaseName; /**< Base name for the files [basename].exnode etc.*/
-    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
-
     /** A helper method which takes in a string, which must be 'Mono' or 'Bi'
      *  and reads the data from the hdf5 file, writing it out in
      *  Cmgui format.
@@ -81,7 +75,6 @@ public:
                               std::string fileBaseName,
                               AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh);
 
-    ~Hdf5ToCmguiConverter();
 };
 
 #endif /*HDF5TOCMGUICONVERTER_HPP_*/

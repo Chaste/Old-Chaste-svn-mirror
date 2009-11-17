@@ -29,9 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef HDF5TOMESHALYZERCONVERTER_HPP_
 #define HDF5TOMESHALYZERCONVERTER_HPP_
 
-#include <string>
-#include "Hdf5DataReader.hpp"
-#include "AbstractTetrahedralMesh.hpp"
+#include "AbstractHdf5Converter.hpp"
 
 /**
  *  This class converts from Hdf5 format to meshalyzer format, ie, for
@@ -53,12 +51,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  to the CHASTE_TEST_OUTPUT directory.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class Hdf5ToMeshalyzerConverter
+class Hdf5ToMeshalyzerConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-    Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
-    std::string mFileBaseName; /**< Base name for the files [basename]_V.dat etc.*/
-    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
 
     /** A helper method which takes in a string, which must be 'V' or 'Phi_e'
      *  and reads the data corresponding to that string, writing it out in
@@ -77,8 +72,6 @@ public:
     Hdf5ToMeshalyzerConverter(std::string inputDirectory,
                               std::string fileBaseName,
                               AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh);
-
-    ~Hdf5ToMeshalyzerConverter();
 };
 
 #endif /*HDF5TOMESHALYZERCONVERTER_HPP_*/

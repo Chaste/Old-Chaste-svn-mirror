@@ -46,8 +46,8 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     out_stream p_file=out_stream(NULL);
     OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output", false);
 
-    unsigned num_nodes = mpReader->GetNumberOfRows();
-    unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
+    unsigned num_nodes = this->mpReader->GetNumberOfRows();
+    unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
 
     DistributedVectorFactory factory(num_nodes);
 
@@ -62,11 +62,11 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
         time_step_string << time_step;
         if (PetscTools::AmMaster())
         {
-            p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + time_step_string.str() + ".exnode");
+            p_file = output_file_handler.OpenOutputFile(this->mFileBaseName + "_" + time_step_string.str() + ".exnode");
         }
 
         //read the data for this time step
-        mpReader->GetVariableOverNodes(data, "V", time_step);
+        this->mpReader->GetVariableOverNodes(data, "V", time_step);
         ReplicatableVector repl_data(data);
         assert(repl_data.GetSize()==num_nodes);
 
@@ -75,7 +75,7 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
         if (type=="Bi")
         {
             repl_data_phie.Resize(num_nodes);
-            mpReader->GetVariableOverNodes(data_phie, "Phi_e", time_step);
+            this->mpReader->GetVariableOverNodes(data_phie, "Phi_e", time_step);
             repl_data_phie.ReplicatePetscVector(data_phie);
         }
 
@@ -121,18 +121,17 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string inputDirectory,
                           std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
-                             mFileBaseName(fileBaseName),
-                             mpMesh(pMesh)
+                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) : 
+                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh)
 {
     // store dir and filenames, and create the reader
-    mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
+    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
 
     // check the data file read has one or two variables (ie V; or V and PhiE)
-    std::vector<std::string> variable_names = mpReader->GetVariableNames();
+    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     if((variable_names.size()==0) || (variable_names.size()>2))
     {
-        delete mpReader;
+//        delete this->mpReader;
         EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
     }
 
@@ -141,7 +140,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
     {
         if(variable_names[0]!="V")
         {
-            delete mpReader;
+//            delete this->mpReader;
             EXCEPTION("One variable, but it is not called 'V'");
         }
 
@@ -153,7 +152,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
     {
         if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
         {
-            delete mpReader;
+//            delete this->mpReader;
             EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
         }
 
@@ -163,12 +162,6 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
     PetscTools::Barrier();
 
 
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::~Hdf5ToCmguiConverter()
-{
-    delete mpReader;
 }
 
 /////////////////////////////////////////////////////////////////////

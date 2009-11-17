@@ -48,18 +48,18 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if (PetscTools::AmMaster())
     {
-        p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_" + type + ".dat");
+        p_file = output_file_handler.OpenOutputFile(this->mFileBaseName + "_" + type + ".dat");
     }
 
-    unsigned num_nodes = mpReader->GetNumberOfRows();
-    unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
+    unsigned num_nodes = this->mpReader->GetNumberOfRows();
+    unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
 
     DistributedVectorFactory factory(num_nodes);
 
     Vec data = factory.CreateVec();
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
-        mpReader->GetVariableOverNodes(data, type, time_step);
+        this->mpReader->GetVariableOverNodes(data, type, time_step);
         ReplicatableVector repl_data(data);
 
         assert(repl_data.GetSize()==num_nodes);
@@ -84,18 +84,17 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
                           std::string fileBaseName,
                           AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
-                          mFileBaseName(fileBaseName),
-                          mpMesh(pMesh)
+                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh)
 {
     // store dir and filenames, and create a reader
-    mFileBaseName = fileBaseName;
-    mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
+    this->mFileBaseName = fileBaseName;
+    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
 
     // check the data file read has one or two variables (ie V; or V and PhiE)
-    std::vector<std::string> variable_names = mpReader->GetVariableNames();
+    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     if((variable_names.size()==0) || (variable_names.size()>2))
     {
-        delete mpReader;
+//        delete this->mpReader;
         EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
     }
 
@@ -104,7 +103,7 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     {
         if(variable_names[0]!="V")
         {
-            delete mpReader;
+//            delete this->mpReader;
             EXCEPTION("One variable, but it is not called 'V'");
         }
 
@@ -116,7 +115,7 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     {
         if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
         {
-            delete mpReader;
+//            delete this->mpReader;
             EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
         }
 
@@ -129,13 +128,13 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     {
         //Note that we don't want the child processes to write info files
 
-        out_stream p_file = output_file_handler.OpenOutputFile(mFileBaseName + "_times.info");
-        unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
+        out_stream p_file = output_file_handler.OpenOutputFile(this->mFileBaseName + "_times.info");
+        unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
        * p_file << "Number of timesteps "<<num_timesteps<<"\n";
        * p_file << "timestep "<<HeartConfig::Instance()->GetPrintingTimeStep()<<"\n";
-        double first_timestep=mpReader->GetUnlimitedDimensionValues().front();
+        double first_timestep=this->mpReader->GetUnlimitedDimensionValues().front();
        * p_file << "First timestep "<<first_timestep<<"\n";
-        double last_timestep=mpReader->GetUnlimitedDimensionValues().back();
+        double last_timestep=this->mpReader->GetUnlimitedDimensionValues().back();
        * p_file << "Last timestep "<<last_timestep<<"\n";
 
         p_file->close();
@@ -145,11 +144,6 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     PetscTools::Barrier();
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::~Hdf5ToMeshalyzerConverter()
-{
-    delete mpReader;
-}
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

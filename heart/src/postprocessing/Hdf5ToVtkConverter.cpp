@@ -44,19 +44,18 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
                           std::string fileBaseName,
                           AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) :
-                    mpMesh(pMesh)
+                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh)
 {   
     assert(ELEMENT_DIM==SPACE_DIM);
     
     // store dir and filenames, and create the reader
-    mFileBaseName = fileBaseName;
-    mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
+    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
     ///\todo These exceptions ought to be in a common baseclass constructor
     // check the data file read has one or two variables (ie V; or V and PhiE)
-    std::vector<std::string> variable_names = mpReader->GetVariableNames();
+    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     if((variable_names.size()==0) || (variable_names.size()>2))
     {
-        delete mpReader;
+//        delete this->mpReader;
         EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
     }
 
@@ -65,7 +64,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     {
         if(variable_names[0]!="V")
         {
-            delete mpReader;
+//            delete this->mpReader;
             EXCEPTION("One variable, but it is not called 'V'");
         }
     }
@@ -75,7 +74,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     {
         if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
         {
-            delete mpReader;
+//            delete this->mpReader;
             EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
         }
     }
@@ -86,17 +85,17 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     
     VtkWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName);
     
-    unsigned num_nodes = mpReader->GetNumberOfRows();
+    unsigned num_nodes = this->mpReader->GetNumberOfRows();
     DistributedVectorFactory factory(num_nodes);
     ///\todo Can we get this as a std::vector?
     Vec data = factory.CreateVec();//for V
     
-    unsigned num_timesteps = mpReader->GetUnlimitedDimensionValues().size();
+    unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
     
     // Loop over time steps
     for (unsigned time_step=0; time_step<num_timesteps; time_step++) //num_timesteps; time_step++)
     {
-        mpReader->GetVariableOverNodes(data, "V", time_step); // Gets V at this time step from HDF5 archive
+        this->mpReader->GetVariableOverNodes(data, "V", time_step); // Gets V at this time step from HDF5 archive
         ReplicatableVector repl_data(data);
         std::vector<double> v_for_vtk;
         v_for_vtk.resize(num_nodes);
@@ -115,7 +114,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         }
         if(variable_names.size()==2)
         {
-            mpReader->GetVariableOverNodes(data, "Phi_e", time_step); // Gets Phi at this time step from HDF5 archive
+            this->mpReader->GetVariableOverNodes(data, "Phi_e", time_step); // Gets Phi at this time step from HDF5 archive
             ReplicatableVector repl_phi(data);
             std::vector<double> phi_for_vtk;
             phi_for_vtk.resize(num_nodes);
@@ -135,16 +134,10 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         }  
     }
     VecDestroy(data);
-    vtk_writer.WriteFilesUsingMesh( *mpMesh );
+    vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );
     PetscTools::Barrier();
 #endif //CHASTE_VTK
 
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM>::~Hdf5ToVtkConverter()
-{
-    delete mpReader;
 }
 
 

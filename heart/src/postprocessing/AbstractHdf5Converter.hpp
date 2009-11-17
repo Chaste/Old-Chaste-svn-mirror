@@ -26,28 +26,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef HDF5TOVTKCONVERTER_HPP_
-#define HDF5TOVTKCONVERTER_HPP_
+#ifndef ABSTRACTHDF5CONVERTER_HPP_
+#define ABSTRACTHDF5CONVERTER_HPP_
 
-#include "AbstractHdf5Converter.hpp"
+#include <string>
+#include "Hdf5DataReader.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 
 /**
- *  This class converts from Hdf5 format to Vtk format. 
- *  The output will be one .vtu file with separate vtkPointData for each time step.
+ *  This derived children of this class convert from Hdf5 format to
+ *  a range of other formats for postprocessing 
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class Hdf5ToVtkConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
+class AbstractHdf5Converter
 {
+protected:
+    Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
+    std::string mFileBaseName; /**< Base name for the files [basename].vtu, [basename].dat etc.*/
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
+
+
 public:
     /** Constructor, which does the conversion and writes the .vtu file.
      *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
      *  @param fileBaseName The base name of the data file.
      *  @param pMesh Pointer to the mesh.
      */
-    Hdf5ToVtkConverter(std::string inputDirectory,
+    AbstractHdf5Converter(std::string inputDirectory,
                               std::string fileBaseName,
                               AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh);
 
+    /** Destructor
+     */
+    virtual ~AbstractHdf5Converter();
 };
 
-#endif /*HDF5TOVTKCONVERTER_HPP_*/
+#endif /*ABSTRACTHDF5CONVERTER_HPP_*/
