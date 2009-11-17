@@ -128,34 +128,6 @@ public :
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
-    void TestMeshalyzerExceptions() throw(Exception)
-    {
-        OutputFileHandler handler("TestHdf5ToMeshalyzerConverter");
-
-        CopyToTestOutputDirectory("io/test/data/hdf5_test_full_format.h5", // doesn't have one or two variables
-                                  "TestHdf5ToMeshalyzerConverter");
-
-        HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
-
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        TS_ASSERT_THROWS_THIS( MESHA_3D converter("TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format", &mesh),
-                "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
-
-        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
-                                  "TestHdf5ToMeshalyzerConverter");
-
-        TS_ASSERT_THROWS_THIS( MESHA_3D converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1", &mesh),
-                "One variable, but it is not called \'V\'");
-
-        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
-                                  "TestHdf5ToMeshalyzerConverter");
-
-        TS_ASSERT_THROWS_THIS( MESHA_3D converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2", &mesh),
-                "Two variables, but they are not called \'V\' and \'Phi_e\'");
-    }
 
     void TestMonodomainCmguiConversion3D() throw(Exception)
     {
@@ -275,35 +247,6 @@ public :
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 
-    void TestCmguiExceptions() throw(Exception)
-    {
-        std::string bidomain_directory = "TestHdf5ToCmguiConverter_bidomain";
-        std::string monodomain_directory = "TestHdf5ToCmguiConverter_monodomain";
-
-        CopyToTestOutputDirectory("io/test/data/hdf5_test_full_format.h5", // doesn't have one or two variables
-                                  bidomain_directory);
-
-        HeartConfig::Instance()->SetOutputDirectory(bidomain_directory);
-
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        TS_ASSERT_THROWS_THIS( CMGUI_3D converter(bidomain_directory, "hdf5_test_full_format", &mesh),
-                "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
-
-        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
-                                  monodomain_directory);
-
-        TS_ASSERT_THROWS_THIS( CMGUI_3D converter2("TestHdf5ToCmguiConverter_monodomain", "bad_heart_data_1", &mesh),
-                "One variable, but it is not called \'V\'");
-
-        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
-                                  bidomain_directory);
-
-        TS_ASSERT_THROWS_THIS( CMGUI_3D converter2(bidomain_directory, "bad_heart_data_2", &mesh),
-                "Two variables, but they are not called \'V\' and \'Phi_e\'");
-    }
 
     void TestBidomainVtkConversion3D() throw(Exception)
     {
@@ -359,35 +302,41 @@ public :
 
     }
 
-    void TestVtkExceptions() throw(Exception)
+    void TestExceptions() throw(Exception)
     {
-
-        //These directories have already been created in the tests above
-        std::string bidomain_directory = "TestHdf5ToVtkConverter_bidomain";
-        std::string monodomain_directory = "TestHdf5ToVtkConverter_monodomain2D";
+        std::string directory = "TestHdf5ConverterExceptions";
 
         CopyToTestOutputDirectory("io/test/data/hdf5_test_full_format.h5", // doesn't have one or two variables
-                                  bidomain_directory);
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions
+                                  directory);
+
+        HeartConfig::Instance()->SetOutputDirectory(directory);
+
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions until number of nodes is checked
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        HeartConfig::Instance()->SetOutputDirectory(bidomain_directory);
-
-        TS_ASSERT_THROWS_THIS( VTK_3D converter(bidomain_directory, "hdf5_test_full_format", &mesh),
+        TS_ASSERT_THROWS_THIS( MESHA_3D converter(directory, "hdf5_test_full_format", &mesh),
                 "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
-                                  monodomain_directory);
+                                  directory);
 
-        TS_ASSERT_THROWS_THIS( VTK_3D converter2(monodomain_directory, "bad_heart_data_1", &mesh),
+        TS_ASSERT_THROWS_THIS( CMGUI_3D converter(directory, "bad_heart_data_1", &mesh),
                 "One variable, but it is not called \'V\'");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
-                                  bidomain_directory);
+                                  directory);
 
-        TS_ASSERT_THROWS_THIS( VTK_3D converter2(bidomain_directory, "bad_heart_data_2", &mesh),
+        TS_ASSERT_THROWS_THIS( VTK_3D converter(directory, "bad_heart_data_2", &mesh),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
+
+        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
+                                  directory);
+
+        CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements.h5",
+                                  directory);
+        TS_ASSERT_THROWS_THIS( CMGUI_3D converter(directory, "2D_0_to_1mm_400_elements", &mesh),
+                "Mesh and HDF5 file have a different number of nodes");
     }
 
 };

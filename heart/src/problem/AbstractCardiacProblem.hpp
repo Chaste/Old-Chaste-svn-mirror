@@ -109,7 +109,7 @@ private:
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
-        archive & mCallChaste2Meshalyzer;
+        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these!
         archive & mNodesToOutput;
         //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve
@@ -173,7 +173,7 @@ private:
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
-        archive & mCallChaste2Meshalyzer;
+        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these!
         archive & mNodesToOutput;
         //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve
@@ -312,11 +312,11 @@ protected:
     /** Whether to write any output at all */
     bool mPrintOutput;
     /** Whether to convert the output from HDF5 to meshalyzer readable format */
-    bool mCallChaste2Meshalyzer;
+    bool mChasteToMeshalyzer;
     /** Whether to convert the output from HDF5 to Cmgui readable format */   
-    bool mCallChaste2Cmgui;
+    bool mChasteToCmgui;
     /** Whether to convert the output from HDF5 to Vtk readable format */   
-    bool mCallChaste2Vtk;
+    bool mChasteToVtk;
     /** Tells the Cmguimeshwriter which additional field names it needs to print (V and Phie for bidomain, V only for monodomain*/
     std::vector<std::string> mFieldNames;
 

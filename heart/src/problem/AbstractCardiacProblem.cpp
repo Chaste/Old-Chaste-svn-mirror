@@ -62,9 +62,9 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mAllocatedMemoryForMesh(false),
       mWriteInfo(false),
       mPrintOutput(true),
-      mCallChaste2Meshalyzer(false),
-      mCallChaste2Cmgui(false),
-      mCallChaste2Vtk(false),
+      mChasteToMeshalyzer(false),
+      mChasteToCmgui(false),
+      mChasteToVtk(false),
       mpCardiacPde(NULL),
       mpAssembler(NULL),
       mpCellFactory(pCellFactory),
@@ -90,9 +90,9 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacPde
       mWriteInfo(false),
       mPrintOutput(true),
-      mCallChaste2Meshalyzer(false),
-      mCallChaste2Cmgui(false),
-      mCallChaste2Vtk(false),
+      mChasteToMeshalyzer(false),
+      mChasteToCmgui(false),
+      mChasteToVtk(false),
       mVoltageColumnId(UINT_MAX),
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
@@ -323,19 +323,19 @@ Vec AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialCond
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToMeshalyzerFormat(bool call)
 {
-    mCallChaste2Meshalyzer=call;
+    mChasteToMeshalyzer=call;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToCmguiFormat(bool call)
 {
-    mCallChaste2Cmgui=call;
+    mChasteToCmgui=call;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToVtkFormat(bool call)
 {
-    mCallChaste2Vtk=call;
+    mChasteToVtk=call;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -561,7 +561,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
     // Only if results files were written and we are outputting all nodes
     if (mNodesToOutput.empty())
     {
-        if (mCallChaste2Meshalyzer)
+        if (mChasteToMeshalyzer)
         {
             //Convert simulation data to Meshalyzer format
             Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
@@ -575,7 +575,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
             HeartConfig::Instance()->Write();
         }
         
-        if (mCallChaste2Cmgui)
+        if (mChasteToCmgui)
         {
                     
             //Convert simulation data to Cmgui format
@@ -589,7 +589,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
             cmgui_mesh_writer.WriteFilesUsingMesh(*mpMesh);
         }
     
-        if (mCallChaste2Vtk)
+        if (mChasteToVtk)
         {
                     
             //Convert simulation data to Cmgui format

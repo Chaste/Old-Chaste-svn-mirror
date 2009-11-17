@@ -27,31 +27,75 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-//#include <vector>
-//
-//#include "UblasCustomFunctions.hpp"
-//#include "HeartConfig.hpp"
 #include "AbstractHdf5Converter.hpp"
-//#include "PetscTools.hpp"
-//#include "Exception.hpp"
-//#include "OutputFileHandler.hpp"
-//#include "ReplicatableVector.hpp"
-//#include "DistributedVector.hpp"
-//#include "DistributedVectorFactory.hpp"
-//#include "VtkWriter.hpp"
+#include "HeartConfig.hpp"
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string inputDirectory,
                           std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) :
+                          AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
+                          std::string subdirectoryName) :
                     mFileBaseName(fileBaseName),
                     mpMesh(pMesh)
-{   
+{
+    // store directory, mesh and filenames and create the reader
+    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
+    // check the data file read has one or two variables (ie V; or V and PhiE)
+    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
+    mNumVariables = variable_names.size();
+    if(mNumVariables==0 || mNumVariables>2)
+    {
+        EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
+    }
+
+    // if one variable, it is a monodomain problem
+    if(mNumVariables==1)
+    {
+        if(variable_names[0]!="V")
+        {
+            EXCEPTION("One variable, but it is not called 'V'");
+        }
+    }
+
+    // if two variables, it is a bidomain problem
+    if(variable_names.size()==2)
+    {
+        if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
+        {
+            EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
+        }
+    }
+    if (mpReader->GetNumberOfRows() != mpMesh->GetNumNodes())
+    {
+        EXCEPTION("Mesh and HDF5 file have a different number of nodes");
+    }
+    //Create new directory in which to store everything
+    mpOutputFileHandler  = new  OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
+    
+    //Write an info file
+    if (PetscTools::AmMaster())
+    {
+        //Note that we don't want the child processes to write info files
+
+        out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_times.info");
+        unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
+       * p_file << "Number of timesteps "<<num_timesteps<<"\n";
+       * p_file << "timestep "<<HeartConfig::Instance()->GetPrintingTimeStep()<<"\n";
+        double first_timestep=this->mpReader->GetUnlimitedDimensionValues().front();
+       * p_file << "First timestep "<<first_timestep<<"\n";
+        double last_timestep=this->mpReader->GetUnlimitedDimensionValues().back();
+       * p_file << "Last timestep "<<last_timestep<<"\n";
+
+        p_file->close();
+
+    }
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>::~AbstractHdf5Converter()
 {
     delete mpReader;
+    delete mpOutputFileHandler;
 }
 
 /////////////////////////////////////////////////////////////////////

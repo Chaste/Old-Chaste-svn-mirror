@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "PetscTools.hpp"
 #include "Exception.hpp"
-#include "OutputFileHandler.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
@@ -45,10 +44,9 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     assert(type=="V" || type=="Phi_e");
 
     out_stream p_file=out_stream(NULL);
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
     if (PetscTools::AmMaster())
     {
-        p_file = output_file_handler.OpenOutputFile(this->mFileBaseName + "_" + type + ".dat");
+        p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_" + type + ".dat");
     }
 
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
@@ -84,63 +82,16 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
                           std::string fileBaseName,
                           AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
-                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh)
+                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "output")
 {
-    // store dir and filenames, and create a reader
-    this->mFileBaseName = fileBaseName;
-    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
 
-    // check the data file read has one or two variables (ie V; or V and PhiE)
-    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
-    if((variable_names.size()==0) || (variable_names.size()>2))
+    Write("V");
+    if (this->mNumVariables == 2)
     {
-//        delete this->mpReader;
-        EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
-    }
-
-    // if one variable, a monodomain problem
-    if(variable_names.size()==1)
-    {
-        if(variable_names[0]!="V")
-        {
-//            delete this->mpReader;
-            EXCEPTION("One variable, but it is not called 'V'");
-        }
-
-        Write("V");
-    }
-
-    // if two variable, a bidomain problem
-    if(variable_names.size()==2)
-    {
-        if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
-        {
-//            delete this->mpReader;
-            EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
-        }
-
-        Write("V");
         Write("Phi_e");
     }
 
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-    if (PetscTools::AmMaster())
-    {
-        //Note that we don't want the child processes to write info files
-
-        out_stream p_file = output_file_handler.OpenOutputFile(this->mFileBaseName + "_times.info");
-        unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
-       * p_file << "Number of timesteps "<<num_timesteps<<"\n";
-       * p_file << "timestep "<<HeartConfig::Instance()->GetPrintingTimeStep()<<"\n";
-        double first_timestep=this->mpReader->GetUnlimitedDimensionValues().front();
-       * p_file << "First timestep "<<first_timestep<<"\n";
-        double last_timestep=this->mpReader->GetUnlimitedDimensionValues().back();
-       * p_file << "Last timestep "<<last_timestep<<"\n";
-
-        p_file->close();
-
-    }
-
+ 
     PetscTools::Barrier();
 }
 

@@ -772,7 +772,9 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exnode heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode").c_str()), 0);
         //...and one data file as example
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_43.exnode heart/test/data/CmguiData/monodomain/monodomain3dValidData.exnode").c_str()), 0);
-
+        //Info file
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_times.info heart/test/data/CmguiData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
+        
 
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -781,6 +783,8 @@ public:
         ///\todo Intel compiler has:
         /// /tmp/jmpf/testoutput/MonodomainCreatesGeometry/vtk_output/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu differ: byte 49361, line 221        
         TS_ASSERT_EQUALS(system(("cmp -n 49360 " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
+        //Info file
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_times.info heart/test/data/VtkData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
 #endif //CHASTE_VTK
     }
 

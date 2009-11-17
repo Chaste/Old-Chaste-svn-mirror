@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToCmguiConverter.hpp"
 #include "PetscTools.hpp"
 #include "Exception.hpp"
-#include "OutputFileHandler.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
@@ -44,7 +43,6 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 {
     assert(type=="Mono" || type=="Bi");
     out_stream p_file=out_stream(NULL);
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output", false);
 
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
@@ -62,7 +60,7 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
         time_step_string << time_step;
         if (PetscTools::AmMaster())
         {
-            p_file = output_file_handler.OpenOutputFile(this->mFileBaseName + "_" + time_step_string.str() + ".exnode");
+            p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_" + time_step_string.str() + ".exnode");
         }
 
         //read the data for this time step
@@ -122,46 +120,15 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string inputDirectory,
                           std::string fileBaseName,
                           AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) : 
-                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh)
+                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "cmgui_output")
 {
-    // store dir and filenames, and create the reader
-    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
-
-    // check the data file read has one or two variables (ie V; or V and PhiE)
-    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
-    if((variable_names.size()==0) || (variable_names.size()>2))
+    Write("Mono");
+    if(this->mNumVariables==2)
     {
-//        delete this->mpReader;
-        EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
-    }
-
-    // if one variable, it is a monodomain problem
-    if(variable_names.size()==1)
-    {
-        if(variable_names[0]!="V")
-        {
-//            delete this->mpReader;
-            EXCEPTION("One variable, but it is not called 'V'");
-        }
-
-        Write("Mono");
-    }
-
-    // if two variables, it is a bidomain problem
-    if(variable_names.size()==2)
-    {
-        if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
-        {
-//            delete this->mpReader;
-            EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
-        }
-
         Write("Bi");
     }
 
     PetscTools::Barrier();
-
-
 }
 
 /////////////////////////////////////////////////////////////////////

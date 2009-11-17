@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include "Hdf5DataReader.hpp"
 #include "AbstractTetrahedralMesh.hpp"
+#include "OutputFileHandler.hpp"
 
 /**
  *  This derived children of this class convert from Hdf5 format to
@@ -42,19 +43,22 @@ class AbstractHdf5Converter
 {
 protected:
     Hdf5DataReader* mpReader; /**< Pointer to reader of the file to be converted*/
+    unsigned mNumVariables; /**< Read from the reader -- ought to be 1 (mono) or 2 (bi)*/
     std::string mFileBaseName; /**< Base name for the files [basename].vtu, [basename].dat etc.*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
-
+    OutputFileHandler* mpOutputFileHandler; /**< Intialised as directory in whicht to store the results*/ 
 
 public:
     /** Constructor, which does the conversion and writes the .vtu file.
      *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
      *  @param fileBaseName The base name of the data file.
      *  @param pMesh Pointer to the mesh.
+     *  @param subdirectoryName name for the output directory to be created (relative to HeartConfig::Instance()->GetOutputDirectory())
      */
     AbstractHdf5Converter(std::string inputDirectory,
                               std::string fileBaseName,
-                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh);
+                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh,
+                              std::string subdirectoryName);
 
     /** Destructor
      */

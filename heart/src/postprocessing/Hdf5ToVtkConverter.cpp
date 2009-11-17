@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToVtkConverter.hpp"
 #include "PetscTools.hpp"
 #include "Exception.hpp"
-#include "OutputFileHandler.hpp"
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
@@ -44,46 +43,12 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
                           std::string fileBaseName,
                           AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) :
-                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh)
+                    AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "vtk_output")
 {   
-    assert(ELEMENT_DIM==SPACE_DIM);
-    
-    // store dir and filenames, and create the reader
-    this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
-    ///\todo These exceptions ought to be in a common baseclass constructor
-    // check the data file read has one or two variables (ie V; or V and PhiE)
-    std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
-    if((variable_names.size()==0) || (variable_names.size()>2))
-    {
-//        delete this->mpReader;
-        EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
-    }
-
-    // if one variable, it is a monodomain problem
-    if(variable_names.size()==1)
-    {
-        if(variable_names[0]!="V")
-        {
-//            delete this->mpReader;
-            EXCEPTION("One variable, but it is not called 'V'");
-        }
-    }
-
-    // if two variables, it is a bidomain problem
-    if(variable_names.size()==2)
-    {
-        if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
-        {
-//            delete this->mpReader;
-            EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
-        }
-    }
-
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
 
-    
-    VtkWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName);
+    VtkWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName, false);
     
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
     DistributedVectorFactory factory(num_nodes);
@@ -112,7 +77,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
             // Add V into the node "point" data
             vtk_writer.AddPointData(V_point_data_name.str(), v_for_vtk);  
         }
-        if(variable_names.size()==2)
+        if(this->mNumVariables==2)
         {
             this->mpReader->GetVariableOverNodes(data, "Phi_e", time_step); // Gets Phi at this time step from HDF5 archive
             ReplicatableVector repl_phi(data);
@@ -135,7 +100,6 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     }
     VecDestroy(data);
     vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );
-    PetscTools::Barrier();
 #endif //CHASTE_VTK
 
 }
