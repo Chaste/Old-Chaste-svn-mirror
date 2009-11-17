@@ -317,8 +317,6 @@ protected:
     bool mChasteToCmgui;
     /** Whether to convert the output from HDF5 to Vtk readable format */   
     bool mChasteToVtk;
-    /** Tells the Cmguimeshwriter which additional field names it needs to print (V and Phie for bidomain, V only for monodomain*/
-    std::vector<std::string> mFieldNames;
 
     /** If only outputing voltage for selected nodes, which nodes to output at */
     std::vector<unsigned> mNodesToOutput;

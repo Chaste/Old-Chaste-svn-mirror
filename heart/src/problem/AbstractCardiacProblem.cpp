@@ -47,8 +47,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ProgressReporter.hpp"
 #include "LinearSystem.hpp"
 #include "PostProcessingWriter.hpp"
-#include "CmguiWriter.hpp"
-#include "MeshalyzerMeshWriter.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "Hdf5ToCmguiConverter.hpp"
 #include "Hdf5ToVtkConverter.hpp"
@@ -565,26 +563,12 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         {
             //Convert simulation data to Meshalyzer format
             Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
-    
-            //Write mesh in a suitable form for meshalyzer
-            std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
-            //Write the mesh
-            MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
-            mesh_writer.WriteFilesUsingMesh(*mpMesh);
         }
         
         if (mChasteToCmgui)
         {
-                    
             //Convert simulation data to Cmgui format
             Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
-            
-            //Write mesh in a suitable form for cmgui
-            std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
-            //Write the mesh
-            CmguiWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
-            cmgui_mesh_writer.SetAdditionalFieldNames(mFieldNames);
-            cmgui_mesh_writer.WriteFilesUsingMesh(*mpMesh);
         }
     
         if (mChasteToVtk)

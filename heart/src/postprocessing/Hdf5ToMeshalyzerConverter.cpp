@@ -29,9 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+#include "Hdf5ToMeshalyzerConverter.hpp"
+#include "MeshalyzerMeshWriter.hpp"
 #include "UblasCustomFunctions.hpp"
 #include "HeartConfig.hpp"
-#include "Hdf5ToMeshalyzerConverter.hpp"
 #include "PetscTools.hpp"
 #include "Exception.hpp"
 #include "ReplicatableVector.hpp"
@@ -91,6 +92,11 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
         Write("Phi_e");
     }
 
+    
+    //Write mesh in a suitable form for meshalyzer
+    std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
+    MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
+    mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
  
     PetscTools::Barrier();
 }

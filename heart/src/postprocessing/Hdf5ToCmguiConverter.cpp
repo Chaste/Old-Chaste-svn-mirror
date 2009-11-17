@@ -29,9 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+
+#include "Hdf5ToCmguiConverter.hpp"
+#include "CmguiWriter.hpp"
 #include "UblasCustomFunctions.hpp"
 #include "HeartConfig.hpp"
-#include "Hdf5ToCmguiConverter.hpp"
 #include "PetscTools.hpp"
 #include "Exception.hpp"
 #include "ReplicatableVector.hpp"
@@ -122,11 +124,21 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
                           AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) : 
                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "cmgui_output")
 {
+    //Used to inform the mesh of the data names
+    std::vector<std::string> field_names;
+    field_names.push_back("V");
     Write("Mono");
     if(this->mNumVariables==2)
     {
         Write("Bi");
+        field_names.push_back("Phi_e");
     }
+    
+    //Write mesh in a suitable form for cmgui
+    std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
+    CmguiWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
+    cmgui_mesh_writer.SetAdditionalFieldNames(field_names);
+    cmgui_mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
 
     PetscTools::Barrier();
 }
