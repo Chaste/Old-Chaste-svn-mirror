@@ -130,7 +130,7 @@ void HeartConfig::SetDefaultsFile(const std::string& rFileName)
     CheckTimeSteps();
 }
 
-void HeartConfig::Write(bool useArchiveLocationInfo)
+void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
 {
     //Output file
     std::string output_dirname;
@@ -141,7 +141,7 @@ void HeartConfig::Write(bool useArchiveLocationInfo)
     else
     {
         OutputFileHandler handler(GetOutputDirectory(), false);
-        output_dirname =  handler.GetOutputDirectoryFullPath() + "output/";
+        output_dirname =  handler.GetOutputDirectoryFullPath() + subfolderName + "/";
     }
     if (!PetscTools::AmMaster())
     {

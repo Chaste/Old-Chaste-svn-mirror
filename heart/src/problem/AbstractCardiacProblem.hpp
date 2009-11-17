@@ -109,7 +109,7 @@ private:
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
-        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these!
+        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these (or use HeartConfig)
         archive & mNodesToOutput;
         //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve
@@ -173,7 +173,7 @@ private:
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
-        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these!
+        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these (or use HeartConfig)
         archive & mNodesToOutput;
         //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve

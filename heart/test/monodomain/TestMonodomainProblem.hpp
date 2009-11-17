@@ -766,7 +766,7 @@ public:
         // There are also minor rounding differences at the last decimal figure between sequential and parallel. 
         EXIT_IF_PARALLEL 
        
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/cmgui_output";
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/cmgui_output/";
         //the mesh files...
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exelem heart/test/data/CmguiData/monodomain/monodomain3dValid.exelem").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exnode heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode").c_str()), 0);
@@ -774,17 +774,34 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_43.exnode heart/test/data/CmguiData/monodomain/monodomain3dValidData.exnode").c_str()), 0);
         //Info file
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_times.info heart/test/data/CmguiData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
-        
+        //HeartConfig XML
+        std::string filename_param = results_dir + "ChasteParameters.xml";
+        std::ifstream file_param(filename_param.c_str());
+        TS_ASSERT(file_param.is_open());
+        file_param.close();
+        std::string filename_default = results_dir + "ChasteDefaults.xml";
+        std::ifstream file_default(filename_default.c_str());
+        TS_ASSERT(file_default.is_open());
+        file_default.close();
 
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
         //VTK
-        results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/vtk_output";
+        results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/vtk_output/";
         ///\todo Intel compiler has:
         /// /tmp/jmpf/testoutput/MonodomainCreatesGeometry/vtk_output/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu differ: byte 49361, line 221        
         TS_ASSERT_EQUALS(system(("cmp -n 49360 " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
         //Info file
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_times.info heart/test/data/VtkData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
+        //HeartConfig XML
+        filename_param = results_dir + "ChasteParameters.xml";
+        std::ifstream file_param2(filename_param.c_str());
+        TS_ASSERT(file_param2.is_open());
+        file_param2.close();
+        filename_default = results_dir + "ChasteDefaults.xml";
+        std::ifstream file_default2(filename_default.c_str());
+        TS_ASSERT(file_default2.is_open());
+        file_default2.close();
 #endif //CHASTE_VTK
     }
 

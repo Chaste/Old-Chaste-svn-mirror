@@ -648,6 +648,15 @@ public:
         
         //info file
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
+        //HeartConfig XML
+        std::string filename_param = results_dir + "ChasteParameters.xml";
+        std::ifstream file_param(filename_param.c_str());
+        TS_ASSERT(file_param.is_open());
+        file_param.close();
+        std::string filename_default = results_dir + "ChasteDefaults.xml";
+        std::ifstream file_default(filename_default.c_str());
+        TS_ASSERT(file_default.is_open());
+        file_default.close();
         
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -656,7 +665,15 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
         //info file
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
-   
+        //HeartConfig XML
+        filename_param = results_dir + "ChasteParameters.xml";
+        std::ifstream file_param2(filename_param.c_str());
+        TS_ASSERT(file_param2.is_open());
+        file_param2.close();
+        filename_default = results_dir + "ChasteDefaults.xml";
+        std::ifstream file_default2(filename_default.c_str());
+        TS_ASSERT(file_default2.is_open());
+        file_default2.close();   
 #endif //CHASTE_VTK
      }
 

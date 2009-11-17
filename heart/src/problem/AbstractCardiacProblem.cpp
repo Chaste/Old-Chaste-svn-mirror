@@ -571,8 +571,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
             //Write the mesh
             MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
             mesh_writer.WriteFilesUsingMesh(*mpMesh);
-            //Write the parameters out
-            HeartConfig::Instance()->Write();
         }
         
         if (mChasteToCmgui)

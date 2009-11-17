@@ -249,10 +249,11 @@ public:
      * and ChasteDefaults) as an XML file.
      * Note that the location of ChasteParameters.xsd (schema definition)
      * will be hard-coded in the XML file.
-     * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in /output subfolder
+     * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in *named* subfolder
      *                                if true, then use ArchiveLocationInfo
+     * @param subfolderName -- where to store with respect to GetOutputDirectory() 
      */
-    void Write(bool useArchiveLocationInfo=false);
+    void Write(bool useArchiveLocationInfo=false, std::string subfolderName="output");
 
     /**
      * Utility method to parse an XML parameters file.
