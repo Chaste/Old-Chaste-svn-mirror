@@ -545,7 +545,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         std::string input_dir = mOutputDirectory+"/electrics";
         std::string config_directory = HeartConfig::Instance()->GetOutputDirectory();
         HeartConfig::Instance()->SetOutputDirectory(input_dir);
-        Hdf5ToMeshalyzerConverter converter(input_dir, "voltage");
+        Hdf5ToMeshalyzerConverter<DIM,DIM> converter(input_dir, "voltage", mpElectricsMesh);
         
         // Write mesh in a suitable form for meshalyzer
         if (PetscTools::AmMaster())

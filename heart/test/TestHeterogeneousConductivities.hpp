@@ -37,12 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
 #include "MeshalyzerMeshWriter.hpp"
-#include "Hdf5DataReader.hpp"
-#include "Hdf5ToMeshalyzerConverter.hpp"
-#include "SimpleStimulus.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "ChastePoint.hpp"
-#include "ChasteCuboid.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 using std::ofstream;

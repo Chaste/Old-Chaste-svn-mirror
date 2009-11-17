@@ -39,7 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
 
-void Hdf5ToMeshalyzerConverter::Write(std::string type)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 {
     assert(type=="V" || type=="Phi_e");
 
@@ -79,8 +80,12 @@ void Hdf5ToMeshalyzerConverter::Write(std::string type)
 }
 
 
-Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
-                          std::string fileBaseName)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
+                          std::string fileBaseName,
+                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
+                          mFileBaseName(fileBaseName),
+                          mpMesh(pMesh)
 {
     // store dir and filenames, and create a reader
     mFileBaseName = fileBaseName;
@@ -140,7 +145,19 @@ Hdf5ToMeshalyzerConverter::Hdf5ToMeshalyzerConverter(std::string inputDirectory,
     PetscTools::Barrier();
 }
 
-Hdf5ToMeshalyzerConverter::~Hdf5ToMeshalyzerConverter()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::~Hdf5ToMeshalyzerConverter()
 {
     delete mpReader;
 }
+
+/////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////
+
+template class Hdf5ToMeshalyzerConverter<1,1>;
+template class Hdf5ToMeshalyzerConverter<1,2>;
+template class Hdf5ToMeshalyzerConverter<2,2>;
+template class Hdf5ToMeshalyzerConverter<1,3>;
+template class Hdf5ToMeshalyzerConverter<2,3>;
+template class Hdf5ToMeshalyzerConverter<3,3>;

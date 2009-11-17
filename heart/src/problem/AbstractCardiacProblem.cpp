@@ -559,71 +559,44 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
 
     HeartEventHandler::BeginEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
     // Only if results files were written and we are outputting all nodes
-    if (mCallChaste2Meshalyzer && mNodesToOutput.empty())
+    if (mNodesToOutput.empty())
     {
-        //Convert simulation data to Meshalyzer format
-        Hdf5ToMeshalyzerConverter converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
-
-        //Write mesh in a suitable form for meshalyzer
-        std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
-        //Write the mesh
-        MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
-        if (PetscTools::AmMaster())
+        if (mCallChaste2Meshalyzer)
         {
-            try
-            {
-                // If this mesh object has been constructed from a mesh reader we can get reference to it
-                TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(mpMesh->GetMeshFileBaseName());
-                mesh_writer.WriteFilesUsingMeshReader(mesh_reader, mpMesh->rGetNodePermutation());
-            }
-            catch(Exception& e)
-            {
-                //If there isn't a MeshReader available we will use the data contained in the actual mesh object.
-                ///\todo WriteFilesUsingMesh cannot handle ParallelTetrahedralMesh objects. Abort if so.
-                mesh_writer.WriteFilesUsingMesh(*mpMesh);
-            }
-        }
-        //Write the parameters out
-        HeartConfig::Instance()->Write();
-    }
+            //Convert simulation data to Meshalyzer format
+            Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
     
-    // Only if results files were written and we are outputting all nodes
-    if (mCallChaste2Cmgui && mNodesToOutput.empty())
-    {
-                
-        //Convert simulation data to Cmgui format
-        Hdf5ToCmguiConverter converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix());
+            //Write mesh in a suitable form for meshalyzer
+            std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
+            //Write the mesh
+            MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
+            mesh_writer.WriteFilesUsingMesh(*mpMesh);
+            //Write the parameters out
+            HeartConfig::Instance()->Write();
+        }
         
-        //Write mesh in a suitable form for cmgui
-        std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
-        //Write the mesh
-        CmguiWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
-        cmgui_mesh_writer.SetAdditionalFieldNames(mFieldNames);
-
-        if (PetscTools::AmMaster())
+        if (mCallChaste2Cmgui)
         {
-            try
-            {
-                // If this mesh object has been constructed from a mesh reader we can get reference to it
-                TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_reader(mpMesh->GetMeshFileBaseName());
-                cmgui_mesh_writer.WriteFilesUsingMeshReader(cmgui_mesh_reader, mpMesh->rGetNodePermutation());
-            }
-            catch(Exception& e)
-            {
-                //If there isn't a MeshReader available we will use the data contained in the actual mesh object.
-                cmgui_mesh_writer.WriteFilesUsingMesh(*mpMesh);
-            }
+                    
+            //Convert simulation data to Cmgui format
+            Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
+            
+            //Write mesh in a suitable form for cmgui
+            std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
+            //Write the mesh
+            CmguiWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
+            cmgui_mesh_writer.SetAdditionalFieldNames(mFieldNames);
+            cmgui_mesh_writer.WriteFilesUsingMesh(*mpMesh);
+        }
+    
+        if (mCallChaste2Vtk)
+        {
+                    
+            //Convert simulation data to Cmgui format
+            Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
         }
     }
-
-    // Only if results files were written and we are outputting all nodes
-    if (mCallChaste2Vtk  && mNodesToOutput.empty())
-    {
-                
-        //Convert simulation data to Cmgui format
-        Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
-    }
-    
+        
     if(HeartConfig::Instance()->IsPostProcessingRequested())
     {
         //Test that we have a tetrahedral mesh

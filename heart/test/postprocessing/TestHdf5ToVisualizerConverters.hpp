@@ -41,8 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
-typedef Hdf5ToVtkConverter<2,2> VTK_2D;
+
 typedef Hdf5ToVtkConverter<3,3> VTK_3D;
+typedef Hdf5ToCmguiConverter<3,3> CMGUI_3D;
+typedef Hdf5ToMeshalyzerConverter<3,3> MESHA_3D;
 
 class TestHdf5ToVisualizerConverters : public CxxTest::TestSuite
 {
@@ -74,9 +76,13 @@ public :
         CopyToTestOutputDirectory("heart/test/data/Monodomain1d/MonodomainLR91_1d.h5",
                                   "TestHdf5ToMeshalyzerConverter");
 
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
         // convert
         HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
-        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d");
+        Hdf5ToMeshalyzerConverter<1,1> converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d", &mesh);
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -97,9 +103,13 @@ public :
         CopyToTestOutputDirectory("heart/test/data/Bidomain1d/bidomain.h5",
                                   "TestHdf5ToMeshalyzerConverter");
 
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
-        Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter",  "bidomain");
+        Hdf5ToMeshalyzerConverter<1,1> converter("TestHdf5ToMeshalyzerConverter",  "bidomain", &mesh);
 
         // compare the voltage file
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -127,19 +137,23 @@ public :
 
         HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter("TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format"),
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_THROWS_THIS( MESHA_3D converter("TestHdf5ToMeshalyzerConverter", "hdf5_test_full_format", &mesh),
                 "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
                                   "TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1"),
+        TS_ASSERT_THROWS_THIS( MESHA_3D converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_1", &mesh),
                 "One variable, but it is not called \'V\'");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
                                   "TestHdf5ToMeshalyzerConverter");
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToMeshalyzerConverter converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2"),
+        TS_ASSERT_THROWS_THIS( MESHA_3D converter2("TestHdf5ToMeshalyzerConverter", "bad_heart_data_2", &mesh),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
     }
 
@@ -153,9 +167,13 @@ public :
         CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/cube_2mm_12_elements.h5",
                                   working_directory);
 
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToCmguiConverter converter(working_directory, "cube_2mm_12_elements");
+        Hdf5ToCmguiConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -179,9 +197,13 @@ public :
         CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/cube_2mm_12_elements.h5",
                                   working_directory);
 
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToCmguiConverter converter(working_directory, "cube_2mm_12_elements");
+        Hdf5ToCmguiConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
 
         // compare the voltage file with a correct version that is known to visualize correctly in Cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -205,9 +227,13 @@ public :
         CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements.h5",
                                   working_directory);
 
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToCmguiConverter converter(working_directory, "2D_0_to_1mm_400_elements");
+        Hdf5ToCmguiConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
 
         // compare the voltage file with a correct version that visualizes bothe Vm correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -230,9 +256,13 @@ public :
         CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements.h5",
                                   working_directory);
 
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
-        Hdf5ToCmguiConverter converter(working_directory, "1D_0_to_1_100_elements");
+        Hdf5ToCmguiConverter<1,1> converter(working_directory, "1D_0_to_1_100_elements", &mesh);
 
         // compare the voltage file with a correct version that visualizes bothe Vm and Phie correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -255,19 +285,23 @@ public :
 
         HeartConfig::Instance()->SetOutputDirectory(bidomain_directory);
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter(bidomain_directory, "hdf5_test_full_format"),
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements"); //Not used in the test for exceptions
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_THROWS_THIS( CMGUI_3D converter(bidomain_directory, "hdf5_test_full_format", &mesh),
                 "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
                                   monodomain_directory);
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter2("TestHdf5ToCmguiConverter_monodomain", "bad_heart_data_1"),
+        TS_ASSERT_THROWS_THIS( CMGUI_3D converter2("TestHdf5ToCmguiConverter_monodomain", "bad_heart_data_1", &mesh),
                 "One variable, but it is not called \'V\'");
 
         CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
                                   bidomain_directory);
 
-        TS_ASSERT_THROWS_THIS( Hdf5ToCmguiConverter converter2(bidomain_directory, "bad_heart_data_2"),
+        TS_ASSERT_THROWS_THIS( CMGUI_3D converter2(bidomain_directory, "bad_heart_data_2", &mesh),
                 "Two variables, but they are not called \'V\' and \'Phi_e\'");
     }
 

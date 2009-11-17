@@ -39,7 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
 
-void Hdf5ToCmguiConverter::Write(std::string type)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 {
     assert(type=="Mono" || type=="Bi");
     out_stream p_file=out_stream(NULL);
@@ -117,11 +118,14 @@ void Hdf5ToCmguiConverter::Write(std::string type)
     }
 }
 
-Hdf5ToCmguiConverter::Hdf5ToCmguiConverter(std::string inputDirectory,
-                          std::string fileBaseName)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string inputDirectory,
+                          std::string fileBaseName,
+                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
+                             mFileBaseName(fileBaseName),
+                             mpMesh(pMesh)
 {
     // store dir and filenames, and create the reader
-    mFileBaseName = fileBaseName;
     mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
 
     // check the data file read has one or two variables (ie V; or V and PhiE)
@@ -161,7 +165,19 @@ Hdf5ToCmguiConverter::Hdf5ToCmguiConverter(std::string inputDirectory,
 
 }
 
-Hdf5ToCmguiConverter::~Hdf5ToCmguiConverter()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::~Hdf5ToCmguiConverter()
 {
     delete mpReader;
 }
+
+/////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////
+
+template class Hdf5ToCmguiConverter<1,1>;
+template class Hdf5ToCmguiConverter<1,2>;
+template class Hdf5ToCmguiConverter<2,2>;
+template class Hdf5ToCmguiConverter<1,3>;
+template class Hdf5ToCmguiConverter<2,3>;
+template class Hdf5ToCmguiConverter<3,3>;
