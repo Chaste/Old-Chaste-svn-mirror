@@ -639,7 +639,7 @@ public:
         // There are also minor rounding differences at the last decimal figure between sequential and parallel. 
         EXIT_IF_PARALLEL       
         
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/cmgui_output";
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/cmgui_output/";
         //the mesh files...
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.exelem heart/test/data/CmguiData/bidomain/bidomain3dValid.exelem").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.exnode heart/test/data/CmguiData/bidomain/bidomain3dValid.exnode").c_str()), 0);
@@ -661,7 +661,7 @@ public:
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
         //VTK
-        results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output";
+        results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
         //info file
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
