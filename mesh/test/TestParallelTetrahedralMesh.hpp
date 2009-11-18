@@ -707,9 +707,6 @@ public:
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
             
-            ///\todo There is something dodgy going on here with #1159
-            TS_TRACE("Fix this in parallel");
-            EXIT_IF_PARALLEL;
             // restore from the archive
             (*p_arch) >> p_mesh_abstract2;
             // Check we have the right number of nodes & elements
@@ -720,7 +717,6 @@ public:
             TS_ASSERT_EQUALS(p_mesh2->GetNumElements(), num_elements);
 
             // Check some node co-ordinates
-
             try
             {
                 Node<2>* p_node1 = p_mesh->GetNode(0);
@@ -775,23 +771,25 @@ public:
 
         // restore from a single processor archive
         {
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
-                "mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false);
-            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
-
-            AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
-
             if ( PetscTools::IsSequential() )
             {
+                ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
+                        "mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false);
+                boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+                AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
                 (*p_arch) >> p_mesh3;
+                delete p_mesh3;
             }
             else
             {
-                /// Should not read this archive
-                TS_ASSERT_THROWS_THIS((*p_arch) >> p_mesh3, 
-                        "This archive was written for a different number of processors");
-            }            
-            delete p_mesh3;
+                if (PetscTools::GetMyRank()>0)
+                {
+                    /// Should not read this archive because none exists here.
+                    typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
+                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener("mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false),
+                                "Cannot load secondary archive file:");
+                }
+            }       
         }
 
         delete p_mesh;
