@@ -648,7 +648,7 @@ public:
             
             // Check that there's an exact correspondence between bath nodes and fake cells
             FakeBathCell* p_fake_cell = NULL;
-            for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+            for (unsigned i=r_mesh.GetDistributedVectorFactory()->GetLow(); i<r_mesh.GetDistributedVectorFactory()->GetHigh(); i++)
             {
                 TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), mesh.GetNode(i)->GetRegion());
                 FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_abstract_problem->GetPde()->GetCardiacCell(i));
