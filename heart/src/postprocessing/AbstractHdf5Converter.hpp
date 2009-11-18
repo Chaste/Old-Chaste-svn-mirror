@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTHDF5CONVERTER_HPP_
 
 #include <string>
-#include "Hdf5DataReader.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 #include "OutputFileHandler.hpp"
+#include "Hdf5DataReader.hpp"
 
 /**
  *  This derived children of this class convert from Hdf5 format to
