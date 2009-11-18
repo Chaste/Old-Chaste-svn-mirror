@@ -268,6 +268,10 @@ public :
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToVtkConverter<3,3> converter(working_directory, "cube_2mm_12_elements", &mesh);
 
+        //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
+        //This barrier just slows things down a bit
+        PetscTools::Barrier();
+
         // compare the voltage file with a correct version that is known to visualize correctly in Vtk
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu"
@@ -292,6 +296,10 @@ public :
         // convert
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToVtkConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
+
+        //Note that VTK is not thread-safe.  The master process has spawned a child to write the mesh and may still be writing!
+        //This barrier just slows things down a bit
+        PetscTools::Barrier();
 
         // compare the voltage file with a correct version that visualizes Vm correctly in VTK
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
