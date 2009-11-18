@@ -55,6 +55,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <class Archive, class Stream>
 class ArchiveOpener
 {
+private:
+    friend class TestArchivingHelperClasses;
 public:
     /**
      * Open the archives for this process, either for reading or writing depending on the
@@ -84,7 +86,7 @@ public:
      */
     Archive* GetCommonArchive()
     {
-        assert(mpCommonArchive != NULL);
+        assert(mpCommonArchive!=NULL);
         return mpCommonArchive;
     }
 private:
@@ -97,6 +99,5 @@ private:
     /** The secondary archive */
     Archive* mpPrivateArchive;
 };
-
 
 #endif /*ARCHIVEOPENER_HPP_*/

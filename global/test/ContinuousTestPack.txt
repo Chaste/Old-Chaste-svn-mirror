@@ -1,4 +1,4 @@
-TestArchiveLocationInfo.hpp
+TestArchivingHelperClasses.hpp
 TestArchiving.hpp
 TestCancerEventHandler.hpp
 TestCwd.hpp
