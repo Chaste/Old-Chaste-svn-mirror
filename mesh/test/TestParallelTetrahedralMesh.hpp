@@ -782,12 +782,23 @@ public:
             }
             else
             {
+                typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
                 if (PetscTools::GetMyRank()>0)
                 {
                     /// Should not read this archive because none exists here.
-                    typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
                     TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener("mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false),
                                 "Cannot load secondary archive file:");
+                }
+                else
+                {   
+                    /// Should not read this archive because there are two or more processes and
+                    // this archive was written on one process.
+                    InputArchiveOpener arch_opener("mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false);
+                    boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+                    AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
+                    TS_ASSERT_THROWS_THIS((*p_arch) >> p_mesh3,
+                                          "This archive was written for a different number of processors");
+                    
                 }
             }       
         }
