@@ -936,7 +936,62 @@ public :
         std::vector<std::string> output_variables;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputVariables(output_variables), 
                               "OutputVariables information is not available in a resumed simulation.");
+    }
+    
+    void TestOutputVisualizerSettings()
+    {
+        HeartConfig::Instance()->Reset();
         
+        // Defaults file doesn't have the OutputVisualizer element
+        TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Simulation().get().OutputVisualizer().present());
+        
+        // Parameters file which doesn't specify OutputVisualizer
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
+        
+        // Read the user parameters directly - again element missing
+        TS_ASSERT( ! HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().present());
+        
+        // And the normal Get methods
+        TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
+        TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
+        TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithVtk() );
+        
+        // Set methods
+        HeartConfig::Instance()->SetVisualizeWithMeshalyzer(false);
+        TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().meshalyzer(),
+                         cp::yesno_type::no);
+        
+        HeartConfig::Instance()->SetVisualizeWithCmgui(true);
+        TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().cmgui(),
+                         cp::yesno_type::yes);
+        
+        HeartConfig::Instance()->SetVisualizeWithVtk(true);
+        TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
+                         cp::yesno_type::yes);
+
+        // Setting one doesn't change the others...
+        TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
+        TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
+        
+        // Parameters file which does specify OutputVisualizer
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
+        
+        // Now the element exists...
+        TS_ASSERT(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().meshalyzer(),
+                         cp::yesno_type::no);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().cmgui(),
+                         cp::yesno_type::no);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
+                         cp::yesno_type::yes);
+
+        TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
+        TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
+        TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
     }
 };
 

@@ -99,7 +99,7 @@ private:
     std::vector<double> mVoltageReplicated1d2ms;///<Used to test differences between tests
 
 public:
-    void tearDown()
+    void setUp()
     {
         HeartConfig::Reset();
     }
@@ -213,8 +213,6 @@ public:
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1, 3> cell_factory;
         MonodomainProblem<1,3> monodomain_problem( &cell_factory );
-
-        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -597,7 +595,6 @@ public:
         ///////////////////////////////////////////////////////////////////
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
-        monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(10, 10, true);
         mesh.Scale(0.01,0.01); //To get 1mm x 1mm
@@ -686,8 +683,6 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory(-600 * 5000);
 
         MonodomainProblem<1> monodomain_problem( &cell_factory );
-
-        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
         monodomain_problem.Initialise();
 
         monodomain_problem.Solve();
@@ -713,8 +708,6 @@ public:
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-600 * 5000);
 
         MonodomainProblem<2> monodomain_problem( &cell_factory );
-
-        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
         monodomain_problem.Initialise();
 
         monodomain_problem.Solve();
@@ -741,9 +734,8 @@ public:
 
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
-        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
-        monodomain_problem.ConvertOutputToCmguiFormat(true);
-        monodomain_problem.ConvertOutputToVtkFormat(true);
+        HeartConfig::Instance()->SetVisualizeWithCmgui(true);
+        HeartConfig::Instance()->SetVisualizeWithVtk(true);
         monodomain_problem.Initialise();
 
         monodomain_problem.Solve();
@@ -818,7 +810,6 @@ public:
         // Solve
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
-        monodomain_problem.ConvertOutputToMeshalyzerFormat();
 
         // Get a reference to a reader object for the simulation results
         Hdf5DataReader data_reader1=monodomain_problem.GetDataReader();

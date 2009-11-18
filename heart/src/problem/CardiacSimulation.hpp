@@ -343,8 +343,6 @@ private:
                             p_mono_problem = new MonodomainProblem<3>(&cell_factory);
     
                             p_mono_problem->Initialise();
-    
-                            p_mono_problem->ConvertOutputToMeshalyzerFormat(true);
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
@@ -375,8 +373,6 @@ private:
                             p_mono_problem = new MonodomainProblem<2>(&cell_factory);
     
                             p_mono_problem->Initialise();
-    
-                            p_mono_problem->ConvertOutputToMeshalyzerFormat(true);
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
@@ -407,8 +403,6 @@ private:
                             p_mono_problem = new MonodomainProblem<1>(&cell_factory);
     
                             p_mono_problem->Initialise();
-    
-                            p_mono_problem->ConvertOutputToMeshalyzerFormat(true);
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
@@ -448,8 +442,6 @@ private:
                             p_bi_problem = new BidomainProblem<3>(&cell_factory);
     
                             p_bi_problem->Initialise();
-    
-                            p_bi_problem->ConvertOutputToMeshalyzerFormat(true);
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
@@ -479,8 +471,6 @@ private:
                             p_bi_problem = new BidomainProblem<2>(&cell_factory);
     
                             p_bi_problem->Initialise();
-    
-                            p_bi_problem->ConvertOutputToMeshalyzerFormat(true);
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {
@@ -510,8 +500,6 @@ private:
                             p_bi_problem = new BidomainProblem<1>(&cell_factory);
     
                             p_bi_problem->Initialise();
-    
-                            p_bi_problem->ConvertOutputToMeshalyzerFormat(true);
                         }
                         else // (HeartConfig::Instance()->IsSimulationResumed())
                         {

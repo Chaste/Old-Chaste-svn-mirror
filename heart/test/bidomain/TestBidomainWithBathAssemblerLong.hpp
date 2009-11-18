@@ -129,9 +129,7 @@ public:
 
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
+        
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();
@@ -193,8 +191,6 @@ public:
 
         Electrodes<2> electrodes(mesh,true,0,0.0,0.1,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
 
@@ -265,8 +261,6 @@ public:
 
         Electrodes<3> electrodes(mesh,true,0,0.0,0.2,boundary_flux, duration);
         bidomain_problem.SetElectrodes(electrodes);
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
 

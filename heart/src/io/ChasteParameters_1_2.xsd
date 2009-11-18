@@ -233,6 +233,19 @@
     </xs:sequence>
   </xs:complexType>
 
+	<xs:simpleType name="yesno_type">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="yes"/>
+			<xs:enumeration value="no"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+  <xs:complexType name="output_visualizer_type">
+	<xs:attribute name="meshalyzer" type="yesno_type" default="yes" use="optional"/>
+	<xs:attribute name="cmgui" type="yesno_type" default="no" use="optional"/>
+	<xs:attribute name="vtk" type="yesno_type" default="no" use="optional"/>
+  </xs:complexType>
+
   <xs:complexType name="time_steps_type">
     <xs:attribute name="ode" type="xs:double" use="required"/>
     <xs:attribute name="pde" type="xs:double" use="required"/>
@@ -277,44 +290,45 @@
   </xs:simpleType>   
       
   <xs:complexType name="simulation_type">
-    <xs:all>
-      <xs:element name="SpaceDimension" type="xs:integer" minOccurs="0"/>
-      <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
-      <xs:element name="Domain" type="domain_type" minOccurs="0"/>
-      <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>
-
-      <xs:element name="IonicModels" type="ionic_models_type" minOccurs="0"/>
-      
-      <xs:element name="Stimuli" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-
-      <xs:element name="CellHeterogeneities" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />            
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-
-      <xs:element name="ConductivityHeterogeneities" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-              <xs:element name="ConductivityHeterogeneity" type="conductivity_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />            
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-
-      <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
-      <xs:element name="OutputFilenamePrefix" type="xs:string" minOccurs="0"/>      
-      <xs:element name="OutputVariables" type="output_variables_type" minOccurs="0"/>
-
-      <xs:element name="SaveSimulation" type="empty_type" minOccurs="0"/>
-    </xs:all>
+	  <xs:all>
+	      <xs:element name="SpaceDimension" type="xs:integer" minOccurs="0"/>
+	      <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
+	      <xs:element name="Domain" type="domain_type" minOccurs="0"/>
+	      <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>
+	
+	      <xs:element name="IonicModels" type="ionic_models_type" minOccurs="0"/>
+	      
+	      <xs:element name="Stimuli" minOccurs="0">
+	        <xs:complexType>
+	          <xs:sequence>
+	            <xs:element name="Stimulus" type="stimulus_type" maxOccurs="unbounded"/>
+	          </xs:sequence>
+	        </xs:complexType>
+	      </xs:element>
+	
+	      <xs:element name="CellHeterogeneities" minOccurs="0">
+	        <xs:complexType>
+	          <xs:sequence>
+	            <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />            
+	          </xs:sequence>
+	        </xs:complexType>
+	      </xs:element>
+	
+	      <xs:element name="ConductivityHeterogeneities" minOccurs="0">
+	        <xs:complexType>
+	          <xs:sequence>
+	            <xs:element name="ConductivityHeterogeneity" type="conductivity_heterogeneity_type" minOccurs="0" maxOccurs="unbounded" />            
+	          </xs:sequence>
+	        </xs:complexType>
+	      </xs:element>
+	
+	      <xs:element name="OutputDirectory" type="xs:string" minOccurs="0"/>
+	      <xs:element name="OutputFilenamePrefix" type="xs:string" minOccurs="0"/>      
+	      <xs:element name="OutputVariables" type="output_variables_type" minOccurs="0"/>
+	      <xs:element name="OutputVisualizer" type="output_visualizer_type" minOccurs="0" maxOccurs="1"/>
+	 
+	      <xs:element name="SaveSimulation" type="empty_type" minOccurs="0"/>
+	  </xs:all>
   </xs:complexType>    
 
   <xs:complexType name="resume_simulation_type">
@@ -355,6 +369,8 @@
       <xs:element name="ConductionVelocityMap" type="conduction_velocity_map_type" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>      
   </xs:complexType> 
+
+ 
   
   <xs:complexType name="chaste_parameters_type">
     <xs:sequence>

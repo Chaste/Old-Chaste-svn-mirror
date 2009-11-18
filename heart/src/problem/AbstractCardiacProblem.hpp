@@ -109,7 +109,6 @@ private:
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
-        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these (or use HeartConfig)
         archive & mNodesToOutput;
         //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve
@@ -173,7 +172,6 @@ private:
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
-        archive & mChasteToMeshalyzer; ///\todo Archive the other 2 of these (or use HeartConfig)
         archive & mNodesToOutput;
         //archive & mVoltageColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mExtraVariablesId; // Created by InitialiseWriter, called from Solve
@@ -311,12 +309,6 @@ protected:
     bool mWriteInfo;
     /** Whether to write any output at all */
     bool mPrintOutput;
-    /** Whether to convert the output from HDF5 to meshalyzer readable format */
-    bool mChasteToMeshalyzer;
-    /** Whether to convert the output from HDF5 to Cmgui readable format */   
-    bool mChasteToCmgui;
-    /** Whether to convert the output from HDF5 to Vtk readable format */   
-    bool mChasteToVtk;
 
     /** If only outputing voltage for selected nodes, which nodes to output at */
     std::vector<unsigned> mNodesToOutput;
@@ -441,27 +433,6 @@ public:
      * there are any.
      */
     virtual Vec CreateInitialCondition();
-
-    /**
-     *  Set whether to convert mesh and data to Meshalyzer format.
-     * 
-     * @param call whether to convert
-     */
-    void ConvertOutputToMeshalyzerFormat(bool call = true);
-    
-    /**
-     *  Set whether to convert mesh and data to Cmgui.
-     * 
-     * @param call whether to call the script
-     */
-    void ConvertOutputToCmguiFormat(bool call = false);
-
-    /**
-     *  Set whether to convert mesh and data to Vtk.
-     * 
-     * @param call whether to call the script
-     */
-    void ConvertOutputToVtkFormat(bool call = false);
 
     /**
      * This only needs to be called if a mesh filename has not been set.

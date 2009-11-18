@@ -144,6 +144,8 @@
 		    <Var name="Nai"/>
 		    <Var name="Ki"/>
 		</OutputVariables>
+		
+		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
 
 		<SaveSimulation/>
 				

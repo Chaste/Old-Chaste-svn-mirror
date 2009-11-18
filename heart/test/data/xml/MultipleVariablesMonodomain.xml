@@ -31,6 +31,7 @@
                     <Var name="Nai"/>
                     <Var name="Ki"/>
                 </OutputVariables>
+                <OutputVisualizer meshalyzer="no" vtk="no" cmgui="no"/>
         </Simulation>
         
         <Physiological>

@@ -194,11 +194,11 @@ public:
         bidomain_problem.Initialise();
 
         /* The output will be written to /tmp/USER_NAME/testoutput/BidomainTutorial
-         * in hdf5 format. If you want visualise the results afterwards, call the
-         * following method now, and the mesh and output will be converted to meshalyzer
-         * format at the end of the simulation.
+         * in hdf5 format.  By default the output will be converted to meshalyzer
+         * format at the end of the simulation.  To adjust this, or convert to Cmgui
+         * or VTK format instead, use methods in HeartConfig, e.g.
          */
-        bidomain_problem.ConvertOutputToMeshalyzerFormat();
+        HeartConfig::Instance()->SetVisualizeWithCmgui(true);
 
         /* Now we call Solve() to run the simulation.
          * Note that if you want to view the progress of longer simulations
@@ -345,7 +345,6 @@ public:
         bidomain_problem.SetElectrodes(electrodes);
 
         /* ..and solve as before. */
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 

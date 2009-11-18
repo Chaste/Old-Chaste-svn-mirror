@@ -200,8 +200,6 @@ public:
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();
@@ -286,8 +284,6 @@ public:
         fixed_nodes.push_back(0);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
 
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();
@@ -336,8 +332,6 @@ public:
 
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
 
@@ -429,8 +423,6 @@ public:
 
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         bidomain_problem.Solve();
 
@@ -599,7 +591,6 @@ public:
             bidomain_problem.SetElectrodes(electrodes);    
             bidomain_problem.SetMesh(&mesh);
             bidomain_problem.Initialise();    
-            bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
             // Save using helper class
             CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, archive_dir, false);

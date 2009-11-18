@@ -205,8 +205,6 @@ public:
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
         BidomainProblem<3> bidomain_problem( &cell_factory );
 
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
@@ -263,8 +261,6 @@ public:
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
-        monodomain_problem.ConvertOutputToMeshalyzerFormat(true);
-
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
 
@@ -299,8 +295,7 @@ public:
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
         BidomainProblem<3> bidomain_problem( &cell_factory );
-
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
+        
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
 

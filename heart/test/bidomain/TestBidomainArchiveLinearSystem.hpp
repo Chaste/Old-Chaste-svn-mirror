@@ -57,13 +57,13 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
         HeartConfig::Instance()->SetOutputDirectory("DumpBidomain3DPE");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomainPE3d");
+        HeartConfig::Instance()->SetVisualizeWithMeshalyzer(true);
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> bidomain_cell_factory(-600.0*1000);
 
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
 
-        bidomain_problem.SetArchiveLinearSystemObject();        
-        bidomain_problem.ConvertOutputToMeshalyzerFormat();
+        bidomain_problem.SetArchiveLinearSystemObject();   
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
         

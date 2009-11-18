@@ -60,9 +60,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mAllocatedMemoryForMesh(false),
       mWriteInfo(false),
       mPrintOutput(true),
-      mChasteToMeshalyzer(false),
-      mChasteToCmgui(false),
-      mChasteToVtk(false),
       mpCardiacPde(NULL),
       mpAssembler(NULL),
       mpCellFactory(pCellFactory),
@@ -88,9 +85,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacPde
       mWriteInfo(false),
       mPrintOutput(true),
-      mChasteToMeshalyzer(false),
-      mChasteToCmgui(false),
-      mChasteToVtk(false),
       mVoltageColumnId(UINT_MAX),
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
@@ -319,24 +313,6 @@ Vec AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialCond
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToMeshalyzerFormat(bool call)
-{
-    mChasteToMeshalyzer=call;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToCmguiFormat(bool call)
-{
-    mChasteToCmgui=call;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ConvertOutputToVtkFormat(bool call)
-{
-    mChasteToVtk=call;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
 {
     // If this fails the mesh has already been set. We assert rather throw an exception
@@ -559,19 +535,19 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
     // Only if results files were written and we are outputting all nodes
     if (mNodesToOutput.empty())
     {
-        if (mChasteToMeshalyzer)
+        if (HeartConfig::Instance()->GetVisualizeWithMeshalyzer())
         {
             //Convert simulation data to Meshalyzer format
             Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
         }
         
-        if (mChasteToCmgui)
+        if (HeartConfig::Instance()->GetVisualizeWithCmgui())
         {
             //Convert simulation data to Cmgui format
             Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
         }
     
-        if (mChasteToVtk)
+        if (HeartConfig::Instance()->GetVisualizeWithVtk())
         {
                     
             //Convert simulation data to Cmgui format

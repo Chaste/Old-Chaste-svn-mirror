@@ -334,8 +334,6 @@ public:
             ///////////////////////////////////////////////////////////////////
             MonodomainProblem<1> monodomain_problem( &cell_factory );
 
-            monodomain_problem.ConvertOutputToMeshalyzerFormat(true); // for coverage
-
             monodomain_problem.Initialise();
 
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -496,7 +494,6 @@ public:
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
         bidomain_problem.Initialise();
-        bidomain_problem.ConvertOutputToMeshalyzerFormat(true);
 
         // Throws as sodium out goes of range
         TS_ASSERT_THROWS_CONTAINS(bidomain_problem.Solve(), "m gate for fast sodium current has gone out of range. "
@@ -604,8 +601,8 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("axi3d");
 
         BidomainProblem<3> axisymmetric_bido( &cell_factory);
-        axisymmetric_bido.ConvertOutputToCmguiFormat(true);
-        axisymmetric_bido.ConvertOutputToVtkFormat(true);
+        HeartConfig::Instance()->SetVisualizeWithCmgui(true);
+        HeartConfig::Instance()->SetVisualizeWithVtk(true);
         
         axisymmetric_bido.Initialise();
         axisymmetric_bido.Solve();
@@ -702,7 +699,6 @@ public:
         // Solve
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
-        bidomain_problem.ConvertOutputToMeshalyzerFormat();
 
         // Get a reference to a reader object for the simulation results
         Hdf5DataReader data_reader1=bidomain_problem.GetDataReader();

@@ -541,6 +541,20 @@ public:
     void GetConductionVelocityMaps(std::vector<unsigned>& conductionVelocityMaps) const;
 
 
+    // Output visualization
+    
+    /** Whether there is an OutputVisualizer element present. */
+    bool IsOutputVisualizerPresent() const;
+    
+    /** Whether to convert the output from HDF5 to meshalyzer readable format */
+    bool GetVisualizeWithMeshalyzer() const;
+    
+    /** Whether to convert the output from HDF5 to Cmgui readable format */   
+    bool GetVisualizeWithCmgui() const;
+    
+    /** Whether to convert the output from HDF5 to Vtk readable format */   
+    bool GetVisualizeWithVtk() const;
+
      /*
      *  Set methods
      */
@@ -634,6 +648,11 @@ public:
      * of each variable that should be outputted at each time step.
      *
      * USING THIS METHOD WILL OVERRIDE THE ANY OUTPUT VARIABLES SET IN THE XML FILE
+     * 
+     * Warning: when specifying output variables, you cannot convert the HDF5
+     * output to Meshalyzer, Cmgui or VTK formats, since the converter will get
+     * confused by the presence of extra data.  This method thus also turns off
+     * visualizer output if the provided vector is non-empty.
      */
     void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
 
@@ -765,6 +784,31 @@ public:
      *  @param conductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
+    
+    
+    // Output visualization
+    
+    /** Create the OutputVisualizer element if it doesn't exist */
+    void EnsureOutputVisualizerExists(void);
+    
+    /** Set whether to convert the output from HDF5 to meshalyzer readable format
+     * 
+     * @param useMeshalyzer
+     */
+    void SetVisualizeWithMeshalyzer(bool useMeshalyzer=true);
+    
+    /** Set whether to convert the output from HDF5 to Cmgui readable format 
+     *
+     * @param useCmgui 
+     */   
+    void SetVisualizeWithCmgui(bool useCmgui=true);
+    
+    /** Set whether to convert the output from HDF5 to Vtk readable format 
+     * 
+     * @param useVtk
+     */   
+    void SetVisualizeWithVtk(bool useVtk=true);
+    
 
     ~HeartConfig(); /**< Destructor*/
 protected:

@@ -336,7 +336,7 @@ TYPE* HeartConfig::DecideLocation(TYPE* ptr1, TYPE* ptr2, const std::string& nam
 
 void HeartConfig::CheckSimulationIsDefined(std::string callingMethod) const
 {
-    if(IsSimulationResumed())
+    if (IsSimulationResumed())
     {
         EXCEPTION(callingMethod + " information is not available in a resumed simulation.");
     }   
@@ -344,7 +344,7 @@ void HeartConfig::CheckSimulationIsDefined(std::string callingMethod) const
 
 void HeartConfig::CheckResumeSimulationIsDefined(std::string callingMethod) const
 {
-    if(IsSimulationDefined())
+    if (IsSimulationDefined())
     {
         EXCEPTION(callingMethod + " information is not available in a standard (non-resumed) simulation.");
     }   
@@ -1076,8 +1076,8 @@ bool HeartConfig::IsPostProcessingSectionPresent() const
     try
     {
         DecideLocation( & mpUserParameters->PostProcessing(),
-                           & mpDefaultParameters->PostProcessing(),
-                           "PostProcessing")->present();
+                        & mpDefaultParameters->PostProcessing(),
+                        "PostProcessing")->present();
         //If there's a section
         return true;
     }
@@ -1217,6 +1217,71 @@ void HeartConfig::GetConductionVelocityMaps(std::vector<unsigned>& conduction_ve
          ++i)
     {
         conduction_velocity_maps.push_back(i->origin_node());
+    }
+}
+
+/*
+ * Output visualization
+ */
+
+bool HeartConfig::IsOutputVisualizerPresent() const
+{
+    CheckSimulationIsDefined("OutputVisualizer");
+    
+    try
+    {
+        DecideLocation( & mpUserParameters->Simulation().get().OutputVisualizer(),
+                        & mpDefaultParameters->Simulation().get().OutputVisualizer(),
+                        "OutputVisualizer")->present();
+        // If there's an element
+        return true;
+    }
+    catch (Exception &e)
+    {
+        // No element
+        return false;
+    }
+}
+
+bool HeartConfig::GetVisualizeWithMeshalyzer() const
+{
+    if (!IsOutputVisualizerPresent())
+    {
+        return true;
+    }
+    else
+    {
+        return DecideLocation( & mpUserParameters->Simulation().get().OutputVisualizer(),
+                               & mpDefaultParameters->Simulation().get().OutputVisualizer(),
+                               "OutputVisualizer")->get().meshalyzer() == cp::yesno_type::yes;
+    }
+}
+
+bool HeartConfig::GetVisualizeWithCmgui() const
+{
+    if (!IsOutputVisualizerPresent())
+    {
+        return false;
+    }
+    else
+    {
+        return DecideLocation( & mpUserParameters->Simulation().get().OutputVisualizer(),
+                               & mpDefaultParameters->Simulation().get().OutputVisualizer(),
+                               "OutputVisualizer")->get().cmgui() == cp::yesno_type::yes;
+    }
+}
+
+bool HeartConfig::GetVisualizeWithVtk() const
+{
+    if (!IsOutputVisualizerPresent())
+    {
+        return false;
+    }
+    else
+    {
+        return DecideLocation( & mpUserParameters->Simulation().get().OutputVisualizer(),
+                               & mpDefaultParameters->Simulation().get().OutputVisualizer(),
+                               "OutputVisualizer")->get().vtk() == cp::yesno_type::yes;
     }
 }
 
@@ -1396,6 +1461,14 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
     {
         cp::var_type temp(rOutputVariables[i]);
         var_type_sequence.push_back(temp);
+    }
+    
+    if (rOutputVariables.size() > 0)
+    {
+        // Turn off Meshalyzer etc. output, to avoid errors
+        SetVisualizeWithMeshalyzer(false);
+        SetVisualizeWithCmgui(false);
+        SetVisualizeWithVtk(false);
     }
 }
 
@@ -1708,6 +1781,42 @@ void HeartConfig::SetConductionVelocityMaps (std::vector<unsigned>& conductionVe
     }
 }
 
+/*
+ * Output visualizer
+ */
+
+void HeartConfig::EnsureOutputVisualizerExists()
+{
+    if (!IsOutputVisualizerPresent())
+    {
+        cp::output_visualizer_type element;
+        mpUserParameters->Simulation().get().OutputVisualizer().set(element);
+    }
+}
+
+void HeartConfig::SetVisualizeWithMeshalyzer(bool useMeshalyzer)
+{
+    EnsureOutputVisualizerExists();
+    
+    mpUserParameters->Simulation().get().OutputVisualizer().get().meshalyzer(
+        useMeshalyzer ? cp::yesno_type::yes : cp::yesno_type::no);
+}
+    
+void HeartConfig::SetVisualizeWithCmgui(bool useCmgui)
+{
+    EnsureOutputVisualizerExists();
+    
+    mpUserParameters->Simulation().get().OutputVisualizer().get().cmgui(
+        useCmgui ? cp::yesno_type::yes : cp::yesno_type::no);
+}
+    
+void HeartConfig::SetVisualizeWithVtk(bool useVtk)
+{
+    EnsureOutputVisualizerExists();
+    
+    mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(
+        useVtk ? cp::yesno_type::yes : cp::yesno_type::no);
+}
 
 /**********************************************************************
  *                                                                    *
