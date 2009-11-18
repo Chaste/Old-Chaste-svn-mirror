@@ -41,11 +41,15 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
 {
     // store directory, mesh and filenames and create the reader
     this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
+    //Create new directory in which to store everything
+    mpOutputFileHandler  = new  OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
     // check the data file read has one or two variables (ie V; or V and PhiE)
     std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     mNumVariables = variable_names.size();
     if(mNumVariables==0 || mNumVariables>2)
     {
+        delete mpReader;
+        delete mpOutputFileHandler;
         EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
     }
 
@@ -54,6 +58,8 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
     {
         if(variable_names[0]!="V")
         {
+            delete mpReader;
+            delete mpOutputFileHandler;
             EXCEPTION("One variable, but it is not called 'V'");
         }
     }
@@ -63,15 +69,17 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
     {
         if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
         {
+            delete mpReader;
+            delete mpOutputFileHandler;
             EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
         }
     }
     if (mpReader->GetNumberOfRows() != mpMesh->GetNumNodes())
     {
+        delete mpReader;
+        delete mpOutputFileHandler;
         EXCEPTION("Mesh and HDF5 file have a different number of nodes");
     }
-    //Create new directory in which to store everything
-    mpOutputFileHandler  = new  OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
     
     //Write an info file
     if (PetscTools::AmMaster())

@@ -62,7 +62,7 @@ public:
 
     /** Destructor
      */
-    virtual ~AbstractHdf5Converter();
+    ~AbstractHdf5Converter();
 };
 
 #endif /*ABSTRACTHDF5CONVERTER_HPP_*/

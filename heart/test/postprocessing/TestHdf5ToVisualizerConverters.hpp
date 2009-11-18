@@ -207,7 +207,7 @@ public :
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
 
-        // compare the voltage file with a correct version that visualizes bothe Vm correctly in cmgui
+        // compare the voltage file with a correct version that visualizes Vm correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_0.exnode"
                                      + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_0.exnode";
@@ -236,7 +236,7 @@ public :
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToCmguiConverter<1,1> converter(working_directory, "1D_0_to_1_100_elements", &mesh);
 
-        // compare the voltage file with a correct version that visualizes bothe Vm and Phie correctly in cmgui
+        // compare the voltage file with a correct version that visualizes both Vm and Phie correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements_0.exnode";
@@ -293,7 +293,7 @@ public :
         HeartConfig::Instance()->SetOutputDirectory(working_directory);
         Hdf5ToVtkConverter<2,2> converter(working_directory, "2D_0_to_1mm_400_elements", &mesh);
 
-        // compare the voltage file with a correct version that visualizes bothe Vm correctly in cmgui
+        // compare the voltage file with a correct version that visualizes Vm correctly in VTK
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu"
                                      + " heart/test/data/VtkData/monodomain/2D_0_to_1mm_400_elements.vtu";
