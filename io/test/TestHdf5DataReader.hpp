@@ -488,6 +488,12 @@ public:
                 "You can only get a vector for complete data");
         VecDestroy(data);
 
+        std::vector<unsigned> nodes=reader.GetIncompleteNodeMap();
+        TS_ASSERT_EQUALS(nodes.size(), 3U);
+        TS_ASSERT_EQUALS(nodes[0], 21U);
+        TS_ASSERT_EQUALS(nodes[1], 47U);
+        TS_ASSERT_EQUALS(nodes[2], 60U);
+        
         // Can read one of the nodes that was written
         std::vector<double> twenty_one = reader.GetVariableOverTime("Node", 21);
         TS_ASSERT_EQUALS(twenty_one.size(), 10u);
