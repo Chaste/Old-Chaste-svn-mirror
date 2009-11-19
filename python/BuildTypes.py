@@ -811,6 +811,14 @@ class Intel(BuildType):
                 break
         self._cc_flags.append('-vec_report' + str(vec))
 
+class CrayGcc(BuildType):
+  "Cray XT platform."
+  def __init__(self, *args, **kwargs):
+    Gcc.__init__(self, *args, **kwargs)
+    self.tools['mpicxx'] = 'CC'
+    self._cc_flags.append('-DMPICH_IGNORE_CXX_SEEK')
+
+
 class Fle(BuildType):
   "Intel compiler tools on FLE cluster."
   def __init__(self, *args, **kwargs):

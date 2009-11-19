@@ -210,18 +210,21 @@ cpppath = map(lambda p: '#/'+p, cpppath)
 
 # Set up the environment to use for building.
 other_libpaths.append(os.path.abspath('lib'))
-env = Environment(
-    ENV={'PATH': '.:' + os.environ['PATH'],
-         'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
-         'USER': os.environ['USER'],
-         'INTEL_LICENSE_FILE': '28518@lic1.osc.ox.ac.uk:' +
-                               os.environ.get('INTEL_LICENSE_FILE', '.'),
-         'CHASTE_TEST_OUTPUT':
-         os.environ.get('CHASTE_TEST_OUTPUT',
-                        '/tmp/'+os.environ['USER']+'/testoutput/'),
-         'LD_LIBRARY_PATH': ':'.join(other_libpaths),
-         'HOME': os.environ['HOME']
-        })
+if  os.environ.get('XTPE_COMPILE_TARGET', ''):
+    env = Environment(ENV = os.environ)
+else:
+    env = Environment(
+        ENV={'PATH': '.:' + os.environ['PATH'],
+             'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
+             'USER': os.environ['USER'],
+             'INTEL_LICENSE_FILE': '28518@lic1.osc.ox.ac.uk:' +
+                                   os.environ.get('INTEL_LICENSE_FILE', '.'),
+             'CHASTE_TEST_OUTPUT':
+             os.environ.get('CHASTE_TEST_OUTPUT',
+                            '/tmp/'+os.environ['USER']+'/testoutput/'),
+             'LD_LIBRARY_PATH': ':'.join(other_libpaths),
+             'HOME': os.environ['HOME']
+            })
 env.Append(CCFLAGS = '-isystem ' + ' -isystem '.join(other_includepaths)
            + ' ' + extra_flags)
 env.Append(LINKFLAGS = link_flags)

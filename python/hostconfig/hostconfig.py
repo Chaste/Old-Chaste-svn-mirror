@@ -108,6 +108,9 @@ def do_petsc(version, optimised, profile=False, production=False, includes_only=
     than debug builds.
     Set profile to True to use profile builds of PETSc.
     """
+    if  os.environ.get('XTPE_COMPILE_TARGET', ''):
+        return
+
     conf.petsc_2_2_path = getattr(conf, 'petsc_2_2_path', None)
     conf.petsc_2_3_path = getattr(conf, 'petsc_2_3_path', None)
     conf.petsc_3_0_path = getattr(conf, 'petsc_3_0_path', None)
