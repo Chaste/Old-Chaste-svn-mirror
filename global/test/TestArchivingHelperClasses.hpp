@@ -81,70 +81,77 @@ public:
 
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred"), expected_filepath.str());
     }
-    
+
     void TestProcessSpecificArchive() throw(Exception)
     {
         TS_ASSERT_THROWS_THIS(ProcessSpecificArchive<boost::archive::text_oarchive>::Get(),
                               "A ProcessSpecificArchive has not been set up.");
         TS_ASSERT_THROWS_THIS(ProcessSpecificArchive<boost::archive::text_iarchive>::Get(),
                               "A ProcessSpecificArchive has not been set up.");
-        
+
         // Set up an output archive pointer
         std::string arch_path = OutputFileHandler::GetChasteTestOutputDirectory() + "archive/test.arch";
         std::ofstream ofs(arch_path.c_str());
         boost::archive::text_oarchive* p_arch = new boost::archive::text_oarchive(ofs);
         // Test the ProcessSpecificArchive Get and Set methods with this
-        ProcessSpecificArchive<boost::archive::text_oarchive>::Set(p_arch);        
+        ProcessSpecificArchive<boost::archive::text_oarchive>::Set(p_arch);
         TS_ASSERT(ProcessSpecificArchive<boost::archive::text_oarchive>::Get()==p_arch);
         delete p_arch;
-        
+
         // Set up an intput archive pointer
         std::ifstream ifs(arch_path.c_str());
         boost::archive::text_iarchive* p_arch2 = new boost::archive::text_iarchive(ifs);
         // Test the ProcessSpecificArchive Get and Set methods with this
-        ProcessSpecificArchive<boost::archive::text_iarchive>::Set(p_arch2);        
+        ProcessSpecificArchive<boost::archive::text_iarchive>::Set(p_arch2);
         TS_ASSERT(ProcessSpecificArchive<boost::archive::text_iarchive>::Get()==p_arch2);
         delete p_arch2;
-        
+
         // Clean up
         ProcessSpecificArchive<boost::archive::text_iarchive>::Set(NULL);
         ProcessSpecificArchive<boost::archive::text_oarchive>::Set(NULL);
     }
-    
+
 private:
     unsigned mTestInt;
-    
-public:        
+
+public:
     void TestArchiveOpenerWriting() throw(Exception)
     {
         ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener_out("archive","archive_opener.arch");
         boost::archive::text_oarchive* p_arch = archive_opener_out.GetCommonArchive();
         boost::archive::text_oarchive* p_process_arch = ProcessSpecificArchive<boost::archive::text_oarchive>::Get();
-        
+
         mTestInt = 123;
         (*p_arch) & mTestInt;
         (*p_process_arch) & mTestInt;
+
     }
-    
+
     void TestArchiveOpenerReading() throw(Exception)
     {
         TS_ASSERT_THROWS_THIS(ProcessSpecificArchive<boost::archive::text_oarchive>::Get(),
                               "A ProcessSpecificArchive has not been set up.");
         TS_ASSERT_THROWS_THIS(ProcessSpecificArchive<boost::archive::text_iarchive>::Get(),
                               "A ProcessSpecificArchive has not been set up.");
-        
+
         ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener_in("archive","archive_opener.arch");
         boost::archive::text_iarchive* p_arch = archive_opener_in.GetCommonArchive();
         boost::archive::text_iarchive* p_process_arch = ProcessSpecificArchive<boost::archive::text_iarchive>::Get();
-        
+
         unsigned test_int1, test_int2;
         (*p_arch) & test_int1;
         (*p_process_arch) & test_int2;
-        
+
         TS_ASSERT_EQUALS(test_int1, mTestInt);
         TS_ASSERT_EQUALS(test_int2, mTestInt);
+
+        if (PetscTools::IsSequential())
+        {
+            // Cover the case of an archive in the chaste folder.
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener_relative("apps/texttest/chaste/resume_bidomain/save_bidomain","save_bidomain.arch", false);
+        }
     }
-    
+
     // This test relies on TestArchiveOpenerWriting succeeding.
     void TestArchiveOpenerExceptions() throw(Exception)
     {
@@ -152,26 +159,26 @@ public:
         OutputFileHandler handler(archive_dir, false);
         handler.SetArchiveDirectory();
         std::string archive_base_name = "archive_opener.arch";
-        
+
         typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
         typedef ArchiveOpener<boost::archive::text_oarchive, std::ofstream> OutputArchiveOpener;
-        
+
         // Remove the process-specific archive for this process
         std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath(archive_base_name);
         EXPECT0(system, ("rm -f " + archive_path).c_str());
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_base_name),
                                   "Cannot load secondary archive file: ");
-        
+
         // Remove the main archive
         if (PetscTools::AmMaster())
         {
             archive_path = handler.GetOutputDirectoryFullPath() + archive_base_name;
             EXPECT0(system, ("rm -f " + archive_path).c_str());
-        }                                  
+        }
         PetscTools::Barrier();
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_base_name),
                                   "Cannot load main archive file: ");
-        
+
         // Remove write permissions on the archive dir.
         if (PetscTools::AmMaster())
         {
@@ -179,7 +186,7 @@ public:
         }
         PetscTools::Barrier();
         // Now neither the master nor the slaves can write to their output files
-        // This avoids hitting a PetscBarrier() in the ~ArchiveOpener() because they 
+        // This avoids hitting a PetscBarrier() in the ~ArchiveOpener() because they
         // all throw an error first.
         //
         // If this test starts hanging it is because these TS_ASSERT_THROWS_CONTAINS
