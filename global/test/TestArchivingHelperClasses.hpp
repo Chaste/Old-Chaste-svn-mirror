@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTARCHIVINGHELPERCLASSES_HPP_
 #define TESTARCHIVINGHELPERCLASSES_HPP_
 
+#include <cstdlib> // For 'system'
 #include <sys/stat.h> //For chmod()
 #include <cxxtest/TestSuite.h>
 
@@ -125,6 +126,16 @@ public:
         (*p_arch) & mTestInt;
         (*p_process_arch) & mTestInt;
 
+        if (PetscTools::IsSequential())
+        {
+            // Cover writing to a path relative to the working directory.
+            // Make sure the file is not there before we do this
+            int return_val = system("test -e testoutput/archive_opener.arch*");
+            assert(return_val != 0);
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener_relative("testoutput","archive_opener.arch",false);
+            // Remove the file
+            EXPECT0(system, "rm -f testoutput/archive_opener.arch*");
+        }
     }
 
     void TestArchiveOpenerReading() throw(Exception)
