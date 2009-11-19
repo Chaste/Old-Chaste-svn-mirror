@@ -817,7 +817,8 @@ class CrayGcc(BuildType):
     Gcc.__init__(self, *args, **kwargs)
     self.tools['mpicxx'] = 'CC'
     self._cc_flags.append('-DMPICH_IGNORE_CXX_SEEK')
-
+    self._cc_flags.append('-g')
+    self.build_dir = 'craygcc'
 
 class Fle(BuildType):
   "Intel compiler tools on FLE cluster."
