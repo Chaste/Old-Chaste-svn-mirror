@@ -149,7 +149,7 @@ Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
     attribute_type  = H5Aget_type(attribute_id);
     attribute_space = H5Aget_space(attribute_id);
     unsigned is_data_complete;
-    H5Aread(attribute_id, attribute_type, &is_data_complete);
+    H5Aread(attribute_id, H5T_NATIVE_UINT, &is_data_complete);
 
     // Release all the identifiers
     H5Tclose(attribute_type);
@@ -174,7 +174,7 @@ Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
     // Read data from hyperslab in the file into the hyperslab in memory
     mIncompleteNodeIndices.clear();
     mIncompleteNodeIndices.resize(num_node_indices);
-    H5Aread(attribute_id, attribute_type, &mIncompleteNodeIndices[0]);
+    H5Aread(attribute_id, H5T_NATIVE_UINT, &mIncompleteNodeIndices[0]);
 
     H5Tclose(attribute_type);
     H5Sclose(attribute_space);
