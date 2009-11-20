@@ -41,6 +41,7 @@
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
+        <OutputVisualizer meshalyzer="yes" vtk="yes" cmgui="yes"/>
 	</Simulation>
 	
 	<Physiological>
