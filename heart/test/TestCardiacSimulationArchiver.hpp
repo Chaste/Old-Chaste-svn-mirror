@@ -219,6 +219,13 @@ public:
             
             BidomainProblem<3> *p_bidomain_problem;
             TS_ASSERT_THROWS_NOTHING((*p_arch) >> p_bidomain_problem);
+            //Double check that the acceptance test archive really is valid
+            TS_ASSERT_EQUALS(p_bidomain_problem->mMeshFilename, "");
+            TS_ASSERT_EQUALS(p_bidomain_problem->mPrintOutput, true);
+//            TS_ASSERT_EQUALS(p_bidomain_problem->mChasteToMeshalyzer, true);
+            TS_ASSERT_EQUALS(p_bidomain_problem->mNodesToOutput.size(), 0u);
+            TS_ASSERT_EQUALS(p_bidomain_problem->mCurrentTime, 10.0);
+            TS_ASSERT_EQUALS(p_bidomain_problem->mArchiveKSP, false);
             delete p_bidomain_problem;
         }
     }    
@@ -275,6 +282,13 @@ public:
             
             MonodomainProblem<2> *p_monodomain_problem;
             TS_ASSERT_THROWS_NOTHING((*p_arch) >> p_monodomain_problem);
+            //Double check that the acceptance test archive really is valid
+            TS_ASSERT_EQUALS(p_monodomain_problem->mMeshFilename, "");
+            TS_ASSERT_EQUALS(p_monodomain_problem->mPrintOutput, true);
+//            TS_ASSERT_EQUALS(p_monodomain_problem->mChasteToMeshalyzer, true);
+            TS_ASSERT_EQUALS(p_monodomain_problem->mNodesToOutput.size(), 0u);
+            TS_ASSERT_EQUALS(p_monodomain_problem->mCurrentTime, 10.0);
+            TS_ASSERT_EQUALS(p_monodomain_problem->mArchiveKSP, false);
             delete p_monodomain_problem;
         }
     }
