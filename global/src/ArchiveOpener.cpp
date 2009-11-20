@@ -133,6 +133,7 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
         mpCommonStream = new std::ofstream(common_path.str().c_str());        
         if (!mpCommonStream->is_open())
         {
+            delete mpCommonStream;
             EXCEPTION("Failed to open main archive file for writing: " + common_path.str());
         }
     }
@@ -144,6 +145,7 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
         #define COVERAGE_IGNORE
         if (!mpCommonStream->is_open())
         {
+            delete mpCommonStream;
             EXCEPTION("Failed to open dummy archive file '/dev/null' for writing");
         }
         #undef COVERAGE_IGNORE
@@ -154,6 +156,9 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
     mpPrivateStream = new std::ofstream(private_path.c_str());      
     if (!mpPrivateStream->is_open())
     {
+        delete mpCommonStream;
+        delete mpCommonArchive;
+        delete mpPrivateStream;
         EXCEPTION("Failed to open secondary archive file for writing: " + private_path);
     }
     mpPrivateArchive = new boost::archive::text_oarchive(*mpPrivateStream);
