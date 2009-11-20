@@ -451,6 +451,12 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
                                                 "io/test/data", "hdf5_test_full_format_incomplete", false));
 
+        //Test whether one with big-endian datatypes looks the same:
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
+                                                "io/test/data", "hdf5_test_full_format_incomplete_bigendian", false));
+        
+        
+        
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
         VecDestroy(petsc_data_3);
