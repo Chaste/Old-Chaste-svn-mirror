@@ -289,6 +289,16 @@
     </xs:restriction>
   </xs:simpleType>   
       
+  <xs:complexType name="adaptivity_parameters_type">
+    <xs:attribute name="target_error" type="xs:double" use="required"/>
+    <xs:attribute name="sigma" type="xs:double" use="required"/>
+    <xs:attribute name="max_edge_length" type="xs:double" use="required"/>    
+    <xs:attribute name="min_edge_length" type="xs:double" use="required"/>
+    <xs:attribute name="gradation" type="xs:double" use="required"/>
+    <xs:attribute name="max_nodes" type="xs:integer" use="required"/>
+    <xs:attribute name="num_sweeps" type="xs:integer" use="required"/>
+  </xs:complexType>
+
   <xs:complexType name="simulation_type">
 	  <xs:all>
 	      <xs:element name="SpaceDimension" type="xs:integer" minOccurs="0"/>
@@ -357,6 +367,7 @@
       <xs:element name="KSPTolerances" type="ksp_tolerances_type" minOccurs="0"/>
       <xs:element name="KSPSolver" type="ksp_solver_type" minOccurs="0"/>
       <xs:element name="KSPPreconditioner" type="ksp_preconditioner_type" minOccurs="0"/>
+      <xs:element name="AdaptivityParameters" type="adaptivity_parameters_type" minOccurs="0"/>
     </xs:all>      
   </xs:complexType>    
   

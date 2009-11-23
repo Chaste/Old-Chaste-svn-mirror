@@ -394,27 +394,27 @@ public :
 
         TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
-        
-        
+
+
         std::vector<ChasteCuboid> ionic_model_regions;
         std::vector<cp::ionic_models_available_type> ionic_models;
-        
+
         //No ionic model regions
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models);
         TS_ASSERT_EQUALS(ionic_model_regions.size(), 0u);
-        
+
         //Set ionic regions
         std::vector<cp::ionic_models_available_type> input_ionic_models;
         input_ionic_models.push_back(cp::ionic_models_available_type::HodgkinHuxley);
         input_ionic_models.push_back(cp::ionic_models_available_type::tenTusscher2006);
         HeartConfig::Instance()->SetIonicModelRegions(input_areas, input_ionic_models);
-        
+
         //No there are 2 ionic model regions
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models);
         TS_ASSERT_EQUALS(ionic_model_regions.size(), 2u);
-        
+
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
 
@@ -665,7 +665,7 @@ public :
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationWrongDimension.xml");
             TS_ASSERT_THROWS_THIS(input_arch >> (*p_heart_config), "Problem type and space dimension should match when restarting a simulation.");
         }
-        
+
         {
             // Try a correct load
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -701,7 +701,7 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(),"Could not open XML file in HeartConfig");
         chmod(command.c_str(), 0755);
         rmdir(command.c_str());
-        
+
         // A non-parsing exception, for coverage. Very hard to get in practice!
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
@@ -733,13 +733,13 @@ public :
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         TS_ASSERT_THROWS_NOTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"));
-        
+
         // Can release 1 xml be loaded with release 1 schema?
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
-        
+
         // Check that release 1 xml can be loaded with release 1.1 schema
         HeartConfig::Instance()->Reset();
         HeartConfig::SchemaLocationsMap schema_locations;
@@ -755,7 +755,7 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), false);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
-        
+
         // Check that release 1.1 xml can be loaded with release 1.1 schema
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
@@ -769,10 +769,10 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
-        
+
         HeartConfig::Instance()->Reset();
     }
-    
+
     /**
      * Test whether we can use a schema that has spaces in the pathname.
      * This gives some indication of whether Chaste will cope being checked out into
@@ -863,27 +863,27 @@ public :
         TS_ASSERT(!HeartConfig::Instance()->GetSaveSimulation());
         HeartConfig::Instance()->SetSaveSimulation(true);
         TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
-        
+
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetArchivedSimulationDir(),
                               "GetArchivedSimulationDir information is not available in a standard (non-resumed) simulation.");
-        
+
         // Get the singleton in a clean state
         HeartConfig::Instance()->Reset();
 
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationDefined());
         TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());
-        
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir(), "ChasteResults_10ms");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
         TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
 
         // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
-        
+
         std::vector<ChasteCuboid> definedRegions;
         std::vector<cp::ionic_models_available_type> ionic_models;
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionic_models), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionic_models),
                               "IonicModelRegions information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->IsMeshProvided(), "Mesh information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateMesh(), "Mesh information is not available in a resumed simulation.");
@@ -891,82 +891,82 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateSheet(), "Mesh information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCreateFibre(), "Mesh information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetLoadMesh(), "Mesh information is not available in a resumed simulation.");
-        
+
         c_vector<double, 3> slabDimensions;
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSlabDimensions(slabDimensions), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSlabDimensions(slabDimensions),
                               "Slab information is not available in a resumed simulation.");
         c_vector<double, 2> sheet_dimensions;
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions),
                               "Sheet information is not available in a resumed simulation.");
         c_vector<double, 1> fibre_dimensions;
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetFibreLength(fibre_dimensions), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetFibreLength(fibre_dimensions),
                               "Fibre information is not available in a resumed simulation.");
-        
+
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetInterNodeSpace(), "InterNodeSpace information is not available in a resumed simulation.")
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetMeshName(), "LoadMesh information is not available in a resumed simulation.")
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityMedia(), "LoadMesh information is not available in a resumed simulation.")
-        
+
         std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
-        std::vector<ChasteCuboid> stimulated_area;        
+        std::vector<ChasteCuboid> stimulated_area;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area), "Stimuli information is not available in a resumed simulation.")
-        
+
         std::vector<ChasteCuboid> cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
         std::vector<double> scale_factor_gkr;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas, scale_factor_gks, scale_factor_ito, scale_factor_gkr),
                               "CellHeterogeneities information is not available in a resumed simulation.");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided(), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided(),
                               "CellHeterogeneities information is not available in a resumed simulation.");
-        
+
         std::vector<ChasteCuboid> conductivitiesHeterogeneityAreas;
         std::vector< c_vector<double,3> > intraConductivities;
         std::vector< c_vector<double,3> > extraConductivities;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivitiesHeterogeneityAreas,
-                                                                                      intraConductivities, extraConductivities), 
+                                                                                      intraConductivities, extraConductivities),
                               "CellHeterogeneities information is not available in a resumed simulation.");
-                              
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputDirectory(), 
+
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputDirectory(),
                               "Simulation/OutputDirectory information is not available in a resumed simulation.");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputFilenamePrefix(), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputFilenamePrefix(),
                               "Simulation/OutputFilenamePrefix information is not available in a resumed simulation.");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputVariablesProvided(), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputVariablesProvided(),
                               "OutputVariables information is not available in a resumed simulation.");
-        
+
         std::vector<std::string> output_variables;
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputVariables(output_variables), 
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputVariables(output_variables),
                               "OutputVariables information is not available in a resumed simulation.");
     }
-    
+
     void TestOutputVisualizerSettings()
     {
         HeartConfig::Instance()->Reset();
-        
+
         // Defaults file doesn't have the OutputVisualizer element
         TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Simulation().get().OutputVisualizer().present());
-        
+
         // Parameters file which doesn't specify OutputVisualizer
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
-        
+
         // Read the user parameters directly - again element missing
         TS_ASSERT( ! HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().present());
-        
+
         // And the normal Get methods
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithVtk() );
-        
+
         // Set methods
         HeartConfig::Instance()->SetVisualizeWithMeshalyzer(false);
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().meshalyzer(),
                          cp::yesno_type::no);
-        
+
         HeartConfig::Instance()->SetVisualizeWithCmgui(true);
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().cmgui(),
                          cp::yesno_type::yes);
-        
+
         HeartConfig::Instance()->SetVisualizeWithVtk(true);
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(),
@@ -975,11 +975,11 @@ public :
         // Setting one doesn't change the others...
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
-        
+
         // Parameters file which does specify OutputVisualizer
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
-        
+
         // Now the element exists...
         TS_ASSERT(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().present());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->mpUserParameters->Simulation().get().OutputVisualizer().get().meshalyzer(),
@@ -993,6 +993,74 @@ public :
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithCmgui() );
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
     }
+
+    void TestAdaptivityVariables()
+    {
+        HeartConfig::Instance()->Reset();
+
+        // Defaults file doesn't have the AdaptivityParameters element
+        TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Numerical().AdaptivityParameters().present() );
+
+        // Parameters file which doesn't specify AdaptivityParameters
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
+
+        // Read the user parameters directly - again element missing
+        TS_ASSERT( ! HeartConfig::Instance()->mpUserParameters->Numerical().AdaptivityParameters().present() );
+
+        // Get methods throw an exception
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetTargetErrorForAdaptivity() );
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetSigmaForAdaptivity() );
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetMaxEdgeLengthForAdaptivity() );
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetMinEdgeLengthForAdaptivity() );
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetGradationForAdaptivity() );
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetMaxNodesForAdaptivity() );
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetNumberOfAdaptiveSweeps() );
+
+        // Parameters file that does specify AdaptivityParameters
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
+
+        // Verify that the element is present
+        TS_ASSERT( HeartConfig::Instance()->mpUserParameters->Numerical().AdaptivityParameters().present() );
+
+        // Get methods
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetTargetErrorForAdaptivity(), 2.0, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetSigmaForAdaptivity(), 0.01, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetMaxEdgeLengthForAdaptivity(), 0.04, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetMinEdgeLengthForAdaptivity(), 0.005, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetGradationForAdaptivity(), 1.3, 1e-6 );
+        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetMaxNodesForAdaptivity(), 1000 );
+        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetNumberOfAdaptiveSweeps(), 5 );
+
+        // Set methods
+        HeartConfig::Instance()->SetAdaptivityParameters(0.1, 0.5, 0.3, 0.01, 2.0, 100, 7);
+
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetTargetErrorForAdaptivity(), 0.1, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetSigmaForAdaptivity(), 0.5, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetMaxEdgeLengthForAdaptivity(), 0.3, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetMinEdgeLengthForAdaptivity(), 0.01, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetGradationForAdaptivity(), 2.0, 1e-6 );
+        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetMaxNodesForAdaptivity(), 100 );
+        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetNumberOfAdaptiveSweeps(), 7 );
+
+        HeartConfig::Instance()->SetTargetErrorForAdaptivity(1.0);
+        HeartConfig::Instance()->SetSigmaForAdaptivity(0.02);
+        HeartConfig::Instance()->SetMaxEdgeLengthForAdaptivity(0.1);
+        HeartConfig::Instance()->SetMinEdgeLengthForAdaptivity(0.001);
+        HeartConfig::Instance()->SetGradationForAdaptivity(1.5);
+        HeartConfig::Instance()->SetMaxNodesForAdaptivity(1e6);
+        HeartConfig::Instance()->SetNumberOfAdaptiveSweeps(3);
+
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetTargetErrorForAdaptivity(), 1.0, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetSigmaForAdaptivity(), 0.02, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetMaxEdgeLengthForAdaptivity(), 0.1, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetMinEdgeLengthForAdaptivity(), 0.001, 1e-6 );
+        TS_ASSERT_DELTA( HeartConfig::Instance()->GetGradationForAdaptivity(), 1.5, 1e-6 );
+        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetMaxNodesForAdaptivity(), 1e6 );
+        TS_ASSERT_EQUALS( HeartConfig::Instance()->GetNumberOfAdaptiveSweeps(), 3 );
+
+        TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->SetMinEdgeLengthForAdaptivity(1.0); );
+    }
+
 };
 
 #endif /*TESTHEARTCONFIG_HPP_*/

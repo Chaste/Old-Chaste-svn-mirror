@@ -109,16 +109,16 @@ private:
     {
         /*
          *  This method implements the logic required by HeartConfig to be able to handle resuming a simulation via the executable.
-         *  
+         *
          *  When the control reaches the method mpUserParameters and mpDefaultParameters point to the files specified as resuming parameters.
          *  However SetDefaultsFile() and SetParametersFile() will set those variables to point to the archived parameters.
-         *  
+         *
          *  We make a temporary copy of mpUserParameters so we don't lose its content. At the end of the method we update the new mpUserParameters
          *  with the resuming parameters.
          */
-        assert(mpUserParameters.use_count() > 0); 
-        boost::shared_ptr<cp::chaste_parameters_type> p_new_parameters = mpUserParameters;                 
-                
+        assert(mpUserParameters.use_count() > 0);
+        boost::shared_ptr<cp::chaste_parameters_type> p_new_parameters = mpUserParameters;
+
         std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";
         HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
 
@@ -126,15 +126,15 @@ private:
         HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);
 
         // If we are resuming a simulation, update the simulation duration (and any other parameters to come...)
-        if (p_new_parameters->ResumeSimulation().present())        
+        if (p_new_parameters->ResumeSimulation().present())
         {
-            if ( (p_new_parameters->ResumeSimulation().get().SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension()) 
+            if ( (p_new_parameters->ResumeSimulation().get().SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension())
                  ||(p_new_parameters->ResumeSimulation().get().Domain() != HeartConfig::Instance()->GetDomain()))
              {
                 EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
              }
             HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
-            HeartConfig::Instance()->SetSaveSimulation(p_new_parameters->ResumeSimulation().get().SaveSimulation().present());      
+            HeartConfig::Instance()->SetSaveSimulation(p_new_parameters->ResumeSimulation().get().SaveSimulation().present());
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -143,11 +143,11 @@ private:
      * Read an XML file into a DOM document.
      * Useful for figuring out what version of the parameters file we're dealing with,
      * so we can construct the right version of the object model.
-     * 
+     *
      * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_to_a_Xerces-C.2B.2B_DOM_document.3F
-     * 
+     *
      * Requires the Xerces runtime to have been initialised.
-     * 
+     *
      * @param rFileName  the file to read
      * @param rErrorHandler  handler for any parsing errors
      * @param rProps  properties that specify fixed schema locations, if wanted
@@ -156,7 +156,7 @@ private:
         const std::string& rFileName,
         ::xml_schema::error_handler& rErrorHandler,
         const ::xml_schema::properties& rProps);
-    
+
 public:
     /**
      * Our type for specifying schema location properties: a map from namespace URI
@@ -174,22 +174,22 @@ private:
      * Set default schema locations in the Chaste source tree.
      */
     void SetDefaultSchemaLocations();
-    
+
     /**
      * Helper method for URL-escaping spaces in file paths, to avoid confusing Xerces
      * regarding schema locations.  Note that this is a very specific fix: it doesn't
      * do general URL-escaping.
-     * 
+     *
      * @param rPath  the path to escape
      */
     std::string EscapeSpaces(const std::string& rPath);
-    
+
     /**
      * Fake having a namespace in older configuration files, by adding a namespace
      * to each element in a tree.
-     * 
+     *
      * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
-     * 
+     *
      * @param pDocument  the DOM document containing the tree to be transformed
      * @param pElement  the root of the tree to be transformed
      * @param rNamespace  the namespace to put elements in
@@ -201,9 +201,9 @@ private:
     /**
      * Fake having a namespace in older configuration files, by adding a namespace
      * to each element in a tree.
-     * 
+     *
      * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
-     * 
+     *
      * @param pDocument  the DOM document containing the tree to be transformed
      * @param pElement  the root of the tree to be transformed
      * @param pNamespace  the namespace to put elements in
@@ -226,11 +226,11 @@ public:
      *    in the Chaste source tree (or specified with SetFixedSchemaLocations()) (true).
      */
     void SetUseFixedSchemaLocation(bool useFixedSchemaLocation);
-    
+
     /**
      * Set the schema files to use.
      * Also calls SetUseFixedSchemaLocation(true).
-     * 
+     *
      * @param rSchemaLocations  map from namespace URI to schema URI
      */
     void SetFixedSchemaLocations(const SchemaLocationsMap& rSchemaLocations);
@@ -251,7 +251,7 @@ public:
      * will be hard-coded in the XML file.
      * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in *named* subfolder
      *                                if true, then use ArchiveLocationInfo
-     * @param subfolderName -- where to store with respect to GetOutputDirectory() 
+     * @param subfolderName -- where to store with respect to GetOutputDirectory()
      */
     void Write(bool useArchiveLocationInfo=false, std::string subfolderName="output");
 
@@ -270,22 +270,22 @@ public:
     /*
      *  Get methods
      */
-     
-    // Methods for asking the configuration file about which sections are defined. 
+
+    // Methods for asking the configuration file about which sections are defined.
     /**
      *  Returns whether the configuration file defines a new simulation.
-     * 
-     *  @return is a new simulation? 
+     *
+     *  @return is a new simulation?
      */
     bool IsSimulationDefined() const;
 
     /**
      *  Returns whether the configuration file resumes an archived simulation.
-     * 
-     *  @return is a resumed simulation? 
+     *
+     *  @return is a resumed simulation?
      */
-    bool IsSimulationResumed() const;         
-     
+    bool IsSimulationResumed() const;
+
     // Simulation
     unsigned GetSpaceDimension() const; /**< @return space dimension 1, 2 or 3.*/
     double GetSimulationDuration() const; /**< @return duration of the simulation (ms)*/
@@ -420,7 +420,7 @@ public:
 
     /**
      * Get whether simulation should be archived or not
-     * 
+     *
      * @return archive simulation
      */
     bool GetSaveSimulation() const;
@@ -486,9 +486,50 @@ public:
     const char* GetKSPSolver() const; /**< @return name of -ksp_type from {"gmres", "cg", "symmlq"}*/
     const char* GetKSPPreconditioner() const; /**< @return name of -pc_type from {"ilu", "jacobi", "bjacobi", "hypre", "none"}*/
 
+
+    // Adaptivity
+    /**
+     * @return true if there is an adaptivity section
+     */
+    bool IsAdaptivityParametersPresent() const;
+
+    /**
+     * @return value of target error used in adaptivity
+     */
+    double GetTargetErrorForAdaptivity() const;
+
+    /**
+     * @return value of sigma used in adaptivity
+     */
+    double GetSigmaForAdaptivity() const;
+
+    /**
+     * @return maximum edge length in mesh after an adapt
+     */
+    double GetMaxEdgeLengthForAdaptivity() const;
+
+    /**
+     * @return minimum edge length in mesh after an adapt
+     */
+    double GetMinEdgeLengthForAdaptivity() const;
+
+    /**
+     * @return value of gradation used in adaptivity
+     */
+    double GetGradationForAdaptivity() const;
+
+    /**
+     * @return maximum number of nodes in mesh after an adapt
+     */
+    unsigned GetMaxNodesForAdaptivity() const;
+
+    /**
+     * @return number of adaptive sweeps through mesh during adaptivity
+     */
+    unsigned GetNumberOfAdaptiveSweeps() const;
+
     // Post processing
     /**
-     * @return true if there is a post-processing section
      */
     bool IsPostProcessingSectionPresent() const;
 
@@ -496,7 +537,7 @@ public:
      * @return true if any post-processing information has been requested
      */
     bool IsPostProcessingRequested() const;
-    
+
     /**
      * @return true if APD maps have been requested
      */
@@ -542,17 +583,17 @@ public:
 
 
     // Output visualization
-    
+
     /** Whether there is an OutputVisualizer element present. */
     bool IsOutputVisualizerPresent() const;
-    
+
     /** Whether to convert the output from HDF5 to meshalyzer readable format */
     bool GetVisualizeWithMeshalyzer() const;
-    
-    /** Whether to convert the output from HDF5 to Cmgui readable format */   
+
+    /** Whether to convert the output from HDF5 to Cmgui readable format */
     bool GetVisualizeWithCmgui() const;
-    
-    /** Whether to convert the output from HDF5 to Vtk readable format */   
+
+    /** Whether to convert the output from HDF5 to Vtk readable format */
     bool GetVisualizeWithVtk() const;
 
      /*
@@ -569,7 +610,7 @@ public:
      * @param simulationDuration duration of the simulation (ms)
      */
     void SetSimulationDuration(double simulationDuration);
-    
+
     /**
      * Set the configuration to run mono or bidomain
      * domain_type is an xsd convenience class type
@@ -648,7 +689,7 @@ public:
      * of each variable that should be outputted at each time step.
      *
      * USING THIS METHOD WILL OVERRIDE THE ANY OUTPUT VARIABLES SET IN THE XML FILE
-     * 
+     *
      * Warning: when specifying output variables, you cannot convert the HDF5
      * output to Meshalyzer, Cmgui or VTK formats, since the converter will get
      * confused by the presence of extra data.  This method thus also turns off
@@ -658,7 +699,7 @@ public:
 
     /**
      * Set whether the simulation should be archived or not
-     * 
+     *
      * @param saveSimulation archive simulation
      */
      void SetSaveSimulation(bool saveSimulation);
@@ -759,6 +800,69 @@ public:
      */
     void SetKSPPreconditioner(const char* kspPreconditioner);
 
+    /**
+     * Set the parameters to be used during mesh adaptation.
+     *
+     * @param targetError  is the target error passed to the adaptivity library
+     * @param sigma  is the value of sigma passed to the adaptivity library
+     * @param maxEdgeLength  is the maximum edge length permitted in the adapted mesh
+     * @param minEdgeLength  is the minimum edge length permitted in the adapted mesh
+     * @param gradation  is the value of gradation passed to the adaptivity library
+     * @param maxNodes  is the maximum number of nodes permitted in the adapted mesh
+     * @param numSweeps  is the number of adaptive sweeps through the mesh performed by the adaptivity library
+     */
+    void SetAdaptivityParameters(double targetError, double sigma, double maxEdgeLength, double minEdgeLength,
+    							 double gradation, unsigned maxNodes, unsigned numSweeps );
+
+    /**
+     * Set the target error to be used during mesh adaptation.
+     *
+     * @param targetError  is the target error passed to the adaptivity library
+     */
+    void SetTargetErrorForAdaptivity(double targetError);
+
+    /**
+     * Set the value of sigma to be used during mesh adaptation.
+     *
+     * @param sigma  is the value of sigma passed to the adaptivity library
+     */
+    void SetSigmaForAdaptivity(double sigma);
+
+    /**
+     * Set the maximum edge length to be used during mesh adaptation.
+     *
+     * @param maxEdgeLength  is the maximum edge length permitted in the adapted mesh
+     */
+    void SetMaxEdgeLengthForAdaptivity(double maxEdgeLength);
+
+    /**
+     * Set the minimum edge length to be used during mesh adaptation.
+     *
+     * @param minEdgeLength  is the minimum edge length permitted in the adapted mesh
+     */
+    void SetMinEdgeLengthForAdaptivity(double minEdgeLength);
+
+    /**
+     * Set the gradation to be used during mesh adaptation.
+     *
+     * @param gradation  is the gradation passed to the adaptivity library
+     */
+    void SetGradationForAdaptivity(double gradation);
+
+    /**
+     * Set the maximum number of nodes to be used during mesh adaptation.
+     *
+     * @param maxNodes  is the maximum number of nodes permitted in the adapted mesh
+     */
+    void SetMaxNodesForAdaptivity(unsigned maxNodes);
+
+    /**
+     * Set the number of adaptive sweeps to be used during mesh adaptation.
+     *
+     * @param numSweeps  is the number of adaptive sweeps through the mesh performed by the adaptivity library
+     */
+    void SetNumberOfAdaptiveSweeps(unsigned numSweeps);
+
     /** Set the parameters of the apd map requested
      *
      *  @param apdMaps  each entry is a request for a map with
@@ -775,7 +879,7 @@ public:
 
     /** Set the parameters of the maximal upstroke velocity map requested
      *
-     *  @param maxUpstrokeVelocityMaps is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke velocity maps are calculated. 
+     *  @param maxUpstrokeVelocityMaps is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke velocity maps are calculated.
      */
     void SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVelocityMaps);
 
@@ -784,31 +888,31 @@ public:
      *  @param conductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
      */
     void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
-    
-    
+
+
     // Output visualization
-    
+
     /** Create the OutputVisualizer element if it doesn't exist */
     void EnsureOutputVisualizerExists(void);
-    
+
     /** Set whether to convert the output from HDF5 to meshalyzer readable format
-     * 
+     *
      * @param useMeshalyzer
      */
     void SetVisualizeWithMeshalyzer(bool useMeshalyzer=true);
-    
-    /** Set whether to convert the output from HDF5 to Cmgui readable format 
+
+    /** Set whether to convert the output from HDF5 to Cmgui readable format
      *
-     * @param useCmgui 
-     */   
+     * @param useCmgui
+     */
     void SetVisualizeWithCmgui(bool useCmgui=true);
-    
-    /** Set whether to convert the output from HDF5 to Vtk readable format 
-     * 
+
+    /** Set whether to convert the output from HDF5 to Vtk readable format
+     *
      * @param useVtk
-     */   
+     */
     void SetVisualizeWithVtk(bool useVtk=true);
-    
+
 
     ~HeartConfig(); /**< Destructor*/
 protected:
@@ -853,20 +957,20 @@ private:
      * CheckSimulationIsDefined is a convience method for checking if the "<"Simulation">" element
      * has been defined and therefore is safe to use the Simulation().get() pointer to access
      * other data.
-     * 
+     *
      * Throws and exception if not.
-     * 
+     *
      * @param callingMethod string describing the get method performing the check.
      */
      void CheckSimulationIsDefined(std::string callingMethod="") const;
-     
+
     /**
      * CheckSimulationIsDefined is a convience method for checking if the "<"ResumeSimulation">" element
      * has been defined and therefore is safe to use the ResumeSimulation().get() pointer to access
      * other data.
-     * 
+     *
      * Throws and exception if not.
-     * 
+     *
      * @param callingMethod string describing the get method performing the check.
      */
      void CheckResumeSimulationIsDefined(std::string callingMethod="") const;
