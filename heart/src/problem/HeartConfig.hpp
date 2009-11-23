@@ -530,6 +530,7 @@ public:
 
     // Post processing
     /**
+     * @return true if there is a post-processing section
      */
     bool IsPostProcessingSectionPresent() const;
 
