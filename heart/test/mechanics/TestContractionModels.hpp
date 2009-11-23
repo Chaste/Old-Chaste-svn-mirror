@@ -85,8 +85,8 @@ public :
         // call Run to set the end time = 0.0
         model1.RunDoNotUpdate(-0.1,0,0.1);
         model1.UpdateStateVariables(); // coverage
-        model2.RunDoNotUpdate(-0.1,0,0.1);
-        model3.RunDoNotUpdate(-0.1,0,0.1);
+        model2.RunAndUpdate(-0.1,0,0.1); // does the same as RunAndUpdate
+        model3.RunAndUpdate(-0.1,0,0.1);
 
         TS_ASSERT_DELTA(model1.GetActiveTension(), 0.0, 1e-12);
         TS_ASSERT_DELTA(model2.GetActiveTension(), 0.0, 1e-12);
@@ -417,6 +417,15 @@ public :
         
         TS_ASSERT_DELTA(new_state_var, kerchoffs_model2.rGetStateVariables()[0], 1e-10);
         TS_ASSERT_DELTA(new_active_tension, kerchoffs_model2.GetActiveTension(), 1e-10);
+        
+        // test RunAndUpdate
+        Kerchoffs2003ContractionModel kerchoffs_model3;
+        kerchoffs_model3.SetStretchAndStretchRate(0.85,0.0);
+        kerchoffs_model3.SetInputParameters(input_params);
+        kerchoffs_model3.RunAndUpdate(0, 1, 0.01);
+        kerchoffs_model3.mTime = 1.0;        
+        TS_ASSERT_DELTA(kerchoffs_model2.rGetStateVariables()[0], kerchoffs_model3.rGetStateVariables()[0], 1e-10);
+        TS_ASSERT_DELTA(kerchoffs_model2.GetActiveTension(),      kerchoffs_model3.GetActiveTension(), 1e-10);
     }        
 
     void TestKerchoffs2003ContractionModelConstantStretch() throw(Exception)

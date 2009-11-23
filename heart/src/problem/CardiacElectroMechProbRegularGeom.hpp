@@ -60,12 +60,14 @@ public:
                                       unsigned numElectricsElementsEachDir,
                                       AbstractCardiacCellFactory<DIM>* pCellFactory,
                                       double endTime,
+                                      double electricsPdeTimeStep,
                                       unsigned numElecTimeStepsPerMechTimestep,
                                       double contractionModelOdeTimeStep,
                                       std::string outputDirectory = "")
         : CardiacElectroMechanicsProblem<DIM>(contractionModel, 
                                               NULL, NULL, std::vector<unsigned>(), // all these set below
                                               pCellFactory, endTime,
+                                              electricsPdeTimeStep,
                                               numElecTimeStepsPerMechTimestep,
                                               contractionModelOdeTimeStep, outputDirectory)
     {

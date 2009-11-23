@@ -135,8 +135,7 @@ void ExplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
 //        double dlam_dt = (this->mStretches[i] - mStretchesLastTimestep[i])/(nextTime-time);
         
         this->mContractionModelSystems[i]->SetStretchAndStretchRate(this->mStretches[i], 0.0 /*dlam_dt*/);
-        this->mContractionModelSystems[i]->RunDoNotUpdate(time, nextTime, odeTimestep);
-        this->mContractionModelSystems[i]->UpdateStateVariables();
+        this->mContractionModelSystems[i]->RunAndUpdate(time, nextTime, odeTimestep);
     }   
     
     // solve

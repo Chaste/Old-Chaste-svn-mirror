@@ -63,6 +63,17 @@ public:
         mTime = endTime;
     }
 
+    /** No ODE to run, so this does nothing except save the time (using the
+     *  time at the next timestep)
+     *  @param startTime start time
+     *  @param endTime end time
+     *  @param timestep timestep for integrating ODEs if there were any
+     */
+    void RunAndUpdate(double startTime, double endTime, double timestep)
+    {
+        mTime = endTime;
+    }    
+
     /**
      *  Same as GetActiveTension() for algebraic models (uses which stretch and
      *  and stretch rate has been passed in).

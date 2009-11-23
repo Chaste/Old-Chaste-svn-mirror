@@ -249,6 +249,8 @@ NhsModelWithImplicitSolver::NhsModelWithImplicitSolver()
     mUseImplicitExplicitSolveForZ = false;
 
     mActiveTensionSolution = NhsContractionModel::GetActiveTension();
+    
+    mTemporaryStateVariables.resize(5);
 }
 
 void NhsModelWithImplicitSolver::SetActiveTensionInitialGuess(double activeTensionInitialGuess)

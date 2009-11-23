@@ -112,13 +112,25 @@ public:
 
     /**
      *  Run the contraction (ie if an ODE system) between the given times. This should NOT update any
-     *  state variables. Call UpdateStateVariables() afterwards to update
+     *  state variables. Call UpdateStateVariables() afterwards to update. For use in the implicit 
+     *  electromechanics algorithm
      * 
      *  @param startTime start time
      *  @param endTime end time
      *  @param timeStep timestep to use in ODE solving.
      */    
     virtual void RunDoNotUpdate(double startTime, double endTime, double timeStep)=0;
+
+    /**
+     *  Run the contraction (ie if an ODE system) between the given times, and update the state variables.
+     *  For use in the explicit electromechanics algorithm
+     * 
+     *  @param startTime start time
+     *  @param endTime end time
+     *  @param timeStep timestep to use in ODE solving.
+     */    
+    virtual void RunAndUpdate(double startTime, double endTime, double timeStep)=0;
+
 
     /**
      *  After calling RunDoNotUpdate, which ran but should not have updated the state variables,

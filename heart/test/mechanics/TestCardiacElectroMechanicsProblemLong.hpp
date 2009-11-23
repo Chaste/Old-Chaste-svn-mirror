@@ -56,6 +56,7 @@ public:
                                                      96,   /* elec elem each dir */
                                                      &cell_factory,
                                                      125,  /* end time */
+                                                     0.01, /* electrics timestep (ms) */
                                                      100,  /* 100*0.01ms mech dt */
                                                      1.0,  /* contraction model ode dt */
                                                      "TestCardiacElectroMechImplicit");
@@ -94,6 +95,7 @@ public:
                                                   fixed_nodes,
                                                   &cell_factory,
                                                   50,   /* end time */
+                                                  0.01, /* electrics timestep (ms) */
                                                   100,  /* 100*0.01ms mech dt */
                                                   1.0,  /* contraction model ode dt */
                                                   "TestCardiacElectroMech3d");

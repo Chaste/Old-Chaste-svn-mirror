@@ -55,6 +55,7 @@ public:
                                                      96, /* elec elem each dir */
                                                      &cell_factory,
                                                      1.0, /* end time */
+                                                     0.01, /* electrics timestep (ms) */
                                                      100, /* 100*0.01ms mech dt */
                                                      0.01,/* contraction model ode timestep */
                                                      "");
@@ -95,6 +96,7 @@ public:
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
                                                      10.0, /* end time */
+                                                     0.01, /* electrics timestep (ms) */
                                                      100,  /* 100*0.01ms mech dt */
                                                      0.01, /* contraction model ode timestep */
                                                      "TestCardiacElectroMechOneElement");
@@ -122,7 +124,7 @@ public:
         MechanicsEventHandler::Report();
         
         // coverage
-        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,100,0.01,"");
+        CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,100,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid");
     }
     
@@ -139,7 +141,8 @@ public:
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     5, /* end time */                    // dies at 7.28 with explicit
+                                                     5, /* end time */                 // dies at 7.28 with explicit
+                                                     0.01, /* electrics timestep (ms) */
                                                      1,   /* n times 0.01ms mech dt */
                                                      0.01, /* Kerchoffs ode timestep */
                                                      "TestExplicitWithKerchoffs");
@@ -172,6 +175,7 @@ public:
 //                                                           96,   /* elec elem each dir
 //                                                           &cell_factory,
 //                                                           0.05, /* end time */
+//                                                           0.01, /* electrics timestep (ms) */
 //                                                           1,    /* 0.01ms mech dt */
 //                                                           0.01, /* contraction model ode dt */
 //                                                           "TestCardiacElectroMechImplicitCinverse");

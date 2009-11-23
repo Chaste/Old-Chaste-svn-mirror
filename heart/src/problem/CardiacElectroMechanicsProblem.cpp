@@ -170,6 +170,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             std::vector<unsigned> fixedMechanicsNodes,
             AbstractCardiacCellFactory<DIM>* pCellFactory,
             double endTime,
+            double electricsPdeTimeStep,
             unsigned numElecTimeStepsPerMechTimestep,
             double contractionModelOdeTimeStep,
             std::string outputDirectory = "")
@@ -195,8 +196,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     assert(endTime > 0);
     mEndTime = endTime;
 
-//EMTODO shouldn't be hardcoded (also perhaps change numElecTimeStepsPerMechTimestep to instead take in mMechDt?)
-    mElectricsTimeStep = 0.01;
+    assert(electricsPdeTimeStep>0);
+    mElectricsTimeStep = electricsPdeTimeStep;
 
     assert(numElecTimeStepsPerMechTimestep>0);
 
@@ -300,6 +301,8 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     switch(mContractionModel)
     {
         case KERCHOFFS2003:
+//EMTODO: implement a stretch-independent contraction model (eg Nash), use explicit with that,
+//then make Kerchoffs use implicit
             // the implicit would seem the best (only) choice of kerchoffs but keeping explicit for the moment
             // for coverage...
             mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);

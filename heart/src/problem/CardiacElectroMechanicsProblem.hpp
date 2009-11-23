@@ -192,6 +192,7 @@ public :
                                    std::vector<unsigned> fixedMechanicsNodes,
                                    AbstractCardiacCellFactory<DIM>* pCellFactory,
                                    double endTime,
+                                   double electricsPdeTimeStep,
                                    unsigned numElecTimeStepsPerMechTimestep,
                                    double nhsOdeTimeStep,
                                    std::string outputDirectory);
