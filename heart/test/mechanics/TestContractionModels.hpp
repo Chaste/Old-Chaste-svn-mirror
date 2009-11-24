@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ZeroStimulus.hpp"
 #include "TimeStepper.hpp"
 #include "SimpleDataWriter.hpp"
+#include "Nash2004ContractionModel.hpp"
 
 
 // specify a functional form of lambda rather than get it from the mechanics.
@@ -549,33 +550,50 @@ public :
     }
 
 
-//    void dontTestNash2004ContractionModel() throw(Exception)
-//    {
-//        Nash2004ContractionModel nash_model;
-//        TS_ASSERT_EQUALS(nash_model.IsStretchDependent(), false);
-//        TS_ASSERT_EQUALS(nash_model.IsStretchRateDependent(), false);
-//        
-//        boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver);
-//
-//        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(-3.0,3.0));
-//        LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_stimulus);
-//        
-//        ContractionModelInputParameters input_params;
-//        input_params.intracellularCalciumConcentration = DOUBLE_UNSET;
-//        input_params.time = DOUBLE_UNSET;
-//
-//        TimeStepper stepper(0, 1000, 1); 
-//
-//        while(!stepper.IsTimeAtEnd())
-//        {
-//            lr91.Compute(stepper.GetTime(), stepper.GetNextTime());
-//            input_params.voltage = lr91.GetVoltage();
-//            nash_model.SetInputParameters(input_params);
-//            p_euler_solver->SolveAndUpdateStateVariable(&nash_model, stepper.GetTime(), stepper.GetNextTime(), 0.01);
-//            
-//            std::cout << stepper.GetTime() << " " << nash_model.GetActiveTension() <<  "\n";
-//            stepper.AdvanceOneTimeStep();            
-//        }
-//    }
+    void TestNash2004ContractionLaw() throw(Exception)
+    {
+        Nash2004ContractionModel nash_model;
+        TS_ASSERT_EQUALS(nash_model.IsStretchDependent(), false);
+        TS_ASSERT_EQUALS(nash_model.IsStretchRateDependent(), false);
+
+        // coverage, doesn't use these..
+        nash_model.SetStretchAndStretchRate(0.99,0.0);
+                
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(-25.5, 2.0, 0.0));
+
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_stimulus);
+
+        std::vector<double> times;
+        std::vector<double> active_tensions;
+        std::vector<double> voltages;
+
+        double end_time = 1000.0;
+        double dt = 0.01;
+
+        // time loop
+        for(double time = 0; time<end_time; time+=dt)
+        {
+            // solve electrophys model
+            electrophys_model.Compute(time, time+dt);
+
+            ContractionModelInputParameters input_parameters;
+            input_parameters.voltage = electrophys_model.GetVoltage();
+            nash_model.SetInputParameters(input_parameters);
+
+            nash_model.RunAndUpdate(time, time+dt, dt);
+            
+            times.push_back(time);
+            voltages.push_back(electrophys_model.GetVoltage());
+            active_tensions.push_back(nash_model.GetActiveTension());
+        }
+
+        std::vector<std::vector<double> > data;
+        data.push_back(times);
+        data.push_back(active_tensions);
+        data.push_back(voltages);
+        SimpleDataWriter writer("TestNash2004ContractionModel", "ta.dat", data);
+//EMTODO: verify and add tests..
+    }
 };
 #endif /*TESTCONTRACTIONMODELS_HPP_*/

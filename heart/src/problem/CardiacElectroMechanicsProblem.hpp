@@ -182,8 +182,9 @@ public :
      * @param fixedMechanicsNodes  Indices of those nodes which a pinned in space
      * @param pCellFactory factory to use to create cells
      * @param endTime the end time to use
-     * @param numElecTimeStepsPerMechTimestep simple ratio
-     * @param nhsOdeTimeStep Step size for NHS (Niederer, Hunter, Smith) model of active tension in cardiac cells.
+     * @param electricsPdeTimeStep timestep used in solving for the electrical activity
+     * @param numElecTimeStepsPerMechTimestep number of electrics timesteps to be used in each mechanics solve
+     * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
      * @param outputDirectory the output directory
      */
     CardiacElectroMechanicsProblem(ContractionModel contractionModel,
@@ -194,7 +195,7 @@ public :
                                    double endTime,
                                    double electricsPdeTimeStep,
                                    unsigned numElecTimeStepsPerMechTimestep,
-                                   double nhsOdeTimeStep,
+                                   double contractionModelOdeTimeStep,
                                    std::string outputDirectory);
 
     /**

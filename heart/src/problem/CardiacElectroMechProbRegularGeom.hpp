@@ -50,7 +50,8 @@ public:
      * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
      * @param pCellFactory factory to use to create cells
      * @param endTime the end time to use 
-     * @param numElecTimeStepsPerMechTimestep simple ratio
+     * @param electricsPdeTimeStep timestep used in solving for the electrical activity
+     * @param numElecTimeStepsPerMechTimestep number of electrics timesteps to be used in each mechanics solve
      * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
      * @param outputDirectory the output directory
      */

@@ -125,7 +125,7 @@ public:
 
     /**
      *  Get the active tension corresponding to the temporary stored state variables 
-     *  produced by callign RunDoNotUpdate (and before calling UpdateStateVariables())
+     *  produced by calling RunDoNotUpdate (and before calling UpdateStateVariables())
      */
     double GetNextActiveTension();
 };
