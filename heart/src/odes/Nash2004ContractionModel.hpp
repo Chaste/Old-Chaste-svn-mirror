@@ -52,7 +52,7 @@ class Nash2004ContractionModel : public AbstractOdeBasedContractionModel
     /** Other parameter. See reference. */
     static const double e0;
 
-    /** Non-dimensionalised voltage, scaled so that V in [-90mV,40mV] maps to scaled_V in [0,1] */
+    /** Non-dimensionalised voltage. See above. */
     double mScaledVoltage;
 
 public:
