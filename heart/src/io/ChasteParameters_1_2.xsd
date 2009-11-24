@@ -289,6 +289,10 @@
     </xs:restriction>
   </xs:simpleType>   
       
+  <xs:complexType name="checkpoint_type">
+    <xs:attribute name="timestep" type="xs:double" use="required" />
+  </xs:complexType>
+      
   <xs:complexType name="adaptivity_parameters_type">
     <xs:attribute name="target_error" type="xs:double" use="required"/>
     <xs:attribute name="sigma" type="xs:double" use="required"/>
@@ -337,7 +341,7 @@
 	      <xs:element name="OutputVariables" type="output_variables_type" minOccurs="0"/>
 	      <xs:element name="OutputVisualizer" type="output_visualizer_type" minOccurs="0" maxOccurs="1"/>
 	 
-	      <xs:element name="SaveSimulation" type="empty_type" minOccurs="0"/>
+	      <xs:element name="CheckpointSimulation" type="checkpoint_type" minOccurs="0"/>      
 	  </xs:all>
   </xs:complexType>    
 
@@ -347,7 +351,7 @@
       <xs:element name="SpaceDimension" type="xs:integer"/>
       <xs:element name="Domain" type="domain_type"/>      
       <xs:element name="SimulationDuration" type="time_type"/>
-      <xs:element name="SaveSimulation" type="empty_type" minOccurs="0"/>
+      <xs:element name="CheckpointSimulation" type="checkpoint_type" minOccurs="0"/>
     </xs:all>      
   </xs:complexType>    
 

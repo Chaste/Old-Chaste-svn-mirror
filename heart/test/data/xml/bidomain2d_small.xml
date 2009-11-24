@@ -37,7 +37,7 @@
 		</Stimuli>
 		
 		<OutputDirectory>SaveBi2D</OutputDirectory>
-		<SaveSimulation/>
+		<CheckpointSimulation timestep="0.1"/>
 	</Simulation>
 	
 

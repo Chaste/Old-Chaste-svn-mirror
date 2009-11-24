@@ -134,7 +134,11 @@ private:
                 EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
              }
             HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
-            HeartConfig::Instance()->SetSaveSimulation(p_new_parameters->ResumeSimulation().get().SaveSimulation().present());
+
+            if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())
+            {
+                HeartConfig::Instance()->SetCheckpointSimulation(true,p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().timestep());
+            }      
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -419,11 +423,18 @@ public:
     void GetOutputVariables(std::vector<std::string> &outputVariables) const;
 
     /**
-     * Get whether simulation should be archived or not
+     * Get whether simulation should be checkpointed or not
      *
      * @return archive simulation
      */
-    bool GetSaveSimulation() const;
+    bool GetCheckpointSimulation() const;
+    
+    /**
+     * Get checkpointing timestep
+     * 
+     * @return checkpointing timestep
+     */
+    double GetCheckpointTimestep() const;
 
     // ResumeSimulation
     /**
@@ -699,11 +710,12 @@ public:
     void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
 
     /**
-     * Set whether the simulation should be archived or not
+     * Set whether the simulation should be checkpointed or not
      *
-     * @param saveSimulation archive simulation
+     * @param checkpointSimulation do checkpointing
+     * @param checkpointTimestep checkpointing timestep. 
      */
-     void SetSaveSimulation(bool saveSimulation);
+     void SetCheckpointSimulation(bool checkpointSimulation, double checkpointTimestep=-1.0);
 
 
     // Physiological

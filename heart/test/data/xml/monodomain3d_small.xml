@@ -37,7 +37,7 @@
 		</Stimuli>
 		
 		<OutputDirectory>SaveMono3D</OutputDirectory>
-		<SaveSimulation/>
+		<CheckpointSimulation timestep="0.1"/>
 	</Simulation>
 	
 

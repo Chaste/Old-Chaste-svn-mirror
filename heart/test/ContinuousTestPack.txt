@@ -13,6 +13,7 @@ TestCardiacSimulationArchiver.hpp
 TestCardiacUneven.hpp
 postprocessing/TestCellProperties.hpp
 postprocessing/TestPseudoEcgCalculator.hpp
+TestCheckpointing.hpp
 TestConductivityTensors.hpp
 convergence/TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp

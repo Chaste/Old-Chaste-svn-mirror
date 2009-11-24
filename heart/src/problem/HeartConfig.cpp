@@ -815,22 +815,22 @@ void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) 
     }
 }
 
-bool HeartConfig::GetSaveSimulation() const
+bool HeartConfig::GetCheckpointSimulation() const
 {
     try
     {
         if (IsSimulationDefined())
         {
             CheckSimulationIsDefined("GetSaveSimulation");
-            DecideLocation( & mpUserParameters->Simulation().get().SaveSimulation(),
-                            & mpDefaultParameters->Simulation().get().SaveSimulation(),
+            DecideLocation( & mpUserParameters->Simulation().get().CheckpointSimulation(),
+                            & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
                             "Simulation/SaveSimulation");
         }
         else
         {
             CheckResumeSimulationIsDefined("GetSaveSimulation");
-            DecideLocation( & mpUserParameters->ResumeSimulation().get().SaveSimulation(),
-                            & mpDefaultParameters->Simulation().get().SaveSimulation(),
+            DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),
+                            & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
                             "ResumeSimulation/SaveSimulation");
         }
         return true;
@@ -840,6 +840,25 @@ bool HeartConfig::GetSaveSimulation() const
         return false;
     }
 }
+
+double HeartConfig::GetCheckpointTimestep() const
+{
+    if (IsSimulationDefined())
+    {
+        CheckSimulationIsDefined("GetSaveSimulation");
+        return DecideLocation( & mpUserParameters->Simulation().get().CheckpointSimulation(),
+                        & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
+                        "Simulation/SaveSimulation")->get().timestep();
+    }
+    else
+    {       
+        CheckResumeSimulationIsDefined("GetSaveSimulation"); 
+        return DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),
+                        & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
+                        "ResumeSimulation/SaveSimulation")->get().timestep();            
+    }                        
+}
+
 
 std::string HeartConfig::GetArchivedSimulationDir() const
 {
@@ -1587,15 +1606,17 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
     }
 }
 
-void HeartConfig::SetSaveSimulation(bool saveSimulation)
+void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpointTimestep)
 {
+    assert((!saveSimulation)||(saveSimulation && checkpointTimestep>0));
+    
     if (saveSimulation)
     {
-        mpUserParameters->Simulation().get().SaveSimulation().set(cp::simulation_type::XSD_NESTED_TYPE(SaveSimulation)());
+        mpUserParameters->Simulation().get().CheckpointSimulation().set(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation)(checkpointTimestep));
     }
     else
     {
-        mpUserParameters->Simulation().get().SaveSimulation().reset();
+        mpUserParameters->Simulation().get().CheckpointSimulation().reset();
     }
 }
 

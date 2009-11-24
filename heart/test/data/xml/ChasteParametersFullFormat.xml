@@ -147,7 +147,7 @@
 		
 		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
 
-		<SaveSimulation/>
+		<CheckpointSimulation timestep="20.0"/>
 				
 	</Simulation>
 	

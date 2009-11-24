@@ -858,11 +858,13 @@ public :
         TS_ASSERT(HeartConfig::Instance()->IsSimulationDefined());
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationResumed());
 
-        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
-        HeartConfig::Instance()->SetSaveSimulation(false);
-        TS_ASSERT(!HeartConfig::Instance()->GetSaveSimulation());
-        HeartConfig::Instance()->SetSaveSimulation(true);
-        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
+        TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCheckpointTimestep(),20.0);
+        HeartConfig::Instance()->SetCheckpointSimulation(false);
+        TS_ASSERT(!HeartConfig::Instance()->GetCheckpointSimulation());
+        HeartConfig::Instance()->SetCheckpointSimulation(true, 10.0);
+        TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCheckpointTimestep(),10.0);
 
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetArchivedSimulationDir(),
                               "GetArchivedSimulationDir information is not available in a standard (non-resumed) simulation.");
@@ -876,7 +878,7 @@ public :
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir(), "ChasteResults_10ms");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
-        TS_ASSERT(HeartConfig::Instance()->GetSaveSimulation());
+        TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
 
         // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")

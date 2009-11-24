@@ -351,7 +351,8 @@ private:
     
                         p_mono_problem->Solve();
     
-                        if (HeartConfig::Instance()->GetSaveSimulation())
+                        /// \todo: #1158 ignoring periodic timestep now 
+                        if (HeartConfig::Instance()->GetCheckpointSimulation())
                         {
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
@@ -380,8 +381,9 @@ private:
                         }
     
                         p_mono_problem->Solve();
-    
-                        if (HeartConfig::Instance()->GetSaveSimulation())
+
+                        /// \todo: #1158 ignoring periodic timestep now     
+                        if (HeartConfig::Instance()->GetCheckpointSimulation())
                         {
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
@@ -410,8 +412,9 @@ private:
                         }
     
                         p_mono_problem->Solve();
-    
-                        if (HeartConfig::Instance()->GetSaveSimulation())
+
+                        /// \todo: #1158 ignoring periodic timestep now     
+                        if (HeartConfig::Instance()->GetCheckpointSimulation())
                         {
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
@@ -449,8 +452,9 @@ private:
                         }
     
                         p_bi_problem->Solve();
-    
-                        if (HeartConfig::Instance()->GetSaveSimulation())
+
+                        /// \todo: #1158 ignoring periodic timestep now         
+                        if (HeartConfig::Instance()->GetCheckpointSimulation())
                         {
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
@@ -478,8 +482,9 @@ private:
                         }
     
                         p_bi_problem->Solve();
-    
-                        if (HeartConfig::Instance()->GetSaveSimulation())
+
+                        /// \todo: #1158 ignoring periodic timestep now     
+                        if (HeartConfig::Instance()->GetCheckpointSimulation())
                         {
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
@@ -507,8 +512,9 @@ private:
                         }
     
                         p_bi_problem->Solve();
-    
-                        if (HeartConfig::Instance()->GetSaveSimulation())
+
+                        /// \todo: #1158 ignoring periodic timestep now     
+                        if (HeartConfig::Instance()->GetCheckpointSimulation())
                         {
                             std::stringstream directory;
                             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
