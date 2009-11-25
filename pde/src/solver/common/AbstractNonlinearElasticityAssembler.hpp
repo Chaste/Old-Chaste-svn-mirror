@@ -192,8 +192,32 @@ protected:
      */
     void ApplyBoundaryConditions(bool applyToMatrix);
 
+    /** 
+     *  Set up the residual vector (using the current solution), and get its
+     *  scaled norm (Calculate |r|_2 / length(r), where r is residual vector)
+     */
+    double ComputeResidualAndGetNorm();
+
     /** Calculate |r|_2 / length(r), where r is the current residual vector */
     double CalculateResidualNorm();
+
+    /**
+     *  Simple helper function, computes Z = X + aY, where X and Z are std::vectors and Y a ReplicatableVector
+     *  @param rX X
+     *  @param rY Y (replicatable vector)
+     *  @param a a
+     *  @param rZ Z the returned vector
+     */     
+    void VectorSum(std::vector<double>& rX, ReplicatableVector& rY, double a, std::vector<double>& rZ);
+
+    /**
+     *  Print to std::cout the residual norm for this s, ie ||f(x+su)|| where f is the residual vector,
+     *  x the current solution and u the update vector 
+     *  @param s s
+     *  @param residNorm residual norm.
+     */ 
+    void PrintLineSearchResult(double s, double residNorm);
+
 
     /**
      *  Take one newton step, by solving the linear system -Ju=f, (J the jacobian, f
@@ -203,6 +227,16 @@ protected:
      *  @return The current norm of the residual after the newton step.
      */
     double TakeNewtonStep();
+    
+    /**
+     *  Using the update vector (of Newton's method), choose s such that ||f(x+su)|| is most decreased, 
+     *  where f is the residual vector, x the current solution (mCurrentSolution) and u the update vector.
+     *  This checks s=1 first (most likely to be the current solution, then 0.9, 0.8.. until ||f|| starts
+     *  increasing. 
+     *  @param solution The solution of the linear solve in newton's method, ie the update vector u. 
+     */
+    double UpdateSolutionUsingLineSearch(Vec solution);
+
 
     /**
      * This function may be overloaded by subclasses. It is called after each Newton
@@ -340,11 +374,54 @@ void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool app
 }
 
 template<unsigned DIM>
+double AbstractNonlinearElasticityAssembler<DIM>::ComputeResidualAndGetNorm()
+{    
+      AssembleSystem(true, false);
+
+//// in the future might want this method to do the following..
+//    if(!allowException /* argument */)
+//    {
+//        // assemble the residual
+//        AssembleSystem(true, false);
+//    }
+//    else
+//    {
+//        try
+//        {
+//            // try to assemble the residual using this current solution
+//            AssembleSystem(true, false);
+//        }
+//        catch(Exception& e)
+//        {
+//            // if fail (because eg ODEs fail to solve), return infinity
+//            return DBL_MAX;
+//        }
+//    }
+
+    // return the scaled norm of the residual
+    return CalculateResidualNorm();
+}
+
+template<unsigned DIM>
 double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
 {
     double norm;
     VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
     return norm/mNumDofs;
+}
+
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::VectorSum(std::vector<double>& rX, 
+                                                          ReplicatableVector& rY,
+                                                          double a, 
+                                                          std::vector<double>& rZ)
+{
+    assert(rX.size()==rY.GetSize());
+    assert(rY.GetSize()==rZ.size());
+    for(unsigned i=0; i<rX.size(); i++)
+    {
+        rZ[i] = rX[i] + a*rY[i];
+    }
 }
 
 template<unsigned DIM>
@@ -414,8 +491,6 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
 
     //Timer::PrintAndReset("KSP Solve");
-    ReplicatableVector update(solution);
-
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -432,11 +507,31 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     // s=1 is the best. Otherwise, check s=0.8 to see if s=0.9 is a local min.
     ///////////////////////////////////////////////////////////////////////////
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::UPDATE);
-    std::vector<double> old_solution(mNumDofs);
-    for (unsigned i=0; i<mNumDofs; i++)
-    {
-        old_solution[i] = mCurrentSolution[i];
-    }
+    double new_norm_resid = UpdateSolutionUsingLineSearch(solution);
+    MechanicsEventHandler::EndEvent(MechanicsEventHandler::UPDATE);
+
+    VecDestroy(solution);
+    KSPDestroy(solver);
+
+    return new_norm_resid;
+}
+
+template<unsigned DIM>
+void AbstractNonlinearElasticityAssembler<DIM>::PrintLineSearchResult(double s, double residNorm)
+{
+    std::cout << "\tTesting s = " << s << ", |f| = " << residNorm << "\n" << std::flush;
+}
+
+template<unsigned DIM>
+double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(Vec solution)
+{
+    double initial_norm_resid = CalculateResidualNorm();
+    std::cout << "\tInitial |f| [corresponding to s=0] is " << initial_norm_resid << "\n"  << std::flush;
+
+
+    ReplicatableVector update(solution);
+
+    std::vector<double> old_solution = mCurrentSolution;
 
     std::vector<double> damping_values; // = {1.0, 0.9, .., 0.2, 0.1, 0.05} ie size 11
     for (unsigned i=10; i>=1; i--)
@@ -446,98 +541,77 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     damping_values.push_back(0.05);
     assert(damping_values.size()==11);
 
-    double initial_norm_resid = CalculateResidualNorm();
+
+    //// Try s=1 and see what the residual-norm is
+    // let mCurrentSolution = old_solution - damping_val[0]*update; and compute residual
     unsigned index = 0;
-    for (unsigned j=0; j<mNumDofs; j++)
-    {
-        mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-    }
-    // compute residual
-    double norm_resid;
-    try
-    {
-        AssembleSystem(true, false);
-        norm_resid = CalculateResidualNorm();
-    }
-    catch(Exception& e)
-    {
-        NEVER_REACHED;
-        //norm_resid = DBL_MAX;
-    }
+    VectorSum(old_solution, update, -damping_values[index], mCurrentSolution);
+    double current_resid_norm = ComputeResidualAndGetNorm();
+    PrintLineSearchResult(damping_values[index], current_resid_norm);
 
-    std::cout << "\tTesting s = " << damping_values[index] << ", |f| = ";
-    if(norm_resid==DBL_MAX)
-    {
-        NEVER_REACHED;
-        //std::cout << "undefined\n" << std::flush;
-    }
-    else
-    {
-        std::cout << norm_resid << "\n" << std::flush;
-    }
-
-    double next_norm_resid = -DBL_MAX;
+    //// Try s=0.9 and see what the residual-norm is
+    // let mCurrentSolution = old_solution - damping_val[1]*update; and compute residual
     index = 1;
-
-// EMTODO3: WHAT. A. MESS. REFACTOR.
-
-    // exit loop when next norm of the residual first increases
-    while ( (next_norm_resid < norm_resid || next_norm_resid==DBL_MAX)  && index<damping_values.size())
+    VectorSum(old_solution, update, -damping_values[index], mCurrentSolution);
+    double next_resid_norm = ComputeResidualAndGetNorm();
+    PrintLineSearchResult(damping_values[index], next_resid_norm);
+    
+    index = 2;
+    // While f(s_next) < f(s_current), [f = residnorm], keep trying new damping values, 
+    // ie exit thus loop when next norm of the residual first increases
+    while ( (next_resid_norm < current_resid_norm)  && index<damping_values.size())
     {
-        if (index!=1)
-        {
-            norm_resid = next_norm_resid;
-        }
+        current_resid_norm = next_resid_norm;
 
-        for (unsigned j=0; j<mNumDofs; j++)
-        {
-           mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-        }
+        // let mCurrentSolution = old_solution - damping_val*update; and compute residual
+        VectorSum(old_solution, update, -damping_values[index], mCurrentSolution);
+        next_resid_norm = ComputeResidualAndGetNorm();
+        PrintLineSearchResult(damping_values[index], next_resid_norm);
 
-        // compute residual
-        try
-        {
-            AssembleSystem(true, false);
-            next_norm_resid = CalculateResidualNorm();
-        }
-        catch(Exception& e)
-        {
-            NEVER_REACHED;
-            //next_norm_resid = DBL_MAX;
-        }
-        
-        std::cout << "\tTesting s = " << damping_values[index] << ", |f| = ";
-        if(next_norm_resid==DBL_MAX)
-        {
-            NEVER_REACHED;
-            //std::cout << "undefined\n" << std::flush;
-        }
-        else
-        {
-            std::cout << next_norm_resid << "\n" << std::flush;
-        }
         index++;
     }
     
-    if (initial_norm_resid < norm_resid)// && !( (index==damping_values.size()) && (initial_norm_resid > next_norm_resid) ) )
+    double best_index;
+    
+    if(index==damping_values.size() && (next_resid_norm < current_resid_norm))
     {
-        #define COVERAGE_IGNORE
-// incorrectly gets here when 0.05 is correct choice! fix and then make sure 0.05 is taken
-        std::cout << "Chaste error (AbstractNonlinearElasticityAssembler.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;
-        assert(0); // assert here as the following exception causes a seg fault - don't know why
-        //EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
+        // Difficult to come up with large forces/tractions such that it had to
+        // test right down to s=0.05, but overall doesn't fail.
+        // The possible damping values have been manually temporarily altered to
+        // get this code to be called, it appears to work correctly. Even if it
+        // didn't tests wouldn't fail, they would just be v. slightly less efficient. 
+        #define COVERAGE_IGNORE 
+        // if we exited because we got to the end of the possible damping values, the 
+        // best one was the last one (excl the final index++ at the end)
+        current_resid_norm = next_resid_norm;
+        best_index = index-1;
         #undef COVERAGE_IGNORE
     }
     else
     {
-        index-=2;
-        std::cout << "\tBest s = " << damping_values[index] << "\n"  << std::flush;
-        for (unsigned j=0; j<mNumDofs; j++)
-        {
-            mCurrentSolution[j] = old_solution[j] - damping_values[index]*update[j];
-        }
+        // else the best one must have been the second last one (excl the final index++ at the end)
+        // (as we would have exited when the resid norm first increased) 
+        best_index = index-2;
+    }
+    
+    // check out best was better than the original residual-norm
+    if (initial_norm_resid < current_resid_norm)
+    {
+        #define COVERAGE_IGNORE
+        // Have to use an assert here as the following exception causes a seg fault (in cardiac mech problems?) 
+        // Don't know why
+        std::cout << "CHASTE ERROR: (AbstractNonlinearElasticityAssembler.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;        
+        assert(0); 
+        //EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
+        #undef COVERAGE_IGNORE
     }
 
+    std::cout << "\tBest s = " << damping_values[best_index] << "\n"  << std::flush;
+    VectorSum(old_solution, update, -damping_values[best_index], mCurrentSolution);
+ 
+    return current_resid_norm;
+
+//// old (standard) version - check all s=0.05,0.1,0.2,..,0.9,1,1.1; and pick the best
 //        double best_norm_resid = DBL_MAX;
 //        double best_damping_value = 0.0;
 //
@@ -558,8 +632,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 //            }
 //
 //            // compute residual
-//            AssembleSystem(true, false);
-//            double norm_resid = CalculateResidualNorm();
+//            double norm_resid = ComputeResidualAndGetNorm();
 //
 //            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
 //            if (norm_resid < best_norm_resid)
@@ -587,13 +660,8 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 //        {
 //            mCurrentSolution[j] = old_solution[j] - best_damping_value*update[j];
 //        }
-    MechanicsEventHandler::EndEvent(MechanicsEventHandler::UPDATE);
-
-    VecDestroy(solution);
-    KSPDestroy(solver);
-
-    return norm_resid;
 }
+
 
 
 template<unsigned DIM>
@@ -681,8 +749,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
     }
 
     // compute residual
-    AssembleSystem(true, false);
-    double norm_resid = this->CalculateResidualNorm();
+    double norm_resid = this->ComputeResidualAndGetNorm();
     std::cout << "\nNorm of residual is " << norm_resid << "\n";
 
     mNumNewtonIterations = 0;
