@@ -122,9 +122,18 @@ private:
         std::string defaults_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteDefaults.xml";
         HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
 
-        /// \todo: #1158 when we unarchive a simulation we load the old parameters file in order to inherit things such as default cell model, stimuli, heterogeneities, ... This has the side effect of inheriting the <CheckpointSimulation> element.        
+        /*
+         *  When we unarchive a simulation, we load the old parameters file in order to inherit things such 
+         *  as default cell model, stimuli, heterogeneities, ... This has the side effect of inheriting the 
+         *  <CheckpointSimulation> element (if defined).
+         * 
+         *  We disable checkpointing definition coming from the unarchived config file. We will enable it again
+         *  if defined in the resume config file.
+         */                
         std::string parameters_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";
         HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);
+
+        HeartConfig::Instance()->SetCheckpointSimulation(false);
 
         // If we are resuming a simulation, update the simulation duration (and any other parameters to come...)
         if (p_new_parameters->ResumeSimulation().present())
@@ -134,6 +143,7 @@ private:
             {
                 EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
             }
+            
             HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
 
             if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())

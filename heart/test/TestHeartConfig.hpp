@@ -676,6 +676,18 @@ public :
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
             TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
         }
+        
+        {
+            // Try a correct load without checkpointing to make sure it's not inherited 
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            HeartConfig* p_heart_config = HeartConfig::Instance();
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationWithoutCheckpointing.xml");
+            input_arch >> (*p_heart_config);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
+            TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
+            TS_ASSERT(!HeartConfig::Instance()->GetCheckpointSimulation());
+        }
     }
 
     void TestExceptions() throw (Exception)

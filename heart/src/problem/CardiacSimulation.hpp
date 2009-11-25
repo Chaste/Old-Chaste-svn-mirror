@@ -343,8 +343,8 @@ private:
         /// \todo: #1158 ignoring periodic timestep now 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {
-            /// \todo: #1158 it should be possible to assert this here, but there's a problem with TestCardiacSimulation::TestMono1dSmall running two simulations in the same scope.
-            //assert(HeartConfig::Instance()->GetCheckpointTimestep() == HeartConfig::Instance()->GetSimulationDuration());
+            /// \todo: until we implement checkpointing properly when only allow checkpoint timestep equals to simulation duration (equivalent to old save+resume)
+            assert(HeartConfig::Instance()->GetCheckpointTimestep() == HeartConfig::Instance()->GetSimulationDuration());
             std::stringstream directory;
             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
             CardiacSimulationArchiver<Problem>::Save(*p_problem, directory.str(), false);
