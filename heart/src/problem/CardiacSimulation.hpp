@@ -343,6 +343,8 @@ private:
         /// \todo: #1158 ignoring periodic timestep now 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {
+            /// \todo: #1158 it should be possible to assert this here, but there's a problem with TestCardiacSimulation::TestMono1dSmall running two simulations in the same scope.
+            //assert(HeartConfig::Instance()->GetCheckpointTimestep() == HeartConfig::Instance()->GetSimulationDuration());
             std::stringstream directory;
             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
             CardiacSimulationArchiver<Problem>::Save(*p_problem, directory.str(), false);
@@ -376,9 +378,7 @@ private:
     
                     case 1:
                     {
-                        CreateAndRun<MonodomainProblem<1>,1>();
-                        delete p_mono_problem;
-    
+                        CreateAndRun<MonodomainProblem<1>,1>();    
                         break;
                     }
                     default :
