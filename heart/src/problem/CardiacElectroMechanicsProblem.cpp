@@ -300,17 +300,17 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     // for experimentation.
     switch(mContractionModel)
     {
-        case KERCHOFFS2003:
-//EMTODO: implement a stretch-independent contraction model (eg Nash), use explicit with that,
-//then make Kerchoffs use implicit
-            // the implicit would seem the best (only) choice of kerchoffs but keeping explicit for the moment
-            // for coverage...
+        case NASH2004:
+            // stretch and stretch-rate independent, so should use explicit
             mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
-            //mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            break;
+        case KERCHOFFS2003:
+            // stretch independent, so should use implicit (explicit may be unstable)
+            mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         case NHS:
+            // stretch and stretch-rate independent, so should definitely use implicit
             mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
-            //mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");

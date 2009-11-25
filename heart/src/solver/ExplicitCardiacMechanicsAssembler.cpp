@@ -27,8 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ExplicitCardiacMechanicsAssembler.hpp"
+#include "Nash2004ContractionModel.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
 #include "NonPhysiologicalContractionModel.hpp"
+
 //// for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //#include "NhsModelWithImplicitSolver.hpp"
 
@@ -59,15 +61,22 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
             }
             break;
         }
-        case KERCHOFFS2003: //stretch dependent, will this work with explicit??
+        case NASH2004: //stretch dependent, will this work with explicit??
+        {
+            for(unsigned i=0; i<this->mTotalQuadPoints; i++)
+            {
+                this->mContractionModelSystems.push_back(new Nash2004ContractionModel);
+            }
+            break;
+        }
+        case KERCHOFFS2003: //stretch dependent, will this work with explicit? Answer: can be unstable
         {
             for(unsigned i=0; i<this->mTotalQuadPoints; i++)
             {
                 this->mContractionModelSystems.push_back(new Kerchoffs2003ContractionModel);
             }
             break;
-        }
-        
+        }        
 //        // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //        case NHS:
 //        {

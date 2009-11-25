@@ -128,7 +128,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid");
     }
     
-    void TestExplicitSolverWithKerchoffs() throw(Exception)
+    void TestWithKerchoffs() throw(Exception)
     {
         EXIT_IF_PARALLEL;
 
@@ -141,11 +141,11 @@ public:
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     5, /* end time */                 // dies at 7.28 with explicit
+                                                     20,    /* end time */     // dies at 7.28 with explicit (now using implicit)
                                                      0.01, /* electrics timestep (ms) */
-                                                     1,   /* n times 0.01ms mech dt */
+                                                     100,   /* n times 0.01ms mech dt */
                                                      0.01, /* Kerchoffs ode timestep */
-                                                     "TestExplicitWithKerchoffs");
+                                                     "TestCardiacEmWithKerchoffs");
 
         c_vector<double,2> pos;
         pos(0) = 0.05;
@@ -161,10 +161,45 @@ public:
         
         // hardcoded result
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
-        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0496, 0.0002);
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0479, 0.0002);
     }
 
     
+    void TestExplicitSolverWithNash2004() throw(Exception)
+    {
+        EXIT_IF_PARALLEL;
+
+        HeartEventHandler::Disable();
+
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+
+        CardiacElectroMechProbRegularGeom<2> problem(NASH2004,
+                                                     0.05, /* width (cm) */
+                                                     1,    /* mech mesh size*/
+                                                     5,    /* elec elem each dir */
+                                                     &cell_factory,
+                                                     20,    /* end time */  
+                                                     0.01, /* electrics timestep (ms) */
+                                                     100,   /* n times 0.01ms mech dt */
+                                                     0.01, /*  ode timestep */
+                                                     "TestExplicitWithNash");
+
+        c_vector<double,2> pos;
+        pos(0) = 0.05;
+        pos(1) = 0.0;
+        
+        problem.SetWatchedPosition(pos);
+        problem.SetNoElectricsOutput();
+        problem.Initialise();
+
+        problem.Solve();
+        
+        //visualise to verify
+        
+        // hardcoded result
+        TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0419, 0.0002);
+    }
 
 //// Don't delete
 //    void TestCinverseDataStructure() throw(Exception)
