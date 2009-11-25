@@ -55,24 +55,24 @@ c_vector<double,2> MyBodyForce(c_vector<double,2>& X)
 
 // Surface traction on three sides of a cube, corresponding to
 // x = X+0.5*alpha*X^2, y=Y/(1+alpha*X), with p=2c
-c_vector<double,2> MyTraction(c_vector<double,2>& X)
+c_vector<double,2> MyTraction(c_vector<double,2>& location)
 {
     c_vector<double,2> traction = zero_vector<double>(2);
 
-    double lam = 1+ALPHA*X(0);
-    if (X(0)==1)
+    double lam = 1+ALPHA*location(0);
+    if (fabs(location(0)-1.0) <= DBL_EPSILON) //Right edge
     {
         traction(0) =  2*MATERIAL_PARAM * (lam - 1.0/lam);
-        traction(1) = -2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
+        traction(1) = -2*MATERIAL_PARAM * location(1)*ALPHA/(lam*lam);
     }
-    else if (X(1)==0)
+    else if (fabs(location(1))  <= DBL_EPSILON) //Bottom edge 
     {
-        traction(0) =  2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
+        traction(0) =  2*MATERIAL_PARAM * location(1)*ALPHA/(lam*lam);
         traction(1) = -2*MATERIAL_PARAM * (-lam + 1.0/lam);
     }
-    else if (X(1)==1)
+    else if (fabs(location(1) - 1.0) <= DBL_EPSILON)//Top edge
     {
-        traction(0) = -2*MATERIAL_PARAM * X(1)*ALPHA/(lam*lam);
+        traction(0) = -2*MATERIAL_PARAM * location(1)*ALPHA/(lam*lam);
         traction(1) =  2*MATERIAL_PARAM * (-lam + 1.0/lam);
     }
     else
