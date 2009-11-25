@@ -130,9 +130,9 @@ private:
         {
             if ( (p_new_parameters->ResumeSimulation().get().SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension())
                  ||(p_new_parameters->ResumeSimulation().get().Domain() != HeartConfig::Instance()->GetDomain()))
-             {
+            {
                 EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
-             }
+            }
             HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
 
             if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())

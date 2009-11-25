@@ -75,7 +75,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 
 /**
- *  todo: dox, coverage, maybe own tests
+ *  \todo: dox, coverage, maybe own tests
  */
 template<unsigned SPACE_DIM>
 class HeartConfigRelatedCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>
@@ -321,13 +321,42 @@ private:
         }    
     }
     
+    template<class Problem, unsigned SPACE_DIM>
+    void CreateAndRun()
+    {
+        Problem* p_problem;
+        
+        if (HeartConfig::Instance()->IsSimulationDefined())
+        {
+            HeartConfigRelatedCellFactory<SPACE_DIM> cell_factory;
+            p_problem = new Problem(&cell_factory);
+
+            p_problem->Initialise();
+        }
+        else // (HeartConfig::Instance()->IsSimulationResumed())
+        {
+            p_problem = CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
+        }
+
+        p_problem->Solve();
+
+        /// \todo: #1158 ignoring periodic timestep now 
+        if (HeartConfig::Instance()->GetCheckpointSimulation())
+        {
+            std::stringstream directory;
+            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+            CardiacSimulationArchiver<Problem>::Save(*p_problem, directory.str(), false);
+        }
+        
+        delete p_problem;
+    }
     
     /**
      * Run the simulation
      */
     void Run()
     {
-        switch(HeartConfig::Instance()->GetDomain())
+        switch (HeartConfig::Instance()->GetDomain())
         {
             case cp::domain_type::Mono :
             {
@@ -335,92 +364,19 @@ private:
                 {
                     case 3:
                     {
-                        MonodomainProblem<3>* p_mono_problem;
-                        
-                        if (HeartConfig::Instance()->IsSimulationDefined())
-                        {
-                            HeartConfigRelatedCellFactory<3> cell_factory;
-                            p_mono_problem = new MonodomainProblem<3>(&cell_factory);
-    
-                            p_mono_problem->Initialise();
-                        }
-                        else // (HeartConfig::Instance()->IsSimulationResumed())
-                        {
-                            p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
-                        }
-    
-                        p_mono_problem->Solve();
-    
-                        /// \todo: #1158 ignoring periodic timestep now 
-                        if (HeartConfig::Instance()->GetCheckpointSimulation())
-                        {
-                            std::stringstream directory;
-                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                            CardiacSimulationArchiver<MonodomainProblem<3> >::Save(*p_mono_problem, directory.str(), false);
-                        }
-    
-                        delete p_mono_problem;
-    
+                        CreateAndRun<MonodomainProblem<3>,3>();
                         break;
                     }
     
                     case 2:
                     {
-                        MonodomainProblem<2>* p_mono_problem;
-                        
-                        if (HeartConfig::Instance()->IsSimulationDefined())
-                        {
-                            HeartConfigRelatedCellFactory<2> cell_factory;
-                            p_mono_problem = new MonodomainProblem<2>(&cell_factory);
-    
-                            p_mono_problem->Initialise();
-                        }
-                        else // (HeartConfig::Instance()->IsSimulationResumed())
-                        {
-                            p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<2> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
-                        }
-    
-                        p_mono_problem->Solve();
-
-                        /// \todo: #1158 ignoring periodic timestep now     
-                        if (HeartConfig::Instance()->GetCheckpointSimulation())
-                        {
-                            std::stringstream directory;
-                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                            CardiacSimulationArchiver<MonodomainProblem<2> >::Save(*p_mono_problem, directory.str(), false);
-                        }
-    
-                        delete p_mono_problem;
-    
+                        CreateAndRun<MonodomainProblem<2>,2>();
                         break;
                     }
     
                     case 1:
                     {
-                        MonodomainProblem<1>* p_mono_problem;
-                        
-                        if (HeartConfig::Instance()->IsSimulationDefined())
-                        {
-                            HeartConfigRelatedCellFactory<1> cell_factory;
-                            p_mono_problem = new MonodomainProblem<1>(&cell_factory);
-    
-                            p_mono_problem->Initialise();
-                        }
-                        else // (HeartConfig::Instance()->IsSimulationResumed())
-                        {
-                            p_mono_problem = CardiacSimulationArchiver<MonodomainProblem<1> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
-                        }
-    
-                        p_mono_problem->Solve();
-
-                        /// \todo: #1158 ignoring periodic timestep now     
-                        if (HeartConfig::Instance()->GetCheckpointSimulation())
-                        {
-                            std::stringstream directory;
-                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                            CardiacSimulationArchiver<MonodomainProblem<1> >::Save(*p_mono_problem, directory.str(), false);
-                        }
-    
+                        CreateAndRun<MonodomainProblem<1>,1>();
                         delete p_mono_problem;
     
                         break;
@@ -437,91 +393,17 @@ private:
                 {
                     case 3:
                     {
-                        BidomainProblem<3>* p_bi_problem;
-                        
-                        if (HeartConfig::Instance()->IsSimulationDefined())
-                        {
-                            HeartConfigRelatedCellFactory<3> cell_factory;
-                            p_bi_problem = new BidomainProblem<3>(&cell_factory);
-    
-                            p_bi_problem->Initialise();
-                        }
-                        else // (HeartConfig::Instance()->IsSimulationResumed())
-                        {
-                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
-                        }
-    
-                        p_bi_problem->Solve();
-
-                        /// \todo: #1158 ignoring periodic timestep now         
-                        if (HeartConfig::Instance()->GetCheckpointSimulation())
-                        {
-                            std::stringstream directory;
-                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                            CardiacSimulationArchiver<BidomainProblem<3> >::Save(*p_bi_problem, directory.str(), false);
-                        }
-    
-                        delete p_bi_problem;
-    
+                        CreateAndRun<BidomainProblem<3>,3>();
                         break;
                     }
                     case 2:
                     {
-                        BidomainProblem<2>* p_bi_problem;
-                        
-                        if (HeartConfig::Instance()->IsSimulationDefined())
-                        {
-                            HeartConfigRelatedCellFactory<2> cell_factory;
-                            p_bi_problem = new BidomainProblem<2>(&cell_factory);
-    
-                            p_bi_problem->Initialise();
-                        }
-                        else // (HeartConfig::Instance()->IsSimulationResumed())
-                        {
-                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
-                        }
-    
-                        p_bi_problem->Solve();
-
-                        /// \todo: #1158 ignoring periodic timestep now     
-                        if (HeartConfig::Instance()->GetCheckpointSimulation())
-                        {
-                            std::stringstream directory;
-                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                            CardiacSimulationArchiver<BidomainProblem<2> >::Save(*p_bi_problem, directory.str(), false);
-                        }
-    
-                        delete p_bi_problem;
-    
+                        CreateAndRun<BidomainProblem<2>,2>();
                         break;
                     }
                     case 1:
                     {
-                        BidomainProblem<1>* p_bi_problem;
-                        
-                        if (HeartConfig::Instance()->IsSimulationDefined())
-                        {
-                            HeartConfigRelatedCellFactory<1> cell_factory;
-                            p_bi_problem = new BidomainProblem<1>(&cell_factory);
-    
-                            p_bi_problem->Initialise();
-                        }
-                        else // (HeartConfig::Instance()->IsSimulationResumed())
-                        {
-                            p_bi_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
-                        }
-    
-                        p_bi_problem->Solve();
-
-                        /// \todo: #1158 ignoring periodic timestep now     
-                        if (HeartConfig::Instance()->GetCheckpointSimulation())
-                        {
-                            std::stringstream directory;
-                            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                            CardiacSimulationArchiver<BidomainProblem<1> >::Save(*p_bi_problem, directory.str(), false);
-                        }
-    
-                        delete p_bi_problem;
+                        CreateAndRun<BidomainProblem<1>,1>();
                         break;
                     }
                     default :
