@@ -42,6 +42,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  where eps(v) = e0 if v < 0.05, = 10*e0 v >= 0.05.
  * 
  *  We use the non-dimensionalisation: V in [-85,40] ---> v in [0,1], ie v=(V+85)/125
+ * 
+ *  Not sure what the appropriate value of e0 is: as the paper uses non-dimensionalised time
+ *  the e0 above corresponds to "eps0/t0", where eps0 is value used in the paper (1.0) and 
+ *  t0 is the characteristic time. The paper suggests using t0=25.9 (?), which gives Ta growing too 
+ *  quickly at the beginning (as rapidly as the voltage). t0 = 100 coded at the moment..  
  *
  */
 class Nash2004ContractionModel : public AbstractOdeBasedContractionModel
@@ -49,8 +54,8 @@ class Nash2004ContractionModel : public AbstractOdeBasedContractionModel
     /** Stiffness parameter. See reference. kPa */
     static const double kTa;
 
-    /** Other parameter. See reference. */
-    static const double e0;
+    /** Other parameter. See above and reference. */
+    static const double e0ByT0;
 
     /** Non-dimensionalised voltage. See above. */
     double mScaledVoltage;
@@ -73,7 +78,7 @@ public:
      */
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
-        double epsilon = (mScaledVoltage < 0.05 ? e0 : 10*e0);
+        double epsilon = (mScaledVoltage < 0.05 ? e0ByT0 : 10*e0ByT0);
         rDY[0] = epsilon * (kTa*mScaledVoltage - rY[0]);
     }
 

@@ -593,7 +593,16 @@ public :
         data.push_back(active_tensions);
         data.push_back(voltages);
         SimpleDataWriter writer("TestNash2004ContractionModel", "ta.dat", data);
-//EMTODO: verify and add tests..
+
+        //visualise results
+
+        // somewhere around the peak        
+        TS_ASSERT_DELTA(times[5000],50,1e-3);
+        TS_ASSERT_DELTA(active_tensions[5000],35.150,1e-2);
+
+        // towards the end        
+        TS_ASSERT_DELTA(times[100000],1000,1e-3);
+        TS_ASSERT_DELTA(active_tensions[100000],0.2496,1e-2);
     }
 };
 #endif /*TESTCONTRACTIONMODELS_HPP_*/
