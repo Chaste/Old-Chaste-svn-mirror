@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "NodewiseData.hpp"
 
 
-// EMTODO? Go through and tidy/refactor, perhaps make elements and weights safer
+// EMTODO: make elements and weights safer?
 
 
 

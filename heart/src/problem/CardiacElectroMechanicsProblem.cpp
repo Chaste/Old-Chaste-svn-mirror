@@ -288,11 +288,10 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         DetermineWatchedNodes();
     }
 
+
     // initialise monodomain problem
     mpMonodomainProblem->SetMesh(mpElectricsMesh);
-
     HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
-
     mpMonodomainProblem->Initialise();
 
     // Construct mechanics assembler
@@ -315,7 +314,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");
     }
-
+    
     // find the element nums and weights for each gauss point in the mechanics mesh
     mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
 
@@ -367,6 +366,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::Solve()
 {
+    
     // initialise the meshes and mechanics assembler
     if(mpCardiacMechAssembler==NULL)
     {

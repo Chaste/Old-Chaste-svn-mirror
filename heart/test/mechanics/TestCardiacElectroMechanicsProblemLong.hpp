@@ -59,7 +59,7 @@ public:
                                                      0.01, /* electrics timestep (ms) */
                                                      100,  /* 100*0.01ms mech dt */
                                                      1.0,  /* contraction model ode dt */
-                                                     "TestCardiacElectroMechImplicit");
+                                                     "TestCardiacEmNhs2dLong");
 
         problem.SetNoElectricsOutput();
         problem.Solve();

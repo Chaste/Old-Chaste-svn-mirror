@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonPhysiologicalContractionModel.hpp"
 
 //// for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
-//#include "NhsModelWithImplicitSolver.hpp"
+//#include "NhsModelWithBackSolver.hpp"
 
 template<unsigned DIM>
 ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(ContractionModel contractionModel,
@@ -82,7 +82,7 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
 //        {
 //            for(unsigned i=0; i<this->mTotalQuadPoints; i++)
 //            {
-//                this->mContractionModelSystems.push_back(new NhsModelWithImplicitSolver);
+//                this->mContractionModelSystems.push_back(new NhsModelWithBackwardSolver);
 //            }
 //            break;
 //        }

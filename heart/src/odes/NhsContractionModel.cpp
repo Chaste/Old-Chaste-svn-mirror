@@ -140,6 +140,8 @@ void NhsContractionModel::EvaluateYDerivatives(double time,
                                                const std::vector<double> &rY,
                                                std::vector<double> &rDY)
 {
+    //// if making changes here, see also NhsModelWithBackwardSolver::CalculateCaTropAndZDerivatives()
+    
     const double& calcium_troponin = rY[0];
     const double& z = rY[1];
     const double& Q1 = rY[2];

@@ -32,9 +32,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  NHS system with build in implicit solver. Jon Whiteley's method, which breaks down
+ *  NHS system with built-in backward solver. Jon Whiteley's method, which breaks down
  *  the multivariable implicit solve into a sequence of 1d implicit solves.
  *
+ *  The full backward Euler method on the NHS system compute the solution w^{n+1} \in R^5
+ *  by:
+ *   w^{n+1}  - dt g(w^{n+1})  =  w^n
+ *  where the ODE system is dw/dt = g(w).
+ * 
+ *  This would involve solving a 5d nonlinear system at each timestep. However, only g1 and g2
+ *  (ie dCatrop/dt and dz/dt) are nonlinear, g3-g5 are linear and uncoupled. Therefore 
+ *  the backward euler solutions of Q1,Q2,Q3 can be computed immediately, leaving a 2D nonlinear
+ *  system.   
+ *  
+ *  This system could be solved with newton's method as normal, here an alternative method  
+ *  in which it is broken down into a sequence of 1D problems is used. 
+ * 
  *  The idea is to solve a 1d nonlinear problem for the active tension, where the problem
  *  f(T_a)=T_a, where T_a is the current active tension, and f(T_a) is the active tension
  *  obtained by assuming this active tension and solving the ODEs as follows:
@@ -89,8 +102,9 @@ private:
     /** The residual function for the main Newton solve. See ImplicitSolveForActiveTension()
      * 
      * @param activeTensionGuess
+     * @param Q = Q1+Q2+Q3 which can be solved for first
      */
-    double CalcActiveTensionResidual(double activeTensionGuess);
+    double CalcActiveTensionResidual(double activeTensionGuess, double Q);
 
     /**
      *  Assume the active tension is known and solve for the Ca_trop at the next time
@@ -127,16 +141,6 @@ private:
      */
     double ImplicitSolveForQ();
 
-
-//// possible simplification for speedup, but doesn't give same results (see Pathmanathan&Whiteley 2009).
-//    /**
-//     *  Instead of solving an ODE for Qi, assume that the Qi equations reach a static
-//     *  solution on a timescale much smaller than that of the deformation, and therefore
-//     *  solve the algebraic equation 0 = A_i lambda_dot - alpha_i Q_i to Q_i(t).
-//     *
-//     *  This method returns Q = Q1+Q2+Q3
-//     */
-//    double QuasiStaticSolveForQ();
 
 public :
     /**

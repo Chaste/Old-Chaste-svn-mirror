@@ -38,11 +38,14 @@ void NhsModelWithImplicitSolver::ImplicitSolveForActiveTension()
 {
     // solve a 1d nonlinear problem for the active tension
 
+    // first do the implicit solve for Qi, which is independent of everything else
+    double new_Q = ImplicitSolveForQ();
+
     // current active tension
     double current_active_tension = mActiveTensionInitialGuess;
 
     // see what the residual is
-    double residual = CalcActiveTensionResidual(current_active_tension);
+    double residual = CalcActiveTensionResidual(current_active_tension, new_Q);
 
     // solve using Newton's method, no damping. Stop if num iterations
     // reaches 15 (very conservative)
@@ -53,10 +56,10 @@ void NhsModelWithImplicitSolver::ImplicitSolveForActiveTension()
         // numerically approximate the jacobian
         double h = std::max(fabs(current_active_tension/100),1e-8);
 
-        double jac = (CalcActiveTensionResidual(current_active_tension+h) - CalcActiveTensionResidual(current_active_tension))/h;
+        double jac = (CalcActiveTensionResidual(current_active_tension+h, new_Q) - CalcActiveTensionResidual(current_active_tension, new_Q))/h;
 
         current_active_tension -= residual/jac;
-        residual = CalcActiveTensionResidual(current_active_tension);
+        residual = CalcActiveTensionResidual(current_active_tension, new_Q);
         old_residuals.push_back(residual);
     }
     //assert(counter<15);
@@ -77,7 +80,6 @@ void NhsModelWithImplicitSolver::ImplicitSolveForActiveTension()
         #undef COVERAGE_IGNORE
     }
 
-
     // save the active tension initial guess for next time round
     mActiveTensionInitialGuess = current_active_tension;
 
@@ -87,7 +89,7 @@ void NhsModelWithImplicitSolver::ImplicitSolveForActiveTension()
     mActiveTensionSolution = current_active_tension;
 }
 
-double NhsModelWithImplicitSolver::CalcActiveTensionResidual(double activeTensionGuess)
+double NhsModelWithImplicitSolver::CalcActiveTensionResidual(double activeTensionGuess, double Q)
 {
     // to calculate the active tension residual, we solve use the current active tension,
     // solve for Ca_trop implicitly, then z implicitly, then Q implicitly, then see
@@ -116,22 +118,16 @@ double NhsModelWithImplicitSolver::CalcActiveTensionResidual(double activeTensio
     // get the new T0
     double new_T0 = CalculateT0(new_z);
 
-    // solve for the new Qi's (and therefore Q) implicitly (note Q1, Q2, Q3 are stored in
-    // this method
-    double new_Q = ImplicitSolveForQ();                        // <-- SHOULD BE MOVED UP!!
-    //double new_Q = QuasiStaticSolveForQ();
-
-
     // compute the new active tension and return the difference
     double new_active_tension = 0;
-    if(new_Q > 0)
+    if(Q > 0)
     {
-        new_active_tension = new_T0*(1+(2+mA)*new_Q)/(1+new_Q);
+        new_active_tension = new_T0*(1+(2+mA)*Q)/(1+Q);
     }
     else
     {
         #define COVERAGE_IGNORE // not quite sure how to cover this, of if it is worth it
-        new_active_tension = new_T0*(1+mA*new_Q)/(1-new_Q);
+        new_active_tension = new_T0*(1+mA*Q)/(1-Q);
         #undef COVERAGE_IGNORE
     }
 
@@ -223,20 +219,6 @@ double NhsModelWithImplicitSolver::ImplicitSolveForQ()
 }
 
 
-//double NhsModelWithImplicitSolver::QuasiStaticSolveForQ()
-//{
-//    double new_Q1 = mA1*mDLambdaDt/mAlpha1;
-//    double new_Q2 = mA2*mDLambdaDt/mAlpha2;
-//    double new_Q3 = mA3*mDLambdaDt/mAlpha3;
-//
-//    mTemporaryStateVariables[2] = new_Q1;
-//    mTemporaryStateVariables[3] = new_Q2;
-//    mTemporaryStateVariables[4] = new_Q3;
-//
-//    return new_Q1 + new_Q2 + new_Q3;
-//}
-
-
 
 /*
  *=========================== PUBLIC METHODS ==============================
@@ -260,8 +242,8 @@ void NhsModelWithImplicitSolver::SetActiveTensionInitialGuess(double activeTensi
 
 
 void NhsModelWithImplicitSolver::RunDoNotUpdate(double startTime,
-                                                 double endTime,
-                                                 double timestep)
+                                                double endTime,
+                                                double timestep)
 {
     assert(startTime < endTime);
 

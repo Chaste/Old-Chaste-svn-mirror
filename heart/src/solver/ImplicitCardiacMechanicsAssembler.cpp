@@ -27,9 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ImplicitCardiacMechanicsAssembler.hpp"
-
 #include "Kerchoffs2003ContractionModel.hpp"
-#include "NhsModelWithImplicitSolver.hpp"
+#include "NhsModelWithBackwardSolver.hpp"
 #include "NonPhysiologicalContractionModel.hpp"
 
 template<unsigned DIM>
@@ -61,7 +60,7 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
         {
             for(unsigned i=0; i<this->mTotalQuadPoints; i++)
             {
-                this->mContractionModelSystems.push_back(new NhsModelWithImplicitSolver);
+                this->mContractionModelSystems.push_back(new NhsModelWithBackwardSolver);
             }
             break;
         }

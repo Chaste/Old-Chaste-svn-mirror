@@ -198,11 +198,11 @@ public :
     /**
      *  GetNextActiveTension() normally returns the active tension corresponding to the state variables
      *  that have been computed in RunDoNotUpdate. However, this only applies to when an implicit cardiac
-     *  mechanics solver is used, in which case the NhsModelWithImplicitSolver should be used.
+     *  mechanics solver is used, in which case the NhsModelWithBackwardSolver should be used.
      */
     double GetNextActiveTension()
     {
-        EXCEPTION("If using this in an 'explicit manner' call UpdateStateVariables() and then GetActiveTension(), otherwise use NhsModelWithImplicitSolver");
+        EXCEPTION("If using this in an 'explicit manner' call UpdateStateVariables() and then GetActiveTension(), otherwise use NhsModelWithBackwardSolver");
     }
         
    /** 

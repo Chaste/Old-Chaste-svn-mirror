@@ -7,7 +7,7 @@ mechanics/TestCardiacElectroMechanicsProblem.hpp
 mechanics/TestContractionModels.hpp
 mechanics/TestImplicitCardiacMechanicsAssembler.hpp
 mechanics/TestExplicitCardiacMechanicsAssembler.hpp
-mechanics/TestNhsModelWithImplicitSolver.hpp
+mechanics/TestNhsModelWithBackwardSolver.hpp
 TestCardiacSimulation.hpp
 TestCardiacSimulationArchiver.hpp
 TestCardiacUneven.hpp
