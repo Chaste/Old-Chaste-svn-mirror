@@ -30,11 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTCHECKPOINTING_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "PetscSetupAndFinalize.hpp"
 
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestCheckpointing : public CxxTest::TestSuite
 {
