@@ -38,10 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 
-class TestVertexBasedTissue : public AbstractCancerTestSuite
+class TestVertexBasedTissue : public AbstractCellBasedTestSuite
 {
 private:
 

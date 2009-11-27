@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
-class TestNodeBoxCollection : public AbstractCancerTestSuite
+class TestNodeBoxCollection : public AbstractCellBasedTestSuite
 {
 public:
 

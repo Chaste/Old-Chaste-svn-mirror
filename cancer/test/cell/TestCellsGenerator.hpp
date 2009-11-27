@@ -38,13 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /**
  * This class contains tests for methods on classes
  * inheriting from AbstractCellsGenerator.
  */
-class TestCellsGenerator : public AbstractCancerTestSuite
+class TestCellsGenerator : public AbstractCellBasedTestSuite
 {
 public:
 

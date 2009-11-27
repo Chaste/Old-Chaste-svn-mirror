@@ -39,12 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "RadialSloughingCellKiller.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "WntConcentration.hpp"
 
 
-class TestCryptProjectionStatistics : public AbstractCancerTestSuite
+class TestCryptProjectionStatistics : public AbstractCellBasedTestSuite
 {
 
 public:

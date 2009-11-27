@@ -40,11 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "RandomCellKiller.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
-#include "CancerEventHandler.hpp"
+#include "CellBasedEventHandler.hpp"
 
 
 // Simple subclass of TissueSimulation which just overloads StoppingEventHasOccurred
@@ -70,7 +70,7 @@ public:
 /**
  *  Note: Most tests of TissueSimulation are in TestCryptSimulation2d
  */
-class TestTissueSimulation : public AbstractCancerTestSuite
+class TestTissueSimulation : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -78,14 +78,14 @@ private:
     void setUp()
     {
         mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
+        AbstractCellBasedTestSuite::setUp();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
+        AbstractCellBasedTestSuite::tearDown();
     }
 
 public:
@@ -201,7 +201,7 @@ public:
         // For coverage of an exception.
         simulator.SetUpdateTissueRule(false);
         TS_ASSERT_THROWS_THIS(simulator.Solve(),"Tissue has had births or deaths but mUpdateTissue is set to false, please set it to true.");
-        CancerEventHandler::Reset(); // Otherwise logging has been started but not stopped due to exception above.
+        CellBasedEventHandler::Reset(); // Otherwise logging has been started but not stopped due to exception above.
 
         simulator.SetUpdateTissueRule(true);
         simulator.Solve();

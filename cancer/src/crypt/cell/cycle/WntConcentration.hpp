@@ -63,7 +63,7 @@ private:
     /** Pointer to the singleton instance of WntConcentration */
     static WntConcentration* mpInstance;
 
-    /** The cancer parameters */
+    /** Pointer to the TissueConfig singleton */
     TissueConfig* mpTissueConfig;
 
     /**

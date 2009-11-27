@@ -39,10 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "WntConcentration.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
-class TestForces : public AbstractCancerTestSuite
+class TestForces : public AbstractCellBasedTestSuite
 {
 public:
 

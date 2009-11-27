@@ -25,44 +25,36 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef ABSTRACTCANCERTESTSUITE_HPP_
-#define ABSTRACTCANCERTESTSUITE_HPP_
-#define CXXTEST_ABORT_TEST_ON_FAIL
-#include "SimulationTime.hpp"
-#include "RandomNumberGenerator.hpp"
-#include "TissueConfig.hpp"
+#ifndef CELLBASEDEVENTHANDLER_HPP_
+#define CELLBASEDEVENTHANDLER_HPP_
+
+#include "GenericEventHandler.hpp"
 
 /**
- * This class provides setUp and tearDown methods that are common to
- * many cancer test suites.  Such suites may inherit from this class
- * to avoid having to redefine them.
+ * A cell_based event class that can be used to calculate the time taken to
+ * execute various parts of a tissue simulation.
  */
-class AbstractCancerTestSuite : public CxxTest::TestSuite
+class CellBasedEventHandler : public GenericEventHandler<9, CellBasedEventHandler>
 {
-protected:
+public:
 
-    /**
-     * Overridden setUp() method. Initialises singleton classes.
-     */
-    void setUp()
+    /** Character array holding cancer event names. There are nine cancer events. */
+    const static char* EventName[9];
+
+    /** Definition of cancer event types. */
+    typedef enum
     {
-        //The following won't work.  It returns from this setup method, but not the test suite
-        //EXIT_IF_PARALLEL; // defined in PetscTools
-
-        SimulationTime::Instance()->SetStartTime(0.0);
-        RandomNumberGenerator::Instance()->Reseed(0);
-        TissueConfig::Instance()->Reset();
-    }
-
-    /**
-     * Overridden teardown() method. Clears up singleton classes.
-     */
-    void tearDown()
-    {
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
+        SETUP=0,
+        DEATH,
+        BIRTH,
+        UPDATETISSUE,
+        TESSELLATION,
+        FORCE,
+        POSITION,
+        OUTPUT,
+        EVERYTHING
+    } CellBasedEventType;
 };
 
 
-#endif /*ABSTRACTCANCERTESTSUITE_HPP_*/
+#endif /*CELLBASEDEVENTHANDLER_HPP_*/

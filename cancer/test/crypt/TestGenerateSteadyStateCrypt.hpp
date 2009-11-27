@@ -51,7 +51,7 @@ public:
      * You need to specify :
      * the kind of cell cycle model to use on line 64,
      * WntConcentration on line 69,
-     * change any cancer parameters around line 90,
+     * change any model parameters around line 90,
      * and give the simulator options around line 95.
      */
     void TestGenerateSteadyStateCryptArchives() throw (Exception)

@@ -25,36 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CANCEREVENTHANDLER_HPP_
-#define CANCEREVENTHANDLER_HPP_
+#include "CellBasedEventHandler.hpp"
 
-#include "GenericEventHandler.hpp"
-
-/**
- * A cancer event class that can be used to calculate the time taken to
- * execute various parts of a tissue simulation.
- */
-class CancerEventHandler : public GenericEventHandler<9, CancerEventHandler>
-{
-public:
-
-    /** Character array holding cancer event names. There are nine cancer events. */
-    const static char* EventName[9];
-
-    /** Definition of cancer event types. */
-    typedef enum
-    {
-        SETUP=0,
-        DEATH,
-        BIRTH,
-        UPDATETISSUE,
-        TESSELLATION,
-        FORCE,
-        POSITION,
-        OUTPUT,
-        EVERYTHING
-    } CancerEventType;
-};
-
-
-#endif /*CANCEREVENTHANDLER_HPP_*/
+const char* CellBasedEventHandler::EventName[] = { "Setup", "Death", "Birth",
+                                                "Update", "Tess", "Force",
+                                                "Pos", "Output", "Total" };

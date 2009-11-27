@@ -1,6 +1,6 @@
 TestArchivingHelperClasses.hpp
 TestArchiving.hpp
-TestCancerEventHandler.hpp
+TestCellBasedEventHandler.hpp
 TestCwd.hpp
 TestDebug.hpp
 TestDistributedVector.hpp

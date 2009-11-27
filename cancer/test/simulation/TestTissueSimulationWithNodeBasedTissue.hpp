@@ -39,11 +39,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "LogFile.hpp"
 
 
-class TestTissueSimulationWithNodeBasedTissue : public AbstractCancerTestSuite
+class TestTissueSimulationWithNodeBasedTissue : public AbstractCellBasedTestSuite
 {
 private:
     template<unsigned DIM>
@@ -66,14 +66,14 @@ private:
     void setUp()
     {
         mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
+        AbstractCellBasedTestSuite::setUp();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
+        AbstractCellBasedTestSuite::tearDown();
     }
 
 public:

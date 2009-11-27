@@ -47,7 +47,7 @@ class TestTissueConfig : public CxxTest::TestSuite
 private:
 
     /**
-     * Test that all default cancer parameter values are correct.
+     * Test that each member variable has the correct default value.
      */
     void CheckValuesAreTheDefaultValues()
     {
@@ -261,7 +261,7 @@ public:
         {
             TissueConfig* p_inst1 = TissueConfig::Instance();
 
-            // Change the cancer parameter values
+            // Change the value of each member variable 
             p_inst1->SetSDuration(4.0);
             p_inst1->SetG2Duration(3.0);
             p_inst1->SetMDuration(2.0);
@@ -309,14 +309,14 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Save the changed cancer parameter values
+            // Save the changed member variable values
             output_arch << static_cast<const TissueConfig&>(*p_inst1);
         }
 
         {
             TissueConfig* p_inst1 = TissueConfig::Instance();
 
-            // Restore the cancer parameters to their default values
+            // Restore the member variables to their default values
             p_inst1->SetSDuration(5.0);
             p_inst1->SetG2Duration(4.0);
             p_inst1->SetMDuration(1.0);

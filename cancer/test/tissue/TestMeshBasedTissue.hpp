@@ -37,10 +37,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 
-class TestMeshBasedTissue : public AbstractCancerTestSuite
+class TestMeshBasedTissue : public AbstractCellBasedTestSuite
 {
 private:
 

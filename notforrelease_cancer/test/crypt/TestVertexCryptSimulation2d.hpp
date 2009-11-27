@@ -42,10 +42,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "AbstractCancerTestSuite.hpp"
-#include "CancerEventHandler.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
+#include "CellBasedEventHandler.hpp"
 
-class TestVertexCryptSimulation2d : public AbstractCancerTestSuite
+class TestVertexCryptSimulation2d : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -94,14 +94,14 @@ private:
     void setUp()
     {
         mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
+        AbstractCellBasedTestSuite::setUp();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
+        AbstractCellBasedTestSuite::tearDown();
     }
 
 public:

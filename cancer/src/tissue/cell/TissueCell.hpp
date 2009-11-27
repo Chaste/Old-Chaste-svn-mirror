@@ -239,8 +239,8 @@ public:
     TissueCell Divide();
 
     /**
-     * Makes the cell enter apoptosis and sets #mDeathTime using the apoptosis
-     * time from the cancer parameters.
+     * Make the cell enter apoptosis and sets #mDeathTime using the apoptosis
+     * time as defined in the TissueConfig singleton.
      *
      * @param setDeathTime whether we tell the cell exactly when to die (defaults to true)
      */

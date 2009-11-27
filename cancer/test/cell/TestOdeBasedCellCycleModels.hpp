@@ -40,14 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
 /**
  * This class contains tests for methods on classes
  * inheriting from AbstractOdeBasedCellCycleModel.
  */
-class TestOdeBasedCellCycleModels : public AbstractCancerTestSuite
+class TestOdeBasedCellCycleModels : public AbstractCellBasedTestSuite
 {
 public:
 

@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "MeshBasedTissue.hpp"
 #include "TrianglesMeshWriter.hpp"
-#include "CancerEventHandler.hpp"
+#include "CellBasedEventHandler.hpp"
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
@@ -321,13 +321,13 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     // Tessellate if needed
     if (DIM==2)
     {
-        CancerEventHandler::BeginEvent(CancerEventHandler::TESSELLATION);
+        CellBasedEventHandler::BeginEvent(CellBasedEventHandler::TESSELLATION);
         if (mUseAreaBasedDampingConstant || TissueConfig::Instance()->GetOutputVoronoiData() ||
             TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
         {
             CreateVoronoiTessellation();
         }
-        CancerEventHandler::EndEvent(CancerEventHandler::TESSELLATION);
+        CellBasedEventHandler::EndEvent(CellBasedEventHandler::TESSELLATION);
     }
 }
 

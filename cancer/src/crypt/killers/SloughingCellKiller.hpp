@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  A cell killer that kills cells if they are outside the crypt.
  *
- *  The crypt width and height is taken from the cancer parameters singleton
+ *  The crypt width and height is taken from the TissueConfig singleton
  *  object. The crypt is assumed to start at x=0 and y=0. By default only cells
  *  are sloughed if y>crypt_height. To slough the sides call the constructor
  *  with the appropriate parameter.

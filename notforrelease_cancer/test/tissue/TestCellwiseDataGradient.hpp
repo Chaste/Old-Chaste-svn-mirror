@@ -38,13 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "TrianglesMeshReader.hpp"
 
 /**
  * This class contains tests for methods on the class CellwiseData.
  */
-class TestCellwiseDataGradient : public AbstractCancerTestSuite
+class TestCellwiseDataGradient : public AbstractCellBasedTestSuite
 {
 
 public:

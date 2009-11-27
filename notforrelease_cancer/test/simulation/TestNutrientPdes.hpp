@@ -36,9 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AveragedSinksPde.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
-class TestNutrientPdes : public AbstractCancerTestSuite
+class TestNutrientPdes : public AbstractCellBasedTestSuite
 {
 public:
 

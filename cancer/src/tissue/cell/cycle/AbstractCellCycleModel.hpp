@@ -71,7 +71,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // Make sure the simulation and cancer parameters get saved too
+        // Make sure the SimulationTime and TissueConfig singletons get saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
         archive & p_time;

@@ -38,13 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 #include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /**
  * This class contains tests for methods on classes
  * inheriting from AbstractCellKiller.
  */
-class TestCellKillers : public AbstractCancerTestSuite
+class TestCellKillers : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -416,7 +416,7 @@ public:
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
         }
 
-        // Change the cancer parameters
+        // Change the model parameters
         p_params->SetCryptLength(12.0);
         p_params->SetCryptWidth(6.0);
 

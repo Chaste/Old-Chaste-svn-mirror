@@ -192,7 +192,7 @@ public:
      */
     void TestCryptWntCellCycle() throw(Exception)
     {
-        /* First reinitialise time to 0, and reset the cancer parameters, again. */
+        /* First reinitialise time to 0, and reset the TissueConfig singleton, again. */
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
         TissueConfig::Instance()->Reset();

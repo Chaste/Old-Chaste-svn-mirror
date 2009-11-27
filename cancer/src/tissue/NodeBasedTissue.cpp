@@ -281,7 +281,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         EXCEPTION(error);
     }
 
-    // Add this cancer parameter and suggest that mechanics systems set it.
+    // Add this parameter and suggest that mechanics systems set it.
     // Allocates memory for mpNodeBoxCollection and does the splitting and putting nodes into boxes
     SplitUpIntoBoxes(TissueConfig::Instance()->GetMechanicsCutOffLength(), domain_size);
 

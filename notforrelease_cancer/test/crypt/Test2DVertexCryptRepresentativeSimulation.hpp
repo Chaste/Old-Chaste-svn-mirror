@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptBoundaryForce.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "SloughingCellKiller.hpp"
-#include "CancerEventHandler.hpp"
+#include "CellBasedEventHandler.hpp"
 
 /**
  * This class consists of a single test, in which a 2D vertex model

@@ -37,14 +37,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellwiseData.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 /**
  * This class contains tests for methods on the class CellwiseData.
  */
-class TestCellwiseData : public AbstractCancerTestSuite
+class TestCellwiseData : public AbstractCellBasedTestSuite
 {
 public:
 

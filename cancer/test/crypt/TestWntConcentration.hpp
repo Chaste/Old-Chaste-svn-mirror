@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissue.hpp"
 #include "WntCellCycleModel.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "TrianglesMeshReader.hpp"
 
 /**
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * so if you copy them into a new test suite be sure to copy these methods
  * too.
  */
-class TestWntConcentration : public AbstractCancerTestSuite
+class TestWntConcentration : public AbstractCellBasedTestSuite
 {
 public:
 

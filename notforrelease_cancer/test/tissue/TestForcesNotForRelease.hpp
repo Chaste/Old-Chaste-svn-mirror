@@ -46,10 +46,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexCryptBoundaryForce.hpp"
 #include "VertexBasedTissue.hpp"
 #include "WntConcentration.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
-class TestForcesNotForRelease : public AbstractCancerTestSuite
+class TestForcesNotForRelease : public AbstractCellBasedTestSuite
 {
 public:
 

@@ -42,14 +42,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticOxygenBasedCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
 /**
  * This class contains tests for methods on cell
  * cycle models that are not yet ready for release.
  */
-class TestCellCycleModelsNotForRelease : public AbstractCancerTestSuite
+class TestCellCycleModelsNotForRelease : public AbstractCellBasedTestSuite
 {
 public:
 

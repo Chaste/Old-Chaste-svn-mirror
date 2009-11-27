@@ -42,13 +42,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "CryptProjectionForce.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
 /**
  *  Note: Most tests of TissueSimulation are in TestCryptSimulation2d
  */
-class TestTissueSimulationNotForRelease : public AbstractCancerTestSuite
+class TestTissueSimulationNotForRelease : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -56,14 +56,14 @@ private:
     void setUp()
     {
         mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
+        AbstractCellBasedTestSuite::setUp();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
+        AbstractCellBasedTestSuite::tearDown();
     }
 
 public:

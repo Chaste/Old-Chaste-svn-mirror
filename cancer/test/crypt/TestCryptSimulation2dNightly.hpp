@@ -39,21 +39,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "AbstractCancerTestSuite.hpp"
-#include "CancerEventHandler.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
+#include "CellBasedEventHandler.hpp"
 #include "VoronoiTessellation.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
 
-class TestCryptSimulation2dNightly : public AbstractCancerTestSuite
+class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
 private:
 
     double mLastStartTime;
     void setUp()
     {
-        CancerEventHandler::Disable(); // these tests fail with event-handling on
+        CellBasedEventHandler::Disable(); // these tests fail with event-handling on
         mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
+        AbstractCellBasedTestSuite::setUp();
     }
 
     void tearDown()
@@ -61,7 +61,7 @@ private:
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
+        AbstractCellBasedTestSuite::tearDown();
     }
 
 public:
@@ -376,7 +376,7 @@ public:
 
     void TestCrypt2DPeriodicWntNightly() throw (Exception)
     {
-        CancerEventHandler::Enable();
+        CellBasedEventHandler::Enable();
 
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -431,8 +431,8 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
 
-        CancerEventHandler::Headings();
-        CancerEventHandler::Report();
+        CellBasedEventHandler::Headings();
+        CellBasedEventHandler::Report();
     }
 
     /**

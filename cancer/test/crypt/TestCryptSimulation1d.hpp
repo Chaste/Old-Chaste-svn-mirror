@@ -40,10 +40,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
-class TestCryptSimulation1d : public AbstractCancerTestSuite
+class TestCryptSimulation1d : public AbstractCellBasedTestSuite
 {
 public:
 

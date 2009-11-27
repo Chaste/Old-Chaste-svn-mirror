@@ -39,10 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
-class TestTissueSimulation3d : public AbstractCancerTestSuite
+class TestTissueSimulation3d : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -60,14 +60,14 @@ private:
     void setUp()
     {
         mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
+        AbstractCellBasedTestSuite::setUp();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
+        AbstractCellBasedTestSuite::tearDown();
     }
 
 public:

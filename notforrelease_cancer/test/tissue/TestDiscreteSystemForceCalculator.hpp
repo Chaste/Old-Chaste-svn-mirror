@@ -38,10 +38,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DiscreteSystemForceCalculator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
-class TestDiscreteSystemForceCalculator : public AbstractCancerTestSuite
+class TestDiscreteSystemForceCalculator : public AbstractCellBasedTestSuite
 {
 public:
 

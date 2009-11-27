@@ -52,7 +52,7 @@ template <unsigned NUM_EVENTS, class CONCRETE>
 class GenericEventHandler
 {
     friend class TestGenericEventHandler;
-    friend class TestCancerEventHandler;
+    friend class TestCellBasedEventHandler;
     friend class TestHeartEventHandler;
     
 private:

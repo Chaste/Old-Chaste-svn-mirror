@@ -43,9 +43,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "../../global/test/NumericFileComparison.hpp"
-#include "CancerEventHandler.hpp"
+#include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 
 /**
@@ -87,7 +87,7 @@ public :
 };
 
 
-class TestCryptSimulation2d : public AbstractCancerTestSuite
+class TestCryptSimulation2d : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -138,14 +138,14 @@ private:
     void setUp()
     {
         mLastStartTime = std::clock();
-        AbstractCancerTestSuite::setUp();
+        AbstractCellBasedTestSuite::setUp();
     }
     void tearDown()
     {
         double time = std::clock();
         double elapsed_time = (time - mLastStartTime)/(CLOCKS_PER_SEC);
         std::cout << "Elapsed time: " << elapsed_time << std::endl;
-        AbstractCancerTestSuite::tearDown();
+        AbstractCellBasedTestSuite::tearDown();
     }
 
 public:
@@ -437,7 +437,7 @@ public:
         simulator.SetEndTime(10.0);
         simulator.SetOutputDirectory("");
         TS_ASSERT_THROWS_THIS(simulator.Solve(),"OutputDirectory not set");
-        CancerEventHandler::Reset(); // otherwise event handler left in bad state after throw
+        CellBasedEventHandler::Reset(); // otherwise event handler left in bad state after throw
     }
 
 
@@ -1181,7 +1181,7 @@ public:
 
     void TestCalculateCellDivisionVectorConfMesh() throw (Exception)
     {
-        // Set up cancer parameters
+        // Set up model parameters
         TissueConfig::Instance()->Reset();
         TissueConfig::Instance()->SetDivisionRestingSpringLength(0.9);//Only coverage
         TissueConfig::Instance()->SetDivisionSeparation(0.1);
@@ -1702,7 +1702,7 @@ public:
     {
         std::string output_directory = "AncestorCrypt";
 
-        // Set up cancer parameters
+        // Set up model parameters
         TissueConfig* p_params = TissueConfig::Instance();
         p_params->SetDampingConstantNormal(1.0); // normally 1
 

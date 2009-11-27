@@ -40,10 +40,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 
-class TestSimpleCellCycleModels : public AbstractCancerTestSuite
+class TestSimpleCellCycleModels : public AbstractCellBasedTestSuite
 {
 public:
 

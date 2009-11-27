@@ -39,14 +39,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
-#include "AbstractCancerTestSuite.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /**
  * This class contains tests for methods on classes
  * inheriting from AbstractCellKiller that are not
  * yet ready for release.
  */
-class TestCellKillersNotForRelease : public AbstractCancerTestSuite
+class TestCellKillersNotForRelease : public AbstractCellBasedTestSuite
 {
 public:
 
