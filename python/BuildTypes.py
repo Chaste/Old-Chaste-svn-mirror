@@ -811,6 +811,26 @@ class Intel(BuildType):
                 break
         self._cc_flags.append('-vec_report' + str(vec))
 
+class GccPower(Gcc):
+  "GNU compiler on IBM POWER architecture."
+  def __init__(self, *args, **kwargs):
+    Gcc.__init__(self, *args, **kwargs)
+    self.tools['mpicxx'] = 'mpCC'
+    self.tools['mpirun'] = ''
+    self._cc_flags.append('-compiler g++')
+    self._cc_flags.append('-m64')
+    self._link_flags.append('-compiler g++')
+    self._link_flags.append('-m64')
+    self.build_dir = 'gccpower'
+
+class GccPowerDebug(GccPower):
+  "GNU compiler on IBM POWER with debugging."
+  def __init__(self, *args, **kwargs):
+    GccPower.__init__(self, *args, **kwargs)
+    self._cc_flags.append('-g')
+    self._link_flags.append('-g')
+    self.build_dir = 'gccpowerdebug'
+
 class CrayGcc(BuildType):
   "Cray XT platform."
   def __init__(self, *args, **kwargs):
