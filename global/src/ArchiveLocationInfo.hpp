@@ -46,9 +46,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * This functionality is used by the meshes, LinearSystem and HeartConfig.
  *
- * For the benefit of the meshes (and the cancer code), there are also
+ * For the benefit of the meshes (and the cell_based code), there are also
  * shortcut methods SetMeshPathname and GetMeshFilename, allowing you to
- * specify the base file name for the mesh.  This is needed because the cancer
+ * specify the base file name for the mesh.  This is needed because the cell_based
  * code adds timestamp information to the file name.
  */
 class ArchiveLocationInfo

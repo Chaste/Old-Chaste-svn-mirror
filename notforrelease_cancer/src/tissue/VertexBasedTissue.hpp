@@ -282,8 +282,8 @@ public:
     /**
      * Get the target area of a given cell. This grows linearly from
      * 0.5*A to A during the G1 phase of the cell cycle, then remains
-     * at A for the rest of the cell cycle, where A denotes the cancer
-     * parameter mMatureCellTargetArea.
+     * at A for the rest of the cell cycle, where A denotes the TissueConfig
+     * member variable mMatureCellTargetArea.
      *
      * @param rCell the cell
      * @return the cell's target area

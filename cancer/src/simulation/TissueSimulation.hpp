@@ -100,7 +100,7 @@ protected:
     /** Visualiser setup file */
     out_stream mpSetupFile;
 
-    /** The cancer tissue configuration */
+    /** Pointer to TissueConfig singleton */
     TissueConfig* mpConfig;
 
     /** The singleton RandomNumberGenerator */

@@ -38,10 +38,10 @@ class CellBasedEventHandler : public GenericEventHandler<9, CellBasedEventHandle
 {
 public:
 
-    /** Character array holding cancer event names. There are nine cancer events. */
+    /** Character array holding cell_based event names. There are nine cell_based events. */
     const static char* EventName[9];
 
-    /** Definition of cancer event types. */
+    /** Definition of cell_based event types. */
     typedef enum
     {
         SETUP=0,
@@ -55,6 +55,5 @@ public:
         EVERYTHING
     } CellBasedEventType;
 };
-
 
 #endif /*CELLBASEDEVENTHANDLER_HPP_*/

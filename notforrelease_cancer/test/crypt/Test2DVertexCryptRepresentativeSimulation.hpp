@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// Must be included before any other cancer headers
+// Must be included before any other cell_based headers
 #include "TissueSimulationArchiver.hpp"
 
 #include "VertexCryptSimulation2d.hpp"

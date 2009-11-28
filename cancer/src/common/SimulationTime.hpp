@@ -163,12 +163,12 @@ private:
     static SimulationTime* mpInstance;
 
     /**
-     * The duration of the simulation (cancer time units are in hours).
+     * The duration of the simulation (time is measured in units of hours).
      */
     double mDurationOfSimulation;
 
     /**
-     * The total number of steps for this simualation.
+     * The total number of steps for this simulation.
      */
     unsigned mTotalTimeStepsInSimulation;
 

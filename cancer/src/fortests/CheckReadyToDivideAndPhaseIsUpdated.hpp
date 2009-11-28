@@ -49,7 +49,7 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
                                          double g1Duration,
                                          double g2Duration=TissueConfig::Instance()->GetG2Duration())
 {
-    // A number of cancer tissue parameters are called in this method,
+    // A number of TissueConfig parameters are called in this method,
     // so for convenience we create a pointer to the instance
     TissueConfig* p_params = TissueConfig::Instance();
 

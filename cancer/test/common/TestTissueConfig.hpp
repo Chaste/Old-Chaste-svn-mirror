@@ -255,7 +255,7 @@ public:
     void TestArchiveTissueConfig()
     {
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cancer_params.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tissue_config.arch";
 
         // Create an output archive
         {

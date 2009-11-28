@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /**
- * A special singleton class which holds all of the parameters used in the cancer simulations.
+ * A special singleton class which holds all of the parameters used in simulations.
  *
  * Because this is a singleton class it can be called from whichever part of the code needs
  * to find out a parameter value, the structure is quite simple with default values given
