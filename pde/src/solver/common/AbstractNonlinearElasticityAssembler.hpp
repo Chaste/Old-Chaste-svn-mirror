@@ -251,7 +251,7 @@ protected:
      * Allocates memory for the Jacobian and preconditioner matrices (larger number of
      * non-zeros per row than with say linear problems)
      */
-    void AllocateMatrixMemory();
+    virtual void AllocateMatrixMemory()=0;
 
 public:
 
@@ -471,7 +471,6 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     // set Petsc options..
     /////////////////////////////////////////////////////////////
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
-
 
     KSP solver;
     Vec solution;
@@ -702,8 +701,6 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
     assert(density > 0);
     assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
-    
-    AllocateMatrixMemory();
 }
 
 
@@ -733,8 +730,6 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
     assert(density > 0);
     assert(fixedNodes.size() > 0);
     mWriteOutput = (mOutputDirectory != "");
-
-    AllocateMatrixMemory();
 }
 
 

@@ -172,6 +172,12 @@ protected:
      * @param pFixedNodeLocations
      */
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations);
+    
+    /**
+     * Allocates memory for the Jacobian and preconditioner matrices (larger number of
+     * non-zeros per row than with say linear problems)
+     */
+    void AllocateMatrixMemory();
 
 public:
 
