@@ -87,7 +87,7 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location)
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
-    void zzTestAssembleSystem() throw (Exception)
+    void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
@@ -210,7 +210,7 @@ public:
     // A test where the solution should be zero displacement
     // It mainly tests that the initial guess was set up correctly to
     // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
-    void zzTestWithZeroDisplacement() throw(Exception)
+    void TestWithZeroDisplacement() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -264,7 +264,7 @@ public:
         }
     }
 
-    void zzTestSettingUpHeterogeneousProblem() throw(Exception)
+    void TestSettingUpHeterogeneousProblem() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -334,7 +334,7 @@ public:
                                                   fixed_nodes);
 
         assembler.Solve();
-return;
+
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 
         double xend = 1.17199;
@@ -394,7 +394,7 @@ return;
      *  compare the computed displacement and pressure against the true solution.
      *
      */
-    void zzTestSolveWithNonZeroBoundaryConditions() throw(Exception)
+    void TestSolveWithNonZeroBoundaryConditions() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -491,7 +491,7 @@ return;
      *  s = 2c[Y*alpha/lam^2, 1/lam - lam]  on Y=1
      *
      */
-    void zzTestWithFunctionalData() throw(Exception)
+    void TestWithFunctionalData() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
         MechanicsEventHandler::Reset();
