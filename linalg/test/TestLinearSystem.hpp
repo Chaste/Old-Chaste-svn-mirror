@@ -196,8 +196,42 @@ public:
         {
             TS_ASSERT_EQUALS(ls.GetMatrixElement(2, 1), 125.0);
         }
-
     }
+    
+    void TestZeroMatrixRowsWithValueOnDiagonal()
+    {
+        LinearSystem ls(5);
+        for (int i=0; i<5; i++)
+        {
+            ls.SetMatrixRow(i, (double)i);
+            ls.SetRhsVectorElement(i, (double)i);
+        }
+        ls.AssembleFinalLinearSystem();
+        
+        std::vector<unsigned> rows;
+        rows.push_back(2);
+        rows.push_back(3);
+        rows.push_back(4);
+
+        ls.ZeroMatrixRowsWithValueOnDiagonal(rows, 3.14);
+
+        int lo, hi;
+        ls.GetOwnershipRange(lo, hi);
+        for(int row=2; row<5; row++)
+        {
+            if (lo<=row && row<hi)
+            {
+                for(int i=0; i<5; (i+1==row? i+=2 : i++)) // for i=0,1..,row-1,row+1,..,5
+                {
+                    TS_ASSERT_EQUALS(ls.GetMatrixElement(row,i), 0.0);
+                }
+                TS_ASSERT_EQUALS(ls.GetMatrixElement(row,row), 3.14);
+            }
+        }
+    }
+        
+    
+    
     void TestZeroingLinearSystemByColumn()
     {
         LinearSystem ls(5);

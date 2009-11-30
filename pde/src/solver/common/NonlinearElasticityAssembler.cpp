@@ -79,10 +79,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 //        {
 //            std::cout << "\rElement " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
 //        }
-//        else
-//        {
-//            std::cout << "\rResid: element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
-//        }
     
         Element<DIM, DIM>& element = *iter;
 
@@ -174,7 +170,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
         this->mpLinearSystem->AssembleIntermediateLhsMatrix();
         this->mpPreconditionMatrixLinearSystem->AssembleIntermediateLhsMatrix();
     }
-
 
     // Apply Dirichlet boundary conditions
     this->ApplyBoundaryConditions(assembleJacobian);
@@ -519,7 +514,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     if (assembleJacobian)
     {
         // Fill in the other blocks of the preconditioner matrix. (This doesn't
-        // effect the pressure-pressure block of the rAElemPrecond but the
+        // effect the pressure-pressure block of the rAElemPrecond as the
         // pressure-pressure block of rAElem is zero
         rAElemPrecond = rAElemPrecond + rAElem;
     }

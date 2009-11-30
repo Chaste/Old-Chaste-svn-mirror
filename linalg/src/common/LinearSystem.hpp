@@ -310,6 +310,18 @@ public:
      */
     void ZeroMatrixRow(PetscInt row);
 
+	/**
+	 *  Zero several rows of the matrix, putting a given value in the diagonal entries.
+	 *  
+	 *  *Massively* less expensive than calling ZeroMatrixRow() repeatedly
+	 * 
+	 *  @param rRows std::vector of rows to be zeroed
+	 *  @diagonalValue value to put in the diagonal entries (of the zeroed rows)
+	 */
+    void ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue);
+
+
+
     /**
      * Zero a column of the left-hand side matrix.
      *

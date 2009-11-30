@@ -352,24 +352,34 @@ void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool app
     // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
     // u the negative update vector and f is the residual is
     // u=current_soln-boundary_values on the boundary nodes
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
+    
+    std::vector<unsigned> rows;
+    if(applyToMatrix)
     {
+        rows.resize(DIM*mFixedNodes.size());
+    }
+    
+    for (unsigned i=0; i<mFixedNodes.size(); i++)
+    {        
         unsigned node_index = mFixedNodes[i];
         for (unsigned j=0; j<DIM; j++)
         {
             unsigned dof_index = DIM*node_index+j;
-            double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
-            if (applyToMatrix)
-            {
-                mpLinearSystem->ZeroMatrixRow(dof_index);
-                mpLinearSystem->SetMatrixElement(dof_index,dof_index,1);
 
-                // apply same bcs to preconditioner matrix
-                mpPreconditionMatrixLinearSystem->ZeroMatrixRow(dof_index);
-                mpPreconditionMatrixLinearSystem->SetMatrixElement(dof_index,dof_index,1);
+            if(applyToMatrix)
+            {
+                rows[DIM*i+j] = dof_index;
             }
+
+            double value = mCurrentSolution[dof_index] - mFixedNodeDisplacements[i](j);
             mpLinearSystem->SetRhsVectorElement(dof_index, value);
         }
+    }
+
+    if(applyToMatrix)
+    {
+        mpLinearSystem->ZeroMatrixRowsWithValueOnDiagonal(rows, 1.0);
+        mpPreconditionMatrixLinearSystem->ZeroMatrixRowsWithValueOnDiagonal(rows, 1.0);
     }
 }
 
@@ -432,12 +442,11 @@ void AbstractNonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
 
     // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
     // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
-    unsigned num_non_zeros = DIM < 3 ? 75 : 500;
+    unsigned num_non_zeros = DIM < 3 ? 75 : 400;
 
     //// If linear system was type MATMPIAIJ, would need to reallocate, but can't pre-allocate twice on the same matrix 
     // without leaking memory. This is the call to preallocate an MPI AIJ matrix: 
     // MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
-
     MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
     MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
 }
@@ -739,9 +748,9 @@ AbstractNonlinearElasticityAssembler<DIM>::~AbstractNonlinearElasticityAssembler
 
 template<unsigned DIM>
 void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
-           unsigned offset,
-           unsigned maxNumNewtonIterations,
-           bool quitIfNoConvergence)
+                                                      unsigned offset,
+                                                      unsigned maxNumNewtonIterations,
+                                                      bool quitIfNoConvergence)
 {
     if (mWriteOutput)
     {

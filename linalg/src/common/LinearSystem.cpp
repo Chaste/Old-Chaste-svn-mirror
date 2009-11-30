@@ -324,11 +324,35 @@ void LinearSystem::ZeroMatrixRow(PetscInt row)
     MatZeroRows(mLhsMatrix, is, &diag_zero);
     ISDestroy(is);
 #else
-
     MatZeroRows(mLhsMatrix, 1, &row, diag_zero);
 #endif
-
 }
+
+
+
+
+void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue)
+{
+    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    NEVER_REACHED; // fill in if this is reached..
+#else
+    PetscInt* rows = new PetscInt[rRows.size()];
+    for(unsigned i=0; i<rRows.size(); i++)
+    {
+        rows[i] = rRows[i];
+    }
+    MatZeroRows(mLhsMatrix, rRows.size(), rows, diagonalValue);
+    delete [] rows;
+#endif
+}
+    
+    
+
+
+
 
 void LinearSystem::ZeroMatrixColumn(PetscInt col)
 {
