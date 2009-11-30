@@ -493,7 +493,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     PC pc;
     KSPGetPC(solver, &pc);
-    PCSetType(pc, PCLU);         // Note: ILU factorisation doesn't have much effect, but LU works well.
+    PCSetType(pc, PCILU);
 
     KSPSetFromOptions(solver);
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
