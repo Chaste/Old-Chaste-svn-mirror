@@ -60,7 +60,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
     // Initialise cell counts to zero
     /**
      * \todo remove explicit use of NUM_CRYPT_CELL_MUTATION_STATES, NUM_CELL_PROLIFERATIVE_TYPES
-     *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1138)
+     *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1145)
      */
     mCellMutationStateCount = std::vector<unsigned>(NUM_CRYPT_CELL_MUTATION_STATES);
     for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
