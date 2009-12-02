@@ -36,8 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "ArchiveLocationInfo.hpp"
 
-//#include "Debug.hpp"
-//static unsigned calls=0;
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
 {
@@ -47,8 +45,6 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         EXCEPTION("Will not create directory: " + rDirectory +
                 " due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
     }
-    //PRINT_VARIABLE(calls++);
-    //PetscTools::Barrier();//Catch where it's misbehaving
 
     mDirectory = MakeFoldersAndReturnFullPath(rDirectory);
 
@@ -57,7 +53,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     {
         std::string command = "test -e " + mDirectory + ".chaste_deletable_folder";
         int return_value = system(command.c_str());
-        if (return_value!=0)
+        if (return_value != 0)
         {
             EXCEPTION("Cannot delete " + mDirectory + " because signature file \".chaste_deletable_folder\" is not present.");
         }
@@ -67,7 +63,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
         {
             //Remove whatever was there before
             //Note that the /* part prevents removal of hidden files (.filename), which is useful in NFS systems
-            EXPECT0(system,"rm -rf " + mDirectory + "/*");
+            EXPECT0(system, "rm -rf " + mDirectory + "/*");
         }
         // Wait for master to finish before going on to use the directory.
         PetscTools::Barrier();

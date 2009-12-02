@@ -30,6 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "DistributedVectorFactory.hpp"
 
+// Initialise static data
+bool DistributedVectorFactory::msCheckNumberOfProcessesOnLoad = true;
+
+
+
 void DistributedVectorFactory::CalculateOwnership(Vec vec)
 {
 #ifndef NDEBUG
@@ -47,27 +52,57 @@ void DistributedVectorFactory::CalculateOwnership(Vec vec)
     PetscInt size;
     VecGetSize(vec, &size);
     mProblemSize = (unsigned) size;
+    mNumProcs = PetscTools::GetNumProcs();
 }
 
-DistributedVectorFactory::DistributedVectorFactory(Vec vec) : mPetscStatusKnown(false)
+DistributedVectorFactory::DistributedVectorFactory(Vec vec)
+    : mPetscStatusKnown(false),
+      mpOriginalFactory(NULL)
 {
     CalculateOwnership(vec);
 }
 
-DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local) : mPetscStatusKnown(false)
+DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local)
+    : mPetscStatusKnown(false),
+      mpOriginalFactory(NULL)
 {
-#ifndef NDEBUG
-    if (!mPetscStatusKnown)
-    {
-        CheckForPetsc();
-    }
-#endif
     Vec vec;
     VecCreate(PETSC_COMM_WORLD, &vec);
     VecSetSizes(vec, local, size);
     VecSetFromOptions(vec);
     CalculateOwnership(vec);
-    VecDestroy(vec);    
+    VecDestroy(vec);
+}
+
+DistributedVectorFactory::DistributedVectorFactory(DistributedVectorFactory* pOriginalFactory)
+    : mPetscStatusKnown(false),
+      mpOriginalFactory(pOriginalFactory)
+{
+    assert(mpOriginalFactory != NULL);
+    Vec vec;
+    VecCreate(PETSC_COMM_WORLD, &vec);
+    VecSetSizes(vec, PETSC_DECIDE, mpOriginalFactory->GetProblemSize());
+    VecSetFromOptions(vec);
+    CalculateOwnership(vec);
+    VecDestroy(vec);
+}
+
+DistributedVectorFactory::DistributedVectorFactory(unsigned lo, unsigned hi, unsigned size, unsigned numProcs)
+    : mLo(lo),
+      mHi(hi),
+      mProblemSize(size),
+      mNumProcs(numProcs),
+      mPetscStatusKnown(false),
+      mpOriginalFactory(NULL)
+{
+#ifndef NDEBUG
+    CheckForPetsc();
+#endif
+}
+
+DistributedVectorFactory::~DistributedVectorFactory()
+{
+    delete mpOriginalFactory;
 }
 
 

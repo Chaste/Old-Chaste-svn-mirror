@@ -85,6 +85,9 @@ public:
         expected_filepath << "." << PetscTools::GetMyRank();
 
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred"), expected_filepath.str());
+        
+        std::string expected2 = ArchiveLocationInfo::GetArchiveDirectory() + "fred.12";
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred", 12), expected2);
     }
 
     void TestProcessSpecificArchive() throw(Exception)

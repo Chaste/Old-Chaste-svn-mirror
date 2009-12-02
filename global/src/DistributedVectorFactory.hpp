@@ -70,8 +70,22 @@ private:
     unsigned mHi;
     /** The problem size, i.e. the number of nodes in the mesh (the number of unknowns may be larger in a Stripe). */
     unsigned mProblemSize;
+    /** How many processes this factory is expecting. */
+    unsigned mNumProcs;
     /** Whether we've checked that PETSc is initialised. */
     bool mPetscStatusKnown;
+    
+    /**
+     * Whether, when loading an instance from an archive, to check that the
+     * current number of processes matches that used in creating the archive.
+     */
+    static bool msCheckNumberOfProcessesOnLoad;
+    /**
+     * If #msCheckNumberOfProcessesOnLoad is set and this instance was loaded
+     * from an archive, this points to a factory with the settings from the
+     * archive, which may not be the same as this instance.
+     */
+    DistributedVectorFactory* mpOriginalFactory;
     
     /**
      * Double check (in debug code) that PETSc has been initialised properly
@@ -98,8 +112,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         // Nothing to do - all done in load_construct_data
-    }    
-    
+    }
     
 public:
     /**
@@ -117,6 +130,26 @@ public:
      */
     DistributedVectorFactory(unsigned size, PetscInt local=PETSC_DECIDE);
 
+    /**
+     * Constructor for use in archiving.
+     * @param pOriginalFactory  see #mpOriginalFactory
+     */
+    DistributedVectorFactory(DistributedVectorFactory* pOriginalFactory);
+    
+    /**
+     * Constructor intended for use in archiving.  Allows complete manual
+     * specification of the factory.
+     * 
+     * @param lo  first index owned by this process
+     * @param hi  one beyond last index owned by this process
+     * @param size  total size of vectors
+     * @param numProcs  the number of processes expected (defaults to the current number)
+     */
+    DistributedVectorFactory(unsigned lo, unsigned hi, unsigned size, unsigned numProcs=PetscTools::GetNumProcs());
+    
+    /** Destructor deletes #mpOriginalFactory if it exists */
+    ~DistributedVectorFactory();
+    
     /**
      * Create a PETSc vector of the problem size
      * 
@@ -178,6 +211,44 @@ public:
         return mProblemSize;
     }
     
+    /**
+     * @return #mNumProcs - how many processes this factory is expecting.
+     */
+    unsigned GetNumProcs() const
+    {
+        return mNumProcs;
+    }
+    
+    /**
+     * Set whether, when loading an instance from an archive, to check that the
+     * current number of processes matches that used in creating the archive.
+     * 
+     * @param checkNumberOfProcessesOnLoad
+     */
+    static void SetCheckNumberOfProcessesOnLoad(bool checkNumberOfProcessesOnLoad=true)
+    {
+        msCheckNumberOfProcessesOnLoad = checkNumberOfProcessesOnLoad;
+    }
+    
+    /**
+     * Determine whether, when loading an instance from an archive, to check that the
+     * current number of processes matches that used in creating the archive.
+     */
+    static bool CheckNumberOfProcessesOnLoad()
+    {
+        return msCheckNumberOfProcessesOnLoad;
+    }
+    
+    /**
+     * If #msCheckNumberOfProcessesOnLoad is not set, and this factory was loaded from
+     * an archive, then return a factory with the settings from the archive, which may
+     * not be the same as ours - if running on a different number of processes from
+     * the original, we will have used PETSC_DECIDE to set the local ownership on load.
+     */
+    DistributedVectorFactory* GetOriginalFactory()
+    {
+        return mpOriginalFactory;
+    }
 };
 #include "TemplatedExport.hpp"
 // Declare identifier for the serializer
@@ -216,11 +287,24 @@ inline void load_construct_data(
     ar >> lo;
     ar >> size;
     ar >> num_procs;
-    if (num_procs != PetscTools::GetNumProcs())
+    
+    if (!DistributedVectorFactory::CheckNumberOfProcessesOnLoad())
     {
-        EXCEPTION("This archive was written for a different number of processors");
+        DistributedVectorFactory* p_original_factory = new DistributedVectorFactory(lo, hi, size, num_procs);
+        ::new(t)DistributedVectorFactory(p_original_factory);
     }
-    ::new(t)DistributedVectorFactory(size, hi-lo);
+    else
+    {
+        if (num_procs != PetscTools::GetNumProcs())
+        {
+            // We need to have a ::new here, or Boost will try to free non-allocated memory
+            // when the exception is thrown.  However, if we use the ::new line after this if,
+            // then PETSc complains about wrong sizes.
+            ::new(t)DistributedVectorFactory(size);
+            EXCEPTION("This archive was written for a different number of processors");
+        }
+        ::new(t)DistributedVectorFactory(size, hi-lo);
+    }
 }
 
 }

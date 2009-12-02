@@ -31,8 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <cassert>
-#include "PetscTools.hpp"
 #include <sstream>
+#include <string>
+#include "PetscTools.hpp"
 
 /**
  *  A bunch of useful macros for debugging. Note, use of these should be removed from source

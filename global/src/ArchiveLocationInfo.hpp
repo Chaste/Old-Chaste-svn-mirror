@@ -122,13 +122,15 @@ public:
      *
      * The path will have the form "path_to_output_dir/rFileName.process_rank"
      *
-     * @param rFileName the base file name
-     * @return a full path to the file for this process
+     * @param rFileName  the base file name
+     * @param procId  the process id number (defaults to current process)
+     * @return  a full path to the file for this process
      */
-    static std::string GetProcessUniqueFilePath(const std::string& rFileName)
+    static std::string GetProcessUniqueFilePath(const std::string& rFileName,
+                                                unsigned procId=PetscTools::GetMyRank())
     {
         std::stringstream filepath;
-        filepath << GetArchiveDirectory() << rFileName << "." << PetscTools::GetMyRank();
+        filepath << GetArchiveDirectory() << rFileName << "." << procId;
         return filepath.str();
     }
 

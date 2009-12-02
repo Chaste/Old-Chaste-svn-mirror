@@ -48,7 +48,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "ArchiveLocationInfo.hpp"
 
-
 class TestDistributedVector : public CxxTest::TestSuite
 {
 public:
@@ -109,6 +108,14 @@ public:
         VecDestroy(petsc_vec);
         VecDestroy(petsc_vec2);
         VecDestroy(petsc_vec_uneven);
+        
+        // Test static field for archiving
+        // (see also heart/src/problem/CardiacSimulationArchiver.hpp)
+        TS_ASSERT(DistributedVectorFactory::CheckNumberOfProcessesOnLoad());
+        DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
+        TS_ASSERT(!DistributedVectorFactory::CheckNumberOfProcessesOnLoad());
+        DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad();
+        TS_ASSERT(DistributedVectorFactory::CheckNumberOfProcessesOnLoad());
     }
 
     void TestRead()
@@ -308,7 +315,7 @@ public:
         VecDestroy(petsc_vec);
     }
 
-    void TestArchiving()
+    void TestArchiving() throw (Exception)
     {
         const unsigned TOTAL = 100;
         DistributedVectorFactory factory(TOTAL);
@@ -316,6 +323,8 @@ public:
         unsigned hi = factory.GetHigh();
         unsigned lo = factory.GetLow();
         TS_ASSERT_EQUALS(factory.GetProblemSize(), TOTAL);
+        TS_ASSERT_EQUALS(factory.GetNumProcs(), PetscTools::GetNumProcs());
+        TS_ASSERT(factory.GetOriginalFactory() == NULL);
 
         // Where to archive
         OutputFileHandler handler("archive", false);
@@ -343,6 +352,8 @@ public:
             TS_ASSERT_EQUALS(p_new_factory->GetHigh(), hi);
             TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
             TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), num_local_items);
+            TS_ASSERT_EQUALS(p_new_factory->GetNumProcs(), PetscTools::GetNumProcs());
+            TS_ASSERT(p_new_factory->GetOriginalFactory() == NULL);
 
             delete p_new_factory;
         }
@@ -362,6 +373,8 @@ public:
                 TS_ASSERT_EQUALS(p_new_factory->GetHigh(), TOTAL);
                 TS_ASSERT_EQUALS(p_new_factory->GetLow(), 0U);
                 TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), TOTAL);
+                TS_ASSERT_EQUALS(p_new_factory->GetNumProcs(), PetscTools::GetNumProcs());
+                TS_ASSERT(p_new_factory->GetOriginalFactory() == NULL);
             }
             else
             {
@@ -371,6 +384,30 @@ public:
             }
 
             delete p_new_factory;
+        }
+        
+        // Restore from a 2-process archive without throwing an exception;
+        // just set local ownership to PETSC_DECIDE.
+        {
+            std::ifstream ifs("global/test/data/distributed_vector_factory_2process.arch", std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
+            DistributedVectorFactory* p_new_factory;
+            input_arch >> p_new_factory;
+            
+            TS_ASSERT_EQUALS(p_new_factory->GetProblemSize(), TOTAL);
+            TS_ASSERT_EQUALS(p_new_factory->GetHigh(), hi);
+            TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
+            TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), num_local_items);
+            TS_ASSERT_EQUALS(p_new_factory->GetNumProcs(), PetscTools::GetNumProcs());
+            
+            DistributedVectorFactory* p_orig_factory = p_new_factory->GetOriginalFactory();
+            TS_ASSERT(p_orig_factory != NULL);
+            TS_ASSERT_EQUALS(p_orig_factory->GetProblemSize(), TOTAL);
+            TS_ASSERT_EQUALS(p_orig_factory->GetLocalOwnership(), TOTAL/2);
+            TS_ASSERT_EQUALS(p_orig_factory->GetNumProcs(), 2u);
+            
+            DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad();
         }
     }
 };
