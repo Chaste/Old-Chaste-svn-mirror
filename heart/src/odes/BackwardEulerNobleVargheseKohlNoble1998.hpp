@@ -1200,7 +1200,7 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a LuoRudyIModel1991OdeSystem instance.
+ * instantiate a BackwardEulerNobleVargheseKohlNoble1998 instance.
  */
 template<class Archive>
 inline void save_construct_data(
@@ -1214,9 +1214,7 @@ inline void save_construct_data(
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a LuoRudyIModel1991OdeSystem instance (using existing constructor)
- *
- * NB this constructor allocates memory for the other member variables too.
+ * instantiate a BackwardEulerNobleVargheseKohlNoble1998 instance (using existing constructor).
  */
 template<class Archive>
 inline void load_construct_data(
