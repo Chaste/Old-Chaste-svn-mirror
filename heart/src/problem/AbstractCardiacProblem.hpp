@@ -578,8 +578,65 @@ public:
      * 
      * @param  archive set true to archive the LinearSystem object at the end
      */
-    void SetArchiveLinearSystemObject(bool archive=true);  
-
+    void SetArchiveLinearSystemObject(bool archive=true);
+    
+    /**
+     * Used when loading a set of archives written by a parallel simulation onto a single process.
+     * Loads data from the given process-specific archive (written by a non-master process) and
+     * merges it into our data.
+     * 
+     * @param archive  the archive to load.
+     * 
+     * \note The process-specific archives currently contain the following data.  If the layout changes,
+     * then this method will need to be altered, since it hard-codes knowledge of the order in
+     * which things are archived.
+     * 
+     *  -# (via #mpMesh) DistributedVectorFactory*
+     *  -# (via #mpCardiacPde load_construct_data) std::vector<AbstractCardiacCell*>
+     *  -# (via #mpCardiacPde) DistributedVectorFactory*
+     *  -# #mpBoundaryConditionsContainer
+     *  -# #mpDefaultBoundaryConditionsContainer
+     */
+    template<class Archive>
+    void LoadExtraArchive(Archive & archive)
+    {
+        // The vector factory must be loaded, but isn't needed for anything.
+        DistributedVectorFactory* p_mesh_factory;
+        archive >> p_mesh_factory;
+        
+        // The cardiac cells
+        std::vector<AbstractCardiacCell*> cells;
+        archive >> cells;
+        mpCardiacPde->ExtendCells(cells);
+        
+        {
+            DistributedVectorFactory* p_pde_factory;
+            archive >> p_pde_factory;
+            assert(p_pde_factory == p_mesh_factory); // Paranoia...
+        }
+        
+        // The boundary conditions
+        BccType p_bcc;
+        archive >> p_bcc;
+        if (p_bcc)
+        {
+            if (!mpBoundaryConditionsContainer)
+            {
+                mpBoundaryConditionsContainer = p_bcc;
+            }
+            mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
+        }
+        BccType p_default_bcc;
+        archive >> p_default_bcc;
+        if (p_default_bcc && p_bcc != p_default_bcc)
+        {
+            if (!mpDefaultBoundaryConditionsContainer)
+            {
+                mpDefaultBoundaryConditionsContainer = p_bcc;
+            }
+            mpDefaultBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
+        }
+    }
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);

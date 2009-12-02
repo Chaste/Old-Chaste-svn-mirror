@@ -119,7 +119,7 @@ public:
             bidomain_problem.Initialise();
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             bidomain_problem.Solve();
-                        
+
             CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, "bidomain_problem_archive_helper", false);
         }
 
@@ -199,7 +199,7 @@ public:
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveBidomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_3d");    
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_3d"); ///\todo it's not LR91
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
@@ -222,7 +222,6 @@ public:
             //Double check that the acceptance test archive really is valid
             TS_ASSERT_EQUALS(p_bidomain_problem->mMeshFilename, "");
             TS_ASSERT_EQUALS(p_bidomain_problem->mPrintOutput, true);
-//            TS_ASSERT_EQUALS(p_bidomain_problem->mChasteToMeshalyzer, true);
             TS_ASSERT_EQUALS(p_bidomain_problem->mNodesToOutput.size(), 0u);
             TS_ASSERT_EQUALS(p_bidomain_problem->mCurrentTime, 10.0);
             TS_ASSERT_EQUALS(p_bidomain_problem->mArchiveKSP, false);
@@ -262,7 +261,7 @@ public:
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveMonodomain");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2d");      
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2d"); ///\todo it's not LR91
 
         // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 2> cell_factory(-600000.0, 1.0);
@@ -285,55 +284,138 @@ public:
             //Double check that the acceptance test archive really is valid
             TS_ASSERT_EQUALS(p_monodomain_problem->mMeshFilename, "");
             TS_ASSERT_EQUALS(p_monodomain_problem->mPrintOutput, true);
-//            TS_ASSERT_EQUALS(p_monodomain_problem->mChasteToMeshalyzer, true);
             TS_ASSERT_EQUALS(p_monodomain_problem->mNodesToOutput.size(), 0u);
             TS_ASSERT_EQUALS(p_monodomain_problem->mCurrentTime, 10.0);
             TS_ASSERT_EQUALS(p_monodomain_problem->mArchiveKSP, false);
             delete p_monodomain_problem;
         }
     }
-    
-    
-    void TestMigrateArchiveToSequential()
+
+    /**
+     * Run this in parallel (build=_3) to create the archive for TestLoadAsSequential.
+     * Then do
+     *   cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequential
+     *   TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration/"
+     *   for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
+     *   for f in [^T]*; do cp $f $TO_DIR/$f; done
+     * 
+     * Sets up a simulation and archives it without solving at all.
+     * 
+     * When running sequentially, this creates an archive we can compare with
+     * that produced by the next test.
+     * 
+     * Generates a 3d cube mesh with 125 nodes, corners at (0,0,0) and (1,1,1)
+     * with nodal spacing of 0.25cm.
+     */
+    void TestCreateArchiveForLoadAsSequential() throw (Exception)
     {
+        std::string directory = "TestCreateArchiveForLoadAsSequential";
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.25);
         HeartConfig::Instance()->SetSimulationDuration(1.0);
-   
+        HeartConfig::Instance()->SetOutputDirectory(directory);
+        HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
+        // We want the numbers matching in any h5 files:
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);
         
-        HeartConfig::Instance()->SetOutputDirectory("SaveBidomainSlab");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");      
-        //We need the numbers matching in the h5 files:
-        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);      
-        
-        // This cell factory should apply the same stimulus described in the xml config file.
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
         BidomainProblem<3> bidomain_problem( &cell_factory );
         
         bidomain_problem.Initialise();
-        bidomain_problem.Solve();
+        
+        CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, directory);
+    }
 
-        std::string archive_directory = "bidomain_for_migration";
-        if (PetscTools::IsSequential())
+    /**
+     * #1159 - the first part of migrating a checkpoint to a different number of processes.
+     */
+    void TestLoadAsSequential() throw (Exception)
+    {
+        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
+        std::string source_directory = "heart/test/data/checkpoint_migration/";
+        std::string archive_directory = "TestLoadAsSequential";
+        OutputFileHandler handler(archive_directory); // Clear the target directory
+        if (PetscTools::AmMaster())
         {
-            archive_directory = "bidomain_for_comparison";
+            std::string command = "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath();
+            EXPECT0(system, command.c_str());
         }
-        CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, archive_directory, true);
         
         if (PetscTools::IsSequential())
         {
-           TS_ASSERT_THROWS_THIS(
-                CardiacSimulationArchiver<BidomainProblem<3> >::MigrateToSequential(archive_directory, "stuff", true),
-                "Archive doesn't need to be migrated since it is already sequential");
+            // Do the migration to sequential
+            BidomainProblem<3>* p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::LoadAsSequential(archive_directory);
+            
+            // Test we have the right data
+            const unsigned num_cells = 125u;
+            TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
+            TS_ASSERT_EQUALS(p_problem->mPrintOutput, true);
+            TS_ASSERT_EQUALS(p_problem->mNodesToOutput.size(), 0u);
+            TS_ASSERT_EQUALS(p_problem->mCurrentTime, 0.0);
+            TS_ASSERT_EQUALS(p_problem->GetPde()->GetCellsDistributed().size(), num_cells);
+            TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), num_cells);
+            TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), num_cells);
+            TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
+            
+            // All cells at x=0 should have a SimpleStimulus(-80000, 1).
+            // Also all cells should be at initial conditions.
+            std::vector<double> inits = p_problem->GetPde()->GetCardiacCell(0)->GetInitialConditions();
+            for (unsigned i=0; i<num_cells; i++)
+            {
+                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+                const boost::shared_ptr<AbstractStimulusFunction> p_stim = p_cell->GetStimulusFunction();
+                double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
+                
+                if (x*x < 1e-10)
+                {
+                    // Stim exists
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), -80000.0, 1e-10);
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), -80000.0, 1e-10);
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
+                }
+                else
+                {
+                    // No stim
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
+                    TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
+                }
+                
+                // All cells should be at initial conditions
+                std::vector<double>& r_state = p_cell->rGetStateVariables();
+                TS_ASSERT_EQUALS(r_state.size(), inits.size());
+                for (unsigned j=0; j<r_state.size(); j++)
+                {
+                    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                }
+            }
+            
+            ///\todo test bccs
+            
+            // Save it to a sequential archive
+            CardiacSimulationArchiver<BidomainProblem<3> >::Save(*p_problem, archive_directory);
+            
+            // Compare with the archive from the previous test
+            std::string ref_archive = "TestCreateArchiveForLoadAsSequential";
+            ref_archive = handler.GetChasteTestOutputDirectory() + ref_archive + "/" + ref_archive + ".arch";
+            std::string my_archive = handler.GetOutputDirectoryFullPath() + archive_directory + ".arch";
+            EXPECT0(system, "diff " + ref_archive + " " + my_archive);
+            // This will differ because we get extra copies of the ODE solver and intracellular stimulus objects
+            // (one per original process which had them).
+            //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
+            EXPECT0(system, "diff " + source_directory + "reference_0_archive " + my_archive + ".0");
+            
+            delete p_problem;
         }
         else
         {
-            CardiacSimulationArchiver<BidomainProblem<3> >::MigrateToSequential(archive_directory, "bidomain_migrated", true);
+            BidomainProblem<3>* p_problem;
+            TS_ASSERT_THROWS_THIS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::LoadAsSequential(archive_directory),
+                                  "Cannot load sequentially when running in parallel.");
         }
     }
-    
-    ///\todo #1159 - check that the migrated archive is identical to the sequential one
-
 };
 
 #endif /*TESTCARDIACSIMULATIONARCHIVER_HPP_*/

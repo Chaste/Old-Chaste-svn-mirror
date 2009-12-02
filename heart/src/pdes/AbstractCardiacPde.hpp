@@ -193,12 +193,23 @@ public:
      * @param pMesh  a pointer to the AbstractTetrahedral mesh.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
+    AbstractCardiacPde(const std::vector<AbstractCardiacCell*>& rCellsDistributed,
                        AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                        const unsigned stride);
 
     /** Virtual destructor */
     virtual ~AbstractCardiacPde();
+    
+    /**
+     * Extend the range of cells within this cardiac PDE.
+     * 
+     * This method is used by the checkpoint migration code to load a simulation checkpointed in parallel onto
+     * a single process.  It adds the cells previously contained on one of the non-master processes to the end
+     * of this process' collection.
+     * 
+     * @param rExtraCells  the cells to add.
+     */
+    void ExtendCells(const std::vector<AbstractCardiacCell*>& rExtraCells);
 
     /**
      * Set whether or not to replicate the caches across all processors.

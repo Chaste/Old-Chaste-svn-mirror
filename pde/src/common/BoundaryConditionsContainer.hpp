@@ -278,8 +278,8 @@ public:
      * 
      * \todo assumes this collection is empty prior to being called.
      *
-     * This method only loads data if mLoadedFromArchive is false, to allow for multiple pointers
-     * to the same container to be handled correctly.  It sets mLoadedFromArchive when done.
+     * This method only loads data if #mLoadedFromArchive is false, to allow for multiple pointers
+     * to the same container to be handled correctly.  It sets #mLoadedFromArchive when done.
      * 
      * @param archive  the archive to load from
      * @param pMesh  the mesh to use to resolve Node and BoundaryElement indices
@@ -291,6 +291,22 @@ public:
         {
             return;
         }
+        
+        MergeFromArchive(archive, pMesh);
+    }
+    
+    /**
+     * Load extra boundary conditions from an archive to add to this collection.
+     * 
+     * Multiple pointers to the same container need to be handled by the caller - we assume there
+     * will be conditions to load.  Sets #mLoadedFromArchive when done.
+     * 
+     * @param archive  the archive to load from
+     * @param pMesh  the mesh to use to resolve Node and BoundaryElement indices
+     */
+    template <class Archive>
+    void MergeFromArchive(Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+    {
         mLoadedFromArchive = true;
         
         typedef typename std::map<unsigned, AbstractBoundaryCondition<SPACE_DIM>*> archive_map_type;
