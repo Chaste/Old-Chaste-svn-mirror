@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 #include "ProcessSpecificArchive.hpp"
 
-
 /**
  * Specialization for input archives.
  * @param rDirectory
@@ -130,7 +129,7 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
     // Create master archive for replicated data
     if (PetscTools::AmMaster())
     {
-        mpCommonStream = new std::ofstream(common_path.str().c_str());        
+        mpCommonStream = new std::ofstream(common_path.str().c_str());
         if (!mpCommonStream->is_open())
         {
             delete mpCommonStream;
@@ -153,12 +152,12 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
     mpCommonArchive = new boost::archive::text_oarchive(*mpCommonStream);
 
     // Create secondary archive for distributed data
-    mpPrivateStream = new std::ofstream(private_path.c_str());      
+    mpPrivateStream = new std::ofstream(private_path.c_str());
     if (!mpPrivateStream->is_open())
     {
-        delete mpCommonStream;
-        delete mpCommonArchive;
         delete mpPrivateStream;
+        delete mpCommonArchive;
+        delete mpCommonStream;
         EXCEPTION("Failed to open secondary archive file for writing: " + private_path);
     }
     mpPrivateArchive = new boost::archive::text_oarchive(*mpPrivateStream);
