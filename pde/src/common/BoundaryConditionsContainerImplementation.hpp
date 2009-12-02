@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ConstBoundaryCondition.hpp"
 
-#include "PetscTools.hpp" //temporary
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsContainer()
@@ -199,7 +197,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroN
  * [0 e f] [y]   [ b2 ]    [ d ]
  * [0 h i] [z]   [ b3 ]    [ g ]
  * Note the last term is the first column of the matrix, with one component zeroed, and
- * multiplied by the boundary condition. This last term is the stored in
+ * multiplied by the boundary condition value. This last term is then stored in
  * rLinearSystem.rGetDirichletBoundaryConditionsVector(), and in general form is the
  * SUM_{d=1..D} v_d a'_d
  * where v_d is the boundary value of boundary condition d (d an index into the matrix),
@@ -213,6 +211,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 {
     if (applyToMatrix)
     {
+        std::vector<unsigned> row_cols_to_zero;    
+
         //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so
         //that they can be reapplied at each time step.
         //Make a new vector to store the Dirichlet offsets in
@@ -229,12 +229,14 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
 
+            rLinearSystem.AssembleFinalLinearSystem();
+
             while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
 
-                unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
+                unsigned row = PROBLEM_DIM*node_index + index_of_unknown; /// \todo: assumes vm and phie equations are interleaved
                 unsigned col = row;
 
                 // Set up a vector which will store the columns of the matrix (column d, where d is
@@ -247,7 +249,6 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 #else
                 VecZeroEntries(matrix_col);
 #endif
-                rLinearSystem.AssembleFinalLinearSystem();
                 Mat& r_mat = rLinearSystem.rGetLhsMatrix();
                 MatGetColumnVector(r_mat, matrix_col, col);
 
@@ -271,16 +272,16 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 VecDestroy(matrix_col);
 
                 //Zero out the appropriate row and column
-                rLinearSystem.ZeroMatrixRow(row);
-                rLinearSystem.ZeroMatrixColumn(col); // recall row=col
-                rLinearSystem.SetMatrixElement(row, row, 1);
+                row_cols_to_zero.push_back(row);
 
                 this->mDirichIterator++;
-
             }
         }
-
+        
+        // now zero the appropriate rows and columns of the matrix
+        rLinearSystem.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(row_cols_to_zero, 1.0);        
     }
+
 
     //Apply the RHS boundary conditions modification if required.
     if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
@@ -350,30 +351,40 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToNonlinearJacobian(Mat jacobian)
 {
+    unsigned num_boundary_conditions = 0;
+    for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+    {
+        num_boundary_conditions += this->mpDirichletMap[index_of_unknown]->size();
+    }
+
+    PetscInt* rows_to_zero = new PetscInt[num_boundary_conditions];
+    
+    unsigned counter=0;
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
         this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
-        PetscInt irows, icols;
-        double value;
-        MatGetSize(jacobian, &irows, &icols);
-        unsigned cols=icols;
 
         while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
         {
             unsigned node_index = this->mDirichIterator->first->GetIndex();
-
-            unsigned row_index = PROBLEM_DIM*node_index + index_of_unknown;
-            assert(row_index<(unsigned)irows);
-
-            for (unsigned col_index=0; col_index<cols; col_index++)
-            {
-                value = (col_index == row_index) ? 1.0 : 0.0;
-                MatSetValue(jacobian, row_index, col_index, value, INSERT_VALUES);
-            }
+            rows_to_zero[counter++] = PROBLEM_DIM*node_index + index_of_unknown;
             this->mDirichIterator++;
         }
     }
+
+    MatAssemblyBegin(jacobian, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(jacobian, MAT_FINAL_ASSEMBLY);
+
+    // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
+    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated 
+    // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
+    // are kept.
+    MatSetOption(jacobian,MAT_KEEP_ZEROED_ROWS);
+
+    MatZeroRows(jacobian, num_boundary_conditions, rows_to_zero, 1.0);
+    delete [] rows_to_zero;
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Validate(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)

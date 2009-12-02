@@ -362,9 +362,60 @@ void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRow
 #endif
 }
     
+
+void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsigned>& rRowColIndices, double diagonalValue)
+{
+    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+
+    std::vector<unsigned> nonzero_rows_per_column[rRowColIndices.size()];
+
+    // for each column: collect all the row indices corresponding to a non-zero entry
+    // We do all the columns at once, before doing the zeroing, as otherwise
+    // a MatAssemblyBegin() & MatAssemblyEnd() would have to be called
+    // after every MatSetValues and before the below GetMatrixElement()   
+    for(unsigned index=0; index<rRowColIndices.size(); index++)
+    {
+        unsigned column = rRowColIndices[index];
+
+        // determine which rows in this column are non-zero (and
+        // therefore need to be zeroed)
+        for (PetscInt row = mOwnershipRangeLo; row < mOwnershipRangeHi; row++)
+        {
+            if (GetMatrixElement(row, column) != 0.0)
+            {
+                nonzero_rows_per_column[index].push_back(row);
+            }
+        }
+    }
+
+    // Now zero each column in turn
+    for(unsigned index=0; index<rRowColIndices.size(); index++)
+    {    
+        // set those rows to be zero by calling MatSetValues
+        unsigned size = nonzero_rows_per_column[index].size();
+        PetscInt* rows = new PetscInt[size];
+        PetscInt cols[1];
+        double* zeros = new double[size];
     
+        cols[0] = rRowColIndices[index];
+    
+        for (unsigned i=0; i<size; i++)
+        {
+            rows[i] = nonzero_rows_per_column[index][i];
+            zeros[i] = 0.0;
+        }
+    
+        MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
+        delete [] rows;
+        delete [] zeros;
+    }
 
+    // now zero the rows and add the diagonal entries
+    ZeroMatrixRowsWithValueOnDiagonal(rRowColIndices, diagonalValue);
+}
 
+    
 
 
 void LinearSystem::ZeroMatrixColumn(PetscInt col)
@@ -372,10 +423,6 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
 
-//#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-   // hello Joe.
-   // Hello
-//#else
     // determine which rows in this column are non-zero (and
     // therefore need to be zeroed)
     std::vector<unsigned> nonzero_rows;
@@ -404,7 +451,6 @@ void LinearSystem::ZeroMatrixColumn(PetscInt col)
     MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
     delete [] rows;
     delete [] zeros;
-//#endif
 }
 
 void LinearSystem::ZeroRhsVector()

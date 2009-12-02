@@ -270,6 +270,52 @@ public:
         TS_ASSERT_EQUALS(int(num_nonzeros),6);
     }
 
+    void TestZeroMatrixRowsAndColumnsWithValueOnDiagonal() throw(Exception)
+    {
+        LinearSystem ls(5);
+        for (int i=0; i<5; i++)
+        {
+            ls.SetMatrixRow(i, (double)i);
+        }
+        ls.AssembleFinalLinearSystem();
+
+        std::vector<unsigned> rows(3);
+        rows[0] = 2;
+        rows[1] = 3;
+        rows[2] = 4;
+        
+        ls.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(rows, 3.1);
+        
+        int lo, hi;
+        ls.GetOwnershipRange(lo, hi);
+        for (int row=lo; row<hi; row++)
+        {
+            for (int col=0; col<5; col++)
+            {
+                std::cout << row << " " << col << std::endl;
+                if( (col>=2) || (row>=2) )
+                {
+                    // the altered values
+                    if(row!=col)
+                    {
+                        TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), 0);
+                    }
+                    else
+                    {
+                        TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), 3.1);
+                    }
+                }
+                else
+                {
+                    // unaltered values
+                    TS_ASSERT_EQUALS(ls.GetMatrixElement(row, col), row);
+                }
+            }
+        }
+    }
+
+
+
     void TestCreateFromVector()
     {
         const int SIZE = 5;
