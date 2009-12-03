@@ -322,7 +322,7 @@ Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
     bool am_row_owner = (PetscInt)row_index >= mOwnershipRangeLo && (PetscInt)row_index < mOwnershipRangeHi;
     
     // Am I the owner of the row? If so get the non-zero entries and add them lhs_ith_row.
-    // In the parallel case, the assembly o
+    // In parallel, VecAssembly{Begin,End} will send values to the rest of processors.
     if (am_row_owner)
     {            
         MatGetRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);            
