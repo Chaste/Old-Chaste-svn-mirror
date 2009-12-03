@@ -220,8 +220,27 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     mpIters->pElemIter = new ElemIterType(mpMesh->GetElementIteratorBegin());
     
     //Use this processes first element to gauge the size of all the elements
-    mNodesPerElement = (*(mpIters->pElemIter))->GetNumNodes();
+    if ( (*(mpIters->pElemIter)) != mpMesh->GetElementIteratorEnd())
+    {
+        mNodesPerElement = (*(mpIters->pElemIter))->GetNumNodes();
+    }
+    
+    //Have we got a parallel mesh?
+    ///\todo This should be const too
+    mpParallelMesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
+    
+    if (mpParallelMesh != NULL)
+    {
+        //It's a parallel mesh
+        WriteFilesUsingParallelMesh();
+        return;
+    }
 
+    if (!PetscTools::AmMaster())
+    {
+        return;
+    }
+    
     // Set up node map if we might have deleted nodes
     unsigned node_map_index = 0;
     if (mpMesh->IsMeshChanging())
@@ -232,21 +251,6 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             mpNodeMap->SetNewIndex(it->GetIndex(), node_map_index++);
         }
     }   
-    
-    //Have we got a parallel mesh?
-    ///\todo This should be const too
-    mpParallelMesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
-    if (mpParallelMesh != NULL)
-    {
-        //It's a parallel mesh
-        WriteFilesUsingParallelMesh();
-        return;
-    }
-    if (!PetscTools::AmMaster())
-    {
-        return;
-    }
-    
 
     //Cache all of the BoundaryElements
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllBoundaryElements(); i++)
