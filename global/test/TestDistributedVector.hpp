@@ -408,6 +408,7 @@ public:
             TS_ASSERT_EQUALS(p_orig_factory->GetNumProcs(), 2u);
             
             DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad();
+            delete p_new_factory;
         }
     }
 };

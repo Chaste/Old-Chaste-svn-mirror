@@ -316,7 +316,7 @@ public:
 	 *  *Massively* less expensive than calling ZeroMatrixRow() repeatedly
 	 * 
 	 *  @param rRows std::vector of rows to be zeroed
-	 *  @diagonalValue value to put in the diagonal entries (of the zeroed rows)
+	 *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
 	 */
     void ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue);
 
@@ -325,7 +325,7 @@ public:
      *  Zero several rows and columns of the matrix, putting a given value on the diagonal.
      *  @param rRowColIndices A list of indices. All the rows with these indices, and all the columns 
      *  with these indices, will be zeroed.
-     *  @diagonalValue value to put in the diagonal entries (of the zeroed rows)
+     *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
      */
     void ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsigned>& rRowColIndices, double diagonalValue);
 

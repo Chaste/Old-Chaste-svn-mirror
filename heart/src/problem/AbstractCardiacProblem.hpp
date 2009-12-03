@@ -614,6 +614,7 @@ public:
             archive >> p_pde_factory;
             assert(p_pde_factory == p_mesh_factory); // Paranoia...
         }
+        delete p_mesh_factory;
         
         // The boundary conditions
         BccType p_bcc;
