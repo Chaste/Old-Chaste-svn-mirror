@@ -71,7 +71,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
-        std::vector<double> current_item = this->mNodeData[item_num];
+        std::vector<double> current_item = this->GetNextNode();
         *p_node_file << item_num;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
@@ -97,16 +97,18 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write the element header
     unsigned num_elements = this->GetNumElements();
     
-    assert( this->mElementData.size()>0 );//Read element size from the data we're given
-    unsigned nodes_per_element = this->mElementData[0].size();
+ //   assert( this->mElementData.size()>0 );//Read element size from the data we're given
+
+    std::vector<unsigned> element_data = this->GetNextElement().NodeIndices;
+
+    unsigned nodes_per_element = element_data.size();
     if(nodes_per_element != ELEMENT_DIM+1)
     {
-        //Check that this is a quadratic mesh
+        // Check that this is a quadratic mesh
         assert(ELEMENT_DIM == SPACE_DIM);
         assert(nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
      }
         
-
     *p_element_file << num_elements << "\t";
     *p_element_file << nodes_per_element << "\t";
     *p_element_file << num_attr << "\n";
@@ -114,14 +116,19 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
-        std::vector<unsigned> current_item = this->mElementData[item_num];
+        // if item_num==0 we will already got the element above (in order to 
+        // get the number of nodes per element
+        if(item_num>0)
+        {
+            element_data = this->GetNextElement().NodeIndices;
+        }
+        
         *p_element_file << item_num;
         for (unsigned i=0; i<nodes_per_element; i++)
         {
-            *p_element_file << "\t" << current_item[i];
+            *p_element_file << "\t" << element_data[i];
         }
         *p_element_file << "\n";
-
     }
     *p_element_file << comment << "\n";
     p_element_file->close();
@@ -204,7 +211,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteElementsAsFaces()
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
-        std::vector<unsigned> current_item = this->mElementData[item_num];
+        std::vector<unsigned> current_item = this->GetNextElement().NodeIndices;
         *p_element_file << item_num;
         for (unsigned i=0; i<nodes_per_element; i++)
         {

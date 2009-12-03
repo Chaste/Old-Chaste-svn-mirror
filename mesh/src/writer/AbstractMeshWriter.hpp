@@ -47,9 +47,12 @@ protected: // Give access of these members to subclasses
     OutputFileHandler* mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
 
-    std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
-    std::vector< std::vector<unsigned> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
     std::vector< std::vector<unsigned> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */
+
+    AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>* mpMeshReader; /**< Writer by default writes from a reader (for conversion).  If this pointer is non-null, data can be copied straight across*/
+    
+    unsigned mNumNodes; /**< Total number of nodes in mesh/mesh-reader*/
+    unsigned mNumElements; /**< Total number of elements in mesh/mesh-reader*/
 
 public:
 
@@ -93,20 +96,18 @@ public:
      * Get the number of boundary faces in the mesh.
      */
     unsigned GetNumBoundaryEdges();
-
+ 
     /**
-     * Add an entry to mNodeData.
-     *
-     * @param nextNode coordinates of the node to add
+     * @return the coordinates of the next node to be written to file 
      */
-    void SetNextNode(std::vector<double> nextNode);
-
+    virtual std::vector<double> GetNextNode();
+    
+    
     /**
-     * Add an entry to mElementData.
-     *
-     * @param nextElement array of the nodes in the element to add
+     * @return the data (indices/attributes) of the next element to be written to file 
      */
-    void SetNextElement(std::vector<unsigned> nextElement);
+    virtual ElementData GetNextElement();
+
 
     /**
      * Add an entry to mBoundaryFaceData.
@@ -121,21 +122,13 @@ public:
      */
     virtual void WriteFiles()=0;
 
+    ///\todo Mesh should be const
     /**
      * Read in a mesh and write it to file.
      *
      * @param rMeshReader the mesh reader
      */
     void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
-
-    /**
-     * Read in a mesh and a given permutation of the node indices, and write the permuted mesh to file.
-     *
-     * @param rMeshReader the mesh reader
-     * @param rNodePermutation the node permutation
-     */
-    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                   const std::vector<unsigned>& rNodePermutation);
 
 };
 

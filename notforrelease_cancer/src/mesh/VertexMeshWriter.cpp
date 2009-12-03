@@ -27,19 +27,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VertexMeshWriter.hpp"
-#include "NodeMap.hpp"
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct MeshWriterIterators
+{
+    typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator*  pNodeIter;
+    typename VertexMesh<ELEMENT_DIM,SPACE_DIM>::VertexElementIterator* pElemIter;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rDirectory,
                                                            const std::string& rBaseName,
                                                            const bool clearOutputDir)
-    : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, clearOutputDir)
+    : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, clearOutputDir),
+      mpMesh(NULL),
+      mpIters(new MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>),
+      mpNodeMap(NULL),
+      mNodeMapCurrentIndex(0)
 {
+    mpIters->pNodeIter = NULL;
+    mpIters->pElemIter = NULL;
+
 #ifdef CHASTE_VTK
      // Dubious, since we shouldn't yet know what any details of the mesh are.
      mpVtkUnstructedMesh = vtkUnstructuredGrid::New();
@@ -50,12 +62,76 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rD
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 {
+    if(mpIters->pNodeIter)
+    {
+        delete mpIters->pNodeIter;
+        delete mpIters->pElemIter;
+    }
+
+    delete mpIters;
+        
+    if(mpNodeMap)
+    {
+        delete mpNodeMap;
+    }
+
 #ifdef CHASTE_VTK
      // Dubious, since we shouldn't yet know what any details of the mesh are.
      mpVtkUnstructedMesh->Delete(); // Reference counted
 #endif //CHASTE_VTK
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
+{
+    if(mpMesh)
+    {
+        std::vector<double> coords(SPACE_DIM);
+
+        assert(this->mNumNodes==mpMesh->GetNumNodes());       
+
+        // get the node coords using the node iterator (so to skip deleted nodes etc)
+        for (unsigned j=0; j<SPACE_DIM; j++)
+        {
+            coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
+        }
+        
+        ++(*(mpIters->pNodeIter));
+        
+        return coords;
+    }
+    else
+    {
+        return AbstractMeshWriter<ELEMENT_DIM,SPACE_DIM>::GetNextNode();
+    }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
+{
+    if(mpMesh)
+    {
+        assert(this->mNumElements==mpMesh->GetNumElements()); 
+
+        ElementData elem_data;
+        elem_data.NodeIndices.resize((*(mpIters->pElemIter))->GetNumNodes());
+        for (unsigned j=0; j<elem_data.NodeIndices.size(); j++)
+        {
+            unsigned old_index = (*(mpIters->pElemIter))->GetNodeGlobalIndex(j);
+            elem_data.NodeIndices[j] = mpMesh->IsMeshChanging() ? mpNodeMap->GetNewIndex(old_index) : old_index;
+        }
+// \todo: set attribute
+        
+        ++(*(mpIters->pElemIter));
+        
+        return elem_data;    
+    }
+    else
+    {
+        return AbstractMeshWriter<ELEMENT_DIM,SPACE_DIM>::GetNextElement();
+    }
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string stamp)
@@ -162,49 +238,31 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddPointData(std::string dataName
     p_scalars->Delete(); //Reference counted
 #endif //CHASTE_VTK
 }
-
+///\todo Mesh should be const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(const VertexMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
+void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
-    NodeMap node_map(rMesh.GetNumAllNodes());
-    unsigned new_index = 0;
-    for (unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
+    this->mpMeshReader = NULL;
+    mpMesh = &rMesh;
+    this->mNumNodes = mpMesh->GetNumNodes();
+    this->mNumElements = mpMesh->GetNumElements();
+    
+    typedef typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator NodeIterType;
+    mpIters->pNodeIter = new NodeIterType(mpMesh->GetNodeIteratorBegin());
+
+    typedef typename VertexMesh<ELEMENT_DIM,SPACE_DIM>::VertexElementIterator ElemIterType;
+    mpIters->pElemIter = new ElemIterType(mpMesh->GetElementIteratorBegin());
+    
+    // Set up node map if we might have deleted nodes
+    mNodeMapCurrentIndex = 0;
+    if (mpMesh->IsMeshChanging())
     {
-        Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
-
-        if (p_node->IsDeleted() == false)
+        mpNodeMap = new NodeMap(mpMesh->GetNumAllNodes());
+        for (NodeIterType it = mpMesh->GetNodeIteratorBegin(); it != mpMesh->GetNodeIteratorEnd(); ++it)
         {
-            std::vector<double> coords(SPACE_DIM);
-            for (unsigned j=0; j<SPACE_DIM; j++)
-            {
-                coords[j] = p_node->GetPoint()[j];
-            }
-            this->SetNextNode(coords);
-            node_map.SetNewIndex(i, new_index++);
+            mpNodeMap->SetNewIndex(it->GetIndex(), mNodeMapCurrentIndex++);
         }
-        else
-        {
-            node_map.SetDeleted(i);
-        }
-    }
-    assert(new_index==rMesh.GetNumNodes());
-
-    for (unsigned i=0; i<rMesh.GetNumAllElements(); i++) // can't use an element interator as the mesh is const
-    {
-        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = rMesh.GetElement(i);
-        if (!p_element->IsDeleted())
-        {
-            std::vector<unsigned> indices(p_element->GetNumNodes()+1);
-            indices[0] = p_element->GetNumNodes(); // first entry is the num nodes contained in this element
-
-            for (unsigned j=1; j<indices.size(); j++)
-            {
-                unsigned old_index = p_element->GetNodeGlobalIndex(j-1);
-                indices[j] = node_map.GetNewIndex(old_index);
-            }
-            this->SetNextElement(indices);
-        }
-    }
+    }   
 
     WriteFiles();
 }
@@ -234,7 +292,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
-        std::vector<double> current_item = this->mNodeData[item_num];
+        std::vector<double> current_item = this->GetNextNode();
         *p_node_file << item_num;
         for (unsigned i=0; i<SPACE_DIM; i++)
         {
@@ -260,8 +318,8 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     /// \todo need to think about how best to do this in 3D (see #866)
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
-        std::vector<unsigned> current_item = this->mElementData[item_num];
-        *p_element_file << item_num;
+        std::vector<unsigned> current_item = this->GetNextElement().NodeIndices;
+        *p_element_file << item_num <<  "\t" << current_item.size();
         for (unsigned i=0; i<current_item.size(); i++)
         {
             *p_element_file << "\t" << current_item[i];

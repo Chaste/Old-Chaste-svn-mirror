@@ -116,7 +116,7 @@ void VtkWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
     p_pts->GetData()->SetName("Vertex positions");
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
     {
-        std::vector<double> current_item = this->mNodeData[item_num];
+        std::vector<double> current_item = this->GetNextNode(); //this->mNodeData[item_num];
         if (SPACE_DIM==2)
         {
             current_item.push_back(0.0);//For z-coordinate
@@ -129,7 +129,7 @@ void VtkWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
     p_pts->Delete(); //Reference counted
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
     {
-        std::vector<unsigned> current_element = this->mElementData[item_num];
+        std::vector<unsigned> current_element = this->GetNextElement().NodeIndices; // this->mElementData[item_num];
         assert(current_element.size() == ELEMENT_DIM + 1);
         vtkCell* p_cell=NULL;
         if (SPACE_DIM == 3)

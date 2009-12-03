@@ -211,7 +211,7 @@ protected:
         VertexMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                              ArchiveLocationInfo::GetMeshFilename(),
                                                              false);
-        mesh_writer.WriteFilesUsingMesh(*this);
+        mesh_writer.WriteFilesUsingMesh(*(const_cast<VertexMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
     }
 
     /**

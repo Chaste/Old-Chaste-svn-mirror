@@ -38,7 +38,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractMeshWriter(const std::string &rDirectory,
                    const std::string &rBaseName,
                    const bool clearOutputDir)
-    : mBaseName(rBaseName)
+    : mBaseName(rBaseName),
+      mpMeshReader(NULL)
 {
     mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
 }
@@ -58,13 +59,13 @@ std::string AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetOutputDirectory()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
 {
-    return mNodeData.size();
+    return mNumNodes;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 {
-    return mElementData.size();
+    return mNumElements;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -79,17 +80,19 @@ unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryEdges()
     return mBoundaryFaceData.size();
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double> nextNode)
+std::vector<double> AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
-    assert(nextNode.size() == SPACE_DIM);
-    mNodeData.push_back(nextNode);
+    assert(mpMeshReader!=NULL);
+    return mpMeshReader->GetNextNode();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<unsigned> nextElement)
+ElementData AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 {
-    mElementData.push_back(nextElement);
+    assert(mpMeshReader!=NULL);
+    return mpMeshReader->GetNextElementData();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -97,79 +100,27 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector
 {
     mBoundaryFaceData.push_back(nextFace);
 }
-
+///\todo Mesh should be const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
+    mpMeshReader = &rMeshReader;
+    mNumNodes = mpMeshReader->GetNumNodes();
+    mNumElements = mpMeshReader->GetNumElements();
+    
+    
     if (!PetscTools::AmMaster())
     {
         return;
     }
-    for (unsigned i=0; i<rMeshReader.GetNumNodes(); i++)
-    {
-        SetNextNode(rMeshReader.GetNextNode());
-    }
-    for (unsigned i=0; i<rMeshReader.GetNumElements(); i++)
-    {
-        SetNextElement(rMeshReader.GetNextElementData().NodeIndices);
-    }
+    
+    //Boundary faces are cached
     for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
     {
         SetNextBoundaryFace(rMeshReader.GetNextFaceData().NodeIndices);
     }
     WriteFiles();
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
-    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-    const std::vector<unsigned>& rNodePermutation)
-{
-    if (rNodePermutation.size() == 0)
-    {
-       WriteFilesUsingMeshReader(rMeshReader);
-    }
-    else
-    {
-        if (!PetscTools::AmMaster())
-        {
-            return;
-        }
-        mNodeData.resize(rMeshReader.GetNumNodes());
-        for (unsigned i=0; i<rMeshReader.GetNumNodes(); i++)
-        {
-            assert(rNodePermutation[i] < rMeshReader.GetNumNodes());
-            mNodeData[ rNodePermutation[i] ] = rMeshReader.GetNextNode();
-        }
-
-        for (unsigned i=0; i<rMeshReader.GetNumElements(); i++)
-        {
-            ElementData element = rMeshReader.GetNextElementData();
-
-            for (unsigned local_index=0; local_index<element.NodeIndices.size(); local_index++)
-            {
-                unsigned old_index = element.NodeIndices[local_index];
-                element.NodeIndices[local_index] = rNodePermutation[old_index];
-            }
-
-            SetNextElement(element.NodeIndices);
-        }
-
-        for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
-        {
-            ElementData face = rMeshReader.GetNextFaceData();
-
-            for (unsigned local_index=0; local_index<face.NodeIndices.size(); local_index++)
-            {
-                unsigned old_index = face.NodeIndices[local_index];
-                face.NodeIndices[local_index] = rNodePermutation[old_index];
-            }
-
-            SetNextBoundaryFace(face.NodeIndices);
-        }
-        WriteFiles();
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

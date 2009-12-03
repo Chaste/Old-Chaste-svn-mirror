@@ -37,13 +37,21 @@ class AbstractTetrahedralMesh;
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ParallelTetrahedralMesh;
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct MeshWriterIterators;
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 #include "Exception.hpp"
 #include "AbstractMeshWriter.hpp"
+#include "AbstractMesh.hpp"
 #include "NodeMap.hpp"
+
+
+
+
 
 /**
  * An abstract tetrahedral mesh writer class.
@@ -53,16 +61,25 @@ class AbstractTetrahedralMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPA
 {
 private:
     /**
-     * Write a parallel const mesh to file. Used by the serialization methods and avoids iterators...
+     * Write a parallel mesh to file. Used by the serialization methods
      *
-     * @param rMesh the mesh
      */
-    virtual void WriteFilesUsingParallelMesh(const ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    virtual void WriteFilesUsingParallelMesh();
+    
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**<Pointer to the mesh (if we are writing from the a mesh)*/
+    unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
+    ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpParallelMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
+
+    MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters; /**< Handy iterators so that we know the next node/element to be written */
+
+    NodeMap* mpNodeMap; /**<Node map to be used when writing a mesh that has deleted nodes*/
 
 protected:
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
     bool mWriteMetaFile; /**< Whether to write a metafile (only used by MeshylazerMeshWriter) */
+    unsigned mNodeCounterForParallelMesh; /**< Used by master process for polling processes for the next node */
+    unsigned mElementCounterForParallelMesh;/**< Used by master process for polling processes for the next element */
 
 public:
 
@@ -77,13 +94,30 @@ public:
                        const std::string& rBaseName,
                        const bool clearOutputDir=true);
 
+    /**
+     *  Destructor just deletes the node map if memory has been allocated for it
+     */
+    ~AbstractTetrahedralMeshWriter();     
 
+    ///\todo Mesh should be const
     /**
      * Write a const mesh to file. Used by the serialization methods and avoids iterators...
      *
      * @param rMesh the mesh
      */
-    virtual void WriteFilesUsingMesh(const AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+
+   
+   /**
+     * @return the coordinates of the next node to be written to file 
+     */
+    std::vector<double> GetNextNode();
+
+ 
+    /**
+     * @return the data (indices/attributes) of the next element to be written to file 
+     */
+    ElementData GetNextElement();
 
 };
 

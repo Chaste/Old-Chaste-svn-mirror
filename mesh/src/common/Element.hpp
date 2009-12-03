@@ -92,13 +92,6 @@ public:
      */
     void ResetIndex(unsigned index);
 
-//    /**
-//     * Calculate the circumsphere/circumcircle of this element.
-//     *
-//     * @returns a vector containing x_centre, y_centre,...,radius^2
-//     */
-//    c_vector<double,SPACE_DIM+1> CalculateCircumsphere();
-
     /**
      * Calculate the circumsphere/circumcircle of this element.
      *

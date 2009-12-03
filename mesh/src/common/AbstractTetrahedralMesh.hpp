@@ -105,7 +105,7 @@ private:
             
         if (this->IsMeshChanging())
         {
-            mesh_writer.WriteFilesUsingMesh(*this);
+            mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
         }
         else
         {
@@ -132,7 +132,7 @@ private:
                  * That may mean it is a mesh constructed from a geometric description rather that read from file.
                  *
                  */
-                mesh_writer.WriteFilesUsingMesh(*this);
+                mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
             }
         }
         PetscTools::Barrier();//Make sure that the files are written before slave processes proceed       

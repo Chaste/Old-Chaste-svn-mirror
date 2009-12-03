@@ -48,6 +48,14 @@ class VertexMesh;
 
 #include "VertexMesh.hpp"
 #include "AbstractMeshWriter.hpp"
+#include "NodeMap.hpp"
+
+// Forward declaration prevents circular include chain
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class VertexMesh;
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct MeshWriterIterators;
 
 /**
  * A mesh writer class for vertex-based meshes.
@@ -56,6 +64,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
+
+    VertexMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
+
+    MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters;
+
+    NodeMap* mpNodeMap;
+    unsigned mNodeMapCurrentIndex;
 
 #ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -81,12 +96,13 @@ public:
      */
     ~VertexMeshWriter();
 
+    ///\todo Mesh should be const
     /**
      * Write files using a mesh.
      *
      * @param rMesh reference to the vertex-based mesh
      */
-    void WriteFilesUsingMesh(const VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    void WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
     /**
      * Write VTK file using a mesh.
@@ -111,6 +127,10 @@ public:
      * @param dataPayload a pay-load of length (number of nodes)
      */
     void AddPointData(std::string dataName, std::vector<double> dataPayload);
+
+    std::vector<double> GetNextNode();
+
+    ElementData GetNextElement();
 
     /**
      * Write mesh data to files.

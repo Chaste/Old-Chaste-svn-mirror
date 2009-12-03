@@ -76,8 +76,8 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     // Write each node's data
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
     {
-        std::vector<double> current_item = this->mNodeData[item_num];
-
+        std::vector<double> current_item = this->GetNextNode();
+        
         *p_node_file << "Node:\t" << item_num+1 << "\t";
         for (unsigned i=0; i<ELEMENT_DIM; i++)
         {
@@ -188,7 +188,7 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     // Write each elements's data
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
     {
-        std::vector<unsigned> current_element = this->mElementData[item_num];
+        std::vector<unsigned> current_element = this->GetNextElement().NodeIndices;
 
         *p_elem_file << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
         for (unsigned i=0; i<(ELEMENT_DIM+1); i++)
