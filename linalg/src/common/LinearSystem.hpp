@@ -301,6 +301,14 @@ public:
     void SetMatrixRow(PetscInt row, double value);
 
     /**
+     * Returns the i-th row of the LHS matrix as a distributed PETSc Vec
+     * 
+     * @param row_index the row index
+     * @return i-th row of the matrix in distributed format
+     */
+    Vec GetMatrixRowDistributed(unsigned row_index);
+
+    /**
      * Zero a row of the left-hand side matrix.
      * This method is a collective call (all processes should call it together).
      * If processes call it with different arguments then its results may 

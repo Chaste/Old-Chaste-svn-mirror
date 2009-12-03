@@ -310,6 +310,36 @@ void LinearSystem::SetMatrixRow(PetscInt row, double value)
     }
 }
 
+Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
+{       
+    Vec lhs_ith_row;    
+    VecDuplicate(mRhsVector, &lhs_ith_row); // Allocate same parallel layout   
+    
+    PetscInt num_entries;
+    const PetscInt *column_indices;
+    const PetscScalar *values;        
+
+    bool am_row_owner = (PetscInt)row_index >= mOwnershipRangeLo && (PetscInt)row_index < mOwnershipRangeHi;
+    
+    // Am I the owner of the row? If so get the non-zero entries and add them lhs_ith_row.
+    // In the parallel case, the assembly o
+    if (am_row_owner)
+    {            
+        MatGetRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);            
+        VecSetValues(lhs_ith_row, num_entries, column_indices, values, INSERT_VALUES);            
+    }
+
+    VecAssemblyBegin(lhs_ith_row);
+    VecAssemblyEnd(lhs_ith_row);
+    
+    if (am_row_owner)
+    {            
+        MatRestoreRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);
+    }
+        
+    return lhs_ith_row;
+}
+
 void LinearSystem::ZeroMatrixRow(PetscInt row)
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);

@@ -292,7 +292,6 @@ public:
         {
             for (int col=0; col<5; col++)
             {
-                std::cout << row << " " << col << std::endl;
                 if( (col>=2) || (row>=2) )
                 {
                     // the altered values
@@ -314,6 +313,29 @@ public:
         }
     }
 
+    void TestGetMatrixRowDistributed()
+    {
+        LinearSystem ls(5);
+        for (int i=0; i<5; i++)
+        {
+            ls.SetMatrixRow(i, (double)i);
+        }
+        ls.AssembleFinalLinearSystem();
+
+        Vec third_row = ls.GetMatrixRowDistributed(3);
+
+        DistributedVectorFactory factory(third_row);
+
+        DistributedVector distributed_third_row = factory.CreateDistributedVector(third_row);
+        for (DistributedVector::Iterator index = distributed_third_row.Begin();
+             index!= distributed_third_row.End();
+             ++index)
+        {
+            TS_ASSERT_EQUALS(distributed_third_row[index], 3);
+        }                
+        
+        VecDestroy(third_row);
+    }
 
 
     void TestCreateFromVector()
