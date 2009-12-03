@@ -88,7 +88,6 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMeshW
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
-
     // if we are writing from a mesh..
     assert(PetscTools::AmMaster());
     if( mpMesh )
@@ -213,7 +212,6 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     
     this->mNumNodes = mpMesh->GetNumNodes();
     this->mNumElements = mpMesh->GetNumElements();
-    mNodesPerElement = mpMesh->GetElement(0)->GetNumNodes();
     
     typedef typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator NodeIterType;
     mpIters->pNodeIter = new NodeIterType(mpMesh->GetNodeIteratorBegin());
@@ -221,6 +219,9 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator ElemIterType;
     mpIters->pElemIter = new ElemIterType(mpMesh->GetElementIteratorBegin());
     
+    //Use this processes first element to gauge the size of all the elements
+    mNodesPerElement = (*(mpIters->pElemIter))->GetNumNodes();
+
     // Set up node map if we might have deleted nodes
     unsigned node_map_index = 0;
     if (mpMesh->IsMeshChanging())
@@ -339,6 +340,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
             }
         }
     }
+    PetscTools::Barrier(); 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
