@@ -606,10 +606,10 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
     if (initial_norm_resid < current_resid_norm)
     {
         #define COVERAGE_IGNORE
-        // Have to use an assert here as the following exception causes a seg fault (in cardiac mech problems?) 
+        // Have to use an assert/exit here as the following exception causes a seg fault (in cardiac mech problems?) 
         // Don't know why
         std::cout << "CHASTE ERROR: (AbstractNonlinearElasticityAssembler.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;        
-        assert(0); 
+        exit(0);
         //EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
         #undef COVERAGE_IGNORE
     }

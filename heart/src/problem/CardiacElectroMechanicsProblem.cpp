@@ -416,7 +416,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     while (!stepper.IsTimeAtEnd())
     {
         LOG(2, "\nCurrent time = " << stepper.GetTime());
-        std::cout << "\n\n ** Current time = " << stepper.GetTime();
+        std::cout << "\n\n ** Current time = " << stepper.GetTime() << "\n";
 
         LOG(2, "  Solving electrics");
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::NON_MECH);
