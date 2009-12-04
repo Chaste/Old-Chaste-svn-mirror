@@ -246,6 +246,13 @@ public:
     void SetMatrixIsSymmetric(bool isSymmetric=true);
 
     /**
+     * Get whether PETSc considers the matrix in this linear system as symmetric or not.
+     * 
+     * @return whether the matrix is symmetric or not.
+     */
+    bool IsMatrixSymmetric();
+
+    /**
      * Set mMatrixIsConstant.
      *
      * @param matrixIsConstant  whether the matrix is constant

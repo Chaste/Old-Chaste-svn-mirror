@@ -647,7 +647,9 @@ public:
     {
         LinearSystem ls = LinearSystem(3);
 
+        TS_ASSERT(!ls.IsMatrixSymmetric());
         ls.SetMatrixIsSymmetric();
+        TS_ASSERT(ls.IsMatrixSymmetric());
 
         // Enter symmetric data
         for (int row=0; row<3; row++)
@@ -687,6 +689,7 @@ public:
 
         // coverage
         ls.SetMatrixIsSymmetric(false);
+        TS_ASSERT(!ls.IsMatrixSymmetric());        
     }
 
     void TestNonSymmetricMatrix()

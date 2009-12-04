@@ -622,6 +622,8 @@ Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
 
 void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 {
+    /// \todo: shall we allow modifying the symmetry flag anytime?    
+    
     if (isSymmetric)
     {
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
@@ -644,6 +646,17 @@ void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
         MatSetOption(mLhsMatrix, MAT_NOT_SYMMETRY_ETERNAL);
 #endif
     }
+}
+
+bool LinearSystem::IsMatrixSymmetric()
+{
+    PetscTruth symmetry_flag_is_set;
+    PetscTruth symmetry_flag;
+    
+    MatIsSymmetricKnown(mLhsMatrix, &symmetry_flag_is_set, &symmetry_flag);
+
+    // If the flag is not set we assume is a non-symmetric matrix    
+    return symmetry_flag_is_set && symmetry_flag;    
 }
 
 void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
