@@ -305,41 +305,7 @@ public:
      * @param pMesh  the mesh to use to resolve Node and BoundaryElement indices
      */
     template <class Archive>
-    void MergeFromArchive(Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-    {
-        mLoadedFromArchive = true;
-        
-        typedef typename std::map<unsigned, AbstractBoundaryCondition<SPACE_DIM>*> archive_map_type;
-        // Load Dirichlet conditions
-        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
-        {
-            archive_map_type bc_map;
-            archive & bc_map;
-            for (typename archive_map_type::iterator it = bc_map.begin();
-                 it != bc_map.end();
-                 ++it)
-            {
-                unsigned node_index = it->first;
-                Node<SPACE_DIM>* p_node = pMesh->GetNode(node_index);
-                AddDirichletBoundaryCondition(p_node, it->second, index_of_unknown, false);
-            }
-        }
-        
-        // Load Neumann conditions
-        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
-        {
-            archive_map_type bc_map;
-            archive & bc_map;
-            for (typename archive_map_type::iterator it = bc_map.begin();
-                 it != bc_map.end();
-                 ++it)
-            {
-                unsigned boundary_element_index = it->first;
-                BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *p_boundary_element = pMesh->GetBoundaryElement(boundary_element_index);
-                AddNeumannBoundaryCondition(p_boundary_element, it->second, index_of_unknown);
-            }
-        }
-    }
+    void MergeFromArchive(Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
     
 private:
     /** Needed for serialization. */
@@ -352,40 +318,7 @@ private:
      * @param version
      */
     template<class Archive>
-    void save(Archive & archive, const unsigned int version) const
-    {
-        typedef typename std::map<unsigned, const AbstractBoundaryCondition<SPACE_DIM> *> archive_map_type;
-        // Save Dirichlet conditions
-        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
-        {
-            archive_map_type bc_map;
-            typename BaseClassType::DirichletIteratorType it = this->mpDirichletMap[index_of_unknown]->begin();
-            while (it != this->mpDirichletMap[index_of_unknown]->end() )
-            {
-                unsigned node_index = it->first->GetIndex();
-                const AbstractBoundaryCondition<SPACE_DIM> * p_cond = it->second;
-                bc_map[node_index] = p_cond;
-                
-                it++;
-            }
-            archive & bc_map;
-        }
-        
-        // Save Neumann conditions
-        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
-        {
-            archive_map_type bc_map;
-            for (NeumannMapIterator it = mpNeumannMap[index_of_unknown]->begin();
-                 it != mpNeumannMap[index_of_unknown]->end();
-                 ++it)
-            {
-                unsigned elem_index = it->first->GetIndex();
-                const AbstractBoundaryCondition<SPACE_DIM> * p_cond = it->second;
-                bc_map[elem_index] = p_cond;
-            }
-            archive & bc_map;
-        }
-    }
+    void save(Archive & archive, const unsigned int version) const;
 
     /**
      * Load this container, but not its content.
@@ -404,5 +337,83 @@ private:
 
 };
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<class Archive>
+void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::save(
+        Archive & archive, const unsigned int version) const
+{
+    typedef typename std::map<unsigned, const AbstractBoundaryCondition<SPACE_DIM> *> archive_map_type;
+    // Save Dirichlet conditions
+    for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+    {
+        archive_map_type bc_map;
+        typename BaseClassType::DirichletIteratorType it = this->mpDirichletMap[index_of_unknown]->begin();
+        while (it != this->mpDirichletMap[index_of_unknown]->end() )
+        {
+            unsigned node_index = it->first->GetIndex();
+            const AbstractBoundaryCondition<SPACE_DIM> * p_cond = it->second;
+            bc_map[node_index] = p_cond;
+
+            it++;
+        }
+        archive & bc_map;
+    }
+
+    // Save Neumann conditions
+    for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+    {
+        archive_map_type bc_map;
+        for (NeumannMapIterator it = mpNeumannMap[index_of_unknown]->begin();
+             it != mpNeumannMap[index_of_unknown]->end();
+             ++it)
+        {
+            unsigned elem_index = it->first->GetIndex();
+            const AbstractBoundaryCondition<SPACE_DIM>* p_cond = it->second;
+            bc_map[elem_index] = p_cond;
+        }
+        archive & bc_map;
+    }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<class Archive>
+void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromArchive(
+        Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+{
+    mLoadedFromArchive = true;
+
+    typedef typename std::map<unsigned, AbstractBoundaryCondition<SPACE_DIM>*> archive_map_type;
+    // Load Dirichlet conditions
+    for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+    {
+        archive_map_type bc_map;
+        archive & bc_map;
+        for (typename archive_map_type::iterator it = bc_map.begin();
+             it != bc_map.end();
+             ++it)
+        {
+            unsigned node_index = it->first;
+            Node<SPACE_DIM>* p_node = pMesh->GetNode(node_index);
+            AddDirichletBoundaryCondition(p_node, it->second, index_of_unknown, false);
+        }
+    }
+
+    // Load Neumann conditions
+    for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+    {
+        archive_map_type bc_map;
+        archive & bc_map;
+        for (typename archive_map_type::iterator it = bc_map.begin();
+             it != bc_map.end();
+             ++it)
+        {
+            unsigned boundary_element_index = it->first;
+            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = pMesh->GetBoundaryElement(boundary_element_index);
+            AddNeumannBoundaryCondition(p_boundary_element, it->second, index_of_unknown);
+        }
+    }
+}
 
 #endif //_BOUNDARYCONDITIONSCONTAINER_HPP_

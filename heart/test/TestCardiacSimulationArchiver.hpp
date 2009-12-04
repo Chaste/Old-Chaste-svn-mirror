@@ -33,15 +33,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CardiacSimulationArchiver.hpp" // Needs to be before other Chaste code
 
+#include "ArchiveOpener.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "Exception.hpp"
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
-#include "PlaneStimulusCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ParallelTetrahedralMesh.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
+#include "PlaneStimulusCellFactory.hpp"
+#include "AbstractCardiacCell.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
-#include "ArchiveOpener.hpp"
 
 class TestCardiacSimulationArchiver : public CxxTest::TestSuite
 {
@@ -337,8 +339,7 @@ public:
         OutputFileHandler handler(archive_directory); // Clear the target directory
         if (PetscTools::AmMaster())
         {
-            std::string command = "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath();
-            EXPECT0(system, command.c_str());
+            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
         
         if (PetscTools::IsSequential())

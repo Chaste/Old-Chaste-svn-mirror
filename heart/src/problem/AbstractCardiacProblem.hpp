@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPROBLEM_HPP_
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
+#include <string>
+#include <vector>
+#include <cassert>
 #include <climits> // Work around a boost bug - see #1024.
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
@@ -38,16 +41,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include "ClassIsAbstract.hpp"
-
-#include <string>
-#include <vector>
-
+#include "AbstractCardiacCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
 #include "AbstractTetrahedralMesh.hpp"
-
 #include "BoundaryConditionsContainer.hpp"
+#include "DistributedVectorFactory.hpp"
 #include "Hdf5DataReader.hpp"
 #include "Hdf5DataWriter.hpp"
 
@@ -598,48 +598,53 @@ public:
      *  -# #mpDefaultBoundaryConditionsContainer
      */
     template<class Archive>
-    void LoadExtraArchive(Archive & archive)
-    {
-        // The vector factory must be loaded, but isn't needed for anything.
-        DistributedVectorFactory* p_mesh_factory;
-        archive >> p_mesh_factory;
-        
-        // The cardiac cells
-        std::vector<AbstractCardiacCell*> cells;
-        archive >> cells;
-        mpCardiacPde->ExtendCells(cells);
-        
-        {
-            DistributedVectorFactory* p_pde_factory;
-            archive >> p_pde_factory;
-            assert(p_pde_factory == p_mesh_factory); // Paranoia...
-        }
-        delete p_mesh_factory;
-        
-        // The boundary conditions
-        BccType p_bcc;
-        archive >> p_bcc;
-        if (p_bcc)
-        {
-            if (!mpBoundaryConditionsContainer)
-            {
-                mpBoundaryConditionsContainer = p_bcc;
-            }
-            mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
-        }
-        BccType p_default_bcc;
-        archive >> p_default_bcc;
-        if (p_default_bcc && p_bcc != p_default_bcc)
-        {
-            if (!mpDefaultBoundaryConditionsContainer)
-            {
-                mpDefaultBoundaryConditionsContainer = p_bcc;
-            }
-            mpDefaultBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
-        }
-    }
+    void LoadExtraArchive(Archive & archive);
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<class Archive>
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive(Archive & archive)
+{
+    // The vector factory must be loaded, but isn't needed for anything.
+    DistributedVectorFactory* p_mesh_factory;
+    archive >> p_mesh_factory;
+
+    // The cardiac cells
+    std::vector<AbstractCardiacCell*> cells;
+    archive >> cells;
+    mpCardiacPde->ExtendCells(cells);
+
+    {
+        DistributedVectorFactory* p_pde_factory;
+        archive >> p_pde_factory;
+        assert(p_pde_factory == p_mesh_factory); // Paranoia...
+    }
+    delete p_mesh_factory;
+
+    // The boundary conditions
+    BccType p_bcc;
+    archive >> p_bcc;
+    if (p_bcc)
+    {
+        if (!mpBoundaryConditionsContainer)
+        {
+            mpBoundaryConditionsContainer = p_bcc;
+        }
+        mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
+    }
+    BccType p_default_bcc;
+    archive >> p_default_bcc;
+    if (p_default_bcc && p_bcc != p_default_bcc)
+    {
+        if (!mpDefaultBoundaryConditionsContainer)
+        {
+            mpDefaultBoundaryConditionsContainer = p_bcc;
+        }
+        mpDefaultBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
+    }
+}
+
 
 #endif /*ABSTRACTCARDIACPROBLEM_HPP_*/

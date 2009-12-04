@@ -29,14 +29,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CARDIACSIMULATIONARCHIVER_HPP_
 #define CARDIACSIMULATIONARCHIVER_HPP_
 
+#include <string>
+#include <fstream>
+
 // Must be included before any other serialisation headers
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "OutputFileHandler.hpp"
+#include "Exception.hpp"
 #include "ArchiveOpener.hpp"
+#include "OutputFileHandler.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "DistributedVectorFactory.hpp"
+#include "PetscTools.hpp"
 
 /**
  *  CardiacSimulationArchiver is a helper class for checkpointing of cardiac simulations.
