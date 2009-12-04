@@ -379,7 +379,11 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated 
     // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
     // are kept.
-    MatSetOption(jacobian,MAT_KEEP_ZEROED_ROWS);
+#if PETSC_VERSION_MAJOR == 3
+    MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
+#else
+    MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS);
+#endif
 
     MatZeroRows(jacobian, num_boundary_conditions, rows_to_zero, 1.0);
     delete [] rows_to_zero;

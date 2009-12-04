@@ -349,7 +349,11 @@ void LinearSystem::ZeroMatrixRow(PetscInt row)
     // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated 
     // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
     // are kept.
-    MatSetOption(mLhsMatrix,MAT_KEEP_ZEROED_ROWS);
+#if PETSC_VERSION_MAJOR == 3
+    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
+#else
+    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS);
+#endif
 
     double diag_zero=0.0;
     // MatZeroRows allows a non-zero value to be placed on the diagonal
@@ -377,7 +381,11 @@ void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRow
     // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated 
     // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
     // are kept.
-    MatSetOption(mLhsMatrix,MAT_KEEP_ZEROED_ROWS);
+#if PETSC_VERSION_MAJOR == 3
+    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
+#else
+    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS);
+#endif
 
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     NEVER_REACHED; // fill in if this is reached..

@@ -27,8 +27,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 
+# Check which version of Ubuntu this is
+fp = open('/etc/issue')
+ubuntu_ver = float(fp.read().split()[1])
+fp.close()
+
+if ubuntu_ver >= 9.10:
+    petsc_ver = 3
+    petsc_3_0_path = '/usr/lib/petscdir/3.0.0/'
+else:
+    petsc_ver = 2
+    petsc_2_3_path = '/usr/lib/petscdir/2.3.3/'
+
 petsc_2_2_path = ''
-petsc_2_3_path = '/usr/lib/petscdir/2.3.3/'
 petsc_build_name = 'linux-gnu-c-debug'
 petsc_build_name_profile = petsc_build_name
 petsc_build_name_optimized = 'linux-gnu-c-opt'
@@ -41,11 +52,18 @@ other_includepaths = ['/usr/include/metis/']
 other_libpaths = []
 libs_for_petsc = ['petsccontrib', 'X11',
                   'HYPRE', 'spooles', 'superlu',
-                  'umfpack', 'amd', # Both for Umfpack
-                  'sidl' # Babel
+                  'umfpack', 'amd' # Both for Umfpack
                   ]
+if petsc_ver == 3:
+    libs_for_petsc.append('scotch')
+else:
+    libs_for_petsc.append('sidl')
+if ubuntu_ver >= 9.10:
+    boost_suffix = '-mt'
+else:
+    boost_suffix = ''
 other_libraries = libs_for_petsc + \
-                  ['boost_serialization', 'xerces-c',
+                  ['boost_serialization'+boost_suffix, 'xerces-c',
                    'hdf5', 'z',
                    'metis']
 
