@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ConstBoundaryCondition.hpp"
 
+#include "HeartEventHandler.hpp"
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsContainer()
@@ -209,27 +211,38 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
                                        bool applyToMatrix)
 {
+    HeartEventHandler::BeginEvent(HeartEventHandler::USER1);                                
+    
     if (applyToMatrix)
     {
+        bool matrix_is_symmetric = rLinearSystem.IsMatrixSymmetric();
+        
         std::vector<unsigned> row_cols_to_zero;    
 
-        //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so
-        //that they can be reapplied at each time step.
-        //Make a new vector to store the Dirichlet offsets in
-        VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
+        if (matrix_is_symmetric)
+        {
+            //Modifications to the RHS are stored in the Dirichlet boundary conditions vector. This is done so
+            //that they can be reapplied at each time step.
+            //Make a new vector to store the Dirichlet offsets in
+            VecDuplicate(rLinearSystem.rGetRhsVector(), &(rLinearSystem.rGetDirichletBoundaryConditionsVector()));
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-        PetscScalar zero = 0.0;
-        VecSet(&zero, rLinearSystem.rGetDirichletBoundaryConditionsVector());
+            PetscScalar zero = 0.0;
+            VecSet(&zero, rLinearSystem.rGetDirichletBoundaryConditionsVector());
 #else
-        VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
+            VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
 #endif
+        }
 
+        // If the matrix is symmetric, calls to GetMatrixRowDistributed() require the matrix to be
+        // in assembled state. Otherwise we can defer it.
+        if (matrix_is_symmetric)
+        {
+            rLinearSystem.AssembleFinalLinearSystem();
+        }
 
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
-
-            rLinearSystem.AssembleFinalLinearSystem();
 
             while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
@@ -239,37 +252,41 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown; /// \todo: assumes vm and phie equations are interleaved
                 unsigned col = row;
 
-                // Set up a vector which will store the columns of the matrix (column d, where d is
-                // the index of the row (and column) to be altered for the boundary condition
-                Vec matrix_col;
-                VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
+                if (matrix_is_symmetric)
+                {
+                    // Set up a vector which will store the columns of the matrix (column d, where d is
+                    // the index of the row (and column) to be altered for the boundary condition
+                    Vec matrix_col;
+                    VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                // as above... PetscScalar zero = 0.0;
-                VecSet(&zero, matrix_col);
+                    // as above... PetscScalar zero = 0.0;
+                    VecSet(&zero, matrix_col);
 #else
-                VecZeroEntries(matrix_col);
+                    VecZeroEntries(matrix_col);
 #endif
-                Mat& r_mat = rLinearSystem.rGetLhsMatrix();
-                MatGetColumnVector(r_mat, matrix_col, col);
-
-                //Zero the correct entry of the column
-                int indices[1] = {col};
-                double zero[1] = {0.0};
-                VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES);
-
-                // Set up the RHS Dirichlet boundary conditions vector
-                // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
-                //   -value*[0 a_21 a_31 .. a_N1]
-                // and will be added to the RHS.
+                    // Since the matrix is symmetric when get row number "col" and treat it as a column.
+                    // PETSc uses compressed row format and therefore getting rows is far more efficient
+                    // than getting columns.
+                    matrix_col = rLinearSystem.GetMatrixRowDistributed(col);
+    
+                    //Zero the correct entry of the column
+                    int indices[1] = {col};
+                    double zero[1] = {0.0};
+                    VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES);
+    
+                    // Set up the RHS Dirichlet boundary conditions vector
+                    // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
+                    //   -value*[0 a_21 a_31 .. a_N1]
+                    // and will be added to the RHS.
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                double minus_value = -value;
-                VecAXPY(&minus_value, matrix_col, rLinearSystem.rGetDirichletBoundaryConditionsVector());
+                    double minus_value = -value;
+                    VecAXPY(&minus_value, matrix_col, rLinearSystem.rGetDirichletBoundaryConditionsVector());
 #else
-                //[note: VecAXPY(y,a,x) computes y = ax+y]
-                VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);
+                    //[note: VecAXPY(y,a,x) computes y = ax+y]
+                    VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);
 #endif
-
-                VecDestroy(matrix_col);
+                    VecDestroy(matrix_col);
+                }
 
                 //Zero out the appropriate row and column
                 row_cols_to_zero.push_back(row);
@@ -278,8 +295,17 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             }
         }
         
-        // now zero the appropriate rows and columns of the matrix
-        rLinearSystem.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(row_cols_to_zero, 1.0);        
+        // Now zero the appropriate rows and columns of the matrix. If the matrix is symmetric we apply the 
+        // boundary conditionss in a way the symmetry isn't lost (rows and columns). If not only the row is
+        // zeroed.
+        if (matrix_is_symmetric)
+        {
+            rLinearSystem.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(row_cols_to_zero, 1.0);
+        }
+        else
+        {
+            rLinearSystem.ZeroMatrixRowsWithValueOnDiagonal(row_cols_to_zero, 1.0);
+        }        
     }
 
 
@@ -312,6 +338,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             this->mDirichIterator++;
         }
     }
+    
+    HeartEventHandler::EndEvent(HeartEventHandler::USER1);    
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

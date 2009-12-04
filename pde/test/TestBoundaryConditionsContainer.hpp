@@ -245,18 +245,39 @@ public:
 
         some_system.AssembleFinalLinearSystem();
 
+        /*
+         *  Based on the original system and the boundary conditions applied in a non-symmetric
+         *  manner, the resulting system looks like:
+         * 
+         *      1 0 0 ... 0 
+         *      0 1 0 ... 0
+         *      0 0 1 ... 0
+         *      ...
+         *      1 1 1 ... 1
+         * 
+         */
+        /// \todo: this is very naughty. Must be checked in parallel as well.
         if (PetscTools::IsSequential())
         {
-            for (int i=0; i<SIZE; i++)
+            for (int row=0; row<SIZE-1; row++)
             {
-                for (int j=i+1; j<SIZE; j++)
+                for (int column=0; column<row; column++)
                 {
-                    double a_ij = some_system.GetMatrixElement(i,j);
-                    double a_ji = some_system.GetMatrixElement(j,i);
-
-                    TS_ASSERT_DELTA(a_ij, a_ji, 1e-9);
+                    TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
                 }
+                
+                TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,row), 1);                
+                
+                for (int column=row+1; column<SIZE; column++)
+                {
+                    TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
+                }                
             }
+
+            for (int column=0; column<SIZE; column++)
+            {
+                TS_ASSERT_EQUALS(some_system.GetMatrixElement(SIZE-1,column), 1);
+            }                                  
         }
 
         Vec solution = some_system.Solve();
@@ -277,6 +298,90 @@ public:
         }
         VecDestroy(solution);
     }
+
+    void TestApplyToSymmetricLinearSystem()
+    {
+        const int SIZE = 10;
+        LinearSystem some_system(SIZE);
+        some_system.SetMatrixIsSymmetric(true);
+        
+        for (int i=0; i<SIZE; i++)
+        {
+            for (int j=0; j<SIZE; j++)
+            {
+                // LHS matrix is all 1s
+                some_system.SetMatrixElement(i,j,1);
+            }
+            // RHS vector is all 2s
+            some_system.SetRhsVectorElement(i,2);
+        }
+
+        some_system.AssembleIntermediateLinearSystem();
+
+        Node<3>* nodes_array[SIZE];
+        BoundaryConditionsContainer<3,3,1> bcc3;
+
+        // Apply dirichlet boundary conditions to all but last node
+        for (int i=0; i<SIZE-1; i++)
+        {
+            nodes_array[i] = new Node<3>(i,true);
+            ConstBoundaryCondition<3>* p_boundary_condition =
+                new ConstBoundaryCondition<3>(-1);
+            bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
+        }
+        bcc3.ApplyDirichletToLinearProblem(some_system);
+
+        some_system.AssembleFinalLinearSystem();
+
+        /*
+         *  Based on the original system and the boundary conditions applied in a symmetric
+         *  manner, the resulting system looks like:
+         * 
+         *      1 0 0 ... 0 
+         *      0 1 0 ... 0
+         *      0 0 1 ... 0
+         *      ...
+         *      0 0 0 ... 1
+         * 
+         */
+        /// \todo: this is very naughty. Must be checked in parallel as well.
+        if (PetscTools::IsSequential())
+        {
+            for (int row=0; row<SIZE; row++)
+            {
+                for (int column=0; column<row; column++)
+                {
+                    TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
+                }
+                
+                TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,row), 1);
+                
+                for (int column=row+1; column<SIZE; column++)
+                {
+                    TS_ASSERT_EQUALS(some_system.GetMatrixElement(row,column), 0);
+                }                
+            }                        
+        }
+
+        Vec solution = some_system.Solve();
+
+        DistributedVectorFactory factory(solution);
+        DistributedVector d_solution = factory.CreateDistributedVector( solution );
+        for (DistributedVector::Iterator index = d_solution.Begin();
+             index != d_solution.End();
+             ++index)
+        {
+            double expected = index.Global < SIZE-1 ? -1.0 : 11.0;
+            TS_ASSERT_DELTA(d_solution[index], expected, 1e-6 );
+        }
+
+        for (int i=0; i<SIZE-1; i++)
+        {
+            delete nodes_array[i];
+        }
+        VecDestroy(solution);
+    }
+
 
     void TestApplyToNonlinearSystem()
     {
