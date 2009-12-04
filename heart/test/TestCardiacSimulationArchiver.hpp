@@ -33,17 +33,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CardiacSimulationArchiver.hpp" // Needs to be before other Chaste code
 
-#include "ArchiveOpener.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "Exception.hpp"
-#include "BidomainProblem.hpp"
-#include "MonodomainProblem.hpp"
-#include "ParallelTetrahedralMesh.hpp"
-#include "CompareHdf5ResultsFiles.hpp"
-#include "PlaneStimulusCellFactory.hpp"
+#include "DistributedVector.hpp"
+#include "DistributedVectorFactory.hpp"
+#include "ArchiveOpener.hpp"
 #include "AbstractCardiacCell.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
+#include "BidomainProblem.hpp"
+#include "MonodomainProblem.hpp"
+#include "CompareHdf5ResultsFiles.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestCardiacSimulationArchiver : public CxxTest::TestSuite
 {
@@ -54,7 +55,7 @@ private:
 public:
 
     /*
-     *  Simple bidomain simulation to test against in the archiving tests below
+     *  Simple bidomain simulation to test against in TestArchivingWithHelperClass below
      */
     void TestSimpleBidomain1D() throw(Exception)
     {
@@ -91,12 +92,8 @@ public:
         {
             mSolutionReplicated1d2ms.push_back(solution_replicated[index]);
         }
-
     }
-
-    /*
-     *  Same as TestArchiving but through the helper class
-     */    
+   
     void TestArchivingWithHelperClass()
     {
         // Save

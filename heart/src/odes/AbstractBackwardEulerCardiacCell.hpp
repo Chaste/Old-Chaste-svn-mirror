@@ -31,10 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 
 #include <boost/serialization/access.hpp>
-#include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
-
+#include "ClassIsAbstract.hpp"
 #include "AbstractCardiacCell.hpp"
+#include "Exception.hpp"
 
 #include <cassert>
 #include <cmath>
