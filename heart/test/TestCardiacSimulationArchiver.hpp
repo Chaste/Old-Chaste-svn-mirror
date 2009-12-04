@@ -405,7 +405,7 @@ public:
             // This will differ because we get extra copies of the ODE solver and intracellular stimulus objects
             // (one per original process which had them).
             //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
-            EXPECT0(system, "diff " + source_directory + "reference_0_archive " + my_archive + ".0");
+            EXPECT0(system, "diff -I 'serialization::archive' " + source_directory + "reference_0_archive " + my_archive + ".0");
             
             delete p_problem;
         }
