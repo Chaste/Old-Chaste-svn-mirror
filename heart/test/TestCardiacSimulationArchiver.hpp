@@ -314,7 +314,7 @@ public:
         std::string directory = "TestCreateArchiveForLoadAsSequential";
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.25);
-        HeartConfig::Instance()->SetSimulationDuration(1.0);
+        HeartConfig::Instance()->SetSimulationDuration(0.2);
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         // We want the numbers matching in any h5 files:
@@ -393,14 +393,16 @@ public:
                 }
             }
             
-            ///\todo test bccs
+            // Test bccs - none defined in this problem
+            TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
+            TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
             
             // Save it to a sequential archive
             CardiacSimulationArchiver<BidomainProblem<3> >::Save(*p_problem, archive_directory);
             
             // Compare with the archive from the previous test
-            std::string ref_archive = "TestCreateArchiveForLoadAsSequential";
-            ref_archive = handler.GetChasteTestOutputDirectory() + ref_archive + "/" + ref_archive + ".arch";
+            std::string ref_archive_dir = "TestCreateArchiveForLoadAsSequential";
+            std::string ref_archive = handler.GetChasteTestOutputDirectory() + ref_archive_dir + "/" + ref_archive_dir + ".arch";
             std::string my_archive = handler.GetOutputDirectoryFullPath() + archive_directory + ".arch";
             EXPECT0(system, "diff " + ref_archive + " " + my_archive);
             // This will differ because we get extra copies of the ODE solver and intracellular stimulus objects
@@ -408,7 +410,57 @@ public:
             //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
             EXPECT0(system, "diff -I 'serialization::archive' " + source_directory + "reference_0_archive " + my_archive + ".0");
             
+            // Simulate this problem
+            // Change output directory to avoid over-writing original results & archives
+            HeartConfig::Instance()->SetOutputDirectory(ref_archive_dir + "/mig1");
+            p_problem->Solve();
+            // Copy the results vector
+            Vec migrated_soln = p_problem->GetSolution();
+            Vec migrated_soln_copy;
+            VecDuplicate(migrated_soln, &migrated_soln_copy);
+            VecCopy(migrated_soln, migrated_soln_copy);
+            // and destroy the problem, so we don't get confusion from 2 problems at the same time
             delete p_problem;
+            
+            // Compare the results with simulating the archive from the previous test
+            BidomainProblem<3>* p_orig_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(ref_archive_dir);
+            HeartConfig::Instance()->SetOutputDirectory(ref_archive_dir + "/orig");
+            p_orig_problem->Solve();
+            DistributedVector orig_soln = p_orig_problem->GetSolutionDistributedVector();
+            DistributedVector::Stripe orig_vm(orig_soln, 0);
+            DistributedVector::Stripe orig_phie(orig_soln, 1);
+            DistributedVector migrated_soln_1(migrated_soln_copy, orig_soln.GetFactory());
+            DistributedVector::Stripe migrated_vm_1(migrated_soln_1, 0);
+            DistributedVector::Stripe migrated_phie_1(migrated_soln_1, 1);
+            for (DistributedVector::Iterator index = migrated_soln_1.Begin();
+                 index != migrated_soln_1.End();
+                 ++index)
+            {
+                TS_ASSERT_DELTA(orig_vm[index], migrated_vm_1[index], 1e-8);
+                TS_ASSERT_DELTA(orig_phie[index], migrated_phie_1[index], 1e-8);
+            }
+            delete p_orig_problem;
+            
+            // Now try loading the migrated simulation that we saved above
+            p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(archive_directory);
+            HeartConfig::Instance()->SetOutputDirectory(ref_archive_dir + "/mig2");
+            p_problem->Solve();
+            // and again compare the results
+            DistributedVector migrated_soln_2 = p_problem->GetSolutionDistributedVector();
+            DistributedVector::Stripe migrated_vm_2(migrated_soln_2, 0);
+            DistributedVector::Stripe migrated_phie_2(migrated_soln_2, 1);
+            for (DistributedVector::Iterator index = migrated_soln_1.Begin();
+                 index != migrated_soln_1.End();
+                 ++index)
+            {
+                TS_ASSERT_DELTA(migrated_vm_2[index], migrated_vm_1[index], 1e-8);
+                TS_ASSERT_DELTA(migrated_phie_2[index], migrated_phie_1[index], 1e-8);
+            }
+            delete p_problem;
+            
+            // Cover exception
+            TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::LoadAsSequential("non_existent_dir"),
+                                      "Cannot load main archive file: ");
         }
         else
         {

@@ -83,8 +83,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem
 {
-friend class TestBidomainWithBathAssembler;
-friend class TestCardiacSimulationArchiver;
+    friend class TestBidomainWithBathAssembler;
+    friend class TestCardiacSimulationArchiver;
 
     /** To save typing */
     typedef typename boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> >

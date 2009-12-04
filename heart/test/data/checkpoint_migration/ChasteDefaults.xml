@@ -3,7 +3,7 @@
 
   <cp12:Simulation>
     <cp12:SpaceDimension>3</cp12:SpaceDimension>
-    <cp12:SimulationDuration unit="ms">1</cp12:SimulationDuration>
+    <cp12:SimulationDuration unit="ms">0.2</cp12:SimulationDuration>
     <cp12:Domain>Mono</cp12:Domain>
     <cp12:Mesh unit="cm">
       <cp12:Slab inter_node_space="0.25" x="1" y="1" z="1"/>
