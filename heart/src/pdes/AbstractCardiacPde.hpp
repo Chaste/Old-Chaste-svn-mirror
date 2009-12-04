@@ -193,7 +193,7 @@ public:
      * @param pMesh  a pointer to the AbstractTetrahedral mesh.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacPde(const std::vector<AbstractCardiacCell*>& rCellsDistributed,
+    AbstractCardiacPde(std::vector<AbstractCardiacCell*>& rCellsDistributed,
                        AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                        const unsigned stride);
 

@@ -76,7 +76,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
 
 // Constructor used for archiving
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(const std::vector<AbstractCardiacCell*> & rCellsDistributed,
+AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
                                                               AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                                               const unsigned stride)
     : mpMesh(pMesh),
