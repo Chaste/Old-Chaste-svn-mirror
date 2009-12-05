@@ -42,67 +42,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ParallelTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "HeartEventHandler.hpp"
 #include "HeartRegionCodes.hpp"
 #include "Timer.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+#include "SimpleBathProblemSetup.hpp"
+
 typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
-
-
-template<unsigned DIM>
-class BathCellFactory : public AbstractCardiacCellFactory<DIM>
-{
-private:
-    // define a new stimulus
-    boost::shared_ptr<SimpleStimulus> mpStimulus;
-    c_vector<double,DIM> mStimulatedPoint;
-
-public:
-    BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint)
-        : AbstractCardiacCellFactory<DIM>(),
-          mpStimulus(new SimpleStimulus(stimulusMagnitude, 0.5)),
-          mStimulatedPoint(stimulatedPoint)
-    {
-    }
-
-    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
-    {
-        // paranoia - check this is really a tissue node
-        assert(this->GetMesh()->GetNode(node)->GetRegion() == HeartRegionCode::TISSUE);
-
-        // stimulate centre node normally..
-        bool is_centre;
-
-        if (DIM==1)
-        {
-            is_centre = (fabs(this->GetMesh()->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6);
-        }
-        else if (DIM==2)
-        {
-            is_centre = (    (fabs(this->GetMesh()->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6)
-                          && (fabs(this->GetMesh()->GetNode(node)->GetPoint()[1]-mStimulatedPoint(1)) < 1e-6) );
-        }
-        else
-        {
-            is_centre = (    (fabs(this->GetMesh()->GetNode(node)->GetPoint()[0]-mStimulatedPoint(0)) < 1e-6)
-                          && (fabs(this->GetMesh()->GetNode(node)->GetPoint()[1]-mStimulatedPoint(1)) < 1e-6)
-                          && (fabs(this->GetMesh()->GetNode(node)->GetPoint()[2]-mStimulatedPoint(2)) < 1e-6) );
-        }
-
-        if (is_centre)
-        {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus);
-        }
-        else
-        {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus);
-        }
-    }
-
-};
-
-
 
 
 class TestBidomainWithBathAssembler : public CxxTest::TestSuite
@@ -312,25 +259,10 @@ public:
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
 
-        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        ParallelTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
+        ParallelTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<ParallelTetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.04);
 
-        // Set everything outside a central circle (radius 0.4) to be bath
-        //for(unsigned i=0; i<mesh.GetNumElements(); i++)
-        for (ParallelTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-             it != mesh.GetElementIteratorEnd();
-             ++it)
-        {
-            double x = it->CalculateCentroid()[0];
-            double y = it->CalculateCentroid()[1];
-            if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
-            {
-                it->SetRegion(HeartRegionCode::BATH);
-            }
-        }
-
-        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.SetMesh(p_mesh);
         bidomain_problem.Initialise();
 
         bidomain_problem.Solve();
@@ -339,8 +271,8 @@ public:
         ReplicatableVector sol_repl(sol);
 
         // test V = 0 for all bath nodes
-        for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=mesh.GetNodeIteratorBegin();
-             iter != mesh.GetNodeIteratorEnd(); ++iter)
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=p_mesh->GetNodeIteratorBegin();
+             iter != p_mesh->GetNodeIteratorEnd(); ++iter)
         {
             if ((*iter).GetRegion()==HeartRegionCode::BATH) // bath
             {
@@ -350,7 +282,7 @@ public:
             }
         }
 
-        const std::vector<unsigned>& permutation = mesh.rGetNodePermutation();
+        const std::vector<unsigned>& permutation = p_mesh->rGetNodePermutation();
 
         unsigned node_50;
         unsigned node_70;
@@ -370,6 +302,8 @@ public:
         // a couple of hardcoded value
         TS_ASSERT_DELTA(sol_repl[2*node_50], 28.3912, 1e-3);
         TS_ASSERT_DELTA(sol_repl[2*node_70], 28.3912, 1e-3);
+        
+        delete p_mesh;
     }
 
     void Test2dBathInputFluxEqualsOutputFlux() throw (Exception)
@@ -389,26 +323,14 @@ public:
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
 
-        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
-
-        // Set everything outside a central circle (radius 0.04cm) to be bath
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            double x = mesh.GetElement(i)->CalculateCentroid()[0];
-            double y = mesh.GetElement(i)->CalculateCentroid()[1];
-            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
-            {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
-            }
-        }
+        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 
         //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
 
-        Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
+        Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
 
         // Cover an exception
         {
@@ -421,7 +343,7 @@ public:
 
         bidomain_problem.SetElectrodes(electrodes);
 
-        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.SetMesh(p_mesh);
         bidomain_problem.Initialise();
 
         bidomain_problem.Solve();
@@ -435,10 +357,10 @@ public:
          * We ran longer simulation for 350 ms and a nice AP was observed.
          */
 
-        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             // test V = 0 for all bath nodes and that an AP is triggered in the tissue
-            if (mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+            if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
             {
                 TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
             }
@@ -450,6 +372,8 @@ public:
 
         TS_ASSERT_EQUALS(electrodes.mAreActive, false); // should be switched off by now..
         TS_ASSERT(ap_triggered);
+        
+        delete p_mesh;
     }
 
     void TestMatrixBasedAssembledBath(void)
@@ -467,19 +391,8 @@ public:
         double boundary_flux = -4e2;
         double duration = 0.2; //ms
 
-        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
-        // Set everything outside a central circle (radius 0.4) to be bath
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
-        {
-            double x = mesh.GetElement(i)->CalculateCentroid()[0];
-            double y = mesh.GetElement(i)->CalculateCentroid()[1];
-            if( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.04 )
-            {
-                mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
-            }
-        }
+        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 
         ///////////////////////////////////////////////////////////////////
         // matrix based
@@ -492,10 +405,10 @@ public:
         {
             Timer::Reset();
 
-            Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
+            Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
 
             matrix_based_bido.SetElectrodes(electrodes);
-            matrix_based_bido.SetMesh(&mesh);
+            matrix_based_bido.SetMesh(p_mesh);
             matrix_based_bido.Initialise();
             matrix_based_bido.Solve();
 
@@ -513,10 +426,10 @@ public:
         {
             Timer::Reset();
 
-            Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
+            Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
 
             non_matrix_based_bido.SetElectrodes(electrodes);
-            non_matrix_based_bido.SetMesh(&mesh);
+            non_matrix_based_bido.SetMesh(p_mesh);
             non_matrix_based_bido.UseMatrixBasedRhsAssembly(false);
             non_matrix_based_bido.Initialise();
             non_matrix_based_bido.Solve();
@@ -544,6 +457,8 @@ public:
             //TS_ASSERT_DELTA(matrix_based_ex_pot[index], non_matrix_based_ex_pot[index], 1e-7);
             //std::cout << matrix_based_voltage[index] << std::endl;
         }
+        
+        delete p_mesh;
     }
     
     // #1169   
@@ -552,9 +467,8 @@ public:
         std::string archive_dir = "BidomainWithElectrodesArchiving";
 
         // Create the mesh outside the save scope, so we can compare with the loaded version.
-        TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(reader);
+        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
         
         { // save
             HeartConfig::Instance()->SetSimulationDuration(3.0);  // ms
@@ -570,26 +484,15 @@ public:
             BathCellFactory<2> cell_factory( 0.0, centre);
     
             BidomainProblem<2> bidomain_problem( &cell_factory, true );
-
-            // Set everything outside a central circle (radius 0.04cm) to be bath
-            for (unsigned i=0; i<mesh.GetNumElements(); i++)
-            {
-                double x = mesh.GetElement(i)->CalculateCentroid()[0];
-                double y = mesh.GetElement(i)->CalculateCentroid()[1];
-                if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
-                {
-                    mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
-                }
-            }
     
             //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
             double boundary_flux = -11.0e3;
             double duration = 1.9; // of the stimulus, in ms
     
-            Electrodes<2> electrodes(mesh,false,0,0.0,0.1,boundary_flux, duration);
+            Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
                  
-            bidomain_problem.SetElectrodes(electrodes);    
-            bidomain_problem.SetMesh(&mesh);
+            bidomain_problem.SetElectrodes(electrodes);
+            bidomain_problem.SetMesh(p_mesh);
             bidomain_problem.Initialise();    
 
             // Save using helper class
@@ -601,7 +504,7 @@ public:
             
             // get the new mesh
             AbstractTetrahedralMesh<2,2>& r_mesh = p_abstract_problem->rGetMesh();
-            TS_ASSERT_EQUALS(mesh.GetNumElements(), r_mesh.GetNumElements());
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), r_mesh.GetNumElements());
             
             /// \todo #1169
             /// Set everything outside a central circle (radius 0.04cm) to be bath,
@@ -632,16 +535,16 @@ public:
                     TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), HeartRegionCode::TISSUE);
                 }
                 // Compare mesh before & after
-                TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), mesh.GetElement(i)->GetRegion());
-                TS_ASSERT_DELTA(x, mesh.GetElement(i)->CalculateCentroid()[0], 1e-12);
-                TS_ASSERT_DELTA(y, mesh.GetElement(i)->CalculateCentroid()[1], 1e-12);
+                TS_ASSERT_EQUALS(r_mesh.GetElement(i)->GetRegion(), p_mesh->GetElement(i)->GetRegion());
+                TS_ASSERT_DELTA(x, p_mesh->GetElement(i)->CalculateCentroid()[0], 1e-12);
+                TS_ASSERT_DELTA(y, p_mesh->GetElement(i)->CalculateCentroid()[1], 1e-12);
             }
             
             // Check that there's an exact correspondence between bath nodes and fake cells
             FakeBathCell* p_fake_cell = NULL;
             for (unsigned i=r_mesh.GetDistributedVectorFactory()->GetLow(); i<r_mesh.GetDistributedVectorFactory()->GetHigh(); i++)
             {
-                TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), mesh.GetNode(i)->GetRegion());
+                TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), p_mesh->GetNode(i)->GetRegion());
                 FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_abstract_problem->GetPde()->GetCardiacCell(i));
                 if (r_mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
                 {
@@ -688,6 +591,8 @@ public:
             delete p_electrodes;
             delete p_fake_cell;
         }
+        
+        delete p_mesh;
     }
 
 };
