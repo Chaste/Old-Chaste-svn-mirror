@@ -254,20 +254,12 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 
                 if (matrix_is_symmetric)
                 {
-                    // Set up a vector which will store the columns of the matrix (column d, where d is
-                    // the index of the row (and column) to be altered for the boundary condition
-                    Vec matrix_col;
-                    VecDuplicate(rLinearSystem.rGetRhsVector(), &matrix_col);
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                    // as above... PetscScalar zero = 0.0;
-                    VecSet(&zero, matrix_col);
-#else
-                    VecZeroEntries(matrix_col);
-#endif
+                    // Get a vector which will store the column of the matrix (column d, where d is
+                    // the index of the row (and column) to be altered for the boundary condition.
                     // Since the matrix is symmetric when get row number "col" and treat it as a column.
                     // PETSc uses compressed row format and therefore getting rows is far more efficient
                     // than getting columns.
-                    matrix_col = rLinearSystem.GetMatrixRowDistributed(col);
+                    Vec matrix_col = rLinearSystem.GetMatrixRowDistributed(col);
     
                     //Zero the correct entry of the column
                     int indices[1] = {col};

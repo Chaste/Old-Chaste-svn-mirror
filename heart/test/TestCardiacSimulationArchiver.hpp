@@ -454,6 +454,7 @@ public:
                 TS_ASSERT_DELTA(migrated_phie_2[index], migrated_phie_1[index], 1e-8);
             }
             delete p_problem;
+            VecDestroy(migrated_soln_copy); 
             
             // Cover exception
             TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::LoadAsSequential("non_existent_dir"),
