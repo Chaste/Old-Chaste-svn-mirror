@@ -112,6 +112,29 @@ public:
         VecDestroy(vec2);
         MatDestroy(mat);
 
+        ///////////////////////////////////////////////////
+        // test SetupMatrix with non-default preallocation
+        ///////////////////////////////////////////////////
+        Mat mat2;
+        PetscTools::SetMaxNumNonzerosIfMatMpiAij(4);
+        PetscTools::SetupMat(mat2, 12, 10);
+        MatGetSize(mat2, &m, &n);
+        TS_ASSERT_EQUALS(m, 12);
+        TS_ASSERT_EQUALS(n, 10);
+
+        MatGetType(mat2,&type);
+        TS_ASSERT(strcmp(type, MATMPIAIJ)==0);
+
+        MatInfo info;
+        unsigned nonzeros_allocated;
+
+        MatGetInfo(mat2,MAT_LOCAL,&info);
+        nonzeros_allocated = info.nz_allocated;
+
+        TS_ASSERT_EQUALS( nonzeros_allocated, 4*12 + 2*12 ); // 4 nonzeros allocated in diagonal part of matrix,
+															 // 0.5*4 nonzeros allocated in off-diagonal part
+
+        MatDestroy(mat2);
     }
 
     void TestBarrier()

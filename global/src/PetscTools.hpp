@@ -53,12 +53,15 @@ private:
 
     /** The total number of processors. */
     static unsigned mNumProcessors;
-   
+
+    /** The number of nonzeros per row that PETSc preallocates */
+    static unsigned mMaxNumNonzerosIfMatMpiAij;
+
     //Can be used to debug number of barriers: static unsigned mBarrier;
 
     /** Which processors we are. */
     static unsigned mRank;
-    
+
     /** Private method makes sure that (if this is the first use within a test) then PETSc has been probed */
     static inline void CheckCache()
     {
@@ -152,16 +155,11 @@ public:
      * @param matType the matrix type (defaults to MATMPIAIJ)
      * @param numLocalRows the number of local rows (detaults to PETSC_DECIDE)
      * @param numLocalColumns the number of local columns (detaults to PETSC_DECIDE)
-     * @param maxColsPerRowIfMatMpiAij The maximum number of non zeros per row. This value is problem dependent.
-     *   Since the call to set this depends on the matrix-type (eg MatMPIAIJSetPreallocation/MatSeqAIJSetPreallocation),
-     *   preallocation using this value is done only if the matrix-type is MATMPIAIJ (the default). WITH OTHER
-     *   TYPES OF MATRIX NO PREALLOCATION IS DONE AND YOU MUST PREALLOCATE MANUALLY (by calling the appropriate method)!
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
                          MatType matType=(MatType) MATMPIAIJ,
                          int numLocalRows=PETSC_DECIDE,
-                         int numLocalColumns=PETSC_DECIDE,
-                         int maxColsPerRowIfMatMpiAij=54 /* see doxygen comment! */);
+                         int numLocalColumns=PETSC_DECIDE);
 
     /**
      * Ensure exceptions are handled cleanly in parallel code, by causing all processes to
@@ -228,6 +226,16 @@ public:
      * @param rOutputFileFullPath where to read the matrix from
      */
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
+
+    /**
+     * Set the number of nonzeros per row that PETSc will preallocate memory for.
+     *
+     * @param maxColsPerRowIfMatMpiAij The maximum number of non zeros per row. This value is problem dependent.
+     *   Since the call to set this depends on the matrix-type (eg MatMPIAIJSetPreallocation/MatSeqAIJSetPreallocation),
+     *   preallocation using this value is done only if the matrix-type is MATMPIAIJ (the default). WITH OTHER
+     *   TYPES OF MATRIX NO PREALLOCATION IS DONE AND YOU MUST PREALLOCATE MANUALLY (by calling the appropriate method)!
+     */
+    static void SetMaxNumNonzerosIfMatMpiAij(unsigned maxColsPerRowIfMatMpiAij);
 
 #endif //SPECIAL_SERIAL
 
