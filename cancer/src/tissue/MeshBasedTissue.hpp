@@ -185,12 +185,6 @@ public:
      */
     const MutableMesh<DIM, DIM>& rGetMesh() const;
 
-    /** @return mWriteVoronoiData. */
-    bool GetWriteVoronoiData();
-
-    /** @return mWriteTissueAreas. */
-    bool GetWriteTissueAreas();
-
     /** @return mUseAreaBasedDampingConstant. */
     bool UseAreaBasedDampingConstant();
 
