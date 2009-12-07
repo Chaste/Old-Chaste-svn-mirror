@@ -131,7 +131,7 @@ public:
         MatGetInfo(mat2,MAT_LOCAL,&info);
         nonzeros_allocated = info.nz_allocated;
 
-        TS_ASSERT_EQUALS( nonzeros_allocated, 4*12 + 2*12 ); // 4 nonzeros allocated in diagonal part of matrix,
+        TS_ASSERT_EQUALS( nonzeros_allocated, (unsigned)(4*12 + 2*12) ); // 4 nonzeros allocated in diagonal part of matrix,
 															 // 0.5*4 nonzeros allocated in off-diagonal part
 
         MatDestroy(mat2);
