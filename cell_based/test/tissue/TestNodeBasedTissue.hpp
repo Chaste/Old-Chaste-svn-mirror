@@ -555,11 +555,11 @@ public:
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cancer/test/data/TestNodeBasedTissueWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cancer/test/data/TestNodeBasedTissueWriters/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cancer/test/data/TestNodeBasedTissueWriters/results.vizancestors").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cancer/test/data/TestNodeBasedTissueWriters/cellmutationstates.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cancer/test/data/TestNodeBasedTissueWriters/cellages.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes     cell_based/test/data/TestNodeBasedTissueWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes     cell_based/test/data/TestNodeBasedTissueWriters/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizancestors     cell_based/test/data/TestNodeBasedTissueWriters/results.vizancestors").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cell_based/test/data/TestNodeBasedTissueWriters/cellmutationstates.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cell_based/test/data/TestNodeBasedTissueWriters/cellages.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = node_based_tissue.rGetCellMutationStateCount();

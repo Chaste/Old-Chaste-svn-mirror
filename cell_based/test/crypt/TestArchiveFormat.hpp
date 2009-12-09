@@ -53,7 +53,7 @@ public:
 
     /**
      * This test is required because Test2DCryptRepresentativeSimulation loads
-     * an archive stored in cancer/test/data. When the archiving of
+     * an archive stored in cell_based/test/data. When the archiving of
      * TissueSimulation and associate classes is updated, the stored archive
      * needs to be updated. This test checks that the archive can be loaded,
      * and will seg fault if not. It does nothing more, so it runs quickly
@@ -61,9 +61,9 @@ public:
      *
      * IF THIS TEST FAILS:
      * - You have probably changed an archiving method somewhere
-     * - You need to remake cancer/test/data/<test below>/archive/
+     * - You need to remake cell_based/test/data/<test below>/archive/
      * - To do this re-run TestGenerateSteadyStateCrypt.hpp
-     * - Archives produced can then be copied to cancer/test/data/<test below>/archive/
+     * - Archives produced can then be copied to cell_based/test/data/<test below>/archive/
      *
      * Note that when updating the archive, you can run TestGenerateSteadyStateCrypt.hpp
      * with build=GccOpt to speed up the test.
@@ -82,10 +82,10 @@ public:
         // Open a new directory
         OutputFileHandler file_handler(test_to_profile, true);
 
-        // The archive must be copied from cancer/test/data/<test_to_profile>
+        // The archive must be copied from cell_based/test/data/<test_to_profile>
         // to the testoutput directory to continue running the simulation
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string test_data_directory = "cancer/test/data/" + test_to_profile +"/";
+        std::string test_data_directory = "cell_based/test/data/" + test_to_profile +"/";
         std::string command = "cp -Rf --remove-destination " + test_data_directory +" "+ test_output_directory +"/";
 
         // Test that the above command was implemented successfully

@@ -978,7 +978,7 @@ public:
 
     /**
      * Test that post-#878, WntConcentration copes with a VertexBasedTissue.
-     * \todo When vertex-based tissue code is added to cancer folder, move this
+     * \todo When vertex-based tissue code is added to cell_based folder, move this
      *       test to TestWntConcentration.hpp
      */
     void TestWntConcentrationWithVertexBasedTissue() throw(Exception)

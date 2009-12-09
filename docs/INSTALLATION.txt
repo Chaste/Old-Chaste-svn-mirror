@@ -267,7 +267,7 @@ scons mesh     # just runs the tests in the mesh folder
 scons ode      # just runs the tests in the ode folder
 scons pde      # just runs the tests in the pde folder
 scons heart    # just runs the tests in the heart folder
-scons cancer   # just runs the tests in the cancer folder
+scons cell_based   # just runs the tests in the cell_based folder
 
 If the tests compile and run, to check the results, open a web browser and go to the following (local) page:
 

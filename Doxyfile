@@ -88,7 +88,7 @@ INPUT                  =    heart/src \
 							mesh/src \
 							ode/src \ 
 							pde/src \
-							cancer/src \
+							cell_based/src \
 							notforrelease/src \
 							notforrelease_cancer/src
 							                         

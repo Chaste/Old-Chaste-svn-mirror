@@ -137,15 +137,15 @@ public:
         OutputFileHandler handler("TissueSimulationWritingProteins", false);
 
         std::string cell_variables_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellvariables.dat";
-        NumericFileComparison comp_cell_variables(cell_variables_file, "cancer/test/data/TissueSimulationWritingProteins/cellvariables.dat");
+        NumericFileComparison comp_cell_variables(cell_variables_file, "cell_based/test/data/TissueSimulationWritingProteins/cellvariables.dat");
         TS_ASSERT(comp_cell_variables.CompareFiles(1e-2));
 
         std::string cell_cycle_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
-        NumericFileComparison comp_cell_cycle(cell_cycle_file, "cancer/test/data/TissueSimulationWritingProteins/cellcyclephases.dat");
+        NumericFileComparison comp_cell_cycle(cell_cycle_file, "cell_based/test/data/TissueSimulationWritingProteins/cellcyclephases.dat");
         TS_ASSERT(comp_cell_cycle.CompareFiles(1e-2));
 
         std::string cell_ages_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellages.dat";
-        NumericFileComparison comp_cell_ages(cell_ages_file, "cancer/test/data/TissueSimulationWritingProteins/cellages.dat");
+        NumericFileComparison comp_cell_ages(cell_ages_file, "cell_based/test/data/TissueSimulationWritingProteins/cellages.dat");
         TS_ASSERT(comp_cell_ages.CompareFiles(1e-2));
 
         // Tidy up

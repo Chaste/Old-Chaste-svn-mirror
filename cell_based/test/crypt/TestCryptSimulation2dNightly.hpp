@@ -769,17 +769,17 @@ public:
         OutputFileHandler handler(output_directory, false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
 
-        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements");
+        NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cell_based/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements");
         TS_ASSERT(comp_ele.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizelements cell_based/test/data/TestResultsFileForLongerCryptSimulation/results.vizelements").c_str()), 0);
 
-        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cancer/test/data/TestResultsFileForLongerCryptSimulation/results.viznodes");
+        NumericFileComparison comp_nodes(results_dir + "/results.viznodes", "cell_based/test/data/TestResultsFileForLongerCryptSimulation/results.viznodes");
         TS_ASSERT(comp_nodes.CompareFiles(1e-15));
 
-        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizcelltypes");
+        NumericFileComparison comp_celltypes(results_dir + "/results.vizcelltypes", "cell_based/test/data/TestResultsFileForLongerCryptSimulation/results.vizcelltypes");
         TS_ASSERT(comp_celltypes.CompareFiles(1e-15));
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cancer/test/data/TestResultsFileForLongerCryptSimulation/results.vizsetup").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizsetup cell_based/test/data/TestResultsFileForLongerCryptSimulation/results.vizsetup").c_str()), 0);
 
         // Tidy up
         delete p_cell_killer;
