@@ -39,15 +39,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "HeartRegionCodes.hpp"
 
+/**
+ * A simple cell factory for bath problems, applying a SimpleStimulus for
+ * 0.5ms at a single point.
+ */
 template<unsigned DIM>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
-    // define a new stimulus
+    /** The stimulus to apply */
     boost::shared_ptr<SimpleStimulus> mpStimulus;
+    /** and where to apply it */
     c_vector<double,DIM> mStimulatedPoint;
 
 public:
+    /**
+     * Create the cell factory.
+     * @param stimulusMagnitude
+     * @param stimulatedPoint spatial co-ordinates of where to stimulate.
+     *    Must correspond to a node location.
+     */
     BathCellFactory(double stimulusMagnitude, c_vector<double,DIM> stimulatedPoint)
         : AbstractCardiacCellFactory<DIM>(),
           mpStimulus(new SimpleStimulus(stimulusMagnitude, 0.5)),
@@ -55,6 +66,10 @@ public:
     {
     }
 
+    /**
+     * Create a new cell.
+     * @param node  where to put the cell
+     */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         // paranoia - check this is really a tissue node
@@ -92,6 +107,11 @@ public:
 
 /**
  * Load a 2d mesh, and set everything outside a central circle to be bath.
+ *
+ * @param rMeshPath relative path to the mesh
+ * @param centreX X co-ord of tissue centre
+ * @param centreY Y co-ord of tissue centre
+ * @param radius radius of tissue
  */
 template<class MeshType>
 MeshType* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
