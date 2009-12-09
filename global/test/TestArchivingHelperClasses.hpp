@@ -164,7 +164,7 @@ public:
         {
             // Make sure the file is not there before we do this
             int return_val = system("test -e testoutput/archive_opener.arch*");
-            if (return_val != 0)
+            if (return_val == 0)
             {
                 EXCEPTION("Unexpected file found; bailing out!");
             }
