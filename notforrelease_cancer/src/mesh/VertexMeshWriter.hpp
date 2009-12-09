@@ -64,12 +64,18 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-
+    /**
+     * If writing from a mesh object, the mesh to write to disk.
+     * Otherwise NULL.
+     */
     VertexMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
+    /** Iterators over the mesh */
     MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters;
 
+    /** Track deleted nodes so they don't get written */
     NodeMap* mpNodeMap;
+    /** What was the last index written to #mpNodeMap ? */
     unsigned mNodeMapCurrentIndex;
 
 #ifdef CHASTE_VTK

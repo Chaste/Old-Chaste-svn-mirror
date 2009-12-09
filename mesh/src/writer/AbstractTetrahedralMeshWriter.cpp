@@ -37,10 +37,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <mpi.h> // For MPI_Send, MPI_Recv
 
+/**
+ * Convenience collection of iterators, primarily to get compilation to happen.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct MeshWriterIterators
 {
+    /** Iterator over nodes */
     typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator*  pNodeIter;
+    /** Iterator over elements */
     typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator* pElemIter;
 };
 

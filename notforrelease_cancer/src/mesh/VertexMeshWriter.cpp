@@ -28,10 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexMeshWriter.hpp"
 
+/**
+ * Convenience collection of iterators, primarily to get compilation to happen.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct MeshWriterIterators
 {
+    /** Iterator over nodes */
     typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator*  pNodeIter;
+    /** Iterator over vertex elements */
     typename VertexMesh<ELEMENT_DIM,SPACE_DIM>::VertexElementIterator* pElemIter;
 };
 
