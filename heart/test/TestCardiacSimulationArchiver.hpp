@@ -229,7 +229,6 @@ public:
             TS_ASSERT_EQUALS(p_bidomain_problem->mPrintOutput, true);
             TS_ASSERT_EQUALS(p_bidomain_problem->mNodesToOutput.size(), 0u);
             TS_ASSERT_EQUALS(p_bidomain_problem->mCurrentTime, 10.0);
-            TS_ASSERT_EQUALS(p_bidomain_problem->mArchiveKSP, false);
             delete p_bidomain_problem;
         }
     }    
@@ -291,7 +290,6 @@ public:
             TS_ASSERT_EQUALS(p_monodomain_problem->mPrintOutput, true);
             TS_ASSERT_EQUALS(p_monodomain_problem->mNodesToOutput.size(), 0u);
             TS_ASSERT_EQUALS(p_monodomain_problem->mCurrentTime, 10.0);
-            TS_ASSERT_EQUALS(p_monodomain_problem->mArchiveKSP, false);
             delete p_monodomain_problem;
         }
     }
@@ -409,10 +407,10 @@ public:
     /**
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequential.
      * Then do
-     *   cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequential
-     *   TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration/"
-     *   for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
-     *   for f in [^T]*; do cp $f $TO_DIR/$f; done
+        cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequential
+        TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration/"
+        for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
+        for f in [^T]*; do cp $f $TO_DIR/$f; done
      * 
      * Sets up a simulation and archives it without solving at all.
      * 
@@ -621,10 +619,10 @@ public:
     /**
      * Run this in sequential to create the archive for TestLoadFromSequential.
      * Then do
-     *   cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequential
-     *   TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq/"
-     *   for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
-     *   for f in [^T]*; do cp $f $TO_DIR/$f; done
+        cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequential
+        TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq/"
+        for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
+        for f in [^T]*; do cp $f $TO_DIR/$f; done
      * 
      * Sets up a simulation and archives it without solving at all.
      * 

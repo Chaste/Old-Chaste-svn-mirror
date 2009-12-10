@@ -150,7 +150,6 @@ private:
             
         }
         archive & mCurrentTime;
-        archive & mArchiveKSP;
         
         // Save boundary conditions
         SaveBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
@@ -240,7 +239,6 @@ private:
 
         }
         archive & mCurrentTime;
-        archive & mArchiveKSP;
         
         // Load boundary conditions
         mpBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
@@ -349,9 +347,6 @@ protected:
      * or because of restarting from a checkpoint.
      */
     double mCurrentTime;
-    
-    /** Tells the destructor to archive the linear system */
-    bool mArchiveKSP;
 
     /**
      * Subclasses must override this method to create a PDE object of the appropriate type.

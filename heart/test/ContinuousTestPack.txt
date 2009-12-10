@@ -1,4 +1,3 @@
-bidomain/TestBidomainArchiveLinearSystem.hpp
 bidomain/TestBidomainParallelMesh.hpp
 bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp

@@ -26,13 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-///\todo get rid of this!
-// Note: the mArchiveKSP functionality will need to move into a HeartSimulationArchiver class...
-#define JC_ARCHIVE_HACK // Needed to get TestMonodomainProblem to link, for now
-#ifndef JC_ARCHIVE_HACK
-#include <boost/archive/text_oarchive.hpp>
-#endif
-
 #include "AbstractCardiacProblem.hpp"
 
 #include "TrianglesMeshReader.hpp"
@@ -66,7 +59,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpMesh(NULL),
       mSolution(NULL),
       mCurrentTime(0.0),
-      mArchiveKSP(false),
       mpWriter(NULL)
 {
     assert(mNodesToOutput.empty());
@@ -94,7 +86,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpMesh(NULL),
       mSolution(NULL),
       mCurrentTime(0.0),
-      mArchiveKSP(false),
       mpWriter(NULL)
 {
 }
@@ -488,27 +479,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         OnEndOfTimestep(stepper.GetTime());
     }
 
-#ifndef JC_ARCHIVE_HACK
-    // We need to do this before the assembler is destroyed
-    if (mArchiveKSP)
-    {
-        ///\todo This should go in a location set in ArchiveLocationInfo (see LinearSystem::load_construct_data(...))
-        OutputFileHandler handler(HeartConfig::Instance()->GetOutputDirectory(), false);
-        handler.SetArchiveDirectory();
-
-        std::string archive_filename;
-        archive_filename = handler.GetOutputDirectoryFullPath() + HeartConfig::Instance()->GetOutputFilenamePrefix() +"_ls.arch";
-
-        std::ofstream ofs(archive_filename.c_str());
-        boost::archive::text_oarchive output_arch(ofs);
-
-        LinearSystem* const p_linear_system = *(mpAssembler->GetLinearSystem());
-        output_arch << p_linear_system;
-
-        ofs.close();
-    }
-#endif
-
     // Free assembler
     delete mpAssembler;
     mpAssembler=NULL;
@@ -700,12 +670,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::UseMatrixBasedRhsAssembly(bool usematrix)
 {
     mUseMatrixBasedRhsAssembly = usematrix;
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetArchiveLinearSystemObject(bool archive)
-{
-    mArchiveKSP = archive;
 }
 
 /////////////////////////////////////////////////////////////////////
