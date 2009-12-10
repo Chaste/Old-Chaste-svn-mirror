@@ -29,11 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ARCHIVEOPENER_HPP_
 
 #include <string>
-#include <sstream>
 #include <cassert>
-#include <iostream>
 
-#include "Exception.hpp"
 #include "PetscTools.hpp"
 
 /**
@@ -70,11 +67,14 @@ public:
      *     (for replicated data) with ".n" (where n is the process index) being appended for
      *     the secondary archive.
      * @param relativeToChasteTestOutput  whether rDirectory should be interpreted as being
-     *    relative to CHASTE_TEST_OUTPUT (default) or the current working directory.
+     *     relative to CHASTE_TEST_OUTPUT (default) or the current working directory.
+     * @param procId  this can be specified to read a specific secondary archive, rather than
+     *     this process' default.  Should not be used for writing!
      */
     ArchiveOpener(const std::string& rDirectory,
                   const std::string& rFileName,
-                  bool relativeToChasteTestOutput=true);
+                  bool relativeToChasteTestOutput=true,
+                  unsigned procId=PetscTools::GetMyRank());
     
     /**
      * Close the opened archives.

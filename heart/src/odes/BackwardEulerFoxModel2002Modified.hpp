@@ -22,7 +22,7 @@
  */
 class BackwardEulerFoxModel2002Modified : public AbstractBackwardEulerCardiacCell<3>
 {
-  private:
+private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**

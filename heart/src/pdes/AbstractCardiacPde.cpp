@@ -90,6 +90,37 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
     mIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     mIntracellularStimulusCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     
+    // If we're migrating to a different number of processes, delete the cells we don't need.
+    /// \todo Don't allocate the memory in the first place!
+    /// \todo Assumes that mCellsDistributed contains all the cells, and that we're not permuting.
+    if (mpDistributedVectorFactory->GetOriginalFactory() &&
+        mpDistributedVectorFactory->GetLocalOwnership() < mCellsDistributed.size())
+    {
+        assert(mCellsDistributed.size() == mpDistributedVectorFactory->GetProblemSize());
+        // Free memory.
+        /// \todo handle the bath cell case
+        for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
+             cell_iterator != mCellsDistributed.begin() + mpDistributedVectorFactory->GetLow();
+             ++cell_iterator)
+        {
+            delete (*cell_iterator);
+        }
+        for (std::vector<AbstractCardiacCell*>::iterator
+                 cell_iterator = mCellsDistributed.begin() + mpDistributedVectorFactory->GetHigh();
+             cell_iterator != mCellsDistributed.end();
+             ++cell_iterator)
+        {
+            delete (*cell_iterator);
+        }
+        
+        // Remove pointers from the vector.
+        // Remove any extra cells at the end first, for efficiency.
+        mCellsDistributed.erase(mCellsDistributed.begin() + mpDistributedVectorFactory->GetHigh(),
+                                mCellsDistributed.end());
+        mCellsDistributed.erase(mCellsDistributed.begin(),
+                                mCellsDistributed.begin() + mpDistributedVectorFactory->GetLow());
+    }
+    
     CreateIntracellularConductivityTensor();
 }
 
@@ -133,18 +164,18 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
         switch (mpConfig->GetConductivityMedia())
         {
             case cp::media_type::Orthotropic:
-                mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+                mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".ortho");
                 break;
 
             case cp::media_type::Axisymmetric:
-                mpIntracellularConductivityTensors =  new AxisymmetricConductivityTensors<SPACE_DIM>;
+                mpIntracellularConductivityTensors = new AxisymmetricConductivityTensors<SPACE_DIM>;
                 mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".axi");
                 break;
 
             case cp::media_type::NoFibreOrientation:
                 /// \todo Create a class defining constant tensors to be used when no fibre orientation is provided.
-                mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+                mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
                 break;
 
             default :
@@ -154,7 +185,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
     else // Slab defined in config file or SetMesh() called; no fibre orientation assumed
     {
         /// \todo Create a class defining constant tensors to be used when no fibre orientation is provided.
-        mpIntracellularConductivityTensors =  new OrthotropicConductivityTensors<SPACE_DIM>;
+        mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
     }
 
     c_vector<double, SPACE_DIM> intra_conductivities;

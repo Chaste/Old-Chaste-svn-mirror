@@ -37,10 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "ArchiveOpener.hpp"
+
 #include "AbstractCardiacCell.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
+#include "FaberRudy2000Version3.hpp"
+
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
@@ -303,7 +306,7 @@ private:
     {
         // Do the migration to sequential
         Problem* p_problem = CardiacSimulationArchiver<Problem>::LoadAsSequential(rArchiveDirectory);
-        
+
         // Some basic tests that we have the right data
         TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
         TS_ASSERT_EQUALS(p_problem->mPrintOutput, true);
@@ -313,7 +316,7 @@ private:
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), totalNumCells);
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
         TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
-        
+
         // All cells should be at initial conditions.
         std::vector<double> inits = p_problem->GetPde()->GetCardiacCell(0)->GetInitialConditions();
         for (unsigned i=0; i<totalNumCells; i++)
@@ -326,10 +329,10 @@ private:
                 TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
             }
         }
-        
+
         // Save it to a sequential archive
         CardiacSimulationArchiver<Problem>::Save(*p_problem, rArchiveDirectory);
-        
+
         // Compare with the archive from the previous test
         OutputFileHandler handler(rArchiveDirectory, false);
         std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/" + rRefArchiveDir + ".arch";
@@ -339,7 +342,7 @@ private:
         // (one per original process which had them).
         //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
         EXPECT0(system, "diff -I 'serialization::archive' " + rSourceDir + "reference_0_archive " + my_archive + ".0");
-        
+
         // Return the problem for further tests
         return p_problem;
     }
@@ -347,7 +350,8 @@ private:
     template<class Problem>
     void DoSimulationsAfterMigrationAndCompareResults(Problem* pProblem,
                                                       const std::string& rArchiveDirectory,
-                                                      const std::string& rRefArchiveDir)
+                                                      const std::string& rRefArchiveDir,
+                                                      unsigned numVars)
     {
         // Simulate this problem
         // Change output directory to avoid over-writing original results & archives
@@ -360,40 +364,42 @@ private:
         VecCopy(migrated_soln, migrated_soln_copy);
         // and destroy the problem, so we don't get confusion from 2 problems at the same time
         delete pProblem;
-        
+
         // Compare the results with simulating the archive from the previous test
         Problem* p_orig_problem = CardiacSimulationArchiver<Problem>::Load(rRefArchiveDir);
         HeartConfig::Instance()->SetOutputDirectory(rRefArchiveDir + "/orig");
         p_orig_problem->Solve();
         DistributedVector orig_soln = p_orig_problem->GetSolutionDistributedVector();
-        DistributedVector::Stripe orig_vm(orig_soln, 0);
-        DistributedVector::Stripe orig_phie(orig_soln, 1);
         DistributedVector migrated_soln_1(migrated_soln_copy, orig_soln.GetFactory());
-        DistributedVector::Stripe migrated_vm_1(migrated_soln_1, 0);
-        DistributedVector::Stripe migrated_phie_1(migrated_soln_1, 1);
-        for (DistributedVector::Iterator index = migrated_soln_1.Begin();
-             index != migrated_soln_1.End();
-             ++index)
+        for (unsigned var=0; var<numVars; var++)
         {
-            TS_ASSERT_DELTA(orig_vm[index], migrated_vm_1[index], 1e-8);
-            TS_ASSERT_DELTA(orig_phie[index], migrated_phie_1[index], 1e-8);
+            DistributedVector::Stripe orig_stripe(orig_soln, var);
+            DistributedVector::Stripe migrated_stripe(migrated_soln_1, var);
+            for (DistributedVector::Iterator index = migrated_soln_1.Begin();
+                 index != migrated_soln_1.End();
+                 ++index)
+            {
+                TS_ASSERT_DELTA(orig_stripe[index], migrated_stripe[index], 1e-8);
+            }
         }
         delete p_orig_problem;
-        
+
         // Now try loading the migrated simulation that we saved above
         Problem* p_problem = CardiacSimulationArchiver<Problem>::Load(rArchiveDirectory);
         HeartConfig::Instance()->SetOutputDirectory(rRefArchiveDir + "/mig2");
         p_problem->Solve();
         // and again compare the results
         DistributedVector migrated_soln_2 = p_problem->GetSolutionDistributedVector();
-        DistributedVector::Stripe migrated_vm_2(migrated_soln_2, 0);
-        DistributedVector::Stripe migrated_phie_2(migrated_soln_2, 1);
-        for (DistributedVector::Iterator index = migrated_soln_1.Begin();
-             index != migrated_soln_1.End();
-             ++index)
+        for (unsigned var=0; var<numVars; var++)
         {
-            TS_ASSERT_DELTA(migrated_vm_2[index], migrated_vm_1[index], 1e-8);
-            TS_ASSERT_DELTA(migrated_phie_2[index], migrated_phie_1[index], 1e-8);
+            DistributedVector::Stripe migrated_stripe_2(migrated_soln_2, var);
+            DistributedVector::Stripe migrated_stripe_1(migrated_soln_1, var);
+            for (DistributedVector::Iterator index = migrated_soln_1.Begin();
+                 index != migrated_soln_1.End();
+                 ++index)
+            {
+                TS_ASSERT_DELTA(migrated_stripe_2[index], migrated_stripe_1[index], 1e-8);
+            }
         }
         delete p_problem;
         VecDestroy(migrated_soln_copy);
@@ -490,7 +496,7 @@ public:
             TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
             TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
             
-            DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir);
+            DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
         }
         else
         {
@@ -602,7 +608,7 @@ public:
 //            TS_ASSERT( p_problem->mpDefaultBoundaryConditionsContainer);
 //            TS_ASSERT( p_problem->mpBoundaryConditionsContainer);
 //            
-//            DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir);
+//            DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
 //        }
 //        else
 //        {
@@ -611,6 +617,147 @@ public:
 //                                  "Cannot load sequentially when running in parallel.");
 //        }
 //    }
+
+    /**
+     * Run this in sequential to create the archive for TestLoadFromSequential.
+     * Then do
+     *   cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequential
+     *   TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq/"
+     *   for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
+     *   for f in [^T]*; do cp $f $TO_DIR/$f; done
+     * 
+     * Sets up a simulation and archives it without solving at all.
+     * 
+     * When running in parallel, this creates an archive we can compare with
+     * that produced by the next test.
+     * 
+     * Generates a 3d cube mesh with 125 nodes, corners at (0,0,0) and (1,1,1)
+     * with nodal spacing of 0.25cm.
+     */
+    void TestCreateArchiveForLoadFromSequential() throw (Exception)
+    {
+        std::string directory = "TestCreateArchiveForLoadFromSequential";
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.25);
+        HeartConfig::Instance()->SetSimulationDuration(0.2);
+        HeartConfig::Instance()->SetOutputDirectory(directory);
+        HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
+        // We want the numbers matching in any h5 files:
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);
+        
+        PlaneStimulusCellFactory<FaberRudy2000Version3, 3> cell_factory(-25500.0, 2.0);
+        MonodomainProblem<3> monodomain_problem( &cell_factory );
+        
+        monodomain_problem.Initialise();
+        
+        CardiacSimulationArchiver<MonodomainProblem<3> >::Save(monodomain_problem, directory);
+    }
+
+    /**
+     * #1159 - the second part of migrating a checkpoint to a different number of processes.
+     */
+    void TestLoadFromSequential() throw (Exception)
+    {
+        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
+        std::string source_directory = "heart/test/data/checkpoint_migration_from_seq/";
+        std::string archive_directory = "TestLoadFromSequential";
+        std::string ref_archive_dir = "TestCreateArchiveForLoadFromSequential";
+        OutputFileHandler handler(archive_directory); // Clear the target directory
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
+        }
+        PetscTools::Barrier();
+
+        // Cover exception
+        MonodomainProblem<3>* p_problem;
+        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::LoadFromSequential("non_existent_dir"),
+                                  "Cannot load main archive file: ");
+
+        // Loading from a sequential archive should work just as well running sequentially as in parallel -
+        // if running sequentially it's essentially just the same as a normal load.
+        const unsigned num_cells = 125u;
+        // Do the migration
+        p_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::LoadFromSequential(archive_directory);
+
+        // Some basic tests that we have the right data
+        TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
+        TS_ASSERT_EQUALS(p_problem->mPrintOutput, true);
+        TS_ASSERT_EQUALS(p_problem->mNodesToOutput.size(), 0u);
+        TS_ASSERT_EQUALS(p_problem->mCurrentTime, 0.0);
+        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
+        TS_ASSERT(p_factory->GetOriginalFactory());
+        TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), num_cells);
+        TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetNumProcs(), 1u);
+        TS_ASSERT_EQUALS(p_problem->GetPde()->GetCellsDistributed().size(), p_factory->GetLocalOwnership());
+        TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), num_cells);
+        TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), num_cells);
+        TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
+        // Check the mesh isn't the parallel variety
+        const ParallelTetrahedralMesh<3,3>* p_par_mesh = dynamic_cast<const ParallelTetrahedralMesh<3,3>*>(p_problem->GetPde()->pGetMesh());
+        TS_ASSERT(p_par_mesh == NULL);
+
+        // All cells should be at initial conditions.
+        if (p_factory->GetHigh() > p_factory->GetLow())
+        {
+            std::vector<double> inits = p_problem->GetPde()->GetCardiacCell(p_factory->GetLow())->GetInitialConditions();
+            for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+            {
+                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+                std::vector<double>& r_state = p_cell->rGetStateVariables();
+                TS_ASSERT_EQUALS(r_state.size(), inits.size());
+                for (unsigned j=0; j<r_state.size(); j++)
+                {
+                    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                }
+            }
+        }
+
+        // Save it to a normal archive
+        CardiacSimulationArchiver<MonodomainProblem<3> >::Save(*p_problem, archive_directory);
+
+        // Compare with the archive from the previous test
+        std::string ref_archive = handler.GetChasteTestOutputDirectory() + ref_archive_dir + "/" + ref_archive_dir + ".arch";
+        std::string my_archive = handler.GetOutputDirectoryFullPath() + archive_directory + ".arch";
+        EXPECT0(system, "diff " + ref_archive + " " + my_archive);
+        for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
+        {
+            std::stringstream proc_id;
+            proc_id << i;
+            std::string suffix = "." + proc_id.str();
+            EXPECT0(system, "diff -I 'serialization::archive' " + ref_archive + suffix + " " + my_archive + suffix);
+        }
+
+        // All cells at x=0 should have a SimpleStimulus(-25500, 2).
+        for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+        {
+            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
+            
+            if (x*x < 1e-10)
+            {
+                // Stim exists
+                TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), -25500.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(2.0), -25500.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(2.001), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
+            }
+            else
+            {
+                // No stim
+                TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(2.0), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(2.001), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
+            }
+        }
+        
+        // Test bccs - none defined in this problem
+        TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
+        TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
+        
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 1);
+    }
 };
 
 #endif /*TESTCARDIACSIMULATIONARCHIVER_HPP_*/

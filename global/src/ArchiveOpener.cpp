@@ -30,21 +30,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include <sstream>
+#include <iostream>
+
 #include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "ProcessSpecificArchive.hpp"
+#include "Exception.hpp"
 
 /**
  * Specialization for input archives.
  * @param rDirectory
  * @param rFileName
  * @param relativeToChasteTestOutput
+ * @param procId
  */
 template<>
 ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
         const std::string& rDirectory,
         const std::string& rFileName,
-        bool relativeToChasteTestOutput)
+        bool relativeToChasteTestOutput,
+        unsigned procId)
     : mpCommonStream(NULL),
       mpPrivateStream(NULL),
       mpCommonArchive(NULL),
@@ -60,7 +66,7 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
     {
         ArchiveLocationInfo::SetArchiveDirectory(rDirectory, relativeToChasteTestOutput);
     }
-    std::string private_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rFileName);
+    std::string private_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rFileName, procId);
     std::stringstream common_path;
     common_path << ArchiveLocationInfo::GetArchiveDirectory() << rFileName;
     
@@ -101,17 +107,24 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::~ArchiveOpener()
  * @param rDirectory
  * @param rFileName
  * @param relativeToChasteTestOutput
+ * @param procId
  */
 template<>
 ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
         const std::string& rDirectory,
         const std::string& rFileName,
-        bool relativeToChasteTestOutput)
+        bool relativeToChasteTestOutput,
+        unsigned procId)
     : mpCommonStream(NULL),
       mpPrivateStream(NULL),
       mpCommonArchive(NULL),
       mpPrivateArchive(NULL)
 {
+    // Check for user error
+    if (procId != PetscTools::GetMyRank())
+    {
+        EXCEPTION("Specifying the secondary archive file ID doesn't make sense when writing.");
+    }
     // Figure out where things live
     if (relativeToChasteTestOutput)
     {

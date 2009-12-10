@@ -31,7 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTARCHIVINGHELPERCLASSES_HPP_
 
 #include <cstdlib> // For 'system'
-#include <sys/stat.h> //For chmod()
+#include <climits>
+#include <sys/stat.h> // For chmod()
 #include <cxxtest/TestSuite.h>
 
 #include <boost/archive/text_oarchive.hpp>
@@ -178,7 +179,7 @@ public:
                 InputArchiveOpener archive_opener_relative("apps/texttest/chaste/resume_bidomain/save_bidomain", "save_bidomain.arch", false);
             }
         }
-        
+
         PetscTools::Barrier(); // Make sure all processes have finished this test before proceeding
     }
 
@@ -234,6 +235,51 @@ public:
             chmod(handler.GetOutputDirectoryFullPath().c_str(), 0755);
         }
         PetscTools::Barrier();
+    }
+    
+    void TestSpecifyingSecondaryArchive() throw (Exception)
+    {
+        std::string archive_dir = "archive";
+        std::string archive_file = "specific_secondary.arch";
+        const unsigned test_int = 321;
+        const unsigned proc_id = PetscTools::GetMyRank();
+        
+        // Writing when specifying the secondary archive doesn't make sense
+        {
+            TS_ASSERT_THROWS_THIS(OutputArchiveOpener archive_opener_out(archive_dir, archive_file, true, UINT_MAX),
+                                  "Specifying the secondary archive file ID doesn't make sense when writing.");
+        }
+        
+        // Write normally so we can test reading
+        {
+            OutputArchiveOpener archive_opener_out(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = archive_opener_out.GetCommonArchive();
+            boost::archive::text_oarchive* p_process_arch = ProcessSpecificArchive<boost::archive::text_oarchive>::Get();
+
+            (*p_arch) & test_int; // All can write to the common archive - non-masters will write to /dev/null.
+            (*p_process_arch) & proc_id;
+
+            // archive_opener_out will do a PetscTools::Barrier when it is destructed 
+        }
+
+        // Read
+        {
+            TS_ASSERT_THROWS_THIS(ProcessSpecificArchive<boost::archive::text_oarchive>::Get(),
+                                  "A ProcessSpecificArchive has not been set up.");
+            TS_ASSERT_THROWS_THIS(ProcessSpecificArchive<boost::archive::text_iarchive>::Get(),
+                                  "A ProcessSpecificArchive has not been set up.");
+
+            InputArchiveOpener archive_opener_in(archive_dir, archive_file, true, 0);
+            boost::archive::text_iarchive* p_arch = archive_opener_in.GetCommonArchive();
+            boost::archive::text_iarchive* p_process_arch = ProcessSpecificArchive<boost::archive::text_iarchive>::Get();
+
+            unsigned test_int1, test_int2;
+            (*p_arch) & test_int1;
+            (*p_process_arch) & test_int2;
+    
+            TS_ASSERT_EQUALS(test_int1, test_int);
+            TS_ASSERT_EQUALS(test_int2, 0u);
+        }
     }
 };
 
