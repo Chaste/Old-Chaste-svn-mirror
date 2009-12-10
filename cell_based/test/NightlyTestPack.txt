@@ -1,3 +1,6 @@
 cell/TestTissueCellNightly.hpp
 crypt/TestCryptSimulation2dNightly.hpp
+tutorial/TestCreatingAndUsingANewCellCycleModelTutorial.hpp
+tutorial/TestCreatingAndUsingANewCellKillerTutorial.hpp
+tutorial/TestCreatingATissueSimulationWithBoundaryConditionsTutorial.hpp
 tutorial/TestRunningCryptSimulationsTutorial.hpp
