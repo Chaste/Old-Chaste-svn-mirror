@@ -96,13 +96,12 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     // Write the element header
     unsigned num_elements = this->GetNumElements();
-    
- //   assert( this->mElementData.size()>0 );//Read element size from the data we're given
+    num_attr = 1u; // We have a single region code
 
-    std::vector<unsigned> element_data = this->GetNextElement().NodeIndices;
+    ElementData element_data = this->GetNextElement();
 
-    unsigned nodes_per_element = element_data.size();
-    if(nodes_per_element != ELEMENT_DIM+1)
+    unsigned nodes_per_element = element_data.NodeIndices.size();
+    if (nodes_per_element != ELEMENT_DIM+1)
     {
         // Check that this is a quadratic mesh
         assert(ELEMENT_DIM == SPACE_DIM);
@@ -118,16 +117,19 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     {
         // if item_num==0 we will already got the element above (in order to 
         // get the number of nodes per element
-        if(item_num>0)
+        if (item_num>0)
         {
-            element_data = this->GetNextElement().NodeIndices;
+            element_data = this->GetNextElement();
         }
         
         *p_element_file << item_num;
         for (unsigned i=0; i<nodes_per_element; i++)
         {
-            *p_element_file << "\t" << element_data[i];
+            *p_element_file << "\t" << element_data.NodeIndices[i];
         }
+        // Attribute
+        *p_element_file << "\t" << element_data.AttributeValue;
+        
         *p_element_file << "\n";
     }
     *p_element_file << comment << "\n";

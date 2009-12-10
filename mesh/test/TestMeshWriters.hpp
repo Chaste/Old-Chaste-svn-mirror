@@ -46,7 +46,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 {
 public:
 
-    void TestMemfemtoTetgen()
+    void TestMemfemToTetgen()
     {
         TrianglesMeshWriter<3,3> mesh_writer("", "MeshFromMemfem");
         MemfemMeshReader<3,3> import_mesh_reader("mesh/test/data/Memfem_slab");
@@ -59,7 +59,7 @@ public:
         delete p_new_mesh_reader;
     }
 
-    void TestFemlabtoTriangles()
+    void TestFemlabToTriangles()
     {
         TrianglesMeshWriter<2,2> mesh_writer("", "MeshFromFemlab");
 
@@ -105,7 +105,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
     
-    void TestTrianglesToMeshalyzer1din3d()
+    void TestTrianglesToMeshalyzer1dIn3d()
     {
         TrianglesMeshReader<1,3> import_mesh_reader("mesh/test/data/trivial_1d_in_3d_mesh");
         MeshalyzerMeshWriter<1,3> mesh_writer("", "Mesh");
@@ -300,6 +300,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 100u); // culling now occurs in the reader
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 100u);
     }
+    
     void TestQuadratic1D() throw (Exception)
     {
         QuadraticMesh<1> mesh;
@@ -371,6 +372,7 @@ public:
         TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNumNodes(), 6U);
         TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNodeGlobalIndex(5), mesh.GetBoundaryElement(0)->GetNodeGlobalIndex(5));
     }
+    
     void TestCmguiWriter3D() throw(Exception)
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
@@ -395,7 +397,6 @@ public:
         writer2.SetAdditionalFieldNames(field_names);
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
         TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements_additional_fields.exelem").c_str()), 0);
-                        
     }
     
     void TestCmguiWriter2D() throw(Exception)
@@ -422,7 +423,6 @@ public:
         writer2.SetAdditionalFieldNames(field_names);
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
         TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/square_128_elements.exelem mesh/test/data/TestCmguiWriter/square_128_elements_additional_fields.exelem").c_str()), 0);
-                        
     }
 
     void TestCmguiWriter1D() throw(Exception)
@@ -449,8 +449,8 @@ public:
         writer2.SetAdditionalFieldNames(field_names);
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
         TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/1D_0_to_1_100_elements.exelem mesh/test/data/TestCmguiWriter/1D_0_to_1_100_elements_additional_fields.exelem").c_str()), 0);
-                        
     }
+    
     void TestVtkWriter() throw(Exception)
     {
 #ifdef CHASTE_VTK
@@ -539,6 +539,60 @@ public:
 #endif //CHASTE_VTK
     }
 
+    /**
+     * This test is based on TestTrianglesMeshReader.hpp TestReadingElementAttributes.
+     */
+    void TestWritingElementAttributesInTrianglesFormat() throw (Exception)
+    {
+        std::string source_mesh = "mesh/test/data/1D_0_to_1_10_elements_with_attributes";
+        std::string output_dir = "element_attrs";
+        std::string file_from_reader = "from_reader";
+        std::string file_from_mesh = "from_mesh";
+        
+        // Firstly, write directly from a mesh reader
+        {
+            TrianglesMeshReader<1,1> mesh_reader(source_mesh);
+            TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
+            TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+            
+            TrianglesMeshWriter<1,1> mesh_writer(output_dir, file_from_reader, true);
+            mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+        }
+        
+        // Next, write using a mesh object
+        {
+            TrianglesMeshReader<1,1> mesh_reader(source_mesh);
+            TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
+            TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+            
+            TetrahedralMesh<1,1> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            
+            TrianglesMeshWriter<1,1> mesh_writer(output_dir, file_from_mesh, false);
+            mesh_writer.WriteFilesUsingMesh(mesh);
+        }
+        
+        // Now check the written meshes
+        OutputFileHandler handler(output_dir, false);
+        TrianglesMeshReader<1,1> reader1(handler.GetOutputDirectoryFullPath() + file_from_reader);
+        TS_ASSERT_EQUALS(reader1.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(reader1.GetNumElementAttributes(), 1u);
+        TrianglesMeshReader<1,1> reader2(handler.GetOutputDirectoryFullPath() + file_from_mesh);
+        TS_ASSERT_EQUALS(reader2.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(reader2.GetNumElementAttributes(), 1u);
+        for (unsigned i=0; i<10; i++)
+        {
+            ElementData next_element_info = reader1.GetNextElementData();
+            std::vector<unsigned> nodes = next_element_info.NodeIndices;
+            TS_ASSERT_EQUALS(nodes.size(), 2u);
+            TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5 + 1);
+            
+            next_element_info = reader2.GetNextElementData();
+            nodes = next_element_info.NodeIndices;
+            TS_ASSERT_EQUALS(nodes.size(), 2u);
+            TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5 + 1);
+        }
+    }
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_

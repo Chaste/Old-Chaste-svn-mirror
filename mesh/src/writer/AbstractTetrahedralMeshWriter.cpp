@@ -75,7 +75,7 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMeshWr
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMeshWriter()
 {
-    if(mpIters->pNodeIter)
+    if (mpIters->pNodeIter)
     {
         delete mpIters->pNodeIter;
         delete mpIters->pElemIter;
@@ -83,7 +83,7 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMeshW
 
     delete mpIters;
         
-    if(mpNodeMap)
+    if (mpNodeMap)
     {
         delete mpNodeMap;
     }
@@ -95,7 +95,7 @@ std::vector<double> AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNe
 {
     // if we are writing from a mesh..
     assert(PetscTools::AmMaster());
-    if( mpMesh )
+    if (mpMesh)
     {
         std::vector<double> coords(SPACE_DIM);
         double raw_coords[SPACE_DIM];       
@@ -145,14 +145,14 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
 {
     assert(PetscTools::AmMaster());
     // if we are writing from a mesh..
-    if( mpMesh )
+    if (mpMesh)
     {
         ElementData elem_data;
         elem_data.NodeIndices.resize(mNodesPerElement);
 
         if ( mpParallelMesh == NULL ) // not using parallel mesh
         {
-            //Use the iterator
+            // Use the iterator
             assert(this->mNumElements==mpMesh->GetNumElements()); 
     
             for (unsigned j=0; j<elem_data.NodeIndices.size(); j++)
@@ -160,7 +160,8 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
                 unsigned old_index = (*(mpIters->pElemIter))->GetNodeGlobalIndex(j);
                 elem_data.NodeIndices[j] = mpMesh->IsMeshChanging() ? mpNodeMap->GetNewIndex(old_index) : old_index;
             }
-            /// \todo set attribute
+            // Set attribute
+            elem_data.AttributeValue = (*(mpIters->pElemIter))->GetRegion();
             
             ++(*(mpIters->pElemIter));
             
@@ -175,11 +176,12 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
                 Element<ELEMENT_DIM, SPACE_DIM>* p_element = mpParallelMesh->GetElement(mElementCounterForParallelMesh);
                 assert(elem_data.NodeIndices.size() == ELEMENT_DIM+1);
                 assert( p_element->IsDeleted() == false );
-                //Master can use the local data to recover node indices
+                //Master can use the local data to recover node indices & attribute
                 for (unsigned j=0; j<ELEMENT_DIM+1; j++)
                 {
                     elem_data.NodeIndices[j] = p_element->GetNodeGlobalIndex(j);
                 }
+                elem_data.AttributeValue = p_element->GetRegion();
             }
             else
             {
@@ -193,6 +195,8 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
                 {
                     elem_data.NodeIndices[j] = raw_indices[j];
                 }
+                /// \todo attribute value
+                elem_data.AttributeValue = 0;
             }
             // increment element counter
             mElementCounterForParallelMesh++;
