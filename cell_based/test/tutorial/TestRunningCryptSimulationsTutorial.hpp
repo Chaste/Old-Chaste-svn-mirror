@@ -106,7 +106,7 @@ public:
          * a double layer of ghost nodes around the mesh (technically, just above
          * and below the mesh, since it is periodic).
          */
-        HoneycombMeshGenerator generator(6, 9, 2, true); // params are: cells across, cells up, thickness of ghost layer, whether to be cylindrical
+        HoneycombMeshGenerator generator(6, 9, 2, true); // parameters are: cells across, cells up, thickness of ghost layer, whether to be cylindrical
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
