@@ -323,6 +323,11 @@ if run_infrastructure_tests:
     os.system('python/TestRunner.py python/CheckForCopyrights.py ' +
               str(out) + ' ' + build_type + ' --no-stdout')
     test_log_files.append(out)
+    # Check for stale semaphores
+    out = File(build.GetTestReportDir() + 'Semaphores.log')
+    os.system('python/TestRunner.py python/CheckSemaphores.py ' +
+              str(out) + ' ' + build_type + ' --no-stdout')
+    test_log_files.append(out)
 if check_failing_tests:
     out = File(build.GetTestReportDir() + 'FailingTests.log')
     os.system('python/TestRunner.py python/CheckForFailingTests.py ' +
