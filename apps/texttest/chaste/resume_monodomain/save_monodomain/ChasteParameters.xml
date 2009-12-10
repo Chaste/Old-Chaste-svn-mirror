@@ -26,7 +26,7 @@
     </cp12:Stimuli>
     <cp12:OutputDirectory>SaveMonodomain</cp12:OutputDirectory>
     <cp12:OutputFilenamePrefix>MonodomainLR91_2d</cp12:OutputFilenamePrefix>
-    <cp12:CheckpointSimulation timestep="10"/>
+    <cp12:CheckpointSimulation timestep="10" unit="ms"/>
   </cp12:Simulation>
 
   <cp12:Physiological>

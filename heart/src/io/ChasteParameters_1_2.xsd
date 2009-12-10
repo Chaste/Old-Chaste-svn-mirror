@@ -290,8 +290,10 @@
   </xs:simpleType>   
       
   <xs:complexType name="checkpoint_type">
-    <xs:attribute name="timestep" type="xs:double" use="required" />
+    <xs:attribute name="timestep" type="xs:double" use="required" />   
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
   </xs:complexType>
+  
       
   <xs:complexType name="adaptivity_parameters_type">
     <xs:attribute name="target_error" type="xs:double" use="required"/>

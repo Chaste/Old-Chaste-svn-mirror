@@ -44,7 +44,7 @@
 		<!--
 			Save Simulation
 		-->
-		<CheckpointSimulation timestep="10.0"/>
+		<CheckpointSimulation timestep="10.0" unit="ms"/>
 	</Simulation>
 	
 	<Physiological>

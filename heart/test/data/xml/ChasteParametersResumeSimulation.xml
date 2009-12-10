@@ -9,7 +9,7 @@
 		<SpaceDimension>3</SpaceDimension>
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
 	    <Domain>Mono</Domain>
-		<CheckpointSimulation timestep="20.0"/>				
+		<CheckpointSimulation timestep="20.0" unit="ms"/>				
 	</ResumeSimulation>
 	
 	<Physiological>
