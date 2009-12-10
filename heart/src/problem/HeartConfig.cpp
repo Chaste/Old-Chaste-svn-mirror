@@ -1769,7 +1769,8 @@ void HeartConfig::CheckTimeSteps() const
         //zero(+a smidge) or pde-a smidge
         double remainder_checkpoint_over_printing=fmod(GetCheckpointTimestep(), GetPrintingTimeStep());
     
-        if ( remainder_checkpoint_over_printing > DBL_EPSILON && remainder_checkpoint_over_printing < GetPrintingTimeStep()-DBL_EPSILON)
+        // I (migb) had to scale DBL_EPSILON because the comparison wasn't working properly with GetCheckpointTimestep()=10.0 GetPrintingTimeStep()=0.1
+        if ( remainder_checkpoint_over_printing > DBL_EPSILON && remainder_checkpoint_over_printing < GetPrintingTimeStep()-DBL_EPSILON*(1/GetPrintingTimeStep()))
         {
             EXCEPTION("Checkpoint time-step should be a multiple of printing time step");
         }

@@ -338,16 +338,27 @@ private:
             p_problem = CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
         }
 
-        p_problem->Solve();
-
-        /// \todo: #1158 ignoring periodic timestep now 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {
             /// \todo: until we implement checkpointing properly, we only allow checkpoint timestep equals to simulation duration (equivalent to old save+resume)
-            assert(HeartConfig::Instance()->GetCheckpointTimestep() == HeartConfig::Instance()->GetSimulationDuration());
-            std::stringstream directory;
-            directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-            CardiacSimulationArchiver<Problem>::Save(*p_problem, directory.str(), false);
+            assert(HeartConfig::Instance()->GetCheckpointTimestep() == HeartConfig::Instance()->GetSimulationDuration());  
+    
+            TimeStepper chekpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
+            while ( !chekpoint_stepper.IsTimeAtEnd() )
+            {
+                HeartConfig::Instance()->SetSimulationDuration(chekpoint_stepper.GetNextTime());                                
+                p_problem->Solve();
+        
+                std::stringstream directory;
+                directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
+                CardiacSimulationArchiver<Problem>::Save(*p_problem, directory.str(), false);
+    
+                chekpoint_stepper.AdvanceOneTimeStep();
+            }        
+        }
+        else
+        {
+            p_problem->Solve();
         }
         
         delete p_problem;
