@@ -52,4 +52,4 @@ if total_open > 3*num_processors:
     print "The next line is for the benefit of the test summary scripts."
     print "Failed",total_open,"of",total_open,"tests"
 else:
-    print "Semaphore test passed ok."
+    print "Infrastructure test passed ok."
