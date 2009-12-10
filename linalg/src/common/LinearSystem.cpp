@@ -387,17 +387,20 @@ void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRow
     MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS);
 #endif
 
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    NEVER_REACHED; // fill in if this is reached..
-#else
     PetscInt* rows = new PetscInt[rRows.size()];
     for(unsigned i=0; i<rRows.size(); i++)
     {
         rows[i] = rRows[i];
     }
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    IS is;
+    ISCreateGeneral(PETSC_COMM_WORLD, rRows.size(), rows, &is);
+    MatZeroRows(mLhsMatrix, is, &diagonalValue);
+    ISDestroy(is);
+#else
     MatZeroRows(mLhsMatrix, rRows.size(), rows, diagonalValue);
-    delete [] rows;
 #endif
+    delete [] rows;
 }
     
 

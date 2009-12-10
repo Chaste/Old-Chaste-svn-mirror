@@ -405,7 +405,16 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS);
 #endif
 
-    MatZeroRows(jacobian, num_boundary_conditions, rows_to_zero, 1.0);
+    PetscScalar one = 1.0;
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    IS is;
+    ISCreateGeneral(PETSC_COMM_WORLD, num_boundary_conditions, rows_to_zero, &is);
+    MatZeroRows(jacobian, is, &one);
+    ISDestroy(is);
+#else
+    MatZeroRows(jacobian, num_boundary_conditions, rows_to_zero, one);
+#endif
+
     delete [] rows_to_zero;
 }
 
