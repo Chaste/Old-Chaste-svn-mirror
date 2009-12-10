@@ -491,6 +491,12 @@ public :
         // Throws because ode time step is bigger than pde time step
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3), "Printing time-step should be a multiple of PDE time step");
 
+        /*
+         *  Set ODE, PDE, and printing timestep to something meaningful and test SetCheckpointSimulation() exceptions. 
+         */
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.4);
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetCheckpointSimulation(true, 1.0), "Checkpoint time-step should be a multiple of printing time step");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetCheckpointSimulation(true, -2.0), "Printing time-step should be positive");
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
@@ -701,6 +707,9 @@ public :
         HeartConfig::Instance()->Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"),
                 "Ode time-step should not be greater than pde time-step");
+        HeartConfig::Instance()->Reset();
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistentCheckpointTimestep.xml"),
+                "Checkpoint time-step should be a multiple of printing time step");
 
         //Can't open a directory
         HeartConfig::Instance()->SetOutputDirectory("../../../");

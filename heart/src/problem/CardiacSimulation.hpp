@@ -343,7 +343,7 @@ private:
         /// \todo: #1158 ignoring periodic timestep now 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {
-            /// \todo: until we implement checkpointing properly when only allow checkpoint timestep equals to simulation duration (equivalent to old save+resume)
+            /// \todo: until we implement checkpointing properly, we only allow checkpoint timestep equals to simulation duration (equivalent to old save+resume)
             assert(HeartConfig::Instance()->GetCheckpointTimestep() == HeartConfig::Instance()->GetSimulationDuration());
             std::stringstream directory;
             directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 

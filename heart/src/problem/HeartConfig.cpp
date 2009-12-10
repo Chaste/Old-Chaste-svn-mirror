@@ -1607,9 +1607,7 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
 }
 
 void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpointTimestep)
-{
-    assert((!saveSimulation)||(saveSimulation && checkpointTimestep>0));
-    
+{    
     if (saveSimulation)
     {
         mpUserParameters->Simulation().get().CheckpointSimulation().set(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation)(checkpointTimestep));
@@ -1618,6 +1616,8 @@ void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpoint
     {
         mpUserParameters->Simulation().get().CheckpointSimulation().reset();
     }
+    
+    CheckTimeSteps();        
 }
 
 // Physiological
@@ -1756,6 +1756,23 @@ void HeartConfig::CheckTimeSteps() const
     if ( GetOdeTimeStep() > GetPdeTimeStep() )
     {
         EXCEPTION("Ode time-step should not be greater than pde time-step");
+    }
+
+    if (GetCheckpointSimulation())
+    {
+        if (GetCheckpointTimestep() <= 0.0)
+        {
+            EXCEPTION("Printing time-step should be positive");
+        }
+
+        //If printing divides checkpoint then the floating remainder ought to be close to
+        //zero(+a smidge) or pde-a smidge
+        double remainder_checkpoint_over_printing=fmod(GetCheckpointTimestep(), GetPrintingTimeStep());
+    
+        if ( remainder_checkpoint_over_printing > DBL_EPSILON && remainder_checkpoint_over_printing < GetPrintingTimeStep()-DBL_EPSILON)
+        {
+            EXCEPTION("Checkpoint time-step should be a multiple of printing time step");
+        }
     }
 }
 
