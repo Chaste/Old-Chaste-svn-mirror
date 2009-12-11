@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCell.hpp"
 #include "PlaneStimulusCellFactory.hpp"
+#include "ZeroStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "FaberRudy2000Version3.hpp"
@@ -49,8 +50,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CompareHdf5ResultsFiles.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
-//#include "Electrodes.hpp"
-//#include "SimpleBathProblemSetup.hpp"
+#include "Electrodes.hpp"
+#include "SimpleBathProblemSetup.hpp"
 
 class TestCardiacSimulationArchiver : public CxxTest::TestSuite
 {
@@ -315,16 +316,24 @@ private:
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
         TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
 
-        // All cells should be at initial conditions.
-        std::vector<double> inits = p_problem->GetPde()->GetCardiacCell(0)->GetInitialConditions();
+        // All real cells should be at initial conditions.
+        std::vector<double> inits;
         for (unsigned i=0; i<totalNumCells; i++)
         {
             AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-            std::vector<double>& r_state = p_cell->rGetStateVariables();
-            TS_ASSERT_EQUALS(r_state.size(), inits.size());
-            for (unsigned j=0; j<r_state.size(); j++)
+            FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
+            if (p_fake_cell == NULL)
             {
-                TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                if (inits.empty())
+                {
+                    inits = p_cell->GetInitialConditions();
+                }
+                std::vector<double>& r_state = p_cell->rGetStateVariables();
+                TS_ASSERT_EQUALS(r_state.size(), inits.size());
+                for (unsigned j=0; j<r_state.size(); j++)
+                {
+                    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                }
             }
         }
 
@@ -505,116 +514,122 @@ public:
     }
     
     
-//    /**
-//     * Run this in parallel (build=_3) to create the archive for TestLoadAsSequentialWithBath.
-//     * Then do
-//     *   cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequentialWithBath
-//     *   TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_with_bath/"
-//     *   for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
-//     *   for f in [^T]*; do cp $f $TO_DIR/$f; done
-//     * 
-//     * Sets up a simulation and archives it without solving at all.
-//     * 
-//     * When running sequentially, this creates an archive we can compare with
-//     * that produced by the next test.
-//     * 
-//     * Generates a 3d cube mesh with 125 nodes, corners at (0,0,0) and (1,1,1)
-//     * with nodal spacing of 0.25cm.
-//     * 
-//     * \todo #1169 - uncomment when the bath archiving works
-//     */
-//    void TestCreateArchiveForLoadAsSequentialWithBath() throw (Exception)
-//    {
-//        std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
-//        HeartConfig::Instance()->Reset();
-//        HeartConfig::Instance()->SetSimulationDuration(0.2);
-//        HeartConfig::Instance()->SetOutputDirectory(directory);
-//        HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
-//        // We want the numbers matching in any h5 files:
-//        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);
-//        
-//        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
-//            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
-//        
-//        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory;
-//
-//        // boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
-//        double boundary_flux = -11.0e3;
-//        double duration = 1.9; // of the stimulus, in ms
-//        Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
-//
-//        BidomainProblem<3> bidomain_problem( &cell_factory, true );
-//        bidomain_problem.SetElectrodes(electrodes);
-//        bidomain_problem.SetMesh(p_mesh);
-//        
-//        bidomain_problem.Initialise();
-//        
-//        CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, directory);
-//        
-//        delete p_mesh;
-//    }
-//    
-//    /**
-//     * #1159 - the first part of migrating a checkpoint to a different number of processes.
-//     * 
-//     * \todo #1169 - uncomment when the bath archiving works
-//     */
-//    void TestLoadAsSequentialWithBath() throw (Exception)
-//    {
-//        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-//        std::string source_directory = "heart/test/data/checkpoint_migration_with_bath/";
-//        std::string archive_directory = "TestLoadAsSequentialWithBath";
-//        std::string ref_archive_dir = "TestCreateArchiveForLoadAsSequentialWithBath";
-//        OutputFileHandler handler(archive_directory); // Clear the target directory
-//        if (PetscTools::AmMaster())
-//        {
-//            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-//        }
-//        
-//        if (PetscTools::IsSequential())
-//        {
-//            BidomainProblem<3>* p_problem;
-//            // Do the migration to sequential
-//            const unsigned num_cells = 125u;
-//            p_problem = DoMigrateAndBasicTests<BidomainProblem<3> >(archive_directory, ref_archive_dir, source_directory, num_cells);
-//            
-//            // All cells at x=0 should have a SimpleStimulus(-80000, 1).
-//            for (unsigned i=0; i<num_cells; i++)
-//            {
-//                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-//                double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
-//                
-//                if (x*x < 1e-10)
-//                {
-//                    // Stim exists
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), -80000.0, 1e-10);
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), -80000.0, 1e-10);
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
-//                }
-//                else
-//                {
-//                    // No stim
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
-//                    TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
-//                }
-//            }
-//            
-//            /// \todo Test bccs
-//            TS_ASSERT( p_problem->mpDefaultBoundaryConditionsContainer);
-//            TS_ASSERT( p_problem->mpBoundaryConditionsContainer);
-//            
-//            DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
-//        }
-//        else
-//        {
-//            BidomainProblem<3>* p_problem;
-//            TS_ASSERT_THROWS_THIS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::LoadAsSequential(archive_directory),
-//                                  "Cannot load sequentially when running in parallel.");
-//        }
-//    }
+    /**
+     * Run this in parallel (build=_3) to create the archive for TestLoadAsSequentialWithBath.
+     * Then do
+        cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequentialWithBath
+        TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_with_bath/"
+        for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
+        for f in [^T]*; do cp $f $TO_DIR/$f; done
+     * 
+     * Sets up a simulation and archives it without solving at all.
+     * 
+     * When running sequentially, this creates an archive we can compare with
+     * that produced by the next test.
+     * 
+     * \todo #1169 - uncomment when the bath archiving works
+     */
+    void TestCreateArchiveForLoadAsSequentialWithBath() throw (Exception)
+    {
+        std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetSimulationDuration(0.2);
+        HeartConfig::Instance()->SetOutputDirectory(directory);
+        HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
+        // We want the numbers matching in any h5 files:
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);
+        
+        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+
+        // boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
+        double boundary_flux = -11.0e3;
+        double duration = 1.9; // of the stimulus, in ms
+        Electrodes<2> electrodes(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
+                                 boundary_flux, duration);
+
+        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+        bidomain_problem.SetElectrodes(electrodes);
+        bidomain_problem.SetMesh(p_mesh);
+        
+        bidomain_problem.Initialise();
+        
+        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory);
+        
+        delete p_mesh;
+    }
+    
+    /**
+     * #1159 - the first part of migrating a checkpoint to a different number of processes.
+     * 
+     * \todo #1169 - uncomment when the bath archiving works
+     */
+    void TestLoadAsSequentialWithBath() throw (Exception)
+    {
+        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
+        std::string source_directory = "heart/test/data/checkpoint_migration_with_bath/";
+        std::string archive_directory = "TestLoadAsSequentialWithBath";
+        std::string ref_archive_dir = "TestCreateArchiveForLoadAsSequentialWithBath";
+        OutputFileHandler handler(archive_directory); // Clear the target directory
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
+        }
+        
+        if (PetscTools::IsSequential())
+        {
+            BidomainProblem<2>* p_problem;
+            // Do the migration to sequential
+            const unsigned num_cells = 221u;
+            p_problem = DoMigrateAndBasicTests<BidomainProblem<2> >(archive_directory, ref_archive_dir, source_directory, num_cells);
+            
+            // All cells should have no stimulus.
+            for (unsigned i=0; i<num_cells; i++)
+            {
+                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+                AbstractStimulusFunction* p_stim = p_cell->GetStimulusFunction().get();
+                ZeroStimulus* p_zero_stim = dynamic_cast<ZeroStimulus*>(p_stim);
+                TS_ASSERT(p_zero_stim != NULL);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
+            }
+            
+            // Test bccs
+            TS_ASSERT( ! p_problem->mpDefaultBoundaryConditionsContainer); // Electrodes haven't switched off yet
+            TS_ASSERT(p_problem->mpBoundaryConditionsContainer);
+            boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
+            // We have neumann boundary conditions from the electrodes
+            TS_ASSERT(p_bcc->AnyNonZeroNeumannConditions());
+            for (BoundaryConditionsContainer<2,2,2>::NeumannMapIterator it = p_bcc->BeginNeumann();
+                 it != p_bcc->EndNeumann();
+                 ++it)
+            {
+                ChastePoint<2> centroid(it->first->CalculateCentroid());
+                // Negative flux at x=0
+                if (fabs(centroid[0] - 0.0) < 1e-6)
+                {
+                    TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), -11e3, 1e-10);
+                }
+                // Positive flux at x=1
+                if (fabs(centroid[0] - 1.0) < 1e-6)
+                {
+                    TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), +11e3, 1e-10);
+                }
+            }
+            // There are no dirichlet BCs.
+            TS_ASSERT( ! p_bcc->HasDirichletBoundaryConditions());
+            
+            DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        }
+        else
+        {
+            BidomainProblem<2>* p_problem;
+            TS_ASSERT_THROWS_THIS(p_problem = CardiacSimulationArchiver<BidomainProblem<2> >::LoadAsSequential(archive_directory),
+                                  "Cannot load sequentially when running in parallel.");
+        }
+    }
 
     /**
      * Run this in sequential to create the archive for TestLoadFromSequential.

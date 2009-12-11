@@ -347,7 +347,7 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
             this->mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(this->mpMesh, problem_index);
         }
 
-        // Note, no point calling SetBoundaryConditionsContainer() as the
+        // Note, no point calling this->SetBoundaryConditionsContainer() as the
         // assembler has already been created..
         mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is

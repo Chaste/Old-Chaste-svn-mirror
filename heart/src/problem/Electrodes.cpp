@@ -109,7 +109,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
         }
     }
 
-    // set up mGroundedNodes using opposite surface is second electrode is
+    // set up mGroundedNodes using opposite surface ie second electrode is
     // grounded
     if (mGroundSecondElectrode)
     {

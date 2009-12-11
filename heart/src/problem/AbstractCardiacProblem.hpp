@@ -631,13 +631,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     }
     BccType p_default_bcc;
     archive >> p_default_bcc;
-    if (p_default_bcc && p_bcc != p_default_bcc)
+    if (p_default_bcc)
     {
-        if (!mpDefaultBoundaryConditionsContainer)
-        {
-            mpDefaultBoundaryConditionsContainer = p_bcc;
-        }
-        mpDefaultBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
+        // This always holds, so we never need the commented code below.
+        assert(p_bcc == p_default_bcc);
+//        if (!mpDefaultBoundaryConditionsContainer)
+//        {
+//            mpDefaultBoundaryConditionsContainer = p_bcc;
+//        }
+//        mpDefaultBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
     }
 }
 

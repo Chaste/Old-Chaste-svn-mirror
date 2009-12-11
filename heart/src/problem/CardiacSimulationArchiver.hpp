@@ -56,7 +56,7 @@ public:
      * Archives a simulation in the directory specified.
      * 
      * @param simulationToArchive object defining the simulation to archive
-     * @param directory directory where the multiple files defining the checkpoint will be stored
+     * @param rDirectory directory where the multiple files defining the checkpoint will be stored
      *     (relative to CHASTE_TEST_OUTPUT)
      * @param clearDirectory whether the directory needs to be cleared or not.
      */
@@ -66,7 +66,7 @@ public:
     /**
      * Unarchives a simulation from the directory specified
      * 
-     * @param directory directory where the multiple files defining the checkpoint are located
+     * @param rDirectory directory where the multiple files defining the checkpoint are located
      *     (relative to CHASTE_TEST_OUTPUT)
      */
     static PROBLEM_CLASS* Load(const std::string& rDirectory);
@@ -81,7 +81,7 @@ public:
      * Throws an exception if not called from a sequential simulation, as otherwise
      * we'd get deadlock from PetscTools::Barrier() calls in the archive loader. 
      * 
-     * @param directory directory where the multiple files defining the checkpoint are located
+     * @param rDirectory directory where the multiple files defining the checkpoint are located
      *     (relative to CHASTE_TEST_OUTPUT)
      */
     static PROBLEM_CLASS* LoadAsSequential(const std::string &rDirectory);
@@ -93,7 +93,7 @@ public:
      * the processes.
      * \todo Allow the use of METIS to give a better partitioning
      * 
-     * @param directory directory where the files defining the checkpoint are located
+     * @param rDirectory directory where the files defining the checkpoint are located
      *     (relative to CHASTE_TEST_OUTPUT)
      */
     static PROBLEM_CLASS* LoadFromSequential(const std::string& rDirectory);

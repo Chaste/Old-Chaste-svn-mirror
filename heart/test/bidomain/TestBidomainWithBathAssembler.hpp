@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartEventHandler.hpp"
 #include "HeartRegionCodes.hpp"
 #include "Timer.hpp"
+#include "ZeroStimulusCellFactory.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 #include "SimpleBathProblemSetup.hpp"
@@ -94,7 +95,7 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNode(9)->GetRegion(), HeartRegionCode::BATH);
         TS_ASSERT_EQUALS(p_mesh->GetNode(10)->GetRegion(), HeartRegionCode::BATH);
 
-        // we need to call solve as other an EventHandling exception is thrown
+        // we need to call solve as otherwise an EventHandler exception is thrown
         bidomain_problem.Solve();
     }
 
@@ -476,12 +477,8 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_fluxes");
             HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
     
-            // need to create a cell factory but don't want any intra stim, so magnitude
-            // of stim is zero.
-            c_vector<double,2> centre;
-            centre(0) = 0.05; // cm
-            centre(1) = 0.05; // cm
-            BathCellFactory<2> cell_factory( 0.0, centre);
+            // need to create a cell factory but don't want any intra stim.
+            ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
     
             BidomainProblem<2> bidomain_problem( &cell_factory, true );
     
