@@ -175,7 +175,7 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
                 //Master owns this element
                 Element<ELEMENT_DIM, SPACE_DIM>* p_element = mpParallelMesh->GetElement(mElementCounterForParallelMesh);
                 assert(elem_data.NodeIndices.size() == ELEMENT_DIM+1);
-                assert( p_element->IsDeleted() == false );
+                assert( ! p_element->IsDeleted() );
                 //Master can use the local data to recover node indices & attribute
                 for (unsigned j=0; j<ELEMENT_DIM+1; j++)
                 {
@@ -185,18 +185,21 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
             }
             else
             {
-                //Master doesn't own this element
-                unsigned raw_indices[ELEMENT_DIM+1];
+                //Master doesn't own this element.
+                // +2 to allow for attribute value too
+                unsigned raw_indices[ELEMENT_DIM+2];
                 MPI_Status status;
                 //Get it from elsewhere
-                MPI_Recv(raw_indices, ELEMENT_DIM+1, MPI_UNSIGNED, MPI_ANY_SOURCE, this->mNumNodes + mElementCounterForParallelMesh, PETSC_COMM_WORLD, &status);
+                MPI_Recv(raw_indices, ELEMENT_DIM+2, MPI_UNSIGNED, MPI_ANY_SOURCE,
+                         this->mNumNodes + mElementCounterForParallelMesh,
+                         PETSC_COMM_WORLD, &status);
                 // Convert to std::vector
                 for (unsigned j=0; j< elem_data.NodeIndices.size(); j++)
                 {
                     elem_data.NodeIndices[j] = raw_indices[j];
                 }
-                /// \todo attribute value
-                elem_data.AttributeValue = 0;
+                // Attribute value
+                elem_data.AttributeValue = raw_indices[ELEMENT_DIM+1];
             }
             // increment element counter
             mElementCounterForParallelMesh++;
@@ -336,9 +339,10 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                 raw_coords[j] = it->GetPoint()[j];
             }
             MPI_Send(raw_coords, SPACE_DIM, MPI_DOUBLE, 0, it->GetIndex(), PETSC_COMM_WORLD);//Nodes sent with positive tags
-       }
+        }
     
-        unsigned raw_indices[ELEMENT_DIM+1]; //Assuming that we don't have parallel quadratic elements
+        // +2 allows for attribute value
+        unsigned raw_indices[ELEMENT_DIM+2]; //Assuming that we don't have parallel quadratic elements
         typedef typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator ElementIterType;
         for (ElementIterType it = mpMesh->GetElementIteratorBegin(); it != mpMesh->GetElementIteratorEnd(); ++it)
         {
@@ -349,7 +353,11 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
                 {
                     raw_indices[j] = it->GetNodeGlobalIndex(j);
                 }
-                MPI_Send(raw_indices, ELEMENT_DIM+1, MPI_UNSIGNED, 0, this->mNumNodes + (it->GetIndex()), PETSC_COMM_WORLD);//Elements sent with tags offset
+                // Attribute value
+                raw_indices[ELEMENT_DIM+1] = it->GetRegion();
+                MPI_Send(raw_indices, ELEMENT_DIM+2, MPI_UNSIGNED, 0,
+                         this->mNumNodes + (it->GetIndex()), //Elements sent with tags offset
+                         PETSC_COMM_WORLD);
             }
         }
     }

@@ -1,6 +1,7 @@
 bidomain/TestBidomainParallelMesh.hpp
 bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
+TestCardiacSimulationArchiver.hpp
 TestCardiacUneven.hpp
 TestElectrodes.hpp
 monodomain/TestMonodomainConductionVelocity.hpp

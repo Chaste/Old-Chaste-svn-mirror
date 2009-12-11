@@ -236,10 +236,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
         return;
     }
 
-    //Gcov is confused by this assertion
-#define COVERAGE_IGNORE
     assert(SPACE_DIM == 3 && ELEMENT_DIM == 2);
-#undef COVERAGE_IGNORE
 
     std::string face_file_name = this->mBaseName;
     face_file_name = face_file_name + ".edge";
