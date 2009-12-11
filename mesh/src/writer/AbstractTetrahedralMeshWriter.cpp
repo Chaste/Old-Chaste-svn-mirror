@@ -250,6 +250,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 
     if (!PetscTools::AmMaster())
     {
+        PetscTools::Barrier(); //Paired with Master process writing files
         return;
     }
     
@@ -280,6 +281,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
     }
     this->WriteFiles();
+    PetscTools::Barrier(); //Paired with waiting Slave processes
 }
 
 
