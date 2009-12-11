@@ -41,14 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
 #include "PetscTools.hpp"
-#include "AbstractCardiacCellFactory.hpp"
 #include "TimeStepper.hpp"
 
 #include "HeartConfig.hpp"
-
-#include "AbstractStimulusFunction.hpp"
-#include "MultiStimulus.hpp"
-#include "SimpleStimulus.hpp"
+#include "HeartConfigRelatedCellFactory.hpp"
 
 #include "TetrahedralMesh.hpp"
 #include "NonCachedTetrahedralMesh.hpp"
@@ -57,231 +53,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshalyzerMeshWriter.hpp"
 #include "TrianglesMeshWriter.hpp"
 
-#include "BackwardEulerFoxModel2002Modified.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
-#include "BackwardEulerLuoRudyIModel1991.hpp"
-#include "FoxModel2002Modified.hpp"
-#include "FaberRudy2000Version3.hpp"
-#include "FaberRudy2000Version3Optimised.hpp"
-#include "DiFrancescoNoble1985OdeSystem.hpp"
-#include "Mahajan2008OdeSystem.hpp"
-#include "TenTusscher2006OdeSystem.hpp"
-#include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
-
 #include "OrthotropicConductivityTensors.hpp"
 
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "PostProcessingWriter.hpp"
 #include "Version.hpp"
-
-/**
- *  \todo: dox, coverage, maybe own tests
- */
-template<unsigned SPACE_DIM>
-class HeartConfigRelatedCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>
-{
-private:
-    /** Default cardiac cell model to be used in all tissue (except heterogeneous regions)*/
-    cp::ionic_models_available_type mDefaultIonicModel;
-    /** List of axis-aligned box regions which contain heterogeneous cardiac ionic model types*/
-    std::vector<ChasteCuboid> mIonicModelRegions;
-    /** List of ionic model (size matches that of mIonicModelRegions)*/
-    std::vector<cp::ionic_models_available_type> mIonicModelsDefined;
-    
-    /** List of axis-aligned box regions which represent areas to stimulate*/
-    std::vector<ChasteCuboid> mStimulatedAreas;
-    /** List of intracellular current stimuli to apply (size matches that of mStimulatedAreas)*/
-    std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
-    
-    /** List of axis-aligned box regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)*/
-    std::vector<ChasteCuboid> mCellHeterogeneityAreas;
-    /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
-    std::vector<double> mScaleFactorGks;
-    /** List of scale factors for Ito scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
-    std::vector<double> mScaleFactorIto;
-    /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
-    std::vector<double> mScaleFactorGkr;
-
-public:
-    HeartConfigRelatedCellFactory()
-        : AbstractCardiacCellFactory<SPACE_DIM>(),
-          mDefaultIonicModel(cp::ionic_models_available_type::LuoRudyI)
-    {        
-        // Read and store default ionic model and possible region definitions
-        mDefaultIonicModel = HeartConfig::Instance()->GetDefaultIonicModel();
-        HeartConfig::Instance()->GetIonicModelRegions(mIonicModelRegions,
-                                                      mIonicModelsDefined);
-    
-        // Read and store Stimuli
-        try
-        {
-            HeartConfig::Instance()->GetStimuli(mStimuliApplied, mStimulatedAreas);
-        }
-        catch(Exception& e)
-        {
-            // No stimuli provided in XML so we should have hit a parsing exception
-            NEVER_REACHED;
-        }
-    
-        // Read and store Cell Heterogeneities
-        try
-        {
-            HeartConfig::Instance()->GetCellHeterogeneities(mCellHeterogeneityAreas,
-                                                            mScaleFactorGks,
-                                                            mScaleFactorIto,
-                                                            mScaleFactorGkr);
-        }
-        catch(Exception& e)
-        {
-            // No cell heterogeneities provided
-        }
-    }
-
-
-    /**
-     * Create the correct tissue cell for a given region in the mesh
-     * @param intracellularStimulus is computed in CreateCardiacCellForTissueNode determined by the list of stimulation regions
-     * @param nodeIndex is the global index within the mesh
-     */
-    AbstractCardiacCell* CreateCellWithIntracellularStimulus(boost::shared_ptr<AbstractStimulusFunction> intracellularStimulus, unsigned nodeIndex)
-    {
-        cp::ionic_models_available_type ionic_model = mDefaultIonicModel;
-
-        for (unsigned ionic_model_region_index = 0;
-             ionic_model_region_index < mIonicModelRegions.size();
-             ++ionic_model_region_index)
-        {
-            if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-            {
-                ionic_model = mIonicModelsDefined[ionic_model_region_index];
-                break;
-            }
-        }
-
-        switch(ionic_model)
-        {
-            case(cp::ionic_models_available_type::LuoRudyI):
-            {
-                return new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
-                break;
-            }
-
-            case(cp::ionic_models_available_type::LuoRudyIBackwardEuler):
-            {
-                return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
-                break;
-            }
-
-            case(cp::ionic_models_available_type::Fox2002BackwardEuler):
-            {
-                return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
-                break;
-            }
-
-            case(cp::ionic_models_available_type::DifrancescoNoble):
-            {
-                return new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
-                break;
-            }
-
-            case(cp::ionic_models_available_type::MahajanShiferaw):
-            {
-                return new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
-                break;
-            }
-
-            case(cp::ionic_models_available_type::tenTusscher2006):
-            {
-                TenTusscher2006OdeSystem*  p_tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
-
-                for (unsigned ht_index = 0;
-                     ht_index < mCellHeterogeneityAreas.size();
-                     ++ht_index)
-                {
-                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                    {
-                        p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                        p_tt06_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                        p_tt06_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                    }
-                }
-
-                return p_tt06_instance;
-                break;
-            }
-
-            case(cp::ionic_models_available_type::HodgkinHuxley):
-            {
-                return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
-                break;
-            }
-
-            case(cp::ionic_models_available_type::FaberRudy2000):
-            {
-                FaberRudy2000Version3*  p_faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
-
-                for (unsigned ht_index = 0;
-                     ht_index < mCellHeterogeneityAreas.size();
-                     ++ht_index)
-                {
-                    if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                    {
-                        p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                        p_faber_rudy_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                        p_faber_rudy_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                    }
-                }
-
-                return p_faber_rudy_instance;
-                break;
-            }
-
-            case(cp::ionic_models_available_type::FaberRudy2000Optimised):
-            {
-                return new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
-                break;
-            }
-
-            default:
-            {
-               //If the ionic model is not in the current enumeration then the XML parser will have picked it up before now!
-               NEVER_REACHED;
-            }
-        }
-
-        return NULL;
-    }
-
-
-    /**
-     * Create the correct stimulated tissue cell for a given region in the mesh
-     * The stimulus is determined in this method (using the list of stimulation regions).  
-     * The cardiac cell type (and parameters) are 
-     * determined in the CreateCellWithIntracellularStimulus method
-     * @param nodeIndex is the global index within the mesh
-     */
-    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
-    {
-        boost::shared_ptr<MultiStimulus> node_specific_stimulus(new MultiStimulus());
-
-        // Check which of the defined stimuli contain the current node
-        for (unsigned stimulus_index = 0;
-             stimulus_index < mStimuliApplied.size();
-             ++stimulus_index)
-        {
-            if ( mStimulatedAreas[stimulus_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-            {
-                node_specific_stimulus->AddStimulus(mStimuliApplied[stimulus_index]);
-            }
-        }
-
-        return CreateCellWithIntracellularStimulus(node_specific_stimulus, nodeIndex);
-    }
-
-    ~HeartConfigRelatedCellFactory(void)
-    {
-    }
-};
 
 /**
  * A class which encapsulates the executable functionality.
@@ -426,7 +202,7 @@ private:
             }
             default :
             {
-                //If the domain is not set correctly then the XML parser will have picked it up before now!
+                // If the domain is not set correctly then the XML parser will have picked it up before now!
                 NEVER_REACHED;
             }
         }
@@ -443,7 +219,7 @@ public:
      */
     CardiacSimulation(std::string parameterFileName)
     {
-        //If we have been passed an XML file then parse the XML file, otherwise throw
+        // If we have been passed an XML file then parse the XML file, otherwise throw
         if (parameterFileName == "")
         {
             EXCEPTION("No XML file name given");
