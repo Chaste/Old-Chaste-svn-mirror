@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCELLSGENERATOR_HPP_
 
 #include "TetrahedralMesh.hpp"
+#include "VertexMesh.hpp"
 #include "TissueCell.hpp"
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
@@ -108,10 +109,39 @@ public:
      * @param y3  below this line cells are generation 3 (defaults to 4.0)
      * @param initialiseCells  whether to initialise the cell cycle models as each
      *   cell is created
-     *
+     * \TODO this should be refactored with GenerateForVertexCrypt
      */
     virtual void GenerateForCrypt(std::vector<TissueCell>& rCells,
                                   TetrahedralMesh<2,2>& rMesh,
+                                  const std::vector<unsigned> locationIndices,
+                                  bool randomBirthTimes,
+                                  double y0 = 0.3,
+                                  double y1 = 2.0,
+                                  double y2 = 3.0,
+                                  double y3 = 4.0,
+                                  bool initialiseCells = false);
+                                  
+                                  
+    /**
+     * Generates cells of a specified cell cycle type under the correct
+     * crypt conditions and gives random ages if required,
+     * or gives them an age of 0.0 - creates least work for solver startup.
+     *
+     * @param rCells  An empty cells vector for this function to fill up
+     * @param rMesh  The crypt mesh (A VERTEX MESH)
+     * @param locationIndices the node indices corresponding to real cells
+     * @param randomBirthTimes  Whether to assign the cells random birth times
+     *    (this can be expensive computationally with ODE models)
+     * @param y0  below this line cells are generation 0 (defaults to 0.3)
+     * @param y1  below this line cells are generation 1 (defaults to 2.0)
+     * @param y2  below this line cells are generation 2 (defaults to 3.0)
+     * @param y3  below this line cells are generation 3 (defaults to 4.0)
+     * @param initialiseCells  whether to initialise the cell cycle models as each
+     *   cell is created
+     * \TODO this should be refactored with GenerateForCrypt
+     */
+    virtual void GenerateForVertexCrypt(std::vector<TissueCell>& rCells,
+                                  VertexMesh<2,2>& rMesh,
                                   const std::vector<unsigned> locationIndices,
                                   bool randomBirthTimes,
                                   double y0 = 0.3,
