@@ -1610,7 +1610,11 @@ void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpoint
 {    
     if (saveSimulation)
     {
-        mpUserParameters->Simulation().get().CheckpointSimulation().set(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation)(checkpointTimestep));
+        XSD_CREATE_WITH_FIXED_ATTR1(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation),
+                                    cs,
+                                    checkpointTimestep,
+                                    "ms");
+        mpUserParameters->Simulation().get().CheckpointSimulation().set(cs);
     }
     else
     {
