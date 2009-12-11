@@ -59,13 +59,13 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the member variables.
+     * Save the member variables to an archive.
      *
      * @param archive
      * @param version
      */
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    void save(Archive & archive, const unsigned int version) const
     {
         archive & boost::serialization::base_object<AbstractCardiacProblem<DIM, DIM, 2> >(*this);
         archive & mpBidomainPde;
@@ -74,6 +74,30 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
         archive & mHasBath;
         archive & mpElectrodes;
     }
+
+    /**
+     * Load the member variables from an archive.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCardiacProblem<DIM, DIM, 2> >(*this);
+        archive & mpBidomainPde;
+        //archive & mExtracelluarColumnId; // Created by InitialiseWriter, called from Solve
+        archive & mRowForAverageOfPhiZeroed;
+        archive & mHasBath;
+        archive & mpElectrodes;
+
+        if (mHasBath)
+        {
+            // We only save element annotations, so annotate bath nodes from these
+            AnalyseMeshForBath();
+        }
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     friend class TestBidomainWithBathAssembler;
 

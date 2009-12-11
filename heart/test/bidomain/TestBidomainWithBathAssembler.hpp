@@ -506,21 +506,6 @@ public:
             AbstractTetrahedralMesh<2,2>& r_mesh = p_abstract_problem->rGetMesh();
             TS_ASSERT_EQUALS(p_mesh->GetNumElements(), r_mesh.GetNumElements());
             
-            /// \todo #1169
-            /// Set everything outside a central circle (radius 0.04cm) to be bath,
-            /// since region annotations aren't yet checkpointed.
-            for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
-            {
-                double x = r_mesh.GetElement(i)->CalculateCentroid()[0];
-                double y = r_mesh.GetElement(i)->CalculateCentroid()[1];
-                if ( sqrt((x-0.05)*(x-0.05) + (y-0.05)*(y-0.05)) > 0.02 )
-                {
-                    r_mesh.GetElement(i)->SetRegion(HeartRegionCode::BATH);
-                }
-            }
-            // Set node annotations based on element annotations
-            (static_cast<BidomainProblem<2>*>(p_abstract_problem))->AnalyseMeshForBath();
-            
             // Check that the bath is in the right place
             for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
             {

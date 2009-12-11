@@ -263,6 +263,13 @@ public:
      */
     bool IsMeshChanging() const;
 
+    /**
+     * Set whether the mesh has been modified since it was read from file.
+     * This prevents the archiving code just blithely storing the original,
+     * unmodified, mesh.
+     */
+    void SetMeshHasChangedSinceLoading();
+
     //////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////

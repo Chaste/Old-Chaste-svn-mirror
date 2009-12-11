@@ -132,6 +132,7 @@ MeshType* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
             it->SetRegion(HeartRegionCode::BATH);
         }
     }
+    p_mesh->SetMeshHasChangedSinceLoading();
     
     return p_mesh;
 }

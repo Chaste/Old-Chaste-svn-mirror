@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMesh<ELEMENT_DIM, SPACE_DIM>::AbstractMesh()
     : mpDistributedVectorFactory(NULL),
@@ -219,6 +218,13 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::IsMeshChanging() const
 {
     return mMeshChangesDuringSimulation;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetMeshHasChangedSinceLoading()
+{
+    // We just forget what the original file was, which has the desired effect
+    mMeshFileBaseName = "";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
