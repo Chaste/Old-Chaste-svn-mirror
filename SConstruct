@@ -225,7 +225,8 @@ else:
              'LD_LIBRARY_PATH': ':'.join(other_libpaths),
              'HOME': os.environ['HOME']
             })
-env.Append(CCFLAGS = '-isystem ' + ' -isystem '.join(other_includepaths)
+include_flag = ' ' + build.IncludeFlag() + ' '
+env.Append(CCFLAGS = include_flag + include_flag.join(other_includepaths)
            + ' ' + extra_flags)
 env.Append(LINKFLAGS = link_flags)
 env.Append(BOPT = 'g_c++')

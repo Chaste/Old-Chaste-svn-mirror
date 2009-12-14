@@ -50,6 +50,7 @@ class BuildType(object):
         self._compiler_type = 'gcc'
         self._cc_flags = ['-Wall', '-Werror']
         self._link_flags = []
+        self._include_flag = ['-isystem']
         self._test_packs = ['Continuous']
         self._revision = ''
         self.build_dir = 'default'
@@ -100,6 +101,13 @@ class BuildType(object):
         Note that this does not cover library search paths or what to link with.
         """
         return ' '.join(self._link_flags)
+
+    def IncludeFlag(self):
+        """
+        Return the flags to use for include files.
+        """
+        return ' '.join(self._include_flag)
+
     
     def TestPacks(self):
         """
@@ -839,6 +847,24 @@ class CrayGcc(BuildType):
     self._cc_flags.append('-DMPICH_IGNORE_CXX_SEEK')
     self._cc_flags.append('-g')
     self.build_dir = 'craygcc'
+
+class Vacpp(BuildType):
+  "IBM Visual Age C++ compiler"
+  def __init__(self, *args, **kwargs):
+    BuildType.__init__(self, *args, **kwargs)
+    self.tools['mpicxx'] = 'mpCC'
+    self.tools['mpirun'] = 'poe'
+    self._cc_flags = ['-q64 -qhalt=w']
+    self._link_flags = ['-q64']
+    self._include_flag = ['-I']
+    self.build_dir = 'vacpp'
+
+class VacppOpt(Vacpp):
+  "Optmized IBM build"
+  def __init__(self, *args, **kwargs):
+    Vacpp.__init__(self, *args, **kwargs)
+    self._cc_flags.append('-qarch=auto -qstrict -qhot -O3')
+    self.build_dir = 'vacppopt'
 
 class Fle(BuildType):
   "Intel compiler tools on FLE cluster."
