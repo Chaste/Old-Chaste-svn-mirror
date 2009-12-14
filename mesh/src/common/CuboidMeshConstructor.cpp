@@ -77,11 +77,7 @@ std::string CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(unsigned me
     std::string mesh_filename = file_name_stream.str();
 
     TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(mesh_dir, mesh_filename, false);
-    if (PetscTools::AmMaster())
-    {
-        mesh_writer.WriteFilesUsingMesh(mesh);
-    }
-    PetscTools::Barrier();
+    mesh_writer.WriteFilesUsingMesh(mesh);
 
     std::string mesh_pathname = output_file_handler.GetOutputDirectoryFullPath() + mesh_filename;
 
