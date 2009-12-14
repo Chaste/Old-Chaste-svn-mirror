@@ -184,7 +184,7 @@
 
 #Another getpwuid related suppression
 {
-   get--user-name-3
+   get-user-name-3
    Memcheck:Leak
    fun:malloc
    obj:/lib/tls/i686/cmov/libc-2.8.90.so
@@ -202,7 +202,7 @@
 }
 
 {
-   get--user-name-4
+   get-user-name-4
    Memcheck:Leak
    fun:malloc
    fun:nss_parse_service_list
@@ -218,7 +218,7 @@
 
 # Ubuntu 8.04.2
 {
-   get--user-name-5
+   get-user-name-5
    Memcheck:Leak
    fun:malloc
    obj:/lib/libc-2.7.so
@@ -232,7 +232,7 @@
    fun:_Z15PetscInitializePiPPPcPKcS4_
 }
 {
-   get--user-name-6
+   get-user-name-6
    Memcheck:Addr8
    obj:/lib/ld-2.7.so
    obj:/lib/ld-2.7.so
@@ -256,6 +256,63 @@
    fun:_Z15PetscInitializePiPPPcPKcS4_
 }
 
+# Matches that try to be future-proof
+{
+   get-host-by-name-generic
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libc-*.so
+   obj:/lib/ld-*.so
+   fun:__libc_dlopen_mode
+   fun:__nss_lookup_function
+   fun:__nss_next
+   fun:gethostbyname_r
+   fun:gethostbyname
+}
+{
+   get-user-name-leak-generic
+   Memcheck:Leak
+   fun:malloc
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/libc-*.so
+   fun:__nss_database_lookup
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:*
+   obj:*
+   fun:getpwuid_r*
+   fun:getpwuid
+   fun:_Z16PetscGetUserNamePc?
+}
+{
+   get-user-name-addr-generic
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libc-*.so
+   obj:/lib/ld-*.so
+   fun:__libc_dlopen_mode
+   fun:__nss_lookup_function
+   obj:/lib/libc-*.so
+   fun:getpwuid_r*
+   fun:getpwuid
+   fun:_Z16PetscGetUserNamePc?
+}
 
 #
 # HDF5 free lists (see http://hdf.ncsa.uiuc.edu/HDF5/faq/valgrind.html )

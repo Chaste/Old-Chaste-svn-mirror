@@ -611,14 +611,39 @@ public:
                 {
                     TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), -11e3, 1e-10);
                 }
-                // Positive flux at x=1
-                if (fabs(centroid[0] - 1.0) < 1e-6)
+                // Positive flux at x=0.1
+                else if (fabs(centroid[0] - 0.1) < 1e-6)
                 {
                     TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), +11e3, 1e-10);
+                }
+                else
+                {
+                    TS_FAIL("Unexpected Neumann BC found.");
                 }
             }
             // There are no dirichlet BCs.
             TS_ASSERT( ! p_bcc->HasDirichletBoundaryConditions());
+            // Now check that all relevant boundary elements have neumann conditions
+            for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
+                 iter != p_problem->rGetMesh().GetBoundaryElementIteratorEnd();
+                 iter++)
+            {
+                ChastePoint<2> centroid((*iter)->CalculateCentroid());
+                if (fabs(centroid[0] - 0.0) < 1e-6)
+                {
+                    TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), -11e3, 1e-10);
+                }
+                else if (fabs(centroid[0] - 0.1) < 1e-6)
+                {
+                    TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), +11e3, 1e-10);
+                }
+                else
+                {
+                    TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), 0, 1e-10);
+                }
+                // No neumann stimulus applied to V
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,0), 0, 1e-10);
+            }
             
             DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
         }
@@ -630,6 +655,77 @@ public:
         }
     }
 
+private:
+    template<class Problem, unsigned DIM>
+    Problem* DoMigrateFromSequentialAndBasicTests(
+            const std::string& rArchiveDirectory,
+            const std::string& rRefArchiveDir,
+            const unsigned totalNumCells,
+            bool isParallelMesh)
+    {
+        // Do the migration
+        Problem* p_problem = CardiacSimulationArchiver<Problem>::LoadFromSequential(rArchiveDirectory);
+
+        // Some basic tests that we have the right data
+        TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
+        TS_ASSERT_EQUALS(p_problem->mPrintOutput, true);
+        TS_ASSERT_EQUALS(p_problem->mNodesToOutput.size(), 0u);
+        TS_ASSERT_EQUALS(p_problem->mCurrentTime, 0.0);
+        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
+        TS_ASSERT(p_factory->GetOriginalFactory());
+        TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), totalNumCells);
+        TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetNumProcs(), 1u);
+        TS_ASSERT_EQUALS(p_problem->GetPde()->GetCellsDistributed().size(), p_factory->GetLocalOwnership());
+        TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), totalNumCells);
+        TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
+        TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
+        // Check the mesh is/isn't the parallel variety
+        const ParallelTetrahedralMesh<DIM,DIM>* p_par_mesh = dynamic_cast<const ParallelTetrahedralMesh<DIM,DIM>*>(p_problem->GetPde()->pGetMesh());
+        if (isParallelMesh)
+        {
+            TS_ASSERT(p_par_mesh != NULL);
+        }
+        else
+        {
+            TS_ASSERT(p_par_mesh == NULL);
+        }
+
+        // All cells should be at initial conditions.
+        if (p_factory->GetHigh() > p_factory->GetLow())
+        {
+            std::vector<double> inits = p_problem->GetPde()->GetCardiacCell(p_factory->GetLow())->GetInitialConditions();
+            for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+            {
+                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+                std::vector<double>& r_state = p_cell->rGetStateVariables();
+                TS_ASSERT_EQUALS(r_state.size(), inits.size());
+                for (unsigned j=0; j<r_state.size(); j++)
+                {
+                    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                }
+            }
+        }
+
+        // Save it to a normal archive
+        CardiacSimulationArchiver<Problem>::Save(*p_problem, rArchiveDirectory);
+
+        // Compare with the archive from the previous test
+        OutputFileHandler handler(rArchiveDirectory, false);
+        std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/" + rRefArchiveDir + ".arch";
+        std::string my_archive = handler.GetOutputDirectoryFullPath() + rArchiveDirectory + ".arch";
+        EXPECT0(system, "diff " + ref_archive + " " + my_archive);
+        for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
+        {
+            std::stringstream proc_id;
+            proc_id << i;
+            std::string suffix = "." + proc_id.str();
+            EXPECT0(system, "diff -I 'serialization::archive' " + ref_archive + suffix + " " + my_archive + suffix);
+        }
+        
+        return p_problem;
+    }
+
+public:
     /**
      * Run this in sequential to create the archive for TestLoadFromSequential.
      * Then do
@@ -689,58 +785,10 @@ public:
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
         const unsigned num_cells = 125u;
-        // Do the migration
-        p_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::LoadFromSequential(archive_directory);
-
-        // Some basic tests that we have the right data
-        TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
-        TS_ASSERT_EQUALS(p_problem->mPrintOutput, true);
-        TS_ASSERT_EQUALS(p_problem->mNodesToOutput.size(), 0u);
-        TS_ASSERT_EQUALS(p_problem->mCurrentTime, 0.0);
-        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
-        TS_ASSERT(p_factory->GetOriginalFactory());
-        TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), num_cells);
-        TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetNumProcs(), 1u);
-        TS_ASSERT_EQUALS(p_problem->GetPde()->GetCellsDistributed().size(), p_factory->GetLocalOwnership());
-        TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), num_cells);
-        TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), num_cells);
-        TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
-        // Check the mesh isn't the parallel variety
-        const ParallelTetrahedralMesh<3,3>* p_par_mesh = dynamic_cast<const ParallelTetrahedralMesh<3,3>*>(p_problem->GetPde()->pGetMesh());
-        TS_ASSERT(p_par_mesh == NULL);
-
-        // All cells should be at initial conditions.
-        if (p_factory->GetHigh() > p_factory->GetLow())
-        {
-            std::vector<double> inits = p_problem->GetPde()->GetCardiacCell(p_factory->GetLow())->GetInitialConditions();
-            for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
-            {
-                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-                std::vector<double>& r_state = p_cell->rGetStateVariables();
-                TS_ASSERT_EQUALS(r_state.size(), inits.size());
-                for (unsigned j=0; j<r_state.size(); j++)
-                {
-                    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
-                }
-            }
-        }
-
-        // Save it to a normal archive
-        CardiacSimulationArchiver<MonodomainProblem<3> >::Save(*p_problem, archive_directory);
-
-        // Compare with the archive from the previous test
-        std::string ref_archive = handler.GetChasteTestOutputDirectory() + ref_archive_dir + "/" + ref_archive_dir + ".arch";
-        std::string my_archive = handler.GetOutputDirectoryFullPath() + archive_directory + ".arch";
-        EXPECT0(system, "diff " + ref_archive + " " + my_archive);
-        for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
-        {
-            std::stringstream proc_id;
-            proc_id << i;
-            std::string suffix = "." + proc_id.str();
-            EXPECT0(system, "diff -I 'serialization::archive' " + ref_archive + suffix + " " + my_archive + suffix);
-        }
+        p_problem = DoMigrateFromSequentialAndBasicTests<MonodomainProblem<3>,3>(archive_directory, ref_archive_dir, num_cells, false);
 
         // All cells at x=0 should have a SimpleStimulus(-25500, 2).
+        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
         for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
         {
             AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);

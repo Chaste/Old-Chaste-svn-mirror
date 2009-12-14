@@ -259,7 +259,6 @@ private:
                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 BccType pBcc) const
     {
-        ///\todo #1169 need more tests of this!
         (*ProcessSpecificArchive<Archive>::Get()) & pBcc;
     }
     
@@ -274,7 +273,6 @@ private:
     BccType LoadBoundaryConditions(
             Archive & archive,
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-                                
     {
         // Load pointer from archive
         BccType p_bcc;
@@ -643,20 +641,30 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
         if (!mpBoundaryConditionsContainer)
         {
             mpBoundaryConditionsContainer = p_bcc;
+            mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
         }
-        mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
+        else
+        {
+            // The BCs will only actually be different if using a parallel tetrahedral mesh
+            ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_para_mesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(mpMesh);
+            if (p_para_mesh)
+            {
+                mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
+            }
+            else
+            {
+                // Load into the temporary container, which will get thrown away shortly
+                p_bcc->LoadFromArchive(archive, mpMesh);
+                /// \todo sanity check that the contents of p_bcc and mpBoundaryConditionsContainer match.
+            }
+        }
     }
     BccType p_default_bcc;
     archive >> p_default_bcc;
     if (p_default_bcc)
     {
-        // This always holds, so we never need the commented code below.
+        // This always holds, so we never need to load the BCs, since they are the last thing in the archive. 
         assert(p_bcc == p_default_bcc);
-//        if (!mpDefaultBoundaryConditionsContainer)
-//        {
-//            mpDefaultBoundaryConditionsContainer = p_bcc;
-//        }
-//        mpDefaultBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
     }
 }
 
