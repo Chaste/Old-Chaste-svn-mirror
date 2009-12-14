@@ -332,7 +332,8 @@ public:
          * must match the mesh provided) (so, for example, you should use "2, 0.0, 0.1" to
          * apply electrodes to the surfaces Z=0.0 and Z=0.1, etc).
          */
-        Electrodes<2> electrodes(mesh, false, 0, 0.0, 0.1, magnitude, duration);
+        boost::shared_ptr<Electrodes<2> > p_electrodes(
+            new Electrodes<2>(mesh, false, 0, 0.0, 0.1, magnitude, duration));
 
         /* Now create the problem class, using the cell factory and passing
          * in `true` as the second argument to indicate we are solving a bath
@@ -342,7 +343,7 @@ public:
 
         /* ..set the mesh and electrodes.. */
         bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.SetElectrodes(electrodes);
+        bidomain_problem.SetElectrodes(p_electrodes);
 
         /* ..and solve as before. */
         bidomain_problem.Initialise();

@@ -331,18 +331,19 @@ public:
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
 
-        Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
+        boost::shared_ptr<Electrodes<2> > p_electrodes(
+            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
 
         // Cover an exception
         {
             // Avoid event handler exception
             HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
             BidomainProblem<2> no_bath_problem( &cell_factory, false );
-            TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(electrodes),
+            TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(p_electrodes),
                     "Cannot set electrodes when problem has been defined to not have a bath");
         }
 
-        bidomain_problem.SetElectrodes(electrodes);
+        bidomain_problem.SetElectrodes(p_electrodes);
 
         bidomain_problem.SetMesh(p_mesh);
         bidomain_problem.Initialise();
@@ -371,7 +372,7 @@ public:
             }
         }
 
-        TS_ASSERT_EQUALS(electrodes.mAreActive, false); // should be switched off by now..
+        TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
         TS_ASSERT(ap_triggered);
         
         delete p_mesh;
@@ -406,9 +407,10 @@ public:
         {
             Timer::Reset();
 
-            Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
+            boost::shared_ptr<Electrodes<2> > p_electrodes(
+                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
 
-            matrix_based_bido.SetElectrodes(electrodes);
+            matrix_based_bido.SetElectrodes(p_electrodes);
             matrix_based_bido.SetMesh(p_mesh);
             matrix_based_bido.Initialise();
             matrix_based_bido.Solve();
@@ -427,9 +429,10 @@ public:
         {
             Timer::Reset();
 
-            Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
+            boost::shared_ptr<Electrodes<2> > p_electrodes(
+                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
 
-            non_matrix_based_bido.SetElectrodes(electrodes);
+            non_matrix_based_bido.SetElectrodes(p_electrodes);
             non_matrix_based_bido.SetMesh(p_mesh);
             non_matrix_based_bido.UseMatrixBasedRhsAssembly(false);
             non_matrix_based_bido.Initialise();
@@ -486,9 +489,10 @@ public:
             double boundary_flux = -11.0e3;
             double duration = 1.9; // of the stimulus, in ms
     
-            Electrodes<2> electrodes(*p_mesh,false,0,0.0,0.1,boundary_flux, duration);
+            boost::shared_ptr<Electrodes<2> > p_electrodes(
+                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
                  
-            bidomain_problem.SetElectrodes(electrodes);
+            bidomain_problem.SetElectrodes(p_electrodes);
             bidomain_problem.SetMesh(p_mesh);
             bidomain_problem.Initialise();    
 
@@ -564,14 +568,12 @@ public:
             }
             
             // We can get away with the following line only because this is a friend class and test.
-            Electrodes<2>* p_electrodes = static_cast<BidomainProblem<2>* >(p_abstract_problem)->mpElectrodes;
+            boost::shared_ptr<Electrodes<2> > p_electrodes = static_cast<BidomainProblem<2>* >(p_abstract_problem)->mpElectrodes;
             
             TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT_EQUALS(ap_triggered, true);
             
             delete p_abstract_problem;
-            delete p_electrodes;
-            delete p_fake_cell;
         }
         
         delete p_mesh;

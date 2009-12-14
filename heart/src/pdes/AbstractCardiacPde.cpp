@@ -90,52 +90,26 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
     mIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     mIntracellularStimulusCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     
-    // If we're migrating to a different number of processes, delete the cells we don't need.
-    /// \todo Don't allocate the memory in the first place!
-    /// \todo Assumes that mCellsDistributed contains all the cells, and that we're not permuting.
-    if (mpDistributedVectorFactory->GetOriginalFactory() &&
-        mpDistributedVectorFactory->GetLocalOwnership() < mCellsDistributed.size())
-    {
-        assert(mCellsDistributed.size() == mpDistributedVectorFactory->GetProblemSize());
-        // Free memory.
-        /// \todo handle the bath cell case
-        for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
-             cell_iterator != mCellsDistributed.begin() + mpDistributedVectorFactory->GetLow();
-             ++cell_iterator)
-        {
-            delete (*cell_iterator);
-        }
-        for (std::vector<AbstractCardiacCell*>::iterator
-                 cell_iterator = mCellsDistributed.begin() + mpDistributedVectorFactory->GetHigh();
-             cell_iterator != mCellsDistributed.end();
-             ++cell_iterator)
-        {
-            delete (*cell_iterator);
-        }
-        
-        // Remove pointers from the vector.
-        // Remove any extra cells at the end first, for efficiency.
-        mCellsDistributed.erase(mCellsDistributed.begin() + mpDistributedVectorFactory->GetHigh(),
-                                mCellsDistributed.end());
-        mCellsDistributed.erase(mCellsDistributed.begin(),
-                                mCellsDistributed.begin() + mpDistributedVectorFactory->GetLow());
-    }
-    
     CreateIntracellularConductivityTensor();
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
 {
+    std::set<FakeBathCell*> fake_cells;
     for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
          cell_iterator != mCellsDistributed.end();
          ++cell_iterator)
     {
-        // Only delete real cells
+        // Only delete real cells, unless we were loaded from an archive
         FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(*cell_iterator);
         if (p_fake == NULL)
         {
             delete (*cell_iterator);
+        }
+        else
+        {
+            fake_cells.insert(p_fake);
         }
     }
 
@@ -145,6 +119,13 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
     if (mMeshUnarchived)
     {
         delete mpMesh;
+        // Likewise for fake cells
+        for (std::set<FakeBathCell*>::iterator it = fake_cells.begin();
+             it != fake_cells.end();
+             ++it)
+        {
+            delete (*it);
+        }
     }
 }
 

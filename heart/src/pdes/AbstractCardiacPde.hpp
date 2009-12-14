@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPDE_HPP_
 #define ABSTRACTCARDIACPDE_HPP_
 
+#include <set>
 #include <vector>
 #include <climits> // Work around a boost bug - see #1024.
 #include <boost/serialization/access.hpp>
@@ -100,7 +101,7 @@ private:
         assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
         // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
     }
-
+    
     /**
      * Convenience method for intracellular conductivity tensor creation
      */
@@ -292,6 +293,105 @@ public:
      */
     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pGetMesh() const;
 
+    /**
+     * Save our collection of cells to an archive.
+     * 
+     * Writes:
+     *  -# #mpDistributedVectorFactory
+     *  -# number of cells on this process
+     *  -# each cell pointer in turn
+     * 
+     * @param archive  the master archive; cells will actually be written to the process-specific archive.
+     * @param version
+     */
+    template<class Archive>
+    void SaveCardiacCells(Archive & archive, const unsigned int version) const
+    {
+        Archive& r_archive = *ProcessSpecificArchive<Archive>::Get();
+        const std::vector<AbstractCardiacCell*> & r_cells_distributed = GetCellsDistributed();
+        r_archive & mpDistributedVectorFactory; // Needed when loading
+        const unsigned num_cells = r_cells_distributed.size();
+        r_archive & num_cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            r_archive & r_cells_distributed[i];
+        }
+    }
+    
+    /**
+     * Load our collection of cells from an archive.
+     * 
+     * Handles the checkpoint migration case, deleting loaded cells immediately if they are
+     * not local to this process.
+     * 
+     * \todo Assumes that the archive contains all the cells, and that we're not permuting.
+     * 
+     * @param archive  master archive; actually loads from the process-specific archive
+     * @param version  archive version
+     * @param rCells  vector to fill in with pointers to local cells
+     */
+    template<class Archive>
+    static void LoadCardiacCells(Archive & archive, const unsigned int version, std::vector<AbstractCardiacCell*>& rCells)
+    {
+        Archive& r_archive = *ProcessSpecificArchive<Archive>::Get();
+        DistributedVectorFactory* p_factory;
+        r_archive & p_factory;
+        unsigned num_cells;
+        r_archive & num_cells;
+        rCells.reserve(num_cells);
+        
+        // Are we migrating?
+        bool migrating = (p_factory->GetOriginalFactory() &&
+                          p_factory->GetLocalOwnership() < num_cells);
+        // We don't handle direct parallel -> parallel migrations yet
+        assert(!migrating || num_cells == p_factory->GetProblemSize());
+        
+        // Track fake bath cells to make sure we only delete non-local ones
+        std::set<FakeBathCell*> fake_bath_cells_non_local, fake_bath_cells_local;
+        
+        for (unsigned global_index=0; global_index<num_cells; global_index++)
+        {
+            bool local = !migrating || p_factory->IsGlobalIndexLocal(global_index);
+            AbstractCardiacCell* p_cell;
+            r_archive & p_cell;
+            // Check if it's a fake cell
+            FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
+            if (local)
+            {
+                rCells.push_back(p_cell); // Add to local cells collection
+                if (migrating && p_fake)
+                {
+                    fake_bath_cells_local.insert(p_fake);
+                }
+            }
+            else if (migrating)
+            {
+                if (p_fake)
+                {
+                    fake_bath_cells_non_local.insert(p_fake);
+                }
+                else
+                {
+                    // Non-local real cell, so free the memory.
+                    delete p_cell;
+                }
+            }
+        }
+        
+        // Delete any unused fake cells
+        if (!fake_bath_cells_non_local.empty())
+        {
+            for (std::set<FakeBathCell*>::iterator it = fake_bath_cells_non_local.begin();
+                 it != fake_bath_cells_non_local.end();
+                 ++it)
+            {
+                if (fake_bath_cells_local.find(*it) == fake_bath_cells_local.end())
+                {
+                    delete (*it);
+                }
+            }
+        }
+    }
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde);

@@ -112,10 +112,11 @@ template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void save_construct_data(
     Archive & ar, const MonodomainPde<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
-    const std::vector<AbstractCardiacCell*> & r_cells_distributed = t->GetCellsDistributed();
-    const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
+    // Don't use the std::vector serialization for cardiac cells, so that we can load them
+    // more cleverly when migrating checkpoints.
+    t->SaveCardiacCells(ar, file_version);
 
-    (*ProcessSpecificArchive<Archive>::Get()) & r_cells_distributed;
+    const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
     ar & p_mesh;
 
     // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
@@ -136,7 +137,9 @@ inline void load_construct_data(
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh;
 
-    (*ProcessSpecificArchive<Archive>::Get()) & cells_distributed;
+    // Load only the cells we actually own
+    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(ar, file_version, cells_distributed);
+
     ar & p_mesh;
 
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.

@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include <vector>
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractCardiacProblem.hpp"
 #include "AbstractCardiacPde.hpp"
@@ -119,7 +121,7 @@ protected:
     bool mHasBath;
 
     /** Electrodes used to provide a shock */
-    Electrodes<DIM>* mpElectrodes;
+    boost::shared_ptr<Electrodes<DIM> > mpElectrodes;
 
     /**
      *  Create normal initial condition but overwrite V to zero for bath nodes, if
@@ -134,8 +136,9 @@ protected:
     void AnalyseMeshForBath();
 
     /**
-     *  We need to save the assembler that is being used to switch off the
-     *  electrodes (by adding default boundary conditions to the assembler)
+     * We need to save the assembler that is being used to be able to switch
+     * off the electrodes (by adding default boundary conditions to the
+     * assembler)
      */
     BidomainDg0Assembler<DIM,DIM>* mpAssembler;
 
@@ -220,9 +223,9 @@ public:
      *  Set an electrode object (which provides boundary conditions). Only
      *  valid if there is a bath.
      * 
-     * @param rElectrodes
+     * @param pElectrodes
      */
-    void SetElectrodes(Electrodes<DIM>& rElectrodes);
+    void SetElectrodes(boost::shared_ptr<Electrodes<DIM> > pElectrodes);
 
     /**
      *  Called at end of each time step in the main time-loop in

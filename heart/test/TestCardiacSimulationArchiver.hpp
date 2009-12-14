@@ -547,11 +547,12 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
-        Electrodes<2> electrodes(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
-                                 boundary_flux, duration);
+        boost::shared_ptr<Electrodes<2> > p_electrodes(
+            new Electrodes<2>(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
+                              boundary_flux, duration));
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
-        bidomain_problem.SetElectrodes(electrodes);
+        bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
         
         bidomain_problem.Initialise();
@@ -563,8 +564,6 @@ public:
     
     /**
      * #1159 - the first part of migrating a checkpoint to a different number of processes.
-     * 
-     * \todo #1169 - uncomment when the bath archiving works
      */
     void TestLoadAsSequentialWithBath() throw (Exception)
     {

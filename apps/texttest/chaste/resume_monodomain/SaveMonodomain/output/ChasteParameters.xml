@@ -39,7 +39,7 @@
   <cp12:Numerical>
     <cp12:TimeSteps ode="0.01" pde="0.1" printing="0.1" unit="ms"/>
     <cp12:KSPTolerances>
-      <cp12:KSPAbsolute>0.0002</cp12:KSPAbsolute>
+      <cp12:KSPAbsolute>1e-06</cp12:KSPAbsolute>
     </cp12:KSPTolerances>
     <cp12:KSPSolver>gmres</cp12:KSPSolver>
     <cp12:KSPPreconditioner>jacobi</cp12:KSPPreconditioner>

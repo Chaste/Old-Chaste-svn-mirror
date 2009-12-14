@@ -587,7 +587,8 @@ public:
      * which things are archived.
      * 
      *  -# (via #mpMesh) DistributedVectorFactory*
-     *  -# (via #mpCardiacPde load_construct_data) std::vector<AbstractCardiacCell*>
+     *  -# (via #mpCardiacPde LoadCardiacCells) DistributedVectorFactory*
+     *  -# (via #mpCardiacPde LoadCardiacCells) number_of_cells and sequence of AbstractCardiacCell*
      *  -# (via #mpCardiacPde) DistributedVectorFactory*
      *  -# #mpBoundaryConditionsContainer
      *  -# #mpDefaultBoundaryConditionsContainer
@@ -605,10 +606,25 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     // The vector factory must be loaded, but isn't needed for anything.
     DistributedVectorFactory* p_mesh_factory;
     archive >> p_mesh_factory;
+    
+    {
+        // The cells collection vector factory
+        DistributedVectorFactory* p_cells_factory;
+        archive >> p_cells_factory;
+        assert(p_cells_factory == p_mesh_factory); // Paranoia...
+    }
 
     // The cardiac cells
     std::vector<AbstractCardiacCell*> cells;
-    archive >> cells;
+    unsigned num_cells;
+    archive >> num_cells;
+    cells.reserve(num_cells);
+    for (unsigned i=0; i<num_cells; i++)
+    {
+        AbstractCardiacCell* p_cell;
+        archive >> p_cell;
+        cells.push_back(p_cell);
+    }
     mpCardiacPde->ExtendCells(cells);
 
     {
@@ -616,6 +632,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
         archive >> p_pde_factory;
         assert(p_pde_factory == p_mesh_factory); // Paranoia...
     }
+    // We no longer need this vector factory, since we already have our own.
     delete p_mesh_factory;
 
     // The boundary conditions

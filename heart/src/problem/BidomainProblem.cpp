@@ -188,8 +188,7 @@ BidomainProblem<DIM>::BidomainProblem(
     : AbstractCardiacProblem<DIM,DIM, 2>(pCellFactory),
       mpBidomainPde(NULL),
       mRowForAverageOfPhiZeroed(INT_MAX),
-      mHasBath(hasBath),
-      mpElectrodes(NULL)
+      mHasBath(hasBath)
 {
     mFixedExtracellularPotentialNodes.resize(0);
 }
@@ -198,8 +197,7 @@ template<unsigned DIM>
 BidomainProblem<DIM>::BidomainProblem()
     : AbstractCardiacProblem<DIM, DIM, 2>(),
       mpBidomainPde(NULL),
-      mRowForAverageOfPhiZeroed(INT_MAX),
-      mpElectrodes(NULL)
+      mRowForAverageOfPhiZeroed(INT_MAX)
 {
     mFixedExtracellularPotentialNodes.resize(0);
 }
@@ -316,14 +314,14 @@ void BidomainProblem<DIM>::PreSolveChecks()
 }
 
 template<unsigned DIM>
-void BidomainProblem<DIM>::SetElectrodes(Electrodes<DIM>& rElectrodes)
+void BidomainProblem<DIM>::SetElectrodes(boost::shared_ptr<Electrodes<DIM> > pElectrodes)
 {
     if (!mHasBath)
     {
         EXCEPTION("Cannot set electrodes when problem has been defined to not have a bath");
     }
 
-    mpElectrodes = &rElectrodes;
+    mpElectrodes = pElectrodes;
 
     SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer());
 }
@@ -332,7 +330,7 @@ void BidomainProblem<DIM>::SetElectrodes(Electrodes<DIM>& rElectrodes)
 template<unsigned DIM>
 void BidomainProblem<DIM>::OnEndOfTimestep(double time)
 {
-    if ( (mpElectrodes!=NULL) && (mpElectrodes->SwitchOff(time)) )
+    if ( mpElectrodes && mpElectrodes->SwitchOff(time) )
     {
         // At the moment mpBcc should exist and therefore
         // mpDefaultBcc should be empty
