@@ -872,6 +872,12 @@ public:
         atrial_ode_system.SetScaleFactorGkr(1.0);
         atrial_ode_system.SetScaleFactorGna(1.0);
         atrial_ode_system.SetScaleFactorAch(1e-24);
+        atrial_ode_system.SetScaleFactorGNaK(1.0);
+        atrial_ode_system.SetScaleFactorGNaCa(1.0);
+        atrial_ode_system.SetScaleFactorGKur(1.0);
+        atrial_ode_system.SetScaleFactorGK1(1.0);
+        atrial_ode_system.SetScaleFactorGCaL(1.0);
+        atrial_ode_system.SetScaleFactorAZD(0.0);
         
         // Solve and write to file for a short time
         RunOdeSolverWithIonicModel(&atrial_ode_system,
