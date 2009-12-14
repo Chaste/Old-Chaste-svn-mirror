@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HeartConfigRelatedCellFactory.hpp"
 
+
 template<unsigned SPACE_DIM>
 HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
     : AbstractCardiacCellFactory<SPACE_DIM>(),
@@ -132,7 +133,27 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
             return p_tt06_instance;
             break;
         }
+        
+        case(cp::ionic_models_available_type::Maleckar):
+        {
+             Maleckar2009OdeSystem*  p_maleckar_instance = new Maleckar2009OdeSystem(this->mpSolver, intracellularStimulus);
 
+            for (unsigned ht_index = 0;
+                 ht_index < mCellHeterogeneityAreas.size();
+                 ++ht_index)
+            {
+                if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+                {
+                    p_maleckar_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
+                    p_maleckar_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
+                    p_maleckar_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
+                }
+            }
+
+            return p_maleckar_instance;
+            break;
+        }
+        
         case(cp::ionic_models_available_type::HodgkinHuxley):
         {
             return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);

@@ -81,6 +81,15 @@
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 8 -->
+			<Region> <!-- REGION 9 -->
+                <IonicModel>Maleckar</IonicModel>
+                <Location unit="cm">
+                    <Cuboid>
+                        <LowerCoordinates x="0.8" y="0.0" z="0.0"/>
+                        <UpperCoordinates x="0.8" y="0.0"  z="0.0"/>
+                    </Cuboid>
+                </Location>
+            </Region><!-- REGION 9 -->
         </IonicModels>
 	    
 		<!-- 

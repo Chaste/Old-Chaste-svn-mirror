@@ -71,7 +71,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Mahajan2008OdeSystem.hpp"
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
-
+#include "Maleckar2009OdeSystem.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
@@ -747,6 +747,7 @@ public:
         CheckCellModelResults("Mahajan2008");
     }
 
+
     /**
      *  Here we test the scale factors methiods for the mahajan model.
      *  The idea is to set the scale factors for the 3 different cell types (epi, mid and endo)
@@ -854,6 +855,36 @@ public:
 
     }
 
+    void TestMaleckar(void) throw (Exception)
+    {
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-280,
+                                                                          6,
+                                                                          1000,
+                                                                          4.0));
+
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);
+        Maleckar2009OdeSystem atrial_ode_system(p_solver, p_stimulus);
+        
+        //default values
+        atrial_ode_system.SetScaleFactorGks(1.0);
+        atrial_ode_system.SetScaleFactorIto(1.0);
+        atrial_ode_system.SetScaleFactorGkr(1.0);
+        atrial_ode_system.SetScaleFactorGna(1.0);
+        atrial_ode_system.SetScaleFactorAch(1e-24);
+        
+        // Solve and write to file for a short time
+        RunOdeSolverWithIonicModel(&atrial_ode_system,
+                                   25,/*end time*/
+                                   "Maleckar2009",
+                                   1000);
+                                   
+        // Check against validated data(The full AP is attached to ticket 1194)
+        CheckCellModelResults("Maleckar2009");
+              
+        //Test the GetIIonic method against one hardcoded value.
+        TS_ASSERT_DELTA(atrial_ode_system.GetIIonic(), 1.4426, 1e-3);
+    }
 //    Uncomment the includes for the models too
 //
 //    void TestOdeSolverForN98WithSimpleStimulus(void)

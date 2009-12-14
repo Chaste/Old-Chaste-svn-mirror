@@ -95,6 +95,7 @@
       <xs:enumeration value="MahajanShiferaw"/>
       <xs:enumeration value="HodgkinHuxley"/>
       <xs:enumeration value="tenTusscher2006"/>
+      <xs:enumeration value="Maleckar"/>
     </xs:restriction>
   </xs:simpleType>
 

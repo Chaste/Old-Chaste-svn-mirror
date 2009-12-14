@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Mahajan2008OdeSystem.hpp"
 #include "TenTusscher2006OdeSystem.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
-
+#include "Maleckar2009OdeSystem.hpp"
 
 /**
  *  \todo: dox, coverage, maybe own tests
