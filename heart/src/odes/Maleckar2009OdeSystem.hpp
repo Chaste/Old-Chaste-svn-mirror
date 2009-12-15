@@ -22,10 +22,12 @@
 #include "OdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
 /**
- * This class implements the Maleckar 2009 cell model
+ * 
+ * This class implements the Maleckar 2009 atrial cell model
  * The code has been translated by PyCml.
- * Some scale factors have been manually added to be used to simulate the efefct of some drug
- * By default, it behaves in a 'control' situation i.e., like the file downloaded from the CellML repository
+ * Some scale factors have been manually added to be used to simulate the effect of some drug.
+ * By default, it behaves in a 'control' situation i.e., like the file downloaded from the CellML repository.
+ * State variables are initialised as to be at steady state for 1Hz.
  * 
  */
 class Maleckar2009OdeSystem : public AbstractCardiacCell
