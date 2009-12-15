@@ -46,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FoxModel2002Modified.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
+#include "Maleckar2009OdeSystem.hpp"
+#include "CellProperties.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
@@ -103,6 +105,163 @@ public:
                   << "\n\tBackward: " << backward
                   << std::endl;
 
+    }
+    
+    void TestScaleFactorsMaleckar(void) throw (Exception)
+    {
+        double end_time =500;
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-280,
+                                                                          6,
+                                                                          1000,
+                                                                          4.0));
+
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);
+        Maleckar2009OdeSystem atrial_ode_system(p_solver, p_stimulus);
+        
+        const std::string control_file = "control";
+        const std::string first_set_file = "first_scale_factor_set";
+        const std::string second_set_file = "second_scale_factor_set";
+        const std::string AZD_file = "AZD_scale_factor_set";
+        
+        OdeSolution control_solution;
+        OdeSolution first_scale_factor_set_solution;
+        OdeSolution second_scale_factor_set_solution;
+        OdeSolution AZD_scale_factor_set_solution;
+        
+        double time_step=0.001;
+        double sampling_time=0.001;       
+        std::vector<double> state_variables= atrial_ode_system.GetInitialConditions();
+        
+        //default values
+        atrial_ode_system.SetScaleFactorGks(1.0);
+        atrial_ode_system.SetScaleFactorIto(1.0);
+        atrial_ode_system.SetScaleFactorGkr(1.0);
+        atrial_ode_system.SetScaleFactorGna(1.0);
+        atrial_ode_system.SetScaleFactorAch(1e-24);
+        atrial_ode_system.SetScaleFactorGNaK(1.0);
+        atrial_ode_system.SetScaleFactorGNaCa(1.0);
+        atrial_ode_system.SetScaleFactorGKur(1.0);
+        atrial_ode_system.SetScaleFactorGK1(1.0);
+        atrial_ode_system.SetScaleFactorGCaL(1.0);
+        atrial_ode_system.SetScaleFactorAZD(0.0);
+            
+        control_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);     
+        control_solution.WriteToFile("TestIonicModels",
+                              control_file,
+                              &atrial_ode_system,
+                              "ms",//time units
+                              100,//steps per row
+                              false);/*true cleans the directory*/
+                              
+        //now apply the first scale factor set, decreases outward currents                      
+        atrial_ode_system.SetScaleFactorGks(0.8);
+        atrial_ode_system.SetScaleFactorIto(1.0);
+        atrial_ode_system.SetScaleFactorGkr(0.9);
+        atrial_ode_system.SetScaleFactorGna(1.0);
+        atrial_ode_system.SetScaleFactorAch(1e-24);
+        atrial_ode_system.SetScaleFactorGNaK(1.0);
+        atrial_ode_system.SetScaleFactorGNaCa(1.0);
+        atrial_ode_system.SetScaleFactorGKur(0.7);
+        atrial_ode_system.SetScaleFactorGK1(0.6);
+        atrial_ode_system.SetScaleFactorGCaL(1.0);
+        atrial_ode_system.SetScaleFactorAZD(0.0);
+        
+        state_variables= atrial_ode_system.GetInitialConditions();
+        first_scale_factor_set_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);            
+        first_scale_factor_set_solution.WriteToFile("TestIonicModels",
+                              first_set_file,
+                              &atrial_ode_system,
+                              "ms",//time units
+                              100,//steps per row
+                              false);/*true cleans the directory*/
+         
+        //now apply the secondscale factor set, this one increases inward currents                  
+        atrial_ode_system.SetScaleFactorGks(1.0);
+        atrial_ode_system.SetScaleFactorIto(1.0);
+        atrial_ode_system.SetScaleFactorGkr(1.0);
+        atrial_ode_system.SetScaleFactorGna(1.5);
+        atrial_ode_system.SetScaleFactorAch(1e-24);
+        atrial_ode_system.SetScaleFactorGNaK(1.0);
+        atrial_ode_system.SetScaleFactorGNaCa(2.0);
+        atrial_ode_system.SetScaleFactorGKur(1.0);
+        atrial_ode_system.SetScaleFactorGK1(1.0);
+        atrial_ode_system.SetScaleFactorGCaL(1.6);
+        atrial_ode_system.SetScaleFactorAZD(0.0);
+        
+        state_variables= atrial_ode_system.GetInitialConditions();
+        second_scale_factor_set_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);            
+        second_scale_factor_set_solution.WriteToFile("TestIonicModels",
+                              second_set_file,
+                              &atrial_ode_system,
+                              "ms",//time units
+                              100,//steps per row
+                              false);/*true cleans the directory*/
+        
+        //check the AZD scale factor (vs control)
+        atrial_ode_system.SetScaleFactorGks(1.0);
+        atrial_ode_system.SetScaleFactorIto(1.0);
+        atrial_ode_system.SetScaleFactorGkr(1.0);
+        atrial_ode_system.SetScaleFactorGna(1.0);
+        atrial_ode_system.SetScaleFactorAch(1e-24);
+        atrial_ode_system.SetScaleFactorGNaK(1.0);
+        atrial_ode_system.SetScaleFactorGNaCa(1.0);
+        atrial_ode_system.SetScaleFactorGKur(1.0);
+        atrial_ode_system.SetScaleFactorGK1(1.0);
+        atrial_ode_system.SetScaleFactorGCaL(1.0);
+        atrial_ode_system.SetScaleFactorAZD(5.0);
+            
+        AZD_scale_factor_set_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);     
+        AZD_scale_factor_set_solution.WriteToFile("TestIonicModels",
+                              AZD_file,
+                              &atrial_ode_system,
+                              "ms",//time units
+                              100,//steps per row
+                              false);/*true cleans the directory*/
+                              
+                                                       
+        ColumnDataReader data_reader1("TestIonicModels", control_file);
+        std::vector<double> voltages1 = data_reader1.GetValues("V");
+        ColumnDataReader data_reader2("TestIonicModels", first_set_file);
+        std::vector<double> voltages2 = data_reader2.GetValues("V");
+        ColumnDataReader data_reader3("TestIonicModels", second_set_file);
+        std::vector<double> voltages3 = data_reader3.GetValues("V");
+        ColumnDataReader data_reader4("TestIonicModels", AZD_file);
+        std::vector<double> voltages4 = data_reader4.GetValues("V");
+        
+        TS_ASSERT_EQUALS(voltages1.size(), voltages2.size());
+        TS_ASSERT_EQUALS(voltages2.size(), voltages3.size());
+        TS_ASSERT_EQUALS(voltages3.size(), voltages4.size());
+        
+        //create the times vector
+        std::vector<double> times;
+        double k =0;
+        for (unsigned i=0; i<voltages2.size(); i++)
+        {
+          times.push_back(k);
+          k=k+0.1;
+        }     
+        
+        CellProperties  cell_properties_control(voltages1, times);
+        CellProperties  cell_properties_first(voltages2, times);
+        CellProperties  cell_properties_second(voltages3, times);
+        CellProperties  cell_properties_AZD(voltages4, times);
+        
+        double control_APD = cell_properties_control.GetLastActionPotentialDuration(90);
+        double first_APD = cell_properties_first.GetLastActionPotentialDuration(90);
+        double second_APD = cell_properties_second.GetLastActionPotentialDuration(90);
+        double AZD_APD = cell_properties_AZD.GetLastActionPotentialDuration(90);
+        
+        //test that the aps are actually longer than control (all interventions were meant to have that effect except the last one)
+        TS_ASSERT_LESS_THAN(control_APD, first_APD);
+        TS_ASSERT_LESS_THAN(control_APD, second_APD);
+        TS_ASSERT_LESS_THAN(AZD_APD, control_APD);
+        
+        //leave some hardcoded value for testing
+        TS_ASSERT_DELTA(control_APD, 200.36, 0.1);
+        TS_ASSERT_DELTA(first_APD, 384.77, 0.1);
+        TS_ASSERT_DELTA(second_APD, 308.3515, 0.1);
+        TS_ASSERT_DELTA(AZD_APD , 183.67, 0.1);
     }
 };
 
