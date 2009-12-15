@@ -115,10 +115,7 @@ private:
         }
 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
-        {
-            /// \todo: until we implement checkpointing properly, we only allow checkpoint timestep equals to simulation duration (equivalent to old save+resume)
-            assert(HeartConfig::Instance()->GetCheckpointTimestep() == HeartConfig::Instance()->GetSimulationDuration());  
-    
+        {    
             TimeStepper chekpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
             while ( !chekpoint_stepper.IsTimeAtEnd() )
             {

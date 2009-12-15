@@ -31,10 +31,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include "CardiacSimulation.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "CompareHdf5ResultsFiles.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestCheckpointing : public CxxTest::TestSuite
 {
@@ -91,8 +94,42 @@ public:
         }
         
     }
+
+    void TestCheckpointingGeneratesMultipleDirectories() throw(Exception)
+    {
+        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_checkpoint.xml");                
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 0.2);
+        TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCheckpointTimestep(), 0.1);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "SaveBi2DCheckPoint");
+
+        // Test that two directories have been created
+        OutputFileHandler handler("");
+        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.1ms");
+        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms");
+
+        // Test the content of one of them
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms/AbstractCardiacProblem_mSolution.h5");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms/ChasteDefaults.xml");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms/ChasteParameters.xml");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms/mesh.ele");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms/mesh.edge");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms/mesh.node");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_0.2ms/SaveBi2DCheckPoint_0.2ms.arch");
+    }
     
-    
+    void TestCheckpointingGeneratesSameResults()
+    {
+        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_checkpoint.xml");                
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "SaveBi2DCheckPoint");
+
+        CardiacSimulation simulation_compare("heart/test/data/xml/bidomain2d_compare_with_checkpoint.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "SaveBi2DCheckPointCompare");
+        
+        TS_ASSERT( CompareFilesViaHdf5DataReader("SaveBi2DCheckPoint", "bidomain3d", true,
+           "SaveBi2DCheckPointCompare", "bidomain3d", true));
+    }    
 };
 
 #endif /*TESTCHECKPOINTING_HPP_*/
