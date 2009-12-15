@@ -32,27 +32,27 @@ class Maleckar2009OdeSystem : public AbstractCardiacCell
 {
     
 private:
-    /** Scale factor for Gks*/
+    /** Scale factor for Gks, set to 1 by the constructor*/
     double mScaleFactorGks;
-    /** Scale factor for Gto*/
+    /** Scale factor for Gto, set to 1 by the constructor*/
     double mScaleFactorIto;
-    /** Scale factor for Gkr*/
+    /** Scale factor for Gkr, set to 1 by the constructor*/
     double mScaleFactorGkr;
-    /** Scale factor for Gna*/
+    /** Scale factor for Gna, set to 1 by the constructor*/
     double mScaleFactorGna;
-    /** Scale factor for Ach*/
+    /** Scale factor for Ach, set to 1e-24 by the constructor*/
     double mScaleFactorAch;
-    /** Scale factor for NaK*/
+    /** Scale factor for GNaK,  set to 1 by the constructor*/
     double mScaleFactorGNaK;
-    /** Scale factor for NaCa*/
+    /** Scale factor for GNaCa, set to 1 by the constructor*/
     double mScaleFactorGNaCa;
-    /** Scale factor for CaL*/
+    /** Scale factor for GCaL, set to 1 by the constructor*/
     double mScaleFactorGCaL;
-    /** Scale factor for Kur*/
+    /** Scale factor for GKur, set to 1 by the constructor*/
     double mScaleFactorGKur;
-    /** Scale factor for GK1*/
+    /** Scale factor for GK1, set to 1 by the constructor*/
     double mScaleFactorGK1;
-    /** Scale factor for AZD*/
+    /** Scale factor for AZD, set to 0 by the constructor*/
     double mScaleFactorAZD;
     
     /** Needed for serialization. */
@@ -87,19 +87,69 @@ public:
     ~Maleckar2009OdeSystem(void);
 
     /**
-     * Set the scale factor for Gks in order to differentiate epi M and endo cells
+     * Set the scale factor for Gks
      * @param sfgks
      */
     void SetScaleFactorGks(double sfgks);
+    
+    /**
+     * Set the scale factor for Ito
+     * @param sfito
+     */
     void SetScaleFactorIto(double sfito);
+    
+    /**
+     * Set the scale factor for GKr
+     * @param sfgkr
+     */
     void SetScaleFactorGkr(double sfgkr);
+    
+    /**
+     * Set the scale factor for GNa
+     * @param sfgna
+     */
     void SetScaleFactorGna(double sfgna);
+    
+    /**
+     * Set the scale factor for Ach, acetilcholine concentration
+     * @param sfach
+     */
     void SetScaleFactorAch(double sfach);
+    
+    /**
+     * Set the scale factor for Na/K exchanger
+     * @param sfgnak
+     */
     void SetScaleFactorGNaK(double sfgnak);
+
+    /**
+     * Set the scale factor for Na/Ca exchanger
+     * @param sfgnaca
+     */
     void SetScaleFactorGNaCa(double sfgnaca);
+
+    /**
+     * Set the scale factor for L-type current
+     * @param sfgcal
+     */
     void SetScaleFactorGCaL(double sfgcal);
+
+    /**
+     * Set the scale factor for the Kur current
+     * @param sfgkur
+     */   
     void SetScaleFactorGKur(double sfgkur);
+    
+    /**
+     * Set the scale factor for the K1 current
+     * @param sfgk1
+     */       
     void SetScaleFactorGK1(double sfgk1);
+
+    /**
+     * Set the scale factor for concentration of AZD compound (fom AstraZeneca)
+     * @param sfazd
+     */   
     void SetScaleFactorAZD(double sfazd);
     
     /**
