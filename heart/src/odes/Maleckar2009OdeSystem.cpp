@@ -340,6 +340,7 @@ void Maleckar2009OdeSystem::EvaluateYDerivatives(
     double var_Ca_handling_by_the_SR__F2 = rY[29];
     // Units: dimensionless; Initial value: 0.002665
     
+    VerifyStateVariables();
     
     // Mathematics
     const double var_membrane__R = 8314.0;
