@@ -164,6 +164,11 @@ public:
     unsigned GetNumNodes() const;
 
     /**
+     * Get the total number of nodes that are actually in use (globally).
+     */
+    unsigned GetNumAllNodes() const;
+
+    /**
      * Get the total number of elements that are actually in use (globally).
      */
     unsigned GetNumElements() const;
@@ -173,7 +178,7 @@ public:
      * 
      * serialization uses this method.
      */
-     PartitionType GetPartitionType() const;
+    PartitionType GetPartitionType() const;
     
     /**
      * Get the total number of boundary elements that are actually in use (globally).
@@ -424,10 +429,11 @@ inline void load_construct_data(
     ::new(t)ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
     
     /*
-     *  The exception needs to be thrown after the call to new(t). It's quite likely that
-     *  somebody is assuming that the object got created and will try to delete it.
-     */    
-    if (num_procs != PetscTools::GetNumProcs())
+     * The exception needs to be thrown after the call to ::new(t), or Boost will try
+     * to free non-allocated memory when the exception is thrown.
+     */
+    if (DistributedVectorFactory::CheckNumberOfProcessesOnLoad() &&
+        num_procs != PetscTools::GetNumProcs())
     {
         EXCEPTION("This archive was written for a different number of processors");
     }

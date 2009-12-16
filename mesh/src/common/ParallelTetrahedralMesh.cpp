@@ -316,6 +316,12 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
+{
+    return mTotalNumNodes;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mTotalNumElements;

@@ -56,6 +56,7 @@ public:
 
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 11u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
@@ -86,6 +87,7 @@ public:
 
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543u);
         TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetProblemSize(), 543u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100u);

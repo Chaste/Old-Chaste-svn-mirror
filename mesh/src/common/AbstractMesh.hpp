@@ -138,7 +138,7 @@ public:
     /**
      * Get the number of nodes that are actually in use.
      *
-     * Overridden in MutableMesh.
+     * Overridden in MutableMesh and ParallelTetrahedralMesh.
      */
     virtual unsigned GetNumNodes() const;
 
@@ -150,7 +150,7 @@ public:
     /**
      * Get the total number of nodes (including those marked as deleted).
      */
-    unsigned GetNumAllNodes() const;
+    virtual unsigned GetNumAllNodes() const;
 
     /**
      * Get the node with a given index in the mesh.
