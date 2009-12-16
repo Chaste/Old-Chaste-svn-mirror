@@ -106,19 +106,19 @@ public:
 
         // Test that two directories have been created
         OutputFileHandler handler("");
-        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.1ms/SaveBi2DCheckPoint");
-        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.1ms/SaveBi2DCheckPoint_0.1ms");
-        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint");
-        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms");
+        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.1ms/SaveBi2DCheckPoint");
+        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.1ms/SaveBi2DCheckPoint_0.1ms");
+        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint");
+        EXPECT0(system, "test -d " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms");
 
         // Test the content of one of them
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms/AbstractCardiacProblem_mSolution.h5");
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms/ChasteDefaults.xml");
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms/ChasteParameters.xml");
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.ele");
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.edge");
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.node");
-        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_CheckpointDir/0.2ms/SaveBi2DCheckPoint_0.2ms/archive.arch");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/AbstractCardiacProblem_mSolution.h5");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/ChasteDefaults.xml");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/ChasteParameters.xml");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.ele");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.edge");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.node");
+        EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/archive.arch");
     }
     
     void TestCheckpointingGeneratesSameResults()

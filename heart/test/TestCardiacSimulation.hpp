@@ -115,7 +115,7 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_bidomain_short_results", false,
                                                 foldername, "SimulationResults", true));
 
-        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_CheckpointDir/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value,0); 
     }
@@ -130,7 +130,7 @@ public:
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_monodomain_short_results", false,
                    foldername, "SimulationResults", true));
 
-        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_CheckpointDir/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
         int return_value = system(command.c_str());
         TS_ASSERT_EQUALS(return_value,0); 
     }
