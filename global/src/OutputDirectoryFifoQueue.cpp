@@ -33,8 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "PetscTools.hpp"
 
-OutputDirectoryFifoQueue::OutputDirectoryFifoQueue(const std::string& baseDirectory, unsigned queueMaxSize) :
-    mBaseDirectory(baseDirectory),
+OutputDirectoryFifoQueue::OutputDirectoryFifoQueue(const std::string& rBaseDirectory, unsigned queueMaxSize) :
+    mBaseDirectory(rBaseDirectory),
     mQueueMaxSize(queueMaxSize)
 {
     // Create the base directory 
@@ -44,9 +44,9 @@ OutputDirectoryFifoQueue::OutputDirectoryFifoQueue(const std::string& baseDirect
     assert(mQueue.empty());
 }
 
-std::string OutputDirectoryFifoQueue::CreateNextDir(std::string subdirectoryName)
+std::string OutputDirectoryFifoQueue::CreateNextDir(const std::string& rSubdirectoryName)
 {
-    std::string subdirectory_full_name = mBaseDirectory + "/" + subdirectoryName;
+    std::string subdirectory_full_name = mBaseDirectory + "/" + rSubdirectoryName;
     
     if (mQueue.size() == mQueueMaxSize)
     {      
@@ -60,7 +60,7 @@ std::string OutputDirectoryFifoQueue::CreateNextDir(std::string subdirectoryName
         mQueue.pop();
     }    
 
-    mQueue.push(subdirectoryName);
+    mQueue.push(rSubdirectoryName);
     OutputFileHandler handler(subdirectory_full_name);
 
     assert(mQueue.size() <= mQueueMaxSize);
