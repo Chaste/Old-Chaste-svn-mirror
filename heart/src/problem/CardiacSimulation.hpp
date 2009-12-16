@@ -116,17 +116,35 @@ private:
 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {    
-            TimeStepper chekpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
-            while ( !chekpoint_stepper.IsTimeAtEnd() )
+            TimeStepper checkpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
+            while ( !checkpoint_stepper.IsTimeAtEnd() )
             {
-                HeartConfig::Instance()->SetSimulationDuration(chekpoint_stepper.GetNextTime());                                
+                HeartConfig::Instance()->SetSimulationDuration(checkpoint_stepper.GetNextTime());                                
                 p_problem->Solve();
+
+                // This is the directory where both archive directory and partial results will live
+                std::stringstream checkpoint_dir_basename;
+                checkpoint_dir_basename << HeartConfig::Instance()->GetOutputDirectory() << "_checkpoints/" << HeartConfig::Instance()->GetSimulationDuration() << "ms/"; 
         
-                std::stringstream directory;
-                directory << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms"; 
-                CardiacSimulationArchiver<Problem>::Save(*p_problem, directory.str(), false);
+                // This is a subdirectory of the previous containing the archive for this timestep
+                std::stringstream archive_foldername;
+                archive_foldername << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms";
+                
+                CardiacSimulationArchiver<Problem>::Save(*p_problem, checkpoint_dir_basename.str() + archive_foldername.str(), false);
+                    
+                PetscTools::Barrier(); // Make sure all the processes finished archiving before moving on.
+
+                OutputFileHandler checkpoint_dir_basename_handler(checkpoint_dir_basename.str(), false);
+                OutputFileHandler partial_output_dir_handler(HeartConfig::Instance()->GetOutputDirectory(), false);                 
+
+                if (PetscTools::AmMaster())
+                {
+                    // Copy partial results into checkpoint_dir_basename
+                    EXPECT0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());                                        
+                }
+                PetscTools::Barrier();    
     
-                chekpoint_stepper.AdvanceOneTimeStep();
+                checkpoint_stepper.AdvanceOneTimeStep();
             }        
         }
         else

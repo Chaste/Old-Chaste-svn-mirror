@@ -2,7 +2,7 @@
 <ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
 
 	<ResumeSimulation>
-		<ArchiveDirectory>SaveBi1D_0.1ms</ArchiveDirectory>
+		<ArchiveDirectory>SaveBi1D_CheckpointDir/0.1ms/SaveBi1D_0.1ms</ArchiveDirectory>
 		<SpaceDimension>1</SpaceDimension>
 	    <SimulationDuration unit="ms">0.2</SimulationDuration>
 	    <Domain>Bi</Domain>

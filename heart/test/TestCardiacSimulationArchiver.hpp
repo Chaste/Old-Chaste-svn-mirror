@@ -342,8 +342,8 @@ private:
 
         // Compare with the archive from the previous test
         OutputFileHandler handler(rArchiveDirectory, false);
-        std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/" + rRefArchiveDir + ".arch";
-        std::string my_archive = handler.GetOutputDirectoryFullPath() + rArchiveDirectory + ".arch";
+        std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/archive.arch";
+        std::string my_archive = handler.GetOutputDirectoryFullPath() + "archive.arch";
         EXPECT0(system, "diff " + ref_archive + " " + my_archive);
         // This will differ because we get extra copies of the ODE solver and intracellular stimulus objects
         // (one per original process which had them).
@@ -711,8 +711,8 @@ private:
 
         // Compare with the archive from the previous test
         OutputFileHandler handler(rArchiveDirectory, false);
-        std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/" + rRefArchiveDir + ".arch";
-        std::string my_archive = handler.GetOutputDirectoryFullPath() + rArchiveDirectory + ".arch";
+        std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/archive.arch";
+        std::string my_archive = handler.GetOutputDirectoryFullPath() + "archive.arch";
         EXPECT0(system, "diff " + ref_archive + " " + my_archive);
         for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
         {

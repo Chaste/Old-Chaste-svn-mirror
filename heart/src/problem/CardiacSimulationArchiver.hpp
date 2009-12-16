@@ -104,12 +104,12 @@ template<class PROBLEM_CLASS>
 void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToArchive,
                                                     const std::string &rDirectory,
                                                     bool clearDirectory)
-{
+{    
     // Clear directory if requested (and make sure it exists)
     OutputFileHandler handler(rDirectory, clearDirectory);
     
     // Open the archive files
-    ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener(rDirectory, rDirectory + ".arch", true);
+    ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener(rDirectory, "archive.arch", true);
     boost::archive::text_oarchive* p_main_archive = archive_opener.GetCommonArchive();
     
     // And save
@@ -121,7 +121,7 @@ template<class PROBLEM_CLASS>
 PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const std::string &rDirectory)
 {
     // Open the archive files
-    ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, rDirectory + ".arch", true);
+    ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true);
     boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
 
     // Load
@@ -148,7 +148,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::LoadAsSequential(const 
     {
         // Load the master and process-0 archive files.
         // This will also set up ArchiveLocationInfo for us.
-        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, rDirectory + ".arch", true);
+        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true);
         boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
         (*p_main_archive) >> p_unarchived_simulation;
         
@@ -159,7 +159,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::LoadAsSequential(const 
         // Merge in the extra data
         for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
         {
-            std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rDirectory + ".arch", archive_num);
+            std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
             std::ifstream ifs(archive_path.c_str());
             boost::archive::text_iarchive archive(ifs);
             p_unarchived_simulation->LoadExtraArchive(archive);
@@ -189,7 +189,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::LoadFromSequential(cons
     {
         // Load both the master and process-0 archive files.
         // The deserialize methods will be clever enough to throw away data that they don't need.
-        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, rDirectory + ".arch", true, 0u);
+        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true, 0u);
         boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
         (*p_main_archive) >> p_unarchived_simulation;
     }
