@@ -417,9 +417,7 @@ public:
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequential.
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequential
-        TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration/"
-        for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
-        for f in [^T]*; do cp $f $TO_DIR/$f; done
+        cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration/"
      * 
      * Sets up a simulation and archives it without solving at all.
      * 
@@ -518,16 +516,12 @@ public:
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequentialWithBath.
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequentialWithBath
-        TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_with_bath/"
-        for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
-        for f in [^T]*; do cp $f $TO_DIR/$f; done
+        cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_with_bath/"
      * 
      * Sets up a simulation and archives it without solving at all.
      * 
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
-     * 
-     * \todo #1169 - uncomment when the bath archiving works
      */
     void TestCreateArchiveForLoadAsSequentialWithBath() throw (Exception)
     {
@@ -693,15 +687,23 @@ private:
         // All cells should be at initial conditions.
         if (p_factory->GetHigh() > p_factory->GetLow())
         {
-            std::vector<double> inits = p_problem->GetPde()->GetCardiacCell(p_factory->GetLow())->GetInitialConditions();
+            std::vector<double> inits;
             for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
             {
                 AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-                std::vector<double>& r_state = p_cell->rGetStateVariables();
-                TS_ASSERT_EQUALS(r_state.size(), inits.size());
-                for (unsigned j=0; j<r_state.size(); j++)
+                FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
+                if (p_fake_cell == NULL)
                 {
-                    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                    if (inits.empty())
+                    {
+                        inits = p_cell->GetInitialConditions();
+                    }
+                    std::vector<double>& r_state = p_cell->rGetStateVariables();
+                    TS_ASSERT_EQUALS(r_state.size(), inits.size());
+                    for (unsigned j=0; j<r_state.size(); j++)
+                    {
+                        TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                    }
                 }
             }
         }
@@ -730,9 +732,7 @@ public:
      * Run this in sequential to create the archive for TestLoadFromSequential.
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequential
-        TO_DIR="$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq/"
-        for f in T*; do cp $f $TO_DIR/Test${f:20:${#f}}; done
-        for f in [^T]*; do cp $f $TO_DIR/$f; done
+        cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq/"
      * 
      * Sets up a simulation and archives it without solving at all.
      * 
@@ -817,6 +817,145 @@ public:
         TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
         
         DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 1);
+    }
+    
+    /**
+     * Run this in sequential to create the archive for TestLoadFromSequentialWithBath.
+     * Then do
+        cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequentialWithBath
+        cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq_with_bath/"
+     * 
+     * Sets up a simulation and archives it without solving at all.
+     * 
+     * When running in parallel, this creates an archive we can compare directly with
+     * that produced by the next test.
+     */
+    void TestCreateArchiveForLoadFromSequentialWithBath() throw (Exception)
+    {
+        std::string directory = "TestCreateArchiveForLoadFromSequentialWithBath";
+        HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->SetSimulationDuration(0.2);
+        HeartConfig::Instance()->SetOutputDirectory(directory);
+        HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
+        // We want the numbers matching in any h5 files:
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-6);
+        
+        ParallelTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<ParallelTetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+
+        // boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
+        double boundary_flux = -11.0e3;
+        double duration = 1.9; // of the stimulus, in ms
+        boost::shared_ptr<Electrodes<2> > p_electrodes(
+            new Electrodes<2>(*p_mesh, true/*do ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
+                              boundary_flux, duration));
+
+        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+        bidomain_problem.SetElectrodes(p_electrodes);
+        bidomain_problem.SetMesh(p_mesh);
+        
+        bidomain_problem.Initialise();
+        
+        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory);
+        
+        delete p_mesh;
+    }
+
+    void TestLoadFromSequentialWithBath() throw (Exception)
+    {
+        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
+        std::string source_directory = "heart/test/data/checkpoint_migration_from_seq_with_bath/";
+        std::string archive_directory = "TestLoadFromSequentialWithBath";
+        std::string ref_archive_dir = "TestCreateArchiveForLoadFromSequentialWithBath";
+        OutputFileHandler handler(archive_directory); // Clear the target directory
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
+        }
+        PetscTools::Barrier();
+        
+        // Loading from a sequential archive should work just as well running sequentially as in parallel -
+        // if running sequentially it's essentially just the same as a normal load.
+        const unsigned num_cells = 221u;
+        BidomainProblem<2>* p_problem = DoMigrateFromSequentialAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, num_cells, true);
+
+        // All cells should have a ZeroStimulus.
+        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
+        for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+        {
+            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            AbstractStimulusFunction* p_stim = p_cell->GetStimulusFunction().get();
+            ZeroStimulus* p_zero_stim = dynamic_cast<ZeroStimulus*>(p_stim);
+            TS_ASSERT(p_zero_stim != NULL);
+            TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
+            TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
+        }
+        
+        // Test bccs
+        TS_ASSERT( ! p_problem->mpDefaultBoundaryConditionsContainer); // Electrodes haven't switched off yet
+        TS_ASSERT(p_problem->mpBoundaryConditionsContainer);
+        boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
+        // We have neumann and dirichlet boundary conditions from the electrodes (at least on some processes)
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT(p_bcc->AnyNonZeroNeumannConditions());
+        }
+        TS_ASSERT(p_bcc->HasDirichletBoundaryConditions());
+        for (BoundaryConditionsContainer<2,2,2>::NeumannMapIterator it = p_bcc->BeginNeumann();
+             it != p_bcc->EndNeumann();
+             ++it)
+        {
+            ChastePoint<2> centroid(it->first->CalculateCentroid());
+            // Negative flux at x=0
+            if (fabs(centroid[0] - 0.0) < 1e-6)
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), -11e3, 1e-10);
+            }
+            else
+            {
+                TS_FAIL("Unexpected Neumann BC found.");
+            }
+        }
+        // Now check that all relevant boundary elements have neumann conditions
+        for (ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
+             iter != p_problem->rGetMesh().GetBoundaryElementIteratorEnd();
+             iter++)
+        {
+            ChastePoint<2> centroid((*iter)->CalculateCentroid());
+            if (fabs(centroid[0] - 0.0) < 1e-6)
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), -11e3, 1e-10);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), 0, 1e-10);
+            }
+            // No neumann stimulus applied to V
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,0), 0, 1e-10);
+        }
+        // Check dirichlet conditions exist only at x=0.1
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator iter=p_problem->rGetMesh().GetNodeIteratorBegin();
+             iter != p_problem->rGetMesh().GetNodeIteratorEnd();
+             ++iter)
+        {
+            Node<2>* p_node = &(*iter);
+            double x = p_node->rGetLocation()[0];
+            if (fabs(x - 0.1) < 1e-6)
+            {
+                TS_ASSERT(p_bcc->HasDirichletBoundaryCondition(p_node, 1));
+                TS_ASSERT_DELTA(p_bcc->GetDirichletBCValue(p_node, 1), 0, 1e-10); // grounded
+            }
+            else
+            {
+                TS_ASSERT(!p_bcc->HasDirichletBoundaryCondition(p_node, 1));
+            }
+            // No dirichlet condition on V
+            TS_ASSERT(!p_bcc->HasDirichletBoundaryCondition(p_node, 0));
+        }
+        
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
     }
 };
 

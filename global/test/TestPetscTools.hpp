@@ -146,13 +146,19 @@ public:
         PetscTools::Barrier();
     }
 
-    void TestReplicateError()
+    void TestReplicateBool()
     {
-        //
-        // A factory is created here to set static members on DistributedVector.
-        // As part of #988 these members are being moved to non-static members on
-        // DistributedVectorFactory. This should be refactored once this is complete.
-        //
+        bool my_flag=false;
+        if (PetscTools::AmMaster())
+        {
+            my_flag=true;
+        }
+            
+        TS_ASSERT(PetscTools::ReplicateBool(my_flag));
+    }
+    
+    void TestReplicateException()
+    {
         DistributedVectorFactory factory(1);
         if (factory.IsGlobalIndexLocal(0))
         {

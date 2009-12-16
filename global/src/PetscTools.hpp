@@ -162,6 +162,14 @@ public:
                          int numLocalColumns=PETSC_DECIDE);
 
     /**
+     * Boolean AND of a flags between processes
+     *
+     * @param flag is set to true on this process.
+     * @return true if any process' flag is set to true.
+     */
+    static bool ReplicateBool(bool flag);
+
+    /**
      * Ensure exceptions are handled cleanly in parallel code, by causing all processes to
      * throw if any one does.
      *

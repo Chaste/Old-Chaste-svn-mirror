@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscksp.h>
 #include <petscpc.h>
 #include "PetscTools.hpp"
-#include "Debug.hpp"
 
 /**
  *  PETSc will return the control to this function everytime it needs to precondition a vector (i.e. y = inv(M)*x)

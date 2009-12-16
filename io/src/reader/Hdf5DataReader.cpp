@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
-#include "Debug.hpp"
 
 #include <cassert>
 

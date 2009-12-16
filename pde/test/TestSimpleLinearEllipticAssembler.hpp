@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
+#include "ParallelTetrahedralMesh.hpp"
 #include "SimplePoissonEquation.hpp"
 #include "LinearPdeWithZeroSource.hpp"
 #include "EllipticPdeWithLinearSource.hpp"
@@ -277,7 +278,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        TetrahedralMesh<2,2> mesh;
+        ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -286,10 +287,14 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(2), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
+        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
+        for (unsigned i=0; i<4; i++)
+        {
+            if (p_factory->IsGlobalIndexLocal(i))
+            {
+                bcc.AddDirichletBoundaryCondition(mesh.GetNode(i), p_boundary_condition);
+            }
+        }
 
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);

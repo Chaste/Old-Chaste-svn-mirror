@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTBOUNDARYCONDITIONSCONTAINERIMPLEMENTATION_HPP_
 
 #include "AbstractBoundaryConditionsContainer.hpp"
+#include "PetscTools.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractBoundaryConditionsContainer()
@@ -50,14 +51,16 @@ AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~Abstrac
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::HasDirichletBoundaryConditions()
 {
+    bool i_have_dirichlet=false;
     for (unsigned i=0; i<PROBLEM_DIM; i++)
     {
         if (!mpDirichletMap[i]->empty())
         {
-            return true;
+            i_have_dirichlet=true;
+            break;
         }
     }
-    return false;
+    return PetscTools::ReplicateBool(i_have_dirichlet);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

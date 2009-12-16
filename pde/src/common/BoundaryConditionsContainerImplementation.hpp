@@ -31,10 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BoundaryConditionsContainer.hpp"
 #include "DistributedVector.hpp"
+#include "ReplicatableVector.hpp"
 #include "ConstBoundaryCondition.hpp"
 
 #include "HeartEventHandler.hpp"
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditionsContainer()
@@ -208,16 +208,15 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroN
  *
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
-                                       bool applyToMatrix)
+void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(
+        LinearSystem& rLinearSystem,
+        bool applyToMatrix)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::USER1);                                
     
     if (applyToMatrix)
     {
         bool matrix_is_symmetric = rLinearSystem.IsMatrixSymmetric();
-        
-        std::vector<unsigned> row_cols_to_zero;    
 
         if (matrix_is_symmetric)
         {
@@ -231,15 +230,26 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 #else
             VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
 #endif
-        }
-
-        // If the matrix is symmetric, calls to GetMatrixRowDistributed() require the matrix to be
-        // in assembled state. Otherwise we can defer it.
-        if (matrix_is_symmetric)
-        {
+            
+            // If the matrix is symmetric, calls to GetMatrixRowDistributed() require the matrix to be
+            // in assembled state. Otherwise we can defer it.
             rLinearSystem.AssembleFinalLinearSystem();
         }
 
+        // Work out where we're setting dirichlet boundary conditions *everywhere*, not just those locally known
+        ReplicatableVector dirichlet_conditions(rLinearSystem.GetSize());
+        unsigned lo, hi;
+        {
+            PetscInt lo_s, hi_s;
+            rLinearSystem.GetOwnershipRange(lo_s, hi_s);
+            lo = lo_s; hi = hi_s;
+        }
+        // Initialise all local entries to DBL_MAX, i.e. don't know if there's a condition
+        for (unsigned i=lo; i<hi; i++)
+        {
+            dirichlet_conditions[i] = DBL_MAX;
+        }
+        // Now fill in the ones we know
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
@@ -248,56 +258,72 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             {
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
+                assert(value != DBL_MAX);
 
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown; /// \todo: assumes vm and phie equations are interleaved
-                unsigned col = row;
-
-                if (matrix_is_symmetric)
-                {
-                    // Get a vector which will store the column of the matrix (column d, where d is
-                    // the index of the row (and column) to be altered for the boundary condition.
-                    // Since the matrix is symmetric when get row number "col" and treat it as a column.
-                    // PETSc uses compressed row format and therefore getting rows is far more efficient
-                    // than getting columns.
-                    Vec matrix_col = rLinearSystem.GetMatrixRowDistributed(col);
-    
-                    //Zero the correct entry of the column
-                    int indices[1] = {col};
-                    double zero[1] = {0.0};
-                    VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES);
-    
-                    // Set up the RHS Dirichlet boundary conditions vector
-                    // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
-                    //   -value*[0 a_21 a_31 .. a_N1]
-                    // and will be added to the RHS.
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                    double minus_value = -value;
-                    VecAXPY(&minus_value, matrix_col, rLinearSystem.rGetDirichletBoundaryConditionsVector());
-#else
-                    //[note: VecAXPY(y,a,x) computes y = ax+y]
-                    VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), -value, matrix_col);
-#endif
-                    VecDestroy(matrix_col);
-                }
-
-                //Zero out the appropriate row and column
-                row_cols_to_zero.push_back(row);
-
+                dirichlet_conditions[row] = value;
+                
                 this->mDirichIterator++;
+            }
+        }
+        // And replicate
+        dirichlet_conditions.Replicate(lo, hi);
+        
+        // Which rows have conditions?
+        std::vector<unsigned> rows_to_zero;
+        for (unsigned i=0; i<dirichlet_conditions.GetSize(); i++)
+        {
+            if (dirichlet_conditions[i] != DBL_MAX)
+            {
+                rows_to_zero.push_back(i);
+            }
+        }
+        
+        if (matrix_is_symmetric)
+        {
+            // Modify the matrix columns
+            for (unsigned i=0; i<rows_to_zero.size(); i++)
+            {
+                unsigned col = rows_to_zero[i];
+                double minus_value = -dirichlet_conditions[col];
+
+                // Get a vector which will store the column of the matrix (column d, where d is
+                // the index of the row (and column) to be altered for the boundary condition.
+                // Since the matrix is symmetric when get row number "col" and treat it as a column.
+                // PETSc uses compressed row format and therefore getting rows is far more efficient
+                // than getting columns.
+                Vec matrix_col = rLinearSystem.GetMatrixRowDistributed(col);
+
+                // Zero the correct entry of the column
+                int indices[1] = {col};
+                double zero[1] = {0.0};
+                VecSetValues(matrix_col, 1, indices, zero, INSERT_VALUES);
+
+                // Set up the RHS Dirichlet boundary conditions vector
+                // Assuming one boundary at the zeroth node (x_0 = value), this is equal to
+                //   -value*[0 a_21 a_31 .. a_N1]
+                // and will be added to the RHS.
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+                VecAXPY(&minus_value, matrix_col, rLinearSystem.rGetDirichletBoundaryConditionsVector());
+#else
+                //[note: VecAXPY(y,a,x) computes y = ax+y]
+                VecAXPY(rLinearSystem.rGetDirichletBoundaryConditionsVector(), minus_value, matrix_col);
+#endif
+                VecDestroy(matrix_col);
             }
         }
         
         // Now zero the appropriate rows and columns of the matrix. If the matrix is symmetric we apply the 
-        // boundary conditionss in a way the symmetry isn't lost (rows and columns). If not only the row is
+        // boundary conditions in a way the symmetry isn't lost (rows and columns). If not only the row is
         // zeroed.
         if (matrix_is_symmetric)
         {
-            rLinearSystem.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(row_cols_to_zero, 1.0);
+            rLinearSystem.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(rows_to_zero, 1.0);
         }
         else
         {
-            rLinearSystem.ZeroMatrixRowsWithValueOnDiagonal(row_cols_to_zero, 1.0);
-        }        
+            rLinearSystem.ZeroMatrixRowsWithValueOnDiagonal(rows_to_zero, 1.0);
+        }
     }
 
 
@@ -331,7 +357,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         }
     }
     
-    HeartEventHandler::EndEvent(HeartEventHandler::USER1);    
+    HeartEventHandler::EndEvent(HeartEventHandler::USER1);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

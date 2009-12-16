@@ -85,7 +85,8 @@ public:
     ~AbstractBoundaryConditionsContainer();
 
     /** 
-     * Return whether any Dirichlet conditions are defined (for ANY of the unknowns).
+     * Return whether any Dirichlet conditions are defined (for ANY of the unknowns, on ANY of the processes).
+     * Must be called collectively.
      */
     bool HasDirichletBoundaryConditions();
 

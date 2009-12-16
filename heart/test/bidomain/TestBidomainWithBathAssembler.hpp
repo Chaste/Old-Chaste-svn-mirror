@@ -393,7 +393,7 @@ public:
         double boundary_flux = -4e2;
         double duration = 0.2; //ms
 
-        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+        ParallelTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<ParallelTetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 
         ///////////////////////////////////////////////////////////////////
@@ -408,7 +408,7 @@ public:
             Timer::Reset();
 
             boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
+                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, duration));
 
             matrix_based_bido.SetElectrodes(p_electrodes);
             matrix_based_bido.SetMesh(p_mesh);
@@ -430,7 +430,7 @@ public:
             Timer::Reset();
 
             boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
+                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, duration));
 
             non_matrix_based_bido.SetElectrodes(p_electrodes);
             non_matrix_based_bido.SetMesh(p_mesh);

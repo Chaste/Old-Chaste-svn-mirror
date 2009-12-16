@@ -395,7 +395,16 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
              ++it)
         {
             unsigned node_index = it->first;
-            Node<SPACE_DIM>* p_node = pMesh->GetNode(node_index);
+            Node<SPACE_DIM>* p_node;
+            try
+            {
+                p_node = pMesh->GetNode(node_index);
+            }
+            catch (Exception& e)
+            {
+                // It's a parallel mesh and we don't own this node
+                continue;
+            }
             AddDirichletBoundaryCondition(p_node, it->second, index_of_unknown, false);
         }
     }
@@ -410,7 +419,16 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
              ++it)
         {
             unsigned boundary_element_index = it->first;
-            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = pMesh->GetBoundaryElement(boundary_element_index);
+            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element;
+            try
+            {
+                p_boundary_element = pMesh->GetBoundaryElement(boundary_element_index);
+            }
+            catch (Exception& e)
+            {
+                // It's a parallel mesh and we don't own this element
+                continue;
+            }
             AddNeumannBoundaryCondition(p_boundary_element, it->second, index_of_unknown);
         }
     }

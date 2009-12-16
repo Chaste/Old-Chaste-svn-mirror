@@ -120,21 +120,27 @@ void PetscTools::Barrier()
 
 #ifndef SPECIAL_SERIAL
 
+bool PetscTools::ReplicateBool(bool flag)
+{
+    unsigned my_flag = (unsigned) flag;
+    unsigned anyones_flag_is_true;
+    MPI_Allreduce(&my_flag, &anyones_flag_is_true, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD);
+    return (anyones_flag_is_true == 1);
+}
+
 void PetscTools::ReplicateException(bool flag)
+{
+    bool anyones_error=ReplicateBool(flag);
+    if (flag)
     {
-        unsigned my_error = (unsigned) flag;
-        unsigned anyones_error;
-        MPI_Allreduce(&my_error, &anyones_error, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-        if (flag)
-        {
-            // Return control to exception thrower
-            return;
-        }
-        if (anyones_error)
-        {
-            EXCEPTION("Another process threw an exception; bailing out.");
-        }
+        // Return control to exception thrower
+        return;
     }
+    if (anyones_error)
+    {
+        EXCEPTION("Another process threw an exception; bailing out.");
+    }
+}
 
 //
 // Vector & Matrix creation routines

@@ -106,6 +106,32 @@ public:
 };
 
 /**
+ * Set everything outside a central circle in the given 2d mesh to be bath.
+ *
+ * @param pMesh the mesh
+ * @param centreX X co-ord of tissue centre
+ * @param centreY Y co-ord of tissue centre
+ * @param radius radius of tissue
+ */
+template<class MeshType>
+void SetCircularTissueIn2dMesh(MeshType* pMesh,
+                               double centreX, double centreY, double radius)
+{
+    for (typename MeshType::ElementIterator it = pMesh->GetElementIteratorBegin();
+         it != pMesh->GetElementIteratorEnd();
+         ++it)
+    {
+        double x = it->CalculateCentroid()[0];
+        double y = it->CalculateCentroid()[1];
+        if ( (x-centreX)*(x-centreX) + (y-centreY)*(y-centreY) > radius*radius )
+        {
+            it->SetRegion(HeartRegionCode::BATH);
+        }
+    }
+    pMesh->SetMeshHasChangedSinceLoading();
+}
+
+/**
  * Load a 2d mesh, and set everything outside a central circle to be bath.
  *
  * @param rMeshPath relative path to the mesh
@@ -120,19 +146,30 @@ MeshType* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
     TrianglesMeshReader<2,2> reader(rMeshPath);
     MeshType* p_mesh = new MeshType;
     p_mesh->ConstructFromMeshReader(reader);
+    
+    SetCircularTissueIn2dMesh(p_mesh, centreX, centreY, radius);
+    
+    return p_mesh;
+}
 
-    for (typename MeshType::ElementIterator it = p_mesh->GetElementIteratorBegin();
-         it != p_mesh->GetElementIteratorEnd();
-         ++it)
-    {
-        double x = it->CalculateCentroid()[0];
-        double y = it->CalculateCentroid()[1];
-        if ( (x-centreX)*(x-centreX) + (y-centreY)*(y-centreY) > radius*radius )
-        {
-            it->SetRegion(HeartRegionCode::BATH);
-        }
-    }
-    p_mesh->SetMeshHasChangedSinceLoading();
+/**
+ * Specialization for a parallel mesh.
+ *
+ * @param rMeshPath relative path to the mesh
+ * @param centreX X co-ord of tissue centre
+ * @param centreY Y co-ord of tissue centre
+ * @param radius radius of tissue
+ */
+template<>
+ParallelTetrahedralMesh<2,2>* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
+                                                             double centreX, double centreY, double radius)
+{
+    TrianglesMeshReader<2,2> reader(rMeshPath);
+    // Force dumb partitioning so migration tests pass!
+    ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>(ParallelTetrahedralMesh<2,2>::DUMB);
+    p_mesh->ConstructFromMeshReader(reader);
+    
+    SetCircularTissueIn2dMesh(p_mesh, centreX, centreY, radius);
     
     return p_mesh;
 }
