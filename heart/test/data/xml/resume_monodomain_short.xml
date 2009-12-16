@@ -2,7 +2,7 @@
 <ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
 
 	<ResumeSimulation>
-		<ArchiveDirectory>SaveMonodomainShort_CheckpointDir/0.2ms/SaveMonodomainShort_0.2ms</ArchiveDirectory>
+		<ArchiveDirectory>SaveMonodomainShort_checkpoints/0.2ms/SaveMonodomainShort_0.2ms</ArchiveDirectory>
 		<SpaceDimension>2</SpaceDimension>
 	    <SimulationDuration unit="ms">0.4</SimulationDuration>
 	    <Domain>Mono</Domain>
