@@ -8,6 +8,7 @@ TestException.hpp
 TestGenericEventHandler.hpp
 TestHeartEventHandler.hpp
 TestLogFile.hpp
+TestOutputDirectoryFifoQueue.hpp
 TestOutputFileHandler.hpp
 TestPetscEvents.hpp
 TestPetscSetup.hpp

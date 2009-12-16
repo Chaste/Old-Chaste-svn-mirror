@@ -111,13 +111,22 @@ public:
 #define UNUSED_OPT(var)
 #endif
 
-// This macro is handy for calling functions like system which return non-zero on error
+// These macros are handy for calling functions like system which return non-zero on error
 #define EXPECT0(cmd, arg) { \
     std::string _arg = (arg); \
     int ret = cmd(_arg.c_str()); \
     if (ret != 0) { \
         EXCEPTION("Failed to execute command: " #cmd "(" + _arg + ")"); \
     } }
+
+#define EXPECTNON0(cmd, arg) { \
+    std::string _arg = (arg); \
+    int ret = cmd(_arg.c_str()); \
+    if (ret == 0) { \
+        EXCEPTION("Command: " #cmd "(" + _arg + ") succeeded and it shouldn't have"); \
+    } }
+
+    
 // Or if you don't care about errors for some reason...
 #define IGNORE_RET(cmd, arg) { \
     std::string _arg = (arg); \
