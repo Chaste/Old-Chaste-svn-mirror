@@ -59,6 +59,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PostProcessingWriter.hpp"
 #include "Version.hpp"
 
+#include "OutputDirectoryFifoQueue.hpp"
+
 /**
  * A class which encapsulates the executable functionality.
  * 
@@ -120,34 +122,36 @@ private:
 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {    
-            TimeStepper checkpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
+            // Create the checkpoints directory and set up a fifo queue of subdirectory names
+            /// \todo: Get the number of checkpoints from the XML file
+            OutputDirectoryFifoQueue directory_queue(HeartConfig::Instance()->GetOutputDirectory() + "_checkpoints/", UINT_MAX);
+
+            TimeStepper checkpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());            
             while ( !checkpoint_stepper.IsTimeAtEnd() )
             {
+                // Solve checkpoint timestep
                 HeartConfig::Instance()->SetSimulationDuration(checkpoint_stepper.GetNextTime());                                
                 p_problem->Solve();
 
-                // This is the directory where both archive directory and partial results will live
-                std::stringstream checkpoint_dir_basename;
-                checkpoint_dir_basename << HeartConfig::Instance()->GetOutputDirectory() << "_checkpoints/" << HeartConfig::Instance()->GetSimulationDuration() << "ms/"; 
-        
-                // This is a subdirectory of the previous containing the archive for this timestep
+                // Create directory that will contain archive and partial results for this checkpoint timestep.
+                std::stringstream checkpoint_id;
+                checkpoint_id << HeartConfig::Instance()->GetSimulationDuration() << "ms/";    
+                std::string checkpoint_dir_basename = directory_queue.CreateNextDir(checkpoint_id.str());
+                 
+                // Archive simulation (in a subdirectory of checkpoint_dir_basename).
                 std::stringstream archive_foldername;
-                archive_foldername << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms";
-                
-                CardiacSimulationArchiver<Problem>::Save(*p_problem, checkpoint_dir_basename.str() + archive_foldername.str(), false);
-                    
-                PetscTools::Barrier(); // Make sure all the processes finished archiving before moving on.
+                archive_foldername << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms";                
+                CardiacSimulationArchiver<Problem>::Save(*p_problem, checkpoint_dir_basename + archive_foldername.str(), false);
 
-                OutputFileHandler checkpoint_dir_basename_handler(checkpoint_dir_basename.str(), false);
-                OutputFileHandler partial_output_dir_handler(HeartConfig::Instance()->GetOutputDirectory(), false);                 
-
+                // Put a copy of the partial results aside (in a subdirectory of checkpoint_dir_basename).
+                OutputFileHandler checkpoint_dir_basename_handler(checkpoint_dir_basename, false);
+                OutputFileHandler partial_output_dir_handler(HeartConfig::Instance()->GetOutputDirectory(), false);
                 if (PetscTools::AmMaster())
                 {
-                    // Copy partial results into checkpoint_dir_basename
                     EXPECT0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());                                        
                 }
-                PetscTools::Barrier();    
-    
+
+                // Advance time stepper
                 checkpoint_stepper.AdvanceOneTimeStep();
             }        
         }
