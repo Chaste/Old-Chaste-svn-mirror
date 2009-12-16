@@ -1007,6 +1007,61 @@ public:
         }
      }
 
+    void TestMaleckar2009Archiving(void) throw(Exception)
+    {
+        //Archive
+        OutputFileHandler handler("archive", false);
+        handler.SetArchiveDirectory();
+        std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("Maleckar.arch");
+
+        // Save
+        {
+            // Set stimulus
+            boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-280,
+                                                                          6,
+                                                                          1000,
+                                                                          4.0));
+            boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+            double time_step = 0.01;
+
+            HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+
+            // Check Standard
+            AbstractCardiacCell* const p_maleckar_cell = new Maleckar2009OdeSystem(p_solver, p_stimulus);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch <<  p_maleckar_cell;
+
+             //These results have been copied in the repository 
+             // after running this line and should be replicated after the load below
+//            RunOdeSolverWithIonicModel(p_maleckar_cell,
+//                           20.0,
+//                           "MaleckarAfterArchiveValidData");
+
+            delete p_maleckar_cell;
+        }
+        // Load
+        {
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            AbstractCardiacCell* p_maleckar_cell;
+            input_arch >> p_maleckar_cell;
+
+            TS_ASSERT_EQUALS( p_maleckar_cell->GetNumberOfStateVariables(), 30U );
+
+
+            RunOdeSolverWithIonicModel(p_maleckar_cell,
+                                       20.0,
+                                       "MaleckarAfterArchive");
+
+            CheckCellModelResults("MaleckarAfterArchive");
+
+            delete p_maleckar_cell;
+        }
+     }
     void TestBackwardCellsArchiving(void) throw(Exception)
     {
         //Archive
