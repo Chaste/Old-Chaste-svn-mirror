@@ -212,10 +212,17 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         LinearSystem& rLinearSystem,
         bool applyToMatrix)
 {
-    HeartEventHandler::BeginEvent(HeartEventHandler::USER1);                                
+    HeartEventHandler::BeginEvent(HeartEventHandler::USER1);
     
     if (applyToMatrix)
     {
+        if (!this->HasDirichletBoundaryConditions())
+        {
+            // Short-circuit the replication if there are no conditions
+            HeartEventHandler::EndEvent(HeartEventHandler::USER1);
+            return;
+        }
+
         bool matrix_is_symmetric = rLinearSystem.IsMatrixSymmetric();
 
         if (matrix_is_symmetric)
@@ -394,6 +401,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     }
 }
 
+/// \todo this might not work with a ParallelTetrahedralMesh!
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToNonlinearJacobian(Mat jacobian)
 {

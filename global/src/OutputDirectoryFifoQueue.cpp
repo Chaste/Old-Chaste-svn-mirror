@@ -50,7 +50,7 @@ std::string OutputDirectoryFifoQueue::CreateNextDir(const std::string& rSubdirec
     
     if (mQueue.size() == mQueueMaxSize)
     {      
-        std::string directory_to_remove =  OutputFileHandler::GetChasteTestOutputDirectory() + mBaseDirectory + "/" + mQueue.front();        
+        std::string directory_to_remove =  OutputFileHandler::GetChasteTestOutputDirectory() + mBaseDirectory + "/" + mQueue.front();
         if (PetscTools::AmMaster())
         {
             EXPECT0(system, "rm -rf "+directory_to_remove);
@@ -58,12 +58,12 @@ std::string OutputDirectoryFifoQueue::CreateNextDir(const std::string& rSubdirec
         PetscTools::Barrier();
         
         mQueue.pop();
-    }    
+    }
 
     mQueue.push(rSubdirectoryName);
     OutputFileHandler handler(subdirectory_full_name);
 
     assert(mQueue.size() <= mQueueMaxSize);
     
-    return subdirectory_full_name;    
+    return subdirectory_full_name;
 }
