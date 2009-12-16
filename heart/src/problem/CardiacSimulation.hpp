@@ -97,6 +97,10 @@ private:
         }    
     }
     
+    /**
+     * Templated method which creates and runs a cardiac simulation, based on the
+     * XML file passed to our constructor.
+     */
     template<class Problem, unsigned SPACE_DIM>
     void CreateAndRun()
     {
@@ -156,7 +160,9 @@ private:
     }
     
     /**
-     * Run the simulation
+     * Run the simulation.
+     * This method basically contains switches on the problem type and space dimension,
+     * and calls CreateAndRun() to do the work.
      */
     void Run()
     {

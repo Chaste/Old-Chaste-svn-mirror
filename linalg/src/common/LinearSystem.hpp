@@ -46,9 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <cassert>
- 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
 
 /**
  * Linear System class. Stores and solves a linear equation of the form Ax=b,
