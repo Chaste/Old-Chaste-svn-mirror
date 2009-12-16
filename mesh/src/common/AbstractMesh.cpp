@@ -163,10 +163,10 @@ c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const 
     double max = -1e200;
     double min = 1e200;
 
-    assert(GetNumAllNodes() > 0u);
+    assert(mNodes.size() > 0u);
 
     /// \todo use NodeIterator here?
-    for (unsigned i=0; i<GetNumAllNodes(); i++)
+    for (unsigned i=0; i<mNodes.size(); i++)
     {
         if (!mNodes[i]->IsDeleted())
         {
@@ -190,7 +190,7 @@ c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
 {
-    unsigned num_nodes = GetNumAllNodes();
+    unsigned num_nodes = mNodes.size();
 
     for (unsigned i=0; i<num_nodes; i++)
     {
