@@ -91,7 +91,7 @@ void Maleckar2009OdeSystem::SetScaleFactorAZD(double sfazd)
     mScaleFactorAZD=sfazd;
 }
 
-void Maleckar2009OdeSystem::VerifyGatingVariables()
+void Maleckar2009OdeSystem::VerifyStateVariables()
 {}
 
 double Maleckar2009OdeSystem::GetIIonic()
@@ -339,7 +339,7 @@ void Maleckar2009OdeSystem::EvaluateYDerivatives(
     // Units: dimensionless; Initial value: 0.45453
     double var_Ca_handling_by_the_SR__F2 = rY[29];
     // Units: dimensionless; Initial value: 0.002665
-    
+
     VerifyStateVariables();
     
     // Mathematics

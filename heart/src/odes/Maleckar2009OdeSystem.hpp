@@ -57,6 +57,15 @@ private:
     /** Scale factor for AZD, set to 0 by the constructor*/
     double mScaleFactorAZD;
     
+    /**
+     *  Range-checking on the current values of the state variables. Make sure
+     *  all gating variables have are within zero and one, and all concentrations
+     *  are positive. 
+     * 
+     *  ///\ TODO : implement this!
+     */
+    void VerifyStateVariables();
+    
     /** Needed for serialization. */
     friend class boost::serialization::access;
     
@@ -153,15 +162,6 @@ public:
      * @param sfazd
      */   
     void SetScaleFactorAZD(double sfazd);
-    
-    /**
-     *  Range-checking on the current values of the state variables. Make sure
-     *  all gating variables have are within zero and one, and all concentrations
-     *  are positive. 
-     * 
-     *  ///\ TODO : implement this!
-     */
-    void VerifyGatingVariables();
 
     /**
      * Returns the ionic current
