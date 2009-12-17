@@ -627,13 +627,15 @@ public:
 
     void TestOdeSolveForTT06WithSimpleStimulus(void)
     {
-
-        double simulation_end=350;/*end time, in milliseconds for this model*/
+        
+        // This is a shortened test. Longer tests correctly produced AP
+        // Full testing for AP in the nightly build
+        double simulation_end=40;//end time, in milliseconds for this model
 
         // Set the stimulus, the following values are appropriate for single cell simulations of this model.
         double magnitude = -38.0;   // pA/pF
         double duration = 1.0;  // ms
-        double start = 100;   // ms
+        double start = 5;   // ms
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude,
                                                                         duration,
                                                                         start));
@@ -659,7 +661,7 @@ public:
         CheckCellModelResults("TenTusscher");
 
         //Test the GetIIonic method against one hardcoded value.
-        TS_ASSERT_DELTA( TT_model.GetIIonic(), 0.5279, 1e-3);
+        TS_ASSERT_DELTA( TT_model.GetIIonic(), -0.1843, 1e-3);
 
         //Test the GetIIonic method against one hardcoded value for initial values of voltage
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages)
@@ -707,7 +709,7 @@ public:
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&rabbit_ode_system,
-                                   400,/*end time, in milliseconds for this model*/
+                                   80,/*end time, in milliseconds for this model*/
                                    "Mahajan2008",
                                    1000);
         // Check against validated data
