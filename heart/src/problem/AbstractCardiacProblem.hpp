@@ -567,18 +567,12 @@ public:
     {}
     
     /**
-     *  Tells the problem class to archive the linear system after every call to Solve()
-     * 
-     * @param  archive set true to archive the LinearSystem object at the end
-     */
-    void SetArchiveLinearSystemObject(bool archive=true);
-    
-    /**
      * Used when loading a set of archives written by a parallel simulation onto a single process.
      * Loads data from the given process-specific archive (written by a non-master process) and
      * merges it into our data.
      * 
-     * @param archive  the archive to load.
+     * @param archive  the archive to load
+     * @param version  the archive file version
      * 
      * \note The process-specific archives currently contain the following data.  If the layout changes,
      * then this method will need to be altered, since it hard-codes knowledge of the order in
@@ -592,37 +586,23 @@ public:
      *  -# #mpDefaultBoundaryConditionsContainer
      */
     template<class Archive>
-    void LoadExtraArchive(Archive & archive);
+    void LoadExtraArchive(Archive & archive, unsigned version);
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 template<class Archive>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive(Archive & archive)
+void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive(Archive & archive, unsigned version)
 {
     // The vector factory must be loaded, but isn't needed for anything.
     DistributedVectorFactory* p_mesh_factory;
     archive >> p_mesh_factory;
-    
-    {
-        // The cells collection vector factory
-        DistributedVectorFactory* p_cells_factory;
-        archive >> p_cells_factory;
-        assert(p_cells_factory == p_mesh_factory); // Paranoia...
-    }
 
     // The cardiac cells
     std::vector<AbstractCardiacCell*> cells;
-    unsigned num_cells;
-    archive >> num_cells;
-    cells.reserve(num_cells);
-    for (unsigned i=0; i<num_cells; i++)
-    {
-        AbstractCardiacCell* p_cell;
-        archive >> p_cell;
-        cells.push_back(p_cell);
-    }
+    // Load only the cells we actually own
+    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(archive, version, cells);
     mpCardiacPde->ExtendCells(cells);
 
     {

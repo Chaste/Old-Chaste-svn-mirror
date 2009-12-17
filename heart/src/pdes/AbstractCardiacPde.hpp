@@ -326,18 +326,17 @@ public:
      * 
      * \todo Assumes that the archive contains all the cells, and that we're not permuting.
      * 
-     * @param archive  master archive; actually loads from the process-specific archive
+     * @param archive  the process-specific archive to load from
      * @param version  archive version
      * @param rCells  vector to fill in with pointers to local cells
      */
     template<class Archive>
     static void LoadCardiacCells(Archive & archive, const unsigned int version, std::vector<AbstractCardiacCell*>& rCells)
     {
-        Archive& r_archive = *ProcessSpecificArchive<Archive>::Get();
         DistributedVectorFactory* p_factory;
-        r_archive & p_factory;
+        archive & p_factory;
         unsigned num_cells;
-        r_archive & num_cells;
+        archive & num_cells;
         rCells.reserve(num_cells);
         
         // Are we migrating?
@@ -353,7 +352,7 @@ public:
         {
             bool local = !migrating || p_factory->IsGlobalIndexLocal(global_index);
             AbstractCardiacCell* p_cell;
-            r_archive & p_cell;
+            archive & p_cell;
             // Check if it's a fake cell
             FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
             if (local)

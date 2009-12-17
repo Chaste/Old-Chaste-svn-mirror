@@ -162,7 +162,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::LoadAsSequential(const 
             std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
             std::ifstream ifs(archive_path.c_str());
             boost::archive::text_iarchive archive(ifs);
-            p_unarchived_simulation->LoadExtraArchive(archive);
+            p_unarchived_simulation->LoadExtraArchive(archive, 0u); ///\todo how can we get a real version number?
         }
     }
     catch (Exception &e)

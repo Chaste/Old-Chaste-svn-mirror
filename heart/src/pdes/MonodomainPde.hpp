@@ -138,7 +138,8 @@ inline void load_construct_data(
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh;
 
     // Load only the cells we actually own
-    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(ar, file_version, cells_distributed);
+    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(
+            *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed);
 
     ar & p_mesh;
 
