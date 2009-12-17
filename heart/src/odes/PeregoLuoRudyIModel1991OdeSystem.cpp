@@ -95,6 +95,8 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     double slow_inward_current_f_gate_f = rY[6];
     double time_dependent_potassium_current_X_gate_X = rY[7];
 
+    VerifyStateVariables();
+
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
 
     double fast_sodium_current_h_gate_alpha_h;
