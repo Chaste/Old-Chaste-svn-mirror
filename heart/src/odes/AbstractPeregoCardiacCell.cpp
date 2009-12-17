@@ -43,7 +43,7 @@ AbstractPeregoCardiacCell::~AbstractPeregoCardiacCell()
 {}
 
 
-void  AbstractPeregoCardiacCell::EvaluatePredictedGates(std::vector<double> &solutionAtPreviousTime, std::vector<double> &predicted, double current_time)
+void  AbstractPeregoCardiacCell::EvaluatePredictedGates(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime)
 {
     //Get the weigths from the end of the corrector step at the previous time
     //hardcoded for the moment. To be changed when error analysis is implemented
@@ -51,7 +51,7 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedGates(std::vector<double> &sol
     mc1bar = -0.5;
     
     //Compute parameters (done in the child class, will modify the member variables here)
-    ComputeSystemParameters(solutionAtPreviousTime, current_time);
+    ComputeSystemParameters(solutionAtPreviousTime, currentTime);
 
     bool it_is_a_gating_variable =false;
     //loop over the state variables
@@ -71,13 +71,13 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedGates(std::vector<double> &sol
         if (it_is_a_gating_variable)
         {
             double gate_derivative = (exp((mc0bar*ma_current[i]+mc1bar*ma_previous[i])*this->mDt)-1)/((mc0bar*ma_current[i] + mc1bar * ma_previous[i])*this->mDt)*((mc0bar*ma_current[i]+mc1bar*ma_previous[i])*solutionAtPreviousTime[i]+mc0bar*mb_current[i]+mc1bar*mb_previous[i]);
-            predicted[i]=solutionAtPreviousTime[i] + this->mDt*gate_derivative;
+            rPredictedSolution[i]=solutionAtPreviousTime[i] + this->mDt*gate_derivative;
         }
         // All other variables are updated by a weighted version of the forward Euler:
         else
         {
             double variable_derivative = mc0bar * ma_current[i] + mc1bar * ma_previous[i];
-            predicted[i]=solutionAtPreviousTime[i] + this->mDt * variable_derivative;
+            rPredictedSolution[i]=solutionAtPreviousTime[i] + this->mDt * variable_derivative;
         }
     }
 }

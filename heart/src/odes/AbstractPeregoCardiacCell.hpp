@@ -82,17 +82,19 @@ public:
      * Computes the predictor step of the scheme
      *
      * @param solutionAtPreviousTime is the solution of the state variables at the previous time step
-     * @param predicted is returned vector with the predicted values of the gates and other state variables (this is assumed to be initialised to the correct size)
+     * @param rPredictedSolution is returned vector with the predicted values of the gates and other state variables (this is assumed to be initialised to the correct size)
+     * @param currentTime is the current time
      */
-    void EvaluatePredictedGates(std::vector<double>  &solutionAtPreviousTime, std::vector<double> &predicted, double current_time);
+    void EvaluatePredictedGates(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
     
     /**
      * Computes some parameters needed by the Perego Veneziani algorithm.
      * Implemented in the child class. 
      *
      * @param stateVariablesAtPrevousTime is the solution of the state variables at the previous time step
+     * @param currentTime is the current time
      */
-    virtual void ComputeSystemParameters(std::vector<double> stateVariablesAtPrevousTime, double time_now)=0;
+    virtual void ComputeSystemParameters(std::vector<double> stateVariablesAtPrevousTime, double currentTime)=0;
 
 private:
     /**
