@@ -203,7 +203,10 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
     if (mSetVoltageDerivativeToZero)
     {
+        ///\ TODO Remove coverage ignore when ComputeExceptVoltage method will be implemented in the abstract class  
+        #define COVERAGE_IGNORE
         membrane_V_prime = 0;
+        #undef COVERAGE_IGNORE
     }
 
     // Compute the parameters for the gating variable updates...
