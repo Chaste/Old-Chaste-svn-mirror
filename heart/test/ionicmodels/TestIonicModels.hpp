@@ -660,7 +660,7 @@ public:
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages)
         TenTusscher2006OdeSystem TT_model_initial(p_solver, p_stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0012 , 1e-3);
-
+    
         //now test the scale factor methods
 
         TT_model.SetScaleFactorGks(1.0);
@@ -747,113 +747,6 @@ public:
         CheckCellModelResults("Mahajan2008");
     }
 
-
-    /**
-     *  Here we test the scale factors methiods for the mahajan model.
-     *  The idea is to set the scale factors for the 3 different cell types (epi, mid and endo)
-     *  and check that the rsulting APD makes sense if compared to experiemntal results
-     */
-    void TestScaleFactorsForMahajanModel(void) throw(Exception)
-    {
-        double end_time=300;
-        double time_step=0.01;
-        double sampling_time=time_step;
-
-        // Set stimulus
-        double magnitude_stimulus = -70.0;   // pA/pF
-        double duration_stimulus = 1.0;  // ms
-        double start_stimulus = 10.0;   // ms
-        double period=1000;//here, this is ms
-        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude_stimulus,
-                                                                          duration_stimulus,
-                                                                          period,
-                                                                          start_stimulus));
-
-        boost::shared_ptr<EulerIvpOdeSolver> p_forward_solver(new EulerIvpOdeSolver); //define the solver
-        Mahajan2008OdeSystem forward_model(p_forward_solver, p_stimulus);
-        boost::shared_ptr<BackwardEulerIvpOdeSolver> p_backward_solver(new BackwardEulerIvpOdeSolver(
-                                    forward_model.GetNumberOfStateVariables()));
-
-        Mahajan2008OdeSystem epicardial_model(p_backward_solver, p_stimulus);
-        Mahajan2008OdeSystem endocardial_model(p_backward_solver, p_stimulus);
-        Mahajan2008OdeSystem midmyocardial_model(p_backward_solver, p_stimulus);
-
-        epicardial_model.SetScaleFactorGks(1.0);
-        epicardial_model.SetScaleFactorIto(1.0);
-        epicardial_model.SetScaleFactorGkr(1.0);
-
-        midmyocardial_model.SetScaleFactorGks(0.09);
-        midmyocardial_model.SetScaleFactorIto(1.0);
-        midmyocardial_model.SetScaleFactorGkr(1.0);
-
-        endocardial_model.SetScaleFactorGks(0.86);
-        endocardial_model.SetScaleFactorIto(0.2);
-        endocardial_model.SetScaleFactorGkr(1.0);
-
-        std::vector<double> state_variables_epi = epicardial_model.GetInitialConditions();
-        std::vector<double> state_variables_endo = endocardial_model.GetInitialConditions();
-        std::vector<double> state_variables_mid = midmyocardial_model.GetInitialConditions();
-
-        const std::string mahajan_epi_file = "Mahajan_epi";
-        const std::string mahajan_mid_file = "Mahajan_mid";
-        const std::string mahajan_endo_file = "Mahajan_endo";
-
-        // Solve and write to file
-
-        OdeSolution epi_solution;
-        epi_solution = p_backward_solver->Solve(&epicardial_model, state_variables_epi, 0, end_time, time_step, sampling_time);
-
-        epi_solution.WriteToFile("TestIonicModels",
-                                 mahajan_epi_file,
-                                 &epicardial_model,
-                                 "ms",//time units
-                                 100,//steps per row
-                                 false);/*true cleans the directory*/
-
-        OdeSolution mid_solution;
-        mid_solution = p_backward_solver->Solve(&midmyocardial_model, state_variables_mid, 0, end_time, time_step, sampling_time);
-
-        mid_solution.WriteToFile("TestIonicModels",
-                                 mahajan_mid_file,
-                                 &epicardial_model,
-                                 "ms",//time units
-                                 100,//steps per row
-                                 false);/*true cleans the directory*/
-
-        OdeSolution endo_solution;
-        endo_solution = p_backward_solver->Solve(&endocardial_model, state_variables_endo, 0, end_time, time_step, sampling_time);
-
-        endo_solution.WriteToFile("TestIonicModels",
-                                  mahajan_endo_file,
-                                  &midmyocardial_model,
-                                  "ms",//time units
-                                  100,//steps per row
-                                  false);/*true cleans the directory*/
-
-
-        ColumnDataReader data_reader_epi("TestIonicModels", mahajan_epi_file);
-        ColumnDataReader data_reader_mid("TestIonicModels", mahajan_mid_file);
-        ColumnDataReader data_reader_endo("TestIonicModels", mahajan_endo_file);
-
-        std::vector<double> times = data_reader_epi.GetValues("Time");
-        std::vector<double> v_endo = data_reader_endo.GetValues("V");
-        std::vector<double> v_epi = data_reader_epi.GetValues("V");
-        std::vector<double> v_mid = data_reader_mid.GetValues("V");
-
-        CellProperties  cell_properties_endo(v_endo, times);
-        CellProperties  cell_properties_epi(v_epi, times);
-        CellProperties  cell_properties_mid(v_mid, times);
-
-        double epi_APD = cell_properties_epi.GetLastActionPotentialDuration(90);
-        double endo_APD = cell_properties_endo.GetLastActionPotentialDuration(90);
-        double mid_APD = cell_properties_mid.GetLastActionPotentialDuration(90);
-
-        //check that percentage increase from epi to mid and endo (roughly) matches results
-        // from McIntosh et al. Card Res, 45:397-409. 200 (Figure 1 and 2)
-        TS_ASSERT_DELTA((mid_APD-epi_APD)*100/epi_APD, 36.2, 2);
-        TS_ASSERT_DELTA((endo_APD-epi_APD)*100/epi_APD, 8, 2);
-
-    }
 
     void TestMaleckar(void) throw (Exception)
     {
