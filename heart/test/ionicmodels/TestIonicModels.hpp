@@ -641,7 +641,12 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.
         TenTusscher2006OdeSystem TT_model(p_solver, p_stimulus);
-
+        
+        //Default values for the scale factors, other values tested in the nightly build
+        TT_model.SetScaleFactorGks(1.0);
+        TT_model.SetScaleFactorIto(1.0);
+        TT_model.SetScaleFactorGkr(1.0);
+        
         // Solve and write to file
         RunOdeSolverWithIonicModel(&TT_model,
                                    simulation_end,
@@ -660,44 +665,7 @@ public:
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages)
         TenTusscher2006OdeSystem TT_model_initial(p_solver, p_stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0012 , 1e-3);
-    
-        //now test the scale factor methods
-
-        TT_model.SetScaleFactorGks(1.0);
-        TT_model.SetScaleFactorIto(1.0);
-        //run for only 10 ms
-        RunOdeSolverWithIonicModel(&TT_model,
-                                   10,
-                                   "TenTusscher",
-                                   1000,
-                                   false);
-        double i_ionic = TT_model.GetIIonic();
-
-        //now double the scale factors
-        TT_model.SetScaleFactorGks(2.0);
-        TT_model.SetScaleFactorIto(2.0);
-        //run again for only 10 ms
-        RunOdeSolverWithIonicModel(&TT_model,
-                                   10,
-                                   "TenTusscher",
-                                   1000,
-                                   false);
-        double i_ionic_2 = TT_model.GetIIonic();
-
-        //check that the second case gets a smaller i_ionic
-        TS_ASSERT_LESS_THAN(i_ionic , i_ionic_2);
-
-        TT_model.SetScaleFactorGkr(0.0);
-        //run again for only 10 ms
-        RunOdeSolverWithIonicModel(&TT_model,
-                                   10,
-                                   "TenTusscher",
-                                   1000,
-                                   false);
-        double i_ionic_3 = TT_model.GetIIonic();
-
-         TS_ASSERT_LESS_THAN(i_ionic , i_ionic_3);
-     }
+    } 
 
     void TestDifrancescoNoble1985(void) throw (Exception)
     {
@@ -759,7 +727,7 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         Maleckar2009OdeSystem atrial_ode_system(p_solver, p_stimulus);
         
-        //default values
+        //default values, other values tested in the nightly build
         atrial_ode_system.SetScaleFactorGks(1.0);
         atrial_ode_system.SetScaleFactorIto(1.0);
         atrial_ode_system.SetScaleFactorGkr(1.0);

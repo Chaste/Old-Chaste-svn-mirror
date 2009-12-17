@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 #include "Mahajan2008OdeSystem.hpp"
+#include "TenTusscher2006OdeSystem.hpp"
 #include "CellProperties.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
@@ -215,6 +216,113 @@ public:
 
     }
     
+    /**
+     * Here we test that the scale factors for the TT model do what they are expected to
+     * We check that they modify APD in a way that is expected.
+     */
+    void TestScaleFactorsForTT06(void)
+    {  
+        double simulation_end=500;/*end time, in milliseconds for this model*/
+
+        // Set the stimulus, the following values are appropriate for single cell simulations of this model.
+        double magnitude = -38.0;   // pA/pF
+        double duration = 1.0;  // ms
+        double start = 100;   // ms
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude,
+                                                                        duration,
+                                                                        start));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.
+
+        
+        const std::string control_file = "TT_epi";
+        const std::string mid_file = "TT_mid";
+        const std::string endo_file = "TT_endo";   
+        const std::string LQT_file = "TT_LQT";                                                        
+
+        TenTusscher2006OdeSystem TT_model_epi(p_solver, p_stimulus);
+        TT_model_epi.SetScaleFactorGks(1.0);
+        TT_model_epi.SetScaleFactorIto(1.0);
+        TT_model_epi.SetScaleFactorGkr(1.0);
+        //run the model
+        RunOdeSolverWithIonicModel(&TT_model_epi,
+                                   simulation_end,
+                                   control_file,
+                                   100,
+                                   false);
+                                   
+        TenTusscher2006OdeSystem TT_model_mid(p_solver, p_stimulus);                     
+        TT_model_mid.SetScaleFactorGks(0.25);
+        TT_model_mid.SetScaleFactorIto(1.0);
+        TT_model_mid.SetScaleFactorGkr(1.0);
+
+        RunOdeSolverWithIonicModel(&TT_model_mid,
+                                   simulation_end,
+                                   mid_file,
+                                   100,
+                                   false);
+                                   
+        TenTusscher2006OdeSystem TT_model_endo(p_solver, p_stimulus); 
+                                  
+        TT_model_endo.SetScaleFactorGks(0.66);
+        TT_model_endo.SetScaleFactorIto(0.165);
+        TT_model_endo.SetScaleFactorGkr(1.0);
+
+        RunOdeSolverWithIonicModel(&TT_model_endo,
+                                   simulation_end,
+                                   endo_file,
+                                   100,
+                                   false);
+        
+        TenTusscher2006OdeSystem TT_model_LQT(p_solver, p_stimulus);                            
+        TT_model_LQT.SetScaleFactorGks(1.0);
+        TT_model_LQT.SetScaleFactorIto(1.0);
+        TT_model_LQT.SetScaleFactorGkr(0.0);
+
+        RunOdeSolverWithIonicModel(&TT_model_LQT,
+                                   simulation_end,
+                                   LQT_file,
+                                   100,
+                                   false);
+
+        ColumnDataReader data_reader1("TestIonicModels", control_file);
+        std::vector<double> voltages1 = data_reader1.GetValues("V");
+        ColumnDataReader data_reader2("TestIonicModels", mid_file);
+        std::vector<double> voltages2 = data_reader2.GetValues("V");
+        ColumnDataReader data_reader3("TestIonicModels", endo_file);
+        std::vector<double> voltages3 = data_reader3.GetValues("V");
+        ColumnDataReader data_reader4("TestIonicModels", LQT_file);
+        std::vector<double> voltages4 = data_reader4.GetValues("V");
+        
+        TS_ASSERT_EQUALS(voltages1.size(), voltages2.size());
+        TS_ASSERT_EQUALS(voltages2.size(), voltages3.size());
+        TS_ASSERT_EQUALS(voltages3.size(), voltages4.size());
+        
+        //create the times vector
+        std::vector<double> times;
+        double k =0;
+        for (unsigned i=0; i<voltages2.size(); i++)
+        {
+          times.push_back(k);
+          k=k+0.1;
+        }     
+        
+        CellProperties  cell_properties_control(voltages1, times);
+        CellProperties  cell_properties_mid(voltages2, times);
+        CellProperties  cell_properties_endo(voltages3, times);
+        CellProperties  cell_properties_LQT(voltages4, times);
+        
+        double control_APD = cell_properties_control.GetLastActionPotentialDuration(90);
+        double mid_APD = cell_properties_mid.GetLastActionPotentialDuration(90);
+        double endo_APD = cell_properties_endo.GetLastActionPotentialDuration(90);
+        double LQT_APD = cell_properties_LQT.GetLastActionPotentialDuration(90);
+
+        TS_ASSERT_DELTA(control_APD, 299.82, 0.1);
+        TS_ASSERT_DELTA(mid_APD, 391.52, 0.1);
+        TS_ASSERT_DELTA(endo_APD, 328.52, 0.1);
+        TS_ASSERT_DELTA(LQT_APD , 347.125, 0.1);
+     }
+         
     void TestScaleFactorsMaleckar(void) throw (Exception)
     {
         double end_time =500;
