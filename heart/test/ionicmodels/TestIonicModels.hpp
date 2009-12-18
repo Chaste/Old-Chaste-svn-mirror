@@ -704,6 +704,11 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         Mahajan2008OdeSystem rabbit_ode_system(p_solver, p_stimulus);
 
+        //default values for scale factors. They are tested separately in the nightly build.
+        rabbit_ode_system.SetScaleFactorGks(1.0);
+        rabbit_ode_system.SetScaleFactorIto(1.0);
+        rabbit_ode_system.SetScaleFactorGkr(1.0);
+        
         //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(rabbit_ode_system.GetIIonic(), 0.0027, 1e-3);
 
