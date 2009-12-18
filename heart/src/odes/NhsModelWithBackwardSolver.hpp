@@ -35,9 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  NHS system with built-in backward solver. 
  *
- *  The full backward Euler method on the NHS system compute the solution w^{n+1} \in R^5
+ *  The full backward Euler method on the NHS system compute the solution w^{n+1} in R^5
  *  by:
  *   w^{n+1}  - dt g(w^{n+1})  =  w^n
  *  where the ODE system is dw/dt = g(w).
@@ -67,7 +66,7 @@ private:
      *  The same as EvaluateYDerivatives in NhsContractionModel, but doesn't use std::vectors (for
      *  efficiency, and because this class is hardcoded and hand-optimised for backward euler),
      *  and just returns the derivatives of the first two components
-     *  @param calciumTroponon Calcium troponin
+     *  @param calciumTroponin Calcium troponin
      *  @param z z
      *  @param Q Q=Q1+Q2+Q3
      *  @param dCaTrop the returned value of dCaTrop/dt
@@ -130,6 +129,10 @@ public :
     
     /**
      *  Overload the RunAndUpdate() method too, as that would use the base class's default (euler) solver
+     * 
+     *  @param startTime
+     *  @param endTime
+     *  @param timestep
      */
     void RunAndUpdate(double startTime, double endTime, double timestep);
 };

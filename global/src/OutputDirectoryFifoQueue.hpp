@@ -43,16 +43,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class OutputDirectoryFifoQueue
 {
 private:
-    std::string mBaseDirectory;
-    unsigned mQueueMaxSize;
-    std::queue<std::string> mQueue;    
+    std::string mBaseDirectory; /**< Base directory for all the subdirectories to be created. */
+    unsigned mQueueMaxSize; /**< Maximum number of subdirectories*/
+    std::queue<std::string> mQueue;  /**<The queue of names of subdirectories currently on the disk*/  
     
 public:
 
     /**
      *  Constructor
      * 
-     *  @param baseDirectory root directory for all the subdirectories to be created
+     *  @param rBaseDirectory base directory for all the subdirectories to be created
      *  @param queueMaxSize maximum number of subdirectories
      */
     OutputDirectoryFifoQueue(const std::string& rBaseDirectory, unsigned queueMaxSize);
