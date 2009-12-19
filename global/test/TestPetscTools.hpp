@@ -134,7 +134,9 @@ public:
         // Total number of nozeros that should be allocated is 36 (4*12 (12 = number of rows) in diagonal part,
         // plus 0.5*4*12 in the off-diagonal part. These are then split between the number of processors. So, a
         // processor that owns n rows should have 6*n nonzeros allocated.
-        TS_ASSERT_EQUALS( nonzeros_allocated, (unsigned)(6*info.rows_local) );
+        PetscInt lo, hi;
+        MatGetOwnershipRange(mat2, &lo, &hi);
+        TS_ASSERT_EQUALS( nonzeros_allocated, (unsigned)(6*(hi-lo)) );
 
         MatDestroy(mat2);
     }
