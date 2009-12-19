@@ -31,9 +31,9 @@ MaxUpstrokeVelocityMap_minus_30_dat:ChasteResults/output/MaxUpstrokeVelocityMap_
 UpstrokeTimeMap_minus_30_dat:ChasteResults/output/UpstrokeTimeMap_-30.dat
 
 # Extra files to test against in save_monodomain and save_bidomain
-AbstractCardiacProblem_mSolution_h5:ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5
-ChasteResults_10ms_arch_0:ChasteResults_10ms/ChasteResults_10ms.arch.0
-ChasteResults_10ms_arch:ChasteResults_10ms/ChasteResults_10ms.arch
+AbstractCardiacProblem_mSolution_h5:ChasteResults_checkpoints/10ms/ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5
+ChasteResults_10ms_arch_0:ChasteResults_checkpoints/10ms/ChasteResults_10ms/archive.arch.0
+ChasteResults_10ms_arch:ChasteResults_checkpoints/10ms/ChasteResults_10ms/archive.arch
 
 # Extra files to test against in resume_monodomain & resume_bidomain
 resumed_bi_h5:SaveBidomain/BidomainLR91_3d.h5
