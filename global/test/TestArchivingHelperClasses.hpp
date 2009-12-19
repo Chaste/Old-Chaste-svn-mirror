@@ -176,7 +176,7 @@ public:
             EXPECT0(system, "rm -f testoutput/archive_opener.arch*");
             
             { // Read
-                InputArchiveOpener archive_opener_relative("apps/texttest/chaste/resume_bidomain/save_bidomain", "save_bidomain.arch", false);
+                InputArchiveOpener archive_opener_relative("apps/texttest/chaste/resume_bidomain/save_bidomain", "archive.arch", false);
             }
         }
 

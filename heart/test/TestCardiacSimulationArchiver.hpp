@@ -219,7 +219,7 @@ public:
         {
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
                 "apps/texttest/chaste/resume_bidomain/save_bidomain/",
-                "save_bidomain.arch",
+                "archive.arch",
                 false);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
             
@@ -280,7 +280,7 @@ public:
         {
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
                 "apps/texttest/chaste/resume_monodomain/save_monodomain/",
-                "save_monodomain.arch",
+                "archive.arch",
                 false);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
             
