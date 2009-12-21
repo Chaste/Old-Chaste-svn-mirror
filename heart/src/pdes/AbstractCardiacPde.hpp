@@ -339,18 +339,19 @@ public:
         archive & num_cells;
         rCells.reserve(num_cells);
         
-        // Are we migrating?
-        bool migrating = (p_factory->GetOriginalFactory() &&
-                          p_factory->GetLocalOwnership() < num_cells);
-        // We don't handle direct parallel -> parallel migrations yet
-        assert(!migrating || num_cells == p_factory->GetProblemSize());
+        // We don't store a cell index in the archive, so need to work out what global
+        // index this collection of cells starts up.  If we're migrating (so have an
+        // original factory) we use the original low index; otherwise we use the current
+        // low index.
+        unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_factory->GetLow();
         
         // Track fake bath cells to make sure we only delete non-local ones
         std::set<FakeBathCell*> fake_bath_cells_non_local, fake_bath_cells_local;
         
-        for (unsigned global_index=0; global_index<num_cells; global_index++)
+        for (unsigned local_index=0; local_index<num_cells; local_index++)
         {
-            bool local = !migrating || p_factory->IsGlobalIndexLocal(global_index);
+        	unsigned global_index = index_low + local_index;
+            bool local = p_factory->IsGlobalIndexLocal(global_index);
             AbstractCardiacCell* p_cell;
             archive & p_cell;
             // Check if it's a fake cell
@@ -358,12 +359,12 @@ public:
             if (local)
             {
                 rCells.push_back(p_cell); // Add to local cells collection
-                if (migrating && p_fake)
+                if (p_fake)
                 {
                     fake_bath_cells_local.insert(p_fake);
                 }
             }
-            else if (migrating)
+            else
             {
                 if (p_fake)
                 {

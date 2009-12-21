@@ -573,6 +573,7 @@ public:
      * 
      * @param archive  the archive to load
      * @param version  the archive file version
+     * @param originalProcess  the process number that wrote this archive
      * 
      * \note The process-specific archives currently contain the following data.  If the layout changes,
      * then this method will need to be altered, since it hard-codes knowledge of the order in
