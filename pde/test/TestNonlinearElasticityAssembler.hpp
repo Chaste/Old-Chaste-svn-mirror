@@ -87,6 +87,26 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location)
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
+    // Solve using quadratics..
+    void TestAssembleSystem3D() throw (Exception)
+    {
+        //Currently this is purely for coverage of assembling a 3D system...
+        QuadraticMesh<3> mesh;
+        TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
+        mesh.ConstructFromMeshReader(mesh_reader1);
+        ExponentialMaterialLaw<3> law(2,3);
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+
+        NonlinearElasticityAssembler<3> assembler(&mesh,
+                                                  &law,
+                                                  zero_vector<double>(3),
+                                                  1.0,
+                                                  "",
+                                                  fixed_nodes);
+        assembler.AssembleSystem(true, true);
+    }                                
+    
     void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh;
@@ -154,7 +174,7 @@ public:
                 }
             }
         }
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier();
 
         //////////////////////////////////////////////////////////
         // compare numerical and analytic jacobians again, this

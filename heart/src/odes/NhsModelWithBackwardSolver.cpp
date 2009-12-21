@@ -46,6 +46,8 @@ double NhsModelWithBackwardSolver::ImplicitSolveForQ()
 void NhsModelWithBackwardSolver::CalculateCaTropAndZDerivatives(double calciumTroponin, double z, double Q, 
                                                                 double& dCaTrop, double& dz)
 {
+//As in straight Nhs, we don't cover the exception code
+#define COVERAGE_IGNORE
     if(calciumTroponin < 0)
     {
         EXCEPTION("CalciumTrop concentration went negative");
@@ -58,6 +60,7 @@ void NhsModelWithBackwardSolver::CalculateCaTropAndZDerivatives(double calciumTr
     {
         EXCEPTION("z became greater than 1");
     }
+#undef COVERAGE_IGNORE
 
     double T0 = CalculateT0(z);
 

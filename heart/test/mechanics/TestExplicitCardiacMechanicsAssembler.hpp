@@ -182,6 +182,7 @@ public:
         ExplicitCardiacMechanicsAssembler<2> expl_solver(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
 
         ExplicitCardiacMechanicsAssembler<2> expl_solver_with_nash(NASH2004,&mesh,"",fixed_nodes,&law);
+        ExplicitCardiacMechanicsAssembler<2> expl_solver_with_kerchoffs(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
 
         // bad contraction model
         TS_ASSERT_THROWS_THIS(ExplicitCardiacMechanicsAssembler<2> assembler(NHS,&mesh,"",fixed_nodes,&law), "Unknown or stretch-rate-dependent contraction model");

@@ -62,7 +62,7 @@ public:
         double Ca_I = GetSampleCaIValue();
         nhs_backward.SetIntracellularCalciumConcentration(Ca_I);
 
-        // solve system (but don't update state vars yet
+        // solve system (but don't update state vars yet)
         nhs_backward.RunDoNotUpdate(0, 0.1, 0.1); // one timestep
 
         NhsContractionModel nhs_forward;
@@ -116,11 +116,11 @@ public:
 
         // solve system and update
         ck_start = clock();
-        nhs_backward.RunDoNotUpdate(0, 100, 0.01);
+        nhs_backward.RunAndUpdate(0, 100, 0.01);
         ck_end = clock();
         double implicit_solve_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 
-        nhs_backward.UpdateStateVariables();
+        //nhs_backward.UpdateStateVariables();
 
         // GetNextActiveTension should now be equal to baseclass::GetActiveTension(),
         // as the state vars have been updated
