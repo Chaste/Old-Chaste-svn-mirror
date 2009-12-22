@@ -71,34 +71,21 @@ public:
      */
     static PROBLEM_CLASS* Load(const std::string& rDirectory);
     
+    
     /**
-     * Load a simulation, saved by any number of processes, into a single process.
+     * Load a simulation, saved by any number of processes, into the correct
+     * number of processes for those currently launched.
      * 
      * Uses the DistributedVectorFactory saved in the process 0 archive to work out
      * how many secondary archive files to read, and loads the cells and boundary
      * conditions from these too.
      * 
-     * Throws an exception if not called from a sequential simulation, as otherwise
-     * we'd get deadlock from PetscTools::Barrier() calls in the archive loader. 
      * 
      * @param rDirectory directory where the multiple files defining the checkpoint are located
      *     (relative to CHASTE_TEST_OUTPUT)
      */
-    static PROBLEM_CLASS* LoadAsSequential(const std::string &rDirectory);
-    
     static PROBLEM_CLASS* Migrate(const std::string &rDirectory);
 
-    /**
-     * Load a simulation, saved by a single process, into any number of processes.
-     * 
-     * Uses a dumb partition to work out how to distribute the mesh and cells over
-     * the processes.
-     * \todo Allow the use of METIS to give a better partitioning
-     * 
-     * @param rDirectory directory where the files defining the checkpoint are located
-     *     (relative to CHASTE_TEST_OUTPUT)
-     */
-    static PROBLEM_CLASS* LoadFromSequential(const std::string& rDirectory);
 };
 
 
@@ -121,10 +108,7 @@ void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToA
 	// Write the info file
 	std::string info_path = handler.GetOutputDirectoryFullPath() + "archive.info";
 	std::ofstream info_file(info_path.c_str());
-	if (!info_file.is_open())
-	{
-		EXCEPTION("Unable to open archive information file: " + info_path);
-	}
+	assert(info_file.is_open()); //Pathological case where directory can be opened and cleaned, but a new file can't be opened
 	unsigned archive_version = 0; /// \todo get a real version number!
 	info_file << PetscTools::GetNumProcs() << " " << archive_version;
 }
@@ -147,24 +131,24 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const std::string 
 template<class PROBLEM_CLASS>
 PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::string &rDirectory)
 {
-	// Load the info file
-	OutputFileHandler handler(rDirectory, false);
-	std::string info_path = handler.GetOutputDirectoryFullPath() + "archive.info";
-	std::ifstream info_file(info_path.c_str());
-	if (!info_file.is_open())
-	{
-		EXCEPTION("Unable to open archive information file: " + info_path);
-	}
-	unsigned num_procs, archive_version;
-	info_file >> num_procs >> archive_version;
+    // Load the info file
+    OutputFileHandler handler(rDirectory, false);
+    std::string info_path = handler.GetOutputDirectoryFullPath() + "archive.info";
+    std::ifstream info_file(info_path.c_str());
+    if (!info_file.is_open())
+    {
+        EXCEPTION("Unable to open archive information file: " + info_path);
+    }
+    unsigned num_procs, archive_version;
+    info_file >> num_procs >> archive_version;
 
     PROBLEM_CLASS *p_unarchived_simulation;
 
-	// Avoid the DistributedVectorFactory throwing a 'wrong number of processes' exception when loading,
+    // Avoid the DistributedVectorFactory throwing a 'wrong number of processes' exception when loading,
     // and make it get the original DistributedVectorFactory from the archive so we can compare against
     // num_procs.
-	DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
-	// Put what follows in a try-catch to make sure we reset this
+    DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
+    // Put what follows in a try-catch to make sure we reset this
     try
     {
         // Load the master and process-0 archive files.
@@ -182,56 +166,10 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
         // Merge in the extra data
         for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
         {
-			std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
-			std::ifstream ifs(archive_path.c_str());
-			boost::archive::text_iarchive archive(ifs);
-			p_unarchived_simulation->LoadExtraArchive(archive, archive_version);
-        }
-    }
-    catch (Exception &e)
-    {
-        DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
-        throw e;
-    }
-
-    // Done.
-    DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
-    return p_unarchived_simulation;
-}
-
-
-template<class PROBLEM_CLASS>
-PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::LoadAsSequential(const std::string &rDirectory)
-{
-    // Check that we're running sequentially
-    if (!PetscTools::IsSequential())
-    {
-        EXCEPTION("Cannot load sequentially when running in parallel.");
-    }
-    PROBLEM_CLASS *p_unarchived_simulation;
-    
-    // Avoid the DistributedVectorFactory throwing a 'wrong number of processes' exception when loading
-    DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
-    // Put what follows in a try-catch to make sure we reset this
-    try
-    {
-        // Load the master and process-0 archive files.
-        // This will also set up ArchiveLocationInfo for us.
-        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true);
-        boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-        (*p_main_archive) >> p_unarchived_simulation;
-        
-        // Work out how many more files to load
-        DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
-        unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
-        
-        // Merge in the extra data
-        for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
-        {
             std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
             std::ifstream ifs(archive_path.c_str());
             boost::archive::text_iarchive archive(ifs);
-            p_unarchived_simulation->LoadExtraArchive(archive, 0u); ///\todo how can we get a real version number?
+	    p_unarchived_simulation->LoadExtraArchive(archive, archive_version);
         }
     }
     catch (Exception &e)
@@ -239,39 +177,13 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::LoadAsSequential(const 
         DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
         throw e;
     }
-    
+
     // Done.
     DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
     return p_unarchived_simulation;
 }
 
 
-template<class PROBLEM_CLASS>
-PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::LoadFromSequential(const std::string &rDirectory)
-{
-    PROBLEM_CLASS *p_unarchived_simulation;
-    
-    // Avoid the DistributedVectorFactory throwing a 'wrong number of processes' exception when loading
-    DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
-    // Put what follows in a try-catch to make sure we reset this
-    try
-    {
-        // Load both the master and process-0 archive files.
-        // The deserialize methods will be clever enough to throw away data that they don't need.
-        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true, 0u);
-        boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-        (*p_main_archive) >> p_unarchived_simulation;
-    }
-    catch (Exception &e)
-    {
-        DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
-        throw e;
-    }
-    
-    // Done.
-    DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(true);
-    return p_unarchived_simulation;
-}
 
 #endif /*CARDIACSIMULATIONARCHIVER_HPP_*/
 

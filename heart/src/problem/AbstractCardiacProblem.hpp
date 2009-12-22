@@ -573,7 +573,6 @@ public:
      * 
      * @param archive  the archive to load
      * @param version  the archive file version
-     * @param originalProcess  the process number that wrote this archive
      * 
      * \note The process-specific archives currently contain the following data.  If the layout changes,
      * then this method will need to be altered, since it hard-codes knowledge of the order in
@@ -621,6 +620,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     {
         if (!mpBoundaryConditionsContainer)
         {
+assert(0);//JMPF
             mpBoundaryConditionsContainer = p_bcc;
             mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
         }
@@ -630,6 +630,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
             ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_para_mesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(mpMesh);
             if (p_para_mesh)
             {
+assert(0);//JMPF
                 mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
             }
             else
@@ -645,6 +646,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     if (p_default_bcc)
     {
         // This always holds, so we never need to load the BCs, since they are the last thing in the archive. 
+assert(0);//JMPF
         assert(p_bcc == p_default_bcc);
     }
 }

@@ -35,6 +35,7 @@ The following new files/directories were created:
 ----------------ChasteParameters.xml
 ----------------archive.arch
 ----------------archive.arch.0
+----------------archive.info
 ----------------mesh.edge
 ----------------mesh.ele
 ----------------mesh.node

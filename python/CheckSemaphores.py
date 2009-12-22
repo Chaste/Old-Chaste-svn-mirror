@@ -45,11 +45,11 @@ for entry in semaphore_data:
   names.append( getpwuid(int(entry.split()[1]))[0] + ' (' + entry.split()[0] +')' )
   
 # Let the test summary script know
-if total_open > 3*num_processors:
-    print "There are", total_open,"semaphores open, owned by",len(semaphore_data), "users:"
-    for name in names:
-	  print "\t", name
-    print "The next line is for the benefit of the test summary scripts."
+print "There are", total_open,"semaphores open, owned by",len(semaphore_data), "users:"
+for name in names:
+    print "\t", name
+print "The next line is for the benefit of the test summary scripts."
+if total_open > 4*num_processors:
     print "Failed",total_open,"of",total_open,"tests"
 else:
     print "Infrastructure test passed ok."

@@ -787,8 +787,8 @@ public:
 
         // Cover exception
         MonodomainProblem<3>* p_problem;
-        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::LoadFromSequential("non_existent_dir"),
-                                  "Cannot load main archive file: ");
+        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::Migrate("non_existent_dir"),
+                                  "Unable to open archive information file:");
 
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
