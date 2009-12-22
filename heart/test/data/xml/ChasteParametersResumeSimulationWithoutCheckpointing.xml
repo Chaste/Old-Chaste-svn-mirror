@@ -5,10 +5,11 @@
 	xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 ../../../src/io/ChasteParameters_1_2.xsd">
        
 	<ResumeSimulation>
-		<ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
-		<SpaceDimension>3</SpaceDimension>
+            <ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
+            <SpaceDimension>3</SpaceDimension>
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
 	    <Domain>Mono</Domain>
+            <OutputVisualizer meshalyzer="yes" vtk="yes" cmgui="yes"/>
 	</ResumeSimulation>
 	
 	<Physiological>

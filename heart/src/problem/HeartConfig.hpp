@@ -149,7 +149,12 @@ private:
             if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())
             {
                 HeartConfig::Instance()->SetCheckpointSimulation(true,p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().timestep());
-            }      
+            }
+            
+            //Visualization parameters are compulsory
+            HeartConfig::Instance()->SetVisualizeWithVtk(p_new_parameters->ResumeSimulation().get().OutputVisualizer().vtk() == cp::yesno_type::yes);
+            HeartConfig::Instance()->SetVisualizeWithCmgui(p_new_parameters->ResumeSimulation().get().OutputVisualizer().cmgui() == cp::yesno_type::yes);
+            HeartConfig::Instance()->SetVisualizeWithMeshalyzer(p_new_parameters->ResumeSimulation().get().OutputVisualizer().meshalyzer() == cp::yesno_type::yes);       
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()

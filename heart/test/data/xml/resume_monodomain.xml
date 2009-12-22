@@ -6,6 +6,7 @@
 		<SpaceDimension>2</SpaceDimension>
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
 	    <Domain>Mono</Domain>
+            <OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
 	</ResumeSimulation>
 	
 	<Physiological>
