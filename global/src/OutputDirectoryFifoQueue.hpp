@@ -50,19 +50,21 @@ private:
 public:
 
     /**
-     *  Constructor
+     * Constructor
      * 
-     *  @param rBaseDirectory base directory for all the subdirectories to be created
-     *  @param queueMaxSize maximum number of subdirectories
+     * @param rBaseDirectory base directory for all the subdirectories to be created
+     * @param queueMaxSize maximum number of subdirectories
      */
     OutputDirectoryFifoQueue(const std::string& rBaseDirectory, unsigned queueMaxSize);
     
     /**
-     *  Creates a subdirectory called rSubdirectoryName deleting the oldest subdirectory
+     * Creates a subdirectory called rSubdirectoryName deleting the oldest subdirectory
      * if the maximum number has been reached.
      * 
-     *  @param rSubdirectoryName subdirectory name
-     *  @return new directory name relative to the base directory
+     * @note Must be called collectively.
+     *
+     * @param rSubdirectoryName subdirectory name
+     * @return new directory name relative to the base directory
      */
     std::string CreateNextDir(const std::string& rSubdirectoryName);
 };

@@ -55,7 +55,7 @@ std::string OutputDirectoryFifoQueue::CreateNextDir(const std::string& rSubdirec
         {
             EXPECT0(system, "rm -rf "+directory_to_remove);
         }
-        PetscTools::Barrier();
+        PetscTools::Barrier("OutputDirectoryFifoQueue::CreateNextDir");
         
         mQueue.pop();
     }

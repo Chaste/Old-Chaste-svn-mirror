@@ -62,6 +62,8 @@ public:
      * Note that when writing, only the master process writes to the main archive.  For other
      * processes the main archive is a dummy, writing to /dev/null.
      * 
+     * @note Must be called collectively, i.e. by all processes!
+     *
      * @param rDirectory  folder containing archive files.
      * @param rFileName  base name of archive files.  This will be used for the main archive
      *     (for replicated data) with ".n" (where n is the process index) being appended for

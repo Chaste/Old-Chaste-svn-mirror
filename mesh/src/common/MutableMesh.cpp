@@ -889,7 +889,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         ConstructFromMeshReader(mesh_reader);
 
         // Make sure the file is not deleted before all the processors have read it
-        PetscTools::Barrier();
+        PetscTools::Barrier("MutableMesh::ReMesh");
 
         if (PetscTools::AmMaster())
         {

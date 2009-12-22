@@ -98,7 +98,7 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
     mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
  
-    PetscTools::Barrier();
+    PetscTools::Barrier("Hdf5ToMeshalyzerConverter");
 }
 
 

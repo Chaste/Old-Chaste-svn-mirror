@@ -140,7 +140,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
     cmgui_mesh_writer.SetAdditionalFieldNames(field_names);
     cmgui_mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
 
-    PetscTools::Barrier();
+    PetscTools::Barrier("Hdf5ToCmguiConverter");
 }
 
 /////////////////////////////////////////////////////////////////////

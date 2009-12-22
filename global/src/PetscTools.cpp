@@ -37,7 +37,10 @@ bool PetscTools::mPetscIsInitialised = false;
 unsigned PetscTools::mNumProcessors = 0;
 unsigned PetscTools::mRank = 0;
 unsigned PetscTools::mMaxNumNonzerosIfMatMpiAij = 54;
-//unsigned PetscTools::mBarrier = 0u;
+
+#ifdef DEBUG_BARRIERS
+unsigned PetscTools::mNumBarriers = 0u;
+#endif
 
 void PetscTools::ResetCache()
 {
@@ -108,13 +111,18 @@ bool PetscTools::AmTopMost()
 // Little utility methods
 //
 
-void PetscTools::Barrier()
+void PetscTools::Barrier(const std::string callerId)
 {
     CheckCache();
     if (mPetscIsInitialised)
     {
+#ifdef DEBUG_BARRIERS
+        std::cout << "DEBUG: proc " << PetscTools::GetMyRank() << ": Pre " << callerId << " Barrier " << mNumBarriers << "." << std::endl << std::flush;
+#endif
         PetscBarrier(PETSC_NULL);
-        //PRINT_VARIABLE(mBarrier++);
+#ifdef DEBUG_BARRIERS
+        std::cout << "DEBUG: proc " << PetscTools::GetMyRank() << ": Post " << callerId << " Barrier " << mNumBarriers++ << "." << std::endl << std::flush;
+#endif
     }
 }
 

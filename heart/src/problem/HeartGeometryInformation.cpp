@@ -414,7 +414,7 @@ void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outp
 
         p_file->close();
     }
-    PetscTools::Barrier(); // Make other processes wait until we're done
+    PetscTools::Barrier("HeartGeometryInformation::WriteLayerForEachNode"); // Make other processes wait until we're done
 }
 
 

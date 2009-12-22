@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractMeshWriter(const std::string &rDirectory,
-                   const std::string &rBaseName,
-                   const bool clearOutputDir)
+                                                               const std::string &rBaseName,
+                                                               const bool clearOutputDir)
     : mBaseName(rBaseName),
       mpMeshReader(NULL)
 {
@@ -103,12 +103,11 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector
 ///\todo Mesh should be const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
-    AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
+        AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
     mpMeshReader = &rMeshReader;
     mNumNodes = mpMeshReader->GetNumNodes();
     mNumElements = mpMeshReader->GetNumElements();
-    
     
     if (!PetscTools::AmMaster())
     {

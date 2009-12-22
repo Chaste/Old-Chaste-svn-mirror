@@ -567,7 +567,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     /*
      * Wait for the permutation to be available
      */
-    PetscTools::Barrier();
+    PetscTools::Barrier("ParallelTetrahedralMesh::MetisBinaryNodePartitioning");
 
     /*
      *  Read partition file and compute local node ownership and processors offset

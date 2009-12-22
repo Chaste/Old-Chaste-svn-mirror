@@ -65,6 +65,8 @@ private:
      * and non-empty it is taken to be a directory where test output should be stored.
      * Otherwise the current directory is used.
      *
+     * @note Contains a barrier, so must be called collectively.
+     *
      * @param rDirectory  pathname of the output directory, relative to where Chaste
      *         output will be stored (user shouldn't care about this).
      * @return full pathname to the output directory
@@ -79,6 +81,8 @@ public:
      * method.
      *
      * Will check that the directory exists and create it if needed.
+     *
+     * @note This MUST be called collectively, since it contains a barrier call.
      *
      * @param rDirectory  the directory to put output files in.
      * @param cleanOutputDirectory  whether to remove any existing files in the output directory

@@ -250,7 +250,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 
     if (!PetscTools::AmMaster())
     {
-        PetscTools::Barrier(); //Paired with Master process writing files
+        PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteFilesUsingMesh"); //Paired with Master process writing files
         return;
     }
     
@@ -265,7 +265,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
     }   
 
-    //Cache all of the BoundaryElements
+    // Cache all of the BoundaryElements
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllBoundaryElements(); i++)
     {
         BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = rMesh.GetBoundaryElement(i);
@@ -281,7 +281,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
     }
     this->WriteFiles();
-    PetscTools::Barrier(); //Paired with waiting Slave processes
+    PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteFilesUsingMesh"); //Paired with waiting Slave processes
 }
 
 
@@ -323,7 +323,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
             this->SetNextBoundaryFace(indices);
         }
     }
-    PetscTools::Barrier(); 
+    PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteFilesUsingParallelMesh 1");
 
     //Master goes on to write as usual
     if (PetscTools::AmMaster())
@@ -363,7 +363,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
             }
         }
     }
-    PetscTools::Barrier(); 
+    PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteFilesUsingParallelMesh 2");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

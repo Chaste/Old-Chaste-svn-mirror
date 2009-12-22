@@ -191,7 +191,7 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::~ArchiveOpener()
      * For example, many tests will write an archive then immediately read it back
      * in, which could easily break without this.
      */
-    PetscTools::Barrier();
+    PetscTools::Barrier("~ArchiveOpener");
 }
 
 

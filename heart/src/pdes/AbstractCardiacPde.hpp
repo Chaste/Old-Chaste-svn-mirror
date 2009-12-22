@@ -350,7 +350,7 @@ public:
         
         for (unsigned local_index=0; local_index<num_cells; local_index++)
         {
-        	unsigned global_index = index_low + local_index;
+            unsigned global_index = index_low + local_index;
             bool local = p_factory->IsGlobalIndexLocal(global_index);
             AbstractCardiacCell* p_cell;
             archive & p_cell;

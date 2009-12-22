@@ -167,7 +167,6 @@ public:
             TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("missing_directory"),
                                       "Cannot load main archive file:");
         }
-
     }
     
     /**
@@ -354,7 +353,7 @@ private:
             // This would differ because we get extra copies of the ODE solver and intracellular stimulus objects
             // (one per original process which had them).
             //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
-        	EXPECT0(system, "diff -I 'serialization::archive' " + rSourceDir + "reference_0_archive " + my_archive + ".0");
+            EXPECT0(system, "diff -I 'serialization::archive' " + rSourceDir + "reference_0_archive " + my_archive + ".0");
         }
 
         // Return the problem for further tests
@@ -421,7 +420,7 @@ private:
 
 public:
     void TestMigrationExceptions() throw (Exception)
-	{
+    {
         // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
         std::string source_directory = "heart/test/data/checkpoint_migration_exception/";
         std::string target_directory = "TestMigrationExceptions";
@@ -430,13 +429,14 @@ public:
         {
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
+        PetscTools::Barrier("TestMigrationExceptions");
         BidomainProblem<3>* p_problem;
         // Cover exceptions
         TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Migrate(target_directory),
                                   "Cannot load main archive file: ");
         TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Migrate("non_existent_dir"),
                                   "Unable to open archive information file: ");
-	}
+    }
 
     /**
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequential.
@@ -489,46 +489,47 @@ public:
         {
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
+        PetscTools::Barrier("TestLoadAsSequential");
         
-		// Do the migration
-		const unsigned num_cells = 125u;
-		BidomainProblem<3>* p_problem = DoMigrateAndBasicTests<BidomainProblem<3> >(archive_directory, ref_archive_dir, source_directory, num_cells);
+        // Do the migration
+        const unsigned num_cells = 125u;
+        BidomainProblem<3>* p_problem = DoMigrateAndBasicTests<BidomainProblem<3> >(archive_directory, ref_archive_dir, source_directory, num_cells);
 
-		// All cells at x=0 should have a SimpleStimulus(-80000, 1).
-		DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
-		for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
-		{
-			AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-			double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
+        // All cells at x=0 should have a SimpleStimulus(-80000, 1).
+        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
+        for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+        {
+            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
 
-			if (x*x < 1e-10)
-			{
-				// Stim exists
-				TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), -80000.0, 1e-10);
-				TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), -80000.0, 1e-10);
-				TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
-				TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
-			}
-			else
-			{
-				// No stim
-				TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
-				TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
-				TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
-				TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
-			}
-		}
+            if (x*x < 1e-10)
+            {
+                // Stim exists
+                TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), -80000.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), -80000.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
+            }
+            else
+            {
+                // No stim
+                TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(1.001), 0.0, 1e-10);
+                TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
+            }
+        }
 
-		// Test bccs - none defined in this problem
-		TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
-		TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
+        // Test bccs - none defined in this problem
+        TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
+        TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
 
-		DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
     }
     
     
     /**
-     * Run this in parallel (build=_3) to create the archive for TestLoadAsSequentialWithBath.
+     * Run this in parallel (build=_2) to create the archive for TestLoadAsSequentialWithBath.
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequentialWithBath
         cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_with_bath/"
@@ -571,9 +572,6 @@ public:
         delete p_mesh;
     }
     
-    /**
-     * #1159 - the first part of migrating a checkpoint to a different number of processes.
-     */
     void TestLoadAsSequentialWithBath() throw (Exception)
     {
         // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
@@ -585,75 +583,76 @@ public:
         {
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
+        PetscTools::Barrier("TestLoadAsSequentialWithBath");
         
-		BidomainProblem<2>* p_problem;
-		// Do the migration to sequential
-		const unsigned num_cells = 221u;
-		p_problem = DoMigrateAndBasicTests<BidomainProblem<2> >(archive_directory, ref_archive_dir, source_directory, num_cells);
+        BidomainProblem<2>* p_problem;
+        // Do the migration to sequential
+        const unsigned num_cells = 221u;
+        p_problem = DoMigrateAndBasicTests<BidomainProblem<2> >(archive_directory, ref_archive_dir, source_directory, num_cells);
 
-		// All cells should have no stimulus.
-		DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
-		for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
-		{
-			AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-			AbstractStimulusFunction* p_stim = p_cell->GetStimulusFunction().get();
-			ZeroStimulus* p_zero_stim = dynamic_cast<ZeroStimulus*>(p_stim);
-			TS_ASSERT(p_zero_stim != NULL);
-			TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
-			TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
-		}
+        // All cells should have no stimulus.
+        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
+        for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+        {
+            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            AbstractStimulusFunction* p_stim = p_cell->GetStimulusFunction().get();
+            ZeroStimulus* p_zero_stim = dynamic_cast<ZeroStimulus*>(p_stim);
+            TS_ASSERT(p_zero_stim != NULL);
+            TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
+            TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
+        }
 
-		// Test bccs
-		TS_ASSERT( ! p_problem->mpDefaultBoundaryConditionsContainer); // Electrodes haven't switched off yet
-		TS_ASSERT(p_problem->mpBoundaryConditionsContainer);
-		boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
-		// We have neumann boundary conditions from the electrodes
-		TS_ASSERT(p_bcc->AnyNonZeroNeumannConditions());
-		for (BoundaryConditionsContainer<2,2,2>::NeumannMapIterator it = p_bcc->BeginNeumann();
-			 it != p_bcc->EndNeumann();
-			 ++it)
-		{
-			ChastePoint<2> centroid(it->first->CalculateCentroid());
-			// Negative flux at x=0
-			if (fabs(centroid[0] - 0.0) < 1e-6)
-			{
-				TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), -11e3, 1e-10);
-			}
-			// Positive flux at x=0.1
-			else if (fabs(centroid[0] - 0.1) < 1e-6)
-			{
-				TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), +11e3, 1e-10);
-			}
-			else
-			{
-				TS_FAIL("Unexpected Neumann BC found.");
-			}
-		}
-		// There are no dirichlet BCs.
-		TS_ASSERT( ! p_bcc->HasDirichletBoundaryConditions());
-		// Now check that all relevant boundary elements have neumann conditions
-		for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
-			 iter != p_problem->rGetMesh().GetBoundaryElementIteratorEnd();
-			 iter++)
-		{
-			ChastePoint<2> centroid((*iter)->CalculateCentroid());
-			if (fabs(centroid[0] - 0.0) < 1e-6)
-			{
-				TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), -11e3, 1e-10);
-			}
-			else if (fabs(centroid[0] - 0.1) < 1e-6)
-			{
-				TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), +11e3, 1e-10);
-			}
-			else
-			{
-				TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), 0, 1e-10);
-			}
-			// No neumann stimulus applied to V
-			TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,0), 0, 1e-10);
-		}
+        // Test bccs
+        TS_ASSERT( ! p_problem->mpDefaultBoundaryConditionsContainer); // Electrodes haven't switched off yet
+        TS_ASSERT(p_problem->mpBoundaryConditionsContainer);
+        boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
+        // We have neumann boundary conditions from the electrodes
+        TS_ASSERT(p_bcc->AnyNonZeroNeumannConditions());
+        for (BoundaryConditionsContainer<2,2,2>::NeumannMapIterator it = p_bcc->BeginNeumann();
+             it != p_bcc->EndNeumann();
+             ++it)
+        {
+            ChastePoint<2> centroid(it->first->CalculateCentroid());
+            // Negative flux at x=0
+            if (fabs(centroid[0] - 0.0) < 1e-6)
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), -11e3, 1e-10);
+            }
+            // Positive flux at x=0.1
+            else if (fabs(centroid[0] - 0.1) < 1e-6)
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(it->first, centroid, 1), +11e3, 1e-10);
+            }
+            else
+            {
+                TS_FAIL("Unexpected Neumann BC found.");
+            }
+        }
+        // There are no dirichlet BCs.
+        TS_ASSERT( ! p_bcc->HasDirichletBoundaryConditions());
+        // Now check that all relevant boundary elements have neumann conditions
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
+             iter != p_problem->rGetMesh().GetBoundaryElementIteratorEnd();
+             iter++)
+        {
+            ChastePoint<2> centroid((*iter)->CalculateCentroid());
+            if (fabs(centroid[0] - 0.0) < 1e-6)
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), -11e3, 1e-10);
+            }
+            else if (fabs(centroid[0] - 0.1) < 1e-6)
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), +11e3, 1e-10);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,1), 0, 1e-10);
+            }
+            // No neumann stimulus applied to V
+            TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,0), 0, 1e-10);
+        }
 
-		DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
     }
 
 private:
@@ -725,7 +724,7 @@ private:
         EXPECT0(system, "diff " + ref_archive + " " + my_archive);
         for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
         {
-        	// This works because the original archive was created by a single process.
+            // This works because the original archive was created by a single process.
             std::stringstream proc_id;
             proc_id << i;
             std::string suffix = "." + proc_id.str();
@@ -783,17 +782,12 @@ public:
         {
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
-        PetscTools::Barrier();
-
-        // Cover exception
-        MonodomainProblem<3>* p_problem;
-        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<MonodomainProblem<3> >::Migrate("non_existent_dir"),
-                                  "Unable to open archive information file:");
+        PetscTools::Barrier("TestLoadFromSequential");
 
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
         const unsigned num_cells = 125u;
-        p_problem = DoMigrateFromSequentialAndBasicTests<MonodomainProblem<3>,3>(archive_directory, ref_archive_dir, num_cells, false);
+        MonodomainProblem<3>* p_problem = DoMigrateFromSequentialAndBasicTests<MonodomainProblem<3>,3>(archive_directory, ref_archive_dir, num_cells, false);
 
         // All cells at x=0 should have a SimpleStimulus(-25500, 2).
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -882,7 +876,7 @@ public:
         {
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
-        PetscTools::Barrier();
+        PetscTools::Barrier("TestLoadFromSequentialWithBath");
         
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.

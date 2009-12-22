@@ -102,40 +102,54 @@ private:
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                                ArchiveLocationInfo::GetMeshFilename(),
                                                                false);
-            
+
         if (this->IsMeshChanging())
         {
             mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
         }
         else
         {
-            try
+            bool need_to_write_mesh;
+            if (PetscTools::AmMaster())
             {
-                /** 
-                 * If this mesh object has been constructed from a mesh reader we can get reference to it
-                 *
-                 * Rewrites mesh with a different name in its original format to the ArchiveLocationInfo.
-                 * This doesn't have the permutation applied.  It may be better to copy the mesh or to use
-                 * HeartConfig...
-                 * 
-                 * The advantage of having this here (rather than doing 
-                 * WriteFilesUsingMesh for every occasion) is that we don't have
-                 * to use up the memory of a single process for large meshes.
-                 */
-                TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
-                mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+                try
+                {
+                    /**
+                     * \todo If this mesh object has been constructed from a file, we could just copy the file.
+                     *
+                     * Rewrites mesh with a different name in its original format to the ArchiveLocationInfo.
+                     * This doesn't have the permutation applied.  It may be better to copy the mesh or to use
+                     * HeartConfig...
+                     *
+                     * The advantage of the current code here is that we don't need any communication in the
+                     * case of a ParallelTetrahedralMesh; the master process just slurps the file in and spits
+                     * it out again chunk by chunk.
+                     */
+                    TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
+                    mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+                    need_to_write_mesh = false;
+                }
+                catch(Exception& e)
+                {
+                    /**
+                     * Catching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
+                     * That may mean it is a mesh constructed from a geometric description rather that read from file.
+                     * We can't just write here, as we may need to communicate with the slaves...
+                     */
+                    need_to_write_mesh = true;
+                }
             }
-            catch(Exception& e)
+            else
             {
-                /**
-                 * Catching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
-                 * That may mean it is a mesh constructed from a geometric description rather that read from file.
-                 *
-                 */
+                // Slaves don't know if the mesh has been written yet.
+                need_to_write_mesh = false;
+            }
+            if (PetscTools::ReplicateBool(need_to_write_mesh))
+            {
                 mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
             }
         }
-        PetscTools::Barrier();//Make sure that the files are written before slave processes proceed       
+        PetscTools::Barrier("AbstractTetrahedralMesh::save");//Make sure that the files are written before slave processes proceed
     }
 
     /**

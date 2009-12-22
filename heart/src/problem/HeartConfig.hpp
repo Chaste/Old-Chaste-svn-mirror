@@ -95,7 +95,7 @@ private:
         {
             mpInstance->Write( true );
         }
-        PetscTools::Barrier();
+        PetscTools::Barrier("HeartConfig::save");
     }
 
     /**

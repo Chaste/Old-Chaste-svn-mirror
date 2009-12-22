@@ -620,7 +620,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     {
         if (!mpBoundaryConditionsContainer)
         {
-assert(0);//JMPF
             mpBoundaryConditionsContainer = p_bcc;
             mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
         }
@@ -630,7 +629,6 @@ assert(0);//JMPF
             ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_para_mesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(mpMesh);
             if (p_para_mesh)
             {
-assert(0);//JMPF
                 mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
             }
             else
@@ -646,7 +644,6 @@ assert(0);//JMPF
     if (p_default_bcc)
     {
         // This always holds, so we never need to load the BCs, since they are the last thing in the archive. 
-assert(0);//JMPF
         assert(p_bcc == p_default_bcc);
     }
 }

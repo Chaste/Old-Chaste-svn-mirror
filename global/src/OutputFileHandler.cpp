@@ -66,7 +66,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
             EXPECT0(system, "rm -rf " + mDirectory + "/*");
         }
         // Wait for master to finish before going on to use the directory.
-        PetscTools::Barrier();
+        PetscTools::Barrier("OutputFileHandler");
     }
 }
 
@@ -106,12 +106,12 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
             // We make as many folders as necessary here.
             EXPECT0(system,"mkdir -p " + directory);
 
-            // Put the Chaste signature file in all folders we have created
+            /// \todo Put the Chaste signature file in all folders we have created
             EXPECT0(system,"touch " + directory + ".chaste_deletable_folder");
         }
     }
     // Wait for master to finish before going on to use the directory.
-    PetscTools::Barrier();
+    PetscTools::Barrier("OutputFileHandler::MakeFoldersAndReturnFullPath");
 
     return directory;
 }

@@ -567,7 +567,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
     }
 
     // Wait for the permutation to be available
-    PetscTools::Barrier();
+    PetscTools::Barrier("TetrahedralMesh::PermuteNodesWithMetisBinaries");
 
     /*
      *  Read partition file back into a vector.

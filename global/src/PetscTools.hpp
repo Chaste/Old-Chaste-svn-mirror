@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef PETSCTOOLS_HPP_
 #define PETSCTOOLS_HPP_
 
@@ -41,6 +40,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #define EXIT_IF_PARALLEL if(!PetscTools::IsSequential()){TS_TRACE("This test does not pass in parallel yet.");return;}
 #define EXIT_IF_SEQUENTIAL if(PetscTools::IsSequential()){TS_TRACE("This test is not meant to be executed in sequential.");return;}
+
+
+#ifndef NDEBUG
+// Uncomment this to trace calls to PetscTools::Barrier
+//#define DEBUG_BARRIERS
+#endif
+
 
 /**
  * A helper class of static methods.
@@ -57,7 +63,10 @@ private:
     /** The number of nonzeros per row that PETSc preallocates */
     static unsigned mMaxNumNonzerosIfMatMpiAij;
 
-    //Can be used to debug number of barriers: static unsigned mBarrier;
+#ifdef DEBUG_BARRIERS
+    /** Used to debug number of barriers */
+    static unsigned mNumBarriers;
+#endif
 
     /** Which processors we are. */
     static unsigned mRank;
@@ -118,8 +127,10 @@ public:
     /**
      * If MPI is set up, perform a barrier synchronisation.
      * If not, it's a noop.
+     *
+     * @param rCallerId  only used in debug mode; printed before & after the barrier call
      */
-    static void Barrier();
+    static void Barrier(const std::string callerId="");
 
 #ifndef SPECIAL_SERIAL
     /**
