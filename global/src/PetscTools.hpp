@@ -128,7 +128,7 @@ public:
      * If MPI is set up, perform a barrier synchronisation.
      * If not, it's a noop.
      *
-     * @param rCallerId  only used in debug mode; printed before & after the barrier call
+     * @param callerId  only used in debug mode; printed before & after the barrier call
      */
     static void Barrier(const std::string callerId="");
 

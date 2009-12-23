@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include "OutputFileHandler.hpp"
 #include "ArchiveOpener.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestQuadraticMesh : public CxxTest::TestSuite
 {
