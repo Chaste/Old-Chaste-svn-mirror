@@ -126,10 +126,21 @@ void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToA
         std::ofstream info_file(info_path.c_str());
         if (!info_file.is_open())
         {
+            // Avoid deadlock...
+            PetscTools::ReplicateBool(true);
             EXCEPTION("Unable to open archive information file: " + info_path);
         }
+        PetscTools::ReplicateBool(false);
         unsigned archive_version = 0; /// \todo #1026 get a real version number!
         info_file << PetscTools::GetNumProcs() << " " << archive_version;
+    }
+    else
+    {
+        bool master_threw = PetscTools::ReplicateBool(false);
+        if (master_threw)
+        {
+            EXCEPTION("Unable to open archive information file");
+        }
     }
     // Make sure everything is written before any process continues.
     PetscTools::Barrier("CardiacSimulationArchiver::Save");

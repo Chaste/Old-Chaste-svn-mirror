@@ -186,8 +186,6 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("BidomainBathOnlyBath");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-
         c_vector<double,1> centre;
         centre(0) = 0.5;
         BathCellFactory<1> cell_factory(-1e6, centre);

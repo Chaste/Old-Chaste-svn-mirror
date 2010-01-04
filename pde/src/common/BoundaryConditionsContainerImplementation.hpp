@@ -108,8 +108,20 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AddNeumannB
 {
     assert(indexOfUnknown < PROBLEM_DIM);
 
-    // we assume that this could be a non-zero boundary condition
-    mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = true;
+    // If this condition is constant, we can test whether it is zero.
+    // Otherwise we assume that this could be a non-zero boundary condition.
+    const ConstBoundaryCondition<SPACE_DIM>* p_const_cond = dynamic_cast<const ConstBoundaryCondition<SPACE_DIM>*>(pBoundaryCondition);
+    if (p_const_cond)
+    {
+        if (p_const_cond->GetValue(pBoundaryElement->GetNode(0)->GetPoint()) != 0.0)
+        {
+            mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = true;
+        }
+    }
+    else
+    {
+        mAnyNonZeroNeumannConditionsForUnknown[indexOfUnknown] = true;
+    }
 
     for (unsigned unknown=0; unknown<PROBLEM_DIM; unknown++)
     {
