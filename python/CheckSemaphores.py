@@ -35,7 +35,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 import os
 from pwd import getpwuid
 
-num_processors = int(os.popen('egrep -c ^processor /proc/cpuinfo').read().split()[0])
+#num_processors = int(os.popen('egrep -c ^processor /proc/cpuinfo').read().split()[0])
+#semaphore_limit = 4*num_processors
+
+max_semaphore_arrays=int(os.popen('ipcs -l | awk \'/max number of arrays/\'').read().split()[-1])
+semaphore_limit = max_semaphore_arrays*0.9
+
 semaphore_data=os.popen('tail -n +2 /proc/sysvipc/sem  |awk \'{print $5}\'| sort | uniq -c').readlines()
 
 total_open = 0
@@ -49,7 +54,7 @@ print "There are", total_open,"semaphores open, owned by",len(semaphore_data), "
 for name in names:
     print "\t", name
 print "The next line is for the benefit of the test summary scripts."
-if total_open > 4*num_processors:
+if total_open > semaphore_limit:
     print "Failed",total_open,"of",total_open,"tests"
 else:
     print "Infrastructure test passed ok."

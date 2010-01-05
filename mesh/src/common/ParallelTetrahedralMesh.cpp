@@ -632,51 +632,63 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
                                                                                   std::vector<unsigned>& rProcessorsOffset,
                                                                                   std::vector<unsigned>& rNodePermutation)
 {
-    assert(PetscTools::GetNumProcs() > 1);
+    assert(!PetscTools::IsSequential());
 
     assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
 
-    int ne = rMeshReader.GetNumElements();
     int nn = rMeshReader.GetNumNodes();
-    idxtype* elmnts = new idxtype[ne * (ELEMENT_DIM+1)];
-    assert(elmnts != NULL);
-
-    unsigned counter=0;
-    for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
-    {
-        ElementData element_data = rMeshReader.GetNextElementData();
-
-        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
-        {
-            elmnts[counter++] = element_data.NodeIndices[i];
-        }
-    }
-    rMeshReader.Reset();
-
-    int etype;
-
-    switch (ELEMENT_DIM)
-    {
-        case 2:
-            etype = 1; //1 is Metis speak for triangles
-            break;
-        case 3:
-            etype = 2; //2 is Metis speak for tetrahedra
-            break;
-        default:
-            NEVER_REACHED;
-    }
-
-    int numflag = 0; //0 means C-style numbering is assumed
-    int nparts = PetscTools::GetNumProcs();
-    int edgecut;
-    idxtype* epart = new idxtype[ne];
-    assert(epart != NULL);
     idxtype* npart = new idxtype[nn];
-    assert(epart != NULL);
-
-    METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);
-
+    assert(npart != NULL);
+ 
+    //Only the master process will access the element data and perform the partitioning
+    if (PetscTools::AmMaster())
+    {
+        int ne = rMeshReader.GetNumElements();
+        idxtype* elmnts = new idxtype[ne * (ELEMENT_DIM+1)];
+        assert(elmnts != NULL);
+    
+        unsigned counter=0;
+        for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+        {
+            ElementData element_data = rMeshReader.GetNextElementData();
+    
+            for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+            {
+                elmnts[counter++] = element_data.NodeIndices[i];
+            }
+        }
+        rMeshReader.Reset();
+    
+        int etype;
+    
+        switch (ELEMENT_DIM)
+        {
+            case 2:
+                etype = 1; //1 is Metis speak for triangles
+                break;
+            case 3:
+                etype = 2; //2 is Metis speak for tetrahedra
+                break;
+            default:
+                NEVER_REACHED;
+        }
+    
+        int numflag = 0; //0 means C-style numbering is assumed
+        int nparts = PetscTools::GetNumProcs();
+        int edgecut;
+        idxtype* epart = new idxtype[ne];
+        assert(epart != NULL);
+    
+        METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);
+        delete[] elmnts;
+        delete[] epart;
+    }
+    
+    //Here's the new bottle-neck: share all the node ownership data
+    //idxtype is normally int (see metis-4.0/Lib/struct.h 17-22)
+    assert(sizeof(idxtype) == sizeof(int));
+    MPI_Bcast(npart /*data*/, nn /*size*/, MPI_INT, 0 /*From Master*/, PETSC_COMM_WORLD);
+ 
     assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
     rProcessorsOffset.resize(PetscTools::GetNumProcs(), 0);
 
@@ -717,8 +729,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     //std::cout << rNodePermutation.size() << std::endl;
     //std::cout << this->mNodesPermutation.size() << std::endl;
 
-    delete[] elmnts;
-    delete[] epart;
     delete[] npart;
 }
 
