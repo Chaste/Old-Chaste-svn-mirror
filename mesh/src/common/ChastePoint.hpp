@@ -100,7 +100,14 @@ public:
      * @param value the value of the coordinate
      */
     void SetCoordinate(unsigned i, double value);
-
+    
+    /**
+     * Checks whether one chaste point is the same as the one constructed
+     * 
+     * @param rPoint the point to be checked
+     * @return true if the are the same
+     */
+    bool IsSamePoint(const ChastePoint<DIM>& rPoint) const;
 };
 
 /**

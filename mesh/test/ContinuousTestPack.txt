@@ -1,4 +1,4 @@
-TestChasteCuboid.hpp
+TestChasteRegions.hpp
 TestChastePoint.hpp
 TestElement.hpp
 TestFemlabMeshReader.hpp

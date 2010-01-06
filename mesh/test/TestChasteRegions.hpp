@@ -27,18 +27,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTCUBOID_HPP_
-#define TESTCUBOID_HPP_
+#ifndef TESTCHASTEREGIONS_HPP_
+#define TESTCHASTEREGIONS_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
+#include "ChasteNodesList.hpp"
+#include "AbstractChasteRegion.hpp"
+#include "Node.hpp"
 
-class TestCuboid : public CxxTest::TestSuite
+class TestRegions : public CxxTest::TestSuite
 {
 public:
 
-    void TestCreationAndContained() throw(Exception)
+    void TestCuboidCreationAndContained() throw(Exception)
     {
         ChastePoint<3> point_a(-3, -3, -3);
         ChastePoint<3> point_b(3, 3, 3);
@@ -78,6 +81,33 @@ public:
         c_vector<double, 3> diff_lower = lower.rGetLocation() - point_a.rGetLocation();
         TS_ASSERT_DELTA(norm_2(diff_lower),0.0,1e-10);
     }
+    
+    void TestNodesList() throw(Exception)
+    {
+        ChastePoint<3> point_a(-3, -3, -3);
+        ChastePoint<3> point_b(3, 3, 3);
+        ChastePoint<3> point_c(9, 4, 7);
+        
+        Node<3> first_node(0u,point_a);
+        Node<3> second_node(1u,point_b);
+        Node<3> third_node(2u,point_c);
+        
+        std::vector<Node<3u>* > array_of_nodes;
+        
+        array_of_nodes.push_back(&first_node);
+        array_of_nodes.push_back(&second_node);
+        array_of_nodes.push_back(&third_node);
+        
+        //declare the object
+        ChasteNodesList<3> nodes_list(array_of_nodes);
+        
+        ChastePoint<3> test_point_contained(9, 4, 7);
+        ChastePoint<3> test_point_non_contained(10, 4, 7);
+        
+        TS_ASSERT_EQUALS(nodes_list.DoesContain(test_point_contained), true);
+        TS_ASSERT_EQUALS(nodes_list.DoesContain(test_point_non_contained), false);
+        
+    }
 };
 
-#endif /*TESTCUBOID_HPP_*/
+#endif /*TESTCHASTEREGIONS_HPP_*/

@@ -30,13 +30,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CHASTECUBOID_HPP_
 #define CHASTECUBOID_HPP_
 
+#include "AbstractChasteRegion.hpp"
 #include "ChastePoint.hpp"
+
 
 /**
  * This class defines a 3D cuboid and provides a method to check
  * if a given point is contained in the volume.
  */
-class ChasteCuboid
+
+class ChasteCuboid : public AbstractChasteRegion
 {
 private:
 
@@ -57,15 +60,15 @@ public:
     ChasteCuboid(ChastePoint<3>& rLowerPoint, ChastePoint<3>& rUpperPoint):
      mLowerCorner(rLowerPoint), 
      mUpperCorner(rUpperPoint)
-{
-    for (unsigned dim=0; dim<3; dim++)
     {
-        if (mLowerCorner[dim] > mUpperCorner[dim])
+        for (unsigned dim=0; dim<3; dim++)
         {
-            EXCEPTION("Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
+            if (mLowerCorner[dim] > mUpperCorner[dim])
+            {
+                EXCEPTION("Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
+            }
         }
     }
-}
 
  
     /**
@@ -74,7 +77,7 @@ public:
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
     template <unsigned DIM> 
-    bool DoesContain(const ChastePoint<DIM>& rPointToCheck)
+    bool DoesContain(const ChastePoint<DIM>& rPointToCheck) const
     {
         for (unsigned dim=0; dim<DIM; dim++)
         {

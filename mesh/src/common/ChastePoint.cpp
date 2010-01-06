@@ -86,6 +86,21 @@ void ChastePoint<DIM>::SetCoordinate(unsigned i, double value)
     mLocation(i) = value;
 }
 
+template<unsigned DIM>
+bool ChastePoint<DIM>::IsSamePoint(const ChastePoint<DIM>& rPoint) const
+{
+    bool returned_value = true;
+    for (unsigned dim = 0; dim < DIM ; dim++)
+    {
+        if (rPoint[dim] != mLocation[dim])
+        {
+            returned_value = false;
+            break;
+        }
+    }
+    return returned_value;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////////
