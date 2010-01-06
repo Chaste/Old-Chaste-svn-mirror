@@ -495,8 +495,8 @@ public :
          *  Set ODE, PDE, and printing timestep to something meaningful and test SetCheckpointSimulation() exceptions. 
          */
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.4);
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetCheckpointSimulation(true, 1.0), "Checkpoint time-step should be a multiple of printing time step");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetCheckpointSimulation(true, -2.0), "Printing time-step should be positive");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetCheckpointSimulation(true, 1.0, 3), "Checkpoint time-step should be a multiple of printing time step");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetCheckpointSimulation(true, -2.0, 3), "Printing time-step should be positive");
 
         HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
         TS_ASSERT(HeartConfig::Instance()->GetUseRelativeTolerance());
@@ -881,11 +881,13 @@ public :
 
         TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCheckpointTimestep(),20.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMaxCheckpointsOnDisk(),3u);
         HeartConfig::Instance()->SetCheckpointSimulation(false);
         TS_ASSERT(!HeartConfig::Instance()->GetCheckpointSimulation());
-        HeartConfig::Instance()->SetCheckpointSimulation(true, 10.0);
+        HeartConfig::Instance()->SetCheckpointSimulation(true, 10.0, 4u);
         TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCheckpointTimestep(),10.0);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMaxCheckpointsOnDisk(),4u);
 
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetArchivedSimulationDir(),
                               "GetArchivedSimulationDir information is not available in a standard (non-resumed) simulation.");

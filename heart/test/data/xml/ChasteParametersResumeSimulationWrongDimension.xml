@@ -5,12 +5,12 @@
 	xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 ../../../src/io/ChasteParameters_1_2.xsd">
        
 	<ResumeSimulation>
-            <ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
-            <SpaceDimension>2</SpaceDimension>
+        <ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
+        <SpaceDimension>2</SpaceDimension>
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
 	    <Domain>Mono</Domain>
-            <CheckpointSimulation timestep="20.0" unit="ms"/>
-            <OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
+        <CheckpointSimulation timestep="20.0" unit="ms" max_checkpoints_on_disk="3"/>
+        <OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
 	</ResumeSimulation>
 	
 	<Physiological>

@@ -147,7 +147,7 @@
 		
 		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
 
-		<CheckpointSimulation timestep="20.0" unit="ms"/>
+		<CheckpointSimulation timestep="20.0" unit="ms" max_checkpoints_on_disk="3"/>
 				
 	</Simulation>
 	

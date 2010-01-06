@@ -44,7 +44,7 @@
 		<!--
 			Save Simulation
 		-->
-		<CheckpointSimulation timestep="10.0" unit="ms"/>
+		<CheckpointSimulation timestep="10.0" unit="ms" max_checkpoints_on_disk="3"/>
 	</Simulation>
 	
 	<Physiological>

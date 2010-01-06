@@ -859,6 +859,24 @@ double HeartConfig::GetCheckpointTimestep() const
     }                        
 }
 
+unsigned HeartConfig::GetMaxCheckpointsOnDisk() const
+{
+    if (IsSimulationDefined())
+    {
+        CheckSimulationIsDefined("GetSaveSimulation");
+        return DecideLocation( & mpUserParameters->Simulation().get().CheckpointSimulation(),
+                        & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
+                        "Simulation/SaveSimulation")->get().max_checkpoints_on_disk();
+    }
+    else
+    {       
+        CheckResumeSimulationIsDefined("GetSaveSimulation"); 
+        return DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),
+                        & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
+                        "ResumeSimulation/SaveSimulation")->get().max_checkpoints_on_disk();            
+    }                            
+}
+
 
 std::string HeartConfig::GetArchivedSimulationDir() const
 {
@@ -1606,13 +1624,18 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
     }
 }
 
-void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpointTimestep)
+void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpointTimestep, unsigned maxCheckpointsOnDisk)
 {    
     if (saveSimulation)
     {
-        XSD_CREATE_WITH_FIXED_ATTR1(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation),
+        // Make sure values for the optional parameters have been provided
+        assert(checkpointTimestep!=-1.0 && maxCheckpointsOnDisk!=UINT_MAX);
+        
+        /// \todo: not sure if the attributes will be passed in the correct order with xsd<3.0
+        XSD_CREATE_WITH_FIXED_ATTR2(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation),
                                     cs,
                                     checkpointTimestep,
+                                    maxCheckpointsOnDisk,
                                     "ms");
         mpUserParameters->Simulation().get().CheckpointSimulation().set(cs);
     }

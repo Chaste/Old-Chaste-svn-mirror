@@ -148,7 +148,9 @@ private:
 
             if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())
             {
-                HeartConfig::Instance()->SetCheckpointSimulation(true,p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().timestep());
+                HeartConfig::Instance()->SetCheckpointSimulation(true,
+                                                                 p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().timestep(),
+                                                                 p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().max_checkpoints_on_disk());
             }
             
             //Visualization parameters are compulsory
@@ -452,6 +454,13 @@ public:
      */
     double GetCheckpointTimestep() const;
 
+    /**
+     * Get number of checkpoints to keep on disk
+     * 
+     * @return checkpointing timestep
+     */
+    unsigned GetMaxCheckpointsOnDisk() const;
+
     // ResumeSimulation
     /**
      * Get directory where the archived simulation to resume is defined
@@ -731,7 +740,7 @@ public:
      * @param checkpointSimulation do checkpointing
      * @param checkpointTimestep checkpointing timestep. 
      */
-     void SetCheckpointSimulation(bool checkpointSimulation, double checkpointTimestep=-1.0);
+     void SetCheckpointSimulation(bool checkpointSimulation, double checkpointTimestep=-1.0, unsigned maxCheckpointsOnDisk=UINT_MAX);
 
 
     // Physiological
