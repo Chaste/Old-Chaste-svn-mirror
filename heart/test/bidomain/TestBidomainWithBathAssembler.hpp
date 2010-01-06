@@ -577,6 +577,55 @@ public:
         delete p_mesh;
     }
 
+    void TestArchivingMeshFileWithAttributes() throw (Exception)
+    {
+        std::string archive_dir = "TestArchivingMeshFileWithAttributes";
+
+        { // save...
+            HeartConfig::Instance()->SetSimulationDuration(0.01);  //ms
+            HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
+            HeartConfig::Instance()->SetOutputDirectory(archive_dir + "Output");
+            HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
+
+            ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
+            BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
+            bidomain_problem.Initialise();
+
+            // Save using helper class
+            CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, archive_dir, false);
+        }
+
+        { // load...
+            AbstractCardiacProblem<1,1,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(archive_dir);
+
+            AbstractTetrahedralMesh<1,1>* p_mesh = &(p_abstract_problem->rGetMesh());
+            // the middle 4 elements are 'heart' elements (ie region=0),
+            TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(1)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(3)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(4)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(5)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(6)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(7)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(8)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetElement(9)->GetRegion(), HeartRegionCode::BATH);
+            // so the middle 5 nodes should be heart nodes
+            TS_ASSERT_EQUALS(p_mesh->GetNode(0)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(1)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(2)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(3)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(4)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(5)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(6)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(7)->GetRegion(), HeartRegionCode::TISSUE);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(8)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(9)->GetRegion(), HeartRegionCode::BATH);
+            TS_ASSERT_EQUALS(p_mesh->GetNode(10)->GetRegion(), HeartRegionCode::BATH);
+
+            delete p_abstract_problem;
+        }
+    }
 };
 
 #endif /*TESTBIDOMAINWITHBATHASSEMBLER_HPP_*/
