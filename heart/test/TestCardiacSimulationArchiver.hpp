@@ -170,7 +170,7 @@ public:
             // Coverage of "couldn't find file" exception
             BidomainProblem<1> *p_bidomain_problem;            
             TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("missing_directory"),
-                                      "Cannot load main archive file:");
+                                      "Unable to open archive information file:");
         }
     }
     

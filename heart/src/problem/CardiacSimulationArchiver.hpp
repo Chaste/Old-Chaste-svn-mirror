@@ -68,7 +68,8 @@ public:
     /**
      * Unarchives a simulation from the directory specified.
      *
-     * \todo Make this method do a migrate if necessary.
+     * Does a migrate if necessary (this is actually just a wrapper around the
+     * Migrate method now).
      * 
      * @note Must be called collectively, i.e. by all processes.
      *
@@ -149,15 +150,7 @@ void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToA
 template<class PROBLEM_CLASS>
 PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const std::string &rDirectory)
 {
-    // Open the archive files
-    ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true);
-    boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-
-    // Load
-    PROBLEM_CLASS *p_unarchived_simulation;
-    (*p_main_archive) >> p_unarchived_simulation;
-
-    return p_unarchived_simulation;
+    return CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(rDirectory);
 }
 
 
@@ -217,4 +210,3 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
 }
 
 #endif /*CARDIACSIMULATIONARCHIVER_HPP_*/
-
