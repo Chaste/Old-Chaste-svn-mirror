@@ -124,9 +124,9 @@ private:
         {    
             // Create the checkpoints directory and set up a fifo queue of subdirectory names
             /// \todo: Get the number of checkpoints from the XML file
-            OutputDirectoryFifoQueue directory_queue(HeartConfig::Instance()->GetOutputDirectory() + "_checkpoints/", UINT_MAX);
+            OutputDirectoryFifoQueue directory_queue(HeartConfig::Instance()->GetOutputDirectory() + "_checkpoints/", HeartConfig::Instance()->GetMaxCheckpointsOnDisk());
 
-            TimeStepper checkpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());            
+            TimeStepper checkpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
             while ( !checkpoint_stepper.IsTimeAtEnd() )
             {
                 // Solve checkpoint timestep
