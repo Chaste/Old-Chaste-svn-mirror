@@ -324,7 +324,7 @@ public:
      * Handles the checkpoint migration case, deleting loaded cells immediately if they are
      * not local to this process.
      * 
-     * \todo Assumes that the archive contains all the cells, and that we're not permuting.
+     * \todo Assumes that we're not permuting.
      * 
      * @param archive  the process-specific archive to load from
      * @param version  archive version
