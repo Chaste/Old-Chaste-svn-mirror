@@ -45,6 +45,125 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestParallelTetrahedralMesh : public CxxTest::TestSuite
 {
 
+private:
+
+    template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+    void CheckEverythingIsAssigned(ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
+    {
+        /*
+         * All the nodes have been assigned
+         */
+        {
+            unsigned total_nodes_this_process = 0;
+            unsigned num_global_nodes = rMesh.GetNumNodes();
+            unsigned nodes_owned[num_global_nodes];
+
+            for (AbstractTetrahedralMesh<3,3>::NodeIterator iter = rMesh.GetNodeIteratorBegin();
+                 iter != rMesh.GetNodeIteratorEnd();
+                 ++iter)
+            {
+                unsigned node_index = iter->GetIndex();
+                nodes_owned[node_index] = 1;
+
+                total_nodes_this_process++;
+            }
+
+            TS_ASSERT_EQUALS(rMesh.GetNumLocalNodes(), total_nodes_this_process);
+
+            // Combine all the local maps by adding them up in the master process
+            unsigned nodes_reduction[num_global_nodes];
+            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+
+            // Make sure every node is owned at least by one processor
+            if (PetscTools::AmMaster())
+            {
+                for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
+                {
+                    TS_ASSERT(nodes_reduction[node_id] > 0);
+                }
+            }
+        }
+
+        /*
+         * All elements have been assigned
+         */
+        {
+            unsigned total_elements_this_process = 0;
+            unsigned num_global_elements = rMesh.GetNumElements();
+            unsigned elements_owned[num_global_elements];
+
+            // Create a local map of the elements this processor owns
+            for (unsigned element_id=0; element_id<num_global_elements; element_id++)
+            {
+                try
+                {
+                    unsigned element_index = rMesh.GetElement(element_id)->GetIndex();
+                    TS_ASSERT_EQUALS(element_id, element_index);
+
+                    elements_owned[element_index] = 1;
+
+                    total_elements_this_process++;
+                }
+                catch(Exception& e)
+                {
+                    elements_owned[element_id] = 0;
+                }
+            }
+
+            TS_ASSERT_EQUALS(rMesh.GetNumLocalElements(), total_elements_this_process);
+
+            // Combine all the local maps by adding them up in the master process
+            unsigned elements_reduction[num_global_elements];
+            MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+
+            // Make sure every element is owned at least by one processor
+            if (PetscTools::AmMaster())
+            {
+                for (unsigned element_id=0; element_id<num_global_elements; element_id++)
+                {
+                    TS_ASSERT(elements_reduction[element_id] > 0);
+                }
+            }
+        }
+
+        /*
+         * All boundary elements have been assigned
+         */
+        {
+            unsigned num_global_b_elements = rMesh.GetNumBoundaryElements();
+            unsigned b_elements_owned[num_global_b_elements];
+
+            // Create a local map of the boundary elements this processor owns
+            for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
+            {
+                try
+                {
+                    unsigned b_element_index = rMesh.GetElement(b_element_id)->GetIndex();
+                    TS_ASSERT_EQUALS(b_element_id, b_element_index);
+
+                    b_elements_owned[b_element_index] = 1;
+                }
+                catch(Exception& e)
+                {
+                    b_elements_owned[b_element_id] = 0;
+                }
+            }
+
+            // Combine all the local maps by adding them up in the master process
+            unsigned b_elements_reduction[num_global_b_elements];
+            MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+
+            // Make sure every boundary element is owned at least by one processor
+            if (PetscTools::AmMaster())
+            {
+                for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
+                {
+                    TS_ASSERT(b_elements_reduction[b_element_id] > 0);
+                }
+            }
+        }
+    }
+
 public:
 
     void TestConstructFromMeshReader1D()
@@ -271,118 +390,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
-        /*
-         * All the nodes have been assigned
-         */
-        {
-            unsigned total_nodes_this_process = 0;
-            unsigned num_global_nodes = mesh.GetNumNodes();
-            unsigned nodes_owned[num_global_nodes];
-
-            for (AbstractTetrahedralMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
-                 iter != mesh.GetNodeIteratorEnd();
-                 ++iter)
-            {
-                unsigned node_index = iter->GetIndex();
-                nodes_owned[node_index] = 1;
-
-                total_nodes_this_process++;
-            }
-
-            TS_ASSERT_EQUALS(mesh.GetNumLocalNodes(), total_nodes_this_process);
-
-            // Combine all the local maps by adding them up in the master process
-            unsigned nodes_reduction[num_global_nodes];
-            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-
-            // Make sure every node is owned at least by one processor
-            if (PetscTools::AmMaster())
-            {
-                for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
-                {
-                    TS_ASSERT(nodes_reduction[node_id] > 0);
-                }
-            }
-        }
-
-        /*
-         * All elements have been assigned
-         */
-        {
-        	unsigned total_elements_this_process = 0;
-            unsigned num_global_elements = mesh.GetNumElements();
-            unsigned elements_owned[num_global_elements];
-
-            // Create a local map of the elements this processor owns
-            for (unsigned element_id=0; element_id<num_global_elements; element_id++)
-            {
-                try
-                {
-                    unsigned element_index = mesh.GetElement(element_id)->GetIndex();
-                    TS_ASSERT_EQUALS(element_id, element_index);
-
-                    elements_owned[element_index] = 1;
-
-                    total_elements_this_process++;
-                }
-                catch(Exception& e)
-                {
-                    elements_owned[element_id] = 0;
-                }
-            }
-
-            TS_ASSERT_EQUALS(mesh.GetNumLocalElements(), total_elements_this_process);
-
-            // Combine all the local maps by adding them up in the master process
-            unsigned elements_reduction[num_global_elements];
-            MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-
-            // Make sure every element is owned at least by one processor
-            if (PetscTools::AmMaster())
-            {
-                for (unsigned element_id=0; element_id<num_global_elements; element_id++)
-                {
-                    TS_ASSERT(elements_reduction[element_id] > 0);
-                }
-            }
-        }
-
-        /*
-         * All boundary elements have been assigned
-         */
-        {
-            unsigned num_global_b_elements = mesh.GetNumBoundaryElements();
-            unsigned b_elements_owned[num_global_b_elements];
-
-            // Create a local map of the boundary elements this processor owns
-            for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
-            {
-                try
-                {
-                    unsigned b_element_index = mesh.GetElement(b_element_id)->GetIndex();
-                    TS_ASSERT_EQUALS(b_element_id, b_element_index);
-
-                    b_elements_owned[b_element_index] = 1;
-                }
-                catch(Exception& e)
-                {
-                    b_elements_owned[b_element_id] = 0;
-                }
-            }
-
-            // Combine all the local maps by adding them up in the master process
-            unsigned b_elements_reduction[num_global_b_elements];
-            MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-
-            // Make sure every boundary element is owned at least by one processor
-            if (PetscTools::AmMaster())
-            {
-                for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
-                {
-                    TS_ASSERT(b_elements_reduction[b_element_id] > 0);
-                }
-            }
-        }
+        CheckEverythingIsAssigned<3,3>(mesh);     
     }
 
     void TestEverythingIsAssignedMetisBinary()
@@ -395,109 +403,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
-        /*
-         * All the nodes have been assigned
-         */
-        {
-            unsigned num_global_nodes = mesh.GetNumNodes();
-            unsigned nodes_owned[num_global_nodes];
-
-            // Create a local map of the nodes this processor owns
-            for (AbstractTetrahedralMesh<3,3>::NodeIterator iter = mesh.GetNodeIteratorBegin();
-                 iter != mesh.GetNodeIteratorEnd();
-                 ++iter)
-            {
-                unsigned node_index = (*iter).GetIndex();
-                nodes_owned[node_index] = 1;
-            }
-
-            // Combine all the local maps by adding them up in the master process
-            unsigned nodes_reduction[num_global_nodes];
-            MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-
-            // Make sure every node is owned at least by one processor
-            if (PetscTools::AmMaster())
-            {
-                for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
-                {
-                    TS_ASSERT(nodes_reduction[node_id] > 0);
-                }
-            }
-        }
-
-        /*
-         * All elements have been assigned
-         */
-        {
-            unsigned num_global_elements = mesh.GetNumElements();
-            unsigned elements_owned[num_global_elements];
-
-            // Create a local map of the elements this processor owns
-            for (unsigned element_id=0; element_id<num_global_elements; element_id++)
-            {
-                try
-                {
-                    unsigned element_index = mesh.GetElement(element_id)->GetIndex();
-                    TS_ASSERT_EQUALS(element_id, element_index);
-
-                    elements_owned[element_index] = 1;
-                }
-                catch(Exception& e)
-                {
-                    elements_owned[element_id] = 0;
-                }
-            }
-
-            // Combine all the local maps by adding them up in the master process
-            unsigned elements_reduction[num_global_elements];
-            MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-
-            // Make sure every element is owned at least by one processor
-            if (PetscTools::AmMaster())
-            {
-                for (unsigned element_id=0; element_id<num_global_elements; element_id++)
-                {
-                    TS_ASSERT(elements_reduction[element_id] > 0);
-                }
-            }
-        }
-
-        /*
-         * All boundary elements have been assigned
-         */
-        {
-            unsigned num_global_b_elements = mesh.GetNumBoundaryElements();
-            unsigned b_elements_owned[num_global_b_elements];
-
-            // Create a local map of the boundary elements this processor owns
-            for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
-            {
-                try
-                {
-                    unsigned b_element_index = mesh.GetElement(b_element_id)->GetIndex();
-                    TS_ASSERT_EQUALS(b_element_id, b_element_index);
-
-                    b_elements_owned[b_element_index] = 1;
-                }
-                catch(Exception& e)
-                {
-                    b_elements_owned[b_element_id] = 0;
-                }
-            }
-
-            // Combine all the local maps by adding them up in the master process
-            unsigned b_elements_reduction[num_global_b_elements];
-            MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-
-            // Make sure every boundary element is owned at least by one processor
-            if (PetscTools::AmMaster())
-            {
-                for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
-                {
-                    TS_ASSERT(b_elements_reduction[b_element_id] > 0);
-                }
-            }
-        }
+        CheckEverythingIsAssigned<3,3>(mesh);     
     }
 
     void TestConstruct3DWithRegions() throw (Exception)
