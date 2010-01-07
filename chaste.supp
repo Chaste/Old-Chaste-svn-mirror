@@ -131,10 +131,6 @@
    fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
    fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
    fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79ReaderMgr12peekNextCharEv
-   fun:_ZN11xercesc_2_710XMLScanner10scanPrologEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_710XMLScanner12scanDocumentEPKt
 }
 
 #
