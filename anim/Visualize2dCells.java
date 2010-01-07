@@ -1465,7 +1465,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     BufferedImage buffered_image = null;
     Graphics g2 = null;
     
-    
+    // The following commented out line can make white background for exporting...
     //Color background_silver = new Color(255,255,255);
     Color background_silver = new Color(238,238,238);
     Color spring_silver = new Color(200,200,200);
