@@ -32,6 +32,7 @@ import glob
 import time
 
 from SCons.Script import Command, Dir, Value
+import SCons.Action
 
 # Compatability with Python 2.3
 try:
@@ -272,7 +273,7 @@ def GetVersionCpp(templateFilePath, env):
              'build_info': env['CHASTE_BUILD_INFO']}
     return open(templateFilePath).read() % subst
 
-def GenerateVersionCpp(env, target, source):
+def _GenerateVersionCpp(env, target, source):
     """An Action to generate the Version.cpp source file.
 
     Use like:
@@ -281,7 +282,7 @@ def GenerateVersionCpp(env, target, source):
     out = open(target[0].path, "w")
     out.write(source[0].get_contents())
     out.close()
-
+GenerateVersionCpp = SCons.Action.Action(_GenerateVersionCpp, "Generating $TARGET from build information.")
 
 def RecordBuildInfo(env, build_type, static_libs, use_chaste_libs):
     """Record key build information for the provenance system."""
