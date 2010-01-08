@@ -81,7 +81,7 @@ if location == 'trunk':
             if version_as_int(version) > version_as_int(latest_release):
                 latest_release = version
     pipe.close()
-    package_version = latest_release + '.' + rev
+    package_version = latest_release + '.' + rev_str
     message = 'Package revision %s of Chaste.' % rev
     # Write version number for benefit of SCons
     open('ReleaseVersion.txt', 'w').write(package_version)
@@ -105,7 +105,7 @@ subst = {'package': package_name,
          'distro': ubuntu_version,
          'addr': maintainer_email,
          'message': message,
-         'date': time.strftime("%a, %d %b %Y %H:%M:%S +0000")}
+         'date': time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())}
 
 log_entry = """%(package)s (%(version)s) %(distro)s; urgency=low
 

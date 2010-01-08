@@ -176,7 +176,7 @@ void HeartConfig::SetDefaultSchemaLocations()
 {
     mSchemaLocations.clear();
     // Location of schemas in the source tree
-    std::string root_dir = std::string(GetChasteRoot()) + "/heart/src/io/";
+    std::string root_dir = std::string(ChasteBuildInfo::GetRootDir()) + "/heart/src/io/";
     // Release 1.1 (and earlier) didn't use a namespace
     mSchemaLocations[""] = root_dir + "ChasteParameters_1_1.xsd";
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M

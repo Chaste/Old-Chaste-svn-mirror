@@ -86,8 +86,8 @@ public:
 
         char buf[10000];
         std::cout << std::endl << "CWD: " << getcwd(buf, 10000) << std::endl;
-        std::cout << "Root: " << GetChasteRoot() << std::endl;
-        EXPECT0(chdir, GetChasteRoot());
+        std::cout << "Root: " << ChasteBuildInfo::GetRootDir() << std::endl;
+        EXPECT0(chdir, ChasteBuildInfo::GetRootDir());
         std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
        
 #ifdef TEST_FOR_FPE

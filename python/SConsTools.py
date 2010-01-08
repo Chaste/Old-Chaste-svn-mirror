@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import glob
+import time
 
 from SCons.Script import Command, Dir, Value
 
@@ -39,7 +40,7 @@ except NameError:
     import sets
     set = sets.Set
 
-def FindSourceFiles(rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
+def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
     """Look for source files under rootDir.
     
     Returns 2 lists: the first of source (.cpp) files, and the second
@@ -75,7 +76,7 @@ def FindSourceFiles(rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
             # Special-case the version info file.
             file_name = os.path.join('src', 'Version.cpp')
             file_node = Command(file_name,
-                                [Value(GetVersionCpp())],
+                                [Value(GetVersionCpp(file_name + '.in', env))],
                                 GenerateVersionCpp)[0]
             source_files.append(file_node)
         return source_files, source_dirs
@@ -238,38 +239,57 @@ def ExeName(env, exePath):
     return os.path.join(dirpath, pre+name+suf)
 
 
-def GetVersionCpp():
+def GetVersionCpp(templateFilePath, env):
     """Return the contents of the Version.cpp source file."""
     chaste_root = Dir('#').abspath
     version_file = os.path.join(chaste_root, 'ReleaseVersion.txt')
     if os.path.exists(version_file):
-        chaste_revision = open(version_file).read().strip()
+        # Extract just the revision number from the file.
+        full_version = open(version_file).read().strip()
+        chaste_revision = int(full_version[1+full_version.rfind('.'):])
+        wc_modified = False
     else:
         version_pipe = os.popen("svnversion")
-        chaste_revision = 'r' + version_pipe.read().strip()
+        chaste_revision = version_pipe.read().strip()
         if version_pipe.close():
-            chaste_revision = 'Unknown'
-    return '''
-#include "Version.hpp"
-
-const char* GetChasteRoot()
-{
-    return "%s";
-}
-
-const char* GetChasteVersion()
-{
-    return "%s";
-}
-''' % (chaste_root, chaste_revision)
+            chaste_revision = 'UINT_MAX'
+        else:
+            # Extract upper end of range, and store modified flag
+            wc_modified = chaste_revision[-1] == 'M'
+            if wc_modified:
+                chaste_revision = chaste_revision[:-1]
+            chaste_revision = int(chaste_revision[1+chaste_revision.rfind('-'):])
+    time_format = "%a, %d %b %Y %H:%M:%S +0000"
+    build_time = time.strftime(time_format, time.gmtime())
+    subst = {'example': '%(example)s',
+             'chaste_root': chaste_root,
+             'revision': chaste_revision,
+             'wc_modified': str(wc_modified).lower(),
+             'time_format': time_format,
+             'time_format_size': len(build_time)+1,
+             'build_time': build_time,
+             'uname': ' '.join(os.uname()),
+             'build_info': env['CHASTE_BUILD_INFO']}
+    return open(templateFilePath).read() % subst
 
 def GenerateVersionCpp(env, target, source):
     """An Action to generate the Version.cpp source file.
 
     Use like:
-    Command('global/src/Version.cpp', [Value(GetVersionCpp())], GenerateVersionCpp)
+    env.Command('global/src/Version.cpp', [Value(GetVersionCpp(templateFilePath, env))], GenerateVersionCpp)
     """
     out = open(target[0].path, "w")
     out.write(source[0].get_contents())
     out.close()
 
+
+def RecordBuildInfo(env, build_type, static_libs, use_chaste_libs):
+    """Record key build information for the provenance system."""
+    # TODO: Add library versions used, etc?
+    build_info = build_type
+    if use_chaste_libs:
+        libtype = ['shared', 'static'][static_libs]
+        build_info += ', ' + libtype + ' libraries'
+    else:
+        build_info += ', no Chaste libraries'
+    env['CHASTE_BUILD_INFO'] = build_info

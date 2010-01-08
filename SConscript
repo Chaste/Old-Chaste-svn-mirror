@@ -40,12 +40,12 @@ toplevel_dir = os.path.basename(os.path.dirname(os.path.dirname(curdir)))
 
 # Look for .cpp files within the src folder
 os.chdir('../..') # This is so .o files are built in `toplevel_dir'/build/<something>/
-files, _ = SConsTools.FindSourceFiles('src')
+files, _ = SConsTools.FindSourceFiles(env, 'src')
 
 # Look for source files that tests depend on under test/.
 # We also need to add any subfolders to the CPPPATH, so they are searched
 # for #includes.
-testsource, test_cpppath = SConsTools.FindSourceFiles('test',
+testsource, test_cpppath = SConsTools.FindSourceFiles(env, 'test',
                                                       ignoreDirs=['data'],
                                                       includeRoot=True)
 

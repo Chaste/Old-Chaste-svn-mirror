@@ -38,10 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Test for a strange 'feature' of Debian sarge systems, where the
- * current working directory changes on PETSc initialisation.
- *
- * Define CWD_HACK to work around this (see finarfin and maths systems
- * for examples).
+ * current working directory changes on PETSc initialisation.  There
+ * is now code in PetscSetupAndFinalize.hpp to work around this.
  */
 class TestCwd : public CxxTest::TestSuite
 {

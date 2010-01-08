@@ -764,7 +764,7 @@ public :
         // Check that release 1 xml can be loaded with release 1.1 schema
         HeartConfig::Instance()->Reset();
         HeartConfig::SchemaLocationsMap schema_locations;
-        schema_locations[""] = std::string(GetChasteRoot()) + "/heart/test/data/xml/ChasteParametersRelease1_1.xsd";
+        schema_locations[""] = std::string(ChasteBuildInfo::GetRootDir()) + "/heart/test/data/xml/ChasteParametersRelease1_1.xsd";
         HeartConfig::Instance()->SetFixedSchemaLocations(schema_locations);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
@@ -803,7 +803,7 @@ public :
     {
         HeartConfig::Instance()->Reset();
         HeartConfig::SchemaLocationsMap schema_locations;
-        schema_locations[""] = std::string(GetChasteRoot()) + "/heart/test/data/xml/schema with spaces.xsd";
+        schema_locations[""] = std::string(ChasteBuildInfo::GetRootDir()) + "/heart/test/data/xml/schema with spaces.xsd";
         HeartConfig::Instance()->SetFixedSchemaLocations(schema_locations);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1_1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");

@@ -195,22 +195,9 @@ if isinstance(build, BuildTypes.CovTool):
 Export("other_libpaths", "other_libs")
 
 
-# Any extra CCFLAGS and LINKFLAGS
-extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
-              + ' -DTRILIBRARY -DANSI_DECLARATORS '
-link_flags  = build.LinkFlags() + ' ' + hostconfig.ldflags()
-
-# Search path for Chaste #includes
-cpppath = ['.', 'cxxtest']
-src_folders = glob.glob('*/src')
-for src_folder in src_folders:
-    cpppath.extend(SConsTools.FindSourceFiles(src_folder, dirsOnly=True, includeRoot=True))
-cpppath = map(lambda p: '#/'+p, cpppath)
-
-
 # Set up the environment to use for building.
 other_libpaths.append(os.path.abspath('lib'))
-if  os.environ.get('XTPE_COMPILE_TARGET', ''):
+if os.environ.get('XTPE_COMPILE_TARGET', ''):
     env = Environment(ENV = os.environ)
 else:
     env = Environment(
@@ -225,18 +212,31 @@ else:
              'LD_LIBRARY_PATH': ':'.join(other_libpaths),
              'HOME': os.environ['HOME']
             })
+env.Append(BOPT = 'g_c++')
+env.Replace(CXX = build.tools['mpicxx'])
+env.Replace(AR = build.tools['ar'])
+
+# Any extra CCFLAGS and LINKFLAGS
+extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
+              + ' -DTRILIBRARY -DANSI_DECLARATORS '
+link_flags  = build.LinkFlags() + ' ' + hostconfig.ldflags()
 include_flag = ' ' + build.IncludeFlag() + ' '
 env.Append(CCFLAGS = include_flag + include_flag.join(other_includepaths)
            + ' ' + extra_flags)
 env.Append(LINKFLAGS = link_flags)
-env.Append(BOPT = 'g_c++')
-env.Replace(CXX = build.tools['mpicxx'])
-env.Replace(AR = build.tools['ar'])
+
+# Search path for Chaste #includes
+cpppath = ['.', 'cxxtest']
+src_folders = glob.glob('*/src')
+for src_folder in src_folders:
+    cpppath.extend(SConsTools.FindSourceFiles(env, src_folder, dirsOnly=True, includeRoot=True))
+cpppath = map(lambda p: '#/'+p, cpppath)
 env.Replace(CPPPATH = cpppath)
+
+# Some state needed by our build system
 env['buildsig'] = build.GetSignature()
 env['CHASTE_COMPONENTS'] = components + ['projects']
 env['CHASTE_OBJECTS'] = {}
-
 
 if not single_test_suite:
     # Default is to build all components, but not user projects
@@ -301,6 +301,9 @@ vg_path = env.WhereIs(build.tools['valgrind'])
 if vg_path:
     build.tools['valgrind'] = vg_path
 del vg_path
+
+# Record key build info for the provenance system
+SConsTools.RecordBuildInfo(env, build_type, static_libs, use_chaste_libs)
 
 # Export the build environment to SConscript files
 Export('env')
@@ -433,10 +436,6 @@ if test_summary and not compile_only:
 if ARGUMENTS.get('exe', 0):
     assert use_chaste_libs
     env = env.Copy()
-    # Build information to supply to the executable
-    uname = ' '.join(os.uname()).replace(' ', '-')
-    
-    env.Append(CCFLAGS=' -DUNAME=\'"'+uname+'"\' -DBUILD_TYPE=\'"'+build_type+'"\' ')
 
     if static_libs:
         libpath = '#lib'

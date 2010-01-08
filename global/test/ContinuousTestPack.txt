@@ -1,6 +1,7 @@
 TestArchivingHelperClasses.hpp
 TestArchiving.hpp
 TestCellBasedEventHandler.hpp
+TestChasteBuildInfo.hpp
 TestCwd.hpp
 TestDebug.hpp
 TestDistributedVector.hpp

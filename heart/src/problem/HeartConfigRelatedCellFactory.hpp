@@ -36,11 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 
 #include "AbstractStimulusFunction.hpp"
-#include "MultiStimulus.hpp"
+#include "MultiStimulus.hpp" // Included here for archiving - see below.
 #include "SimpleStimulus.hpp"
 
 #include "ChasteCuboid.hpp"
 
+/*
+ * Even though these classes are only used in the .cpp file, they need to be
+ * included here for serialization to work - the archiving code needs to see
+ * the CHASTE_CLASS_EXPORT incantations.
+ */
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BackwardEulerLuoRudyIModel1991.hpp"

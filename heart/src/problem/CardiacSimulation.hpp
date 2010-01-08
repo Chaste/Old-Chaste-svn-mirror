@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 // Must go first
 #include "CardiacSimulationArchiver.hpp"
+// Note that since we include this header, we'll have to be careful if creating a .cpp file for this class.
+// Doing so would mean that no test (or executable) could include both CardiacSimulationArchiver.hpp and CardiacSimulation.hpp
 
 #include <vector>
 #include <ctime>
@@ -42,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 #include "PetscTools.hpp"
 #include "TimeStepper.hpp"
+#include "Exception.hpp"
 
 #include "HeartConfig.hpp"
 #include "HeartConfigRelatedCellFactory.hpp"
@@ -57,7 +60,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "PostProcessingWriter.hpp"
-#include "Version.hpp"
 
 #include "OutputDirectoryFifoQueue.hpp"
 
@@ -65,39 +67,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A class which encapsulates the executable functionality.
  * 
  * Takes in a chaste parameters xml file and runs the relevant simulation.
+ *
+ * \todo High level user documentation.
+ * This should describe the functionality available from the XML file.
+ * It should include information on the structure of the output directory, especially when checkpointing,
+ * and how to resume a simulation.
  */
 class CardiacSimulation
 {
 private:
-    
     /**
      * Read parameters from the HeartConfig XML file.
      * 
      * @param parameterFileName a string containing the chaste simulation parameters XML file name.
      */
-    void ReadParametersFromFile(std::string parameterFileName)
-    {
-        try
-        {
-            // Try the hardcoded schema location first
-            HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
-            HeartConfig::Instance()->SetParametersFile(parameterFileName);
-        }
-        catch (Exception& e)
-        {
-            if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
-            {
-            // Try using the schema location given in the XML
-                HeartConfig::Instance()->Reset();
-                HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
-                HeartConfig::Instance()->SetParametersFile(parameterFileName);
-            }
-            else
-            {
-                throw e;
-            }
-        }    
-    }
+    void ReadParametersFromFile(std::string parameterFileName);
     
     /**
      * Templated method which creates and runs a cardiac simulation, based on the
@@ -123,8 +107,8 @@ private:
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {    
             // Create the checkpoints directory and set up a fifo queue of subdirectory names
-            /// \todo: Get the number of checkpoints from the XML file
-            OutputDirectoryFifoQueue directory_queue(HeartConfig::Instance()->GetOutputDirectory() + "_checkpoints/", HeartConfig::Instance()->GetMaxCheckpointsOnDisk());
+            OutputDirectoryFifoQueue directory_queue(HeartConfig::Instance()->GetOutputDirectory() + "_checkpoints/",
+                                                     HeartConfig::Instance()->GetMaxCheckpointsOnDisk());
 
             TimeStepper checkpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
             while ( !checkpoint_stepper.IsTimeAtEnd() )
@@ -168,73 +152,9 @@ private:
      * This method basically contains switches on the problem type and space dimension,
      * and calls CreateAndRun() to do the work.
      */
-    void Run()
-    {
-        switch (HeartConfig::Instance()->GetDomain())
-        {
-            case cp::domain_type::Mono :
-            {
-                switch (HeartConfig::Instance()->GetSpaceDimension())
-                {
-                    case 3:
-                    {
-                        CreateAndRun<MonodomainProblem<3>,3>();
-                        break;
-                    }
-    
-                    case 2:
-                    {
-                        CreateAndRun<MonodomainProblem<2>,2>();
-                        break;
-                    }
-    
-                    case 1:
-                    {
-                        CreateAndRun<MonodomainProblem<1>,1>();    
-                        break;
-                    }
-                    default :
-                        EXCEPTION("Monodomain space dimension not supported: should be 1, 2 or 3");
-                }
-                break;
-            }
-    
-            case cp::domain_type::Bi :
-            {
-                switch (HeartConfig::Instance()->GetSpaceDimension())
-                {
-                    case 3:
-                    {
-                        CreateAndRun<BidomainProblem<3>,3>();
-                        break;
-                    }
-                    case 2:
-                    {
-                        CreateAndRun<BidomainProblem<2>,2>();
-                        break;
-                    }
-                    case 1:
-                    {
-                        CreateAndRun<BidomainProblem<1>,1>();
-                        break;
-                    }
-                    default :
-                    {
-                        EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
-                    }
-                }
-                break;
-            }
-            default :
-            {
-                // If the domain is not set correctly then the XML parser will have picked it up before now!
-                NEVER_REACHED;
-            }
-        }
-    }
+    void Run();
 
 public:
-
     /**
      * Constructor
      * 
@@ -242,19 +162,115 @@ public:
      * 
      * @param parameterFileName  The name of the chaste parameters xml file to use to run a simulation (not mandatory since HeartConfig may be set by hand)
      */
-    CardiacSimulation(std::string parameterFileName)
-    {
-        // If we have been passed an XML file then parse the XML file, otherwise throw
-        if (parameterFileName == "")
-        {
-            EXCEPTION("No XML file name given");
-        }
-        ReadParametersFromFile(parameterFileName);
-        Run();
-        HeartEventHandler::Headings();
-        HeartEventHandler::Report();
-    }    
-  
+    CardiacSimulation(std::string parameterFileName);
 };
+
+/////////////////////
+// Method definitions
+/////////////////////
+
+CardiacSimulation::CardiacSimulation(std::string parameterFileName)
+{
+    // If we have been passed an XML file then parse the XML file, otherwise throw
+    if (parameterFileName == "")
+    {
+        EXCEPTION("No XML file name given");
+    }
+    ReadParametersFromFile(parameterFileName);
+    Run();
+    HeartEventHandler::Headings();
+    HeartEventHandler::Report();
+}
+
+
+void CardiacSimulation::ReadParametersFromFile(std::string parameterFileName)
+{
+    try
+    {
+        // Try the hardcoded schema location first
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetParametersFile(parameterFileName);
+    }
+    catch (Exception& e)
+    {
+        if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
+        {
+            // Try using the schema location given in the XML
+            HeartConfig::Instance()->Reset();
+            HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+            HeartConfig::Instance()->SetParametersFile(parameterFileName);
+        }
+        else
+        {
+            throw e;
+        }
+    }
+}
+
+
+void CardiacSimulation::Run()
+{
+    switch (HeartConfig::Instance()->GetDomain())
+    {
+        case cp::domain_type::Mono :
+        {
+            switch (HeartConfig::Instance()->GetSpaceDimension())
+            {
+                case 3:
+                {
+                    CreateAndRun<MonodomainProblem<3>,3>();
+                    break;
+                }
+
+                case 2:
+                {
+                    CreateAndRun<MonodomainProblem<2>,2>();
+                    break;
+                }
+
+                case 1:
+                {
+                    CreateAndRun<MonodomainProblem<1>,1>();
+                    break;
+                }
+                default :
+                    EXCEPTION("Monodomain space dimension not supported: should be 1, 2 or 3");
+            }
+            break;
+        }
+
+        case cp::domain_type::Bi :
+        {
+            switch (HeartConfig::Instance()->GetSpaceDimension())
+            {
+                case 3:
+                {
+                    CreateAndRun<BidomainProblem<3>,3>();
+                    break;
+                }
+                case 2:
+                {
+                    CreateAndRun<BidomainProblem<2>,2>();
+                    break;
+                }
+                case 1:
+                {
+                    CreateAndRun<BidomainProblem<1>,1>();
+                    break;
+                }
+                default :
+                {
+                    EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
+                }
+            }
+            break;
+        }
+        default :
+        {
+            // If the domain is not set correctly then the XML parser will have picked it up before now!
+            NEVER_REACHED;
+        }
+    }
+}
 
 #endif /*CARDIACSIMULATION_HPP_*/

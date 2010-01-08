@@ -26,10 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// Must go first
-#include "CardiacSimulationArchiver.hpp"
+#include <iostream>
+
+// Most of the work is done by this class.  It must be included first.
 #include "CardiacSimulation.hpp"
 
+#include "Exception.hpp"
+#include "PetscTools.hpp"
+#include "Version.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -53,9 +57,9 @@ You should have received a copy of the Lesser GNU General Public License \n\
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
         //Compilation information
-        std::cout<<"This version of Chaste was compiled on:\n";
-        std::cout<<UNAME<<" (uname)\n";
-        std::cout<<"from revision number "<<GetChasteVersion()<<" with build type "<<BUILD_TYPE<<".\n\n";
+        std::cout << "This version of Chaste was compiled on:\n";
+        std::cout << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";
+        std::cout << "from revision number " << ChasteBuildInfo::GetRevisionNumber() << " with build type " << ChasteBuildInfo::GetBuildInformation() << ".\n\n";
     }
 
     if (!PetscTools::IsSequential())
@@ -65,8 +69,8 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         {
             if (i==PetscTools::GetMyRank())
             {
-                std::cout<<"Chaste launched on process "<<PetscTools::GetMyRank()
-                    <<" of "<< PetscTools::GetNumProcs()<<".\n"<<std::flush;
+                std::cout << "Chaste launched on process " << PetscTools::GetMyRank()
+                    << " of " << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
             }
             PetscTools::Barrier();
         }
@@ -77,16 +81,17 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         {
             if (PetscTools::AmMaster())
             {
-                std::cout  << "Usage: Chaste parameters_file\n";
+                std::cout << "Usage: Chaste parameters_file\n";
             }
             return -1;
         }
-        std::string xml_file_name=std::string(argv[1]);
+        std::string xml_file_name(argv[1]);
+        // Creates & runs the simulation
         CardiacSimulation simulation(xml_file_name);
 
         return 0;
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
         std::cout << e.GetMessage() << std::endl;
         return 1;
