@@ -735,10 +735,11 @@ public:
     void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
 
     /**
-     * Set whether the simulation should be checkpointed or not
+     * Set whether the simulation should be checkpointed or not.
      *
-     * @param checkpointSimulation do checkpointing
-     * @param checkpointTimestep checkpointing timestep. 
+     * @param checkpointSimulation whether to do checkpointing
+     * @param checkpointTimestep checkpointing timestep
+     * @param maxCheckpointsOnDisk maximum number of checkpoint archives to keep on disk
      */
      void SetCheckpointSimulation(bool checkpointSimulation, double checkpointTimestep=-1.0, unsigned maxCheckpointsOnDisk=UINT_MAX);
 

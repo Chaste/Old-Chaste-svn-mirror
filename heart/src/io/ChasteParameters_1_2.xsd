@@ -292,8 +292,8 @@
       
   <xs:complexType name="checkpoint_type">
     <xs:attribute name="timestep" type="xs:double" use="required" />   
-    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
     <xs:attribute name="max_checkpoints_on_disk" type="xs:unsignedInt" use="required"/>
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
   </xs:complexType>
   
       
