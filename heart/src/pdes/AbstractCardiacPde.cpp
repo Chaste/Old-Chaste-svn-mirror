@@ -265,7 +265,9 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSol
         }
         catch (Exception &e)
         {
+#ifndef NDEBUG            
             PetscTools::ReplicateException(true);
+#endif            
             throw e;
         }
 
@@ -274,7 +276,9 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSol
     }
     HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
 
+#ifndef NDEBUG
     PetscTools::ReplicateException(false);
+#endif    
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     if ( mDoCacheReplication || mDoOneCacheReplication )

@@ -433,15 +433,18 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             delete mpAssembler;
             mpAssembler=NULL;
             //VecDestroy(initial_condition);
-
+#ifndef NDEBUG
             PetscTools::ReplicateException(true);
+#endif            
             // Re-throw
             HeartEventHandler::Reset();//EndEvent(HeartEventHandler::EVERYTHING);
 
             CloseFilesAndPostProcess();
             throw e;
         }
+#ifndef NDEBUG
         PetscTools::ReplicateException(false);
+#endif        
 
         // Free old initial condition
         HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
