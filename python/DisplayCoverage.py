@@ -133,8 +133,8 @@ def coverage_ignore(src_file):
     elif src_file['file'] == 'triangle.cpp':
         # We don't try to cover other people's code
         ignore = True
-    elif src_file['file'] == 'HeartRegionCodes.cpp':
-        # A strange special case
+    elif src_file['file'] in ['HeartRegionCodes.cpp', 'Version.hpp']:
+        # Special cases
         ignore = True
     elif src_file['file'][-4:] == '.hpp':
         ignore = True
