@@ -294,3 +294,245 @@ def RecordBuildInfo(env, build_type, static_libs, use_chaste_libs):
     else:
         build_info += ', no Chaste libraries'
     env['CHASTE_BUILD_INFO'] = build_info
+
+
+
+def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
+    """Main logic for a project's SConscript file.
+    
+    The aim of this method is that a project's SConscript file should be able to be as
+    simple as:
+        import os
+        Import("*")
+        project_name = os.path.basename(os.path.dirname(os.path.dirname(os.getcwd())))
+        chaste_libs_used = comp_deps['core']
+        result = SConsTools.DoProjectSConscript(project_name, chaste_libs_used, globals())
+        Return("result")
+    """
+    # Commonly used variables
+    env = otherVars['env']
+    use_chaste_libs = otherVars['use_chaste_libs']
+    # Note that because we are using SCons' variant dir functionality, and the build
+    # dir is created before the SConscript files are executed, that the working dir
+    # will be set to <project>/build/<something>.
+    curdir = os.getcwd()
+    # Look for .cpp files within the project's src folder
+    os.chdir('../..') # This is so .o files are built in <project>/build/<something>/
+    files, extra_cpppath = FindSourceFiles(env, 'src', includeRoot=True)
+    # Look for source files that tests depend on under <project>/test/.
+    testsource, test_cpppath = FindSourceFiles(env, 'test', ['data'])
+    extra_cpppath.extend(test_cpppath)
+    del test_cpppath
+    # Move back to the build dir
+    os.chdir(curdir)
+
+    # Look for files containing a test suite
+    # A list of test suites to run will be found in a test/<name>TestPack.txt
+    # file, one per line.
+    # Alternatively, a single test suite may have been specified on the command line.
+    testfiles = FindTestsToRun(otherVars['build'], otherVars['BUILD_TARGETS'],
+                               otherVars['single_test_suite'],
+                               otherVars['single_test_suite_dir'],
+                               otherVars['all_tests'],
+                               project=projectName)
+
+    # Add extra source and test folders to CPPPATH only for this project
+    if extra_cpppath:
+        newenv = env.Copy()
+        newenv.Prepend(CPPPATH=extra_cpppath)
+        # Make sure both envs reference the same dict *object*,
+        # so updates in one env are reflected in all.
+        newenv['CHASTE_OBJECTS'] = env['CHASTE_OBJECTS']
+        env = newenv
+
+    # Libraries to link against (TODO: only add project libs if sources exist)
+    all_libs = ['test'+projectName, projectName] + chasteLibsUsed + otherVars['other_libs']
+
+    if use_chaste_libs:
+        # Build the library for this project
+        project_lib = env.StaticLibrary(projectName, files)
+        
+        # Build the test library for this project
+        test_lib = env.StaticLibrary('test'+projectName, testsource)
+    else:
+        # Build the object files for this project
+        project_lib = test_lib = None
+        for source_file in files + testsource:
+            obj = env.StaticObject(source_file)
+            key = os.path.join('projects', projectName, source_file)
+            #print projectName, "source", key
+            env['CHASTE_OBJECTS'][key] = obj[0]
+
+    # Make test output depend on shared libraries, so if implementation changes
+    # then tests are re-run.
+    lib_deps = [project_lib, test_lib] # only this project's libraries
+    #lib_deps.extend(map(lambda lib: '#lib/lib%s.so' % lib, chasteLibsUsed)) # all Chaste libs used
+
+    # Collect a list of test log files to use as dependencies for the test
+    # summary generation
+    test_log_files = []
+
+    # Build and run tests of this project
+    if not use_chaste_libs:
+        env['TestBuilder'] = \
+            lambda target, source: env.Program(target, source,
+                        LIBS=otherVars['other_libs'],
+                        LIBPATH=otherVars['other_libpaths'])
+    for testfile in testfiles:
+        prefix = os.path.splitext(testfile)[0]
+        #print projectName, 'test', prefix
+        test_hpp = os.path.join('test', testfile)
+        runner_cpp = env.Test(prefix+'Runner.cpp', test_hpp)
+        runner_exe = env.File(prefix+'Runner').abspath
+        if use_chaste_libs:
+            runner_exe = env.Program(runner_exe, runner_cpp,
+                                     LIBS = all_libs,
+                                     LIBPATH = ['#/lib', '.'] + otherVars['other_libpaths'])
+        else:
+            runner_obj = env.StaticObject(runner_cpp)
+            runner_dummy = runner_exe+'.dummy'
+            runner_exe = env.File(ExeName(env, runner_exe))
+            env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
+            env.AlwaysBuild(runner_dummy)
+            env.Depends(runner_exe, runner_dummy)
+        # Make sure we build the test unless the user says otherwise
+        env.Default(runner_exe)
+        if not otherVars['compile_only']:
+            log_file = env.File(prefix+'.log')
+            if use_chaste_libs:
+                env.Depends(log_file, lib_deps)
+            else:
+                env.Depends(log_file, runner_dummy)
+            test_log_files.append(log_file)
+            env.RunTest(log_file, runner_exe)
+            if otherVars['force_test_runs']:
+                env.AlwaysBuild(log_file)
+    
+    return test_log_files
+
+def DoComponentSConscript(component, otherVars):
+    """Main logic for a Chaste component's SConscript file.
+    
+    The aim of this method is that a component's SConscript file should be able to be as
+    simple as:
+        import os
+        Import("*")
+        toplevel_dir = os.path.basename(os.path.dirname(os.path.dirname(os.getcwd())))
+        result = SConsTools.DoComponentSConscript(toplevel_dir, globals())
+        Return("result")
+    """
+    # Commonly used variables
+    env = otherVars['env']
+    use_chaste_libs = otherVars['use_chaste_libs']
+    # Note that this is executed from within the <component>/build/<something>/ folder
+    curdir = os.getcwd()
+    # Look for .cpp files within the <component>/src folder
+    os.chdir('../..') # This is so .o files are built in <component>/build/<something>/
+    files, _ = FindSourceFiles(env, 'src')
+    # Look for source files that tests depend on under test/.
+    # We also need to add any subfolders to the CPPPATH, so they are searched
+    # for #includes.
+    testsource, test_cpppath = FindSourceFiles(env, 'test',
+                                               ignoreDirs=['data'],
+                                               includeRoot=True)
+    # Move back to the buid dir
+    os.chdir(curdir)
+
+    # Look for files containing a test suite
+    # A list of test suites to run will be found in a test/<name>TestPack.txt
+    # file, one per line.
+    # Alternatively, a single test suite may have been specified on the command line.
+    testfiles = FindTestsToRun(otherVars['build'], otherVars['BUILD_TARGETS'],
+                               otherVars['single_test_suite'],
+                               otherVars['single_test_suite_dir'],
+                               otherVars['all_tests'],
+                               component=component)
+    
+    # Add test folders to CPPPATH only for this component
+    if test_cpppath:
+        newenv = env.Copy()
+        newenv.Prepend(CPPPATH=test_cpppath)
+        # Make sure both envs reference the same dict *object*,
+        # so updates in one env are reflected in all.
+        newenv['CHASTE_OBJECTS'] = env['CHASTE_OBJECTS']
+        env = newenv
+    
+    # Build and install the library for this component
+    if use_chaste_libs:
+        if otherVars['static_libs']:
+            lib = env.StaticLibrary(component, files)
+            lib = env.Install('#lib', lib)
+            libpath = '#lib'
+        else:
+            if files:
+                lib = env.SharedLibrary(component, files)
+            else:
+                lib = None
+            libpath = '#linklib'
+        # Build the test library for this component
+        env.StaticLibrary('test'+component, testsource)
+    else:
+        # Don't build libraries - tests will link against object files directly
+        lib = None
+        for source_file in files + testsource:
+            obj = env.StaticObject(source_file)
+            key = os.path.join(component, str(source_file))
+            #print component, "source", key
+            env['CHASTE_OBJECTS'][key] = obj[0]
+    
+    # Determine libraries to link against.
+    # Note that order does matter!
+    if lib:
+        chaste_libs = [component] + otherVars['comp_deps'][component]
+    else:
+        chaste_libs = otherVars['comp_deps'][component]
+    all_libs = ['test'+component] + chaste_libs + otherVars['other_libs']
+    
+    # Make test output depend on shared libraries, so if implementation changes
+    # then tests are re-run.  Choose which line according to taste.
+    #lib_deps = map(lambda lib: '#lib/lib%s.so' % lib, chaste_libs) # all libs
+    lib_deps = lib # only this lib
+    #linklib_deps = map(lambda lib: '#linklib/lib%s.so' % lib, chaste_libs)
+    
+    # Collect a list of test log files to use as dependencies for the test
+    # summary generation
+    test_log_files = []
+    
+    # Build and run tests of this component
+    if not use_chaste_libs:
+        env['TestBuilder'] = \
+            lambda target, source: env.Program(target, source,
+                        LIBS=otherVars['other_libs'],
+                        LIBPATH=otherVars['other_libpaths'])
+    
+    for testfile in testfiles:
+        prefix = os.path.splitext(testfile)[0]
+        #print component, 'test', prefix
+        test_hpp = os.path.join('test', testfile)
+        runner_cpp = env.Test(prefix+'Runner.cpp', test_hpp)
+        runner_exe = env.File(prefix+'Runner').abspath
+        if use_chaste_libs:
+            runner_exe = env.Program(runner_exe, runner_cpp,
+                                     LIBS = all_libs,
+                                     LIBPATH = [libpath, '.'] + otherVars['other_libpaths'])
+        else:
+            runner_obj = env.StaticObject(runner_cpp)
+            runner_dummy = runner_exe+'.dummy'
+            runner_exe = env.File(ExeName(env, runner_exe))
+            env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
+            env.AlwaysBuild(runner_dummy)
+            env.Depends(runner_exe, runner_dummy)
+        # Make sure we build the test unless the user says otherwise
+        env.Default(runner_exe)
+        if not otherVars['compile_only']:
+            log_file = env.File(prefix+'.log')
+            if use_chaste_libs:
+                env.Depends(log_file, lib_deps)
+            else:
+                env.Depends(log_file, runner_dummy)
+            test_log_files.append(log_file)
+            env.RunTest(log_file, runner_exe)
+            if otherVars['force_test_runs']:
+                env.AlwaysBuild(log_file)
+    
+    return (test_log_files, lib)
