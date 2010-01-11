@@ -902,6 +902,7 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir(), "ChasteResults_10ms");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
         TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMaxCheckpointsOnDisk(),3u);        
 
         // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
