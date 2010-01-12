@@ -139,6 +139,7 @@ template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, Vec voltage)
 {
     assert(mIsWatchedLocation);
+    assert(PetscTools::GetNumProcs()==1); // will fail in GetCardiacCell below if run in parallel.
 
     std::vector<c_vector<double,DIM> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
 
@@ -459,6 +460,19 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         
         ReplicatableVector voltage_repl(voltage);
         
+        // collect all the calcium concentrations (from the cells, which are
+        // distributed) in one (replicated) vector
+        ReplicatableVector calcium_concs(mpElectricsMesh->GetNumNodes());
+        PetscInt lo, hi;
+        VecGetOwnershipRange(voltage, &lo, &hi);        
+        for(int index=lo; index<hi; index++)
+        {
+            calcium_concs[index] = mpMonodomainProblem->GetPde()->GetCardiacCell(index)->GetIntracellularCalciumConcentration();
+        }
+        PetscTools::Barrier();
+        calcium_concs.Replicate(lo,hi);
+        
+        
         for(unsigned i=0; i<mElementAndWeightsForQuadPoints.size(); i++)
         {
             double interpolated_CaI = 0;
@@ -468,7 +482,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             for(unsigned node_index = 0; node_index<element.GetNumNodes(); node_index++)
             {
                 unsigned global_node_index = element.GetNodeGlobalIndex(node_index);
-                double CaI_at_node = mpMonodomainProblem->GetPde()->GetCardiacCell(global_node_index)->GetIntracellularCalciumConcentration();
+                double CaI_at_node =  calcium_concs[global_node_index]; //mpMonodomainProblem->GetPde()->GetCardiacCell(global_node_index)->GetIntracellularCalciumConcentration();
                 interpolated_CaI += CaI_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
                 interpolated_voltage += voltage_repl[global_node_index]*mElementAndWeightsForQuadPoints[i].Weights(node_index);
             }
