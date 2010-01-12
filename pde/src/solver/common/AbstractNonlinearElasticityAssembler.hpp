@@ -247,12 +247,6 @@ protected:
      */
     virtual void PostNewtonStep(unsigned counter, double normResidual);
 
-    /**
-     * Allocates memory for the Jacobian and preconditioner matrices (larger number of
-     * non-zeros per row than with say linear problems)
-     */
-    virtual void AllocateMatrixMemory()=0;
-
 public:
 
     /**
@@ -434,22 +428,6 @@ void AbstractNonlinearElasticityAssembler<DIM>::VectorSum(std::vector<double>& r
     }
 }
 
-template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
-{
-    mpLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); // default Mat tyype is MATMPIAIJ, see below
-    mpPreconditionMatrixLinearSystem = new LinearSystem(mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work
-
-    // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
-    // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
-    unsigned num_non_zeros = DIM < 3 ? 75 : 400;
-
-    //// If linear system was type MATMPIAIJ, would need to reallocate, but can't pre-allocate twice on the same matrix 
-    // without leaking memory. This is the call to preallocate an MPI AIJ matrix: 
-    // MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
-    MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
-    MatSeqAIJSetPreallocation(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
-}
 
 template<unsigned DIM>
 double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
@@ -479,7 +457,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
     Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
 
-    KSPCreate(MPI_COMM_SELF,&solver);
+    KSPCreate(PETSC_COMM_WORLD,&solver);
 
     KSPSetOperators(solver, r_jac, r_precond_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
@@ -493,7 +471,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     PC pc;
     KSPGetPC(solver, &pc);
-    PCSetType(pc, PCILU);
+    PCSetType(pc, PCBJACOBI);
 
     KSPSetFromOptions(solver);
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);

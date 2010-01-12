@@ -87,6 +87,7 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location)
 class TestNonlinearElasticityAssembler : public CxxTest::TestSuite
 {
 public:
+
     // Solve using quadratics..
     void TestAssembleSystem3D() throw (Exception)
     {
@@ -232,8 +233,6 @@ public:
     // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
     void TestWithZeroDisplacement() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
         QuadraticMesh<2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -286,8 +285,6 @@ public:
 
     void TestSettingUpHeterogeneousProblem() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
         // two element quad mesh on the square
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
 
@@ -326,8 +323,6 @@ public:
 
     void TestSolve() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
         QuadraticMesh<2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -391,6 +386,9 @@ public:
         assert( fabs(mesh.GetNode(2)->rGetLocation()[1] - 1) < 1e-9 );
         TS_ASSERT_DELTA( r_solution[2](0), xend,   1e-3 );
         TS_ASSERT_DELTA( r_solution[2](1), 1-yend, 1e-3 );
+        
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
     }
 
 
@@ -416,8 +414,6 @@ public:
      */
     void TestSolveWithNonZeroBoundaryConditions() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
         double lambda = 0.85;
         double c1 = 0.02;
         c_vector<double,2> body_force = zero_vector<double>(2);
@@ -493,6 +489,10 @@ public:
         {
             TS_ASSERT_DELTA( assembler.rGetPressures()[i], 2*c1*lambda*lambda, 1e-6 );
         }
+
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
     }
 
     /**
@@ -513,7 +513,6 @@ public:
      */
     void TestWithFunctionalData() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
         MechanicsEventHandler::Reset();
 
         c_vector<double,2> body_force = zero_vector<double>(2);

@@ -144,8 +144,6 @@ class TestNonlinearElasticityAssemblerLong : public CxxTest::TestSuite
 public:
     void TestSolve3d() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
         unsigned num_elem_each_dir = 5;
         QuadraticMesh<3> mesh(1.0, 1.0, 1.0, num_elem_each_dir, num_elem_each_dir, num_elem_each_dir);
 
