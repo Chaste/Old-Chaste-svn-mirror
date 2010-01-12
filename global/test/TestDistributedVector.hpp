@@ -390,11 +390,23 @@ public:
         // just set local ownership to PETSC_DECIDE.
         {
             std::ifstream ifs("global/test/data/distributed_vector_factory_2process.arch", std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);
             DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad(false);
             DistributedVectorFactory* p_new_factory;
-            input_arch >> p_new_factory;
-            
+            try
+            {   
+                boost::archive::text_iarchive input_arch(ifs);
+                input_arch >> p_new_factory;
+            }
+            catch (boost::archive::archive_exception& ex)
+            {
+                TS_ASSERT_EQUALS(ex.code,
+                            boost::archive::archive_exception::unsupported_version);
+                TS_TRACE("Boost 1-34 archive found in Boost 1-33?");
+#if BOOST_VERSION > 103301
+                TS_FAIL("More recent Boost archive is unexpected");
+#endif
+                return;
+            }
             TS_ASSERT_EQUALS(p_new_factory->GetProblemSize(), TOTAL);
             TS_ASSERT_EQUALS(p_new_factory->GetHigh(), hi);
             TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
