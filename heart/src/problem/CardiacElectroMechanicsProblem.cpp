@@ -326,6 +326,9 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     unsigned last_element = 0;
     for(unsigned i=0; i<quad_point_posns.Size(); i++)
     {
+    	//// this can be slow with certains pairs of mesh? #1198
+		//std::cout << "\r " << i << " of " << quad_point_posns.Size();
+        
         ChastePoint<DIM> point;
 
         for(unsigned j=0; j<DIM; j++)

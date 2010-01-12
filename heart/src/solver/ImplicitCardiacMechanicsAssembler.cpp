@@ -116,7 +116,10 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
     // assemble residual again (to solve the cell models implicitly again
     // using the correct value of the deformation x (in case this wasn't the
     // last thing that was done
-    this->AssembleSystem(true,false);
+    if(this->GetNumNewtonIterations() > 0)
+    {
+        this->AssembleSystem(true,false);
+    }
 
     // now update state variables, and set lambda at last timestep. Note
     // lambda was set in AssembleOnElement
