@@ -82,19 +82,17 @@ public:
         
         //values from Chris' code
         std::vector<double> MatlabAnswers;      
-        MatlabAnswers.push_back(1e-27);
-        MatlabAnswers.push_back(0.0774);
+        MatlabAnswers.push_back(1.7e-27);
+        MatlabAnswers.push_back(0.0778);
         MatlabAnswers.push_back(0.9987);
         MatlabAnswers.push_back(0.0013);
-        ///\TODO double check that this is the right answer when the matlab code will be run 
-        //making sure it's doing exactly the same thing
-        MatlabAnswers.push_back(12.7090);
-        MatlabAnswers.push_back(0.4019);
-        MatlabAnswers.push_back(0.9763);
-        MatlabAnswers.push_back(0.1919);
+        MatlabAnswers.push_back(12.71);
+        MatlabAnswers.push_back(0.4015);
+        MatlabAnswers.push_back(0.9765);
+        MatlabAnswers.push_back(0.1921);
         
         //check that after 1000 time steps the results are the same.
-        for(unsigned i=0; i<8; i++)
+        for(unsigned i=0; i<MatlabAnswers.size(); i++)
         {
             TS_ASSERT_DELTA(MatlabAnswers[i],rPredictedValues[i],1e-3);
         }
