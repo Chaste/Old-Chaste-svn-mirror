@@ -77,8 +77,21 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
         delete mpCommonStream;
         EXCEPTION("Cannot load main archive file: " + common_path.str());
     }
-    mpCommonArchive = new boost::archive::text_iarchive(*mpCommonStream);
     
+    try
+    {
+        mpCommonArchive = new boost::archive::text_iarchive(*mpCommonStream);
+    }
+    catch (boost::archive::archive_exception& boost_exception)
+    {
+        if (boost_exception.code == boost::archive::archive_exception::unsupported_version)
+        {
+            //This is forward compatibility issue.  We can't open the archive because it's been written by a more recent Boost.
+            EXCEPTION("Could not open Boost archive "+common_path.str()+" because it was written by a more recent Boost");
+        }
+        
+        throw boost_exception;
+    }
     // Try to open the secondary archive for distributed data
     mpPrivateStream = new std::ifstream(private_path.c_str(), std::ios::binary);
     if (!mpPrivateStream->is_open())
@@ -104,7 +117,7 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::~ArchiveOpener()
 
 /**
  * Specialization for output archives.
- * @param rDirectory
+ * @param rDirectorycommon_path
  * @param rFileName
  * @param relativeToChasteTestOutput
  * @param procId

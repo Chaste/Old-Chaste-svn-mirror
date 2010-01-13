@@ -281,6 +281,35 @@ public:
             TS_ASSERT_EQUALS(test_int2, 0u);
         }
     }
+    
+    void TestOpenFutureBoostArchive() throw (Exception)
+    {
+        
+        std::string archive_dir = "global/test/data";
+        std::string archive_file = "future_boost.arch";
+        //   future_boost has got archive version 5 in it
+        // 33 => 3     
+        // 34 => 4     
+        // 36 => 5     
+        // 37 => 5     
+ 
+#if BOOST_VERSION >= 103600
+        InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0);
+        boost::archive::text_iarchive* p_arch = archive_opener_in.GetCommonArchive();
+        boost::archive::text_iarchive* p_process_arch = ProcessSpecificArchive<boost::archive::text_iarchive>::Get();
+
+        const unsigned test_int = 321;
+        unsigned test_int1, test_int2;
+        (*p_arch) & test_int1;
+        (*p_process_arch) & test_int2;
+    
+        TS_ASSERT_EQUALS(test_int1, test_int);
+        TS_ASSERT_EQUALS(test_int2, 0u);
+#else
+        //Current version is running with Boost-33-1 or Boost-34 so we can't read this archive...
+        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0), "Could not open Boost archive global/test/data/future_boost.arch");
+#endif        
+    }
 };
 
 
