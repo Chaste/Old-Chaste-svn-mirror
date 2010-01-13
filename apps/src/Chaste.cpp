@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     //Only show one copy of copyright/header
     if (PetscTools::AmMaster())
     {
-        std::cout << "Copyright (C) University of Oxford, 2005-2009 \n\n\
+        std::cout << "Copyright (C) University of Oxford, 2005-2010 \n\n\
 \
 Chaste is free software: you can redistribute it and/or modify \n\
 it under the terms of the Lesser GNU General Public License as published by \n\
