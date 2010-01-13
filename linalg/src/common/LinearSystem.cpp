@@ -340,38 +340,6 @@ Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
     return lhs_ith_row;
 }
 
-void LinearSystem::ZeroMatrixRow(PetscInt row)
-{
-    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-
-    // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
-    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated 
-    // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
-    // are kept.
-#if PETSC_VERSION_MAJOR == 3
-    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
-#else
-    MatSetOption(mLhsMatrix, MAT_KEEP_ZEROED_ROWS);
-#endif
-
-    double diag_zero=0.0;
-    // MatZeroRows allows a non-zero value to be placed on the diagonal
-    // diag_zero is the value to put in the diagonal
-
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    IS is;
-    ISCreateGeneral(PETSC_COMM_WORLD,1,&row,&is);
-    MatZeroRows(mLhsMatrix, is, &diag_zero);
-    ISDestroy(is);
-#else
-    MatZeroRows(mLhsMatrix, 1, &row, diag_zero);
-#endif
-}
-
-
-
-
 void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue)
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);

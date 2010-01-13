@@ -262,13 +262,16 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec exi
             {
 
                 // Set the mRowForAverageOfPhiZeroed-th matrix row to 0 1 0 1 ...
-                this->mpLinearSystem->ZeroMatrixRow(mRowForAverageOfPhiZeroed);
+                std::vector<unsigned> row_for_average;
+                row_for_average.push_back(mRowForAverageOfPhiZeroed);
+                this->mpLinearSystem->ZeroMatrixRowsWithValueOnDiagonal(row_for_average, 0.0);
                 for (unsigned col_index=0; col_index<matrix_size; col_index++)
                 {
                     if (col_index%2 == 1)
                     {
                         this->mpLinearSystem->SetMatrixElement(mRowForAverageOfPhiZeroed, col_index, 1);
                     }
+                    
                 }
                 this->mpLinearSystem->AssembleFinalLhsMatrix();
 

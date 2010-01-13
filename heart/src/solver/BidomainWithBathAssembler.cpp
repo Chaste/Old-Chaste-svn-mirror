@@ -134,9 +134,9 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
          iter != this->mpMesh->GetNodeIteratorEnd();
          ++iter)
     {        
-        // ZeroMatrixColumn and ZeroMatrixRow are collective operations so we need all the processors
-        // calling them. When using ParallelTetrahedralMesh the knowledge about which nodes are bath
-        // is distributed. Processors need to agree before zeroing.
+        /**\todo This code may no longer be needed since all the operations in the following loop may
+         * apply only to local elements. MatSetValue and VecSetValue are not collective...
+         */        
 
         if ((*iter).GetRegion() == HeartRegionCode::BATH)
         {
@@ -169,7 +169,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
                  *
                  *  Therefore, all the Vm entries of this node are already 0.
                  * 
-                 *  Explicitely checking it in non-production builds.  
+                 *  Explicitly checking it in non-production builds.  
                  */
 #ifndef NDEBUG
                 int num_equation = 2*i; /// \todo: assumes Vm and Phie are interleaved

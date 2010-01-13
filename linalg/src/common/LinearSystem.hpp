@@ -312,20 +312,10 @@ public:
      */
     Vec GetMatrixRowDistributed(unsigned row_index);
 
-    /**
-     * Zero a row of the left-hand side matrix.
-     * This method is a collective call (all processes should call it together).
-     * If processes call it with different arguments then its results may 
-     * not be predictable.
-     * 
-     * @param row  the row index
-     */
-    void ZeroMatrixRow(PetscInt row);
-
 	/**
 	 *  Zero several rows of the matrix, putting a given value in the diagonal entries.
 	 *  
-	 *  *Massively* less expensive than calling ZeroMatrixRow() repeatedly
+	 *  *Massively* less expensive than zeroing each matrix rowindividually
 	 * 
 	 *  @param rRows std::vector of rows to be zeroed
 	 *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)

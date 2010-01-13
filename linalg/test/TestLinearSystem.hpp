@@ -177,21 +177,6 @@ public:
         ls.AssembleFinalLinearSystem();
 
 
-        //Note: these methods are collective.  All processes MUST do them together.
-        for (unsigned i=0; i<2; i++)
-        {
-            ls.ZeroMatrixRow(i);
-        }
-
-        if (lo <=0 && 0<hi)
-        {
-            TS_ASSERT_EQUALS(ls.GetMatrixElement(0, 1), 0.0);
-        }
-        if (lo <=1 && 1<hi)
-        {
-            TS_ASSERT_EQUALS(ls.GetMatrixElement(1, 1), 0.0);
-        }
-
         if (lo <=2 && 2<hi)
         {
             TS_ASSERT_EQUALS(ls.GetMatrixElement(2, 1), 125.0);

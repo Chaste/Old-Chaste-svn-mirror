@@ -42,6 +42,18 @@ version of Boost.</li>
   <li>An indexing error in previous release meant that mesh produced by Chaste on the fly (slab/cuboid meshes) were not conforming.  That is, the faces did not meet correctly and the finite element approximation was discontinuous.  This behaviour has been fixed</li>
   </ul></li>
 
+<h4>Interface changes that may require changes to user code</h4>
+
+<ul>
+
+<li>General:<ul>
+<li><tt>LinearSystem::ZeroMatrixRow</tt> is deprecated due to inefficiency. 
+Use <tt>LinearSystem::ZeroMatrixRowsWithValueOnDiagonal</tt> to modify
+multiple rows instead.</li>
+</ul></li>
+</ul>
+
+
 <h2>Release 1.1 (changes since Release 1.0)</h2>
 
 <h3>General</h3>
