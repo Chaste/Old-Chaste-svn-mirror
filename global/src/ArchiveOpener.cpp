@@ -91,8 +91,13 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
             delete mpCommonStream;
             EXCEPTION("Could not open Boost archive "+common_path.str()+" because it was written by a more recent Boost.  Check process-specific archives too");
         }
-        
-        throw boost_exception;
+        else
+        {
+        //We don't understand the exception, so we shouldn't continue
+#define COVERAGE_IGNORE                 
+            throw boost_exception;
+#undef COVERAGE_IGNORE
+        }                 
     }
     // Try to open the secondary archive for distributed data
     mpPrivateStream = new std::ifstream(private_path.c_str(), std::ios::binary);
