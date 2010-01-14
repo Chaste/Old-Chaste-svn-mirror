@@ -117,7 +117,7 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::~ArchiveOpener()
 
 /**
  * Specialization for output archives.
- * @param rDirectorycommon_path
+ * @param rDirectory
  * @param rFileName
  * @param relativeToChasteTestOutput
  * @param procId
