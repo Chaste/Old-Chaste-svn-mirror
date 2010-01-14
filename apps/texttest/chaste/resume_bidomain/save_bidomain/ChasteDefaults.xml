@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<cp12:ChasteParameters xmlns:cp12="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 /home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_2.xsd">
+<cp12:ChasteParameters xmlns:cp12="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 /home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_2.xsd">
 
   <cp12:Simulation>
     <cp12:SpaceDimension>3</cp12:SpaceDimension>

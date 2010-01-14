@@ -185,6 +185,8 @@ public:
      *    This can be easily done with texttest GUI. Run save_bidomain test to find that ChasteResults_10ms_arch_0.chaste
      *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.    
      * 
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1"
+     *  
      *  Change into the output directory
      *    cd /tmp/chaste/testoutput
      * 
@@ -250,7 +252,9 @@ public:
      *    This can be easily done with texttest GUI. Run save_monodomain test to find that ChasteResults_10ms_arch_0.chaste
      *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.    
      * 
-     *  Change into the output directory
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1"
+     *
+     *    Change into the output directory
      *    cd /tmp/chaste/testoutput
      * 
      *  Copy the archive generated.
@@ -385,6 +389,7 @@ private:
             //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
             // If this fails you probably just need to copy a new reference_0_archive file from "my_archive.0",
             // but do check that's the case!
+            //THIS WON'T WORK WITH DIFFERENT VERSIONS OF BOOST!
             EXPECT0(system, "diff -I 'serialization::archive' " + rSourceDir + "reference_0_archive " + my_archive + ".0");
         }
 
@@ -507,6 +512,7 @@ public:
 
     /**
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequential.
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1_3"
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequential
         cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration/"
@@ -612,6 +618,7 @@ public:
     
     /**
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequentialWithBath.
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1_3"
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequentialWithBath
         cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_with_bath/"
@@ -818,6 +825,8 @@ private:
 public:
     /**
      * Run this in sequential to create the archive for TestLoadFromSequential.
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1_3"
+     * 
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequential
         cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq/"
@@ -903,6 +912,7 @@ public:
     
     /**
      * Run this in sequential to create the archive for TestLoadFromSequentialWithBath.
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1"
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequentialWithBath
         cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq_with_bath/"
@@ -1044,6 +1054,7 @@ public:
      * has no boundary conditions, but at least one other process does.
      * We set a zero dirichlet boundary condition on the right end of a parallel 1d mesh.
      * 
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1_2"
      * Run this in parallel (build=_2) to create the archive for TestBcsOnNonMasterOnly.
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForBcsOnNonMasterOnly
@@ -1150,6 +1161,7 @@ public:
      * direct call of mpBoundaryConditionsContainer->MergeFromArchive in LoadExtraArchive.
      * 
      * Run this in parallel (build=_2) to create the archive for TestMigrateAfterSolve.
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1_2"
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForMigrateAfterSolve/archive
         cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_after_solve/"
@@ -1158,6 +1170,7 @@ public:
      * 
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
+        
      */
     void TestCreateArchiveForMigrateAfterSolve() throw (Exception)
     {

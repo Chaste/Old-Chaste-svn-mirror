@@ -125,6 +125,10 @@ public:
 public:
     void TestArchiveOpenerReadAndWrite() throw(Exception)
     {
+        //Should this test fail with an exception involving
+        // apps/texttest/chaste/resume_bidomain/save_bidomain
+        // then look at TestCardiacSimulationArchiver
+        
         std::string archive_dir = "archive";
         std::string archive_file = "archive_opener.arch";
         const unsigned test_int = 123;
