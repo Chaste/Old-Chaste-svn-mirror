@@ -451,7 +451,7 @@ public:
             TS_ASSERT_DELTA( result_repl[2*i]  , u, 0.02);
             TS_ASSERT_DELTA( result_repl[2*i+1], v, 0.1);
         }
-
+        std::cout<<std::flush;
         VecDestroy(result);
     }
 };

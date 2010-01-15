@@ -67,6 +67,8 @@ public:
      *
      * Note that when updating the archive, you can run TestGenerateSteadyStateCrypt.hpp
      * with build=GccOpt to speed up the test.
+     * 
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1"
      */
     void TestLoadArchive() throw (Exception)
     {
