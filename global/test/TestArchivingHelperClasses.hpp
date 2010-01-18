@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/version.hpp>
 
 #include "ArchiveLocationInfo.hpp"
 #include "ArchiveOpener.hpp"
@@ -311,7 +312,7 @@ public:
         TS_ASSERT_EQUALS(test_int2, 0u);
 #else
         //Current version is running with Boost-33-1 or Boost-34 so we can't read this archive...
-        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0), "Could not open Boost archive global/test/data/future_boost.arch");
+        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0), "Could not open Boost archive 'global/test/data/future_boost.arch'");
 #endif        
     }
 };

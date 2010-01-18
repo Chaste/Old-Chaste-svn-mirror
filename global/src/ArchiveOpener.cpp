@@ -86,14 +86,14 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
     {
         if (boost_exception.code == boost::archive::archive_exception::unsupported_version)
         {
-            //This is forward compatibility issue.  We can't open the archive because it's been written by a more recent Boost.
+            // This is forward compatibility issue.  We can't open the archive because it's been written by a more recent Boost.
             delete mpCommonArchive;
             delete mpCommonStream;
-            EXCEPTION("Could not open Boost archive "+common_path.str()+" because it was written by a more recent Boost.  Check process-specific archives too");
+            EXCEPTION("Could not open Boost archive '" + common_path.str() + "' because it was written by a more recent Boost.  Check process-specific archives too");
         }
         else
         {
-        //We don't understand the exception, so we shouldn't continue
+        // We don't understand the exception, so we shouldn't continue
 #define COVERAGE_IGNORE                 
             throw boost_exception;
 #undef COVERAGE_IGNORE
