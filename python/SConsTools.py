@@ -74,12 +74,15 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
     else:
         component = os.path.basename(os.path.dirname(os.path.abspath(rootDir)))
         if component == 'global' and rootDir == 'src':
-            # Special-case the version info file.
+            # Special-case the version info files.
             file_name = os.path.join('src', 'Version.cpp')
-            file_node = Command(file_name,
-                                [Value(GetVersionCpp(file_name + '.in', env))],
-                                GenerateVersionCpp)[0]
+            file_node = env.Command(file_name,
+                                    [Value(GetVersionCpp(file_name + '.in', env))],
+                                    GenerateCppFromValue)[0]
             source_files.append(file_node)
+            source_files.append(env.Command(os.path.join('src', 'ChasteBuildRoot.cpp'),
+                                            [Value(GetChasteBuildRootCpp())],
+                                            GenerateCppFromValue)[0])
         return source_files, source_dirs
 
 def BuildTest(target, source, env):
@@ -123,7 +126,7 @@ def BuildTest(target, source, env):
                     # Does it have a source file?
                     base, ext = os.path.splitext(hdr)
                     cpp_file = base + '.cpp'
-                    if (base == 'global/src/Version' or
+                    if (base in ['global/src/Version', 'global/src/ChasteBuildRoot'] or
                         os.path.exists(cpp_file)):
                         # Find the object file and analyse it
                         obj = env['CHASTE_OBJECTS'][cpp_file]
@@ -273,16 +276,30 @@ def GetVersionCpp(templateFilePath, env):
              'build_info': env['CHASTE_BUILD_INFO']}
     return open(templateFilePath).read() % subst
 
-def _GenerateVersionCpp(env, target, source):
-    """An Action to generate the Version.cpp source file.
+def GetChasteBuildRootCpp():
+    """Return the contents of the ChasteBuildRoot.cpp source file."""
+    subst = {'chaste_root': Dir('#').abspath}
+    return """
+#include "ChasteBuildRoot.hpp" 
+
+const char* ChasteBuildRootDir() 
+{ 
+    return "%(chaste_root)s"; 
+}
+""" % subst
+
+def _GenerateCppFromValue(env, target, source):
+    """An Action to generate a source file from a value node.
 
     Use like:
-    env.Command('global/src/Version.cpp', [Value(GetVersionCpp(templateFilePath, env))], GenerateVersionCpp)
+    env.Command('global/src/Version.cpp', [Value(GetVersionCpp(templateFilePath, env))], GenerateCppFromValue)
+    or:
+    env.Command('global/src/ChasteBuildRoot.cpp', [Value(GetChasteBuildRootCpp())], GenerateCppFromValue)
     """
     out = open(target[0].path, "w")
     out.write(source[0].get_contents())
     out.close()
-GenerateVersionCpp = SCons.Action.Action(_GenerateVersionCpp, "Generating $TARGET from build information.")
+GenerateCppFromValue = SCons.Action.Action(_GenerateCppFromValue, "Generating $TARGET from build information.")
 
 def RecordBuildInfo(env, build_type, static_libs, use_chaste_libs):
     """Record key build information for the provenance system."""
