@@ -118,15 +118,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
             if(HeartConfig::Instance()->GetLoadMesh())
             {
                 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
-                if (ELEMENT_DIM == 1) 
-                { 
-                    ///\todo We CAN currently instantiate the parallel mesh in 1D, but there's an archiving test which assumes that 1D meshes are sequential 
-                    mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(); 
-                } 
-                else 
-                { 
-                    mpMesh = new ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(); 
-                } 
+                if (ELEMENT_DIM == 1)
+                {
+                    ///\todo We CAN currently instantiate the parallel mesh in 1D, but there's an archiving test which assumes that 1D meshes are sequential
+                    mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                }
+                else
+                {
+                    mpMesh = new ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                }
                 mpMesh->ConstructFromMeshReader(mesh_reader);
             }
             else
@@ -176,7 +176,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                             unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
                             unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
                             unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
-                            ///\todo Do we still need a cast here? 
+                            ///\todo Do we still need a cast here?
                             ///\todo This could be parallel execpt for a acceptance test which expects to be able to post-process.
                             static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructCuboid(slab_nodes_x,
                                                    slab_nodes_y,
@@ -189,7 +189,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                     // scale
                     double mesh_scale_factor = inter_node_space;
                     mpMesh->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
-                    
+
                 }
                 else
                 {
@@ -215,7 +215,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     ///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
     delete mpCardiacPde; // In case we're called twice
     mpCardiacPde = CreateCardiacPde();
-    
+
     // Delete any previous solution, so we get a fresh initial condition
     if (mSolution)
     {
@@ -224,7 +224,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         mSolution = NULL;
         HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
     }
-    
+
     // Always start at time zero
     mCurrentTime = 0.0;
 }
@@ -369,7 +369,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
     assert(mpAssembler==NULL);
     mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
-    
+
     // If we have already run a simulation, use the old solution as initial condition
     Vec initial_condition;
     if (mSolution)
@@ -391,9 +391,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
         InitialiseWriter();
-        
+
         // If we are resuming a simulation (i.e. mSolution already exists) there's no need
-        // of writing the initial timestep, 
+        // of writing the initial timestep,
         // since it was already written as the last timestep of the previous run
         if (!mSolution)
         {
@@ -435,7 +435,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             //VecDestroy(initial_condition);
 #ifndef NDEBUG
             PetscTools::ReplicateException(true);
-#endif            
+#endif
             // Re-throw
             HeartEventHandler::Reset();//EndEvent(HeartEventHandler::EVERYTHING);
 
@@ -444,7 +444,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         }
 #ifndef NDEBUG
         PetscTools::ReplicateException(false);
-#endif        
+#endif
 
         // Free old initial condition
         HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
@@ -477,7 +477,10 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
         }
 
-        progress_reporter.Update(stepper.GetTime());
+        if ( PetscTools::AmMaster() )
+        {
+        	progress_reporter.Update(stepper.GetTime());
+        }
 
         OnEndOfTimestep(stepper.GetTime());
     }
@@ -485,7 +488,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     // Free assembler
     delete mpAssembler;
     mpAssembler=NULL;
-    
+
     // close the file that stores voltage values
     progress_reporter.PrintFinalising();
     CloseFilesAndPostProcess();
@@ -513,29 +516,29 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
             //Convert simulation data to Meshalyzer format
             Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
         }
-        
+
         if (HeartConfig::Instance()->GetVisualizeWithCmgui())
         {
             //Convert simulation data to Cmgui format
             Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
         }
-    
+
         if (HeartConfig::Instance()->GetVisualizeWithVtk())
         {
-                    
+
             //Convert simulation data to Cmgui format
             Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
         }
     }
-        
+
     if(HeartConfig::Instance()->IsPostProcessingRequested())
     {
         //Test that we have a tetrahedral mesh
         TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_tetmesh= dynamic_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh);
-        
+
 //        if (p_tetmesh == NULL)
 //        {
-//            //Assume that it's a parallel tetrahedral mesh - Note that every process throws together 
+//            //Assume that it's a parallel tetrahedral mesh - Note that every process throws together
 //            ///\todo need to sort out issues with parallel meshes
 //            EXCEPTION("Cannot post-process on a parallel mesh yet");
 //        }
@@ -544,7 +547,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
                         HeartConfig::Instance()->GetOutputFilenamePrefix(), true);
         post_writer.WritePostProcessingFiles();
     }
-    
+
     HeartEventHandler::EndEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
 }
 
@@ -581,15 +584,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVaria
     if (HeartConfig::Instance()->GetOutputVariablesProvided())
     {
         // Get their names in a vector
-        std::vector<std::string> output_variables;        
+        std::vector<std::string> output_variables;
         HeartConfig::Instance()->GetOutputVariables(output_variables);
-        
-        // Loop over them 
+
+        // Loop over them
         for (unsigned var_index=0; var_index<output_variables.size(); var_index++)
         {
             // Get variable name
             std::string var_name = output_variables[var_index];
-            
+
             // Register it (or look it up) in the data writer
             unsigned column_id;
             if (extending)
@@ -600,11 +603,11 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineExtraVaria
             {
                 column_id = this->mpWriter->DefineVariable(var_name, "");
             }
-            
-            // Store column id 
-            mExtraVariablesId.push_back(column_id);        
+
+            // Store column id
+            mExtraVariablesId.push_back(column_id);
         }
-    }        
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -616,21 +619,21 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
         // Create vector for storing values over the local nodes
         Vec variable_data =  this->mpMesh->GetDistributedVectorFactory()->CreateVec();
         DistributedVector distributed_var_data = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(variable_data);
-        
-        // Loop over the local nodes and gather the data             
+
+        // Loop over the local nodes and gather the data
         for (DistributedVector::Iterator index = distributed_var_data.Begin();
              index!= distributed_var_data.End();
              ++index)
         {
             // Store value for node "index"
             distributed_var_data[index] = this->mpCardiacPde->GetCardiacCell(index.Global)->GetStateVariableValueByNumber(mExtraVariablesId[var_index]);
-        }            
+        }
         distributed_var_data.Restore();
-        
+
         // Write it to disc
         this->mpWriter->PutVector(mExtraVariablesId[var_index], variable_data);
-        
-        VecDestroy(variable_data);           
+
+        VecDestroy(variable_data);
     }
 }
 
@@ -638,13 +641,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
     bool extend_file = (mSolution != NULL);
-        
-    mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(), 
-                                  HeartConfig::Instance()->GetOutputDirectory(), 
-                                  HeartConfig::Instance()->GetOutputFilenamePrefix(), 
+
+    mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(),
+                                  HeartConfig::Instance()->GetOutputDirectory(),
+                                  HeartConfig::Instance()->GetOutputFilenamePrefix(),
                                   !extend_file, // don't clear directory if extension requested
                                   extend_file);
-                                  
+
     // Define columns, or get the variable IDs from the writer
     DefineWriterColumns(extend_file);
     if (!extend_file)
