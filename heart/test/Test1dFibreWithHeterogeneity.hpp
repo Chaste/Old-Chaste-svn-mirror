@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FaberRudy2000Version3.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "../../global/test/NumericFileComparison.hpp"
+#include "NumericFileComparison.hpp"
 
 class HeterogeneousCellFactory : public AbstractCardiacCellFactory<1>
 {

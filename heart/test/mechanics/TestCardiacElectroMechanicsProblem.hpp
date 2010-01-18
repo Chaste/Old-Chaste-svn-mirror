@@ -37,14 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechProbRegularGeom.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "NumericFileComparison.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
 public:
     void TestDeterminingWatchedNodes() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         HeartEventHandler::Disable();
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
@@ -86,8 +85,6 @@ public:
 
     void TestImplicitNhs2dOneMechanicsElement() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechProbRegularGeom<2> problem(NHS,
@@ -112,12 +109,12 @@ public:
         TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0497, 1e-4);
 
         OutputFileHandler handler("TestCardiacElectroMechOneElement",false);
-        std::string watched = handler.GetOutputDirectoryFullPath() + "watched.txt";
-        std::string command = "diff " + handler.GetOutputDirectoryFullPath() + "watched.txt heart/test/data/good_watched.txt";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        NumericFileComparison comparer(handler.GetOutputDirectoryFullPath() + "watched.txt","heart/test/data/good_watched.txt");
+        TS_ASSERT(comparer.CompareFiles(1e-2));
 
         // check electrics output was written
-        command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
+        std::string command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         MechanicsEventHandler::Headings();
@@ -130,8 +127,6 @@ public:
     
     void TestWithKerchoffs() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         HeartEventHandler::Disable();
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
@@ -167,8 +162,6 @@ public:
     
     void TestExplicitSolverWithNash2004() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         HeartEventHandler::Disable();
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);

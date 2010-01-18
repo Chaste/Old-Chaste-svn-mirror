@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
-#include "../../global/test/NumericFileComparison.hpp"
+#include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
 
 

@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-#include "../../global/test/NumericFileComparison.hpp"
+#include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 

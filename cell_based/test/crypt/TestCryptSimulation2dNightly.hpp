@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "VoronoiTessellation.hpp"
-#include "../../global/test/NumericFileComparison.hpp"
+#include "NumericFileComparison.hpp"
 
 class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
