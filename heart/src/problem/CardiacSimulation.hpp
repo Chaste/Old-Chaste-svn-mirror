@@ -31,8 +31,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 // Must go first
 #include "CardiacSimulationArchiver.hpp"
-// Note that since we include this header, we'll have to be careful if creating a .cpp file for this class.
-// Doing so would mean that no test (or executable) could include both CardiacSimulationArchiver.hpp and CardiacSimulation.hpp
+// Note that since we include this header, we can't (easily) create a .cpp file for this class.
+// Doing so would break the build with chaste_libs=0 on linking, since it would mean that no test
+// (or executable) could include CardiacSimulation.hpp, since Boost archiving GUIDs would then be
+// defined in two object files (CardiacSimulation.o and the test runner .o).  You get errors such
+// as: multiple definition of `boost::archive::detail::guid_initializer<HeartConfig>::instance'.
 
 #include <vector>
 #include <ctime>
@@ -164,5 +167,115 @@ public:
      */
     CardiacSimulation(std::string parameterFileName);
 };
+
+//
+// Implementation must remain in this file (see comment by #include "CardiacSimulationArchiver.hpp").
+//
+
+CardiacSimulation::CardiacSimulation(std::string parameterFileName)
+{
+    // If we have been passed an XML file then parse the XML file, otherwise throw
+    if (parameterFileName == "")
+    {
+        EXCEPTION("No XML file name given");
+    }
+    ReadParametersFromFile(parameterFileName);
+    Run();
+    HeartEventHandler::Headings();
+    HeartEventHandler::Report();
+}
+
+
+void CardiacSimulation::ReadParametersFromFile(std::string parameterFileName)
+{
+    try
+    {
+        // Try the hardcoded schema location first
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetParametersFile(parameterFileName);
+    }
+    catch (Exception& e)
+    {
+        if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
+        {
+            // Try using the schema location given in the XML
+            HeartConfig::Instance()->Reset();
+            HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+            HeartConfig::Instance()->SetParametersFile(parameterFileName);
+        }
+        else
+        {
+            throw e;
+        }
+    }
+}
+
+
+void CardiacSimulation::Run()
+{
+    switch (HeartConfig::Instance()->GetDomain())
+    {
+        case cp::domain_type::Mono :
+        {
+            switch (HeartConfig::Instance()->GetSpaceDimension())
+            {
+                case 3:
+                {
+                    CreateAndRun<MonodomainProblem<3>,3>();
+                    break;
+                }
+
+                case 2:
+                {
+                    CreateAndRun<MonodomainProblem<2>,2>();
+                    break;
+                }
+
+                case 1:
+                {
+                    CreateAndRun<MonodomainProblem<1>,1>();
+                    break;
+                }
+                default :
+                    EXCEPTION("Monodomain space dimension not supported: should be 1, 2 or 3");
+            }
+            break;
+        }
+
+        case cp::domain_type::Bi :
+        {
+            switch (HeartConfig::Instance()->GetSpaceDimension())
+            {
+                case 3:
+                {
+                    CreateAndRun<BidomainProblem<3>,3>();
+                    break;
+                }
+                case 2:
+                {
+                    CreateAndRun<BidomainProblem<2>,2>();
+                    break;
+                }
+                case 1:
+                {
+                    CreateAndRun<BidomainProblem<1>,1>();
+                    break;
+                }
+                default :
+                {
+                    EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
+                }
+            }
+            break;
+        }
+        default :
+        {
+            // If the domain is not set correctly then the XML parser will have picked it up before now!
+            NEVER_REACHED;
+        }
+    }
+}
+
+
 
 #endif /*CARDIACSIMULATION_HPP_*/
