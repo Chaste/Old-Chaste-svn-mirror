@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "ConstBoundaryCondition.hpp"
 
-#include "Debug.hpp"
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ResetInterpolatedQuantities( void )
 {
@@ -351,8 +349,6 @@ BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::BidomainDg0Assembler(
     mRowForAverageOfPhiZeroed = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
 
     mpConfig = HeartConfig::Instance();
-    
-    mDualProblemSolution = NULL;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -395,95 +391,6 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetRowForAverageOfPhiZeroed(un
     }
 
     mRowForAverageOfPhiZeroed = row;
-}
-
-
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Vec BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::AlternativeToSolve(Vec currentSolution)
-{
-    std::cout << "\tusing alternative to solve\n";
-    // set up x^{n+1}
-    Vec new_solution;
-    VecDuplicate(currentSolution, &new_solution);
-
-    // x^{n+1} = x^{n}
-    VecCopy(currentSolution, new_solution);
-
-    DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
-
-    DistributedVector dist_new_solution = p_factory->CreateDistributedVector(new_solution);
-    DistributedVector::Stripe dist_new_solution_Vm(dist_new_solution, 0);
-
-    double Am = HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
-    double Cm = HeartConfig::Instance()->GetCapacitance();
-
-    // update voltage components of x^{n+1}
-    for (DistributedVector::Iterator index = dist_new_solution.Begin();
-         index!= dist_new_solution.End();
-         ++index)
-    {
-        double rhs =  ( -this->mpBidomainPde->rGetIionicCacheReplicated()[index.Global] 
-                        -this->mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global] / Am
-                      )/Cm;
-
-        dist_new_solution_Vm[index] += rhs*this->mDt;
-    }
-
-    dist_new_solution.Restore();
-    
-    return new_solution;
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SolveDualProblem()
-{
-    assert(mDualProblemSolution==NULL);
-    assert(this->mpLinearSystem != NULL);
-    assert(this->mMatrixIsAssembled);
-
-    Vec saved_rhs;
-    VecDuplicate(this->mpLinearSystem->rGetRhsVector(), &saved_rhs);
-    VecCopy(this->mpLinearSystem->rGetRhsVector(), saved_rhs);
-
-    this->mpLinearSystem->ZeroRhsVector();
-    for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-    {
-        this->mpLinearSystem->SetRhsVectorElement(2*i, 1.0);
-    }
-    
-    mDualProblemSolution = this->mpLinearSystem->Solve();
-
-    VecCopy(saved_rhs, this->mpLinearSystem->rGetRhsVector());
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IsErrorEstimateSatisfied(Vec currentSolution, double time)
-{
-    return false;
-    
-    if(mDualProblemSolution==NULL)
-    {
-        SolveDualProblem();
-    }
-    
-    const double TOL = 1e-3;
-    
-    Vec residual;
-    VecDuplicate(currentSolution, &residual);
-    MatMult(this->mpLinearSystem->rGetLhsMatrix(), currentSolution, residual);
-    VecAYPX(residual, -1.0, this->mpLinearSystem->rGetRhsVector());
-    
-    double inner_product;
-    VecDot(residual,mDualProblemSolution,&inner_product);
-    double error_estimate = inner_product / (this->mpLinearSystem->GetSize());
-    
-    
-    std::cout << "IsErrorEstimateSatisfied: time =  " << time << ", error estimate = " << fabs(error_estimate) << ", TOL  = " << TOL << "\n" << std::flush;
-    return (fabs(error_estimate) < TOL);
 }
 
 /////////////////////////////////////////////////////////////////////
