@@ -44,8 +44,6 @@ class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
 public:
     void Test2dHardcodedResult() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
 
         // run to 125 ms - about where the width is at its minimum (see figures
@@ -74,8 +72,6 @@ public:
 
     void Test3d() throw(Exception)
     {
-        EXIT_IF_PARALLEL;
-
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-1000*1000);
 
         // set up two meshes of 1mm by 1mm by 1mm

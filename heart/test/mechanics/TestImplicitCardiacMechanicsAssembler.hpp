@@ -44,8 +44,6 @@ class TestImplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
 public:
     void TestCompareJacobians() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // this test usually passes in ||, but sometimes fails
-
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
         MooneyRivlinMaterialLaw<2> law(0.02);
 
@@ -128,8 +126,6 @@ public:
     // iterations
     void TestWithZeroActiveTension() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // this test usually passes in ||, but sometimes fails
-
         QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
         MooneyRivlinMaterialLaw<2> law(0.02);
 
@@ -163,8 +159,6 @@ public:
     // and check the two implicit solvers agree
     void TestCompareWithDeadExplicitSolver() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // unlike above tests, this one doesn't pass in parallel (only written for sequential)
-
         // note 8 elements is assumed in the fixed nodes
         QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
         MooneyRivlinMaterialLaw<2> law(0.02);
@@ -200,8 +194,6 @@ public:
     // as it should do. Also has hardcoded tests
     void TestSpecifiedActiveTensionCompression() throw(Exception)
     {
-        EXIT_IF_PARALLEL; // unlike above tests, this one doesn't pass in parallel (only written for sequential)
-
         // NOTE: test hardcoded for num_elem = 4
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
         MooneyRivlinMaterialLaw<2> law(0.02);
