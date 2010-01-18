@@ -104,35 +104,35 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
         return false;
     }
 
-        if (is_complete1)
+    if (is_complete1)
+    {
+        DistributedVectorFactory factory(number_nodes1);
+
+        Vec data1 = factory.CreateVec();
+        Vec data2 = factory.CreateVec();
+
+        for (unsigned timestep=0; timestep<times1.size(); timestep++)
         {
-            DistributedVectorFactory factory(number_nodes1);
-
-            Vec data1 = factory.CreateVec();
-            Vec data2 = factory.CreateVec();
-
-            for (unsigned timestep=0; timestep<times1.size(); timestep++)
+            for (unsigned var=0; var<num_vars; var++)
             {
-                for (unsigned var=0; var<num_vars; var++)
-                {
-                    reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
-                    reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
-                    
+                reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
+                reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
+                
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-                    double minus_one = -1.0;
-                    VecAXPY(&minus_one, data2, data1);
+                double minus_one = -1.0;
+                VecAXPY(&minus_one, data2, data1);
 #else
-                    //[note: VecAXPY(y,a,x) computes y = ax+y]
-                    VecAXPY(data1, -1.0, data2);
+                //[note: VecAXPY(y,a,x) computes y = ax+y]
+                VecAXPY(data1, -1.0, data2);
 #endif
-                    
-                    PetscReal difference_norm;
-                    VecNorm(data1, NORM_2, &difference_norm);
-                    
-                    if (difference_norm > 1e-10)
-                    {
-                        std::cout << "Vectors differ in NORM_2 by " << difference_norm << std::endl;
-                        return false;
+                
+                PetscReal difference_norm;
+                VecNorm(data1, NORM_2, &difference_norm);
+                
+                if (difference_norm > 1e-10)
+                {
+                    std::cout << "Vectors differ in NORM_2 by " << difference_norm << std::endl;
+                    return false;
                 }
             }
         }

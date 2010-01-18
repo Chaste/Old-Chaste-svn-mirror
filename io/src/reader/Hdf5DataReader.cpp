@@ -280,25 +280,28 @@ void Hdf5DataReader::GetVariableOverNodes(Vec data,
     // Get range owned by each processor
     VecGetOwnershipRange(data, &lo, &hi);
 
-    // Define a dataset in memory for this process
-    hsize_t v_size[1] = {hi-lo};
-    hid_t memspace = H5Screate_simple(1, v_size, NULL);
+    if (hi > lo) // i.e. we own some...
+    {
+        // Define a dataset in memory for this process
+        hsize_t v_size[1] = {hi-lo};
+        hid_t memspace = H5Screate_simple(1, v_size, NULL);
 
-    // Select hyperslab in the file.
-    hsize_t offset[3] = {timestep, lo, column_index};
-    hsize_t count[3]  = {1, hi-lo, 1};
-    hid_t hyperslab_space = H5Dget_space(mVariablesDatasetId);
-    H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, offset, NULL, count, NULL);
+        // Select hyperslab in the file.
+        hsize_t offset[3] = {timestep, lo, column_index};
+        hsize_t count[3]  = {1, hi-lo, 1};
+        hid_t hyperslab_space = H5Dget_space(mVariablesDatasetId);
+        H5Sselect_hyperslab(hyperslab_space, H5S_SELECT_SET, offset, NULL, count, NULL);
 
-    double* p_petsc_vector;
-    VecGetArray(data, &p_petsc_vector);
-    herr_t err;
-    err=H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, H5P_DEFAULT, p_petsc_vector);
-    assert(err==0);
-    VecRestoreArray(data, &p_petsc_vector);
+        double* p_petsc_vector;
+        VecGetArray(data, &p_petsc_vector);
+        herr_t err;
+        err=H5Dread(mVariablesDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, H5P_DEFAULT, p_petsc_vector);
+        assert(err==0);
+        VecRestoreArray(data, &p_petsc_vector);
 
-    H5Sclose(hyperslab_space);
-    H5Sclose(memspace);
+        H5Sclose(hyperslab_space);
+        H5Sclose(memspace);
+    }
 }
 
 std::vector<double> Hdf5DataReader::GetUnlimitedDimensionValues()

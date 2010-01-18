@@ -198,7 +198,6 @@ public:
      */      
     void TestGenerateResultsForResumeBidomain()
     {
-        EXIT_IF_PARALLEL;
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_bidomain/ChasteParameters.xml");
         // We reset the mesh filename to include the relative path
@@ -222,7 +221,9 @@ public:
 
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
         
+        if (PetscTools::IsSequential())
         {
+            // We can't use CardiacSimulationArchiver::Load for this, as it can't read files in the repository
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
                 "apps/texttest/chaste/resume_bidomain/save_bidomain/",
                 "archive.arch",
@@ -265,7 +266,6 @@ public:
      */      
     void TestGenerateResultsForResumeMonodomain()
     {
-        EXIT_IF_PARALLEL;
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
 
@@ -285,7 +285,9 @@ public:
 
         CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, "save_monodomain", false);
         
+        if (PetscTools::IsSequential())
         {
+            // We can't use CardiacSimulationArchiver::Load for this, as it can't read files in the repository
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
                 "apps/texttest/chaste/resume_monodomain/save_monodomain/",
                 "archive.arch",

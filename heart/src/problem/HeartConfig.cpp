@@ -159,8 +159,7 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     //Schema map
     //Note - this location is relative to where we are storing the xml
     ::xml_schema::namespace_infomap map;
-    char buf[10000];
-    std::string absolute_path_to_xsd = EscapeSpaces(getcwd(buf, 10000));
+    std::string absolute_path_to_xsd = EscapeSpaces(ChasteBuildInfo::GetRootDir());
     absolute_path_to_xsd += "/heart/src/io/";
     // Release 1.1 (and earlier) didn't use a namespace
     map[""].schema = absolute_path_to_xsd + "ChasteParameters_1_1.xsd";

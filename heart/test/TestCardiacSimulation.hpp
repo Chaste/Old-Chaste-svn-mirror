@@ -44,7 +44,7 @@ public:
     {
         CardiacSimulation simulation("heart/test/data/xml/monodomain1d_small.xml");
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "mono_1d_small", false,
-                   "SaveMono1D", "SimulationResults", true));
+                                                 "SaveMono1D", "SimulationResults", true));
         CardiacSimulation simulation2("heart/test/data/xml/monodomain1d_resume.xml");
     }
     void TestMono2dSmall() throw(Exception)
@@ -161,7 +161,34 @@ public:
                    foldername, "SimulationResults", true));
     }
     
-   void TestCardiacSimulationPatchwork() throw(Exception)
+    /**
+     * Run TestCardiacSimulationSaveBidomain on 4 processors to create the archive for this test,
+     * and copy it to the repository using:
+     * cp -r $CHASTE_TEST_OUTPUT/SaveBidomainShort_checkpoints/0.2ms heart/test/data/checkpoint_migration_via_xml/
+     * rm heart/test/data/checkpoint_migration_via_xml/0.2ms/SaveBidomainShort/progress_status.txt
+     * rm -rf heart/test/data/checkpoint_migration_via_xml/0.2ms/SaveBidomainShort/output
+     */
+    void TestCardiacSimulationResumeMigration() throw(Exception)
+    {
+        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
+        std::string source_directory = "heart/test/data/checkpoint_migration_via_xml/0.2ms/";
+        // Clear the target directories
+        OutputFileHandler h1("SaveBidomainShort");
+        OutputFileHandler h2("SaveBidomainShort_0.2ms");
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "cp -r " + source_directory + "* " + OutputFileHandler::GetChasteTestOutputDirectory());
+        }
+        PetscTools::Barrier("TestCardiacSimulationResumeMigration");
+        
+        // Resume
+        CardiacSimulation simulation("heart/test/data/xml/resume_migration.xml");
+        // Compare results
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
+                                                 "SaveBidomainShort", "SimulationResults", true));
+    }
+    
+    void TestCardiacSimulationPatchwork() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_patchwork.xml");
         std::string foldername = "Patchwork";

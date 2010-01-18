@@ -274,6 +274,8 @@ public:
      * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in *named* subfolder
      *                                if true, then use ArchiveLocationInfo
      * @param subfolderName -- where to store with respect to GetOutputDirectory()
+     * 
+     * @note This method is collective if useArchiveLocationInfo is false
      */
     void Write(bool useArchiveLocationInfo=false, std::string subfolderName="output");
 
