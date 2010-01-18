@@ -568,16 +568,12 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         Hdf5ToMeshalyzerConverter<DIM,DIM> converter(input_dir, "voltage", mpElectricsMesh);
         
         // Write mesh in a suitable form for meshalyzer
-        if (PetscTools::AmMaster())
-        {
-            std::string output_directory =  mOutputDirectory + "/electrics/output";
-            // Write the mesh
-            MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
-            mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
-
-            // Write the parameters out
-            HeartConfig::Instance()->Write();
-        }
+        std::string output_directory =  mOutputDirectory + "/electrics/output";
+        // Write the mesh
+        MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
+        mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
+        // Write the parameters out
+        HeartConfig::Instance()->Write();
         
         // reset to the default value
         HeartConfig::Instance()->SetOutputDirectory(config_directory);
