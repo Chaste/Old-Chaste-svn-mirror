@@ -115,8 +115,11 @@ else:
 Export('single_test_suite', 'single_test_suite_dir')
 
 # Force re-running of all (selected) tests even if the source is unchanged.
-force_test_runs = bool(ARGUMENTS.get('force_test_runs', 0))
+force_test_runs = int(ARGUMENTS.get('force_test_runs', 0))
 Export('force_test_runs')
+
+# Don't update the provenance information (Version.cpp file).
+update_provenance = int(ARGUMENTS.get('update_provenance', 1))
 
 # Check for an easy mistake, where the user forgets the 'test_suite='.
 for target in BUILD_TARGETS:
@@ -237,6 +240,7 @@ env.Replace(CPPPATH = cpppath)
 env['buildsig'] = build.GetSignature()
 env['CHASTE_COMPONENTS'] = components + ['projects']
 env['CHASTE_OBJECTS'] = {}
+env['UPDATE_CHASTE_PROVENANCE'] = update_provenance
 
 if not single_test_suite:
     # Default is to build all components, but not user projects

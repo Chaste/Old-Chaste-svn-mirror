@@ -76,10 +76,16 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
         if component == 'global' and rootDir == 'src':
             # Special-case the version info files.
             file_name = os.path.join('src', 'Version.cpp')
-            file_node = env.Command(file_name,
-                                    [Value(GetVersionCpp(file_name + '.in', env))],
-                                    GenerateCppFromValue)[0]
+            file_node = env.File(file_name)
+            if (not env['UPDATE_CHASTE_PROVENANCE'] and
+                os.path.exists(file_node.abspath)):
+                # Don't update provenance info - just use the existing file
+                version_value = Value(open(file_node.abspath).read())
+            else:
+                version_value = Value(GetVersionCpp(file_name + '.in', env))
+            file_node = env.Command(file_name, [version_value], GenerateCppFromValue)[0]
             source_files.append(file_node)
+            # This one just contains the path to Chaste
             source_files.append(env.Command(os.path.join('src', 'ChasteBuildRoot.cpp'),
                                             [Value(GetChasteBuildRootCpp())],
                                             GenerateCppFromValue)[0])
@@ -198,6 +204,10 @@ def FindTestsToRun(build, BUILD_TARGETS,
         #print map(str, BUILD_TARGETS)
         #print component, project, this_comp_targets
         for targ in BUILD_TARGETS:
+            if str(targ).endswith(os.sep):
+                # Allow users to specify (e.g.) "global/" as a target
+                # (handy for use with tab completion).
+                targ = str(targ)[:-len(os.sep)]
             if str(targ) in this_comp_targets:
                 test_this_comp = True
                 break
@@ -262,7 +272,7 @@ def GetVersionCpp(templateFilePath, env):
             wc_modified = chaste_revision[-1] == 'M'
             if wc_modified:
                 chaste_revision = chaste_revision[:-1]
-            chaste_revision = int(chaste_revision[1+chaste_revision.rfind('-'):])
+            chaste_revision = int(chaste_revision[1+chaste_revision.rfind(':'):])
     time_format = "%a, %d %b %Y %H:%M:%S +0000"
     build_time = time.strftime(time_format, time.gmtime())
     subst = {'example': '%(example)s',
@@ -270,7 +280,7 @@ def GetVersionCpp(templateFilePath, env):
              'revision': chaste_revision,
              'wc_modified': str(wc_modified).lower(),
              'time_format': time_format,
-             'time_format_size': len(build_time)+1,
+             'time_size': len(build_time)+1,
              'build_time': build_time,
              'uname': ' '.join(os.uname()),
              'build_info': env['CHASTE_BUILD_INFO']}

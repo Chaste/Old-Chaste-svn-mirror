@@ -83,7 +83,7 @@ const char* ChasteBuildInfo::GetCurrentTime()
     time(&rawtime);
     struct tm* p_timeinfo = gmtime(&rawtime);
     // Convert to string
-    const unsigned bufsize = %(time_format_size)d;
+    const unsigned bufsize = %(time_size)d;
     static char buffer[bufsize];
     strftime(buffer, bufsize, "%(time_format)s", p_timeinfo);
     return buffer;
