@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <cerrno>
 #include <cassert>
+#include <cstring>
 #include <unistd.h>
 #include <iostream>
 #include "Exception.hpp"
