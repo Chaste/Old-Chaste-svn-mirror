@@ -30,58 +30,75 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 
+/**
+ * Compare files of numbers to see if they match to within a given tolerance.
+ */
 class NumericFileComparison
 {
-    /**
-     * Compare files of numbers to see if they are to within a given tolerance.
-     */
 private:
-    std::ifstream *file1, *file2;
+    std::ifstream* mpFile1; /**< First file */
+    std::ifstream* mpFile2; /**< Second file */
 public:
+    /**
+     * Specify two files to compare, and open them for reading.
+     * Actual comparison is done by calling CompareFiles.
+     * 
+     * @param fileName1  first file
+     * @param fileName2  second file
+     */
     NumericFileComparison(std::string fileName1, std::string fileName2)
     {
-        file1 = new std::ifstream(fileName1.c_str());
+        mpFile1 = new std::ifstream(fileName1.c_str());
         // If it doesn't exist - throw exception
-        if (!file1->is_open())
+        if (!mpFile1->is_open())
         {
-            file1=NULL;
-            EXCEPTION("Couldn't open info file: " + fileName1);
+            mpFile1 = NULL;
+            EXCEPTION("Couldn't open file: " + fileName1);
         }
 
-        file2 = new std::ifstream(fileName2.c_str(), std::ios::in);
+        mpFile2 = new std::ifstream(fileName2.c_str());
         // If it doesn't exist - throw exception
-        if (!file2->is_open())
+        if (!mpFile2->is_open())
         {
-            file1->close();
-            file1=NULL;
-            file2=NULL;
-            EXCEPTION("Couldn't open info file: " + fileName2);
+            mpFile1->close();
+            mpFile1 = NULL;
+            mpFile2 = NULL;
+            EXCEPTION("Couldn't open file: " + fileName2);
         }
     }
+    /**
+     * Close the files being compared.
+     */
     ~NumericFileComparison()
     {
-        if (file1)
+        if (mpFile1)
         {
-            file1->close();
+            mpFile1->close();
         }
-        if (file2)
+        if (mpFile2)
         {
-            file2->close();
+            mpFile2->close();
         }
-        delete file1;
-        delete file2;
+        delete mpFile1;
+        delete mpFile2;
     }
-    bool CompareFiles( double absTolerance=DBL_EPSILON)
+    /**
+     * Compare the files.
+     * 
+     * @param absTolerance  absolute tolerance on difference between numbers.
+     */
+    bool CompareFiles(double absTolerance=DBL_EPSILON)
     {
         double data1, data2;
         unsigned failures = 0;
         double max_error = 0.0;
         unsigned max_failures = 10;
         bool empty_files = true;
-        while (*file1>>data1 && *file2>>data2)
+        
+        while (*mpFile1>>data1 && *mpFile2>>data2)
         {
             empty_files = false;
-            double error=fabs(data1 - data2);
+            double error = fabs(data1 - data2);
             if ( error > absTolerance )
             {
                 failures++;
@@ -98,7 +115,7 @@ public:
             }
         }
         // Can we read any more?
-        if (*file1>>data1 || *file2>>data2)
+        if (*mpFile1>>data1 || *mpFile2>>data2)
         {
             EXCEPTION("Files have different lengths");
         }
@@ -108,4 +125,5 @@ public:
         return (failures==0 && !empty_files);
     }
 };
+
 #endif /*NUMERICFILECOMPARISON_HPP_*/
