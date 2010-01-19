@@ -1,4 +1,4 @@
-/*
+    /*
 
 Copyright (C) University of Oxford, 2005-2010
 
@@ -297,7 +297,10 @@ public:
         // 34 => 4     
         // 36 => 5     
         // 37 => 5     
- 
+#ifndef BOOST_VERSION
+        TS_FAIL("This test needs to know the version of Boost with which it was compiled.");
+        return;
+#endif
 #if BOOST_VERSION >= 103600
         InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0);
         boost::archive::text_iarchive* p_arch = archive_opener_in.GetCommonArchive();

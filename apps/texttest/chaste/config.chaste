@@ -30,10 +30,8 @@ ConductionVelocityFromNode20_dat:ChasteResults/output/ConductionVelocityFromNode
 MaxUpstrokeVelocityMap_minus_30_dat:ChasteResults/output/MaxUpstrokeVelocityMap_-30.dat
 UpstrokeTimeMap_minus_30_dat:ChasteResults/output/UpstrokeTimeMap_-30.dat
 
-# Extra files to test against in save_monodomain and save_bidomain
+# Extra file to test against in save_monodomain and save_bidomain
 AbstractCardiacProblem_mSolution_h5:ChasteResults_checkpoints/10ms/ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5
-ChasteResults_10ms_arch_0:ChasteResults_checkpoints/10ms/ChasteResults_10ms/archive.arch.0
-ChasteResults_10ms_arch:ChasteResults_checkpoints/10ms/ChasteResults_10ms/archive.arch
 
 # Extra files to test against in resume_monodomain & resume_bidomain
 resumed_bi_h5:SaveBidomain/BidomainLR91_3d.h5
@@ -75,6 +73,4 @@ resumed_bi_h5:HDF5
 errors:{INTERNAL writedir}{REPLACE <texttest_dir>}
 #Handle source code line numbers
 errors:Chaste error: ([a-zA-Z./]+):([0-9]+):{REPLACE Chaste error: \1:line:}
-#Ignore archive header (helps with regression testing)
-ChasteResults_10ms_arch_0:serialization::archive
-ChasteResults_10ms_arch:serialization::archive
+

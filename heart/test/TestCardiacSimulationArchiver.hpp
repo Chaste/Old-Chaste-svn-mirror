@@ -384,6 +384,11 @@ private:
         std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/archive.arch";
         std::string my_archive = handler.GetOutputDirectoryFullPath() + "new_archive/archive.arch";
         EXPECT0(system, "diff " + ref_archive + " " + my_archive);
+        //THIS WON'T WORK WITH DIFFERENT VERSIONS OF BOOST:
+#ifndef BOOST_VERSION
+            TS_FAIL("This test needs to know the version of Boost with which it was compiled.");
+#endif
+#if BOOST_VERSION >= 103400 && BOOST_VERSION < 103500 
         if (PetscTools::IsSequential())
         {
             // This would differ because we get extra copies of the ODE solver and intracellular stimulus objects
@@ -391,9 +396,10 @@ private:
             //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
             // If this fails you probably just need to copy a new reference_0_archive file from "my_archive.0",
             // but do check that's the case!
-            //THIS WON'T WORK WITH DIFFERENT VERSIONS OF BOOST!
-            EXPECT0(system, "diff -I 'serialization::archive' " + rSourceDir + "reference_0_archive " + my_archive + ".0");
+//            EXPECT0(system, "diff -I 'serialization::archive' " + rSourceDir + "reference_0_archive " + my_archive + ".0");
+            EXPECT0(system, "diff " + rSourceDir + "reference_0_archive " + my_archive + ".0");
         }
+#endif
 
         // Return the problem for further tests
         return p_problem;
