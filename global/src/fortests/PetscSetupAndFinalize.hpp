@@ -33,9 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * This file is designed to be included by any test suites that use PETSc.
  * It controls the PETSc initialisation and finalisation.
- *
- * Currently it will dump info on any non-freed vectors or matrices
- * on finalisation.
  */
 
 #ifdef TEST_FOR_FPE
@@ -122,6 +119,7 @@ public:
             EXPECT0(chdir, ChasteBuildRootDir());
             std::cout << "CWD now: " << getcwd(p_buffer, bufsize) << std::endl;
         }
+        free(p_buffer);
 #undef COVERAGE_IGNORE
        
 #ifdef TEST_FOR_FPE
