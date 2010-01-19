@@ -177,7 +177,8 @@ public:
         OutputFileHandler h2("SaveBidomainShort_0.2ms");
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "cp -r " + source_directory + "* " + OutputFileHandler::GetChasteTestOutputDirectory());
+            EXPECT0(system, "cp " + source_directory + "SaveBidomainShort/* " + h1.GetOutputDirectoryFullPath());
+            EXPECT0(system, "cp " + source_directory + "SaveBidomainShort_0.2ms/* " + h2.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCardiacSimulationResumeMigration");
         
