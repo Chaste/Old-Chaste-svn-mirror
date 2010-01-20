@@ -159,6 +159,8 @@ public:
     // and check the two implicit solvers agree
     void TestCompareWithDeadExplicitSolver() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
+        
         // note 8 elements is assumed in the fixed nodes
         QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
         MooneyRivlinMaterialLaw<2> law(0.02);
