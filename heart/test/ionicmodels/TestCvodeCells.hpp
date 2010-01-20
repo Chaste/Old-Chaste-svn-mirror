@@ -1,0 +1,191 @@
+/*
+
+Copyright (C) University of Oxford, 2005-2010
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+#ifndef TESTCVODECELLS_HPP_
+#define TESTCVODECELLS_HPP_
+
+#include "Lr91Cvode.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "RegularStimulus.hpp"
+#include "SimpleStimulus.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "RunAndCheckIonicModels.hpp"
+#include "OdeSystemInformation.hpp"
+
+#ifdef CHASTE_CVODE
+
+class ExceptionalCell : public AbstractCvodeCell
+{
+private:
+    bool mNice;
+public :
+    ExceptionalCell(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
+        : AbstractCvodeCell(2, 0, pStimulus)
+    {
+        mNice = false;
+        mpSystemInfo = OdeSystemInformation<ExceptionalCell>::Instance();
+    }
+
+    void BeNice()
+    {
+        mNice = true;
+    }
+
+    void EvaluateRhs(double time, N_Vector y, N_Vector ydot)
+    {
+        NV_Ith_S(ydot, 0) = NV_Ith_S(y, 1);
+        NV_Ith_S(ydot, 1) = -NV_Ith_S(y, 0);
+        if (!mNice)
+        {
+            EXCEPTION(DumpState("I'm feeling nasty!"));
+        }
+    }
+};
+
+template<>
+void OdeSystemInformation<ExceptionalCell>::Initialise(void)
+{
+    // State variables
+    this->mVariableNames.push_back("V");
+    this->mVariableUnits.push_back("mV");
+    this->mInitialConditions.push_back(1.0);
+
+    this->mVariableNames.push_back("m");
+    this->mVariableUnits.push_back("dimensionless");
+    this->mInitialConditions.push_back(0.0);
+
+    this->mInitialised = true;
+}
+#endif // CHASTE_CVODE
+
+
+
+class TestCvodeCells : public CxxTest::TestSuite
+{
+public:
+
+    void TestLuoRudyCvodeCell() throw(Exception)
+    {
+#ifdef CHASTE_CVODE
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 2.0 ;  // ms
+        double start = 50.0; // ms
+        double period = 500; // ms
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude,
+                                                                          duration,
+                                                                          period,
+                                                                          start));
+        double start_time = 0.0;
+        double end_time = 1000.0; //One second in milliseconds
+
+        // Make a model that uses Cvode directly:
+        Lr91Cvode lr91_cvode_system(p_stimulus);
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetVoltage(),"State variables not set yet.");
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 4u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
+        
+        // 'Traditional' Chaste cell model for comparison of results:
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
+        
+        // Solve and write to file
+        double max_timestep = 1.0;
+        double sampling_time = 1.0;
+        
+        OdeSolution solution_cvode = lr91_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time);
+        OdeSolution solution_chaste = lr91_ode_system.Compute(start_time, end_time);
+        
+        TS_ASSERT_DELTA(lr91_ode_system.GetIIonic(), lr91_cvode_system.GetIIonic(), 1e-3);
+        
+        unsigned step_per_row_chaste = 100u;
+        bool clean_dir = false;
+        solution_cvode.WriteToFile("TestCvodeCells","lr91_cvode",&lr91_ode_system,"ms",1,clean_dir);
+        solution_chaste.WriteToFile("TestCvodeCells","lr91_chaste",&lr91_ode_system,"ms",step_per_row_chaste,clean_dir);
+        
+        double tolerance = 2e-1;
+        bool voltage_only = false;
+        CompareCellModelResults("lr91_cvode", "lr91_chaste",tolerance, voltage_only, "TestCvodeCells");
+        
+        // Clamping
+        lr91_cvode_system.SetVoltageDerivativeToZero();
+        solution_cvode = lr91_cvode_system.Solve(end_time, end_time+100.0, max_timestep, sampling_time);
+        std::vector<double> voltages = solution_cvode.GetVariableAtIndex(lr91_cvode_system.GetVoltageIndex());
+        for (unsigned i=0; i<voltages.size(); i++)
+        {
+            TS_ASSERT_EQUALS(voltages[i], lr91_cvode_system.GetVoltage());
+        }
+        lr91_cvode_system.SetVoltageDerivativeToZero(false);
+        
+        // Reset CVODE cell to initial conditions, and solve without sampling
+        lr91_cvode_system.SetStateVariables(lr91_cvode_system.GetInitialConditions());
+        lr91_cvode_system.SetMaxSteps(10000);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000u);
+        lr91_cvode_system.Solve(start_time, end_time, max_timestep);
+        TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), lr91_ode_system.GetVoltage(), 1e-3);
+        
+        // Coverage
+        boost::shared_ptr<const AbstractOdeSystemInformation> p_sys_info = lr91_cvode_system.GetSystemInformation();
+        TS_ASSERT(p_sys_info->rGetVariableNames() == lr91_cvode_system.rGetVariableNames());
+        TS_ASSERT(p_sys_info->rGetVariableUnits() == lr91_cvode_system.rGetVariableUnits());
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableNumberByName("V"),
+                         lr91_cvode_system.GetVoltageIndex());
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableValueByNumber(4),lr91_cvode_system.GetVoltage());
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableUnitsByNumber(4),"mV");
+        
+        TS_ASSERT_DELTA(lr91_cvode_system.GetRelativeTolerance(), 1e-4, 1e-10);
+        TS_ASSERT_DELTA(lr91_cvode_system.GetAbsoluteTolerance(), 1e-6, 1e-10);
+        TS_ASSERT_DELTA(lr91_cvode_system.GetLastStepSize(), 1.0, 1e-4);
+        
+        // Cover errors
+        std::cout << "Testing Error Handling...\n";
+        lr91_cvode_system.SetMaxSteps(2);
+        TS_ASSERT_THROWS_CONTAINS(OdeSolution solution_cvode_fail = lr91_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time),
+                                  "mxstep steps taken before reaching tout");
+        // Kill the cell
+        boost::shared_ptr<SimpleStimulus> p_boom_stimulus(new SimpleStimulus(-50000, 2.0, 1.0));
+        Lr91Cvode lr91_boom(p_boom_stimulus);
+        TS_ASSERT_THROWS_CONTAINS(OdeSolution solution_boom = lr91_boom.Solve(start_time, end_time, max_timestep, sampling_time),
+                                  " failed repeatedly or with |h| = hmin.");
+        lr91_boom.SetStateVariables(lr91_boom.GetInitialConditions());
+        lr91_boom.SetMaxSteps(10000);
+        TS_ASSERT_THROWS_CONTAINS(lr91_boom.Solve(start_time, end_time, max_timestep),
+                                  " failed repeatedly or with |h| = hmin.");
+        // Nasty cell
+        ExceptionalCell bad_cell(p_boom_stimulus);
+        TS_ASSERT_THROWS_THIS(OdeSolution solution_bad = bad_cell.Solve(start_time, end_time, max_timestep, sampling_time),
+                              "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
+        bad_cell.SetStateVariables(bad_cell.GetInitialConditions());
+        TS_ASSERT_THROWS_THIS(bad_cell.Solve(start_time, end_time, max_timestep),
+                              "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
+#endif // CHASTE_CVODE
+    }
+};
+
+
+#endif /*TESTCVODECELLS_HPP_*/

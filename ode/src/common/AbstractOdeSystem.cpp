@@ -175,7 +175,7 @@ bool AbstractOdeSystem::GetUseAnalyticJacobian()
     return mUseAnalyticJacobian;
 }
 
-unsigned AbstractOdeSystem::GetStateVariableNumberByName(const std::string name)
+unsigned AbstractOdeSystem::GetStateVariableNumberByName(const std::string name) const
 {
     assert(mpSystemInfo);
     return mpSystemInfo->GetStateVariableNumberByName(name);

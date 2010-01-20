@@ -52,7 +52,7 @@ void CheckCellModelResults(const std::string& rBaseResultsFilename,
 std::vector<double> GetVoltages(ColumnDataReader& rReader);
 
 void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2,
-                             double tolerance, bool vOnly=false);
+                             double tolerance, bool vOnly=false, std::string folderName="TestIonicModels");
 
 
 #endif //_RUNANDCHECKIONICMODELS_HPP_

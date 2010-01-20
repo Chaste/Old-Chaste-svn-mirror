@@ -25,35 +25,22 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _LUORUDYIMODEL1991ODESYSTEM_HPP_
-#define _LUORUDYIMODEL1991ODESYSTEM_HPP_
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
+#ifdef CHASTE_CVODE
 
-#include "AbstractCardiacCell.hpp"
+#ifndef _LR91CVODE_HPP_
+#define _LR91CVODE_HPP_
+
+#include "AbstractCvodeCell.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
 
 /**
- * This class sets up the LuoRudyIModel1991OdeSystem system of equations.
+ * This class sets up the LuoRudyIModel1991OdeSystem system of equations, solved by Cvode.
  */
-class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
+class Lr91Cvode : public AbstractCvodeCell
 {
 private:
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Archive the member variables.
-     *
-     * @param archive
-     * @param version
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
-    }
 
     /** Constants for the LuoRudyIModel1991OdeSystem model */
     
@@ -98,16 +85,14 @@ public:
     /**
      * Constructor
      * 
-     * @param pSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
-    LuoRudyIModel1991OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
-                               boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
+    Lr91Cvode(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /**
      * Destructor
      */
-    ~LuoRudyIModel1991OdeSystem();
+    ~Lr91Cvode();
 
     /**
      * Fill in a vector representing the RHS of the LuoRudy1991 system
@@ -115,10 +100,10 @@ public:
      * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
      *
      * @param time  the current time, in milliseconds
-     * @param rY  current values of the state variables
-     * @param rDY  to be filled in with derivatives
+     * @param y  current values of the state variables
+     * @param ydot  to be filled in with derivatives
      */
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
+    void EvaluateRhs(double time, N_Vector y, N_Vector ydot);
 
     /**
      * Returns the ionic current
@@ -135,45 +120,8 @@ public:
     double GetIntracellularCalciumConcentration();
 };
 
-#include "TemplatedExport.hpp"
-CHASTE_CLASS_EXPORT(LuoRudyIModel1991OdeSystem);
 
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a LuoRudyIModel1991OdeSystem instance.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const LuoRudyIModel1991OdeSystem * t, const unsigned int file_version)
-{
-    const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
-    const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
-    ar << p_solver;
-    ar << p_stimulus;
-}
 
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a LuoRudyIModel1991OdeSystem instance (using existing constructor)
- *
- * NB this constructor allocates memory for the other member variables too.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, LuoRudyIModel1991OdeSystem * t, const unsigned int file_version)
-{
+#endif // _LR91CVODE_HPP_
 
-    boost::shared_ptr<AbstractIvpOdeSolver> p_solver;
-    boost::shared_ptr<AbstractStimulusFunction> p_stimulus;
-    ar >> p_solver;
-    ar >> p_stimulus;
-    ::new(t)LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
-}
-}
-} // namespace ...
-
-#endif // _LUORUDYIMODEL1991ODESYSTEM_HPP_
+#endif // CHASTE_CVODE

@@ -42,9 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sundials/sundials_nvector.h>
 #include <cvode/cvode_dense.h>
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * CVODE right-hand-side function adaptor.
  *
@@ -141,7 +138,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // This calls serialize on the base class - all member variables instantiated on construction or temporary.
         archive & boost::serialization::base_object<AbstractIvpOdeSolver>(*this);
         archive & mRelTol;
         archive & mAbsTol;

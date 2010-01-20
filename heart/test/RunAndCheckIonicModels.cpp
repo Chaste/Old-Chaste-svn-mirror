@@ -113,17 +113,17 @@ void CheckCellModelResults(const std::string& rBaseResultsFilename,
 }
 
 void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2,
-                             double tolerance, bool vOnly)
+                             double tolerance, bool vOnly, std::string folderName)
 {
     // Compare 2 sets of results, e.g. from 2 different solvers for the same model.
     // If the time series differ, the finer resolution must be given first.
-    ColumnDataReader data_reader1("TestIonicModels", baseResultsFilename1);
+    ColumnDataReader data_reader1(folderName, baseResultsFilename1);
     std::vector<double> times1 = data_reader1.GetValues("Time");
     std::vector<double> voltages1 = GetVoltages(data_reader1);
     std::vector<double> calcium1;
     std::vector<double> h1;
 
-    ColumnDataReader data_reader2("TestIonicModels", baseResultsFilename2);
+    ColumnDataReader data_reader2(folderName, baseResultsFilename2);
     std::vector<double> times2 = data_reader2.GetValues("Time");
     std::vector<double> voltages2 = GetVoltages(data_reader2);
     std::vector<double> calcium2;

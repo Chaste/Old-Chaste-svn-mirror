@@ -277,7 +277,7 @@ public:
      * @return the state variable's position within the vector of state variables
      *         associated with the ODE system.
      */
-    unsigned GetStateVariableNumberByName(const std::string name);
+    unsigned GetStateVariableNumberByName(const std::string name) const;
 
     /**
      * Get the value of a state variable given its index in the ODE system.
