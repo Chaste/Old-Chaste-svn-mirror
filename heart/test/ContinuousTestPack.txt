@@ -18,7 +18,6 @@ TestConductivityTensors.hpp
 convergence/TestConvergenceTester.hpp
 TestDistanceMapCalculator.hpp
 TestElectrodes.hpp
-ionicmodels/TestFaberRudyAgainstLimpet.hpp
 ionicmodels/TestPeregoCellModels.hpp
 postprocessing/TestHdf5ToVisualizerConverters.hpp
 TestHeartConfig.hpp
