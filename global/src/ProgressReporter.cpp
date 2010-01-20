@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ProgressReporter.hpp"
 #include "Exception.hpp"
+#include "PetscTools.hpp"
 
 ProgressReporter::ProgressReporter(std::string outputDirectory, double startTime, double endTime)
     : mStartTime(startTime),
@@ -40,17 +41,25 @@ ProgressReporter::ProgressReporter(std::string outputDirectory, double startTime
 
     // note we make sure we don't delete anything in the output directory
     OutputFileHandler handler(outputDirectory, false);
-    mpFile = handler.OpenOutputFile("progress_status.txt");
+
+    // open the file on the master process only
+    if ( PetscTools::AmMaster() )
+    {
+    	mpFile = handler.OpenOutputFile("progress_status.txt");
+    }
 }
 
 ProgressReporter::~ProgressReporter()
 {
-    if (mLastPercentage!=100)
-    {
-        *mpFile << "100% completed" << std::endl;
-    }
-    *mpFile << "..done!" << std::endl;
-    mpFile->close();
+	if (PetscTools::AmMaster())
+	{
+		if (mLastPercentage!=100)
+		{
+			*mpFile << "100% completed" << std::endl;
+		}
+		*mpFile << "..done!" << std::endl;
+		mpFile->close();
+	}
 }
 
 void ProgressReporter::Update(double currentTime)
@@ -58,17 +67,26 @@ void ProgressReporter::Update(double currentTime)
     unsigned percentage = (unsigned)( (currentTime - mStartTime)/(mEndTime - mStartTime)*100 );
     if (mLastPercentage==UINT_MAX || percentage > mLastPercentage)
     {
-        *mpFile << percentage << "% completed" << std::endl;
+    	if ( PetscTools::AmMaster() )
+    	{
+    		*mpFile << percentage << "% completed" << std::endl;
+    	}
         mLastPercentage = percentage;
     }
 }
 
 void ProgressReporter::PrintFinalising()
 {
-    *mpFile << "Finalising.." << std::endl;
+	if ( PetscTools::AmMaster() )
+	{
+		*mpFile << "Finalising.." << std::endl;
+	}
 }
 
 void ProgressReporter::PrintInitialising()
 {
-    *mpFile << "Initialising.." << std::endl;
+	if ( PetscTools::AmMaster() )
+	{
+		*mpFile << "Initialising.." << std::endl;
+	}
 }
