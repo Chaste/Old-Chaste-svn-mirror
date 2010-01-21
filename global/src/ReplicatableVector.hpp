@@ -43,7 +43,6 @@ private:
     /**
      * The wrapped vector.
      */
-    //std::vector<double> mData;
     PetscScalar* mpData;
     unsigned mSize;
 

@@ -102,7 +102,7 @@ void ReplicatableVector::Resize(unsigned size)
     RemovePetscContext();
 
     mSize = size;
-    PetscMalloc(mSize*sizeof(PetscScalar), &mpData);
+    PetscMalloc(mSize*sizeof(PetscScalar), (void**) &mpData);
 }
 
 double& ReplicatableVector::operator[](unsigned index)
@@ -118,7 +118,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
 {
     // Create a PetSC vector with the array containing the distributed data
     Vec distributed_vec;
-    VecCreateMPIWithArray(PETSC_COMM_WORLD, hi-lo, this->GetSize(), mpData, &distributed_vec);
+    VecCreateMPIWithArray(PETSC_COMM_WORLD, hi-lo, this->GetSize(), &mpData[lo], &distributed_vec);
 
     // Now do the real replication
     ReplicatePetscVector(distributed_vec);
