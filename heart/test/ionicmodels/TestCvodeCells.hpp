@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Lr91Cvode.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "Shannon2004.hpp"
+#include "Shannon2004_CvOde.hpp"
+
 #include "RegularStimulus.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
@@ -109,29 +112,29 @@ public:
         TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetVoltage(),"State variables not set yet.");
         TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 4u);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
-        
+
         // 'Traditional' Chaste cell model for comparison of results:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
-        
+
         // Solve and write to file
         double max_timestep = 1.0;
         double sampling_time = 1.0;
-        
+
         OdeSolution solution_cvode = lr91_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time);
         OdeSolution solution_chaste = lr91_ode_system.Compute(start_time, end_time);
-        
+
         TS_ASSERT_DELTA(lr91_ode_system.GetIIonic(), lr91_cvode_system.GetIIonic(), 1e-3);
-        
+
         unsigned step_per_row_chaste = 100u;
         bool clean_dir = false;
         solution_cvode.WriteToFile("TestCvodeCells","lr91_cvode",&lr91_ode_system,"ms",1,clean_dir);
         solution_chaste.WriteToFile("TestCvodeCells","lr91_chaste",&lr91_ode_system,"ms",step_per_row_chaste,clean_dir);
-        
+
         double tolerance = 2e-1;
         bool voltage_only = false;
         CompareCellModelResults("lr91_cvode", "lr91_chaste",tolerance, voltage_only, "TestCvodeCells");
-        
+
         // Clamping
         lr91_cvode_system.SetVoltageDerivativeToZero();
         solution_cvode = lr91_cvode_system.Solve(end_time, end_time+100.0, max_timestep, sampling_time);
@@ -141,14 +144,14 @@ public:
             TS_ASSERT_EQUALS(voltages[i], lr91_cvode_system.GetVoltage());
         }
         lr91_cvode_system.SetVoltageDerivativeToZero(false);
-        
+
         // Reset CVODE cell to initial conditions, and solve without sampling
         lr91_cvode_system.SetStateVariables(lr91_cvode_system.GetInitialConditions());
         lr91_cvode_system.SetMaxSteps(10000);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000u);
         lr91_cvode_system.Solve(start_time, end_time, max_timestep);
         TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), lr91_ode_system.GetVoltage(), 1e-3);
-        
+
         // Coverage
         boost::shared_ptr<const AbstractOdeSystemInformation> p_sys_info = lr91_cvode_system.GetSystemInformation();
         TS_ASSERT(p_sys_info->rGetVariableNames() == lr91_cvode_system.rGetVariableNames());
@@ -157,11 +160,11 @@ public:
                          lr91_cvode_system.GetVoltageIndex());
         TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableValueByNumber(4),lr91_cvode_system.GetVoltage());
         TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableUnitsByNumber(4),"mV");
-        
+
         TS_ASSERT_DELTA(lr91_cvode_system.GetRelativeTolerance(), 1e-4, 1e-10);
         TS_ASSERT_DELTA(lr91_cvode_system.GetAbsoluteTolerance(), 1e-6, 1e-10);
         TS_ASSERT_DELTA(lr91_cvode_system.GetLastStepSize(), 1.0, 1e-4);
-        
+
         // Cover errors
         std::cout << "Testing Error Handling...\n";
         lr91_cvode_system.SetMaxSteps(2);
@@ -185,6 +188,53 @@ public:
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
 #endif // CHASTE_CVODE
     }
+
+    void TestShannon2004() throw(Exception)
+       {
+   #ifdef CHASTE_CVODE
+           // Set stimulus
+           double magnitude = -25.5;
+           double duration  = 2.0 ;  // ms
+           double start = 50.0; // ms
+           double period = 500; // ms
+           boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude,
+                                                                             duration,
+                                                                             period,
+                                                                             start));
+
+           double ode_time_step = 0.001;
+           HeartConfig::Instance()->SetOdeTimeStep(ode_time_step);
+           double start_time = 0.0;
+           double end_time = 1000.0; //One second in milliseconds
+
+           // Make a model that uses Cvode directly:
+           CvOdeCellShannon2004FromCellML sh04_cvode_system(p_stimulus);
+           TS_ASSERT_THROWS_THIS(sh04_cvode_system.GetVoltage(),"State variables not set yet.");
+           TS_ASSERT_EQUALS(sh04_cvode_system.GetVoltageIndex(), 0u);
+           TS_ASSERT_EQUALS(sh04_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
+
+           // 'Traditional' Chaste cell model for comparison of results:
+           boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+           CellShannon2004FromCellML sh04_ode_system(p_solver, p_stimulus);
+
+           // Solve and write to file
+           double max_timestep = 1.0;
+           double sampling_time = 1.0;
+
+           OdeSolution solution_cvode = sh04_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time);
+           OdeSolution solution_chaste = sh04_ode_system.Compute(start_time, end_time);
+
+           unsigned step_per_row_chaste = 1000u;
+           bool clean_dir = false;
+           solution_cvode.WriteToFile("TestCvodeCells","sh04_cvode",&sh04_ode_system,"ms",1,clean_dir);
+           solution_chaste.WriteToFile("TestCvodeCells","sh04_chaste",&sh04_ode_system,"ms",step_per_row_chaste,clean_dir);
+
+           double tolerance = 3e-2;
+           bool voltage_only = false;
+           CompareCellModelResults("sh04_cvode", "sh04_chaste",tolerance, voltage_only, "TestCvodeCells");
+
+   #endif // CHASTE_CVODE
+       }
 };
 
 

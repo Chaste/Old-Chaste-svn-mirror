@@ -74,11 +74,55 @@ std::vector<double> GetVoltages(ColumnDataReader& rReader)
     {
         voltages = rReader.GetValues("V");
     }
-    else //rReader.HasValues("membrane__V")
+    else if (rReader.HasValues("membrane__V"))
     {
         voltages = rReader.GetValues("membrane__V");
     }
+    else if (rReader.HasValues("membrane_voltage"))
+    {
+        voltages = rReader.GetValues("membrane_voltage");
+    }
+    else
+    {
+        EXCEPTION("Model membrane voltage not recognised.");
+    }
     return voltages;
+}
+
+std::vector<double> GetIntracellularCalcium(ColumnDataReader& rReader)
+{
+    //Rather Ugly, we can't currently guarantee what the name of the voltage column is,
+    //hence we try to cover the most common possibilities
+    std::vector<double> cai;
+    if (rReader.HasValues("CaI"))
+    {
+        cai = rReader.GetValues("CaI");
+    }
+    else if (rReader.HasValues("Cai"))
+    {
+        cai = rReader.GetValues("Cai");
+    }
+    else
+    {
+        EXCEPTION("Model intracellular calcium is not recognised.");
+    }
+    return cai;
+}
+
+std::vector<double> GetHGate(ColumnDataReader& rReader)
+{
+    //Rather Ugly, we can't currently guarantee what the name of the voltage column is,
+    //hence we try to cover the most common possibilities
+    std::vector<double> h_values;
+    if (rReader.HasValues("h"))
+    {
+        h_values = rReader.GetValues("h");
+    }
+    else
+    {
+        EXCEPTION("Model h gate is not recognised.");
+    }
+    return h_values;
 }
 
 /*
@@ -128,13 +172,13 @@ void CompareCellModelResults(std::string baseResultsFilename1, std::string baseR
     std::vector<double> voltages2 = GetVoltages(data_reader2);
     std::vector<double> calcium2;
     std::vector<double> h2;
-    
+
     if (!vOnly)
     {
-        calcium1 = data_reader1.GetValues("CaI");
-        h1 = data_reader1.GetValues("h");
-        calcium2 = data_reader2.GetValues("CaI");
-        h2 = data_reader2.GetValues("h");
+        calcium1 = GetIntracellularCalcium(data_reader1);
+        h1 = GetHGate(data_reader1);
+        calcium2 = GetIntracellularCalcium(data_reader2);
+        h2 = GetHGate(data_reader2);
     }
 
     TS_ASSERT(times1.size() >= times2.size());

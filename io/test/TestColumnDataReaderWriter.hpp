@@ -78,7 +78,7 @@ private:
         goodfile.close();
         return matching;
     }
-    
+
     // Note: not using references so we can pass in temporary vectors
     void CompareVectors(std::vector<double> v1, std::vector<double> v2, double precision)
     {
@@ -280,10 +280,10 @@ public:
 
         // Test for coverage
         TS_ASSERT_THROWS_THIS(values_ik = mpTestReader->GetValues("I_K", 3), "Data file has no fixed dimension");
-        TS_ASSERT_THROWS_THIS(mpTestReader->GetValues("BadVar"), "Unknown variable");
+        TS_ASSERT_THROWS_THIS(mpTestReader->GetValues("BadVar"), "'BadVar' is an unknown variable.");
 
         delete mpTestReader;
-        
+
         // Compare with known good data using ColumnDataReader
         ColumnDataReader good_reader("io/test/data", "testunlimited", false);
         ColumnDataReader our_reader("TestColumnDataReaderWriter", "testunlimited");
@@ -328,7 +328,7 @@ public:
         delete mpTestWriter;
 
         TS_ASSERT(FilesMatch(output_dir + "testunlimitednegative.dat", "io/test/data/testunlimitednegative_good.dat"));
-        
+
         // Compare with known good data using ColumnDataReader
         ColumnDataReader good_reader("io/test/data", "testunlimitednegative_good", false);
         ColumnDataReader our_reader("TestColumnDataReaderWriter", "testunlimitednegative");
@@ -418,7 +418,7 @@ public:
                 "Precision must be between 2 and 20 (inclusive)");
         TS_ASSERT_THROWS_THIS(mpTestWriter = new ColumnDataWriter("","", false,21),
                 "Precision must be between 2 and 20 (inclusive)");
-        
+
         // Compare with known good data using ColumnDataReader
         ColumnDataReader good_reader("io/test/data", "testfixed_good", false);
         ColumnDataReader our_reader("TestColumnDataReaderWriter", "testfixed");
@@ -465,7 +465,7 @@ public:
 
         // This won't be true, as we use an old-format 'good' file, for coverage
         //TS_ASSERT(FilesMatch(output_dir + "testfixed_negatives.dat", "io/test/data/testfixed_negatives_good.dat"));
-        
+
         // Compare with known good data using ColumnDataReader
         ColumnDataReader good_reader("io/test/data", "testfixed_negatives_good", false);
         ColumnDataReader our_reader("TestColumnDataReaderWriter", "testfixed_negatives");
@@ -511,7 +511,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 3.3e-111, 1));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, -3.3e-111, 2));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553, 3));
-        
+
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(node_var_id, 0, 0));
@@ -543,7 +543,7 @@ public:
         TS_ASSERT_THROWS_THIS(ica_values = mpTestReader->GetValues("I_Ca"), "Data file has fixed dimension which must be specified");
 
         delete mpTestReader;
-        
+
         // Compare with known good data using ColumnDataReader
         ColumnDataReader good_reader("io/test/data", "testfixedandunlimited", false);
         ColumnDataReader our_reader("TestColumnDataReaderWriter", "testfixedandunlimited");
@@ -580,7 +580,7 @@ public:
         // Remember to delete - this closes the writer cleanly and means any data left
         // unwritten will be written to the datafile
         delete mpTestWriter;
-        
+
         // Compare with known good data using ColumnDataReader
         ColumnDataReader good_reader("io/test/data", "testunlimitednegative2", false);
         ColumnDataReader our_reader("TestColumnDataReaderWriter", "testunlimitednegative2");

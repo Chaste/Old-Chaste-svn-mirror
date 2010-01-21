@@ -168,7 +168,7 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
 
         column++;
     }
-    
+
     // Now read the first line of proper data to determine the field width used when this
     // file was created. Do this by reading the first entry and measuring the distance from
     // the decimal point to the 'e'.  This gives the precision; the field width is then
@@ -182,7 +182,7 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
     //
     std::string first_line;
     std::string first_entry;
-    
+
     // read the first entry of the line. If there is no first entry, move to the next line..
     while (first_entry.length()==0 && !datafile.eof())
     {
@@ -206,12 +206,12 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
     // Attempt to account for old format files (which only allowed 2 characters for the exponent)
     dot_pos = first_line.find(".");
     size_t second_dot_pos = first_line.find(".", dot_pos+1);
-    if ((second_dot_pos != std::string::npos) && 
+    if ((second_dot_pos != std::string::npos) &&
         (second_dot_pos - dot_pos == mFieldWidth + SPACING - 1))
     {
         mFieldWidth--;
     }
-    
+
     infofile.close();
     datafile.close();
 }
@@ -226,7 +226,9 @@ std::vector<double> ColumnDataReader::GetValues(const std::string& rVariableName
     std::map<std::string, int>::iterator col = mVariablesToColumns.find(rVariableName);
     if (col == mVariablesToColumns.end())
     {
-        EXCEPTION("Unknown variable");
+        std::stringstream variable_name;
+        variable_name << rVariableName;
+        EXCEPTION("'" + variable_name.str() + "' is an unknown variable.");
     }
 
     int column = (*col).second;
