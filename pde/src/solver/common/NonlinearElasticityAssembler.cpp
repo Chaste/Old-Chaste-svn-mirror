@@ -75,10 +75,12 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
          iter != mpQuadMesh->GetElementIteratorEnd();
          ++iter)
     {
-//        if (assembleJacobian)
-//        {
-//            std::cout << "\rElement " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
-//        }
+        #ifdef MECH_VERBOSE    
+        if (assembleJacobian) // && ((*iter).GetIndex()%500==0))
+        {
+            std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
+        }
+        #endif
     
         Element<DIM, DIM>& element = *iter;
 
@@ -660,7 +662,7 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
     // without leaking memory. This is the call to preallocate an MPI AIJ matrix: 
     // MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
 
-    this->mpLinearSystem = new LinearSystem(this->mNumDofs, (MatType)MATAIJ); // default Mat tyype is MATMPIAIJ, see above
+    this->mpLinearSystem = new LinearSystem(this->mNumDofs, (MatType)MATAIJ); // default Mat type is MATMPIAIJ, see above
     this->mpPreconditionMatrixLinearSystem = new LinearSystem(this->mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work
 
     // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
@@ -669,8 +671,17 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
     {
         // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
         unsigned num_non_zeros = 75;
-        MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
-        MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
+
+        if(PetscTools::GetNumProcs()==1)
+        {
+            MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
+            MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
+        }
+        else
+        {
+            MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, num_non_zeros, PETSC_NULL);
+            MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, num_non_zeros, PETSC_NULL);
+        }
     }
     else
     {
@@ -702,8 +713,24 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
             }
         }
 
-        MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
-        MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
+        if(PetscTools::GetNumProcs()==1)
+        {
+            MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
+            MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
+        }
+        else
+        {
+            PetscInt lo, hi;
+            this->mpLinearSystem->GetOwnershipRange(lo, hi);
+            int* num_non_zeros_each_row_this_proc = new int[hi-lo];
+            for(unsigned i=0; i<unsigned(hi-lo); i++)
+            {
+                num_non_zeros_each_row_this_proc[i] = num_non_zeros_each_row[lo+i];
+            }
+    
+            MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
+            MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
+        }
 
         //unsigned total_non_zeros = 0;
         //for(unsigned i=0; i<this->mNumDofs; i++)

@@ -38,7 +38,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "MechanicsEventHandler.hpp"
 #include "ReplicatableVector.hpp"
-//#include "Timer.hpp" 
+
+//#define MECH_VERBOSE
+
+#ifdef MECH_VERBOSE
+#include "Timer.hpp" 
+#endif
 
 /**
  * Abstract nonlinear elasticity assembler.
@@ -432,7 +437,9 @@ void AbstractNonlinearElasticityAssembler<DIM>::VectorSum(std::vector<double>& r
 template<unsigned DIM>
 double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 {
-    //Timer::Reset();
+    #ifdef MECH_VERBOSE
+    Timer::Reset();
+    #endif
 
     /////////////////////////////////////////////////////////////
     // Assemble Jacobian (and preconditioner)
@@ -440,7 +447,9 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ASSEMBLE);
     AssembleSystem(true, true);
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::ASSEMBLE);
-    //Timer::PrintAndReset("AssembleSystem");
+    #ifdef MECH_VERBOSE
+    Timer::PrintAndReset("AssembleSystem");
+    #endif
 
     /////////////////////////////////////////////////////////////
     // Solve the linear system using Petsc GMRES and an LU
@@ -468,6 +477,9 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     KSPSetFromOptions(solver);
     KSPSetUp(solver);
+    #ifdef MECH_VERBOSE
+    Timer::PrintAndReset("KSP Setup");
+    #endif
 
     PC pc;
     KSPGetPC(solver, &pc);
@@ -476,7 +488,11 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     KSPSetFromOptions(solver);
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
 
-    //Timer::PrintAndReset("KSP Solve");
+    #ifdef MECH_VERBOSE
+    Timer::PrintAndReset("KSP Solve");
+    #endif
+    
+
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -789,9 +805,6 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
         EXCEPTION("Failed to converge");
         #undef COVERAGE_IGNORE
     }
-
-    // we have solved for a deformation so note this
-    //mADeformedHasBeenSolved = true;
 }
 
 
