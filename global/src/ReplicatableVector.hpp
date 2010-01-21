@@ -43,7 +43,7 @@ private:
     /**
      * The wrapped vector.
      */
-    PetscScalar* mpData;
+    double* mpData;
     unsigned mSize;
 
     VecScatter mToAll;   /**< Variable holding information for replicating a PETSc vector. */

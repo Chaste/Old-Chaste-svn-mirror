@@ -50,7 +50,7 @@ void ReplicatableVector::RemovePetscContext()
     
     if (mpData != NULL)
     {
-        PetscFree(mpData);
+        delete mpData;
         mpData = NULL;
     }        
 }
@@ -102,7 +102,7 @@ void ReplicatableVector::Resize(unsigned size)
     RemovePetscContext();
 
     mSize = size;
-    PetscMalloc(mSize*sizeof(PetscScalar), (void**) &mpData);
+    mpData = new double[mSize];
 }
 
 double& ReplicatableVector::operator[](unsigned index)
