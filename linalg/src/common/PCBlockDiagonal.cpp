@@ -108,7 +108,7 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
     // Set up amg preconditioner for block A11
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
-    PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
+    PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
     PCSetOperators(mPCContext.PC_amg_A11, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A11);
     PCSetUp(mPCContext.PC_amg_A11);
