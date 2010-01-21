@@ -142,6 +142,7 @@ private:
 
     /**
      * Helper method which runs triangle or tetgen and reads in the created mesh files.
+     * This method is collective (must be called by all processes).
      * 
      * @param binary "triangle" or "tetgen" etc
      * @param outputDir Where to write the temporary files

@@ -490,6 +490,9 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     #ifdef MECH_VERBOSE
     Timer::PrintAndReset("KSP Solve");
+    int num_iters;
+    KSPGetIterationNumber(solver, &num_iters);
+    std::cout << "[" << PetscTools::GetMyRank() << "]: Num iterations = " << num_iters << "\n" << std::flush;
     #endif
     
 
