@@ -43,11 +43,12 @@ private:
     /**
      * The wrapped vector.
      */
-    std::vector<double> mData;
+    //std::vector<double> mData;
+    PetscScalar* mpData;
+    unsigned mSize;
 
     VecScatter mToAll;   /**< Variable holding information for replicating a PETSc vector. */
     Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector. */
-    Vec mDistributed;    /**< Vector to hold data before replication. */
 
     /**
      * Clear data. Used in resize method and destructor.

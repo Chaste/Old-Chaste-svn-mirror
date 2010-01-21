@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "Debug.hpp"
 
 #include "ReplicatableVector.hpp"
 
@@ -46,35 +47,38 @@ void ReplicatableVector::RemovePetscContext()
         VecDestroy(mReplicated);
         mReplicated = NULL;
     }
-
-    if (mDistributed != NULL)
+    
+    if (mpData != NULL)
     {
-        VecDestroy(mDistributed);
-        mDistributed = NULL;
-    }
+        PetscFree(mpData);
+        mpData = NULL;
+    }        
 }
 
 // Constructors & destructors
 
 ReplicatableVector::ReplicatableVector()
-    : mToAll(NULL),
-      mReplicated(NULL),
-      mDistributed(NULL)
+    : mpData(NULL),
+      mSize(0),
+      mToAll(NULL),
+      mReplicated(NULL)
 {
 }
 
 ReplicatableVector::ReplicatableVector(Vec vec)
-    : mToAll(NULL),
-      mReplicated(NULL),
-      mDistributed(NULL)
+    : mpData(NULL),
+      mSize(0),
+      mToAll(NULL),
+      mReplicated(NULL)
 {
     ReplicatePetscVector(vec);
 }
 
 ReplicatableVector::ReplicatableVector(unsigned size)
-    : mToAll(NULL),
-      mReplicated(NULL),
-      mDistributed(NULL)
+    : mpData(NULL),
+      mSize(0),
+      mToAll(NULL),
+      mReplicated(NULL)
 {
     Resize(size);
 }
@@ -89,20 +93,22 @@ ReplicatableVector::~ReplicatableVector()
 
 unsigned ReplicatableVector::GetSize()
 {
-    return mData.size();
+    return mSize;
 }
 
 void ReplicatableVector::Resize(unsigned size)
 {
     // PETSc stuff will be out of date
     RemovePetscContext();
-    mData.resize(size);
+
+    mSize = size;
+    PetscMalloc(mSize*sizeof(PetscScalar), &mpData);
 }
 
 double& ReplicatableVector::operator[](unsigned index)
 {
-    assert(index < mData.size());
-    return mData[index];
+    assert(index < mSize);
+    return mpData[index];
 }
 
 
@@ -110,23 +116,15 @@ double& ReplicatableVector::operator[](unsigned index)
 
 void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
 {
-    // Copy information into a PetSC vector
-    if (mDistributed==NULL)
-    {
-        VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->GetSize(), &mDistributed);
-    }
-
-    double* p_distributed;
-    VecGetArray(mDistributed, &p_distributed);
-    for (unsigned global_index=lo; global_index<hi; global_index++)
-    {
-        p_distributed[ (global_index-lo) ] = mData[global_index];
-    }
-    VecAssemblyBegin(mDistributed);
-    VecAssemblyEnd(mDistributed);
+    // Create a PetSC vector with the array containing the distributed data
+    Vec distributed_vec;
+    VecCreateMPIWithArray(PETSC_COMM_WORLD, hi-lo, this->GetSize(), mpData, &distributed_vec);
 
     // Now do the real replication
-    ReplicatePetscVector(mDistributed);
+    ReplicatePetscVector(distributed_vec);
+    
+    // Clean up
+    VecDestroy(distributed_vec);
 }
 
 void ReplicatableVector::ReplicatePetscVector(Vec vec)
@@ -163,6 +161,6 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     VecGetArray(mReplicated, &p_replicated);
     for (unsigned i=0; i<size; i++)
     {
-        mData[i] = p_replicated[i];
+        mpData[i] = p_replicated[i];
     }
 }
