@@ -477,10 +477,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
         }
 
-        if ( PetscTools::AmMaster() )
-        {
-        	progress_reporter.Update(stepper.GetTime());
-        }
+		progress_reporter.Update(stepper.GetTime());
 
         OnEndOfTimestep(stepper.GetTime());
     }
