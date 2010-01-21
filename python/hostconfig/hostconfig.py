@@ -47,6 +47,7 @@ If the variable is not present, it will default to False.  If the variable is
 set to True, then the appropriate paths (see below) should be specified, too.
  * use_cvode  - whether to use CVODE
  * use_vtk - whether to use VTK development libraries
+ * use_adaptivity - whether to use adaptivity library
  
  * other_includepaths - list of paths containing other header files
  * other_libpaths     - list of paths containing other libraries, including
@@ -217,7 +218,7 @@ def optional_library_defines():
     Work out what optional libraries have been asked for,
     and return the appropriate #define flags, as a list.
     """
-    possible_flags = {'cvode': 'CHASTE_CVODE', 'vtk': 'CHASTE_VTK'}
+    possible_flags = {'cvode': 'CHASTE_CVODE', 'vtk': 'CHASTE_VTK', 'adaptivity': 'CHASTE_ADAPTIVITY'}
     actual_flags = []
     for libname, symbol in possible_flags.iteritems():
         if getattr(conf, 'use_' + libname, False):
