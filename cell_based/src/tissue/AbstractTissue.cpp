@@ -200,6 +200,7 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
 
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
+    mpBoundaryNodesFile = output_file_handler.OpenOutputFile("results.vizboundarynodes");
     mpVizCellProliferativeTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
 
     if (p_config->GetOutputCellAncestors())
@@ -240,6 +241,7 @@ void AbstractTissue<DIM>::CloseOutputFiles()
     TissueConfig* p_config = TissueConfig::Instance();
 
     mpVizNodesFile->close();
+    mpBoundaryNodesFile->close();
     mpVizCellProliferativeTypesFile->close();
 
     if (p_config->GetOutputCellMutationStates())
@@ -495,6 +497,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
     double time = SimulationTime::Instance()->GetTime();
 
     *mpVizNodesFile << time << "\t";
+	*mpBoundaryNodesFile << time << "\t";
 
     // Write node data to file
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
@@ -515,9 +518,11 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
             {
                 *mpVizNodesFile << position[i] << " ";
             }
+            *mpBoundaryNodesFile << GetNode(node_index)->IsBoundaryNode() << " ";
         }
     }
     *mpVizNodesFile << "\n";
+    *mpBoundaryNodesFile << "\n";
 }
 
 template<unsigned DIM>

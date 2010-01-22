@@ -117,6 +117,10 @@ protected:
 
     /** Results file for logged cell data. */
     out_stream mpCellIdFile;
+    
+    /** Results file for boundary nodes. */
+    out_stream mpBoundaryNodesFile;
+    
 
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
