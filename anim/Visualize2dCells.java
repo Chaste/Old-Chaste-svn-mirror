@@ -1465,9 +1465,8 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     BufferedImage buffered_image = null;
     Graphics g2 = null;
     
-    // The following commented out line can make white background for exporting...
-    //Color background_silver = new Color(255,255,255);
-    Color background_silver = new Color(238,238,238);
+
+    Color background_white = new Color(255,255,255);
     Color spring_silver = new Color(200,200,200);
     Color apoptotic_grey = new Color(80,80,80);
     Color purple = new Color(121,126,234);
@@ -1475,7 +1474,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     public CustomCanvas2D(Visualize2dCells v) 
     {
         vis = v;
-        setBackground(background_silver);
+        setBackground(background_white);
     }
 
     public void paint(Graphics graphics)
@@ -1538,7 +1537,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             g2 = buffered_image.getGraphics();
         }
         
-        g2.setColor(background_silver);
+        g2.setColor(background_white);
         g2.fillRect(0, 0, width, height);
         g2.setColor(Color.black);
         g2.drawString("Time = " + vis.times[vis.timeStep], 10, 10);
@@ -2335,7 +2334,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     	        case INVISIBLE_COLOUR: // sloughed cell
     	            if (!vis.drawGhosts)
     	            {
-    	                g2.setColor(background_silver);
+    	                g2.setColor(background_white);
     	            }
     	            else
     	            {
@@ -2385,7 +2384,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(apoptotic_grey); 
         			break;
         		case INVISIBLE_COLOUR: // sloughed cell
-        			g2.setColor(background_silver); 
+        			g2.setColor(background_white); 
         			break;
         		case LABELLED_COLOUR: // labelled cell
         			g2.setColor(Color.red);
@@ -2423,7 +2422,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
             {
             	// Sloughed cell
-                g2.setColor(background_silver);
+                g2.setColor(background_white);
             }
             else
             {
@@ -2459,7 +2458,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
       	{	// If we are drawing ancestors and this cell's value has been set in simulation.
     		if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
     		{
-    			g2.setColor(background_silver);      			
+    			g2.setColor(background_white);      			
     		}
     		else
     		{
@@ -2493,10 +2492,10 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         			g2.setColor(apoptotic_grey); 
         			break;
         		case INVISIBLE_COLOUR: // sloughed cell
-        			g2.setColor(background_silver);                    
+        			g2.setColor(background_white);                    
         			break;
         		default: 
-        			g2.setColor(background_silver);                    
+        			g2.setColor(background_white);                    
         			break;
         	}
     	}
@@ -2531,7 +2530,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     	if (vis.cell_type[vis.timeStep][index] == INVISIBLE_COLOUR)
         {
             // Sloughed cell
-            g2.setColor(background_silver);
+            g2.setColor(background_white);
         }
     	else
     	{
