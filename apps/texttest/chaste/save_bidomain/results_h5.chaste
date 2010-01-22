@@ -1,4 +1,5 @@
-HDF5 "/home/chaste/texttesttmp/chaste.10Dec160038/chaste/save_bidomain/ChasteResults/SimulationResults.h5" {
+Warning: These have been filtered by  /home/jmpf/eclipse/workspace/Chaste/python/RoundResultsFiles.py  which means all floating point numbers have been rounded to  9  decimal places.
+HDF5 "/home/jmpf/texttesttmp/chaste.22Jan142027/chaste/save_bidomain/ChasteResults/SimulationResults.h5" {
 GROUP "/" {
    DATASET "Data" {
       DATATYPE  H5T_IEEE_F64LE

@@ -40,6 +40,10 @@ resumed_mono_h5:SaveMonodomain/MonodomainLR91_2d.h5
 [collate_script]
 # We need to translate hdf5 files into text in order to compare them with difff
 results_h5:h5dump
+# (After h5dump) some HDF5 file results are piped through a filter to round to a certain number of decimal places
+results_h5:$TEXTTEST_CHECKOUT/python/RoundResultsFiles.py 9
+# Some external voltage results are filtered to round to a certain number of decimal places
+results_phi_e_dat:$TEXTTEST_CHECKOUT/python/RoundResultsFiles.py 9
 AbstractCardiacProblem_mSolution_h5:h5dump
 resumed_h5:h5dump
 resumed_mono_h5:h5dump
