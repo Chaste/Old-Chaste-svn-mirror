@@ -219,7 +219,7 @@ static const char CmguiAdditonalFieldHeader1D[] = " field, rectangular cartesian
        Scale factor indices:   2\n";
        
 /**
- *  CmguiWriter
+ *  CmguiMeshWriter
  *
  *  Writes a mesh in Cmgui (the visualisation frontend of CMISS) format. Creates an exnode
  *  file and a exelem file. Note that the lines and faces are not written in the exelem
@@ -230,14 +230,22 @@ static const char CmguiAdditonalFieldHeader1D[] = " field, rectangular cartesian
  *  gfx cr win
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class CmguiWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>
+class CmguiMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>
 {
-private:
+protected:
     
     /**
      * For storage of names of additional fields.
      */
     std::vector<std::string> mAdditionalFieldNames;
+    
+    /**
+     * The group name to give in the output files. Defaults to the same as the
+     * base name. The CmguiDeformedSolutionsWriter prepends a counter to the base name
+     * (eg "solution_8.exnodes" instead of just "solution.exnodes"), but we would like
+     * the group name to stay as "solution", hence this separate variable
+     */
+    std::string mGroupName;
     
 public:
 
@@ -248,9 +256,9 @@ public:
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param rCleanDirectory  whether to clean the directory (defaults to true) \todo make this cleanDirectory to be consistent with other writers? (#991)
      */
-    CmguiWriter(const std::string& rDirectory,
-                const std::string& rBaseName,
-                const bool& rCleanDirectory=true);
+    CmguiMeshWriter(const std::string& rDirectory,
+                    const std::string& rBaseName,
+                    const bool& rCleanDirectory=true);
 
     /**
      * Write mesh data to files.
@@ -267,7 +275,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~CmguiWriter()
+    virtual ~CmguiMeshWriter()
     {}
 };
 

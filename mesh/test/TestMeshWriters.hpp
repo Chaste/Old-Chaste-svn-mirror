@@ -38,7 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include "MutableMesh.hpp"
-#include "CmguiWriter.hpp"
+#include "CmguiMeshWriter.hpp"
+#include "CmguiDeformedSolutionsWriter.hpp"
 #include "VtkWriter.hpp"
 #include "QuadraticMesh.hpp"
 
@@ -373,82 +374,113 @@ public:
         TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNodeGlobalIndex(5), mesh.GetBoundaryElement(0)->GetNodeGlobalIndex(5));
     }
     
-    void TestCmguiWriter3D() throw(Exception)
+    void TestCmguiMeshWriter3D() throw(Exception)
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        CmguiWriter<3,3> writer("TestCmguiWriter3D", "cube_2mm_12_elements");
+        CmguiMeshWriter<3,3> writer("TestCmguiMeshWriter3D", "cube_2mm_12_elements");
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriter3D/";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exnode mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exnode").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements.exelem").c_str()), 0);
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriter3D/";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exnode mesh/test/data/TestCmguiMeshWriter/cube_2mm_12_elements.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiMeshWriter/cube_2mm_12_elements.exelem").c_str()), 0);
         
         //now test the set method for additional fields. We set two fields.
-        CmguiWriter<3,3> writer2("TestCmguiWriterAdditionalHeaders3D", "cube_2mm_12_elements");
+        CmguiMeshWriter<3,3> writer2("TestCmguiMeshWriterAdditionalHeaders3D", "cube_2mm_12_elements");
         
         std::vector<std::string> field_names;
         field_names.push_back("V");
         field_names.push_back("Phi_e");
-        std::string results_dir2 = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriterAdditionalHeaders3D";
+        std::string results_dir2 = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriterAdditionalHeaders3D";
         writer2.SetAdditionalFieldNames(field_names);
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiWriter/cube_2mm_12_elements_additional_fields.exelem").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiMeshWriter/cube_2mm_12_elements_additional_fields.exelem").c_str()), 0);
     }
     
-    void TestCmguiWriter2D() throw(Exception)
+    void TestCmguiMeshWriter2D() throw(Exception)
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        CmguiWriter<2,2> writer("TestCmguiWriter2D", "square_128_elements");
+        CmguiMeshWriter<2,2> writer("TestCmguiMeshWriter2D", "square_128_elements");
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriter2D/";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/square_128_elements.exnode mesh/test/data/TestCmguiWriter/square_128_elements.exnode").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/square_128_elements.exelem mesh/test/data/TestCmguiWriter/square_128_elements.exelem").c_str()), 0);
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriter2D/";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/square_128_elements.exnode mesh/test/data/TestCmguiMeshWriter/square_128_elements.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/square_128_elements.exelem mesh/test/data/TestCmguiMeshWriter/square_128_elements.exelem").c_str()), 0);
         
         //now test the set method for additional fields. We set two fields.
-        CmguiWriter<2,2> writer2("TestCmguiWriterAdditionalHeaders2D", "square_128_elements");
+        CmguiMeshWriter<2,2> writer2("TestCmguiMeshWriterAdditionalHeaders2D", "square_128_elements");
         
         std::vector<std::string> field_names;
         field_names.push_back("V");
         field_names.push_back("Phi_e");
-        std::string results_dir2 = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriterAdditionalHeaders2D";
+        std::string results_dir2 = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriterAdditionalHeaders2D";
         writer2.SetAdditionalFieldNames(field_names);
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/square_128_elements.exelem mesh/test/data/TestCmguiWriter/square_128_elements_additional_fields.exelem").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/square_128_elements.exelem mesh/test/data/TestCmguiMeshWriter/square_128_elements_additional_fields.exelem").c_str()), 0);
     }
 
-    void TestCmguiWriter1D() throw(Exception)
+    void TestCmguiMeshWriter1D() throw(Exception)
     {
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        CmguiWriter<1,1> writer("TestCmguiWriter1D", "1D_0_to_1_100_elements");
+        CmguiMeshWriter<1,1> writer("TestCmguiMeshWriter1D", "1D_0_to_1_100_elements");
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriter1D/";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/1D_0_to_1_100_elements.exnode mesh/test/data/TestCmguiWriter/1D_0_to_1_100_elements.exnode").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/1D_0_to_1_100_elements.exelem mesh/test/data/TestCmguiWriter/1D_0_to_1_100_elements.exelem").c_str()), 0);
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriter1D/";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/1D_0_to_1_100_elements.exnode mesh/test/data/TestCmguiMeshWriter/1D_0_to_1_100_elements.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/1D_0_to_1_100_elements.exelem mesh/test/data/TestCmguiMeshWriter/1D_0_to_1_100_elements.exelem").c_str()), 0);
         
         //now test the set method for additional fields. We set two fields.
-        CmguiWriter<1,1> writer2("TestCmguiWriterAdditionalHeaders1D", "1D_0_to_1_100_elements");
+        CmguiMeshWriter<1,1> writer2("TestCmguiMeshWriterAdditionalHeaders1D", "1D_0_to_1_100_elements");
         
         std::vector<std::string> field_names;
         field_names.push_back("V");
         field_names.push_back("Phi_e");
-        std::string results_dir2 = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiWriterAdditionalHeaders1D";
+        std::string results_dir2 = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriterAdditionalHeaders1D";
         writer2.SetAdditionalFieldNames(field_names);
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/1D_0_to_1_100_elements.exelem mesh/test/data/TestCmguiWriter/1D_0_to_1_100_elements_additional_fields.exelem").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/1D_0_to_1_100_elements.exelem mesh/test/data/TestCmguiMeshWriter/1D_0_to_1_100_elements_additional_fields.exelem").c_str()), 0);
+    }
+    
+    void TestCmguiDeformedSolutionsWriter() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
+       
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter", "solution", mesh);
+        writer.WriteInitialMesh();
+        
+        std::vector<c_vector<double,2> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(2));
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            deformed_positions[i](0) = 2*mesh.GetNode(i)->rGetLocation()[0];
+            deformed_positions[i](1) = 3*mesh.GetNode(i)->rGetLocation()[1];
+        }
+        writer.WriteDeformationPositions(deformed_positions, 1);
+
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            deformed_positions[i](0) = 4*mesh.GetNode(i)->rGetLocation()[0];
+            deformed_positions[i](1) = 6*mesh.GetNode(i)->rGetLocation()[1];
+        }
+        writer.WriteDeformationPositions(deformed_positions, 2);
+        writer.WriteCmguiScript();
+        
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiDeformedSolutionsWriter";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_0.exelem mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_0.exelem").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_0.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_0.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_1.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_1.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_2.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
     }
     
     void TestVtkWriter() throw(Exception)

@@ -1,0 +1,30 @@
+Group name: solution
+ #Fields=1
+ 1) coordinates, coordinate, rectangular cartesian, #Components=2
+   x.  Value index= 1, #Derivatives= 0
+   y.  Value index= 2, #Derivatives= 0
+Node:	1	0	0	
+Node:	2	2	0	
+Node:	3	4	0	
+Node:	4	0	6	
+Node:	5	2	6	
+Node:	6	4	6	
+Node:	7	0	12	
+Node:	8	2	12	
+Node:	9	4	12	
+Node:	10	1	0	
+Node:	11	1	3	
+Node:	12	0	3	
+Node:	13	1	9	
+Node:	14	0	9	
+Node:	15	1	6	
+Node:	16	2	3	
+Node:	17	3	3	
+Node:	18	4	3	
+Node:	19	3	6	
+Node:	20	3	0	
+Node:	21	3	9	
+Node:	22	4	9	
+Node:	23	3	12	
+Node:	24	2	9	
+Node:	25	1	12	

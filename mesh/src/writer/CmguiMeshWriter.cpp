@@ -26,21 +26,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "Exception.hpp"
-#include "CmguiWriter.hpp"
+#include "CmguiMeshWriter.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-CmguiWriter<ELEMENT_DIM,SPACE_DIM>::CmguiWriter(const std::string &rDirectory,
-                         const std::string &rBaseName,
-                         const bool &rCleanDirectory)
+CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDirectory,
+                                                        const std::string &rBaseName,
+                                                        const bool &rCleanDirectory)
         : AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
 {
     this->mIndexFromZero = false;
+    mGroupName = this->mBaseName;
 }
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
+void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 {
     //////////////////////////
     // Write the exnode file
@@ -49,7 +51,8 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
 
     // Write the node header
-    *p_node_file << "Group name: " << this->mBaseName << "\n";
+    *p_node_file << "Group name: " << mGroupName << "\n";
+
     switch (ELEMENT_DIM)
     {
         case 1:
@@ -95,7 +98,7 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     out_stream p_elem_file = this->mpOutputFileHandler->OpenOutputFile(elem_file_name);
 
     // Write the elem header
-    *p_elem_file << "Group name: " << this->mBaseName << "\n";
+    *p_elem_file << "Group name: " << mGroupName << "\n";
     switch (ELEMENT_DIM)
     {
         case 1:
@@ -200,8 +203,9 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     }
     p_elem_file->close();
 }
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector<std::string>& rFieldNames)
+void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector<std::string>& rFieldNames)
 {
     mAdditionalFieldNames = rFieldNames;
 }
@@ -210,9 +214,9 @@ void CmguiWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector<std
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
-template class CmguiWriter<1,1>;
-template class CmguiWriter<1,2>;
-template class CmguiWriter<1,3>;
-template class CmguiWriter<2,2>;
-template class CmguiWriter<2,3>;
-template class CmguiWriter<3,3>;
+template class CmguiMeshWriter<1,1>;
+template class CmguiMeshWriter<1,2>;
+template class CmguiMeshWriter<1,3>;
+template class CmguiMeshWriter<2,2>;
+template class CmguiMeshWriter<2,3>;
+template class CmguiMeshWriter<3,3>;

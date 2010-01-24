@@ -48,8 +48,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
 
-
 #include "MooneyRivlinMaterialLaw.hpp"
+
+#include "CmguiDeformedSolutionsWriter.hpp"
+
 
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
@@ -398,11 +400,17 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
     TimeStepper stepper(0.0, mEndTime, mMechanicsTimeStep);
 
+    CmguiDeformedSolutionsWriter<DIM>* p_cmgui_writer = NULL;
+
     unsigned mech_writer_counter = 0;
     if (mWriteOutput)
     {
         mpCardiacMechAssembler->SetWriteOutput();
         mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
+
+        p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/cmgui", "solution", *(this->mpMechanicsMesh));
+        p_cmgui_writer->WriteInitialMesh();
+
 
         if(!mNoElectricsOutput)
         {
@@ -524,6 +532,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             mpCardiacMechAssembler->SetWriteOutput();
             mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
 
+            p_cmgui_writer->WriteDeformationPositions(rGetDeformedPosition(), counter);
+
             if(!mNoElectricsOutput)
             {
                 mpMonodomainProblem->mpWriter->AdvanceAlongUnlimitedDimension();
@@ -579,6 +589,11 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         
     }
 
+    if(p_cmgui_writer)
+    {
+        p_cmgui_writer->WriteCmguiScript();
+        delete p_cmgui_writer;
+    }
     VecDestroy(voltage);
     delete p_electrics_assembler;
 
