@@ -233,6 +233,12 @@ public:
            bool voltage_only = false;
            CompareCellModelResults("sh04_cvode", "sh04_chaste",tolerance, voltage_only, "TestCvodeCells");
 
+           // Coverage of GetIIonic method.
+           TS_ASSERT_DELTA(sh04_ode_system.GetIIonic(),0.0006,1e-4);
+
+           // Coverage of mSetVoltageDerivativeToZero
+           sh04_ode_system.ComputeExceptVoltage(end_time,end_time+0.01);
+
    #endif // CHASTE_CVODE
        }
 };

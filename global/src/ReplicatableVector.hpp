@@ -40,12 +40,8 @@ class ReplicatableVector
 {
 private:
 
-    /**
-     * The wrapped vector.
-     */
-    double* mpData;
-    unsigned mSize;
-
+    double* mpData;     /**< The wrapped PeTSc vector. */
+    unsigned mSize;     /**< The length of the vector. */
     VecScatter mToAll;   /**< Variable holding information for replicating a PETSc vector. */
     Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector. */
 
