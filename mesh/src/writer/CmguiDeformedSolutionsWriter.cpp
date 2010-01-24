@@ -52,6 +52,11 @@ template<unsigned DIM>
 void CmguiDeformedSolutionsWriter<DIM>::WriteDeformationPositions(std::vector<c_vector<double,DIM> >& rDeformedPositions,
                                                                   unsigned counter)
 {
+    if(mpQuadraticMesh->GetNumNodes() != rDeformedPositions.size() )
+    {
+        EXCEPTION("The size of rDeformedPositions does not match the number of nodes in the mesh");
+    }
+    
     mFinalCounter = counter;
     std::stringstream node_file_name_stringstream;
     node_file_name_stringstream <<  this->mBaseName << "_" << counter << ".exnode";
@@ -110,6 +115,50 @@ void CmguiDeformedSolutionsWriter<DIM>::WriteCmguiScript()
     p_script_file->close();
 }
 
+template<unsigned DIM>
+void CmguiDeformedSolutionsWriter<DIM>::ConvertOutput(std::string inputDirectory,
+                                                      std::string inputFileBaseName,
+                                                      unsigned finalCounter)
+{
+    WriteInitialMesh();
+    
+    std::vector<c_vector<double,DIM> > deformed_position(mpQuadraticMesh->GetNumNodes(), zero_vector<double>(DIM));
+
+    for(unsigned i=1; i<=finalCounter; i++)
+    {
+        std::stringstream in_file_stream;
+        in_file_stream << inputDirectory << "/" << inputFileBaseName << "_" << i << ".nodes";
+        
+        std::ifstream ifs(in_file_stream.str().c_str());
+        if (!ifs.is_open())
+        {
+            EXCEPTION("Could not open file: " + in_file_stream.str());
+        }
+        
+        double data;
+        for(unsigned index=0; index<mpQuadraticMesh->GetNumNodes(); index++)
+        {
+            for(unsigned j=0; j<DIM; j++)
+            {
+                ifs >> data;
+                if(ifs.fail())
+                {
+                    std::stringstream error_message;
+                    error_message << "Error occurred when reading file " << in_file_stream.str()
+                                  << ". Expected " << mpQuadraticMesh->GetNumNodes() << " rows and "
+                                  << DIM << " columns";
+                    EXCEPTION(error_message.str());
+                }
+                deformed_position[index](j) = data;
+            }
+        }
+        
+        ifs.close();
+        WriteDeformationPositions(deformed_position, i);
+    }
+    WriteCmguiScript();
+}
+               
 
 template class CmguiDeformedSolutionsWriter<2>;
 template class CmguiDeformedSolutionsWriter<3>;

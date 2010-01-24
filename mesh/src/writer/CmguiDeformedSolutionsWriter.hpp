@@ -90,6 +90,19 @@ public:
      *  given in the last call to WriteDeformationPositions()
      */
     void WriteCmguiScript();
+    
+    /**
+     *  For a simulation that has already been run, convert the chaste output to cmgui format.
+     *  @inputDirectory The directory the chaste output is in
+     *  @inputFileBaseName The base name for the chaste output
+     *  @finalCounter   The final counter, ie the value N for the final file <basename>_N.nodes.
+     *  The first file is assumed to be <basename>_0.nodes. The files <basename>_0.nodes up to
+     *  <basename>_N.nodes will be converted to cmgui format and put in the output directory
+     *  given in the constructor.
+     */   
+    void ConvertOutput(std::string inputDirectory, 
+                       std::string inputFileBaseName, 
+                       unsigned finalCounter);
 };
 
 

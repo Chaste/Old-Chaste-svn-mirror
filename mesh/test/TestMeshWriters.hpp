@@ -457,23 +457,34 @@ public:
         QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
        
         CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter", "solution", mesh);
+        
+        // writes solution_0.exnode and solution_1.node using the mesh
         writer.WriteInitialMesh();
         
+        // set up a deformed positions vector
         std::vector<c_vector<double,2> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(2));
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             deformed_positions[i](0) = 2*mesh.GetNode(i)->rGetLocation()[0];
             deformed_positions[i](1) = 3*mesh.GetNode(i)->rGetLocation()[1];
         }
+        // write solution_1.exnode
         writer.WriteDeformationPositions(deformed_positions, 1);
 
+        // ..and again
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             deformed_positions[i](0) = 4*mesh.GetNode(i)->rGetLocation()[0];
             deformed_positions[i](1) = 6*mesh.GetNode(i)->rGetLocation()[1];
         }
+        // write solution_1.exnode
         writer.WriteDeformationPositions(deformed_positions, 2);
+        // write LoadSolutions.com
         writer.WriteCmguiScript();
+        
+        deformed_positions.push_back(zero_vector<double>(2));
+        
+        TS_ASSERT_THROWS_CONTAINS(writer.WriteDeformationPositions(deformed_positions, 3), "The size of rDeformedPositions does not match the number of nodes in the mesh");
         
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiDeformedSolutionsWriter";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_0.exelem mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_0.exelem").c_str()), 0);
@@ -482,6 +493,31 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_2.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
     }
+    
+    void TestCmguiDeformedSolutionsWriterConvertOutput() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter_ConvertOutput", "solution", mesh);
+
+        // throws as file doesn't exist        
+        TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("blahblahblah", "blah", 1), "Could not open file:");
+
+        // convert some files
+        writer.ConvertOutput("mesh/test/data/TestCmguiDeformedSolutionsWriter", "myoldsolution", 2);
+
+        // myoldsolution_1.nodes and myoldsolution_2.nodes are in chaste format but match the two deformed_positions written in the
+        // test above, so the new output should match the good output from the test above.
+
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiDeformedSolutionsWriter_ConvertOutput";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_0.exelem mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_0.exelem").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_0.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_0.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_1.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_1.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_2.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
+
+        // throws as is incomplete    
+        TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("mesh/test/data/TestCmguiDeformedSolutionsWriter", "bad_myoldsolution", 1), "Error occurred when reading file");
+    } 
     
     void TestVtkWriter() throw(Exception)
     {
