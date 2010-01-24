@@ -120,11 +120,12 @@ void CmguiDeformedSolutionsWriter<DIM>::ConvertOutput(std::string inputDirectory
                                                       std::string inputFileBaseName,
                                                       unsigned finalCounter)
 {
+    // write the mesh to <inputFileBaseName>_0.exnode and <inputFileBaseName>_0.exelem 
     WriteInitialMesh();
     
     std::vector<c_vector<double,DIM> > deformed_position(mpQuadraticMesh->GetNumNodes(), zero_vector<double>(DIM));
 
-    for(unsigned i=1; i<=finalCounter; i++)
+    for(unsigned i=1; i<=finalCounter; i++) //not i=0
     {
         std::stringstream in_file_stream;
         in_file_stream << inputDirectory << "/" << inputFileBaseName << "_" << i << ".nodes";
@@ -135,6 +136,7 @@ void CmguiDeformedSolutionsWriter<DIM>::ConvertOutput(std::string inputDirectory
             EXCEPTION("Could not open file: " + in_file_stream.str());
         }
         
+        // the file into deformed_position
         double data;
         for(unsigned index=0; index<mpQuadraticMesh->GetNumNodes(); index++)
         {
@@ -154,8 +156,11 @@ void CmguiDeformedSolutionsWriter<DIM>::ConvertOutput(std::string inputDirectory
         }
         
         ifs.close();
+        
+        // convert
         WriteDeformationPositions(deformed_position, i);
     }
+    
     WriteCmguiScript();
 }
                
