@@ -50,7 +50,7 @@ void ReplicatableVector::RemovePetscContext()
     
     if (mpData != NULL)
     {
-        delete mpData;
+        delete[] mpData;
         mpData = NULL;
     }        
 }
