@@ -349,6 +349,7 @@ public:
                                                   fixed_nodes);
 
         assembler.Solve();
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 5u); // 'hardcoded' answer, protects against jacobian getting messed up
 
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 
@@ -466,6 +467,7 @@ public:
         assembler.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
 
         assembler.Solve();
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
 
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 
@@ -557,6 +559,7 @@ public:
         assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, MyTraction);
 
         assembler.Solve();
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
 
         // matrix might have (small) errors introduced if this fails
         TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u);

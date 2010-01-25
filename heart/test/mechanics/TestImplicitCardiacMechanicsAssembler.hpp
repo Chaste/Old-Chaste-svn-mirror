@@ -179,6 +179,8 @@ public:
         // solve for quite a long time to get some deformation
         assembler.Solve(0,10,1);
 
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed 
+
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 24 is the top-right corner node,
         TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 0.9413, 1e-3);

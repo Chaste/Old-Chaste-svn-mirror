@@ -249,6 +249,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     assert(mCurrentTime != DBL_MAX);
     assert(mNextTime != DBL_MAX);
     assert(mOdeTimestep != DBL_MAX);
+    double mech_dt = mNextTime - mCurrentTime;
 
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_determinant;
@@ -270,9 +271,9 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     ///////////////////////////////////////////////
     static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> element_current_displacements;
     static c_vector<double,NUM_VERTICES_PER_ELEMENT> element_current_pressures;
-    for(unsigned II=0; II<NUM_NODES_PER_ELEMENT; II++)
+    for (unsigned II=0; II<NUM_NODES_PER_ELEMENT; II++)
     {
-        for(unsigned JJ=0; JJ<DIM; JJ++)
+        for (unsigned JJ=0; JJ<DIM; JJ++)
         {
             element_current_displacements(JJ,II) = this->mCurrentSolution[DIM*rElement.GetNodeGlobalIndex(II) + JJ];
         }
@@ -281,7 +282,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     ///////////////////////////////////////////////
     // Get the current pressure at the vertices
     ///////////////////////////////////////////////
-    for(unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
+    for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
     {
         element_current_pressures(II) = this->mCurrentSolution[DIM*this->mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
     }
@@ -293,7 +294,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
     // get the material law
     AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-    if(this->mMaterialLaws.size()==1)
+    if (this->mMaterialLaws.size()==1)
     {
         // homogeneous
         p_material_law = this->mMaterialLaws[0];
@@ -347,13 +348,11 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
         grad_u = zero_matrix<double>(DIM,DIM);  // must be on new line!!
 
-        for(unsigned node_index=0;
-            node_index<NUM_NODES_PER_ELEMENT;
-            node_index++)
+        for (unsigned node_index=0; node_index<NUM_NODES_PER_ELEMENT; node_index++)
         {
             for (unsigned i=0; i<DIM; i++)
             {
-                for(unsigned M=0; M<DIM; M++)
+                for (unsigned M=0; M<DIM; M++)
                 {
                     grad_u(i,M) += grad_quad_phi(M,node_index)*element_current_displacements(i,node_index);
                 }
@@ -361,12 +360,11 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         }
 
         double pressure = 0;
-        for(unsigned vertex_index=0;
-            vertex_index<NUM_VERTICES_PER_ELEMENT;
-            vertex_index++)
+        for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
         {
             pressure += linear_phi(vertex_index)*element_current_pressures(vertex_index);
         }
+
 
         ///////////////////////////////////////////////
         // calculate C, inv(C) and T
@@ -391,19 +389,10 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
         double detF = Determinant(F);
 
-        /************************************
-         *  The cardiac-specific code PART 1
-         ************************************/
-        //static c_matrix<double,DIM,DIM> C_fibre;          // C when transformed to fibre-sheet axes
-        //static c_matrix<double,DIM,DIM> inv_C_fibre;      // C^{-1} transformed to fibre-sheet axes
-        //static c_matrix<double,DIM,DIM> T_fibre; // T when transformed to fibre-sheet axes
-        //
-        //// transform C and invC
-        //C_fibre = this->mTransFibreSheetMat * C * this->mFibreSheetMat;
-        //inv_C_fibre = this->mTransFibreSheetMat * inv_C * this->mFibreSheetMat;
+        /*****************************
+         *  The cardiac-specific code 
+         *****************************/
 
-        
-////////////////////////
         double lambda = sqrt(C(0,0));
 
         double active_tension = 0;
@@ -415,69 +404,37 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian, 
                                          active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);  
 
-/////////////////////////
 
-        // store the stretch in the fibre direction
-
-        //this->mDTdE_fibre.Zero();
-
-        // compute the transformed tension. The material law should law be a cardiac-
-        // specific law which assumes the x-axes in the fibre, the z-axes the sheet normal
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
 
         // amend the stress and dTdE using the active tension
         T(0,0) += active_tension/C(0,0);
-        this->dTdE(0,0,0,0) -= 2*active_tension/(C(0,0)*C(0,0));
-
-//            //// could do this without the loop now
-//            // transform T back to real coordinates
-//            for(unsigned M=0; M<DIM; M++)
-//            {
-//                for(unsigned N=0; N<DIM; N++)
-//                {
-//                    T[M][N] = 0;
-//                    for(unsigned al=0; al<DIM; al++)
-//                    {
-//                        for(unsigned be=0; be<DIM; be++)
-//                        {
-//                            T[M][N] +=                      T_fibre [al][be]
-//                                        *      this->mFibreSheetMat [M] [al]
-//                                        * this->mTransFibreSheetMat [be][N];
-//                        }
-//                    }
-//                }
-//            }
-//            static FourthOrderTensor<DIM> temp1;
-//            static FourthOrderTensor<DIM> temp2;
-//            static FourthOrderTensor<DIM> temp3;
-//
-//            temp1.SetAsProduct(this->mDTdE_fibre, this->mFibreSheetMat, 0);
-//            temp2.SetAsProduct(temp1,             this->mFibreSheetMat, 1);
-//            temp3.SetAsProduct(temp2,             this->mFibreSheetMat, 2);
-//
-//            this->dTdE.SetAsProduct(temp3, this->mFibreSheetMat, 3);
+        this->dTdE(0,0,0,0) +=  -  2*active_tension/(C(0,0)*C(0,0));
+        if(IsImplicitSolver())
+        {     
+            this->dTdE(0,0,0,0) += (d_act_tension_dlam + d_act_tension_d_dlamdt/mech_dt)/(lambda*C(0,0));
+        }
 
 
-
+        /*******************************
+         * end of cardiac specific code 
+         *******************************/
+         
         static FourthOrderTensor<DIM> dTdE_F;
         static FourthOrderTensor<DIM> dTdE_FF1;
         static FourthOrderTensor<DIM> dTdE_FF2;
   
-        dTdE_F.SetAsProduct(this->dTdE, F, 0);  // B^{aNPQ}  = F^a_M * dTdE^{MNPQ}
-        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{aNPb} = F^a_M * F^b_Q * dTdE^{MNPQ} 
-        dTdE_FF2.SetAsProduct(dTdE_F, F, 2);    // B2^{aNbQ} = F^a_M * F^b_P * dTdE^{MNPQ}
+        dTdE_F.SetAsProduct(this->dTdE, F, 1);  // B^{MdPQ}  = F^d_N * dTdE^{MdPQ}
+        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ} 
+        dTdE_FF2.SetAsProduct(dTdE_F, F, 2);    // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
 
-
-        /*************************************
-         * end of cardiac specific code PART 1
-         *************************************/
 
         /////////////////////////////////////////
         // residual vector
         /////////////////////////////////////////
         if (assembleResidual)
         {
-            for(unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
+            for (unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
             {
                 unsigned spatial_dim = index%DIM;
                 unsigned node_index = (index-spatial_dim)/DIM;
@@ -498,7 +455,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                 }
             }
 
-            for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+            for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
             {
                 rBElem( NUM_NODES_PER_ELEMENT*DIM + vertex_index ) +=   linear_phi(vertex_index)
                                                                       * (detF - 1)
@@ -509,15 +466,15 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         /////////////////////////////////////////
         // Jacobian matrix
         /////////////////////////////////////////
-        if(assembleJacobian)
+        if (assembleJacobian)
         {
-            for(unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
+            for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
             {
                 unsigned spatial_dim1 = index1%DIM;
                 unsigned node_index1 = (index1-spatial_dim1)/DIM;
 
 
-                for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
+                for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
                 {
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
@@ -527,112 +484,65 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                         for (unsigned N=0; N<DIM; N++)
                         {
                             rAElem(index1,index2) +=   T(M,N)
-                                                     * grad_quad_phi(N,node_index1)
-                                                     * grad_quad_phi(M,node_index2)
+                                                     * grad_quad_phi(M,node_index1)
+                                                     * grad_quad_phi(N,node_index2)
                                                      * (spatial_dim1==spatial_dim2?1:0)
                                                      * wJ;
-
-//                            for (unsigned P=0; P<DIM; P++)
-//                            {
-//                                for (unsigned Q=0; Q<DIM; Q++)
-//                                {
-//                                    rAElem(index1,index2)  +=   0.5
-//                                                              * this->dTdE(M,N,P,Q)
-//                                                              * (
-//                                                                  grad_quad_phi(P,node_index2)
-//                                                                * F(spatial_dim2,Q)
-//                                                                   +
-//                                                                  grad_quad_phi(Q,node_index2)
-//                                                                * F(spatial_dim2,P)
-//                                                                 )
-//                                                              * F(spatial_dim1,M)
-//                                                              * grad_quad_phi(N,node_index1)
-//                                                              * wJ;
-//                                }
-//                            }
                         }
                     }
                     
-                    for (unsigned N=0; N<DIM; N++)
+                    for (unsigned M=0; M<DIM; M++)
                     {
                         for (unsigned P=0; P<DIM; P++)
                         {
                             rAElem(index1,index2)  +=   0.5
-                                                      * dTdE_FF1(spatial_dim1,N,P,spatial_dim2)
+                                                      * dTdE_FF1(M,spatial_dim1,P,spatial_dim2)
                                                       * grad_quad_phi(P,node_index2)
-                                                      * grad_quad_phi(N,node_index1)
+                                                      * grad_quad_phi(M,node_index1)
                                                       * wJ;
                         }
                         
                         for (unsigned Q=0; Q<DIM; Q++)
                         {
                            rAElem(index1,index2)  +=   0.5
-                                                     * dTdE_FF2(spatial_dim1,N,spatial_dim2,Q)
+                                                     * dTdE_FF2(M,spatial_dim1,spatial_dim2,Q)
                                                      * grad_quad_phi(Q,node_index2)
-                                                     * grad_quad_phi(N,node_index1)
+                                                     * grad_quad_phi(M,node_index1)
                                                      * wJ;
                         }
                     }
-
-
-
-
-
-                    /************************************
-                     *  The cardiac-specific code PART 2
-                     ************************************/
-                    if(IsImplicitSolver())
-                    {                      
-                        rAElem(index1,index2) +=  (
-                                                       d_act_tension_dlam
-                                                     +
-                                                       d_act_tension_d_dlamdt/(mNextTime-mCurrentTime)
-                                                    )
-                                                    * (F(spatial_dim2,0)/lambda)
-                                                    * grad_quad_phi(0,node_index2)
-                                                    * F(spatial_dim1,0)
-                                                    * grad_quad_phi(0,node_index1)
-                                                    * wJ;
-                    }
-                   /************************************
-                    *  End cardiac-specific code PART 2
-                    ************************************/
                 }
 
-
-                for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+                for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
                 {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
 
                     for (unsigned M=0; M<DIM; M++)
                     {
-                        for (unsigned N=0; N<DIM; N++)
-                        {
-                            rAElem(index1,index2)  +=  - F(spatial_dim1,M)
-                                                       * inv_C(M,N)
-                                                       * grad_quad_phi(N,node_index1)
-                                                       * linear_phi(vertex_index)
-                                                       * wJ;
-                        }
+                         rAElem(index1,index2)  +=  - inv_F(M,spatial_dim1)
+                                                    * grad_quad_phi(M,node_index1)
+                                                    * linear_phi(vertex_index)
+                                                    * wJ;
                     }
                 }
             }
 
-            for(unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+            for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
             {
                 unsigned index1 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
 
-                for(unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
+                for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
                 {
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
 
                     for (unsigned M=0; M<DIM; M++)
                     {
-                        rAElem(index1,index2) +=   linear_phi(vertex_index)
-                                                 * detF
+                        // same as (negative of) the opposite block (ie a few lines up), except for detF
+                        rAElem(index1,index2) +=   detF
                                                  * inv_F(M,spatial_dim2)
                                                  * grad_quad_phi(M,node_index2)
+                                                 * linear_phi(vertex_index)
                                                  * wJ;
                     }
                 }
@@ -643,9 +553,9 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                 // pressure-pressure block. Note, the rest of the
                 // entries are filled in at the end
                 /////////////////////////////////////////////////////
-                for(unsigned vertex_index2=0; vertex_index2< NUM_VERTICES_PER_ELEMENT; vertex_index2++)
+                for (unsigned vertex_index2=0; vertex_index2<NUM_VERTICES_PER_ELEMENT; vertex_index2++)
                 {
-                    unsigned index2 =  NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
+                    unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
                     rAElemPrecond(index1,index2) +=   linear_phi(vertex_index)
                                                     * linear_phi(vertex_index2)
                                                     * wJ;
@@ -658,7 +568,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     if (assembleJacobian)
     {
         // Fill in the other blocks of the preconditioner matrix. (This doesn't
-        // effect the pressure-pressure block of the rAElemPrecond but the
+        // effect the pressure-pressure block of the rAElemPrecond as the
         // pressure-pressure block of rAElem is zero
         rAElemPrecond = rAElemPrecond + rAElem;
     }
