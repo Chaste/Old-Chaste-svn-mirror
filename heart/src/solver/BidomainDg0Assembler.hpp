@@ -277,6 +277,14 @@ public:
      * @param  rowMeanPhiEZero  indicates the row of the matrix to be replaced.  Ought to be an odd number...
      */
      void SetRowForAverageOfPhiZeroed(unsigned rowMeanPhiEZero);
+
+
+Vec mDualProblemSolution;
+Vec mResidual;
+void SolveDualProblem();
+bool IsErrorEstimateSatisfied(Vec currentSolution, double time);
+Vec AlternativeToSolve(Vec currentSolution);
+
 };
 
 /**

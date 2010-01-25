@@ -80,6 +80,12 @@ protected:
     
     /** The unit fibre direction, if a constant fibre direction is being used (defaults to (1,0,0), ie X-direction) */
     c_vector<double,DIM> mConstantFibreDirection;
+    /** 
+     *  Pointer to a set of non-const fibre directions, one for each element. Only non-NULL if SetFibreDirections()
+     *  is called, if not mConstantFibreDirection is used instead
+     */
+    std::vector<c_vector<double,DIM> >* mpNonConstantFibreDirections;
+    
     
     /**
      *  Whether the solver is implicit or not (ie whether the contraction model depends on lambda (and depends on
@@ -169,6 +175,8 @@ public:
         // initialise fibre direction to be (1,0,0), ie fibres in X-direction
         mConstantFibreDirection = zero_vector<double>(DIM);
         mConstantFibreDirection(0) = 1.0;
+        
+        mpNonConstantFibreDirections = NULL;
     }
 
     /**
@@ -180,6 +188,10 @@ public:
         {
             assert(this->mMaterialLaws.size()==1); // haven't implemented heterogeniety yet
             delete this->mMaterialLaws[0];
+        }
+        if(mpNonConstantFibreDirections)
+        {
+            delete mpNonConstantFibreDirections;
         }
     }
 
@@ -207,6 +219,13 @@ public:
         assert(norm_2(rFibreDirection)>1e-14);
         mConstantFibreDirection = rFibreDirection/norm_2(rFibreDirection);
     }
+    
+    /** 
+     *  Set fibre directions for each element from a file
+     *  @param fibreDirectionsFile the file containing the fibre directions - currently must be a .axi file
+     */
+    void SetVariableFibreDirections(std::string fibreDirectionsFile);
+        
 
 
     /**
@@ -270,6 +289,19 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     assert(mOdeTimestep != DBL_MAX);
     double mech_dt = mNextTime - mCurrentTime;
 
+    // set up the fibre direction for this element
+    c_vector<double,DIM> fibre_dir;
+    if(mpNonConstantFibreDirections)
+    {
+        fibre_dir = (*mpNonConstantFibreDirections)[rElement.GetIndex()];
+    }
+    else
+    {
+        fibre_dir = mConstantFibreDirection;
+    }
+
+
+
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_determinant;
     this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
@@ -325,16 +357,6 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         p_material_law = this->mMaterialLaws[rElement.GetIndex()];
         #undef COVERAGE_IGNORE
     }
-
-//// for a varying fibre-direction
-//    assert(DIM==2);
-//    double   theta = 0.785398163/5 * elementIter->vertex(0)[0]; //0->pi/20
-//    this->mFibreSheetMat[0][0] =  cos(theta);
-//    this->mFibreSheetMat[0][1] =  sin(theta);
-//    this->mFibreSheetMat[1][0] = -sin(theta);
-//    this->mFibreSheetMat[1][1] =  cos(theta);
-//    this->mTransFibreSheetMat = transpose(this->mFibreSheetMat);
-
 
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
@@ -412,9 +434,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         /*****************************
          * The cardiac-specific code 
          *****************************/
-         
-        c_vector<double,DIM> fibre_dir = mConstantFibreDirection;
-        
+                 
         double I4 = inner_prod(fibre_dir, prod(C, fibre_dir));
         double lambda = sqrt(I4);
 
@@ -616,6 +636,54 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 }
 
 
+template<unsigned DIM>
+void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreDirections(std::string fibreDirectionsFile)
+{
+    if(fibreDirectionsFile.substr(fibreDirectionsFile.length()-4,fibreDirectionsFile.length()) != ".axi")
+    {
+        EXCEPTION("Fibre file must (currently) be a .axi file");
+    }
+    
+    mpNonConstantFibreDirections = new std::vector<c_vector<double,DIM> >(this->mpQuadMesh->GetNumElements(), zero_vector<double>(DIM));
+
+    std::ifstream ifs(fibreDirectionsFile.c_str());
+    if (!ifs.is_open())
+    {
+        EXCEPTION("Could not open file: " + fibreDirectionsFile);
+    }
+    
+    unsigned num_elem_read_from_file;
+    ifs >> num_elem_read_from_file;
+    assert(num_elem_read_from_file == this->mpQuadMesh->GetNumElements());
+    
+    double data;
+    for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
+    {
+        for(unsigned j=0; j<3; j++) //  ***expect a full 3D vector, even in if DIM<3, to be consistent with .axi files*** 
+        {
+            ifs >> data;
+            if(ifs.fail())
+            {
+                std::stringstream error_message;
+                error_message << "Error occurred when reading file " << fibreDirectionsFile
+                              << ". Expected " << this->mpQuadMesh->GetNumElements() << " rows and "
+                              << "three (not DIM!) columns, ie three components for each fibre, whichever "
+                              << "dimension you are in";
+                EXCEPTION(error_message.str());
+            }
+
+            if(j<DIM)
+            {
+                (*mpNonConstantFibreDirections)[elem_index](j) = data;
+            }
+        }
+        
+        // normalise the fibre direction in case it wasn't normalised
+        (*mpNonConstantFibreDirections)[elem_index] /= norm_2((*mpNonConstantFibreDirections)[elem_index]);
+    }
+   
+    ifs.close();
+}
 
 
 #endif /*ABSTRACTCARDIACMECHANICSASSEMBLER_HPP_*/

@@ -240,6 +240,13 @@ public :
      *  @param watchedLocation  location (x,y,z) in space.  Watched node is the closest to this point.
      */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
+    
+    /**  
+     *  Set a constant fibre direction something other than the default (fibres in X-direction, ie (1,0,0)) 
+     *  is required. The given fibre direction does not have to be unit, it is normalised in this method.
+     *  @param rFibreDirection The fibre direction (ok if norm is not equal to one).
+     */
+    void SetConstantFibreDirection(const c_vector<double,DIM>& rFibreDirection);
 
     /** @return the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();

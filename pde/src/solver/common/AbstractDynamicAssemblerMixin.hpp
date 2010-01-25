@@ -152,6 +152,18 @@ public:
      * @param currentSolution the current solution
      */
     virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
+    
+    
+    virtual bool IsErrorEstimateSatisfied(Vec currentSolution, double time)
+    {
+        return false;
+    }
+    
+    virtual Vec AlternativeToSolve(Vec currentSolution)
+    {
+        NEVER_REACHED;
+        return NULL;
+    }
 
 };
 
@@ -283,7 +295,23 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
         else
         {
             DoMatrixBasedRhsAssembly(current_solution, stepper.GetTime());
-            next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
+
+//// 1. standard
+//            next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
+
+//// 2. use the 'better' guess, which although gives smaller initial residual, converges slower!
+//            Vec better_guess = AlternativeToSolve(current_solution);
+//            next_solution = (*(this->GetLinearSystem()))->Solve(better_guess);
+
+           
+            if(!IsErrorEstimateSatisfied(current_solution, stepper.GetTime()))
+            {
+                next_solution = (*(this->GetLinearSystem()))->Solve(current_solution);
+            }
+            else
+            {
+                next_solution = AlternativeToSolve(current_solution);
+            }
         }
 
         if (mMatrixIsConstant)
