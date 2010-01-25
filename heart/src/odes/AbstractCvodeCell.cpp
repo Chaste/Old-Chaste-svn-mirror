@@ -94,6 +94,12 @@ AbstractCvodeCell::~AbstractCvodeCell()
 }
 
 
+void AbstractCvodeCell::Init()
+{
+    SetStateVariables(GetInitialConditions());
+}
+
+
 unsigned AbstractCvodeCell::GetVoltageIndex()
 {
     return mVoltageIndex;
@@ -168,11 +174,15 @@ N_Vector AbstractCvodeCell::GetInitialConditions()
 }
 
 
+N_Vector AbstractCvodeCell::rGetStateVariables()
+{
+    return mStateVariables;
+}
 
 
 void AbstractCvodeCell::SetStateVariables(N_Vector stateVars)
 {
-    if (mStateVariables)
+    if (mStateVariables and stateVars != mStateVariables)
     {
         mStateVariables->ops->nvdestroy(mStateVariables);
         ///\todo re-init CVODE here?

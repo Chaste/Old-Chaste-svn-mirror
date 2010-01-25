@@ -48,6 +48,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "luo_rudy_1991.hpp"
 #include "luo_rudy_1991Opt.hpp"
 
+#ifdef CHASTE_CVODE
+#include "luo_rudy_1991Cvode.hpp"
+#include "luo_rudy_1991CvodeOpt.hpp"
+#endif // CHASTE_CVODE
 
 class TestPyCml : public CxxTest::TestSuite
 {
@@ -55,6 +59,12 @@ public:
      /**
       * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
       * and gives expected results.
+      * 
+      * To generate the cell model C++ code, use:
+      *     cdchaste
+      *     ./python/ConvertCellModel.py --normal --opt --cvode heart/src/odes/cellml/luo_rudy_1991.cellml
+      * Or, if you don't have CVODE:
+      *     ./python/ConvertCellModel.py heart/src/odes/cellml/luo_rudy_1991.cellml
       * 
       * \todo #1030 run PyCml automatically, rather than having to generate the .hpp files by hand.
       */
@@ -71,6 +81,7 @@ public:
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         double end_time = 1000.0; //One second in milliseconds
+        double i_ionic_end_time = 60.0; // ms
 
         // Normal model
         Cellluo_rudy_1991FromCellML normal(p_solver, p_stimulus);
@@ -80,12 +91,21 @@ public:
         Cellluo_rudy_1991FromCellMLOpt opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
         
+#ifdef CHASTE_CVODE
+        // CVODE version
+        Cellluo_rudy_1991FromCellMLCvode cvode_cell(p_stimulus);
+        TS_ASSERT_EQUALS(cvode_cell.GetVoltageIndex(), 0u);
+        // Optimised CVODE version
+        Cellluo_rudy_1991FromCellMLCvodeOpt cvode_opt(p_stimulus);
+        TS_ASSERT_EQUALS(cvode_opt.GetVoltageIndex(), 0u);
+#endif // CHASTE_CVODE
+        
         // Test the archiving code too
         OutputFileHandler handler("archive", false);
         ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("lr91-pycml.arch");
 
-        // Save both cells at initial state
+        // Save both (non-CVODE) cells at initial state
         {
             AbstractCardiacCell* const p_normal_cell = &normal;
             AbstractCardiacCell* const p_opt_cell = &opt;
@@ -113,7 +133,7 @@ public:
         CheckCellModelResults("Lr91FromPyCml", "Lr91DelayedStim");
 
         RunOdeSolverWithIonicModel(&normal,
-                                   60.0,
+                                   i_ionic_end_time,
                                    "Lr91GetIIonic", 1000, false);
         TS_ASSERT_DELTA( normal.GetIIonic(), 1.9411, 1e-3);
 
@@ -129,9 +149,50 @@ public:
         CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOpt", 1e-4, true);
 
         RunOdeSolverWithIonicModel(&opt,
-                                   60.0,
+                                   i_ionic_end_time,
                                    "Lr91GetIIonicOpt", 1000, false);
-        TS_ASSERT_DELTA( opt.GetIIonic(), 1.9411, 1e-3);
+        TS_ASSERT_DELTA( opt.GetIIonic(), normal.GetIIonic(), 1e-3);
+        
+#ifdef CHASTE_CVODE
+        // CVODE
+        double max_dt = 1.0; //ms
+        ck_start = clock();
+        OdeSolution cvode_solution = cvode_cell.Solve(0.0, end_time, max_dt, max_dt);
+        cvode_solution.WriteToFile("TestIonicModels","Lr91FromPyCmlCvode",&normal,"ms",1,false);
+        ck_end = clock();
+        double cvode_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tCVODE: " << cvode_time << std::endl;
+        CompareCellModelResults("Lr91FromPyCml", "Lr91FromPyCmlCvode", 1e-1, true);
+        // Coverage
+        cvode_cell.SetVoltageDerivativeToZero();
+        cvode_cell.SetStateVariables(cvode_cell.GetInitialConditions());
+        cvode_cell.Solve(0.0, i_ionic_end_time, max_dt);
+        TS_ASSERT_DELTA(cvode_cell.GetIIonic(), 0.0, 1e-1); // Cell should be at rest
+        cvode_cell.SetVoltageDerivativeToZero(false);
+        // Check GetIIonic
+        cvode_cell.SetStateVariables(cvode_cell.GetInitialConditions());
+        cvode_cell.Solve(0.0, i_ionic_end_time, max_dt);
+        TS_ASSERT_DELTA(cvode_cell.GetIIonic(), normal.GetIIonic(), 1e-1);
+        
+        // CVODE Optimised
+        ck_start = clock();
+        cvode_solution = cvode_opt.Solve(0.0, end_time, max_dt, max_dt);
+        cvode_solution.WriteToFile("TestIonicModels","Lr91FromPyCmlCvodeOpt",&opt,"ms",1,false);
+        ck_end = clock();
+        double cvode_opt_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tCVODE Optimised: " << cvode_opt_time << std::endl;
+        CompareCellModelResults("Lr91FromPyCmlCvode", "Lr91FromPyCmlCvodeOpt", 1e-1, true);
+        // Coverage
+        cvode_opt.SetVoltageDerivativeToZero();
+        cvode_opt.SetStateVariables(cvode_opt.GetInitialConditions());
+        cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
+        TS_ASSERT_DELTA(cvode_opt.GetIIonic(), 0.0, 1e-1); // Cell should be at rest
+        cvode_opt.SetVoltageDerivativeToZero(false);
+        // Check GetIIonic
+        cvode_opt.SetStateVariables(cvode_opt.GetInitialConditions());
+        cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
+        TS_ASSERT_DELTA(cvode_opt.GetIIonic(), cvode_cell.GetIIonic(), 1e-1);
+#endif // CHASTE_CVODE
         
         // Load and check simulation results still match
         {

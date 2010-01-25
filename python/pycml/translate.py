@@ -1092,8 +1092,6 @@ class CellMLTranslator(object):
                 self.writeln('if (', varname, '>', max, ') ', varname,
                              ' = ', max, ';')
                 self.writeln('else ', varname, ' = ', max, ';')
-            elif self.use_multi_cell_interface:
-                self.writeln('EXCEPTION(DumpState("V outside lookup table range", rY, cell));')
             else:
                 self.writeln('EXCEPTION(DumpState("V outside lookup table range", rY));')
             self.writeln('#undef COVERAGE_IGNORE', indent=False)
@@ -1125,13 +1123,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
     backward Euler, if the appropriate analyses have been done on the
     model.  (See the -J and -j options to translate.py.)
     """
+    
+    # Type of a reference to the state variable vector
+    TYPE_VECTOR_REF = 'std::vector<double>&'
+
     def translate(self, *args, **kwargs):
         """Generate code for the given model."""
         our_kwargs = {'use_chaste_stimulus': False,
                       'separate_lut_class': True,
                       'convert_interfaces': False,
-                      'kept_vars_as_members': True,
-                      'use_multi_cell_interface': False # See #892
+                      'kept_vars_as_members': True
                       }
         for key, default in our_kwargs.iteritems():
             setattr(self, key, kwargs.get(key, default))
@@ -1174,22 +1175,23 @@ class CellMLToChasteTranslator(CellMLTranslator):
         uname = varobj.units
         units = varobj.component.get_units_by_name(uname)
         return units
-
-    def output_top_boilerplate(self):
-        """Output top boilerplate.
+    
+    def check_time_units(self):
+        """Check if units conversions at the interfaces are required (#621).
         
-        This method outputs the constructor and destructor of the cell
-        class, and also lookup table declarations and lookup methods.
-        It also outputs a blank VerifyGatingVariables method.
+        Sets self.conversion_factor to None if conversions are not required.
+        If they are, to go from model -> Chaste, divide by the conversion factor.
+        To go from Chaste -> model, multiply.
+        If dealing with a derivative, do the opposite.
+        
+        TODO: Change the way we approach this ticket: have a method, called here,
+        which adds conversion mathematics to the model itself, so we don't
+        have to check in each place code is generated?  Would have to add
+        new variables which Chaste reads/writes.  The function
+        mathml_units_mixin._add_units_conversion could then be used.
+        An alternative plan is to put the conversions in
+        Compute(ExceptVoltage), but these may not be virtual.
         """
-        # Check if units conversions at the interfaces are required (#621).
-        # Change the way we approach this ticket: have a method, called here,
-        # which adds conversion mathematics to the model itself, so we don't
-        # have to check in each place code is generated?  Would have to add
-        # new variables which Chaste reads/writes.  The function
-        # mathml_units_mixin._add_units_conversion could then be used.
-        # An alternative plan is to put the conversions in
-        # Compute(ExceptVoltage), but these may not be virtual.
         if self.convert_interfaces:
             time_units = self.get_var_units(self.free_vars[0])
             # Create a reference 'millisecond' units definition
@@ -1212,84 +1214,70 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # If dealing with a derivative, do the opposite.
         else:
             self.conversion_factor = None
-        # Check if we're generating a Backward Euler model
-        if hasattr(self.model, u'solver_info') and \
-               hasattr(self.model.solver_info, u'jacobian'):
-            self.use_backward_euler = True
-            # Find the size of the nonlinear system
-            num_linear_odes = len(self.model.solver_info.xml_xpath(
-                u'solver:linear_odes/m:math/m:apply'))
-            self.nonlinear_system_size = len(self.state_vars) - 1 - num_linear_odes
-            nonlinear_entries = self.model.solver_info.xml_xpath(
-                u'solver:jacobian/solver:entry/@var_j')
-            self.nonlinear_system_vars = \
-                map(unicode, nonlinear_entries[:self.nonlinear_system_size])
-        else:
-            self.use_backward_euler = False
-        # Start output
-        self.writeln('#ifndef _', self.class_name, '_')
-        self.writeln('#define _', self.class_name, '_\n')
+        return
+    
+    @property
+    def include_guard(self):
+        """Get the include guard for this cell model, based on the class name."""
+        return self.class_name.upper() + '_HPP_'
+    
+    def output_includes(self, base_class=None):
+        """Output the start of the .hpp file.
+        
+        As well as the #include lines, it also outputs the include guard and
+        doxygen comment.
+        
+        If base_class is not None (and self.use_backward_euler isn't set)
+        then includes that class' header instead of AbstractCardiacCell.
+        
+        Reads self.include_serialization and self.use_backward_euler.
+        Sets self.base_class_name
+        """
+        self.writeln('#ifndef ', self.include_guard)
+        self.writeln('#define ', self.include_guard, '\n')
         self.output_doxygen('@file\n\n',
                             'This source file was generated from CellML.\n\n',
                             'Model: ', self.model.name, '\n\n',
                             version_comment(self.add_timestamp),
                             '\n\n<autogenerated>')
         self.writeln()
-        self.writeln('#include <boost/serialization/access.hpp>')
-        self.writeln('#include <boost/serialization/base_object.hpp>')
+        if self.include_serialization:
+            self.writeln('#include <boost/serialization/access.hpp>')
+            self.writeln('#include <boost/serialization/base_object.hpp>')
         self.writeln('#include <cmath>')
         self.writeln('#include <cassert>')
-        if self.use_multi_cell_interface:
-            # See #892.  Various settings aren't compatible with this yet.
-            assert not(self.kept_vars_as_members)
-            assert not(self.use_backward_euler)
-            self.writeln('#include <vector>')
-            self.writeln('#include "AbstractCardiacCells.hpp"')
-            base_class_name = 'AbstractCardiacCells'
-            # Keep the same constructor signature as normal
-            solver1 = 'AbstractIvpOdeSolver* pSolver /* unused; should be NULL */, '
-            solver2 = ''
-        elif self.use_backward_euler:
+        if self.use_backward_euler:
             self.writeln('#include "AbstractBackwardEulerCardiacCell.hpp"')
             self.writeln('#include "CardiacNewtonSolver.hpp"')
-            base_class_name = 'AbstractBackwardEulerCardiacCell<' + \
+            self.base_class_name = 'AbstractBackwardEulerCardiacCell<' + \
                 str(self.nonlinear_system_size) + '>'
-            # Keep the same signature as forward cell models, but note that the solver
-            # isn't used
-            solver1 = 'boost::shared_ptr<AbstractIvpOdeSolver> pSolver /* unused; should be empty */, '
-            solver2 = ''
-            #solver1 = solver2 = ''
+        elif base_class:
+            self.base_class_name = base_class
+            self.writeln('#include "' + self.base_class_name + '.hpp"')
         else:
-            self.writeln('#include "AbstractCardiacCell.hpp"')
-            base_class_name = 'AbstractCardiacCell'
-            solver1 = 'boost::shared_ptr<AbstractIvpOdeSolver> pSolver, '
-            solver2 = 'pSolver, '
+            self.base_class_name = 'AbstractCardiacCell'
+            self.writeln('#include "' + self.base_class_name + '.hpp"')
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln('#include "AbstractStimulusFunction.hpp"')
         self.writeln()
 
-        if self.use_lookup_tables and self.separate_lut_class:
-            self.output_lut_class()
-
-        # Cell model class
-        self.writeln('class ', self.class_name,
-                     ' : public ', base_class_name)
-        self.open_block()
-        # Serialization
-        self.writeln('friend class boost::serialization::access;')
-        self.writeln('template<class Archive>')
-        self.writeln('void serialize(Archive & archive, const unsigned int version)')
-        self.open_block()
-        self.writeln('archive & boost::serialization::base_object<', base_class_name,
-                     '>(*this);')
-        self.close_block()
-        # Set & Get methods for variables annotated with pe:keep (#666)
+    def output_cell_parameters(self):
+        """Output declarations, set & get methods for cell parameters.
+        
+        "Parameters" are those variables annotated with pe:keep (see #666).
+        They can be real parameters, which have both set & get methods,
+        or computed variables, which just have get methods.
+        
+        Sets self.cell_parameters to be a list of cellml_variable objects.
+        """
+        # Find annotated variables
         if self.kept_vars_as_members:
             kept_vars = self.doc.xml_xpath(u'/*/*/cml:variable[@pe:keep]')
         else:
             kept_vars = []
         # Generate member variable declarations
+        self.writeln('private:', indent_offset=-1)
         if kept_vars:
             self.output_comment('\nSettable parameters and readable variables\n')
         for var in kept_vars:
@@ -1309,41 +1297,65 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.open_block()
             self.writeln('return ', self.code_name(var), ';')
             self.close_block()
-        # Constructor
-        self.writeln(self.class_name, '(', solver1)
-        cname_indent = ' ' * (1 + len(self.class_name))
-        if self.use_multi_cell_interface:
-            self.writeln(cname_indent,
-                         'std::vector<AbstractStimulusFunction*>& ',
-                         'rIntracellularStimuli,')
-            self.writeln(cname_indent,
-                         'std::vector<AbstractStimulusFunction*> ',
-                         'extracellularStimuli = ',
-                         'std::vector<AbstractStimulusFunction*>())')
-            self.writeln('    : ', base_class_name, '(', len(self.state_vars),
-                         ', ', self.v_index, ', OdeSystemInformation<',
-                         self.class_name, '>::Instance(), ',
-                         'rIntracellularStimuli, extracellularStimuli)')
+        self.cell_parameters = kept_vars
+
+    def output_top_boilerplate(self):
+        """Output top boilerplate.
+        
+        This method outputs the constructor and destructor of the cell
+        class, and also lookup table declarations and lookup methods.
+        It also outputs a blank VerifyStateVariables method.
+        """
+        self.include_serialization = True
+        self.check_time_units()
+        # Check if we're generating a Backward Euler model
+        if hasattr(self.model, u'solver_info') and \
+               hasattr(self.model.solver_info, u'jacobian'):
+            self.use_backward_euler = True
+            # Find the size of the nonlinear system
+            num_linear_odes = len(self.model.solver_info.xml_xpath(
+                u'solver:linear_odes/m:math/m:apply'))
+            self.nonlinear_system_size = len(self.state_vars) - 1 - num_linear_odes
+            nonlinear_entries = self.model.solver_info.xml_xpath(
+                u'solver:jacobian/solver:entry/@var_j')
+            self.nonlinear_system_vars = \
+                map(unicode, nonlinear_entries[:self.nonlinear_system_size])
         else:
-            self.writeln(cname_indent,
-                         'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)')
-            self.writeln('    : ', base_class_name, '(', solver2,
-                         len(self.state_vars), ', ', self.v_index,
-                         ', pIntracellularStimulus)')
+            self.use_backward_euler = False
+        # Start output
+        self.output_includes()
+        
+        if self.use_backward_euler:
+            # Keep the same signature as forward cell models, but note that the solver
+            # isn't used
+            solver1 = 'boost::shared_ptr<AbstractIvpOdeSolver> /* unused; should be empty */'
+            solver2 = ''
+            #solver1 = solver2 = ''
+        else:
+            solver1 = 'boost::shared_ptr<AbstractIvpOdeSolver> pSolver'
+            solver2 = 'pSolver'
+
+        if self.use_lookup_tables and self.separate_lut_class:
+            self.output_lut_class()
+
+        # Cell model class
+        self.writeln('class ', self.class_name,
+                     ' : public ', self.base_class_name)
         self.open_block()
-        self.output_comment('Time units: ', self.free_vars[0].units, '\n')
-        if not self.use_multi_cell_interface:
-            self.writeln('mpSystemInfo = OdeSystemInformation<',
-                         self.class_name, '>::Instance();')
-            self.writeln('Init();\n')
-        #666 - initialise parameters
-        for var in kept_vars:
-            if var.get_type() == VarTypes.Constant:
-                self.writeln(self.code_name(var), self.EQ_ASSIGN, var.initial_value,
-                             self.STMT_END)
-        if self.use_lookup_tables and not self.separate_lut_class:
-            self.output_lut_generation()
-        self.close_block()
+        # Serialization
+        if self.include_serialization:
+            self.writeln('friend class boost::serialization::access;')
+            self.writeln('template<class Archive>')
+            self.writeln('void serialize(Archive & archive, const unsigned int version)')
+            self.open_block()
+            self.writeln('archive & boost::serialization::base_object<', self.base_class_name,
+                         '>(*this);')
+            self.close_block()
+        # Parameter declarations, and set & get methods (#666)
+        param_vars = self.output_cell_parameters()
+        # Constructor
+        self.output_constructor([solver1, 'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
+                                [solver2, len(self.state_vars), self.v_index, 'pIntracellularStimulus'])
         # Destructor
         self.writeln('~', self.class_name, '(void)')
         self.open_block()
@@ -1357,12 +1369,44 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.output_lut_declarations()
                 self.output_lut_row_lookup_memory()
                 self.output_lut_methods()
-        # Verify gating variables method; empty at present
-        if self.use_multi_cell_interface:
-            self.writeln('void VerifyGatingVariables(unsigned lo, unsigned hi)')
-        else:
-            self.writeln('void VerifyGatingVariables()')
+        # Verify state variables method; empty at present
+        self.writeln('void VerifyStateVariables()')
         self.writeln('{}\n')
+        return
+    
+    def output_constructor(self, params, base_class_params):
+        """Output a cell constructor.
+        
+        params is a list of constructor parameters, entries of which should be strings
+        including both type and parameter name, which will be included verbatim in the
+        generated code.
+        
+        base_class_params is a list of parameters to be supplied to the base class
+        constructor.  Entries will be converted to strings.
+        """
+        self.writeln(self.class_name, '(')
+        for i, param in enumerate(params):
+            if i == len(params)-1: comma = ')'
+            else: comma = ','
+            self.writeln(param, comma, indent_offset=2)
+        self.writeln('    : ', self.base_class_name, '(')
+        for i, param in enumerate(base_class_params):
+            if i == len(base_class_params)-1: comma = ')'
+            else: comma = ','
+            self.writeln(param, comma, indent_offset=3)
+        self.open_block()
+        self.output_comment('Time units: ', self.free_vars[0].units, '\n')
+        self.writeln('mpSystemInfo = OdeSystemInformation<',
+                     self.class_name, '>::Instance();')
+        self.writeln('Init();\n')
+        #666 - initialise parameters
+        for var in self.cell_parameters:
+            if var.get_type() == VarTypes.Constant:
+                self.writeln(self.code_name(var), self.EQ_ASSIGN, var.initial_value,
+                             self.STMT_END)
+        if self.use_lookup_tables and not self.separate_lut_class:
+            self.output_lut_generation()
+        self.close_block()
         return
 
     def output_lut_class(self):
@@ -1424,31 +1468,29 @@ class CellMLToChasteTranslator(CellMLTranslator):
         will be included.
         """
         if assign_rY:
-            if self.use_multi_cell_interface:
-                self.writeln('TableType& rY = rGetStateVariableTable();')
-            else:
-                self.writeln('std::vector<double>& rY = rGetStateVariables();')
+            self.writeln(self.TYPE_VECTOR_REF, ' rY = rGetStateVariables();')
         for i, var in enumerate(self.state_vars):
             if ( not exclude_nonlinear or 
                  self.code_name(var) not in self.nonlinear_system_vars) \
                  and (not nodeset or var in nodeset):
-                if self.use_multi_cell_interface:
-                    self.writeln(self.TYPE_DOUBLE, self.code_name(var),
-                                 ' = rY(cell, ', str(i), ');')
-                else:
-                    self.writeln(self.TYPE_DOUBLE, self.code_name(var),
-                                 ' = rY[', str(i), '];')
+                self.writeln(self.TYPE_DOUBLE, self.code_name(var),
+                             self.EQ_ASSIGN, self.vector_index('rY', i), self.STMT_END)
                 self.writeln(self.COMMENT_START, 'Units: ', var.units,
                              '; Initial value: ',
                              getattr(var, u'initial_value', 'Unknown'))
                 #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
         return
+    
+    def vector_index(self, vector, i):
+        """Return code for accessing the i'th index of vector."""
+        return vector + '[' + str(i) + ']'
 
     def output_nonlinear_state_assignments(self):
         """Output assignments for nonlinear state variables."""
         for i, varname in enumerate(self.nonlinear_system_vars):
-            self.writeln('double ', varname, ' = rCurrentGuess[', i, '];')
+            self.writeln('double ', varname, self.EQ_ASSIGN,
+                         self.vector_index('rCurrentGuess', i), self.STMT_END)
             #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
         return
@@ -1546,16 +1588,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
         For other solvers, only 2 methods are needed:
          * EvaluateYDerivatives computes the RHS of the ODE system
          * GetIIonic is as above
-
-        If self.use_multi_cell_interface is set, then use EvaluateAllDerivatives
-        instead of EvaluateYDerivatives (the latter should throw).
         """
-        # GetIIonic
-        ###########
-        if self.use_multi_cell_interface:
-            self.writeln('double GetIIonic(unsigned cell=0)')
+        self.output_get_i_ionic()
+        if self.use_backward_euler:
+            self.output_backward_euler_mathematics()
         else:
-            self.writeln('double GetIIonic()')
+            self.output_evaluate_y_derivatives()
+
+    def output_get_i_ionic(self):
+        """Output the GetIIonic method."""
+        self.writeln('double GetIIonic()')
         self.open_block()
         # Output mathematics to calculate ionic current, using
         # solver_info.ionic_current.
@@ -1589,13 +1631,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             self.writeln('return 0.0;')
         self.close_block()
-        if self.use_backward_euler:
-            self.output_backward_euler_mathematics()
-        else:
-            self.output_evaluate_y_derivatives()
-        return
 
-    def output_evaluate_y_derivatives(self):
+    def output_evaluate_y_derivatives(self, method_name='EvaluateYDerivatives'):
         """Output the EvaluateYDerivatives method."""
         # Work out what equations are needed to compute the derivatives
         nodes = map(lambda v: (v, self.free_vars[0]), self.state_vars)
@@ -1607,24 +1644,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             nodeset = self.calculate_extended_dependencies(nodes)
         # Start code output
-        self.writeln('void EvaluateYDerivatives(')
+        self.writeln('void ', method_name, '(')
         self.writeln('        double ', self.code_name(self.free_vars[0]), ',')
-        self.writeln('        const std::vector<double> &rY,')
-        self.writeln('        std::vector<double> &rDY)')
-        if self.use_multi_cell_interface:
-            # Model code should be in EvaluateAllDerivatives instead (#892)
-            self.open_block()
-            self.writeln('EXCEPTION("This method should not be called.',
-                         '  See #892.");')
-            self.close_block()
-            self.writeln('void EvaluateAllDerivatives(')
-            self.set_indent(offset=2)
-            self.writeln('unsigned lo, unsigned hi,')
-            self.writeln(self.TYPE_DOUBLE, self.code_name(self.free_vars[0]),
-                         ',')
-            self.writeln('const TableType& rY,')
-            self.writeln('TableType& rDY)')
-            self.set_indent(offset=-2)
+        self.writeln('        const ', self.TYPE_VECTOR_REF, ' rY,')
+        self.writeln('        ', self.TYPE_VECTOR_REF, ' rDY)')
         self.open_block()
         self.writeln(self.COMMENT_START, 'Inputs:')
         self.writeln(self.COMMENT_START, 'Time units: ',
@@ -1633,10 +1656,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if self.conversion_factor:
             self.writeln(self.code_name(self.free_vars[0]), ' *= ',
                          self.conversion_factor, self.STMT_END)
-        if self.use_multi_cell_interface:
-            #892: Loop over cells
-            self.writeln('for (unsigned cell=lo; cell<hi; cell++)')
-            self.open_block()
         self.output_state_assignments(assign_rY=False, nodeset=nodeset)
         self.writeln()
         if self.use_lookup_tables:
@@ -1646,10 +1665,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_equations(nodeset)
         self.writeln()
         for i, var in enumerate(self.state_vars):
-            if self.use_multi_cell_interface:
-                deriv_assign = 'rDY(cell, ' + str(i) + ') = '
-            else:
-                deriv_assign = 'rDY[' + str(i) + '] = '
+            deriv_assign = self.vector_index('rDY', i) + self.EQ_ASSIGN
             if self.conversion_factor:
                 #621: convert if free var is not in milliseconds
                 self.writeln(deriv_assign, self.conversion_factor,
@@ -1657,9 +1673,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             else:
                 self.writeln(deriv_assign, self.code_name(var, True),
                              self.STMT_END)
-        if self.use_multi_cell_interface:
-            #892: close loop over cells
-            self.close_block()
         self.close_block()
         return
 
@@ -1887,7 +1900,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.close_block()
         self.writeln()
         # Serialization
-        if not self.use_multi_cell_interface:
+        if self.include_serialization:
             self.output_comment('Needs to be included last')
             self.writeln('#include "TemplatedExport.hpp"')
             self.writeln('CHASTE_CLASS_EXPORT(', self.class_name, ')')
@@ -1924,7 +1937,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block()
             self.close_block()
         # End file
-        self.writeln('#endif')
+        self.writeln('#endif // ', self.include_guard)
         return
 
     def output_lhs(self, expr):
@@ -1964,93 +1977,59 @@ class CellMLToChasteTranslator(CellMLTranslator):
         return
 
 
-class CellMLToCvodeTranslator(CellMLTranslator):
-    """Translate a CellML model to C++ code for use with CVODE."""
+class CellMLToCvodeTranslator(CellMLToChasteTranslator):
+    """Translate a CellML model to C++ code for use with Chaste+CVODE."""
+    
+    TYPE_VECTOR_REF = 'N_Vector' # CVODE's vector is actually a pointer type
+    
+    def vector_index(self, vector, i):
+        """Return code for accessing the i'th index of vector."""
+        return 'NV_Ith_S(' + vector + ', ' + str(i) + ')'
+
     def output_top_boilerplate(self):
         """Output top boilerplate code.
 
         This method outputs #includes, and the start of the cell class
         with constructor, destructor, and LT methods.
-        
-        It also starts the RHS function, including the LT index
-        calculation code.
         """
-        self.writeln('#ifndef _', self.class_name, '_')
-        self.writeln('#define _', self.class_name, '_\n')
-        self.output_comment('Model: ', self.model.name)
-        self.output_comment(version_comment(self.add_timestamp))
-        self.writeln()
-        self.writeln('#include <cmath>')
-        self.writeln('#include <cassert>')
-        self.writeln('#include "AbstractCvodeCell.hpp"')
-        # Cell model class
-        self.writeln('class ', self.class_name, ' : public AbstractCvodeCell')
+        self.include_serialization = False
+        self.use_backward_euler = False
+        self.check_time_units()
+        self.output_includes(base_class='AbstractCvodeCell')
+        # Separate class for lookup tables?
+        if self.use_lookup_tables and self.separate_lut_class:
+            self.output_lut_class()
+        # Start cell model class
+        self.writeln('class ', self.class_name, ' : public ', self.base_class_name)
         self.open_block()
-        self.writeln('public:', indent_offset=-1)
+        # Parameter declarations, and set & get methods (#666)
+        param_vars = self.output_cell_parameters()
         # Constructor
-        self.writeln(self.class_name, '()')
-        self.writeln('    : AbstractCvodeCell(', len(self.state_vars), ', ',
-                     self.v_index, ')')
-        self.open_block()
-        self.output_comment('Time units: ', self.free_vars[0].units, '\n')
-        for var in self.state_vars:
-            self.writeln('mVariableNames.push_back("', var.name, '");')
-            self.writeln('mVariableUnits.push_back("', var.units, '");')
-            init_val = getattr(var, u'initial_value', None)
-            if init_val is None:
-                init_comm = ' // Value not given in model'
-                # Don't want compiler error, but shouldn't be a real number
-                init_val = 'NAN'
-            else:
-                init_comm = ''
-            self.writeln('mInitialConditions.push_back(', init_val, ');',
-                       init_comm, '\n')
-        if self.use_lookup_tables:
-            self.output_lut_generation()
-        self.close_block()
+        self.output_constructor(['boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
+                                [len(self.state_vars), self.v_index, 'pIntracellularStimulus'])
         # Destructor
         self.writeln('~', self.class_name, '(void)')
         self.open_block()
         self.close_block()
         # Lookup table declarations & methods
-        if self.use_lookup_tables:
-            self.writeln('private:', indent_offset=-1)
+        if self.use_lookup_tables and not self.separate_lut_class:
             self.output_lut_declarations()
+            self.output_lut_row_lookup_memory()
             self.output_lut_methods()
-            self.writeln('public:', indent_offset=-1)
-        # RHS evaluation function
-        self.writeln('void EvaluateRhs(realtype ',
-                     self.code_name(self.free_vars[0]),
-                     ', N_Vector rY, N_Vector ydot)')
-        self.open_block()
-        self.output_comment('Inputs:')
-        self.output_comment('Time units: ', self.free_vars[0].units)
-        for i, var in enumerate(self.state_vars):
-            self.writeln(self.TYPE_DOUBLE, self.code_name(var),
-                         ' = NV_Ith_S(rY, ', str(i), ');')
-            self.output_comment('Units: ', var.units, '; Initial value: ',
-                                getattr(var, u'initial_value', 'Unknown'))
-        self.writeln()
-        if self.use_lookup_tables:
-            self.output_table_index_generation()
+        # Verify state variables method; empty at present
+        self.writeln('void VerifyStateVariables()')
+        self.writeln('{}\n')
         return
 
-    def output_bottom_boilerplate(self):
-        """Output bottom boilerplate code.
-
-        Close the RHS evaluation method, the cell model class, and the
-        include guard.
+    def output_mathematics(self):
+        """Output the mathematics in this model.
+        
+        Two methods are needed:
+         * EvaluateRhs computes the RHS of the ODE system
+         * GetIIonic returns the total ionic current
         """
-        self.writeln()
-        for i, var in enumerate(self.state_vars):
-            self.writeln('NV_Ith_S(ydot, ', str(i), ') = ',
-                         self.code_name(var, True), self.STMT_END)
-        self.close_block()
-        self.set_indent(offset=-1)
-        self.writeln('};\n')
-        self.writeln('#endif')
-        return
-    
+        self.output_get_i_ionic()
+        self.output_evaluate_y_derivatives(method_name='EvaluateRhs')
 
 class CellMLToMapleTranslator(CellMLTranslator):
     """Translate a CellML model to Maple code."""
@@ -4275,9 +4254,6 @@ def get_options(args):
                       action='store_true', default=False,
                       help="[debug] use the old LT layout, with poorer cache"
                       " performance")
-    parser.add_option('--use-multi-cell-interface',
-                      action='store_true', default=False,
-                      help="[experimental] see Chaste ticket #892")
 
     options, args = parser.parse_args(args)
     if len(args) != 1:
@@ -4390,8 +4366,6 @@ def run():
         # Add info as XML
         doc.model._add_solver_info()
         # TODO: Analyse the XML, adding cellml_variable references, etc.
-    elif options.translate and options.translate_type == 'Chaste':
-        doc.model._add_solver_info_ionic_current()
 
     if options.translate:
         # Translate to code
@@ -4403,15 +4377,15 @@ def run():
         transargs['lt_index_uses_floor'] = options.lt_index_uses_floor
         transargs['constrain_table_indices'] = options.constrain_table_indices
         transargs['bad_tables_for_cache'] = options.bad_tables_for_cache
-        if klass is CellMLToMapleTranslator:
+        if issubclass(klass, CellMLToMapleTranslator):
             initargs['omit_constants'] = options.omit_constants
             initargs['compute_full_jacobian'] = options.compute_full_jacobian
-        elif klass is CellMLToChasteTranslator:
+        elif issubclass(klass, CellMLToChasteTranslator):
+            doc.model._add_solver_info_ionic_current()
             transargs['use_chaste_stimulus'] = options.use_chaste_stimulus
             transargs['separate_lut_class'] = options.separate_lut_class
             transargs['convert_interfaces'] = options.convert_interfaces
             transargs['kept_vars_as_members'] = options.kept_vars_as_members
-            transargs['use_multi_cell_interface'] = options.use_multi_cell_interface
         t = klass(**initargs)
         t.translate(doc, model_file, output_filename, class_name, **transargs)
     else:

@@ -25,6 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
+"""
+A little helper script to facilitate calling PyCml for common Chaste usage scenarios.
+"""
+
 import os
 import sys
 
@@ -44,6 +48,22 @@ if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
 else:
     pycml_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pycml')
 
+# Poor man's argument parsing
+our_args = ['--cvode', '--normal', '--opt']
+found_any_arg = False
+for arg in our_args:
+    if arg in sys.argv:
+        sys.argv.remove(arg)
+        exec("use_%s = True" % arg[2:])
+        found_any_arg = True
+    else:
+        exec("use_%s = False" % arg[2:])
+if not found_any_arg:
+    use_cvode = False
+    use_normal = True
+    use_opt = True
+
+# What options should be passed on to PyCml?
 try:
     end = sys.argv.index('--')
     args = sys.argv[1:end]
@@ -57,6 +77,7 @@ models = []
 for model in [arg for arg in args if arg[0] != '-']:
     models.append(os.path.abspath(model))
 
+# The main workhorse function
 def convert(model):
     model_dir = os.path.dirname(model)
     model_base = os.path.basename(model)
@@ -65,21 +86,40 @@ def convert(model):
 
     command_base = './translate.py %(opts)s -c %(classname)s %(model)s -o %(outfile)s'
 
-    # Basic class
-    cmd = command_base % {'opts': ' '.join(options),
-                          'classname': class_name,
-                          'model': model,
-                          'outfile': os.path.join(model_dir, model_base + '.hpp')}
-    print cmd
-    os.system(cmd)
+    if use_normal:
+        # Basic class
+        cmd = command_base % {'opts': ' '.join(options),
+                              'classname': class_name,
+                              'model': model,
+                              'outfile': os.path.join(model_dir, model_base + '.hpp')}
+        print cmd
+        os.system(cmd)
 
-    # With optimisation
-    cmd = command_base % {'opts': ' '.join(['-p -l'] + options),
-                          'classname': class_name + 'Opt',
-                          'model': model,
-                          'outfile': os.path.join(model_dir, model_base + 'Opt.hpp')}
-    print cmd
-    os.system(cmd)
+        if use_opt:
+            # With optimisation
+            cmd = command_base % {'opts': ' '.join(['-p -l'] + options),
+                                  'classname': class_name + 'Opt',
+                                  'model': model,
+                                  'outfile': os.path.join(model_dir, model_base + 'Opt.hpp')}
+            print cmd
+            os.system(cmd)
+    
+    if use_cvode:
+        cmd = command_base % {'opts': ' '.join(['-t CVODE'] + options),
+                              'classname': class_name + 'Cvode',
+                              'model': model,
+                              'outfile': os.path.join(model_dir, model_base + 'Cvode.hpp')}
+        print cmd
+        os.system(cmd)
+
+        if use_opt:
+            # With optimisation
+            cmd = command_base % {'opts': ' '.join(['-p -l', '-t CVODE'] + options),
+                                  'classname': class_name + 'CvodeOpt',
+                                  'model': model,
+                                  'outfile': os.path.join(model_dir, model_base + 'CvodeOpt.hpp')}
+            print cmd
+            os.system(cmd)
 
 
 os.chdir(pycml_dir)

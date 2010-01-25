@@ -109,6 +109,14 @@ protected:
     std::string DumpState(const std::string& message,
                           N_Vector Y = NULL);
 
+    /**
+     * Can be called by concrete subclass constructors to initialise the state
+     * variables.
+     *
+     * Mainly here to reduce differences between this class and AbstractCardiacCell.
+     */
+    void Init();
+
 public:
     /**
      * Create a new cardiac cell.
@@ -204,6 +212,14 @@ public:
      * @param stateVars  new state variables vector
      */
     void SetStateVariables(N_Vector stateVars);
+
+    /**
+     * Get the state variable vector.
+     * Doesn't really return a reference (N_Vector is a pointer type)
+     * but named like this to match AbstractCardiacCell.
+     * This cell will retain responsibility for freeing the vector.
+     */
+    N_Vector rGetStateVariables();
 
     /**
      * RHS evaluation function, to be provided by subclasses.
