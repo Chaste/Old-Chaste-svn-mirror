@@ -70,6 +70,46 @@ public:
         MechanicsEventHandler::Report();
     }
 
+    void Test2dVariableFibres() throw(Exception)
+    {
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+
+        CardiacElectroMechProbRegularGeom<2> problem(NHS,
+                                                     1.0,  /* width */
+                                                     5,    /* mech mesh size */
+                                                     96,   /* elec elem each dir */
+                                                     &cell_factory,
+                                                     125,  /* end time */
+                                                     0.01, /* electrics timestep (ms) */
+                                                     100,  /* 100*0.01ms mech dt */
+                                                     1.0,  /* contraction model ode dt */
+                                                     "TestCardiacEmVaryingFibres");
+        
+        // fibres going from (1,0) at X=0 to (1,1)-direction at X=1
+        /* the fibres file was created with the code (inside a class that owns a mesh)
+        for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
+        {
+            double X = this->mpQuadMesh->GetElement(elem_index)->CalculateCentroid()[0];
+            double theta = M_PI*X/4;
+            std::cout << cos(theta) << " " << sin(theta) << " 0\n" << std::flush;
+        }
+        assert(0);
+        */
+        problem.SetVariableFibreDirectionsFile("heart/test/data/5by5mesh_curving_fibres.axi");
+
+        problem.SetNoElectricsOutput();
+        problem.Solve();
+
+        // test by checking the length of the tissue against hardcoded value
+        std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
+        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.8993, 1e-3); // visualised, looks good
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
+    }
+
+
+
     void Test3d() throw(Exception)
     {
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-1000*1000);

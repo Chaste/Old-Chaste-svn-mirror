@@ -176,6 +176,10 @@ public:
                                                      100,   /* n times 0.01ms mech dt */
                                                      0.01, /*  ode timestep */
                                                      "TestExplicitWithNash");
+        
+        // coverage, this file is just X-direction fibres
+        problem.SetVariableFibreDirectionsFile("heart/test/data/1by1mesh_fibres.axi");
+
 
         c_vector<double,2> pos;
         pos(0) = 0.05;

@@ -221,7 +221,7 @@ public:
     }
     
     /** 
-     *  Set fibre directions for each element from a file
+     *  Set fibre directions for each element from a file. Note: the fibre directions will be re-normalised.
      *  @param fibreDirectionsFile the file containing the fibre directions - currently must be a .axi file
      */
     void SetVariableFibreDirections(std::string fibreDirectionsFile);

@@ -155,6 +155,8 @@ protected :
 
     /** Nodes for which the deformation is fixed to zero */
     std::vector<unsigned> mFixedNodes;
+    /** File to read element-wise fibre-directions from */
+    std::string mFibreDirectionsFile;
 
     /**
      *  Determine which node is closest to the watched location
@@ -242,11 +244,11 @@ public :
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
     
     /**  
-     *  Set a constant fibre direction something other than the default (fibres in X-direction, ie (1,0,0)) 
-     *  is required. The given fibre direction does not have to be unit, it is normalised in this method.
-     *  @param rFibreDirection The fibre direction (ok if norm is not equal to one).
+     *  Set fibre directions for each element from a file. Note: the fibre directions will be re-normalised.
+     *  The number of elements must match the number in the MECHANICS mesh!
+     *  @param fibreDirectionsFile the file containing the fibre directions - currently must be a .axi file
      */
-    void SetConstantFibreDirection(const c_vector<double,DIM>& rFibreDirection);
+    void SetVariableFibreDirectionsFile(std::string fibreDirectionsFile);
 
     /** @return the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
