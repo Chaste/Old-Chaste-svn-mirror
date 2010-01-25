@@ -41,7 +41,8 @@ if len(sys.argv) != 2:
     print >> sys.stderr, "Usage:", sys.argv[0], " <tolerance>"
     sys.exit(1)
 tolerance = int(sys.argv[1])
-print 'Warning: These have been filtered by ', sys.argv[0],' which means all floating point numbers have been rounded to ', tolerance, ' decimal places.'
+print 'Warning: These have been filtered by ',sys.argv[0],'.'
+print 'This means that all floating point numbers have been rounded to ', tolerance, ' decimal places.'
 def Replace(matchobj):
     """Given a match, round the number to the tolerance."""
     return str(round(float(matchobj.group(0)), tolerance))
