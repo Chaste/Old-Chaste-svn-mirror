@@ -62,8 +62,8 @@ public:
     /**
      *  Constructor 
      *  @param outputDirectory The output directory for the Cmgui files
-     *  @oaram baseName The base name for the Cmgui output files - the files written will be
-     *   <basename>_0.exnode, <basename>_0.exelem; <basename>_1.exnode, <basename>_2.exnode, ..
+     *  @param baseName The base name for the Cmgui output files - the files written will be
+     *   [basename_0.exnode, [basename]_0.exelem; [basename]_1.exnode, [basename]_2.exnode, ..
      *  @param rQuadraticMesh The quadratic mesh used in the mechanics simulation
      */
     CmguiDeformedSolutionsWriter(std::string outputDirectory,
@@ -71,15 +71,15 @@ public:
                                  QuadraticMesh<DIM>& rQuadraticMesh);
     
     /**
-     *  Write <basename>_0.exnode, <basename>_0.exelem using the quadratic mesh
+     *  Write [basename]_0.exnode, [basename]_0.exelem using the quadratic mesh
      */
     void WriteInitialMesh();
     
     /**
-     *  Write <basename>_i.exnode using the given deformed positions
+     *  Write [basename]_i.exnode using the given deformed positions
      *  @param rDeformedPositions std::vector of deformed positions to be used, must have size equal to number
      *  of nodes in the mesh
-     *  @counter the value "i" in "<basename>_i.exnode" to be used.
+     *  @param counter the value "i" in "[basename]_i.exnode" to be used.
      */
     void WriteDeformationPositions(std::vector<c_vector<double,DIM> >& rDeformedPositions,
                                    unsigned counter);
