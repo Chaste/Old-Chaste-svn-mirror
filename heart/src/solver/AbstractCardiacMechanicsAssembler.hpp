@@ -78,6 +78,9 @@ protected:
     /** Time used to integrate the contraction model */
     double mOdeTimestep;
     
+    /** The unit fibre direction, if a constant fibre direction is being used (defaults to (1,0,0), ie X-direction) */
+    c_vector<double,DIM> mConstantFibreDirection;
+    
     /**
      *  Whether the solver is implicit or not (ie whether the contraction model depends on lambda (and depends on
      *  lambda at the current time)). For whether dTa_dLam dependent terms need to be added to the Jacbobian
@@ -162,6 +165,10 @@ public:
         
         // initialise the store of fibre stretches
         mStretches.resize(mTotalQuadPoints, 1.0);
+        
+        // initialise fibre direction to be (1,0,0), ie fibres in X-direction
+        mConstantFibreDirection = zero_vector<double>(DIM);
+        mConstantFibreDirection(0) = 1.0;
     }
 
     /**
@@ -187,6 +194,18 @@ public:
     virtual GaussianQuadratureRule<DIM>* GetQuadratureRule()
     {
         return this->mpQuadratureRule;
+    }
+    
+    
+    /**  
+     *  Set a constant fibre direction something other than the default (fibres in X-direction, ie (1,0,0)) 
+     *  is required. The given fibre direction does not have to be unit, it is normalised in this method.
+     *  @param rFibreDirection The fibre direction (ok if norm is not equal to one).
+     */
+    void SetConstantFibreDirection(const c_vector<double,DIM>& rFibreDirection)
+    {
+        assert(norm_2(rFibreDirection)>1e-14);
+        mConstantFibreDirection = rFibreDirection/norm_2(rFibreDirection);
     }
 
 
@@ -389,16 +408,19 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
         double detF = Determinant(F);
 
-        /*****************************
-         *  The cardiac-specific code 
-         *****************************/
 
-        double lambda = sqrt(C(0,0));
+        /*****************************
+         * The cardiac-specific code 
+         *****************************/
+         
+        c_vector<double,DIM> fibre_dir = mConstantFibreDirection;
+        
+        double I4 = inner_prod(fibre_dir, prod(C, fibre_dir));
+        double lambda = sqrt(I4);
 
         double active_tension = 0;
         double d_act_tension_dlam = 0.0;     //Set and used if assembleJacobian==true
         double d_act_tension_d_dlamdt = 0.0; //Set and used if assembleJacobian==true
-
 
 
         GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian, 
@@ -407,18 +429,37 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
 
+
         // amend the stress and dTdE using the active tension
-        T(0,0) += active_tension/C(0,0);
-        this->dTdE(0,0,0,0) +=  -  2*active_tension/(C(0,0)*C(0,0));
+        double dTdE_coeff = -2*active_tension/(I4*I4); // note: I4*I4 = lam^4
         if(IsImplicitSolver())
         {     
-            this->dTdE(0,0,0,0) += (d_act_tension_dlam + d_act_tension_d_dlamdt/mech_dt)/(lambda*C(0,0));
+            dTdE_coeff += (d_act_tension_dlam + d_act_tension_d_dlamdt/mech_dt)/(lambda*I4); // note: I4*lam = lam^3
         }
 
+        T += (active_tension/I4)*outer_prod(fibre_dir,fibre_dir);
 
-        /*******************************
-         * end of cardiac specific code 
-         *******************************/
+        for (unsigned M=0; M<DIM; M++)
+        {
+            for (unsigned N=0; N<DIM; N++)
+            {
+                for (unsigned P=0; P<DIM; P++)
+                {
+                    for (unsigned Q=0; Q<DIM; Q++)
+                    {
+                        this->dTdE(M,N,P,Q) +=  dTdE_coeff*fibre_dir(M)*fibre_dir(N)*fibre_dir(P)*fibre_dir(Q);
+                    }
+                }
+            }
+        }
+
+        /*******************************************************************
+         * End of cardiac specific code 
+         * 
+         * The following, excluding the lack of body force term, should be 
+         * identical to NonlinearElasticityAssembler::AssembleOnElement
+         *******************************************************************/
+         
          
         static FourthOrderTensor<DIM> dTdE_F;
         static FourthOrderTensor<DIM> dTdE_FF1;

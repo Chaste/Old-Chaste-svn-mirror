@@ -235,6 +235,100 @@ public:
         TS_ASSERT_DELTA(lambda[34], 0.9753, 1e-4);
     }
 
+    // Same as above test but has fibres in Y-direction (and bottom surface fixed - so results are the same).
+    // The stretches should be identical to in the above test, the deformation rotated.
+    void TestSpecifiedActiveTensionCompressionFibresInYDirection() throw(Exception)
+    {
+        // NOTE: test hardcoded for num_elem = 4
+        QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+        MooneyRivlinMaterialLaw<2> law(0.02);
+
+        // need to leave the mesh as unfixed as possible
+        std::vector<unsigned> fixed_nodes(2);
+        fixed_nodes[0] = 0;
+        fixed_nodes[1] = 1; // was 5 in the above test, {0,1}=small part of X=0 surface, {0,5}=small part of Y=0 surface
+
+        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirection",fixed_nodes,&law);
+        
+        c_vector<double,2> fibre_dir;
+        fibre_dir(0) = 0.0;
+        fibre_dir(1) = 2.0; // note, given (0,2) not (0,1) as the SetConstantFibreDirection() method is supposed to normalise
+        assembler.SetConstantFibreDirection(fibre_dir);
+        
+        QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
+
+        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
+        for(unsigned i=0; i<calcium_conc.size(); i++)
+        {
+            double X = quad_points.Get(i)(0);
+            // 0.0002 is the initial Ca conc in Lr91, 0.001 is the greatest Ca conc
+            // value in one of the Lr91 TestIonicModel tests
+            calcium_conc[i] = 0.0002 + 0.001*X;
+        }
+
+        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+
+        // solve for quite a long time to get some deformation
+        assembler.Solve(0,10,1);
+
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed 
+
+        // have visually checked the answer and seen that it looks ok, so have
+        // a hardcoded test here. Node that 24 is the top-right corner node,
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9413, 1e-3);
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0582, 1e-3);
+
+        std::vector<double>& lambda = assembler.rGetFibreStretches();
+
+        // the lambdas should be less than 1 (ie compression), and also
+        // should be near the same for any particular value of Y, ie the
+        // same along any fibre. Lambda should decrease nonlinearly.
+        // Uncomment trace and view in matlab (plot y against lambda)
+        // to observe this - SEE FIGURE ATTACHED TO TICKET #757.
+        // The lambda are constant for given Y if Y>0.1.5 (ie not near fixed nodes)
+        // and a cubic polynomial can be fitted with matlab
+        for(unsigned i=0; i<lambda.size(); i++)
+        {
+            TS_ASSERT_LESS_THAN(lambda[i], 1.0);
+
+            // Get the value of X for the point
+            double X = quad_points.Get(i)(0);
+            // Lambda should be near a value obtained by fitting a
+            // cubic polynomial of lambda against Y
+            // Matlab code:
+            //  %% load data from file to variable data, data=(Y,lambda)
+            //  i=find(data(:,1)>0.15)
+            //  data = data = data(i,:)
+            //  c = polyfit(data(:,1),data(:,2),3)
+            //  %% To plot
+            //  yy = 0:0.01:1
+            //  fit = c(1)*yy.^3 + c(2)*yy.^2 + c(3)*yy + c(4);
+            //  plot(data(:,1),data(:,2),'*')
+            //  hold on
+            //  plot(yy,fit,'r')
+            double lam_fit = -0.026920*X*X*X + 0.066128*X*X - 0.056929*X + 0.978174;
+
+            if(X>0.6)
+            {
+                double error = 0.0004;
+                TS_ASSERT_DELTA(lambda[i], lam_fit, error);
+            }
+            else if(X>0.15)
+            {
+                double error = 0.0021;      // **slightly increased the tolerance - attributing the difference in results to the fact mesh isn't rotation-invariant
+                TS_ASSERT_DELTA(lambda[i], lam_fit, error);
+            }
+
+            //// don't delete:
+            //std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << lambda[i] << "\n";
+        }
+
+        // hardcoded test
+        TS_ASSERT_DELTA(lambda[34], 0.9691, 1e-4);  // ** different value to previous test - attributing the difference in results to the fact mesh isn't rotation-invariant
+    }
+
+
 
     // cover all other contraction model options which are allowed but not been used in a test 
     // so far (or in TestExplicitCardiacMechanicsAssembler)
