@@ -75,12 +75,6 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMeshWr
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMeshWriter()
 {
-    if (mpIters->pNodeIter)
-    {
-        delete mpIters->pNodeIter;
-        delete mpIters->pElemIter;
-    }
-
     delete mpIters;
         
     if (mpNodeMap)
@@ -282,6 +276,10 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
     this->WriteFiles();
     PetscTools::Barrier("AbstractTetrahedralMeshWriter::WriteFilesUsingMesh"); //Paired with waiting Slave processes
+    delete mpIters->pNodeIter;
+    mpIters->pNodeIter=NULL;
+    delete mpIters->pElemIter;
+    mpIters->pElemIter=NULL;
 }
 
 
