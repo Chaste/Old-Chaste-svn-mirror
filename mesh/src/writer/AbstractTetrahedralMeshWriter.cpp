@@ -75,6 +75,15 @@ AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralMeshWr
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::~AbstractTetrahedralMeshWriter()
 {
+    if (mpIters->pNodeIter)
+    {
+        delete mpIters->pNodeIter;
+    }
+    if (mpIters->pElemIter)
+    {
+        delete mpIters->pElemIter;
+    }
+
     delete mpIters;
         
     if (mpNodeMap)
