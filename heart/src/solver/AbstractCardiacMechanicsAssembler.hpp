@@ -644,7 +644,6 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreDirections(std::str
         EXCEPTION("Fibre file must (currently) be a .axi file");
     }
     
-    mpNonConstantFibreDirections = new std::vector<c_vector<double,DIM> >(this->mpQuadMesh->GetNumElements(), zero_vector<double>(DIM));
 
     std::ifstream ifs(fibreDirectionsFile.c_str());
     if (!ifs.is_open())
@@ -656,11 +655,12 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreDirections(std::str
     ifs >> num_elem_read_from_file;
     assert(num_elem_read_from_file == this->mpQuadMesh->GetNumElements());
     
-    double data;
+    mpNonConstantFibreDirections = new std::vector<c_vector<double,DIM> >(this->mpQuadMesh->GetNumElements(), zero_vector<double>(DIM));
     for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
     {
         for(unsigned j=0; j<3; j++) //  ***expect a full 3D vector, even in if DIM<3, to be consistent with .axi files*** 
         {
+            double data;
             ifs >> data;
             if(ifs.fail())
             {
@@ -669,6 +669,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreDirections(std::str
                               << ". Expected " << this->mpQuadMesh->GetNumElements() << " rows and "
                               << "three (not DIM!) columns, ie three components for each fibre, whichever "
                               << "dimension you are in";
+                delete mpNonConstantFibreDirections;           
                 EXCEPTION(error_message.str());
             }
 
