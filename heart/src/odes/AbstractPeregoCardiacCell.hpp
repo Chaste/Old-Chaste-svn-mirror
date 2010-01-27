@@ -90,8 +90,10 @@ public:
      */
     void EvaluatePredictedValues(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
     
-    
     void EvaluateCorrectedValues(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime);
+    
+    void EvaluateErrors(std::vector<double>& rErrors, std::vector<double> predictedSolution, std::vector<double> correctedSolution, double currentTime);
+
     
     /**
      * Computes some parameters needed by the Perego Veneziani algorithm.
@@ -158,8 +160,15 @@ protected:
     std::vector<double> mb_predicted;/**< predicted value for system variables, second part*/
     std::vector<double> mb_previous;/**< value for system variables, second part, from previous time step*/
     
+    std::vector<double> ma_error;/**< value for system variables needed for error evaluation, first part*/
+    std::vector<double> mb_error;/**< value for system variables needed for error evaluation, second part*/
+    
     bool mIsTheCorrectorStep; /**< An helper boolean to flag whether we are in the corrector step*/
     bool mIsTheFirstStep; /**< A helper boolean to indicate whether we have taken any timesteps yet*/
+    bool mIsTheErrorEvaluationStep; /**< A helper boolean to flag whether we're in the error evaluation step*/
+    
+    double mThetaP; /**< A numerical solver parameter which changes as dt does*/
+    double mThetaC; /**< Another numerical solver parameter which changes as dt does*/
 
 };
 

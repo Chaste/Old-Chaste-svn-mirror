@@ -74,11 +74,14 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     // set the final paramter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
-                               
+                       
+    
     ma_current.resize(8);
     mb_current.resize(8);
     ma_predicted.resize(8);
     mb_predicted.resize(8);
+    ma_error.resize(8);
+    mb_error.resize(8);
     Init();
 }
 
@@ -101,7 +104,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     double time_dependent_potassium_current_X_gate_X = rY[7];
 
     
-    if (this->mIsTheCorrectorStep == false)
+    if (this->mIsTheCorrectorStep == false && this->mIsTheErrorEvaluationStep == false)
     {
         this->ma_previous = this->ma_current;
         this->mb_previous = this->mb_current;
@@ -234,7 +237,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         #undef COVERAGE_IGNORE
     }
     
-    if (this->mIsTheCorrectorStep == false)
+    if (this->mIsTheCorrectorStep == false && this->mIsTheErrorEvaluationStep == false)
     {
         // Compute the parameters for the gating variable updates...
         ma_current[0]= - fast_sodium_current_h_gate_alpha_h - fast_sodium_current_h_gate_beta_h;
@@ -255,7 +258,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         ma_current[4] = membrane_V_prime;
         ma_current[3] = intracellular_calcium_concentration_Cai_prime;
     }
-    else
+    if (this->mIsTheCorrectorStep == true && this->mIsTheErrorEvaluationStep == false)
     {
 
         // Compute the parameters for the gating variable updates...
@@ -276,7 +279,30 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         // ...and add to ma_predicted the derivatives of the voltage and the calcium concentration    
         ma_predicted[4] = membrane_V_prime;
         ma_predicted[3] = intracellular_calcium_concentration_Cai_prime;
-
+    }
+    if (this->mIsTheErrorEvaluationStep==true)
+    {
+        
+        // Compute the parameters for the gating variable updates...
+        ma_error[0]= - fast_sodium_current_h_gate_alpha_h - fast_sodium_current_h_gate_beta_h;
+        ma_error[1]= - fast_sodium_current_j_gate_alpha_j - fast_sodium_current_j_gate_beta_j;
+        ma_error[2]= - fast_sodium_current_m_gate_alpha_m - fast_sodium_current_m_gate_beta_m;
+        ma_error[5]= - slow_inward_current_d_gate_alpha_d - slow_inward_current_d_gate_beta_d;
+        ma_error[6]= - slow_inward_current_f_gate_alpha_f - slow_inward_current_f_gate_beta_f;
+        ma_error[7]= - time_dependent_potassium_current_X_gate_alpha_X - time_dependent_potassium_current_X_gate_beta_X;
+    
+        mb_error[0] = fast_sodium_current_h_gate_alpha_h;
+        mb_error[1] = fast_sodium_current_j_gate_alpha_j;
+        mb_error[2] = fast_sodium_current_m_gate_alpha_m;
+        mb_error[5] = slow_inward_current_d_gate_alpha_d;
+        mb_error[6] = slow_inward_current_f_gate_alpha_f;
+        mb_error[7] = time_dependent_potassium_current_X_gate_alpha_X;
+        
+        // ...and add to ma_error the derivatives of the voltage and the calcium concentration    
+        ma_error[4] = membrane_V_prime;
+        ma_error[3] = intracellular_calcium_concentration_Cai_prime;
+        
+        this->mIsTheErrorEvaluationStep=false;
     }
     
     if (this->mIsTheFirstStep == true)

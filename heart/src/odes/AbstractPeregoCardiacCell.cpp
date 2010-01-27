@@ -87,6 +87,7 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(std::vector<double> sol
             rPredictedSolution[i] = solutionAtPreviousTime[i] + this->mDt * variable_derivative;
         }
     }
+
 }
 
 void  AbstractPeregoCardiacCell::EvaluateCorrectedValues(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime)
@@ -129,9 +130,59 @@ void  AbstractPeregoCardiacCell::EvaluateCorrectedValues(std::vector<double> pre
             rCorrectedSolution[i]=mSolutionAtPreviousTimeStep[i] + this->mDt * variable_derivative;
         }
     }
-    
     //corrector step is over
     mIsTheCorrectorStep = false;
+}
+
+void  AbstractPeregoCardiacCell::EvaluateErrors(std::vector<double>& rErrors, std::vector<double> predictedSolution, std::vector<double> correctedSolution, double currentTime)
+{
+    mIsTheErrorEvaluationStep = true;
+    
+    //Compute parameters (done in the child class, will modify the member variables here)
+    ComputeSystemParameters(correctedSolution, currentTime);
+    mIsTheErrorEvaluationStep = false;
+    
+    bool it_is_a_gating_variable = false;
+    
+    // These are fixed for now, but will change with dt when the adaptive timestep size is implemented
+    mThetaP = -0.5;
+    mThetaC = 1.0/3.0; // Set this to 2.0/3.0 in order to see errors (for testing purposes).   
+    
+    double error_weight_factor = (mThetaC - 1.0/3.0) / (mThetaP - mThetaC);   
+    
+    //loop over the state variables
+    for (unsigned i = 0; i<predictedSolution.size();i++)
+    {
+        //reset the flag
+        it_is_a_gating_variable=false;
+        //apply the predictor scheme to the gating variables only
+        for (unsigned j = 0; j<mGatingVariableIndices.size(); j++)
+        {
+            if (i == mGatingVariableIndices[j])
+            {
+                it_is_a_gating_variable = true;
+            }
+        }
+
+        if (it_is_a_gating_variable)
+        {
+
+            double gate_error =  fabs(error_weight_factor * ( correctedSolution[i] - predictedSolution[i]) + (1.0/12.0) * (ma_error[i] * mb_previous[i] - ma_previous[i] * mb_error[i]) * this->mDt * this->mDt);
+            rErrors[i] = gate_error;
+        }
+        // All other variables are updated by a weighted version of the forward Euler:
+        else
+        {
+            double variable_error = fabs( error_weight_factor * ( correctedSolution[i] - predictedSolution[i] ) );            
+            rErrors[i] = variable_error;
+
+            
+        }
+        
+    }
+   
+    
+    
 }
 
 void AbstractPeregoCardiacCell::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
@@ -152,6 +203,8 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
     std::vector<double> previous_yvalues = mStateVariables;
     std::vector<double> predicted_values = mStateVariables;
     std::vector<double> corrected_values = mStateVariables;
+    std::vector<double> errors = mStateVariables;
+
  
     // Solve the ODE system
     while ( !stepper.IsTimeAtEnd() )
@@ -162,6 +215,13 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
         //predict the next value
         EvaluatePredictedValues(previous_yvalues, predicted_values, stepper.GetTime());
         EvaluateCorrectedValues(predicted_values, corrected_values, stepper.GetTime());
+        
+        // Evaluate the error in the variables using their predictor and corrector values
+                
+        EvaluateErrors(errors, predicted_values, corrected_values, stepper.GetTime());
+        
+
+        
         
         stepper.AdvanceOneTimeStep();
         
