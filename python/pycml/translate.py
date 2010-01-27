@@ -1132,7 +1132,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         our_kwargs = {'use_chaste_stimulus': False,
                       'separate_lut_class': True,
                       'convert_interfaces': False,
-                      'kept_vars_as_members': True
+                      'kept_vars_as_members': True,
+                      'use_metadata': False
                       }
         for key, default in our_kwargs.iteritems():
             setattr(self, key, kwargs.get(key, default))
@@ -1257,6 +1258,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             self.base_class_name = 'AbstractCardiacCell'
             self.writeln('#include "' + self.base_class_name + '.hpp"')
+        if self.use_metadata:
+            self.writeln('#include "AbstractCardiacCellWithModifiers.hpp"')
+            # Modify the base class name
+            self.base_class_name = 'AbstractCardiacCellWithModifiers<' + self.base_class_name + ' >'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln('#include "AbstractStimulusFunction.hpp"')
@@ -1269,16 +1274,30 @@ class CellMLToChasteTranslator(CellMLTranslator):
         They can be real parameters, which have both set & get methods,
         or computed variables, which just have get methods.
         
-        Sets self.cell_parameters to be a list of cellml_variable objects.
+        Sets self.cell_parameters to be a list of the cellml_variable objects
+        representing parameters.
+        
+        If we're using metadata (self.use_metadata = True), then also
+        collect variables annotated with oxmeta:name into self.metadata_vars.
+        Only constants and state variables are included.
         """
         # Find annotated variables
         if self.kept_vars_as_members:
             kept_vars = self.doc.xml_xpath(u'/*/*/cml:variable[@pe:keep]')
         else:
             kept_vars = []
+        self.cell_parameters = kept_vars
+        # create set of all annotated variables         
+        if self.use_metadata:
+            vars = self.doc.xml_xpath(u'/*/*/cml:variable[@oxmeta:name]')
+            self.metadata_vars = set([v for v in vars if v.get_type() == VarTypes.Constant
+                                      or v in self.state_vars])
+        else:
+            self.metadata_vars = set([])
+
         # Generate member variable declarations
         self.writeln('private:', indent_offset=-1)
-        if kept_vars:
+        if kept_vars or self.metadata_vars:
             self.output_comment('\nSettable parameters and readable variables\n')
         for var in kept_vars:
             self.writeln(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
@@ -1297,7 +1316,17 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.open_block()
             self.writeln('return ', self.code_name(var), ';')
             self.close_block()
-        self.cell_parameters = kept_vars
+        
+        # Methods associated with oxmeta annotated variables
+        if self.use_metadata:
+            for var in self.metadata_vars:
+                if var.get_type() == VarTypes.Constant:
+                    self.writeln(self.TYPE_DOUBLE, 'Get_', var.oxmeta_name, '_constant()')
+                    self.open_block()
+                    self.output_comment('Constant value given in CellML')
+                    self.writeln('return ', var.initial_value, self.STMT_END)
+                    self.close_block()
+                    self.writeln()
 
     def output_top_boilerplate(self):
         """Output top boilerplate.
@@ -1306,7 +1335,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         class, and also lookup table declarations and lookup methods.
         It also outputs a blank VerifyStateVariables method.
         """
-        self.include_serialization = True
+        self.include_serialization = not self.use_metadata # TODO: Implement
         self.check_time_units()
         # Check if we're generating a Backward Euler model
         if hasattr(self.model, u'solver_info') and \
@@ -1349,7 +1378,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('void serialize(Archive & archive, const unsigned int version)')
             self.open_block()
             self.writeln('archive & boost::serialization::base_object<', self.base_class_name,
-                         '>(*this);')
+                         ' >(*this);')
             self.close_block()
         # Parameter declarations, and set & get methods (#666)
         param_vars = self.output_cell_parameters()
@@ -1473,14 +1502,27 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if ( not exclude_nonlinear or 
                  self.code_name(var) not in self.nonlinear_system_vars) \
                  and (not nodeset or var in nodeset):
+                if self.use_metadata and var.oxmeta_name:
+                    value = self.modifier_call(var, self.vector_index('rY', i))
+                else:
+                    value = self.vector_index('rY', i)
                 self.writeln(self.TYPE_DOUBLE, self.code_name(var),
-                             self.EQ_ASSIGN, self.vector_index('rY', i), self.STMT_END)
+                             self.EQ_ASSIGN, value, self.STMT_END)
                 self.writeln(self.COMMENT_START, 'Units: ', var.units,
                              '; Initial value: ',
                              getattr(var, u'initial_value', 'Unknown'))
                 #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
         return
+    
+    def modifier_call(self, var, current_value):
+        """Return code for a call to a modifier function for an oxmeta-annotated variable.
+        
+        The modifier function takes 2 parameters: the current value of the variable,
+        and the current time.  It returns a modified value for the variable.
+        """
+        return ('this->' + var.oxmeta_name + '_modifier->calc(' +
+                current_value + ', ' + self.code_name(self.free_vars[0]) + ')')
     
     def vector_index(self, vector, i):
         """Return code for accessing the i'th index of vector."""
@@ -1567,7 +1609,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
                       assigned_var.pe_keep) or close_if
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
-        super(CellMLToChasteTranslator, self).output_assignment(expr)
+        if (self.use_metadata and assigned_var and assigned_var.oxmeta_name
+            and assigned_var.get_type() == VarTypes.Constant):
+            # "Constant" oxmeta-annotated parameters may be modified at run-time
+            self.writeln(self.TYPE_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
+                         self.modifier_call(assigned_var, expr.initial_value), self.STMT_END)
+        else:
+            super(CellMLToChasteTranslator, self).output_assignment(expr)
         if clear_type:
             # Remove the instance attributes, thus reverting to the class members
             del self.TYPE_DOUBLE
@@ -1597,12 +1645,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
     def output_get_i_ionic(self):
         """Output the GetIIonic method."""
+        use_metadata = self.use_metadata
+        self.use_metadata = False
         self.writeln('double GetIIonic()')
         self.open_block()
         # Output mathematics to calculate ionic current, using
         # solver_info.ionic_current.
         if hasattr(self.model, u'solver_info') and \
                hasattr(self.model.solver_info, u'ionic_current'):
+            if not hasattr(self.model.solver_info.ionic_current, u'var'):
+                raise ValueError('No ionic currents found; check your configuration file')
             nodes = map(lambda elt: self.varobj(unicode(elt)),
                         self.model.solver_info.ionic_current.var)
             nodeset = self.calculate_extended_dependencies(nodes)
@@ -1631,6 +1683,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             self.writeln('return 0.0;')
         self.close_block()
+        self.use_metadata = use_metadata
 
     def output_evaluate_y_derivatives(self, method_name='EvaluateYDerivatives'):
         """Output the EvaluateYDerivatives method."""
@@ -1885,7 +1938,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
         for var in self.state_vars:
-            self.writeln('this->mVariableNames.push_back("', var.name, '");')
+            if self.use_metadata and var.oxmeta_name:
+                self.writeln('this->mVariableNames.push_back("', var.oxmeta_name, '");')    
+            else:
+                self.writeln('this->mVariableNames.push_back("', var.name, '");')
             self.writeln('this->mVariableUnits.push_back("', var.units, '");')
             init_val = getattr(var, u'initial_value', None)
             if init_val is None:
@@ -2003,7 +2059,7 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         self.writeln('class ', self.class_name, ' : public ', self.base_class_name)
         self.open_block()
         # Parameter declarations, and set & get methods (#666)
-        param_vars = self.output_cell_parameters()
+        self.output_cell_parameters()
         # Constructor
         self.output_constructor(['boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver /* unused; should be empty */',
                                  'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
@@ -3552,6 +3608,9 @@ class ConfigurationStore(object):
         'var' elements have text content which must be of the form
         'component_name,variable_name'.
 
+        Some items are overridden if oxmeta annotations are present and the
+        use_metadata option is set.  Currently this just applies to the
+        stimulus current and transmembrane potential.
         """
         rules = [bt.ws_strip_element_rule(u'*')]
         config_doc = amara_parse(config_file, rules=rules)
@@ -3627,14 +3686,21 @@ class ConfigurationStore(object):
     def _find_current_vars(self):
         """Find the variables representing currents."""
         # TODO: gracious error handling
-        if self.i_stim_name:
-            self.i_stim_var = self.doc.model.xml_xpath(
+        # Override stimulus current if using metadata annotations
+        if self.options.use_metadata:
+            i_stim = self.doc.model.xml_xpath(u'/*/*/cml:variable[@oxmeta:name="membrane_stimulus_current"]')
+            if i_stim:
+                self.i_stim_var = i_stim[0]
+            else:
+                DEBUG('metadata', 'membrane_stimulus_current not found in metadata enabled cellml file.')
+            # TODO: add ionic currents here? (when using RDF metadata)
+        if not self.i_stim_var and self.i_stim_name:
+            i_stim = self.doc.model.xml_xpath(
                 u'cml:component[@name="%s"]/cml:variable[@name="%s"]'
                 % tuple(self.i_stim_name))
-            if self.i_stim_var:
-                self.i_stim_var = self.i_stim_var[0]
-            else:
-                self.i_stim_var = None
+            if i_stim:
+                self.i_stim_var = i_stim[0]
+        # Other ionic currents just set from config file
         if self.i_ionic_match:
             import re
             comp_re = re.compile(self.i_ionic_match[0] + '$')
@@ -3677,28 +3743,42 @@ class ConfigurationStore(object):
         for var in self.i_ionic_vars:
             var.set_pe_keep(True)
         return
+    
+    def annotate_metadata_for_pe(self):
+        "Annotate all vars tagged with metadata so PE doesn't remove them."
+        for var in self.metadata_vars:
+            var.set_pe_keep(True)        
+        return
 
     def find_transmembrane_potential(self):
         """Find and store the variable object representing V.
 
         Uses the name given in the command line options, if present.
-        Otherwise uses the configuration file.
+        Otherwise uses first metadata, if present, then the configuration file.
         """
         if not self.options:
             raise ValueError('No command line options given')
+        # Check command line option
         if self.options.transmembrane_potential:
             self.V_name = self.options.transmembrane_potential.strip().split(',')
             if len(self.V_name) != 2:
                 raise ConfigurationError('The name of V must contain both '
                                          'component and variable name')
-        cname, vname = self.V_name
-        try:
-            var = self.doc.model.get_variable_by_name(cname, vname)
-        except KeyError:
-            raise ValueError('Model does not contain the specified variable '
-                             + '(%s,%s)' % self.V_name)
-        self.V_variable = var
-        return var
+        # Check for metadata annotation
+        elif self.options.use_metadata:
+            var = self.doc.model.xml_xpath(u'/*/*/cml:variable[@oxmeta:name="membrane_voltage"]')
+            if var:
+                self.V_variable = var[0]
+                self.V_name = (self.V_variable.component.name, self.V_variable.name)
+        if not self.V_variable:
+            cname, vname = self.V_name
+            try:
+                var = self.doc.model.get_variable_by_name(cname, vname)
+            except KeyError:
+                raise ConfigurationError('Model does not contain the specified variable '
+                                         + '(%s,%s)' % self.V_name)
+            self.V_variable = var
+        return self.V_variable
 
     def find_lookup_variables(self, pe_done=False):
         """Find the variable objects used as lookup table keys.
@@ -3728,6 +3808,29 @@ class ConfigurationStore(object):
                     'not found, so not using as table index.')
         self.lut_config = new_config
         return
+
+    # TODO - move into seperate metadata class?
+    def validate_metadata(self):
+        """Check that the metadata annotations are 'sensible'.
+        
+        Ensures that only names we know are used, and that the same name isn't used for multiple
+        variables.
+        """
+        self.metadata_vars = self.doc.xml_xpath(u'/*/*/cml:variable[@oxmeta:name]')
+        names_used = [var.oxmeta_name for var in self.metadata_vars]
+        # Check all metadata is allowed
+        if frozenset(names_used) <= METADATA_NAMES:
+            DEBUG('metadata', 'Metadata values are valid')
+        else:
+            DEBUG('metadata', 'Metadata values are NOT valid')
+            raise ConfigurationError('Metadata values are NOT valid, try running with --assume-valid')
+        # Check for duplicates
+        d = {}
+        for name in names_used:
+            if name in d:
+                raise ConfigurationError(name + ' metadata attribute is duplicated in the cellml file.')
+            else:
+                d[name] = name
 
 ######################################################################
 #                          Jacobian analysis                         #
@@ -4255,6 +4358,10 @@ def get_options(args):
                       action='store_true', default=False,
                       help="[debug] use the old LT layout, with poorer cache"
                       " performance")
+    parser.add_option('-m', '--use-metadata',
+                      dest='use_metadata', action='store_true', default=False,
+                      help="obtain variable names from metadata embedded within "
+                      "the CellML file, rather than config.xml")
 
     options, args = parser.parse_args(args)
     if len(args) != 1:
@@ -4316,6 +4423,11 @@ def run():
         config._find_current_vars()
     config.find_transmembrane_potential()
 
+    if options.use_metadata:
+        DEBUG('metadata', "metadata enabled, using for ConfigStore")
+        if not options.assume_valid:
+            config.validate_metadata()
+
     class_name = getattr(options, 'class_name', None)
     if options.augment_class_name and not class_name:
         class_name = u'CML_' + doc.model.name.replace('-', '_')
@@ -4325,6 +4437,8 @@ def run():
             class_name += '_lut'
         if options.maple_output:
             class_name += '_be'
+        if options.use_metadata:
+            class_name += '_sens'
 
     output_filename = getattr(options, 'outfilename', None)
     if not options.translate and not output_filename:
@@ -4342,6 +4456,9 @@ def run():
         # Do partial evaluation
         if options.config_file:
             config.annotate_currents_for_pe()
+        # Need to ensure pe doesn't remove metadata-annotated variables
+        if options.use_metadata:
+            config.annotate_metadata_for_pe()
         parteval(doc)
 
     if options.lut:
@@ -4387,6 +4504,7 @@ def run():
             transargs['separate_lut_class'] = options.separate_lut_class
             transargs['convert_interfaces'] = options.convert_interfaces
             transargs['kept_vars_as_members'] = options.kept_vars_as_members
+            transargs['use_metadata'] = options.use_metadata
         t = klass(**initargs)
         t.translate(doc, model_file, output_filename, class_name, **transargs)
     else:

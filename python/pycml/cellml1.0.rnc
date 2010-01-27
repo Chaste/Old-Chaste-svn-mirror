@@ -41,8 +41,9 @@ namespace bqs = "http://www.cellml.org/bqs/1.0#"
 namespace vCard = "http://www.w3.org/2001/vcard-rdf/3.0#"
 
 # Our extension namespaces (URIs will change)
-namespace pe = "https://chaste.ediamond.ox.ac.uk/cellml/ns/partial-evaluation"
-namespace lut = "https://chaste.ediamond.ox.ac.uk/cellml/ns/lookup-tables"
+namespace pe = "https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation"
+namespace lut = "https://chaste.comlab.ox.ac.uk/cellml/ns/lookup-tables"
+namespace oxmeta = "https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata"
 
 # The 'no namespace' namespace, which is what will get used for
 # most CellML attributes. Note the spec is broken in rule 2.5.2.

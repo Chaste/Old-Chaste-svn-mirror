@@ -123,9 +123,10 @@ def LOG(facility, level, *args):
 NSS = {u'm'  : u'http://www.w3.org/1998/Math/MathML',
        u'cml': u'http://www.cellml.org/cellml/1.0#',
        # Our extensions; URIs will probably change?
-       u'pe': u'https://chaste.ediamond.ox.ac.uk/cellml/ns/partial-evaluation',
-       u'lut': u'https://chaste.ediamond.ox.ac.uk/cellml/ns/lookup-tables',
-       u'solver': u'https://chaste.ediamond.ox.ac.uk/cellml/ns/solver-info',
+       u'pe': u'https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation',
+       u'lut': u'https://chaste.comlab.ox.ac.uk/cellml/ns/lookup-tables',
+       u'solver': u'https://chaste.comlab.ox.ac.uk/cellml/ns/solver-info',
+       u'oxmeta': u'https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata',
        # Metadata-related
        u'cmeta'  : u"http://www.cellml.org/metadata/1.0#",
        u'rdf'    : u"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -165,6 +166,25 @@ CELLML_SUBSET_ELTS = frozenset(
 # Binding times for BTA
 BINDING_TIMES = Enum(u'static', u'dynamic')
 
+# Allowed metadata names, more to come
+# TODO: Use a proper ontology!
+METADATA_NAMES = frozenset(
+    ['membrane_voltage', 'membrane_E_R', 'membrane_stimulus_current', 'sodium_channel_current',
+     'sodium_channel_conductance', 'sodium_channel_m_gate', 'sodium_channel_h_gate', 
+     'potassium_channel_current', 'potassium_channel_conductance', 'potassium_channel_n_gate', 
+     'leakage_current', 'sodium_channel_current_conductance','sodium_channel_current_h_gate',
+     'sodium_channel_current_j_gate','sodium_channel_current_m_gate', 'temperature',
+     'potassium_reversal_potential_sodium_permeability', 'inward_rectifier_potassium_current_conductance',
+     'rapid_time_dependent_potassium_current_conductance', 'rapid_time_dependent_potassium_current_Xr1_gate',
+     'rapid_time_dependent_potassium_current_Xr2_gate', 'slow_time_dependent_potassium_current_conductance',
+     'slow_time_dependent_potassium_current_Xs_gate', 'fast_sodium_current_conductance',
+     'fast_sodium_current_m_gate', 'fast_sodium_current_h_gate', 'fast_sodium_current_j_gate', 'sodium_background_current_conductance',
+     'L_type_Ca_current_conductance', 'L_type_Ca_current_d_gate', 'L_type_Ca_current_f_gate', 'L_type_Ca_current_f2_gate',
+     'L_type_Ca_current_fCass_gate', 'calcium_background_current_conductance', 'transient_outward_current_conductance',
+     'transient_outward_current_s_gate', 'transient_outward_current_r_gate', 'sodium_potassium_pump_current_permeability',
+     'sodium_calcium_exchanger_current_maximum', 'calcium_pump_current_conductance', 'potassium_pump_current_conductance',
+     'calcium_dynamics_release_current_maxiumum', 'calcium_dynamics_leak_current_maxiumum', 'calcium_leak_current_conductance',
+     'calcium_dynamics_uptake_current_maxiumum'])
 
 ######################################################################
 #                      Helpful utility functions                     #
@@ -316,10 +336,10 @@ class element_base(amara.bindery.element_base):
             attrs = self.xml_attributes
         except AttributeError:
             return {}
-        keys = [ (ns, SplitQName(qname)[1]) 
-                   for attr, (qname, ns) in self.xml_attributes.items() ]
+        keys = [ (ns_, SplitQName(qname)[1]) 
+                   for attr, (qname, ns_) in self.xml_attributes.items() ]
         values = [ unicode(getattr(self, attr))
-                   for attr, (qname, ns) in self.xml_attributes.items() ]
+                   for attr, (qname, ns_) in self.xml_attributes.items() ]
         attr_dict = dict(zip(keys, values))
         return attr_dict.get((ns, local), default)
 
@@ -1328,6 +1348,7 @@ class cellml_model(element_base):
             conf = self.xml_parent._cml_config
             ionic_elt = self.xml_create_element(u'ionic_current',
                                                 NSS[u'solver'])
+            # Adds each ionic var to the xml doc from the config store
             for var in conf.i_ionic_vars:
                 DEBUG("translate", var.name, var.xml_parent.name,
                       var.fullname())
@@ -1872,11 +1893,26 @@ class cellml_variable(element_base):
         """Whether PE should retain this variable in the specialised model."""
         return self.getAttributeNS(NSS['pe'], u'keep', u'no') == u'yes'
     def set_pe_keep(self, keep):
+        """Set method for the pe_keep property.
+        
+        We need a separate method for this to bypass Amara's property setting checks.
+        """
         if keep:
             val = u'yes'
         else:
             val = u'no'
         self.xml_set_attribute((u'pe:keep', NSS['pe']), val)
+
+    @property
+    def oxmeta_name(self):
+        """The canonical name of this variable, as given by Oxford metadata."""
+        return self.getAttributeNS(NSS['oxmeta'], u'name')
+    def set_oxmeta_name(self, name):
+        """Set method for the oxmeta_name property.
+        
+        We need a separate method for this to bypass Amara's property setting checks.
+        """
+        self.xml_set_attribute((u'oxmeta:name', NSS['oxmeta']), name)
 
     def _reduce(self, update_usage=False):
         """Reduce this dynamic variable that is being kept.
