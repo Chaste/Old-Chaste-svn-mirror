@@ -32,6 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 
+#include "Debug.hpp"
+
+
 //
 // Model-scope constant parameters
 //
@@ -71,9 +74,11 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     // set the final paramter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
-
+                               
     ma_current.resize(8);
     mb_current.resize(8);
+    ma_predicted.resize(8);
+    mb_predicted.resize(8);
     Init();
 }
 
@@ -95,14 +100,18 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     double slow_inward_current_f_gate_f = rY[6];
     double time_dependent_potassium_current_X_gate_X = rY[7];
 
+    
+    if (this->mIsTheCorrectorStep == false)
+    {
+        this->ma_previous = this->ma_current;
+        this->mb_previous = this->mb_current;
+    }
+    
     VerifyStateVariables();
 
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
 
     double fast_sodium_current_h_gate_alpha_h;
-
-    this->ma_previous = this->ma_current;
-    this->mb_previous = this->mb_current;
     
     if (membrane_V < -40.0)
     {
@@ -186,8 +195,9 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
 
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
     double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);
+
     double time_independent_potassium_current_g_K1 = 0.6047*sqrt(ionic_concentrations_Ko/5.4);
-    double time_independent_potassium_current_E_K1 =((membrane_R*membrane_T)/membrane_F)*log(ionic_concentrations_Ko/ionic_concentrations_Ki);
+    double time_independent_potassium_current_E_K1 = ((membrane_R*membrane_T)/membrane_F)*log(ionic_concentrations_Ko/ionic_concentrations_Ki);
     double time_independent_potassium_current_K1_gate_alpha_K1 = 1.02/(1.0+exp(0.2385*(membrane_V-time_independent_potassium_current_E_K1-59.215)));
     double time_independent_potassium_current_K1_gate_beta_K1 = (0.49124*exp(0.08032*(membrane_V+5.476-time_independent_potassium_current_E_K1))+exp(0.06175*(membrane_V-(time_independent_potassium_current_E_K1+594.31))))/(1.0+exp(-0.5143*(membrane_V-time_independent_potassium_current_E_K1+4.753)));
     double time_independent_potassium_current_K1_gate_K1_infinity = time_independent_potassium_current_K1_gate_alpha_K1/(time_independent_potassium_current_K1_gate_alpha_K1+time_independent_potassium_current_K1_gate_beta_K1);
@@ -196,37 +206,87 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     double plateau_potassium_current_E_Kp = time_independent_potassium_current_E_K1;
     double plateau_potassium_current_i_Kp = plateau_potassium_current_g_Kp*plateau_potassium_current_Kp*(membrane_V-plateau_potassium_current_E_Kp);
     
-    double i_stim = GetStimulus(currentTime);
+
+    double i_stim;
+    if (this->mIsTheCorrectorStep == false)
+    {
+        i_stim = GetStimulus(currentTime);
+    }
+    else
+    {
+        i_stim = GetStimulus(currentTime+this->mDt);
+    };
+    
 
     //calculate dV
     double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);
+
+
+    
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
     if (mSetVoltageDerivativeToZero)
     {
+        NEVER_REACHED; // this hasn't been tested in tissue yet
+
         ///\ TODO Remove coverage ignore when ComputeExceptVoltage method will be implemented in the abstract class  
         #define COVERAGE_IGNORE
         membrane_V_prime = 0;
         #undef COVERAGE_IGNORE
     }
-
-    // Compute the parameters for the gating variable updates...
-    ma_current[0]= - fast_sodium_current_h_gate_alpha_h - fast_sodium_current_h_gate_beta_h;
-    ma_current[1]= - fast_sodium_current_j_gate_alpha_j - fast_sodium_current_j_gate_beta_j;
-    ma_current[2]= - fast_sodium_current_m_gate_alpha_m - fast_sodium_current_m_gate_beta_m;
-    ma_current[5]= - slow_inward_current_d_gate_alpha_d - slow_inward_current_d_gate_beta_d;
-    ma_current[6]= - slow_inward_current_f_gate_alpha_f - slow_inward_current_f_gate_beta_f;
-    ma_current[7]= - time_dependent_potassium_current_X_gate_alpha_X - time_dependent_potassium_current_X_gate_beta_X;
-
-    mb_current[0] = fast_sodium_current_h_gate_alpha_h;
-    mb_current[1] = fast_sodium_current_j_gate_alpha_j;
-    mb_current[2] = fast_sodium_current_m_gate_alpha_m;
-    mb_current[5] = slow_inward_current_d_gate_alpha_d;
-    mb_current[6] = slow_inward_current_f_gate_alpha_f;
-    mb_current[7] = time_dependent_potassium_current_X_gate_alpha_X;
     
-    // ...and add to ma_current the derivatives of the voltage and the calcium concentration    
-    ma_current[4] = membrane_V_prime;
-    ma_current[3] = intracellular_calcium_concentration_Cai_prime;
+    if (this->mIsTheCorrectorStep == false)
+    {
+        // Compute the parameters for the gating variable updates...
+        ma_current[0]= - fast_sodium_current_h_gate_alpha_h - fast_sodium_current_h_gate_beta_h;
+        ma_current[1]= - fast_sodium_current_j_gate_alpha_j - fast_sodium_current_j_gate_beta_j;
+        ma_current[2]= - fast_sodium_current_m_gate_alpha_m - fast_sodium_current_m_gate_beta_m;
+        ma_current[5]= - slow_inward_current_d_gate_alpha_d - slow_inward_current_d_gate_beta_d;
+        ma_current[6]= - slow_inward_current_f_gate_alpha_f - slow_inward_current_f_gate_beta_f;
+        ma_current[7]= - time_dependent_potassium_current_X_gate_alpha_X - time_dependent_potassium_current_X_gate_beta_X;
+    
+        mb_current[0] = fast_sodium_current_h_gate_alpha_h;
+        mb_current[1] = fast_sodium_current_j_gate_alpha_j;
+        mb_current[2] = fast_sodium_current_m_gate_alpha_m;
+        mb_current[5] = slow_inward_current_d_gate_alpha_d;
+        mb_current[6] = slow_inward_current_f_gate_alpha_f;
+        mb_current[7] = time_dependent_potassium_current_X_gate_alpha_X;
+        
+        // ...and add to ma_current the derivatives of the voltage and the calcium concentration    
+        ma_current[4] = membrane_V_prime;
+        ma_current[3] = intracellular_calcium_concentration_Cai_prime;
+    }
+    else
+    {
+
+        // Compute the parameters for the gating variable updates...
+        ma_predicted[0]= - fast_sodium_current_h_gate_alpha_h - fast_sodium_current_h_gate_beta_h;
+        ma_predicted[1]= - fast_sodium_current_j_gate_alpha_j - fast_sodium_current_j_gate_beta_j;
+        ma_predicted[2]= - fast_sodium_current_m_gate_alpha_m - fast_sodium_current_m_gate_beta_m;
+        ma_predicted[5]= - slow_inward_current_d_gate_alpha_d - slow_inward_current_d_gate_beta_d;
+        ma_predicted[6]= - slow_inward_current_f_gate_alpha_f - slow_inward_current_f_gate_beta_f;
+        ma_predicted[7]= - time_dependent_potassium_current_X_gate_alpha_X - time_dependent_potassium_current_X_gate_beta_X;
+    
+        mb_predicted[0] = fast_sodium_current_h_gate_alpha_h;
+        mb_predicted[1] = fast_sodium_current_j_gate_alpha_j;
+        mb_predicted[2] = fast_sodium_current_m_gate_alpha_m;
+        mb_predicted[5] = slow_inward_current_d_gate_alpha_d;
+        mb_predicted[6] = slow_inward_current_f_gate_alpha_f;
+        mb_predicted[7] = time_dependent_potassium_current_X_gate_alpha_X;
+        
+        // ...and add to ma_predicted the derivatives of the voltage and the calcium concentration    
+        ma_predicted[4] = membrane_V_prime;
+        ma_predicted[3] = intracellular_calcium_concentration_Cai_prime;
+
+    }
+    
+    if (this->mIsTheFirstStep == true)
+    {
+        this->ma_previous = this->ma_current;
+        this->mb_previous = this->mb_current;
+        
+        this->mIsTheFirstStep = false;
+    }
+    
 }
 
 
@@ -266,6 +326,7 @@ double PeregoLuoRudyIModel1991OdeSystem::GetIIonic()
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
         #undef COVERAGE_IGNORE
     }
+
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
     double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);
 

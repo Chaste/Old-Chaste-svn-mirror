@@ -77,8 +77,8 @@ public:
      * Constructor.
      * 
      * @param magnitudeOfStimulus  The stimulus magnitude
-     * @param duration  Duration of initial stimulus
-     * @param timeOfStimulus  The time at which the stimulus starts (defaults to 0.0)
+     * @param duration  Duration of initial stimulus milliseconds
+     * @param timeOfStimulus  The time at which the stimulus starts (defaults to 0.0) milliseconds
      */
     SimpleStimulus(double magnitudeOfStimulus, double duration, double timeOfStimulus=0.0);
 

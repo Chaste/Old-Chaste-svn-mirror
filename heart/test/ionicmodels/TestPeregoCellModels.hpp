@@ -34,6 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "PeregoLuoRudyIModel1991OdeSystem.hpp"
 
+#include "SimpleDataWriter.hpp"
+#include "Debug.hpp"
+
+
 class TestPeregoCellModels : public CxxTest::TestSuite
 {
 public:
@@ -44,7 +48,7 @@ public:
     {
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 200 ;//for this test it will be number of time steps
+        double duration  = 1.99;//for this test it will be number of time steps
         double when = 0.0; 
         
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
@@ -55,53 +59,133 @@ public:
         PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus);
 
         
-        std::vector<double> rInitialValues;
+        std::vector<double> r_initial_values;
              
         // State variables at time 0
-        rInitialValues.push_back(0.9804713); // h
-        rInitialValues.push_back(0.98767124); // j
-        rInitialValues.push_back(0.00187018); // m
-        rInitialValues.push_back(0.0002); // Cai (mMol)
-        rInitialValues.push_back(-83.853); // V (mV)
-        rInitialValues.push_back(0.00316354); // d
-        rInitialValues.push_back(0.99427859); // f
-        rInitialValues.push_back(0.16647703); // X
+        r_initial_values.push_back(0.9804713); // h
+        r_initial_values.push_back(0.98767124); // j
+        r_initial_values.push_back(0.00187018); // m
+        r_initial_values.push_back(0.0002); // Cai (mMol)
+        r_initial_values.push_back(-83.853); // V (mV)
+        r_initial_values.push_back(0.00316354); // d
+        r_initial_values.push_back(0.99427859); // f
+        r_initial_values.push_back(0.16647703); // X
 
-        std::vector<double> rPreviousYValues = rInitialValues;
-        std::vector<double> rPredictedValues(rPreviousYValues.size());
-        rPredictedValues = rInitialValues;
-        
+        std::vector<double> r_previous_yvalues = r_initial_values;
+        std::vector<double> r_predicted_values(r_previous_yvalues.size());
+        r_predicted_values = r_initial_values;
+
         //as we don't have implemented all the functions yet, we make a time loop here
-        for (unsigned time_step=0;time_step<1000;time_step++)
+        for (unsigned i=0; i<1000; i++)
         {        
+            double time = i/100.0;
             // Initialise the previous state variables to be a copy of the current state variables
-            std::vector<double> rPreviousYValues = rPredictedValues;
+            std::vector<double> r_previous_yvalues = r_predicted_values;
             //predict the next value
-            lr91_perego.EvaluatePredictedGates(rPreviousYValues, rPredictedValues, time_step);
+            lr91_perego.EvaluatePredictedGates(r_previous_yvalues, r_predicted_values, time);
         }   
         
         //values from Chris' code
-        std::vector<double> MatlabAnswers;      
-        MatlabAnswers.push_back(1.7e-27);
-        MatlabAnswers.push_back(0.0778);
-        MatlabAnswers.push_back(0.9987);
-        MatlabAnswers.push_back(0.0013);
-        MatlabAnswers.push_back(12.71);
-        MatlabAnswers.push_back(0.4015);
-        MatlabAnswers.push_back(0.9765);
-        MatlabAnswers.push_back(0.1921);
+        std::vector<double> matlab_answers;      
+        matlab_answers.push_back(1.6229e-27);
+        matlab_answers.push_back(0.0776);
+        matlab_answers.push_back(0.9987);
+        matlab_answers.push_back(0.0013);
+        matlab_answers.push_back(12.5641);
+        matlab_answers.push_back(0.4017);
+        matlab_answers.push_back(0.9764);
+        matlab_answers.push_back(0.1919);
         
         //check that after 1000 time steps the results are the same.
-        for(unsigned i=0; i<MatlabAnswers.size(); i++)
+        for(unsigned i=0; i<matlab_answers.size(); i++)
         {
-            TS_ASSERT_DELTA(MatlabAnswers[i],rPredictedValues[i],1e-3);
+            TS_ASSERT_DELTA(matlab_answers[i],r_predicted_values[i],1e-3);
         }
         
         //for coverage test I ionic against hardcoded value
-        ///\TODO make a more meaningful test for this 
         TS_ASSERT_DELTA(lr91_perego.GetIIonic(), 0.003,1e-4);
     }
     
+    
+    void TestPeregoCellModelPredictorAndCorrector(void) throw(Exception)
+    {
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 1.99;//for this test it will be number of time steps
+        double when = 0.0; 
+        
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+
+        // Create a luo Rudy cell set up for Perego-like solving
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus);
+
+        
+        std::vector<double> r_initial_values;
+             
+        // State variables at time 0
+        r_initial_values.push_back(0.9804713); // h
+        r_initial_values.push_back(0.98767124); // j
+        r_initial_values.push_back(0.00187018); // m
+        r_initial_values.push_back(0.0002); // Cai (mMol)
+        r_initial_values.push_back(-83.853); // V (mV)
+        r_initial_values.push_back(0.00316354); // d
+        r_initial_values.push_back(0.99427859); // f
+        r_initial_values.push_back(0.16647703); // X
+
+        std::vector<double> r_previous_yvalues = r_initial_values;
+        std::vector<double> r_predicted_values(r_previous_yvalues.size());
+        std::vector<double> r_corrected_values(r_previous_yvalues.size());
+        r_predicted_values = r_initial_values;
+        r_corrected_values = r_initial_values;
+        
+        std::vector<double> times;
+        std::vector<double> output[8];
+        
+        //as we don't have implemented all the functions yet, we make a time loop here
+        for (unsigned i=0; i<1000; i++)
+        {        
+            double time = i/100.0;
+            // Initialise the previous state variables to be a copy of the current state variables
+            std::vector<double> r_previous_yvalues = r_corrected_values;
+            //predict the next value
+            lr91_perego.EvaluatePredictedGates(r_previous_yvalues, r_predicted_values, time);
+            lr91_perego.EvaluateCorrectedGates(r_predicted_values, r_corrected_values, time);
+            times.push_back(time);
+            for(unsigned i=0; i<8; i++)
+            {
+                output[i].push_back(r_corrected_values[i]);
+            }
+        }   
+
+        std::vector<std::vector<double> > data;
+        data.push_back(times);
+        for(unsigned i=0; i<8; i++)
+        {
+            data.push_back(output[i]);
+        }
+        SimpleDataWriter writer("TestPeregoLr91", "output.dat", data, false);
+        
+                
+        //values from Chris' code
+        std::vector<double> matlab_answers;      
+        matlab_answers.push_back(0.0);
+        matlab_answers.push_back(0.0776);
+        matlab_answers.push_back(0.9987);
+        matlab_answers.push_back(0.0013);
+        matlab_answers.push_back(12.5825);
+        matlab_answers.push_back(0.4017);
+        matlab_answers.push_back(0.9764);
+        matlab_answers.push_back(0.1920);
+        
+        //check that after 1000 time steps the results are the same.
+        for(unsigned i=0; i<matlab_answers.size(); i++)
+        {
+            TS_ASSERT_DELTA(matlab_answers[i],r_corrected_values[i],1e-3);
+        }
+        
+    }
 };
 
 

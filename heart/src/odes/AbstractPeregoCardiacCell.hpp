@@ -41,7 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This is the base class for cardiac cells solved using a Perego Veneziani predictor corrector scheme
- *
+ * Reference:
+ * Perego M, Veneziani A. An efficient generalisation of the Rush-Larsen method for solving electrophysiology membrane equations
+ * Technical Report TR-2009-005.
+ * www.mathcs.emory.edu/technical-reports/techrep-00153.pdf
  */
 class AbstractPeregoCardiacCell : public AbstractCardiacCell
 {
@@ -87,6 +90,9 @@ public:
      */
     void EvaluatePredictedGates(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
     
+    
+    void EvaluateCorrectedGates(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime);
+    
     /**
      * Computes some parameters needed by the Perego Veneziani algorithm.
      * Implemented in the child class. 
@@ -110,12 +116,26 @@ private:
 protected:
 
     std::vector<unsigned> mGatingVariableIndices; /**< Indices of those variables associated with gates (not concentrations or voltages etc.) */
+    std::vector<double> mSolutionAtPreviousTimeStep;
+    //Nomenclature of variables is based on the paper (see class documentation for reference) 
+    
     double mc0bar;/**< weights for Adams-Bashforth integration*/
     double mc1bar;/**< weights for Adams-Bashforth integration*/
+    
+    double mc0;/**< weights for Adams-Moulton integration*/
+    double mc1;/**< weights for Adams-Moulton integration*/
+    double mcMinus1;/**< weights for Adams-Moulton integration*/
+    
     std::vector<double> ma_current;/**< current value for system variables, first part*/
+    std::vector<double> ma_predicted;/**< predicted value for system variables, first part*/
     std::vector<double> ma_previous;/**< value for system variables, first part, from previous time step*/
     std::vector<double> mb_current;/**< current value for system variables, second part*/
+    std::vector<double> mb_predicted;/**< predicted value for system variables, second part*/
     std::vector<double> mb_previous;/**< value for system variables, second part, from previous time step*/
+    
+    bool mIsTheCorrectorStep; /**< An helper boolean to flag whether we are in the corrector step*/
+    bool mIsTheFirstStep; /**< A helper boolean to indicate whether we have taken any timesteps yet*/
+
 };
 
 
