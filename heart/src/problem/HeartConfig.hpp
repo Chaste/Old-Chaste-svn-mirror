@@ -403,10 +403,10 @@ public:
      * \todo There is no set method
      */
     template<unsigned DIM>
-    void GetCellHeterogeneities(std::vector<ChasteCuboid<DIM> >& cellHeterogeneityAreas,
-                                std::vector<double>& scaleFactorGks,
-                                std::vector<double>& scaleFactorIto,
-                                std::vector<double>& scaleFactorGkr) const;
+    void GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
+                                 std::vector<double>& rScaleFactorGks,
+                                 std::vector<double>& rScaleFactorIto,
+                                 std::vector<double>& rScaleFactorGkr) const;
     bool GetConductivityHeterogeneitiesProvided() const; /**< @return  true if there are conductivity heterogeneities for GetConductivityHeterogeneities to return*/
     /**
      * Return a number of heterogeneous regions (Axis-aligned boxes)

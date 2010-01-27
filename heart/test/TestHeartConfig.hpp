@@ -136,7 +136,7 @@ public :
         TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
         TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
 
-        std::vector<ChasteCuboid<3> > cell_heterogeneity_areas;
+        std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
         std::vector<double> scale_factor_gkr;
@@ -145,10 +145,15 @@ public :
                                                         scale_factor_ito,
                                                         scale_factor_gkr);
 
-        TS_ASSERT(cell_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.0, 0, 0)));
+        TS_ASSERT(cell_heterogeneity_areas[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks[1], 1.154);
         TS_ASSERT_EQUALS(scale_factor_ito[1], 0.85);
         TS_ASSERT_EQUALS(scale_factor_gkr[1], 1.0);
+        
+        for (unsigned i = 0; i<cell_heterogeneity_areas.size();i++)
+        {
+            delete cell_heterogeneity_areas[i];
+        }
 
         std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
@@ -936,21 +941,26 @@ public :
         std::vector<ChasteCuboid<3> > stimulated_area;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area), "Stimuli information is not available in a resumed simulation.")
 
-        std::vector<ChasteCuboid<3> > cell_heterogeneity_areas;
+        std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
         std::vector<double> scale_factor_gkr;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas, scale_factor_gks, scale_factor_ito, scale_factor_gkr),
                               "CellHeterogeneities information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided(),
-                              "CellHeterogeneities information is not available in a resumed simulation.");
+                              "ConductivityHeterogeneities information is not available in a resumed simulation.");
+
+        for (unsigned i = 0; i<cell_heterogeneity_areas.size();i++)
+        {
+            delete cell_heterogeneity_areas[i];
+        }
 
         std::vector<ChasteCuboid<3> > conductivitiesHeterogeneityAreas;
         std::vector< c_vector<double,3> > intraConductivities;
         std::vector< c_vector<double,3> > extraConductivities;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivitiesHeterogeneityAreas,
                                                                                       intraConductivities, extraConductivities),
-                              "CellHeterogeneities information is not available in a resumed simulation.");
+                              "ConductivityHeterogeneities information is not available in a resumed simulation.");
 
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetOutputDirectory(),
                               "Simulation/OutputDirectory information is not available in a resumed simulation.");

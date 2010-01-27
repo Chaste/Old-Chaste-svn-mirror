@@ -57,6 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006OdeSystem.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "Maleckar2009OdeSystem.hpp"
+#include "AbstractChasteRegion.hpp"
 
 /**
  *  \todo: dox, coverage, maybe own tests
@@ -78,7 +79,7 @@ private:
     std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
     
     /** List of axis-aligned box regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)*/
-    std::vector<ChasteCuboid<SPACE_DIM> > mCellHeterogeneityAreas;
+    std::vector<AbstractChasteRegion<SPACE_DIM>* > mCellHeterogeneityAreas;
     /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGks;
     /** List of scale factors for Ito scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
@@ -89,6 +90,9 @@ private:
 public:
     /** Default constructor */
     HeartConfigRelatedCellFactory();
+    
+    /** Destructor*/
+    ~HeartConfigRelatedCellFactory();
 
     /**
      * Create the correct tissue cell for a given region in the mesh

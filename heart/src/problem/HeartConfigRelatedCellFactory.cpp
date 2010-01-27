@@ -63,6 +63,14 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
     }
 }
 
+template<unsigned SPACE_DIM>
+HeartConfigRelatedCellFactory<SPACE_DIM>::~HeartConfigRelatedCellFactory()
+{
+    for (unsigned i = 0; i<mCellHeterogeneityAreas.size();i++)
+    {
+        delete mCellHeterogeneityAreas[i];
+    }
+}
 
 template<unsigned SPACE_DIM>
 AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithIntracellularStimulus(
@@ -122,7 +130,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                  ht_index < mCellHeterogeneityAreas.size();
                  ++ht_index)
             {
-                if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+                if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
                 {
                     p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
                     p_tt06_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
@@ -142,7 +150,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                  ht_index < mCellHeterogeneityAreas.size();
                  ++ht_index)
             {
-                if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+                if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
                 {
                     p_maleckar_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
                     p_maleckar_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
@@ -168,7 +176,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                  ht_index < mCellHeterogeneityAreas.size();
                  ++ht_index)
             {
-                if ( mCellHeterogeneityAreas[ht_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+                if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
                 {
                     p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
                     p_faber_rudy_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
