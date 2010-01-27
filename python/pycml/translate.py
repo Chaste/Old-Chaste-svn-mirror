@@ -42,6 +42,7 @@ from pycml import *  # Put contents in the local namespace as well
 import validator
 
 import optparse
+import re
 import time
 
 
@@ -3541,14 +3542,15 @@ class ConfigurationStore(object):
         doc._cml_config = self
         self.options = options
         # Transmembrane potential
-        self.V_name = [u'membrane', u'V']
+        self.V_definitions = [u'membrane,V']
         self.V_variable = None
         # Lookup table configuration
         self.lut_config = {}
+        self.lut_config_keys = []
         # Ionic currents configuration
-        self.i_stim_name = [u'membrane',u'i_Stim']
+        self.i_stim_definitions = [u'membrane,i_Stim']
         self.i_stim_var = None
-        self.i_ionic_match = [u'membrane',u'i_.*']
+        self.i_ionic_definitions = [u'membrane,i_.*']
         self.i_ionic_vars = []
         return
 
@@ -3583,8 +3585,8 @@ class ConfigurationStore(object):
              matched against component names, and the second against
              variables in matching components.
          * 'transmembrane_potential'
-           Defines which variable holds the transmembrane potential.  The
-           syntax is as for 'var' elements.  Defaults to 'membrane,V'.
+           Defines which variable holds the transmembrane potential.
+           Defaults to 'membrane,V' if not present.
            
         The root element also contains 0 or more 'for_model' elements,
         which contain settings for individual models.  These must have
@@ -3605,7 +3607,18 @@ class ConfigurationStore(object):
         or id of a model.  The remaining contents of the 'for_models'
         element are as for 'for_model'.
 
-        'var' elements have text content which must be of the form
+        There are 3 ways of specifying variables:
+        1. By name (var type='name')
+           Variable names are given in full form, i.e. component_name,variable_name
+        2. By standardised name (var type='oxmeta')
+           Use the name from the oxmeta annotations
+        3. By reference to a section of this config file (when defining lookup table keys)
+           e.g. <var type='config-name'>transmembrane_potential</var>
+
+        Within any element that specifies a variable, a list of <var> elements can be
+        provided.  Each will be tried in turn to see if a match can be found in the model,
+        and the first match wins.
+        Alternatively these elements may have text content which must be of the form
         'component_name,variable_name'.
 
         Some items are overridden if oxmeta annotations are present and the
@@ -3654,78 +3667,162 @@ class ConfigurationStore(object):
                 self._parse_currents(section.currents)
             if hasattr(section, u'transmembrane_potential'):
                 self._parse_Vm(section.transmembrane_potential)
-        self._find_current_vars()
+        # Now identify the variables in the model
+        self.find_current_vars()
+        self.find_transmembrane_potential()
         return
 
-    def _check_var_name(self, var_name, var_desc, var_elt):
-        """Check a variable definition is syntactically valid."""
-        if len(var_name) != 2:
-            raise ConfigurationError('Invalid definition of ' + var_desc + ': '
-                                     + unicode(var_elt))
+    def _create_var_def(self, content, defn_type):
+        """Create a variable definition object."""
+        xml_fragment = '<var type="%s">%s</var>' % (defn_type, content)
+        return amara.parse(str(xml_fragment)).var
+
+    def _check_var_def(self, var_elt, var_desc):
+        """Check a variable definition is syntactically valid.
+        
+        If type == 'name', it must have text content of the form "component_name,variable_name".
+        If type == 'oxmeta', it must have text content drawn from METADATA_NAMES.
+        If type == 'config-name', it must have text content either 'stimulus' or 'transmembrane_potential'.
+        """
+        defn_type = getattr(var_elt, u'type', u'name')
+        if defn_type == u'name':
+            name_parts = unicode(var_elt).strip().split(',')
+            if len(name_parts) != 2:
+                raise ConfigurationError('Invalid definition of ' + var_desc + ': '
+                                         + unicode(var_elt))
+        elif defn_type == u'oxmeta':
+            if unicode(var_elt) not in METADATA_NAMES:
+                raise ConfigurationError('"' + unicode(var_elt) + '" is not a valid oxmeta name')
+        elif defn_type == u'config-name':
+            if unicode(var_elt) not in [u'stimulus', u'transmembrane_potential']:
+                raise ConfigurationError('"' + unicode(var_elt) + '" is not a name known to the config file')
+        else:
+            raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
         return
 
     def _parse_Vm(self, vm_elt):
         """Parse definition of variable holding the transmembrane potential."""
-        self.V_name = unicode(vm_elt).strip().split(',')
-        self._check_var_name(self.V_name, 'transmembrane potential', vm_elt)
+        if hasattr(vm_elt, 'var'):
+            # List of possibilities
+            self.V_definitions = []
+            for vardef in vm_elt.var:
+                self._check_var_def(vardef, 'transmembrane potential')
+                self.V_definitions.append(vardef)
+        else:
+            # Old style - single variable given by text content
+            self._check_var_def(vm_elt, 'transmembrane potential')
+            self.V_definitions = [vm_elt]
         return
 
     def _parse_currents(self, currents):
         """Parse definitions of ionic and stimulus currents."""
         if hasattr(currents, u'stimulus'):
-            self.i_stim_name = unicode(currents.stimulus).strip().split(',')
-            self._check_var_name(self.i_stim_name, 'stimulus current',
-                                 currents.stimulus)
+            if hasattr(currents.stimulus, u'var'):
+                # List of possibilities
+                self.i_stim_definitions = []
+                for var in currents.stimulus.var:
+                    self._check_var_def(var, 'stimulus current')
+                    self.i_stim_definitions.append(var)
+            else:
+                self._check_var_def(currents.stimulus, 'stimulus current')
+                self.i_stim_definitions = [currents.stimulus]
         if hasattr(currents, u'ionic_match'):
-            self.i_ionic_match = unicode(
-                currents.ionic_match).strip().split(',')
-            self._check_var_name(self.i_ionic_match, 'ionic currents',
-                                 currents.ionic_match)
+            if hasattr(currents.ionic_match, u'var'):
+                # List of possibilities
+                self.i_ionic_definitions = []
+                for var in currents.ionic_match.var:
+                    self._check_var_def(var, 'ionic currents')
+                    self.i_ionic_definitions.append(var)
+            else:
+                self._check_var_def(currents.ionic_match, 'ionic currents')
+                self.i_ionic_definitions = [currents.ionic_match]
         return
+    
+    def _find_variable(self, defn, pe_done=False):
+        """Find a variable matching the given definition.
 
-    def _find_current_vars(self):
+        If pe_done is True, then partial evaluation has been performed
+        on the model, so looking for variables by name needs to look for
+        variables called compname__varname in the single component.
+        """
+        defn_type = getattr(defn, u'type', u'name')
+        if defn_type == u'name':
+            name_parts = unicode(defn).strip().split(',')
+            if pe_done:
+                try:
+                    var = self.doc.model.component.get_variable_by_name(u'__'.join(name_parts))
+                except KeyError:
+                    var = None
+            else:
+                var = self.doc.model.xml_xpath(u'cml:component[@name="%s"]/cml:variable[@name="%s"]'
+                                               % tuple(name_parts))
+                if var:
+                    var = var[0]
+        elif defn_type == u'oxmeta':
+            var = self.doc.model.xml_xpath(u'cml:component/cml:variable[@oxmeta:name="%s"]'
+                                           % unicode(defn))
+            if var:
+                var = var[0]
+        elif defn_type == u'config-name':
+            if unicode(defn) == u'stimulus':
+                var = self.i_stim_var
+            elif unicode(defn) == u'transmembrane_potential':
+                var = self.V_variable
+        else:
+            raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
+        return var
+
+    def find_current_vars(self):
         """Find the variables representing currents."""
-        # TODO: gracious error handling
-        # Override stimulus current if using metadata annotations
+        # Try metadata first if specified on command line
         if self.options.use_metadata:
-            i_stim = self.doc.model.xml_xpath(u'/*/*/cml:variable[@oxmeta:name="membrane_stimulus_current"]')
+            i_stim = self.doc.model.xml_xpath(u'cml:component/cml:variable[@oxmeta:name="membrane_stimulus_current"]')
             if i_stim:
                 self.i_stim_var = i_stim[0]
             else:
                 DEBUG('metadata', 'membrane_stimulus_current not found in metadata enabled cellml file.')
             # TODO: add ionic currents here? (when using RDF metadata)
-        if not self.i_stim_var and self.i_stim_name:
-            i_stim = self.doc.model.xml_xpath(
-                u'cml:component[@name="%s"]/cml:variable[@name="%s"]'
-                % tuple(self.i_stim_name))
-            if i_stim:
-                self.i_stim_var = i_stim[0]
+        if not self.i_stim_var:
+            for defn in self.i_stim_definitions:
+                var = self._find_variable(defn)
+                if var:
+                    self.i_stim_var = var
+                    break
+            else:
+                # No match :(
+                print "No stimulus current found; you'll have trouble generating Chaste code"
         # Other ionic currents just set from config file
-        if self.i_ionic_match:
-            import re
-            comp_re = re.compile(self.i_ionic_match[0] + '$')
-            var_re = re.compile(self.i_ionic_match[1] + '$')
-            self.i_ionic_vars = []
+        self.i_ionic_vars = []
+        for defn in self.i_ionic_definitions:
+            if getattr(defn, u'type', u'name') != u'name':
+                raise ConfigurationError('Ionic current definitions have to have type "name"')
+            regexps = unicode(defn).strip().split(',')
+            comp_re = re.compile(regexps[0] + '$')
+            var_re = re.compile(regexps[1] + '$')
             for component in getattr(self.doc.model, u'component', []):
                 if comp_re.match(unicode(component.name).strip()):
                     for var in getattr(component, u'variable', []):
-                        if var is not self.i_stim_var and \
-                               var_re.match(unicode(var.name).strip()):
+                        if (var is not self.i_stim_var and
+                            var_re.match(unicode(var.name).strip())):
                             self.i_ionic_vars.append(var)
+        if not self.i_ionic_vars:
+            print "No ionic currents found; you'll have trouble generating Chaste code"
         return
 
     def _parse_lookup_tables(self, lookup_tables):
         """Parse a lookup_tables element."""
         for lt in lookup_tables.lookup_table:
-            varname = unicode(lt.var).strip()
-            if not self.lut_config.has_key(varname):
-                self.lut_config[varname] = {}
-                self._set_lut_defaults(self.lut_config[varname])
+            var_type = getattr(lt.var, u'type', u'name')
+            var_name = unicode(lt.var).strip()
+            config_key = (var_type, var_name)
+            if not self.lut_config.has_key(config_key):
+                self.lut_config[config_key] = {}
+                self._set_lut_defaults(self.lut_config[config_key])
+                self.lut_config_keys.append(config_key)
             for elt in [e for e in lt.xml_children
                         if isinstance(e, amara.bindery.element_base)
                         and e.localName != u'var']:
-                self.lut_config[varname]['table_' + elt.localName] = \
-                                                  unicode(elt).strip()
+                self.lut_config[config_key]['table_' + elt.localName] = unicode(elt).strip()
         return
 
     def _set_lut_defaults(self, lut_dict):
@@ -3760,24 +3857,23 @@ class ConfigurationStore(object):
             raise ValueError('No command line options given')
         # Check command line option
         if self.options.transmembrane_potential:
-            self.V_name = self.options.transmembrane_potential.strip().split(',')
-            if len(self.V_name) != 2:
+            self.V_definitions = [self.options.transmembrane_potential.strip().split(',')]
+            if len(self.V_definitions[0]) != 2:
                 raise ConfigurationError('The name of V must contain both '
                                          'component and variable name')
         # Check for metadata annotation
         elif self.options.use_metadata:
-            var = self.doc.model.xml_xpath(u'/*/*/cml:variable[@oxmeta:name="membrane_voltage"]')
+            var = self.doc.model.xml_xpath(u'cml:component/cml:variable[@oxmeta:name="membrane_voltage"]')
             if var:
                 self.V_variable = var[0]
-                self.V_name = (self.V_variable.component.name, self.V_variable.name)
         if not self.V_variable:
-            cname, vname = self.V_name
-            try:
-                var = self.doc.model.get_variable_by_name(cname, vname)
-            except KeyError:
-                raise ConfigurationError('Model does not contain the specified variable '
-                                         + '(%s,%s)' % self.V_name)
-            self.V_variable = var
+            for defn in self.V_definitions:
+                var = self._find_variable(defn)
+                if var:
+                    self.V_variable = var
+                    break
+        if not self.V_variable:
+            raise ConfigurationError('No transmembrane potential found; check your configuration')
         return self.V_variable
 
     def find_lookup_variables(self, pe_done=False):
@@ -3793,19 +3889,18 @@ class ConfigurationStore(object):
         called varname in component compname.
         """
         new_config = {}
-        for cvname in self.lut_config:
-            compname, varname = cvname.split(',')
-            try:
-                if pe_done:
-                    var = self.doc.model.component.get_variable_by_name(
-                        compname + u'__' + varname)
-                else:
-                    var = self.doc.model.get_variable_by_name(compname, varname)
-                new_config[var] = self.lut_config[cvname]
-            except KeyError:
+        for key in self.lut_config_keys:
+            defn_type, content = key
+            defn = self._create_var_def(content, defn_type)
+            var = self._find_variable(defn, pe_done)
+            if not var:
                 # Variable doesn't exist, so we can't index on it
-                LOG('lookup-tables', logging.WARNING, 'Variable', cvname,
+                LOG('lookup-tables', logging.WARNING, 'Variable', content,
                     'not found, so not using as table index.')
+            else:
+                if not var in new_config:
+                    new_config[var] = {}
+                new_config[var].update(self.lut_config[key])
         self.lut_config = new_config
         return
 
@@ -4420,8 +4515,8 @@ def run():
         config.read_configuration_file(options.config_file)
     else:
         # Use defaults
-        config._find_current_vars()
-    config.find_transmembrane_potential()
+        config.find_current_vars()
+        config.find_transmembrane_potential()
 
     if options.use_metadata:
         DEBUG('metadata', "metadata enabled, using for ConfigStore")
