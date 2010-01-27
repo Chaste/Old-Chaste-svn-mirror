@@ -39,8 +39,8 @@ using namespace std;
 /**
  * This class defines a 3D cuboid and provides a method to check
  */
-template<unsigned SPACE_DIM>
-class ChasteNodesList : public AbstractChasteRegion
+template <unsigned SPACE_DIM> 
+class ChasteNodesList : public AbstractChasteRegion<SPACE_DIM>
 {
 private:
 
@@ -65,8 +65,8 @@ public:
      *
      * @param rPointToCheck Point to be checked whether it is a node in the list.
      */
-    template <unsigned DIM> 
-    bool DoesContain(const ChastePoint<DIM>& rPointToCheck)
+
+    bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const
     {
         bool returned_value = false;
         for (unsigned index = 0; index < mListOfNodes.size(); index++)

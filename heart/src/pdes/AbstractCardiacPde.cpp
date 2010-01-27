@@ -179,7 +179,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
 
     if (mpConfig->GetConductivityHeterogeneitiesProvided())
     {
-        std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+        std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -191,7 +191,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
                 // if element centroid is contained in the region
-                ChastePoint<SPACE_DIM> element_centroid(mpMesh->GetElement(element_index)->CalculateCentroid());
+                ChastePoint<3> element_centroid(mpMesh->GetElement(element_index)->CalculateCentroid());
                 if ( conductivities_heterogeneity_areas[region_index].DoesContain(element_centroid) )
                 {
                     hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];

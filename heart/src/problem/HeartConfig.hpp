@@ -338,7 +338,8 @@ public:
      * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
      * @param ionicModels vector of models (one per cellular heterogeneity)
      */
-     void GetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
+     template<unsigned DIM>
+     void GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedRegions,
                                std::vector<cp::ionic_models_available_type>& ionicModels) const;
 
     /**
@@ -351,7 +352,7 @@ public:
      * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
      * @param ionicModels vector of models (one per cellular heterogeneity)
      */
-     void SetIonicModelRegions(std::vector<ChasteCuboid>& definedRegions,
+     void SetIonicModelRegions(std::vector<ChasteCuboid<3> >& definedRegions,
                                std::vector<cp::ionic_models_available_type>& ionicModels) const;
 
     bool IsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
@@ -388,7 +389,8 @@ public:
      *
      * \todo There is no set method
      */
-    void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid>& rStimulatedAreas) const;
+     template<unsigned DIM>
+    void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const;
 
     /**
      * Return a number of heterogeneous regions (Axis-aligned boxes) for special gating variable changes
@@ -400,7 +402,8 @@ public:
      * @param scaleFactorGkr  scaleFactorGkr[0] is a scaling factor for the first region
      * \todo There is no set method
      */
-    void GetCellHeterogeneities(std::vector<ChasteCuboid>& cellHeterogeneityAreas,
+    template<unsigned DIM>
+    void GetCellHeterogeneities(std::vector<ChasteCuboid<DIM> >& cellHeterogeneityAreas,
                                 std::vector<double>& scaleFactorGks,
                                 std::vector<double>& scaleFactorIto,
                                 std::vector<double>& scaleFactorGkr) const;
@@ -413,7 +416,8 @@ public:
      * @param intraConductivities  intraConductivities[0] is conductivity vector for the first region
      * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
      */
-    void GetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivitiesHeterogeneityAreas,
+    template<unsigned DIM>
+    void GetConductivityHeterogeneities(std::vector<ChasteCuboid<DIM> >& conductivitiesHeterogeneityAreas,
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities) const;
     std::string GetOutputDirectory() const; /**< @return output directory path name*/
@@ -703,7 +707,7 @@ public:
      * @param intraConductivities  intraConductivities[0] is conductivity vector for the first region
      * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
      */
-    void SetConductivityHeterogeneities(std::vector<ChasteCuboid>& conductivityAreas,
+    void SetConductivityHeterogeneities(std::vector<ChasteCuboid<3> >& conductivityAreas,
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities);
 

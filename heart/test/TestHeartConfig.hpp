@@ -98,7 +98,7 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
                          cp::ionic_models_available_type::FaberRudy2000);
 
-        std::vector<ChasteCuboid> ionic_model_regions;
+        std::vector<ChasteCuboid<3> > ionic_model_regions;
         std::vector<cp::ionic_models_available_type> ionic_models_defined;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models_defined);
@@ -124,7 +124,7 @@ public :
         TS_ASSERT_EQUALS(inter_node_space, 0.1);
 
         std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
-        std::vector<ChasteCuboid> stimulated_areas;
+        std::vector<ChasteCuboid<3> > stimulated_areas;
         HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
 
         TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
@@ -136,7 +136,7 @@ public :
         TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
         TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
 
-        std::vector<ChasteCuboid> cell_heterogeneity_areas;
+        std::vector<ChasteCuboid<3> > cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
         std::vector<double> scale_factor_gkr;
@@ -150,7 +150,7 @@ public :
         TS_ASSERT_EQUALS(scale_factor_ito[1], 0.85);
         TS_ASSERT_EQUALS(scale_factor_gkr[1], 1.0);
 
-        std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+        std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -270,7 +270,7 @@ public :
 //        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
 //                          ionic_models_available_type::FaberRudy2000);
 //
-//        std::vector<ChasteCuboid> ionic_model_regions;
+//        std::vector<ChasteCuboid<3> > ionic_model_regions;
 //        std::vector<ionic_models_available_type> ionic_models_defined;
 //        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
 //                                                      ionic_models_defined);
@@ -359,16 +359,16 @@ public :
         std::vector< c_vector<double,3> > intraConductivities;
         std::vector< c_vector<double,3> > extraConductivities;
 
-        std::vector<ChasteCuboid> input_areas;
+        std::vector<ChasteCuboid<3> > input_areas;
         ChastePoint<3> lower1(-1.0, -1.0, -1.0);
         ChastePoint<3> upper1( 1.0,  1.0,  1.0);
-        input_areas.push_back(ChasteCuboid(lower1, upper1));
+        input_areas.push_back(ChasteCuboid<3> (lower1, upper1));
         intraConductivities.push_back( Create_c_vector(2.5, 2.5, 2.5) );
         extraConductivities.push_back( Create_c_vector(8.5, 8.5, 8.5) );
 
         ChastePoint<3> lower2(-2.0, -2.0, -2.0);
         ChastePoint<3> upper2(-1.0, -1.0, -1.0);
-        input_areas.push_back(ChasteCuboid(lower2, upper2));
+        input_areas.push_back(ChasteCuboid<3> (lower2, upper2));
         intraConductivities.push_back( Create_c_vector(1.0, 0.5, 0.4) );
         extraConductivities.push_back( Create_c_vector(7.0, 6.5, 6.4) );
 
@@ -376,7 +376,7 @@ public :
 
         TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
-        std::vector<ChasteCuboid> conductivities_heterogeneity_areas;
+        std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -396,7 +396,7 @@ public :
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
 
 
-        std::vector<ChasteCuboid> ionic_model_regions;
+        std::vector<ChasteCuboid<3> > ionic_model_regions;
         std::vector<cp::ionic_models_available_type> ionic_models;
 
         //No ionic model regions
@@ -907,7 +907,7 @@ public :
         // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
 
-        std::vector<ChasteCuboid> definedRegions;
+        std::vector<ChasteCuboid<3> > definedRegions;
         std::vector<cp::ionic_models_available_type> ionic_models;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionic_models),
                               "IonicModelRegions information is not available in a resumed simulation.");
@@ -933,10 +933,10 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityMedia(), "LoadMesh information is not available in a resumed simulation.")
 
         std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
-        std::vector<ChasteCuboid> stimulated_area;
+        std::vector<ChasteCuboid<3> > stimulated_area;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area), "Stimuli information is not available in a resumed simulation.")
 
-        std::vector<ChasteCuboid> cell_heterogeneity_areas;
+        std::vector<ChasteCuboid<3> > cell_heterogeneity_areas;
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
         std::vector<double> scale_factor_gkr;
@@ -945,7 +945,7 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided(),
                               "CellHeterogeneities information is not available in a resumed simulation.");
 
-        std::vector<ChasteCuboid> conductivitiesHeterogeneityAreas;
+        std::vector<ChasteCuboid<3> > conductivitiesHeterogeneityAreas;
         std::vector< c_vector<double,3> > intraConductivities;
         std::vector< c_vector<double,3> > extraConductivities;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivitiesHeterogeneityAreas,

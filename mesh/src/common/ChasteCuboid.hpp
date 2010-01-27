@@ -39,15 +39,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * if a given point is contained in the volume.
  */
 
-class ChasteCuboid : public AbstractChasteRegion
+template <unsigned SPACE_DIM> 
+class ChasteCuboid : public AbstractChasteRegion<SPACE_DIM>
 {
 private:
 
     /** Lower vertex of the cuboid. */
-    ChastePoint<3> mLowerCorner;
+    ChastePoint<SPACE_DIM> mLowerCorner;
 
     /** Upper vertex of the cuboid.  The space-diagonal opposite corner of mLowerCorner. */
-    ChastePoint<3> mUpperCorner;
+    ChastePoint<SPACE_DIM> mUpperCorner;
 
 public:
 
@@ -57,11 +58,11 @@ public:
      * @param rLowerPoint Lower vertex of the cuboid.
      * @param rUpperPoint Upper vertex of the cuboid.
      */
-    ChasteCuboid(ChastePoint<3>& rLowerPoint, ChastePoint<3>& rUpperPoint):
+    ChasteCuboid(ChastePoint<SPACE_DIM>& rLowerPoint, ChastePoint<SPACE_DIM>& rUpperPoint):
      mLowerCorner(rLowerPoint), 
      mUpperCorner(rUpperPoint)
     {
-        for (unsigned dim=0; dim<3; dim++)
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
             if (mLowerCorner[dim] > mUpperCorner[dim])
             {
@@ -76,10 +77,10 @@ public:
      *
      * @param rPointToCheck Point to be checked to be contained in the cuboid.
      */
-    template <unsigned DIM> 
-    bool DoesContain(const ChastePoint<DIM>& rPointToCheck) const
+
+    bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const
     {
-        for (unsigned dim=0; dim<DIM; dim++)
+        for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {
             if (rPointToCheck[dim] < mLowerCorner[dim] - 100*DBL_EPSILON
                 || mUpperCorner[dim] + 100* DBL_EPSILON < rPointToCheck[dim])
@@ -91,12 +92,12 @@ public:
     }
     
     /** @return the upper vertex of the cuboid */
-    const ChastePoint<3U>& rGetUpperCorner() const
+    const ChastePoint<SPACE_DIM>& rGetUpperCorner() const
     {
         return mUpperCorner;
     }
     /** @return the lower vertex of the cuboid */
-    const ChastePoint<3U>& rGetLowerCorner()
+    const ChastePoint<SPACE_DIM>& rGetLowerCorner()
     {
         return mLowerCorner;
     }

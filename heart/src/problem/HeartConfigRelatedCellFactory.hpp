@@ -68,17 +68,17 @@ private:
     /** Default cardiac cell model to be used in all tissue (except heterogeneous regions)*/
     cp::ionic_models_available_type mDefaultIonicModel;
     /** List of axis-aligned box regions which contain heterogeneous cardiac ionic model types*/
-    std::vector<ChasteCuboid> mIonicModelRegions;
+    std::vector<ChasteCuboid<SPACE_DIM> > mIonicModelRegions;
     /** List of ionic model (size matches that of mIonicModelRegions)*/
     std::vector<cp::ionic_models_available_type> mIonicModelsDefined;
     
     /** List of axis-aligned box regions which represent areas to stimulate*/
-    std::vector<ChasteCuboid> mStimulatedAreas;
+    std::vector<ChasteCuboid<SPACE_DIM> > mStimulatedAreas;
     /** List of intracellular current stimuli to apply (size matches that of mStimulatedAreas)*/
     std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
     
     /** List of axis-aligned box regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)*/
-    std::vector<ChasteCuboid> mCellHeterogeneityAreas;
+    std::vector<ChasteCuboid<SPACE_DIM> > mCellHeterogeneityAreas;
     /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGks;
     /** List of scale factors for Ito scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/

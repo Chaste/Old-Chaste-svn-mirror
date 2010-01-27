@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractChasteRegion.hpp"
 #include "Node.hpp"
 
+typedef ChasteCuboid<3> POINT_3D;
+
 class TestRegions : public CxxTest::TestSuite
 {
 public:
@@ -48,9 +50,9 @@ public:
         ChastePoint<3> point_inside(0, 0, 0);
         ChastePoint<3> point_outside(-4, -4, -4);
 
-        ChasteCuboid cuboid_a_b(point_a, point_b);
-        TS_ASSERT_THROWS_THIS(ChasteCuboid cuboid_b_a(point_b, point_a),
-                "Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
+        ChasteCuboid<3> cuboid_a_b(point_a, point_b);
+        
+        TS_ASSERT_THROWS_THIS(POINT_3D cuboid_b_a(point_b, point_a),"Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
 
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_inside), true);
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_a), true);
@@ -64,15 +66,21 @@ public:
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(just_outside), true);
 
         // Lower dimensional cases
-        ChastePoint<2> two_d_point_in(0.0, 0.0);
-        ChastePoint<1> one_d_point_in(0.0);
-        TS_ASSERT(cuboid_a_b.DoesContain(two_d_point_in));
-        TS_ASSERT(cuboid_a_b.DoesContain(one_d_point_in));
-
-        ChastePoint<2> two_d_point_out(-4.0, -4.0);
-        ChastePoint<1> one_d_point_out(-4.0);
-        TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(two_d_point_out), false);
-        TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(one_d_point_out), false);
+        
+        ///\ To do The following test case has been deprecated as of r7769 because the rest of the code assumes that the point are in 3D in a 3D cuboid 
+//        ChastePoint<2> two_d_point_in(0.0, 0.0);
+//        ChastePoint<1> one_d_point_in(0.0);
+//        
+//        ChasteCuboid<3> cuboid_3_2(point_a, point_b);
+//        ChasteCuboid<3> cuboid_3_1(point_a, point_b);
+//        
+//        TS_ASSERT(cuboid_3_2.DoesContain(two_d_point_in));
+//        TS_ASSERT(cuboid_3_1.DoesContain(one_d_point_in));
+//
+//        ChastePoint<2> two_d_point_out(-4.0, -4.0);
+//        ChastePoint<1> one_d_point_out(-4.0);
+//        TS_ASSERT_EQUALS(cuboid_3_2.DoesContain(two_d_point_out), false);
+//        TS_ASSERT_EQUALS(cuboid_3_1.DoesContain(one_d_point_out), false);
         
         ChastePoint<3> upper=cuboid_a_b.rGetUpperCorner();
         c_vector<double, 3> diff_upper = upper.rGetLocation() - point_b.rGetLocation();

@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Abstract base class for Chaste regions.
  */
 
+template <unsigned SPACE_DIM> 
 class AbstractChasteRegion
 {
 
@@ -55,13 +56,8 @@ public:
      * @param rPointToCheck Point to be checked to be contained in the region
      * @return true if the point is contained, false otherwise
      */
-    template <unsigned DIM>
-    bool DoesContain(const ChastePoint<DIM>& rPointToCheck) const
-    {
-        ///\todo: This method should be pure virtual, but it's not possible to declare pure virtual templated methods. This implementation is overwritten in the concrete classes (two at the moment). Do we really need to call this method with 1D and 2D chaste points?
-        NEVER_REACHED;
-        return true;
-    }
+
+    virtual bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const = 0;
 
 
 

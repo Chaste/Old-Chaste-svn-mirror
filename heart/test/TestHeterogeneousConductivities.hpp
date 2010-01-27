@@ -74,13 +74,13 @@ public:
         problem.SetMesh(&mesh);
 
         /*tissue properties*/
-        std::vector<ChasteCuboid> input_areas;
+        std::vector<ChasteCuboid<3> > input_areas;
         std::vector< c_vector<double,3> > intra_conductivities;
         std::vector< c_vector<double,3> > extra_conductivities;
         ChastePoint<3> corner_a(width/2, 0, 0);
         ChastePoint<3> corner_b(width, height, depth);
 
-        input_areas.push_back(ChasteCuboid(corner_a, corner_b));
+        input_areas.push_back(ChasteCuboid<3> (corner_a, corner_b));
         //within the cuboid
         intra_conductivities.push_back( Create_c_vector(0.1, 0.1, 0.1) );
         extra_conductivities.push_back( Create_c_vector(0.0, 0.0, 0.0) );
