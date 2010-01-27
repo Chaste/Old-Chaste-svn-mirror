@@ -69,6 +69,7 @@ TissueConfig::TissueConfig()
  * mHepaOneCellQuiescentConcentration has no units
  * mWntTransitThreshold has no units
  * mWntStemThreshold has no units
+ * mWntLabelledThreshold has no units
  * mTopOfLinearWntConcentration has no units (proportion of mCryptLength)
  * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
@@ -110,6 +111,7 @@ void TissueConfig::Reset()
     mHepaOneCellQuiescentConcentration = 1.0;
     mWntStemThreshold = 0.8;
     mWntTransitThreshold = 0.65;
+    mWntLabelledThreshold = 0.65;
     mTopOfLinearWntConcentration = 1.0;
     mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
@@ -130,7 +132,6 @@ void TissueConfig::Reset()
     mMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 in Nagai & Honda.
     mCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
     mCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
-
 
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
@@ -239,6 +240,10 @@ double TissueConfig::GetWntTransitThreshold()
 double TissueConfig::GetWntStemThreshold()
 {
     return mWntStemThreshold;
+}
+double TissueConfig::GetWntLabelledThreshold()
+{
+    return mWntLabelledThreshold;
 }
 double TissueConfig::GetTopOfLinearWntConcentration()
 {
@@ -456,6 +461,12 @@ void TissueConfig::SetWntStemThreshold(double wntThreshold)
     assert(wntThreshold<=1.0);
     assert(wntThreshold>=0.0);
     mWntStemThreshold = wntThreshold;
+}
+void TissueConfig::SetWntLabelledThreshold(double wntThreshold)
+{
+    assert(wntThreshold<=1.0);
+    assert(wntThreshold>=0.0);
+    mWntLabelledThreshold = wntThreshold;
 }
 void TissueConfig::SetTopOfLinearWntConcentration(double top)
 {

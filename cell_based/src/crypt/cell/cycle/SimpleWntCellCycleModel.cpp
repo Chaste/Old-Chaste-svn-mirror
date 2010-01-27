@@ -156,13 +156,14 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 
     // Set up under what level of Wnt stimulus a cell will divide
     double healthy_threshold = p_params->GetWntTransitThreshold();
+    double labelled_threshold = p_params->GetWntLabelledThreshold();
     switch (mpCell->GetMutationState())
     {
         case HEALTHY:
             wnt_division_threshold = healthy_threshold;
             break;
         case LABELLED:
-            wnt_division_threshold = healthy_threshold;
+            wnt_division_threshold = labelled_threshold;
             break;
         case APC_ONE_HIT:  // should be less than healthy values
             wnt_division_threshold = 0.77*healthy_threshold;

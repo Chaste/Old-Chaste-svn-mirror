@@ -146,6 +146,10 @@ public:
      */
     double GetWntStemThreshold();
     /**
+     * @return mWntLabelledThreshold
+     */
+    double GetWntLabelledThreshold();
+    /**
      * @return mTopOfLinearWntConcentration
      */
     double GetTopOfLinearWntConcentration();
@@ -330,6 +334,10 @@ public:
      * Set mWntStemThreshold.
      */
     void SetWntStemThreshold(double);
+    /**
+     * Set mWntLabelledThreshold.
+     */
+    void SetWntLabelledThreshold(double);
     /**
      * Set mTopOfLinearWntConcentration.
      */
@@ -591,6 +599,11 @@ private:
     double mWntStemThreshold;
 
     /**
+     * Non-dimensionalized Wnt threshold, above which LABELLED cells progress through the cell cycle.
+     */
+    double mWntLabelledThreshold;
+
+    /**
      * The proportion of the crypt that has a Wnt gradient.
      * The Wnt concentration goes to zero at this height up the crypt.
      */
@@ -742,6 +755,7 @@ private:
         archive & mHepaOneCellQuiescentConcentration;
         archive & mWntTransitThreshold;
         archive & mWntStemThreshold;
+        archive & mWntLabelledThreshold;
         archive & mTopOfLinearWntConcentration;
         archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
