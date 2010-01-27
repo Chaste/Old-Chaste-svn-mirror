@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractPeregoCardiacCell.hpp"
-
+#include "TimeStepper.hpp"
 #include "Debug.hpp"
 
 AbstractPeregoCardiacCell::AbstractPeregoCardiacCell(unsigned numberOfStateVariables,
@@ -48,7 +48,7 @@ AbstractPeregoCardiacCell::~AbstractPeregoCardiacCell()
 {}
 
 
-void  AbstractPeregoCardiacCell::EvaluatePredictedGates(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime)
+void  AbstractPeregoCardiacCell::EvaluatePredictedValues(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime)
 {
     //Get the weigths from the end of the corrector step at the previous time
     //hardcoded for the moment. To be changed when error analysis is implemented
@@ -89,7 +89,7 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedGates(std::vector<double> solu
     }
 }
 
-void  AbstractPeregoCardiacCell::EvaluateCorrectedGates(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime)
+void  AbstractPeregoCardiacCell::EvaluateCorrectedValues(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime)
 {
     mIsTheCorrectorStep = true;
     
@@ -137,5 +137,38 @@ void  AbstractPeregoCardiacCell::EvaluateCorrectedGates(std::vector<double> pred
 void AbstractPeregoCardiacCell::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
     NEVER_REACHED;
+}
+
+OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
+{
+    TimeStepper stepper(startTime, endTime, this->mDt);
+
+    // setup solutions if output is required
+    OdeSolution solutions;
+    solutions.SetNumberOfTimeSteps(stepper.EstimateTimeSteps());
+    solutions.rGetSolutions().push_back(this->mStateVariables);
+    solutions.rGetTimes().push_back(startTime);
+    
+    std::vector<double> previous_yvalues = mStateVariables;
+    std::vector<double> predicted_values = mStateVariables;
+    std::vector<double> corrected_values = mStateVariables;
+ 
+    // Solve the ODE system
+    while ( !stepper.IsTimeAtEnd() )
+    {
+        // Initialise the previous state variables to be a copy of the current state variables
+        previous_yvalues = corrected_values;
+        
+        //predict the next value
+        EvaluatePredictedValues(previous_yvalues, predicted_values, stepper.GetTime());
+        EvaluateCorrectedValues(predicted_values, corrected_values, stepper.GetTime());
+        
+        stepper.AdvanceOneTimeStep();
+        
+        // Record the state variables after the timestep is taken:
+        solutions.rGetSolutions().push_back(corrected_values);
+        solutions.rGetTimes().push_back(stepper.GetTime());        
+    }
+    return solutions;
 }
 

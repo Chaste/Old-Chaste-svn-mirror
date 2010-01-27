@@ -88,10 +88,10 @@ public:
      * @param rPredictedSolution is returned vector with the predicted values of the gates and other state variables (this is assumed to be initialised to the correct size)
      * @param currentTime is the current time
      */
-    void EvaluatePredictedGates(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
+    void EvaluatePredictedValues(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
     
     
-    void EvaluateCorrectedGates(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime);
+    void EvaluateCorrectedValues(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime);
     
     /**
      * Computes some parameters needed by the Perego Veneziani algorithm.
@@ -101,7 +101,32 @@ public:
      * @param currentTime is the current time
      */
     virtual void ComputeSystemParameters(std::vector<double> stateVariablesAtPrevousTime, double currentTime)=0;
+    
+    /**
+     * Overloaded Compute method.
+     * 
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep #mDt.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    OdeSolution Compute(double tStart, double tEnd);
 
+    /**
+     * Overloaded ComputeExceptVoltage method.
+     * 
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep #mDt, but does not update the voltage.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    void ComputeExceptVoltage(double tStart, double tEnd)
+    {
+        NEVER_REACHED; // not tested in tissue yet
+    }
+    
 private:
     /**
      * This function should never be called - the cell class incorporates its own solver.

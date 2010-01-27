@@ -42,13 +42,15 @@ class TestPeregoCellModels : public CxxTest::TestSuite
 {
 public:
 
-    //This tst checks that the EvaluatePredictedGates method computes the right thing
+    // This test checks that the EvaluatePredictedValues method computes the right thing
     // We compare against values from Chris' Matlab code
+    //
+    // This method does not call Compute - it has the time loop hardcoded
     void TestPeregoCellModelPredictor(void) throw(Exception)
     {
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 1.99;//for this test it will be number of time steps
+        double duration  = 1.99; // ms
         double when = 0.0; 
         
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
@@ -82,7 +84,7 @@ public:
             // Initialise the previous state variables to be a copy of the current state variables
             std::vector<double> r_previous_yvalues = r_predicted_values;
             //predict the next value
-            lr91_perego.EvaluatePredictedGates(r_previous_yvalues, r_predicted_values, time);
+            lr91_perego.EvaluatePredictedValues(r_previous_yvalues, r_predicted_values, time);
         }   
         
         //values from Chris' code
@@ -106,12 +108,12 @@ public:
         TS_ASSERT_DELTA(lr91_perego.GetIIonic(), 0.003,1e-4);
     }
     
-    
+    // This method does not call Compute - it has the time loop hardcoded
     void TestPeregoCellModelPredictorAndCorrector(void) throw(Exception)
     {
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 1.99;//for this test it will be number of time steps
+        double duration  = 1.99; // ms
         double when = 0.0; 
         
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
@@ -150,8 +152,8 @@ public:
             // Initialise the previous state variables to be a copy of the current state variables
             std::vector<double> r_previous_yvalues = r_corrected_values;
             //predict the next value
-            lr91_perego.EvaluatePredictedGates(r_previous_yvalues, r_predicted_values, time);
-            lr91_perego.EvaluateCorrectedGates(r_predicted_values, r_corrected_values, time);
+            lr91_perego.EvaluatePredictedValues(r_previous_yvalues, r_predicted_values, time);
+            lr91_perego.EvaluateCorrectedValues(r_predicted_values, r_corrected_values, time);
             times.push_back(time);
             for(unsigned i=0; i<8; i++)
             {
@@ -183,8 +185,46 @@ public:
         for(unsigned i=0; i<matlab_answers.size(); i++)
         {
             TS_ASSERT_DELTA(matlab_answers[i],r_corrected_values[i],1e-3);
-        }
+        }        
+    }
+
+
+    void TestCompute(void) throw(Exception)
+    {
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 1.99;//for this test it will be number of time steps
+        double when = 0.0; 
         
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+
+        // Create a luo Rudy cell set up for Perego-like solving
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus);
+        
+        OdeSolution solutions = lr91_perego.Compute(0.0, 10.0);
+        
+        TS_ASSERT_EQUALS(solutions.rGetTimes()[0], 0.0);
+        TS_ASSERT_DELTA(solutions.rGetTimes().back(), 10.0, 1e-12);
+        TS_ASSERT_EQUALS(solutions.rGetTimes().size(), 1001u);
+
+        //values from Chris' code
+        std::vector<double> matlab_answers;      
+        matlab_answers.push_back(0.0);
+        matlab_answers.push_back(0.0776);
+        matlab_answers.push_back(0.9987);
+        matlab_answers.push_back(0.0013);
+        matlab_answers.push_back(12.5825);
+        matlab_answers.push_back(0.4017);
+        matlab_answers.push_back(0.9764);
+        matlab_answers.push_back(0.1920);
+        
+        //check that after 1000 time steps the results are the same.
+        for(unsigned i=0; i<matlab_answers.size(); i++)
+        {
+            TS_ASSERT_DELTA(matlab_answers[i],solutions.rGetSolutions().back()[i],1e-3);
+        }
     }
 };
 
