@@ -151,32 +151,10 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
-    std::vector<double> ret_coords;
-
-    std::string buffer;
-    GetNextLineFromStream(mNodesFile, buffer);
-
-    std::stringstream buffer_stream(buffer);
-
-    unsigned index;
-    buffer_stream >> index;
-
+    std::vector<double> ret_coords(SPACE_DIM);
     unsigned offset = mIndexFromZero ? 0 : 1;
-    if (index != mNodesRead+offset)
-    {
-        std::stringstream error;
-        error << "Data for node " << mNodesRead << " missing";
-        EXCEPTION(error.str());
-    }
-
-    double coord;
-
-    for (unsigned i=0; i<SPACE_DIM; i++)
-    {
-        buffer_stream >> coord;
-        ret_coords.push_back(coord);
-    }
-
+    GetNextItemFromStream(mNodesFile, mNodesRead+offset, ret_coords);
+    
     mNodesRead++;
 
     return ret_coords;
@@ -186,42 +164,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 {
     ElementData element_data;
-
-    std::string buffer;
-    GetNextLineFromStream(mElementsFile, buffer);
-
-    std::stringstream buffer_stream(buffer);
-
-    unsigned element_index;
-    buffer_stream >> element_index;
-
     unsigned offset = mIndexFromZero ? 0 : 1;
-    if (element_index != mElementsRead+offset)
-    {
-        std::stringstream error;
-        error << "Data for element " << mElementsRead << " missing";
-        EXCEPTION(error.str());
-    }
-
-    unsigned node_index;
-    for (unsigned i=0; i<mNodesPerElement; i++)
-    {
-        buffer_stream >> node_index;
-        element_data.NodeIndices.push_back(node_index - offset);
-    }
-
-    if (mNumElementAttributes > 0)
-    {
-        assert(mNumElementAttributes==1);
-
-        unsigned attribute_value;
-        buffer_stream >> attribute_value;
-        element_data.AttributeValue = attribute_value;
-    }
-    else
-    {
-        element_data.AttributeValue = 0;
-    }
+    
+    element_data.NodeIndices.resize(mNodesPerElement);
+    element_data.AttributeValue = 0; // If an attribute is not read this stays as zero, otherwise overwritten.
+    GetNextItemFromStream(mElementsFile, mElementsRead+offset, element_data.NodeIndices, mNumElementAttributes,
+                          element_data.AttributeValue);
+                          
 
     mElementsRead++;
     return element_data;
@@ -240,54 +189,26 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     }
     else
     {
+        ret_indices.resize(mNodesPerBoundaryElement);
+        
         unsigned offset = mIndexFromZero ? 0 : 1;
 
         assert(ELEMENT_DIM != 0); //Covered in earlier exception, but needed in loop guard here.
         do
         {
-            ret_indices.clear();
-
-            std::string buffer;
-            GetNextLineFromStream(mFacesFile, buffer);
-
-            std::stringstream buffer_stream(buffer);
-
-            unsigned face_index;
-            buffer_stream >> face_index;
-
-            if (face_index != mFacesRead+offset)
+            face_data.AttributeValue = 1u; // If an attribute is not read this stays as one, otherwise overwritten.
+    
+                          
+            if (mReadContainingElementOfBoundaryElement)
             {
-                std::stringstream error;
-                error << "Data for face " << mFacesRead << " missing";
-                EXCEPTION(error.str());
-            }
-
-            unsigned node_index;
-            for (unsigned i=0; i<mNodesPerBoundaryElement; i++)
-            {
-                buffer_stream >> node_index;
-                ret_indices.push_back(node_index-offset);
-            }
-
-            if (mNumFaceAttributes>0)
-            {
-                assert(mNumFaceAttributes==1);
-
-                unsigned attribute_value;
-                buffer_stream >> attribute_value;
-                face_data.AttributeValue = attribute_value;
+                assert(mNumFaceAttributes == 0);
+                GetNextItemFromStream(mFacesFile, mFacesRead+offset, ret_indices, 1,
+                                      face_data.ContainingElement);
             }
             else
             {
-                face_data.AttributeValue = 1u; //Do not ignore
-            }
-            
-            if (mReadContainingElementOfBoundaryElement)
-            {
-                unsigned containing_element_index;
-                buffer_stream >> containing_element_index;
-                
-                face_data.ContainingElement = containing_element_index;
+                GetNextItemFromStream(mFacesFile, mFacesRead+offset, ret_indices, mNumFaceAttributes,
+                                      face_data.AttributeValue);
             }
 
             mFacesRead++;
@@ -521,6 +442,75 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifs
         line_is_blank = (rRawLine.find_first_not_of(" \t",0) == std::string::npos);
     }
     while (line_is_blank);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
+                               std::vector<unsigned>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute)
+{
+    std::string buffer;
+    GetNextLineFromStream(fileStream,buffer);
+    std::stringstream buffer_stream(buffer);
+
+    unsigned item_index;
+    buffer_stream >> item_index;
+    
+    if (item_index != expectedItemNumber)
+    {
+        std::stringstream error;
+        if (!mIndexFromZero)
+        { // To fix the exception message to agree with file format.
+            expectedItemNumber--;
+        }
+        error << "Data for item " << expectedItemNumber << " missing";
+        EXCEPTION(error.str());
+    }
+    
+    for (unsigned i=0; i<rDataPacket.size(); i++)
+    {
+        buffer_stream >> rDataPacket[i];
+    }
+    if (!mIndexFromZero)
+    {
+        for (unsigned i=0; i<rDataPacket.size(); i++)
+        {
+            rDataPacket[i]--;
+        }
+    }
+
+    if (rNumAttributes>0)
+    {
+        buffer_stream >> rAttribute;
+    }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
+                               std::vector<double>& rDataPacket)
+{
+    std::string buffer;
+    GetNextLineFromStream(fileStream,buffer);
+    std::stringstream buffer_stream(buffer);
+
+    unsigned item_index;
+    buffer_stream >> item_index;
+    
+    if (item_index != expectedItemNumber)
+    {
+        std::stringstream error;
+        if (!mIndexFromZero)
+        { // To fix the exception message to agree with file format.
+            expectedItemNumber--;
+        }
+        error << "Data for item " << expectedItemNumber << " missing";
+        EXCEPTION(error.str());
+    }
+    
+    for (unsigned i=0; i<rDataPacket.size(); i++)
+    {
+        buffer_stream >> rDataPacket[i];
+    }
+
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

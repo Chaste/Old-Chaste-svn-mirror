@@ -187,6 +187,27 @@ private:
      * @param rRawLine
      */
     void GetNextLineFromStream(std::ifstream& fileStream, std::string& rRawLine);
+    
+    /**
+     * Returns the Item details from the next line via a call to GetNextLineFromStream()
+     * 
+     * @param fileStream 
+     * @param expectedItemNumber
+     * @param rDataPacket  Assumed to be of the right size but is allowed to contain dirty data on entry.
+     * @param rNumAttributes  The number of attributes per item that we expect to read. Either mNumFaceAttributes or mNumElemAttributes.
+     * @param rAttribute  Will be given the attribute value if rNumAttributes > 0, otherwise UNSET.
+     */
+    void GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
+                               std::vector<unsigned>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute);
+    /**
+     * Returns the Item details from the next line via a call to GetNextLineFromStream()
+     * 
+     * @param fileStream 
+     * @param expectedItemNumber
+     * @param rDataPacket  Assumed to be of the right size but is allowed to contain dirty data on entry.
+     */
+    void GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
+                               std::vector<double>& rDataPacket);
 
     /** Get method for mFilesBaseName. */
     std::string GetMeshFileBaseName();

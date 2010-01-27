@@ -75,7 +75,7 @@ public:
         // Reads node 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
         // Reads node 3 from file when expecting number 1
-        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextNode(),"Data for node 1 missing");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextNode(),"Data for item 1 missing");
     }
 
     /**
@@ -107,7 +107,7 @@ public:
         // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
         // Reads element 2 from file when expecting number 1
-        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextElementData(),"Data for element 1 missing");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextElementData(),"Data for item 1 missing");
     }
 
     /**
@@ -131,7 +131,7 @@ public:
         }
 
         // First boundary face is #20, on its way through the file there's a gap between face 1 and face 10
-        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader2("mesh/test/data/baddata/bad_faces_disk_522_elements"),"Data for face 2 missing");
+        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader2("mesh/test/data/baddata/bad_faces_disk_522_elements"),"Data for item 2 missing");
     }
 
     /**
@@ -180,7 +180,7 @@ public:
      */
     void TestPermutedNodesFail() throw(Exception)
     {
-        TS_ASSERT_THROWS_THIS(READER_2D reader("mesh/test/data/baddata/permuted_nodes_disk_522_elements"),"Data for face 0 missing")
+        TS_ASSERT_THROWS_THIS(READER_2D reader("mesh/test/data/baddata/permuted_nodes_disk_522_elements"),"Data for item 0 missing")
     }
 
     /**
