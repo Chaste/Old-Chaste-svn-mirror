@@ -92,7 +92,7 @@ void BidomainPde<SPACE_DIM>::CreateExtracellularConductivityTensors()
 
     if (this->mpConfig->GetConductivityHeterogeneitiesProvided())
     {
-        std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
+        std::vector<ChasteCuboid<SPACE_DIM> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -104,7 +104,7 @@ void BidomainPde<SPACE_DIM>::CreateExtracellularConductivityTensors()
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
                 // if element centroid is contained in the region
-                ChastePoint<3> element_centroid(this->mpMesh->GetElement(element_index)->CalculateCentroid());
+                ChastePoint<SPACE_DIM> element_centroid(this->mpMesh->GetElement(element_index)->CalculateCentroid());
                 if ( conductivities_heterogeneity_areas[region_index].DoesContain( element_centroid ) )
                 {
                     hetero_extra_conductivities[element_index] = extra_h_conductivities[region_index];
