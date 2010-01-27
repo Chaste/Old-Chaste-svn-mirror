@@ -2005,8 +2005,9 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         # Parameter declarations, and set & get methods (#666)
         param_vars = self.output_cell_parameters()
         # Constructor
-        self.output_constructor(['boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
-                                [len(self.state_vars), self.v_index, 'pIntracellularStimulus'])
+        self.output_constructor(['boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver /* unused; should be empty */',
+                                 'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
+                                ['pOdeSolver', len(self.state_vars), self.v_index, 'pIntracellularStimulus'])
         # Destructor
         self.writeln('~', self.class_name, '(void)')
         self.open_block()

@@ -85,9 +85,11 @@ public:
     /**
      * Constructor
      * 
+     * @param pOdeSolver  unused
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
-    Lr91Cvode(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
+    Lr91Cvode(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
+              boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /**
      * Destructor

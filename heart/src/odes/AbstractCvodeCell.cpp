@@ -69,7 +69,8 @@ int AbstractCvodeCellRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pDa
 }
 
 
-AbstractCvodeCell::AbstractCvodeCell(unsigned numberOfStateVariables,
+AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
+                                     unsigned numberOfStateVariables,
                                      unsigned voltageIndex,
                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
     : mNumberOfStateVariables(numberOfStateVariables),

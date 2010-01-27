@@ -56,8 +56,9 @@ const double Lr91Cvode::time_dependent_potassium_current_PR_NaK = 0.01833;
 /**
  * Constructor
  */
-Lr91Cvode::Lr91Cvode(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-        : AbstractCvodeCell(8, 4, pIntracellularStimulus)
+Lr91Cvode::Lr91Cvode(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
+                     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
+        : AbstractCvodeCell(pOdeSolver, 8, 4, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<Lr91Cvode>::Instance();
 

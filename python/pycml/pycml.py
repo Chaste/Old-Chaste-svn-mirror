@@ -2028,8 +2028,8 @@ class UnitsSet(set):
         return srcs
 
     def get_expression(self):
-	"""Return an expression that has these units."""
-	return self._expression
+        """Return an expression that has these units."""
+        return self._expression
     
     def simplify(self, other_units=None, other_exponent=1):
         """Simplify the units in this set.
@@ -2048,16 +2048,16 @@ class UnitsSet(set):
         result_set = UnitsSet()
         for units in self:
             if other_units is None:
-		res_u = units.simplify()
+                res_u = units.simplify()
                 result_set.add(res_u)
-		result_set._add_source(res_u, self, units)
+                result_set._add_source(res_u, self, units)
             else:
                 if isinstance(other_units, cellml_units):
                     other_units = UnitsSet([other_units])
                 for u in other_units:
-		    res_u = units.simplify(u, other_exponent)
+                    res_u = units.simplify(u, other_exponent)
                     result_set.add(res_u)
-		    result_set._add_source(res_u, self, units)
+                    result_set._add_source(res_u, self, units)
                     result_set._add_source(res_u, other_units, u)
         return result_set
 
@@ -3095,18 +3095,18 @@ class mathml_units_mixin(object):
 class mathml_units_mixin_tokens(mathml_units_mixin):
     """Contains the _set_in_units method for ci, cn, etc."""
     def _set_in_units(self, units, no_act=False):
-	"""Set the units this element should be expressed in.
+        """Set the units this element should be expressed in.
 
-	Where these aren't the units it's defined in, replace self by
-	suitable units conversion mathematics.
+        Where these aren't the units it's defined in, replace self by
+        suitable units conversion mathematics.
         """
-	defn_units = self.get_units(return_set=False)
-	if defn_units != units:
-	    self._add_units_conversion(self, defn_units, units, no_act)
+        defn_units = self.get_units(return_set=False)
+        if defn_units != units:
+            self._add_units_conversion(self, defn_units, units, no_act)
         # Store the units
         if not no_act:
             self._cml_units = units
-	return
+        return
 
 class mathml_units_mixin_set_operands(mathml_units_mixin):
     def _set_in_units(self, units, no_act=False):
@@ -3304,28 +3304,28 @@ class mathml(element_base):
             # No evaluate() method on elt
             raise EvaluationError("Don't know how to evaluate element " +
                                   elt.localName)
-	return
+        return
 
     def _ensure_units_exist(self, units=None, no_act=False):
-	"""Ensure that there is an element in the XML tree giving this
-	expression's units.
+        """Ensure that there is an element in the XML tree giving this
+        expression's units.
 
-	Add a new <units> element if this expression has generated units.
+        Add a new <units> element if this expression has generated units.
 
-	If units is not None, use the given units rather than those of
-	this expression.
+        If units is not None, use the given units rather than those of
+        this expression.
 
-	Return an attribute dictionary with the appropriate units
-	attribute."""
+        Return an attribute dictionary with the appropriate units
+        attribute."""
         if no_act:
             # Doesn't matter what we return, as it wont be used
             return {(u'cml:units', NSS[u'cml']): u'#UNUSED#'}
-	try:
-	    if units is None:
-		units = self.get_units().extract()
+        try:
+            if units is None:
+                units = self.get_units().extract()
 ##            _u = units
             units = self.model._get_units_obj(units)
-	    if units._cml_generated and units.name[:3] == "___":
+            if units._cml_generated and units.name[:3] == "___":
 ##                print "Adding",units.name, hash(units), units.description(),
 ##                print "(was",id(_u),"now",id(units),")"
                 # Ensure referenced units exist
@@ -3334,17 +3334,17 @@ class mathml(element_base):
                     unit.units = unit.get_units_element().name
                 # Rename units and add to XML tree
                 msg = "Adding units " + units.name + " as "
-		units.name = units.description(cellml=True)
+                units.name = units.description(cellml=True)
                 msg = msg + units.name
                 logging.getLogger('partial-evaluator').log(logging.DEBUG,
                                                            msg.encode('UTF-8'))
                 units.xml_parent.add_units(units.name, units)
-		units.xml_parent.xml_append(units)
-	    attrs = {(u'cml:units', NSS[u'cml']): units.name}
-	except UnitsError:
-	    # Hack to allow PE on broken (wrt units) models
-	    attrs = {(u'cml:units', NSS[u'cml']): u'#FUDGE#'}
-	return attrs
+                units.xml_parent.xml_append(units)
+            attrs = {(u'cml:units', NSS[u'cml']): units.name}
+        except UnitsError:
+            # Hack to allow PE on broken (wrt units) models
+            attrs = {(u'cml:units', NSS[u'cml']): u'#FUDGE#'}
+        return attrs
 
     def varobj(self, ci_elt):
         """Return the variable object for the given ci element.
@@ -5117,7 +5117,7 @@ class mathml_power(mathml_operator, mathml_units_mixin):
         in suitable units conversion mathematics.
         """
         app = self.xml_parent
-	defn_units_set = app.get_units()
+        defn_units_set = app.get_units()
         defn_units = defn_units_set.extract()
         app._add_units_conversion(app, defn_units, units, no_act)
         # Record which member of the set we used
@@ -5157,7 +5157,7 @@ class mathml_root(mathml_operator, mathml_units_mixin):
         in suitable units conversion mathematics.
         """
         app = self.xml_parent
-	defn_units_set = app.get_units()
+        defn_units_set = app.get_units()
         defn_units = defn_units_set.extract()
         app._add_units_conversion(app, defn_units, units, no_act)
         # Record which member of the set we used

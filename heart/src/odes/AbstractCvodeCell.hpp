@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSolution.hpp"
 #include "AbstractOdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractIvpOdeSolver.hpp"
 
 // CVODE headers
 #include <nvector/nvector_serial.h>
@@ -125,7 +126,8 @@ public:
      * @param voltageIndex  the index of the transmembrane potential within the vector of state variables
      * @param pIntracellularStimulus  the intracellular stimulus current
      */
-    AbstractCvodeCell(unsigned numberOfStateVariables,
+    AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* unused; should be empty */,
+                      unsigned numberOfStateVariables,
                       unsigned voltageIndex,
                       boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 

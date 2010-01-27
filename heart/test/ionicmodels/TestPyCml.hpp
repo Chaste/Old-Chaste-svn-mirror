@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "luo_rudy_1991.hpp"
 #include "luo_rudy_1991Opt.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 #ifdef CHASTE_CVODE
 #include "luo_rudy_1991Cvode.hpp"
@@ -56,6 +57,37 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestPyCml : public CxxTest::TestSuite
 {
 public:
+    /** For comparison with the test below; copied from TestIonicModels.hpp */
+    void TestOdeSolverForLR91WithDelayedSimpleStimulus(void)
+    {
+        clock_t ck_start, ck_end;
+
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 2.0 ;  // ms
+        double when = 50.0; // ms
+
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+
+        double end_time = 1000.0; //One second in milliseconds
+
+        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
+        TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 4u); // For coverage
+
+        // Solve and write to file
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&lr91_ode_system,
+                                   end_time,
+                                   "Lr91DelayedStim",
+                                   100,
+                                   false);
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tForward: " << forward << std::endl;
+        CheckCellModelResults("Lr91DelayedStim");
+    }
+
      /**
       * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
       * and gives expected results.
@@ -93,10 +125,10 @@ public:
         
 #ifdef CHASTE_CVODE
         // CVODE version
-        Cellluo_rudy_1991FromCellMLCvode cvode_cell(p_stimulus);
+        Cellluo_rudy_1991FromCellMLCvode cvode_cell(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(cvode_cell.GetVoltageIndex(), 0u);
         // Optimised CVODE version
-        Cellluo_rudy_1991FromCellMLCvodeOpt cvode_opt(p_stimulus);
+        Cellluo_rudy_1991FromCellMLCvodeOpt cvode_opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(cvode_opt.GetVoltageIndex(), 0u);
 #endif // CHASTE_CVODE
         

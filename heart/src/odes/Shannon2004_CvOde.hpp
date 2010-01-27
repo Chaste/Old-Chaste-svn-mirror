@@ -11,13 +11,15 @@
 #include <cmath>
 #include <cassert>
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractIvpOdeSolver.hpp"
 #include "AbstractCvodeCell.hpp"
 
 class CvOdeCellShannon2004FromCellML : public AbstractCvodeCell
 {
 public:
-    CvOdeCellShannon2004FromCellML(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-        : AbstractCvodeCell(45, 0, pIntracellularStimulus)
+    CvOdeCellShannon2004FromCellML(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
+                                   boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
+        : AbstractCvodeCell(pOdeSolver, 45, 0, pIntracellularStimulus)
     {
         // Time units: millisecond
         //
