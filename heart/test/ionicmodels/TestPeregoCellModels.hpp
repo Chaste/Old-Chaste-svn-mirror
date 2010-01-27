@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "HeartConfig.hpp"
 #include "PeregoLuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include "SimpleDataWriter.hpp"
 #include "Debug.hpp"
@@ -225,6 +226,57 @@ public:
         {
             TS_ASSERT_DELTA(matlab_answers[i],solutions.rGetSolutions().back()[i],1e-3);
         }
+    }
+    
+    void TestCompareToStandardLuoRudy(void) throw(Exception)
+    {
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 1.99;//for this test it will be number of time steps
+        double when = 0.0; 
+       
+        
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+
+        // Compute the solution with the Perego nonadaptive predictor-corrector scheme
+        // Create a luo Rudy cell set up for Perego-like solving
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus);
+        OdeSolution solutions_perego = lr91_perego.Compute(0.0, 10.0);
+        
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        LuoRudyIModel1991OdeSystem lr91(p_solver, p_stimulus);
+        OdeSolution solutions = lr91.Compute(0.0, 10.0);
+        
+        std::vector<double> tol(8);
+        
+        
+        // Tolerance to error in each variable is based on a visual inspection of the difference
+        // between the two AP traces and the maximum values of the differences between Perego and 
+        // forward Euler over time in this case.
+        tol[0]=6e-2;
+        tol[1]=4e-3;
+        tol[2]=4e-2;
+        
+        tol[3]=1e-5;
+        tol[4]=6;
+        
+        tol[5]=2e-3;
+        tol[6]=3e-4;
+        tol[7]=4e-4;
+        
+        for(unsigned i=0; i<solutions.rGetTimes().size(); i++)
+        {
+            TS_ASSERT_DELTA(solutions.rGetTimes()[i],solutions_perego.rGetTimes()[i],1e-12);
+            for(unsigned j=0; j<8; j++)
+            {
+                TS_ASSERT_DELTA(solutions.rGetSolutions()[i][j],solutions_perego.rGetSolutions()[i][j],tol[j]);
+            }
+        }
+        
+        solutions.WriteToFile("TestPeregoLr91Compare","lr91_standard",&lr91,"ms");
+        solutions_perego.WriteToFile("TestPeregoLr91Compare","lr91_perego",&lr91_perego,"ms", 1, false);
     }
 };
 
