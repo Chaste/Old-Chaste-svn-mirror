@@ -72,14 +72,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
-        std::vector<double> current_item = this->GetNextNode();
-        *p_node_file << item_num;
-        for (unsigned i=0; i<SPACE_DIM; i++)
-        {
-            *p_node_file << "\t" << current_item[i];
-        }
-        *p_node_file << "\t" << default_marker << "\n";
-
+        WriteItem(p_node_file, item_num, this->GetNextNode(), default_marker);
     }
     *p_node_file << comment << "\n";
     p_node_file->close();
@@ -123,15 +116,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
             element_data = this->GetNextElement();
         }
         
-        *p_element_file << item_num;
-        for (unsigned i=0; i<nodes_per_element; i++)
-        {
-            *p_element_file << "\t" << element_data.NodeIndices[i];
-        }
-        // Attribute
-        *p_element_file << "\t" << element_data.AttributeValue;
-        
-        *p_element_file << "\n";
+        WriteItem(p_element_file, item_num, element_data.NodeIndices, element_data.AttributeValue);
     }
     *p_element_file << comment << "\n";
     p_element_file->close();
@@ -163,14 +148,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
-        std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
-        *p_face_file << item_num;
-        for (unsigned i=0; i<current_item.size(); i++)
-        {
-            *p_face_file << "\t" << current_item[i];
-        }
-        *p_face_file << "\t" << default_marker << "\n";
-
+        WriteItem(p_face_file, item_num, this->mBoundaryFaceData[item_num], default_marker);
     }
     *p_face_file << comment << "\n";
     p_face_file->close();
@@ -190,21 +168,12 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteElementsAsFaces()
     {
         element_file_name = element_file_name + ".face";
     }
-/*    else
-    {
-        // This is ignored in coverage:
-        // Since we can't yet read line element meshes in 3D, we won't have anything to write
-#define COVERAGE_IGNORE
-        EXCEPTION("Can only write 1D/2D elements in 2D/3D space.");
-#undef COVERAGE_IGNORE
-    }*/
 
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
 
     // Write the element header
     unsigned num_elements = this->GetNumElements();
     assert(SPACE_DIM != ELEMENT_DIM);
-    unsigned nodes_per_element = ELEMENT_DIM+1;
     unsigned num_attr = 0;
 
     *p_element_file << num_elements << "\t";
@@ -214,14 +183,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteElementsAsFaces()
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
-        std::vector<unsigned> current_item = this->GetNextElement().NodeIndices;
-        *p_element_file << item_num;
-        for (unsigned i=0; i<nodes_per_element; i++)
-        {
-            *p_element_file << "\t" << current_item[i];
-        }
-        *p_element_file << "\n";
-
+         WriteItem(p_element_file, item_num, this->GetNextElement().NodeIndices);
     }
     *p_element_file << comment << "\n";
     p_element_file->close();
@@ -256,19 +218,40 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
-        std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
-        *p_face_file << item_num;
-        for (unsigned i=0; i<current_item.size(); i++)
-        {
-            *p_face_file << "\t" << current_item[i];
-        }
-        *p_face_file << "\t" << default_marker << "\n";
-
+        WriteItem(p_face_file, item_num, this->mBoundaryFaceData[item_num], default_marker);
     }
     *p_face_file << comment << "\n";
     p_face_file->close();
 }
 
+/*For doubles*/
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber, 
+                                                    const std::vector<double> &dataPacket, unsigned attribute)
+{
+    *pFile << itemNumber;
+    for (unsigned i=0; i<dataPacket.size(); i++)
+    {
+        *pFile << "\t" << dataPacket[i];
+    }
+    *pFile << "\t" << attribute << "\n";
+}
+/*For unsigneds*/
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber, 
+                                                    const std::vector<unsigned> &dataPacket, unsigned attribute)
+{
+    *pFile << itemNumber;
+    for (unsigned i=0; i<dataPacket.size(); i++)
+    {
+        *pFile << "\t" << dataPacket[i];
+    }
+    if (attribute != UINT_MAX)
+    {
+        *pFile << "\t" << attribute;
+    }
+    *pFile << "\n";
+}
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
