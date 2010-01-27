@@ -237,9 +237,19 @@ public:
         // Coverage of GetIIonic method.
         TS_ASSERT_DELTA(sh04_ode_system.GetIIonic(),0.0006,1e-4);
     
-        // Coverage of mSetVoltageDerivativeToZero
+        // Clamping
+        sh04_cvode_system.SetVoltageDerivativeToZero();
+        solution_cvode = sh04_cvode_system.Solve(end_time, end_time+100.0, max_timestep, sampling_time);
+        std::vector<double> voltages = solution_cvode.GetVariableAtIndex(sh04_cvode_system.GetVoltageIndex());
+        for (unsigned i=0; i<voltages.size(); i++)
+        {
+            TS_ASSERT_EQUALS(voltages[i], sh04_cvode_system.GetVoltage());
+        }
+        sh04_cvode_system.SetVoltageDerivativeToZero(false);
+        
+        // Coverage of mSetVoltageDerivativeToZero in non-CVODE class
         sh04_ode_system.ComputeExceptVoltage(end_time,end_time+0.01);
-
+        
 #endif // CHASTE_CVODE
     }
 };
