@@ -131,6 +131,27 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
 }
 
 
+template<unsigned DIM>
+boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > Electrodes<DIM>::GetBoundaryConditionsContainer()
+{
+    assert(mAreActive);
+    return mpBoundaryConditionsContainer;
+}
+
+
+template<unsigned DIM>
+bool Electrodes<DIM>::SwitchOff(double time)
+{
+    if (mAreActive && time>mEndTime)
+    {
+        mAreActive = false;
+        return true;
+    }
+
+    return false;
+}
+
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

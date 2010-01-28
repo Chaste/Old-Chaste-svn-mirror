@@ -144,11 +144,7 @@ public:
      *  fluxes for the first electrode, and the opposite fluxes for the second
      *  electrode if the the second electrode isn't grounded
      */
-    boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > GetBoundaryConditionsContainer()
-    {
-        assert(mAreActive);
-        return mpBoundaryConditionsContainer;
-    }
+    boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > GetBoundaryConditionsContainer();
     
     /**
      *  Whether it is time to switch off the electrodes yet. THIS ONLY RETURNS
@@ -157,16 +153,7 @@ public:
      * 
      * @param time  the current time
      */
-    bool SwitchOff(double time)
-    {
-        if (mAreActive && time>mEndTime)
-        {
-            mAreActive = false;
-            return true;
-        }
-
-        return false;
-    }
+    bool SwitchOff(double time);
 };
 
 #include "TemplatedExport.hpp"
