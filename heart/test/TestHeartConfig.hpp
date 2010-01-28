@@ -110,6 +110,33 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined[0], cp::ionic_models_available_type::LuoRudyI);
         TS_ASSERT_EQUALS(ionic_models_defined[1], cp::ionic_models_available_type::DifrancescoNoble);
 
+        //cover the 2D case
+        std::vector<ChasteCuboid<2> > ionic_model_regions_2D;
+        std::vector<cp::ionic_models_available_type> ionic_models_defined_2D;
+        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions_2D,
+                                                      ionic_models_defined_2D);
+
+        TS_ASSERT_EQUALS(ionic_model_regions_2D.size(), 2u);
+        TS_ASSERT_EQUALS(ionic_models_defined_2D.size(), 2u);
+
+        TS_ASSERT(ionic_model_regions_2D[0].DoesContain(ChastePoint<2>(-1.95, 0)));
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[0], cp::ionic_models_available_type::LuoRudyI);
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[1], cp::ionic_models_available_type::DifrancescoNoble);
+        
+        //cover the 1D case
+        std::vector<ChasteCuboid<1> > ionic_model_regions_1D;
+        std::vector<cp::ionic_models_available_type> ionic_models_defined_1D;
+        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions_1D,
+                                                      ionic_models_defined_1D);
+
+        TS_ASSERT_EQUALS(ionic_model_regions_1D.size(), 2u);
+        TS_ASSERT_EQUALS(ionic_models_defined_1D.size(), 2u);
+
+        TS_ASSERT(ionic_model_regions_1D[0].DoesContain(ChastePoint<1>(-1.95)));
+        TS_ASSERT_EQUALS(ionic_models_defined_1D[0], cp::ionic_models_available_type::LuoRudyI);
+        TS_ASSERT_EQUALS(ionic_models_defined_1D[1], cp::ionic_models_available_type::DifrancescoNoble);
+        
+        
         TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
 
@@ -136,25 +163,75 @@ public :
         TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
         TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
 
-        std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
-        std::vector<double> scale_factor_gks;
-        std::vector<double> scale_factor_ito;
-        std::vector<double> scale_factor_gkr;
-        HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
-                                                        scale_factor_gks,
-                                                        scale_factor_ito,
-                                                        scale_factor_gkr);
+        std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas_3D;
+        std::vector<double> scale_factor_gks_3D;
+        std::vector<double> scale_factor_ito_3D;
+        std::vector<double> scale_factor_gkr_3D;
+        HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_3D,
+                                                        scale_factor_gks_3D,
+                                                        scale_factor_ito_3D,
+                                                        scale_factor_gkr_3D);
 
-        TS_ASSERT(cell_heterogeneity_areas[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
-        TS_ASSERT_EQUALS(scale_factor_gks[1], 1.154);
-        TS_ASSERT_EQUALS(scale_factor_ito[1], 0.85);
-        TS_ASSERT_EQUALS(scale_factor_gkr[1], 1.0);
+        TS_ASSERT(cell_heterogeneity_areas_3D[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
+        TS_ASSERT_EQUALS(scale_factor_gks_3D[0], 0.462);
+        TS_ASSERT_EQUALS(scale_factor_ito_3D[0], 0.0);
+        TS_ASSERT_EQUALS(scale_factor_gkr_3D[0], 1.0);
+        TS_ASSERT_EQUALS(scale_factor_gks_3D[1], 1.154);
+        TS_ASSERT_EQUALS(scale_factor_ito_3D[1], 0.85);
+        TS_ASSERT_EQUALS(scale_factor_gkr_3D[1], 1.0);
         
-        for (unsigned i = 0; i<cell_heterogeneity_areas.size();i++)
+        for (unsigned i = 0; i<cell_heterogeneity_areas_3D.size();i++)
         {
-            delete cell_heterogeneity_areas[i];
+            delete cell_heterogeneity_areas_3D[i];
         }
 
+        //cover the 2D case 
+        std::vector<AbstractChasteRegion<2>* > cell_heterogeneity_areas_2D;
+        std::vector<double> scale_factor_gks_2D;
+        std::vector<double> scale_factor_ito_2D;
+        std::vector<double> scale_factor_gkr_2D;
+        HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_2D,
+                                                        scale_factor_gks_2D,
+                                                        scale_factor_ito_2D,
+                                                        scale_factor_gkr_2D);
+
+        TS_ASSERT(cell_heterogeneity_areas_2D[0]->DoesContain(ChastePoint<2>(-1.0, 0)));
+        TS_ASSERT_EQUALS(scale_factor_gks_2D[0], 0.462);
+        TS_ASSERT_EQUALS(scale_factor_ito_2D[0], 0.0);
+        TS_ASSERT_EQUALS(scale_factor_gkr_2D[0], 1.0);
+        TS_ASSERT_EQUALS(scale_factor_gks_2D[1], 1.154);
+        TS_ASSERT_EQUALS(scale_factor_ito_2D[1], 0.85);
+        TS_ASSERT_EQUALS(scale_factor_gkr_2D[1], 1.0);
+        
+        for (unsigned i = 0; i<cell_heterogeneity_areas_2D.size();i++)
+        {
+            delete cell_heterogeneity_areas_2D[i];
+        }
+        
+         //cover the 1D case 
+        std::vector<AbstractChasteRegion<1>* > cell_heterogeneity_areas_1D;
+        std::vector<double> scale_factor_gks_1D;
+        std::vector<double> scale_factor_ito_1D;
+        std::vector<double> scale_factor_gkr_1D;
+        HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_1D,
+                                                        scale_factor_gks_1D,
+                                                        scale_factor_ito_1D,
+                                                        scale_factor_gkr_1D);
+
+        TS_ASSERT(cell_heterogeneity_areas_1D[0]->DoesContain(ChastePoint<1>(-1.0)));
+        TS_ASSERT_EQUALS(scale_factor_gks_1D[0], 0.462);
+        TS_ASSERT_EQUALS(scale_factor_ito_1D[0], 0.0);
+        TS_ASSERT_EQUALS(scale_factor_gkr_1D[0], 1.0);
+        TS_ASSERT_EQUALS(scale_factor_gks_1D[1], 1.154);
+        TS_ASSERT_EQUALS(scale_factor_ito_1D[1], 0.85);
+        TS_ASSERT_EQUALS(scale_factor_gkr_1D[1], 1.0);
+        
+        for (unsigned i = 0; i<cell_heterogeneity_areas_1D.size();i++)
+        {
+            delete cell_heterogeneity_areas_1D[i];
+        }
+        
+            
         std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
@@ -166,7 +243,34 @@ public :
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
+        
+        //cover the 2D case
+        std::vector<ChasteCuboid<2> > conductivities_heterogeneity_areas_2D;
+        std::vector< c_vector<double,3> > intra_h_conductivities_2D;
+        std::vector< c_vector<double,3> > extra_h_conductivities_2D;
+        HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas_2D,
+                                                                intra_h_conductivities_2D,
+                                                                extra_h_conductivities_2D);
 
+        TS_ASSERT(conductivities_heterogeneity_areas_2D[0].DoesContain(ChastePoint<2>(1.95, 0)));
+        TS_ASSERT_EQUALS(intra_h_conductivities_2D[0][0], 2.75);
+        TS_ASSERT_EQUALS(extra_h_conductivities_2D[0][0], 8.0);
+        TS_ASSERT_EQUALS(intra_h_conductivities_2D[1][0], 0.75);
+        
+        //cover the 1D case
+        std::vector<ChasteCuboid<1> > conductivities_heterogeneity_areas_1D;
+        std::vector< c_vector<double,3> > intra_h_conductivities_1D;
+        std::vector< c_vector<double,3> > extra_h_conductivities_1D;
+        HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas_1D,
+                                                                intra_h_conductivities_1D,
+                                                                extra_h_conductivities_1D);
+
+        TS_ASSERT(conductivities_heterogeneity_areas_1D[0].DoesContain(ChastePoint<1>(1.95)));
+        TS_ASSERT_EQUALS(intra_h_conductivities_1D[0][0], 2.75);
+        TS_ASSERT_EQUALS(extra_h_conductivities_1D[0][0], 8.0);
+        TS_ASSERT_EQUALS(intra_h_conductivities_1D[1][0], 0.75);
+               
+        
         c_vector<double, 3> extra_conductivities;
         HeartConfig::Instance()->GetExtracellularConductivities(extra_conductivities);
         TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]);

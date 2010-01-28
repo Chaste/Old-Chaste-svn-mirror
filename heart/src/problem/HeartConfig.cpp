@@ -448,7 +448,7 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
                     break;
                 }    
                 default:
-                    EXCEPTION("Definition of space dimension must be 1, 2 or 3");
+                    NEVER_REACHED;
                     break;
             }
 
@@ -673,7 +673,7 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
                     break;
                 }    
                 default:
-                    EXCEPTION("Definition of space dimension must be 1, 2 or 3");
+                    NEVER_REACHED;
                     break;
             }
 
@@ -732,7 +732,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                     break;
                 }    
                 default:
-                    EXCEPTION("Definition of space dimension must be 1, 2 or 3");
+                    NEVER_REACHED;
                     break;
             }
 
@@ -805,7 +805,7 @@ void HeartConfig::GetConductivityHeterogeneities(
                     break;
                 }    
                 default:
-                    EXCEPTION("Definition of space dimension must be 1, 2 or 3");
+                    NEVER_REACHED;
                     break;
             }
 
