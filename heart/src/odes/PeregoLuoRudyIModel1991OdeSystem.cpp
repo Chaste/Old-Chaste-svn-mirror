@@ -92,7 +92,7 @@ PeregoLuoRudyIModel1991OdeSystem::~PeregoLuoRudyIModel1991OdeSystem(void)
 {
 }
 
-void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector<double> rY, double currentTime)
+void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector<double>& rY, double currentTime)
 {
     double fast_sodium_current_h_gate_h = rY[0];
     double fast_sodium_current_j_gate_j = rY[1];

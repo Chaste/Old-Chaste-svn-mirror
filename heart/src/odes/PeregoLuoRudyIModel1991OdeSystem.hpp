@@ -102,7 +102,7 @@ private:
      * @param rY a vector of state variables
      * @param currentTime the current time
      */
-    void ComputeSystemParameters( std::vector<double> rY, double currentTime);
+    void ComputeSystemParameters(const std::vector<double>& rY, double currentTime);
     
     
 public:

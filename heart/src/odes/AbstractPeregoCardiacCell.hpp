@@ -84,15 +84,30 @@ public:
     /**
      * Computes the predictor step of the scheme
      *
-     * @param solutionAtPreviousTime is the solution of the state variables at the previous time step
+     * @param rSolutionAtPreviousTime is the solution of the state variables at the previous time step
      * @param rPredictedSolution is returned vector with the predicted values of the gates and other state variables (this is assumed to be initialised to the correct size)
      * @param currentTime is the current time
      */
-    void EvaluatePredictedValues(std::vector<double> solutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
+    void EvaluatePredictedValues(const std::vector<double>& rSolutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
     
-    void EvaluateCorrectedValues(std::vector<double> predictedSolution, std::vector<double>& rCorrectedSolution, double currentTime);
+    /**
+     * Computes the corrector step of the scheme
+     *
+     * @param rPredictedSolution is input vector with the predicted values of the gates and other state variables 
+     * @param rCorrectedSolution is the corrected solution of the state variables at the previous time step (this is assumed to be initialised to the correct size)
+     * @param currentTime is the current time
+     */
+    void EvaluateCorrectedValues(const std::vector<double>& rPredictedSolution, std::vector<double>& rCorrectedSolution, double currentTime);
     
-    void EvaluateErrors(std::vector<double>& rErrors, std::vector<double> predictedSolution, std::vector<double> correctedSolution, double currentTime);
+    /**
+     * Computes the error between the predicted solution and the corrected solution
+     *
+     * @param rErrors is the outpue errors (assumed to be initialised to the correct size)
+     * @param rPredictedSolution is the predicted values of the gates and other state variables 
+     * @param rCorrectedSolution is the corrected solution of the state variables at the previous time step
+     * @param currentTime is the current time
+     */
+    void EvaluateErrors(std::vector<double>& rErrors, const std::vector<double>& rPredictedSolution, const std::vector<double>& rCorrectedSolution, double currentTime);
 
     
     /**
@@ -102,7 +117,7 @@ public:
      * @param stateVariablesAtPrevousTime is the solution of the state variables at the previous time step
      * @param currentTime is the current time
      */
-    virtual void ComputeSystemParameters(std::vector<double> stateVariablesAtPrevousTime, double currentTime)=0;
+    virtual void ComputeSystemParameters(const std::vector<double>& stateVariablesAtPrevousTime, double currentTime)=0;
     
     /**
      * Overloaded Compute method.
@@ -143,7 +158,7 @@ private:
 protected:
 
     std::vector<unsigned> mGatingVariableIndices; /**< Indices of those variables associated with gates (not concentrations or voltages etc.) */
-    std::vector<double> mSolutionAtPreviousTimeStep;
+    std::vector<double> mSolutionAtPreviousTimeStep; /**< Cache of previous solution */
     //Nomenclature of variables is based on the paper (see class documentation for reference) 
     
     double mc0bar;/**< weights for Adams-Bashforth integration*/
