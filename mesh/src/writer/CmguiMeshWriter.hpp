@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CMGUIWRITER_HPP_
 
 #include "AbstractTetrahedralMeshWriter.hpp"
+#include "OutputFileHandler.hpp"
 
 /**
  * Header for node base file in 3D (.exnode)
@@ -246,6 +247,14 @@ protected:
      * the group name to stay as "solution", hence this separate variable
      */
     std::string mGroupName;
+    
+    /**
+     *  Write the header part of a node file, depending on the dimension. Short helper method, 
+     *  also called in CmguiDeformedSolutionsWriter. (Note, without the & below this method 
+     *  seg faults).
+     *  @out_stream rpNodeFile reference to the out_stream used for the node file
+     */
+    void WriteNodeFileHeader(out_stream& rpNodeFile);
     
 public:
 

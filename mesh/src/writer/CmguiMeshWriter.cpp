@@ -49,32 +49,8 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     //////////////////////////
     std::string node_file_name = this->mBaseName + ".exnode";
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
-
-    // Write the node header
-    *p_node_file << "Group name: " << mGroupName << "\n";
-
-    switch (ELEMENT_DIM)
-    {
-        case 1:
-        {
-            *p_node_file << CmguiNodeFileHeader1D;
-            break;
-        }
-        case 2:
-        {
-            *p_node_file << CmguiNodeFileHeader2D;
-            break;
-        }
-        case 3:
-        {
-            *p_node_file << CmguiNodeFileHeader3D;
-            break;
-        }
-        default:
-        {
-            NEVER_REACHED;
-        }
-    }
+    
+    WriteNodeFileHeader(p_node_file);
 
     // Write each node's data
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
@@ -208,6 +184,35 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector<std::string>& rFieldNames)
 {
     mAdditionalFieldNames = rFieldNames;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteNodeFileHeader(out_stream& rpNodeFile)
+{
+    // Write the node header
+    *rpNodeFile << "Group name: " << this->mGroupName << "\n";
+    switch (SPACE_DIM)
+    {
+        case 1:
+        {
+            *rpNodeFile << CmguiNodeFileHeader1D;
+            break;
+        }
+        case 2:
+        {
+            *rpNodeFile << CmguiNodeFileHeader2D;
+            break;
+        }
+        case 3:
+        {
+            *rpNodeFile << CmguiNodeFileHeader3D;
+            break;
+        }
+        default:
+        {
+            NEVER_REACHED;
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -63,30 +63,7 @@ void CmguiDeformedSolutionsWriter<DIM>::WriteDeformationPositions(std::vector<c_
 
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name_stringstream.str());
 
-    // Write the node header
-    *p_node_file << "Group name: " << this->mGroupName << "\n";
-    switch (DIM)
-    {
-        case 1:
-        {
-            *p_node_file << CmguiNodeFileHeader1D;
-            break;
-        }
-        case 2:
-        {
-            *p_node_file << CmguiNodeFileHeader2D;
-            break;
-        }
-        case 3:
-        {
-            *p_node_file << CmguiNodeFileHeader3D;
-            break;
-        }
-        default:
-        {
-            NEVER_REACHED;
-        }
-    }
+    this->WriteNodeFileHeader(p_node_file);
 
     // Write each node's data
     for (unsigned index=0; index<mpQuadraticMesh->GetNumNodes(); index++)
