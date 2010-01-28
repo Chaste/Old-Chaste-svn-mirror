@@ -101,7 +101,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         assert(ELEMENT_DIM == SPACE_DIM);
         assert(nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2);
      }
-        
+
     *p_element_file << num_elements << "\t";
     *p_element_file << nodes_per_element << "\t";
     *p_element_file << num_attr << "\n";
@@ -109,13 +109,13 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
-        // if item_num==0 we will already got the element above (in order to 
+        // if item_num==0 we will already got the element above (in order to
         // get the number of nodes per element
         if (item_num>0)
         {
             element_data = this->GetNextElement();
         }
-        
+
         WriteItem(p_element_file, item_num, element_data.NodeIndices, element_data.AttributeValue);
     }
     *p_element_file << comment << "\n";
@@ -224,22 +224,11 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     p_face_file->close();
 }
 
-/*For doubles*/
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber, 
-                                                    const std::vector<double> &dataPacket, unsigned attribute)
-{
-    *pFile << itemNumber;
-    for (unsigned i=0; i<dataPacket.size(); i++)
-    {
-        *pFile << "\t" << dataPacket[i];
-    }
-    *pFile << "\t" << attribute << "\n";
-}
-/*For unsigneds*/
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber, 
-                                                    const std::vector<unsigned> &dataPacket, unsigned attribute)
+template<class T>
+void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber,
+                                                    const std::vector<T> &dataPacket, unsigned attribute)
 {
     *pFile << itemNumber;
     for (unsigned i=0; i<dataPacket.size(); i++)
@@ -262,3 +251,16 @@ template class TrianglesMeshWriter<1,3>;
 template class TrianglesMeshWriter<2,2>;
 template class TrianglesMeshWriter<2,3>;
 template class TrianglesMeshWriter<3,3>;
+
+template void TrianglesMeshWriter<1, 1>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
+template void TrianglesMeshWriter<1, 1>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
+template void TrianglesMeshWriter<1, 2>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
+template void TrianglesMeshWriter<1, 2>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
+template void TrianglesMeshWriter<1, 3>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
+template void TrianglesMeshWriter<1, 3>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
+template void TrianglesMeshWriter<2, 2>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
+template void TrianglesMeshWriter<2, 2>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
+template void TrianglesMeshWriter<2, 3>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
+template void TrianglesMeshWriter<2, 3>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
+template void TrianglesMeshWriter<3, 3>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
+template void TrianglesMeshWriter<3, 3>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );

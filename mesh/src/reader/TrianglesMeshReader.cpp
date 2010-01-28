@@ -42,8 +42,8 @@ const static char* EDGES_FILE_EXTENSION = ".edge";
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, 
-                                                                 unsigned orderOfElements, 
+TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName,
+                                                                 unsigned orderOfElements,
                                                                  unsigned orderOfBoundaryElements,
                                                                  bool readContainingElementForBoundaryElements)
     : mFilesBaseName(pathBaseName),
@@ -152,11 +152,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
     std::vector<double> ret_coords(SPACE_DIM);
-    unsigned offset = mIndexFromZero ? 0 : 1;
-    GetNextItemFromStream(mNodesFile, mNodesRead+offset, ret_coords);
-    
-    mNodesRead++;
 
+    // There are no attributes to read with node coordinates
+    const unsigned num_attributes = 0u;
+    unsigned empty = 0u;
+    GetNextItemFromStream(mNodesFile, mNodesRead, ret_coords, num_attributes, empty);
+
+    mNodesRead++;
     return ret_coords;
 }
 
@@ -164,13 +166,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 {
     ElementData element_data;
-    unsigned offset = mIndexFromZero ? 0 : 1;
-    
     element_data.NodeIndices.resize(mNodesPerElement);
     element_data.AttributeValue = 0; // If an attribute is not read this stays as zero, otherwise overwritten.
-    GetNextItemFromStream(mElementsFile, mElementsRead+offset, element_data.NodeIndices, mNumElementAttributes,
+    GetNextItemFromStream(mElementsFile, mElementsRead, element_data.NodeIndices, mNumElementAttributes,
                           element_data.AttributeValue);
-                          
+
+    EnsureIndexingFromZero(element_data.NodeIndices);
 
     mElementsRead++;
     return element_data;
@@ -178,7 +179,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
-{    
+{
     ElementData face_data;
     std::vector<unsigned> ret_indices;
 
@@ -190,26 +191,26 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     else
     {
         ret_indices.resize(mNodesPerBoundaryElement);
-        
-        unsigned offset = mIndexFromZero ? 0 : 1;
 
         assert(ELEMENT_DIM != 0); //Covered in earlier exception, but needed in loop guard here.
         do
         {
             face_data.AttributeValue = 1u; // If an attribute is not read this stays as one, otherwise overwritten.
-    
-                          
+
+
             if (mReadContainingElementOfBoundaryElement)
             {
                 assert(mNumFaceAttributes == 0);
-                GetNextItemFromStream(mFacesFile, mFacesRead+offset, ret_indices, 1,
+                GetNextItemFromStream(mFacesFile, mFacesRead, ret_indices, 1,
                                       face_data.ContainingElement);
             }
             else
             {
-                GetNextItemFromStream(mFacesFile, mFacesRead+offset, ret_indices, mNumFaceAttributes,
+                GetNextItemFromStream(mFacesFile, mFacesRead, ret_indices, mNumFaceAttributes,
                                       face_data.AttributeValue);
             }
+
+            EnsureIndexingFromZero(ret_indices);
 
             mFacesRead++;
         }
@@ -281,7 +282,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenElementsFile()
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFacesFile()
-{  
+{
     // Faces/edges definition
     std::string file_name;
     if (ELEMENT_DIM == 3)
@@ -445,8 +446,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifs
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
-                               std::vector<unsigned>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute)
+template<class T>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber,
+                               std::vector<T>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute)
 {
     std::string buffer;
     GetNextLineFromStream(fileStream,buffer);
@@ -454,7 +456,10 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
 
     unsigned item_index;
     buffer_stream >> item_index;
-    
+
+    // If we are indexing from zero our expected item number is one larger.
+    expectedItemNumber += mIndexFromZero ? 0 : 1;
+
     if (item_index != expectedItemNumber)
     {
         std::stringstream error;
@@ -465,52 +470,16 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
         error << "Data for item " << expectedItemNumber << " missing";
         EXCEPTION(error.str());
     }
-    
+
     for (unsigned i=0; i<rDataPacket.size(); i++)
     {
         buffer_stream >> rDataPacket[i];
-    }
-    if (!mIndexFromZero)
-    {
-        for (unsigned i=0; i<rDataPacket.size(); i++)
-        {
-            rDataPacket[i]--;
-        }
     }
 
     if (rNumAttributes>0)
     {
         buffer_stream >> rAttribute;
     }
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
-                               std::vector<double>& rDataPacket)
-{
-    std::string buffer;
-    GetNextLineFromStream(fileStream,buffer);
-    std::stringstream buffer_stream(buffer);
-
-    unsigned item_index;
-    buffer_stream >> item_index;
-    
-    if (item_index != expectedItemNumber)
-    {
-        std::stringstream error;
-        if (!mIndexFromZero)
-        { // To fix the exception message to agree with file format.
-            expectedItemNumber--;
-        }
-        error << "Data for item " << expectedItemNumber << " missing";
-        EXCEPTION(error.str());
-    }
-    
-    for (unsigned i=0; i<rDataPacket.size(); i++)
-    {
-        buffer_stream >> rDataPacket[i];
-    }
-
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -529,10 +498,10 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
         //We have already read this and have reset the reader (probably from the mesh class)...
         return;
     }
-    
+
     std::string buffer;
     unsigned dummy, node1, node2;
-    
+
     //Count how many times we see each node
     std::vector<unsigned> node_count(mNumNodes);//Covers the case if it's indexed from 1
     for (unsigned element_index=0; element_index<mNumElements;element_index++)
@@ -557,7 +526,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
             mOneDimBoundary.push_back(node_index);
         }
     }
-    
+
     // close the file, reopen, and skip the header again
     mElementsFile.close();
     mElementsFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
@@ -565,6 +534,19 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
     GetNextLineFromStream(mElementsFile, buffer);
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::EnsureIndexingFromZero(std::vector<unsigned>& rNodeIndices)
+{
+
+    if (!mIndexFromZero) // If node indices do not start at zero move them all down one so they do
+    {
+        for (unsigned i=0; i<rNodeIndices.size(); i++)
+        {
+            rNodeIndices[i]--;
+        }
+    }
+
+}
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
@@ -576,3 +558,19 @@ template class TrianglesMeshReader<1,3>;
 template class TrianglesMeshReader<2,2>;
 template class TrianglesMeshReader<2,3>;
 template class TrianglesMeshReader<3,3>;
+
+
+template void TrianglesMeshReader<0,1>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
+template void TrianglesMeshReader<0,1>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
+template void TrianglesMeshReader<1,1>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
+template void TrianglesMeshReader<1,1>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
+template void TrianglesMeshReader<1,2>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
+template void TrianglesMeshReader<1,2>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
+template void TrianglesMeshReader<1,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
+template void TrianglesMeshReader<1,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
+template void TrianglesMeshReader<2,2>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
+template void TrianglesMeshReader<2,2>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
+template void TrianglesMeshReader<2,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
+template void TrianglesMeshReader<2,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
+template void TrianglesMeshReader<3,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
+template void TrianglesMeshReader<3,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);

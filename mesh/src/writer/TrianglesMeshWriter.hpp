@@ -67,25 +67,19 @@ public:
      * Write faces as edges (used in the case ELEMENT_DIM==2, SPACE_DIM==3)
      */
     void WriteFacesAsEdges();
-    
-    /**
-     * Write a line (ascii format) to a specific file stream
-     * @param pFile Pointer to file stream
-     * @param itemNumber Index of the element, node or face
-     * @param dataPacket List of doubles (for node positions)
-     * @param attribute An attribute
-     */
-     void WriteItem(out_stream &pFile, unsigned itemNumber, const std::vector<double> &dataPacket, unsigned attribute);
 
     /**
      * Write a line (ascii format) to a specific file stream
+     * Templated over std::vector dataPacket contents of unsigned or doubles.
+     *
      * @param pFile Pointer to file stream
      * @param itemNumber Index of the element, node or face
-     * @param dataPacket List of unsigneds (for node indices)
+     * @param dataPacket List of unsigneds (for node indices) or doubles (for node locations)
      * @param attribute An attribute (defaults to UINT_MAX for no attribute when writing elements as faces)
      */
-     void WriteItem(out_stream &pFile, unsigned itemNumber, const std::vector<unsigned> &dataPacket, unsigned attribute=UINT_MAX);
-     
+     template<class  T>
+     void WriteItem(out_stream &pFile, unsigned itemNumber, const std::vector<T> &dataPacket, unsigned attribute=UINT_MAX);
+
 
     /**
      * Destructor.

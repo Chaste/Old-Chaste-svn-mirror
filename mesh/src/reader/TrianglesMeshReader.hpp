@@ -63,7 +63,7 @@ private:
     unsigned mFacesRead;            /**< Number of faces read in. */
     unsigned mBoundaryFacesRead;    /**< Number of boundary faces read in. */
     std::vector<unsigned> mOneDimBoundary; /**<Indices of nodes which are at the boundary of a 1D mesh*/
-     
+
     unsigned mNumNodeAttributes;    /**< Is the number of attributes stored at each node. */
     unsigned mMaxNodeBdyMarker;     /**< Is the maximum node boundary marker. */
     unsigned mNumElementNodes;      /**< Is the number of nodes per element. */
@@ -74,7 +74,7 @@ private:
     unsigned mOrderOfBoundaryElements; /**< The order of each element (1 for linear, 2 for quadratic). */
     unsigned mNodesPerElement;      /**< The number of nodes contained in each element. */
     unsigned mNodesPerBoundaryElement; /**< The number of nodes in each boundary element. */
-    
+
     bool mEofException; /**< Set to true when end-of-file exception is thrown (for use in a try-catch) */
 
     bool mReadContainingElementOfBoundaryElement; /**< Whether to read containing element info for each boundary element (obtaining by doing tetgen with the -nn flag) */
@@ -83,7 +83,7 @@ private:
 //     *  In a std::vector rather than the struct to save space if not read.
 //     */
 //    std::vector<unsigned> mContainingElementsOfBoundaryElement;
-//   
+//
 //    unsigned mIndexIntoContainingElementsVector; /**< Which index to use when GetNextContainingElementOfBoundaryElement() is called */
 
 public:
@@ -94,14 +94,14 @@ public:
      * @param pathBaseName  the base name of the files from which to read the mesh data
      * @param orderOfElements  the order of each element: 1 for linear, 2 for quadratic (defaults to 1)
      * @param orderOfBoundaryElements the order of each boundary element: 1 for linear, 2 for quadratic (defaults to 1. May
-     *  or may not be different to orderOfElements (Note tetgen with the -o2 flag creates quadratic elements but doesn't 
+     *  or may not be different to orderOfElements (Note tetgen with the -o2 flag creates quadratic elements but doesn't
      *  create quadratic faces, hence the need for this third parameter)
-     * @param readContainingElementsForBoundaryElements Whether to read in the containing element infomation 
+     * @param readContainingElementsForBoundaryElements Whether to read in the containing element infomation
      *  for each boundary element (in the .face file if tetgen was run with '-nn').
      */
-    TrianglesMeshReader(std::string pathBaseName, 
-                        unsigned orderOfElements=1, 
-                        unsigned orderOfBoundaryElements=1, 
+    TrianglesMeshReader(std::string pathBaseName,
+                        unsigned orderOfElements=1,
+                        unsigned orderOfBoundaryElements=1,
                         bool readContainingElementsForBoundaryElements=false);
 
     /** Returns the number of elements in the mesh */
@@ -136,30 +136,30 @@ public:
 
     /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()). */
     ElementData GetNextEdgeData();
-    
-    /** 
+
+    /**
      * @return the expected order of the element file (1=linear, 2=quadratic)
      */
     unsigned GetOrderOfElements()
     {
         return mOrderOfElements;
     }
-    /** 
+    /**
      * @return the expected order of the boundary element file (1=linear, 2=quadratic)
      */
     unsigned GetOrderOfBoundaryElements()
     {
         return mOrderOfBoundaryElements;
     }
-     
-    /** 
-     * @return true if the boundary element file is linear, but contains information about neighbouring elements 
+
+    /**
+     * @return true if the boundary element file is linear, but contains information about neighbouring elements
      */
     bool GetReadContainingElementOfBoundaryElement()
     {
         return mReadContainingElementOfBoundaryElement;
     }
-    
+
 private:
 
     /** Open mesh files. */
@@ -187,33 +187,34 @@ private:
      * @param rRawLine
      */
     void GetNextLineFromStream(std::ifstream& fileStream, std::string& rRawLine);
-    
+
     /**
      * Returns the Item details from the next line via a call to GetNextLineFromStream()
-     * 
-     * @param fileStream 
+     *
+     * @param fileStream
      * @param expectedItemNumber
      * @param rDataPacket  Assumed to be of the right size but is allowed to contain dirty data on entry.
      * @param rNumAttributes  The number of attributes per item that we expect to read. Either mNumFaceAttributes or mNumElemAttributes.
      * @param rAttribute  Will be given the attribute value if rNumAttributes > 0, otherwise UNSET.
      */
-    void GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
-                               std::vector<unsigned>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute);
-    /**
-     * Returns the Item details from the next line via a call to GetNextLineFromStream()
-     * 
-     * @param fileStream 
-     * @param expectedItemNumber
-     * @param rDataPacket  Assumed to be of the right size but is allowed to contain dirty data on entry.
-     */
-    void GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber, 
-                               std::vector<double>& rDataPacket);
+    template<class T>
+    void GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber,
+                               std::vector<T>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute);
 
     /** Get method for mFilesBaseName. */
     std::string GetMeshFileBaseName();
 
     /** Get method specialized to 1D meshes */
     void GetOneDimBoundary();
+
+    /**
+     * Helper method to ensure we are indexing the nodes from 0
+     * (some files have them indexed from 1)
+     * decides according to the property mIndexFromZero
+     *
+     * @param rNodeIndices  The nodes we have read in.
+     */
+    void EnsureIndexingFromZero(std::vector<unsigned>& rNodeIndices);
 };
 
 #endif //_TRIANGLESMESHREADER_HPP_

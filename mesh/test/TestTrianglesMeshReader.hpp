@@ -127,7 +127,7 @@ public:
         {
             ElementData data = mesh_reader.GetNextFaceData();
             TS_ASSERT_EQUALS(data.AttributeValue, 1u);
-            
+
         }
 
         // First boundary face is #20, on its way through the file there's a gap between face 1 and face 10
@@ -326,9 +326,9 @@ public:
         TS_ASSERT_THROWS_THIS( READER_1D mesh_reader("mesh/test/data/disk_984_elements"),
                 "SPACE_DIM  != dimension read from file ");
         //Indexed quadratic faces
-        TS_ASSERT_THROWS_THIS( READER_1D mesh_reader2("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", 2, 2, true),        
+        TS_ASSERT_THROWS_THIS( READER_1D mesh_reader2("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", 2, 2, true),
                 "Boundary element file should not have containing element info if it is quadratic");
-        
+
     }
 
     ////////////////////////////////////////////////////////
@@ -413,19 +413,20 @@ public:
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5+1);
         }
     }
-    
+
     void TestReadingContainingElementsOfBoundaryElements() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_152_elements_v2", 1, 1, true);
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 116u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[0], 3u);     //face 0
-        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 36u); //face 1 
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 36u); //face 1
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[1], 36u);    //face 2
-        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 74u); //face 3 
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 74u); //face 3
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[2], 16u);    //face 4
-        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 4u);  //face 5 
+        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 4u);  //face 5
     }
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_
+

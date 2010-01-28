@@ -68,7 +68,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A class which encapsulates the executable functionality.
- * 
+ *
  * Takes in a chaste parameters xml file and runs the relevant simulation.
  *
  * \todo High level user documentation.
@@ -81,11 +81,11 @@ class CardiacSimulation
 private:
     /**
      * Read parameters from the HeartConfig XML file.
-     * 
+     *
      * @param parameterFileName a string containing the chaste simulation parameters XML file name.
      */
     void ReadParametersFromFile(std::string parameterFileName);
-    
+
     /**
      * Templated method which creates and runs a cardiac simulation, based on the
      * XML file passed to our constructor.
@@ -94,7 +94,7 @@ private:
     void CreateAndRun()
     {
         Problem* p_problem;
-        
+
         if (HeartConfig::Instance()->IsSimulationDefined())
         {
             HeartConfigRelatedCellFactory<SPACE_DIM> cell_factory;
@@ -104,11 +104,11 @@ private:
         }
         else // (HeartConfig::Instance()->IsSimulationResumed())
         {
-            p_problem = CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir());                            
+            p_problem = CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir());
         }
 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
-        {    
+        {
             // Create the checkpoints directory and set up a fifo queue of subdirectory names
             OutputDirectoryFifoQueue directory_queue(HeartConfig::Instance()->GetOutputDirectory() + "_checkpoints/",
                                                      HeartConfig::Instance()->GetMaxCheckpointsOnDisk());
@@ -117,17 +117,17 @@ private:
             while ( !checkpoint_stepper.IsTimeAtEnd() )
             {
                 // Solve checkpoint timestep
-                HeartConfig::Instance()->SetSimulationDuration(checkpoint_stepper.GetNextTime());                                
+                HeartConfig::Instance()->SetSimulationDuration(checkpoint_stepper.GetNextTime());
                 p_problem->Solve();
 
                 // Create directory that will contain archive and partial results for this checkpoint timestep.
                 std::stringstream checkpoint_id;
-                checkpoint_id << HeartConfig::Instance()->GetSimulationDuration() << "ms/";    
+                checkpoint_id << HeartConfig::Instance()->GetSimulationDuration() << "ms/";
                 std::string checkpoint_dir_basename = directory_queue.CreateNextDir(checkpoint_id.str());
-                 
+
                 // Archive simulation (in a subdirectory of checkpoint_dir_basename).
                 std::stringstream archive_foldername;
-                archive_foldername << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms";                
+                archive_foldername << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms";
                 CardiacSimulationArchiver<Problem>::Save(*p_problem, checkpoint_dir_basename + archive_foldername.str(), false);
 
                 // Put a copy of the partial results aside (in a subdirectory of checkpoint_dir_basename).
@@ -135,21 +135,21 @@ private:
                 OutputFileHandler partial_output_dir_handler(HeartConfig::Instance()->GetOutputDirectory(), false);
                 if (PetscTools::AmMaster())
                 {
-                    EXPECT0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());                                        
+                    EXPECT0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());
                 }
 
                 // Advance time stepper
                 checkpoint_stepper.AdvanceOneTimeStep();
-            }        
+            }
         }
         else
         {
             p_problem->Solve();
         }
-        
+
         delete p_problem;
     }
-    
+
     /**
      * Run the simulation.
      * This method basically contains switches on the problem type and space dimension,
@@ -160,9 +160,9 @@ private:
 public:
     /**
      * Constructor
-     * 
+     *
      * This also runs the simulation immediately.
-     * 
+     *
      * @param parameterFileName  The name of the chaste parameters xml file to use to run a simulation (not mandatory since HeartConfig may be set by hand)
      */
     CardiacSimulation(std::string parameterFileName);
