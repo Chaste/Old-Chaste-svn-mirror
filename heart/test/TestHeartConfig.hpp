@@ -97,7 +97,111 @@ public :
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
                          cp::ionic_models_available_type::FaberRudy2000);
+        
+        
+        TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
+        TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
 
+        c_vector<double, 3> slab_dimensions;
+        HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
+
+        TS_ASSERT_EQUALS(slab_dimensions[0], 4.0);
+        TS_ASSERT_EQUALS(slab_dimensions[1], 0.1);
+        TS_ASSERT_EQUALS(slab_dimensions[2], 2.0);
+
+        double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
+        TS_ASSERT_EQUALS(inter_node_space, 0.1);
+
+        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
+        std::vector<ChasteCuboid<3> > stimulated_areas;
+        HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
+
+        TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
+        TS_ASSERT_EQUALS(stimulated_areas.size(), 2u);
+
+        TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0), -25500.0);
+        TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0.6), 0.0);
+
+        TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
+        TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "SimulationResults");
+
+        c_vector<double, 3> intra_conductivities;
+        HeartConfig::Instance()->GetIntracellularConductivities(intra_conductivities);
+        TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
+        TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
+        TS_ASSERT_EQUALS(intra_conductivities[2], 1.75);
+
+         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 7.0);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 1.0);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimeStep(), 0.05);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimeStep(), 1.0);
+
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseAbsoluteTolerance(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseRelativeTolerance(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-6);
+
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
+
+        TS_ASSERT(HeartConfig::Instance()->IsPostProcessingSectionPresent());
+
+        TS_ASSERT(HeartConfig::Instance()->IsApdMapsRequested());
+        std::vector<std::pair<double,double> > apd_maps_requested;
+        HeartConfig::Instance()->GetApdMaps(apd_maps_requested);
+        TS_ASSERT_EQUALS(apd_maps_requested.size(), 1u);
+        TS_ASSERT_EQUALS(apd_maps_requested[0].first, 90.0);
+        TS_ASSERT_EQUALS(apd_maps_requested[0].second, -30.0);
+
+        TS_ASSERT(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested());
+        std::vector<double> upstroke_time_maps_requested;
+        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_maps_requested);
+        TS_ASSERT_EQUALS(upstroke_time_maps_requested.size(), 1u);
+        TS_ASSERT_EQUALS(upstroke_time_maps_requested[0], -30.0);
+
+        TS_ASSERT(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested());
+        std::vector<double> upstroke_velocity_maps_requested;
+        HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_maps_requested);
+        TS_ASSERT_EQUALS(upstroke_velocity_maps_requested.size(), 1u);
+        TS_ASSERT_EQUALS(upstroke_velocity_maps_requested[0], -30.0);
+
+        TS_ASSERT(HeartConfig::Instance()->IsConductionVelocityMapsRequested());
+        std::vector<unsigned> conduction_velocity_maps_requested;
+        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps_requested);
+        TS_ASSERT_EQUALS(conduction_velocity_maps_requested.size(), 2u);
+        TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
+        TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
+
+
+        /// \todo: refactor from here until the end of the test into a different test
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
+
+        TS_ASSERT(!HeartConfig::Instance()->GetCreateMesh());
+        TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(), "foo");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetConductivityMedia(), cp::media_type::NoFibreOrientation);
+
+        //Try reading through an empty parameters file into a fully-populated default
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
+        HeartConfig::Instance()->Reset();
+    }
+    
+    void TestGetHeterogeneities()
+    {
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
+        ///////////////
+        //ionic models
+        //////////////
         std::vector<ChasteCuboid<3> > ionic_model_regions;
         std::vector<cp::ionic_models_available_type> ionic_models_defined;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
@@ -136,33 +240,10 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined_1D[0], cp::ionic_models_available_type::LuoRudyI);
         TS_ASSERT_EQUALS(ionic_models_defined_1D[1], cp::ionic_models_available_type::DifrancescoNoble);
         
+        ///////////////
+        //Cell heterogeneities
+        //////////////
         
-        TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
-        TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
-
-        c_vector<double, 3> slab_dimensions;
-        HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
-
-        TS_ASSERT_EQUALS(slab_dimensions[0], 4.0);
-        TS_ASSERT_EQUALS(slab_dimensions[1], 0.1);
-        TS_ASSERT_EQUALS(slab_dimensions[2], 2.0);
-
-        double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
-        TS_ASSERT_EQUALS(inter_node_space, 0.1);
-
-        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
-        std::vector<ChasteCuboid<3> > stimulated_areas;
-        HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
-
-        TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
-        TS_ASSERT_EQUALS(stimulated_areas.size(), 2u);
-
-        TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0), -25500.0);
-        TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0.6), 0.0);
-
-        TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
-        TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
-
         std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas_3D;
         std::vector<double> scale_factor_gks_3D;
         std::vector<double> scale_factor_ito_3D;
@@ -230,8 +311,11 @@ public :
         {
             delete cell_heterogeneity_areas_1D[i];
         }
+   
+        ///////////////
+        //Conductivity heterogeneities
+        //////////////     
         
-            
         std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
@@ -268,86 +352,16 @@ public :
         TS_ASSERT(conductivities_heterogeneity_areas_1D[0].DoesContain(ChastePoint<1>(1.95)));
         TS_ASSERT_EQUALS(intra_h_conductivities_1D[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities_1D[0][0], 8.0);
-        TS_ASSERT_EQUALS(intra_h_conductivities_1D[1][0], 0.75);
-               
+        TS_ASSERT_EQUALS(intra_h_conductivities_1D[1][0], 0.75);    
         
+        //extracellular conductivities
         c_vector<double, 3> extra_conductivities;
         HeartConfig::Instance()->GetExtracellularConductivities(extra_conductivities);
-        TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "SimulationResults");
-
-        c_vector<double, 3> intra_conductivities;
-        HeartConfig::Instance()->GetIntracellularConductivities(intra_conductivities);
-        TS_ASSERT_EQUALS(intra_conductivities[0], 1.75);
-        TS_ASSERT_EQUALS(intra_conductivities[1], 1.75);
-        TS_ASSERT_EQUALS(intra_conductivities[2], 1.75);
-
+        TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]); 
+        
         TS_ASSERT_EQUALS(extra_conductivities[0], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
-        TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
-
-         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetBathConductivity(), 7.0);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio(), 1400.0);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCapacitance(), 1.0);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.025);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPdeTimeStep(), 0.05);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetPrintingTimeStep(), 1.0);
-
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseAbsoluteTolerance(), false);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetUseRelativeTolerance(), true);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-6);
-
-        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
-        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
-
-        TS_ASSERT(HeartConfig::Instance()->IsPostProcessingSectionPresent());
-
-        TS_ASSERT(HeartConfig::Instance()->IsApdMapsRequested());
-        std::vector<std::pair<double,double> > apd_maps_requested;
-        HeartConfig::Instance()->GetApdMaps(apd_maps_requested);
-        TS_ASSERT_EQUALS(apd_maps_requested.size(), 1u);
-        TS_ASSERT_EQUALS(apd_maps_requested[0].first, 90.0);
-        TS_ASSERT_EQUALS(apd_maps_requested[0].second, -30.0);
-
-        TS_ASSERT(HeartConfig::Instance()->IsUpstrokeTimeMapsRequested());
-        std::vector<double> upstroke_time_maps_requested;
-        HeartConfig::Instance()->GetUpstrokeTimeMaps(upstroke_time_maps_requested);
-        TS_ASSERT_EQUALS(upstroke_time_maps_requested.size(), 1u);
-        TS_ASSERT_EQUALS(upstroke_time_maps_requested[0], -30.0);
-
-        TS_ASSERT(HeartConfig::Instance()->IsMaxUpstrokeVelocityMapRequested());
-        std::vector<double> upstroke_velocity_maps_requested;
-        HeartConfig::Instance()->GetMaxUpstrokeVelocityMaps(upstroke_velocity_maps_requested);
-        TS_ASSERT_EQUALS(upstroke_velocity_maps_requested.size(), 1u);
-        TS_ASSERT_EQUALS(upstroke_velocity_maps_requested[0], -30.0);
-
-        TS_ASSERT(HeartConfig::Instance()->IsConductionVelocityMapsRequested());
-        std::vector<unsigned> conduction_velocity_maps_requested;
-        HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_maps_requested);
-        TS_ASSERT_EQUALS(conduction_velocity_maps_requested.size(), 2u);
-        TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
-        TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
-
-
-        /// \todo: refactor from here until the end of the test into a different test
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
-
-        TS_ASSERT(!HeartConfig::Instance()->GetCreateMesh());
-        TS_ASSERT(HeartConfig::Instance()->GetLoadMesh());
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(), "foo");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetConductivityMedia(), cp::media_type::NoFibreOrientation);
-
-        //Try reading through an empty parameters file into a fully-populated default
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
-        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
-        HeartConfig::Instance()->Reset();
+        TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);  
     }
 
     void TestIsMeshProvided()
