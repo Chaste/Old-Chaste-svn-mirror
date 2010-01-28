@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "ChasteCuboid.hpp"
 #include "Version.hpp"
+#include "TetrahedralMesh.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
@@ -247,7 +248,7 @@ public :
         std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas_3D;
         std::vector<double> scale_factor_gks_3D;
         std::vector<double> scale_factor_ito_3D;
-        std::vector<double> scale_factor_gkr_3D;
+        std::vector<double> scale_factor_gkr_3D;  
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_3D,
                                                         scale_factor_gks_3D,
                                                         scale_factor_ito_3D,
@@ -376,7 +377,66 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetLoadMesh(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateMesh(), false);
     }
-
+    
+    void TestTransmuralHeterogeneities()
+    {
+        {
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities.xml");
+            
+            std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
+            std::vector<double> scale_factor_gks;
+            std::vector<double> scale_factor_ito;
+            std::vector<double> scale_factor_gkr;
+    
+            HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                            scale_factor_gks,
+                                                            scale_factor_ito,
+                                                            scale_factor_gkr);
+                                                            
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerFraction(),0.2);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerFraction(),0.3);
+            TS_ASSERT_EQUALS(scale_factor_gks[0], 0.462);
+            TS_ASSERT_EQUALS(scale_factor_ito[0], 0.0);
+            TS_ASSERT_EQUALS(scale_factor_gkr[0], 1.0);
+        }
+        //covers the case when the user supplies numbers that adds up to more than 1
+        {
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_inconsistent.xml");
+            
+            std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
+            std::vector<double> scale_factor_gks;
+            std::vector<double> scale_factor_ito;
+            std::vector<double> scale_factor_gkr;
+            
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                            scale_factor_gks,
+                                                            scale_factor_ito,
+                                                            scale_factor_gkr), "Summation of epicardial and endocardial fractions can't be greater than 1");
+                                                            
+        }
+        //covers the case when the user supplies negative numbers
+        {
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_negative.xml");
+            
+            std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
+            std::vector<double> scale_factor_gks;
+            std::vector<double> scale_factor_ito;
+            std::vector<double> scale_factor_gkr;
+            
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                            scale_factor_gks,
+                                                            scale_factor_ito,
+                                                            scale_factor_gkr), "Fractions must be positive");
+                                                            
+        }
+        //covers the case when oen tries using the get method without having called the GetCellHeterogeneities first
+        {
+            HeartConfig::Instance()->Reset();
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetEpiLayerFraction(),"Fraction is negative, heterogeneities haven't been read in correctly");
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetEndoLayerFraction(),"Fraction is negative, heterogeneities haven't been read in correctly");
+        }
+        
+    }
     void Test2dProblems()
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParameters2D.xml");

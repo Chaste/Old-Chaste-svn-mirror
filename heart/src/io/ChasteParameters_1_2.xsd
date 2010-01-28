@@ -56,13 +56,18 @@
   <xs:complexType name="location_type">
       <xs:choice>
       <xs:element name="Cuboid" type="box_type"/>
-        <xs:element name="EpiLayer" type="xs:double" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="MidLayer" type="xs:double" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="EndoLayer" type="xs:double" minOccurs="0" maxOccurs="1"/>
+	  <xs:element name="Transmural" type="transmural_type"/>
     </xs:choice>
     <xs:attribute name="unit" type="xs:string" use="required" fixed="cm"/>
   </xs:complexType>
-  
+ 
+  <xs:complexType name="transmural_type">
+     <xs:sequence>
+      <xs:element name="EpiLayer" type="dimensionless_type" />
+      <xs:element name="EndoLayer" type="dimensionless_type" />
+    </xs:sequence>
+  </xs:complexType>
+   
   <xs:simpleType name="domain_type">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Mono"/>

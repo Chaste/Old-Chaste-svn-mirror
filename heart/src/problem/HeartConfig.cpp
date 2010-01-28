@@ -112,6 +112,10 @@ HeartConfig::HeartConfig()
 
     mpUserParameters = mpDefaultParameters;
     //CheckTimeSteps(); // necessity of this line of code is not tested -- remove with caution!
+    
+    //initialise the member variable of the layers
+    mEpiFraction = -1.0;
+    mEndoFraction =  -1.0;
 }
 
 HeartConfig::~HeartConfig()
@@ -690,7 +694,7 @@ template<unsigned DIM>
 void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
                                          std::vector<double>& rScaleFactorGks,
                                          std::vector<double>& rScaleFactorIto,
-                                         std::vector<double>& rScaleFactorGkr) const
+                                         std::vector<double>& rScaleFactorGkr) 
 {
     CheckSimulationIsDefined("CellHeterogeneities");
     XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity)&
@@ -705,6 +709,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         cp::cell_heterogeneity_type ht(*i);
         if (ht.Location().Cuboid())
         {
+            
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
 
@@ -736,11 +741,50 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                     break;
             }
 
-            rScaleFactorGks.push_back (ht.ScaleFactorGks());
-            rScaleFactorIto.push_back (ht.ScaleFactorIto());
-            rScaleFactorGkr.push_back (ht.ScaleFactorGkr());
         }
+        else if(ht.Location().Transmural())                                                                                                                                                  
+        {   
+             //here we get the two user-provided numbers for the percentages of the layers                                                                                                                                                                                
+             double epi_fraction  =  ht.Location().Transmural()->EpiLayer();                                                                                                                  
+             double endo_fraction  =  ht.Location().Transmural()->EndoLayer();            
+             if ((epi_fraction+endo_fraction)>1)
+             {
+                EXCEPTION ("Summation of epicardial and endocardial fractions can't be greater than 1");
+             }   
+
+             if (epi_fraction <0 || endo_fraction<0)
+             {
+                EXCEPTION ("Fractions must be positive");
+             }  
+
+             mEpiFraction = epi_fraction;
+             mEndoFraction =  endo_fraction;
+        }
+        
+        rScaleFactorGks.push_back (ht.ScaleFactorGks());
+        rScaleFactorIto.push_back (ht.ScaleFactorIto());
+        rScaleFactorGkr.push_back (ht.ScaleFactorGkr());   
     }
+}
+
+double HeartConfig::GetEpiLayerFraction()
+{
+    //the variable is initialised at -1, if you try to use it without calling the !GetCellHeterogeneities method...
+    if (mEpiFraction<0)
+    {
+        EXCEPTION ("Fraction is negative, heterogeneities haven't been read in correctly");
+    }
+    return mEpiFraction;
+}
+
+double HeartConfig::GetEndoLayerFraction()
+{
+    //the variable is initialised at -1, if you try to use it without calling the !GetCellHeterogeneities method...
+    if (mEndoFraction<0)
+    {
+        EXCEPTION ("Fraction is negative, heterogeneities haven't been read in correctly");
+    }
+    return mEndoFraction;
 }
 
 bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
@@ -2364,16 +2408,16 @@ xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
 /////////////////////////////////////////////////////////////////////
 template void HeartConfig::GetIonicModelRegions<3u>(std::vector<ChasteCuboid<3u> >& , std::vector<cp::ionic_models_available_type>&) const;
 template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<3u> >& ) const;
-template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) const;
+template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
 template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<ChasteCuboid<3u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<2u>(std::vector<ChasteCuboid<2u> >& , std::vector<cp::ionic_models_available_type>&) const;
 template void HeartConfig::GetStimuli<2u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<2u> >& ) const;
-template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) const;
+template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
 template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<ChasteCuboid<2u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u> >& , std::vector<cp::ionic_models_available_type>&) const;
 template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<1u> >& ) const;
-template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) const;
+template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
 template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<ChasteCuboid<1u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 

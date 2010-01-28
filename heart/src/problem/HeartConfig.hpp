@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteParameters_1_2.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
-
+#include "AbstractTetrahedralMesh.hpp"
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
@@ -393,7 +393,10 @@ public:
     void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const;
 
     /**
-     * Return a number of heterogeneous regions (Axis-aligned boxes) for special gating variable changes
+     * Reads from the XML file the cellular hetrogeneities. It fugures out whether the user specified a cuboid 
+     * or a transmural-type of hetrogeneities. In the latter case, it stores the percentage values of Epi and Endo layers
+     * in two member variables, accessible via get methods. It also checks if the user-supplied numbers are consistent (i.e., positive and add up to less than 1)
+     * Return a number of heterogeneous regions for special gating variable changes
      * \todo - do we assume the vectors are initially empty?
      * The returned std::vectors are all of the same length
      * @param rCellHeterogeneityAreas  cellHeterogeneityAreas[0] is the first region
@@ -403,11 +406,23 @@ public:
      * \todo There is no set method
      */
     template<unsigned DIM>
-    void GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
+    void GetCellHeterogeneities( std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
                                  std::vector<double>& rScaleFactorGks,
                                  std::vector<double>& rScaleFactorIto,
-                                 std::vector<double>& rScaleFactorGkr) const;
+                                 std::vector<double>& rScaleFactorGkr);
     bool GetConductivityHeterogeneitiesProvided() const; /**< @return  true if there are conductivity heterogeneities for GetConductivityHeterogeneities to return*/
+    
+    /**
+     * @return the fraction of epicardial layer
+     */
+    double GetEpiLayerFraction();
+
+    /**
+     * @return the fraction of endocardial layer
+     */
+    double GetEndoLayerFraction();
+    
+     
     /**
      * Return a number of heterogeneous regions (Axis-aligned boxes)
      * \todo - do we assume the vectors are initially empty?
@@ -985,6 +1000,17 @@ private:
      * located at heart/src/io/ChasteParameters.xsd in the Chaste source tree (true).
      */
     bool mUseFixedSchemaLocation;
+    
+    /**
+     * Fraction of epicardial layer
+     */                               
+    double mEpiFraction;
+    
+    /**
+     * Fraction of endocardial layer
+     */ 
+    double mEndoFraction;  
+    
 
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
