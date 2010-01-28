@@ -229,7 +229,8 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
     if (mSetVoltageDerivativeToZero)
     {
-        NEVER_REACHED; // this hasn't been tested in tissue yet
+        NEVER_REACHED;
+        // this hasn't been tested in tissue yet
 
         ///\ TODO Remove coverage ignore when ComputeExceptVoltage method will be implemented in the abstract class  
         #define COVERAGE_IGNORE

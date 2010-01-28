@@ -40,6 +40,7 @@ AbstractPeregoCardiacCell::AbstractPeregoCardiacCell(unsigned numberOfStateVaria
 {
     mIsTheCorrectorStep = false;
     mIsTheFirstStep = true;
+    mIsTheErrorEvaluationStep = false;
     mSolutionAtPreviousTimeStep.resize(numberOfStateVariables);
 }
 
@@ -54,7 +55,7 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(const std::vector<doubl
     //hardcoded for the moment. To be changed when error analysis is implemented
     mc0bar = 3.0/2.0;
     mc1bar = -0.5;
-    
+        
     mSolutionAtPreviousTimeStep = rSolutionAtPreviousTime;
     //Compute parameters (done in the child class, will modify the member variables here)
     ComputeSystemParameters(rSolutionAtPreviousTime, currentTime);
@@ -94,7 +95,7 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(const std::vector<doubl
 void  AbstractPeregoCardiacCell::EvaluateCorrectedValues(const std::vector<double>& rPredictedSolution, std::vector<double>& rCorrectedSolution, double currentTime)
 {
     mIsTheCorrectorStep = true;
-    
+        
     //Get the weigths from the end of the corrector step at the previous time
     //hardcoded for the moment. To be changed when error analysis is implemented
     mc0 = 8.0/12.0;

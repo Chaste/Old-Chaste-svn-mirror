@@ -141,7 +141,8 @@ public:
      */
     void ComputeExceptVoltage(double tStart, double tEnd)
     {
-        NEVER_REACHED; // not tested in tissue yet
+        NEVER_REACHED;
+        // not tested in tissue yet
     }
     
 private:
