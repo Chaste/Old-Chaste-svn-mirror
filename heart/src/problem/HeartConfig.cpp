@@ -116,6 +116,7 @@ HeartConfig::HeartConfig()
     //initialise the member variable of the layers
     mEpiFraction = -1.0;
     mEndoFraction =  -1.0;
+    mMidFraction = -1.0;
 }
 
 HeartConfig::~HeartConfig()
@@ -701,7 +702,8 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().CellHeterogeneities(),
                                                  & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
                                                  "CellHeterogeneities")->get().CellHeterogeneity();
-
+    
+    bool user_suuplied_negative_value = false;
     for (XSD_ANON_ITERATOR_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity) i = cell_heterogeneity.begin();
          i != cell_heterogeneity.end();
          ++i)
@@ -742,49 +744,68 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
             }
 
         }
-        else if(ht.Location().Transmural())                                                                                                                                                  
-        {   
-             //here we get the two user-provided numbers for the percentages of the layers                                                                                                                                                                                
-             double epi_fraction  =  ht.Location().Transmural()->EpiLayer();                                                                                                                  
-             double endo_fraction  =  ht.Location().Transmural()->EndoLayer();            
-             if ((epi_fraction+endo_fraction)>1)
-             {
-                EXCEPTION ("Summation of epicardial and endocardial fractions can't be greater than 1");
-             }   
-
-             if (epi_fraction <0 || endo_fraction<0)
-             {
-                EXCEPTION ("Fractions must be positive");
-             }  
-
-             mEpiFraction = epi_fraction;
-             mEndoFraction =  endo_fraction;
+        else                                                                                                                                                  
+        { 
+            if(ht.Location().EpiLayer().present())   
+            {                                                                                                                                                                            
+                mEpiFraction  =  ht.Location().EpiLayer().get();
+                if (mEpiFraction <0)
+                {
+                    user_suuplied_negative_value=true;
+                }
+                
+            }  
+            if(ht.Location().EndoLayer().present())   
+            {                                                                                                                                                                            
+                mEndoFraction  =  ht.Location().EndoLayer().get();
+                if (mEndoFraction <0)
+                {
+                    user_suuplied_negative_value=true;
+                }
+                
+            }                                                                                                                              
+            if(ht.Location().MidLayer().present())   
+            {                                                                                                                                                                            
+                mMidFraction  =  ht.Location().MidLayer().get();
+                if (mMidFraction <0)
+                {
+                    user_suuplied_negative_value=true;
+                }               
+                
+            }   
         }
         
         rScaleFactorGks.push_back (ht.ScaleFactorGks());
         rScaleFactorIto.push_back (ht.ScaleFactorIto());
         rScaleFactorGkr.push_back (ht.ScaleFactorGkr());   
     }
-}
+    
+     if ((mEndoFraction+mMidFraction+mEpiFraction)>1)
+     {
+        EXCEPTION ("Summation of epicardial, midmyocardial and  endocardial fractions can't be greater than 1");
+     }   
+     
+                  
+    if (user_suuplied_negative_value)
+    {
+       EXCEPTION ("Fractions must be positive");
+    } 
+}           
+
 
 double HeartConfig::GetEpiLayerFraction()
 {
-    //the variable is initialised at -1, if you try to use it without calling the !GetCellHeterogeneities method...
-    if (mEpiFraction<0)
-    {
-        EXCEPTION ("Fraction is negative, heterogeneities haven't been read in correctly");
-    }
     return mEpiFraction;
 }
 
 double HeartConfig::GetEndoLayerFraction()
 {
-    //the variable is initialised at -1, if you try to use it without calling the !GetCellHeterogeneities method...
-    if (mEndoFraction<0)
-    {
-        EXCEPTION ("Fraction is negative, heterogeneities haven't been read in correctly");
-    }
     return mEndoFraction;
+}
+
+double HeartConfig::GetMidLayerFraction()
+{
+    return mMidFraction;
 }
 
 bool HeartConfig::GetConductivityHeterogeneitiesProvided() const

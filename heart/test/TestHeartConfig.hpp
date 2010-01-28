@@ -395,6 +395,7 @@ public :
                                                             
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerFraction(),0.2);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerFraction(),0.3);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerFraction(),0.1);
             TS_ASSERT_EQUALS(scale_factor_gks[0], 0.462);
             TS_ASSERT_EQUALS(scale_factor_ito[0], 0.0);
             TS_ASSERT_EQUALS(scale_factor_gkr[0], 1.0);
@@ -411,7 +412,7 @@ public :
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                             scale_factor_gks,
                                                             scale_factor_ito,
-                                                            scale_factor_gkr), "Summation of epicardial and endocardial fractions can't be greater than 1");
+                                                            scale_factor_gkr), "Summation of epicardial, midmyocardial and  endocardial fractions can't be greater than 1");
                                                             
         }
         //covers the case when the user supplies negative numbers
@@ -429,13 +430,6 @@ public :
                                                             scale_factor_gkr), "Fractions must be positive");
                                                             
         }
-        //covers the case when oen tries using the get method without having called the GetCellHeterogeneities first
-        {
-            HeartConfig::Instance()->Reset();
-            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetEpiLayerFraction(),"Fraction is negative, heterogeneities haven't been read in correctly");
-            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetEndoLayerFraction(),"Fraction is negative, heterogeneities haven't been read in correctly");
-        }
-        
     }
     void Test2dProblems()
     {

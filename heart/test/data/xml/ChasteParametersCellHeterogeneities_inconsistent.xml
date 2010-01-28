@@ -52,12 +52,25 @@
 				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
 				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
 				<Location unit="cm">
-					<Transmural>
-						<EpiLayer unit="dimensionless">0.9</EpiLayer>
-						<EndoLayer unit="dimensionless">0.7</EndoLayer>
-					</Transmural>
+						<EpiLayer unit="dimensionless">0.7</EpiLayer>
 				</Location>
 			</CellHeterogeneity>	
+		    <CellHeterogeneity> <!-- #2 -->
+				<ScaleFactorGks unit="dimensionless">0.5</ScaleFactorGks>
+				<ScaleFactorIto unit="dimensionless">0.1</ScaleFactorIto>
+				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
+				<Location unit="cm">
+						<EndoLayer unit="dimensionless">0.2</EndoLayer>
+				</Location>
+			</CellHeterogeneity>	
+		   <CellHeterogeneity> <!-- #3 -->
+				<ScaleFactorGks unit="dimensionless">0.3</ScaleFactorGks>
+				<ScaleFactorIto unit="dimensionless">0.9</ScaleFactorIto>
+				<ScaleFactorGkr unit="dimensionless">2.0</ScaleFactorGkr>
+				<Location unit="cm">
+						<MidLayer unit="dimensionless">0.2</MidLayer>
+				</Location>
+			</CellHeterogeneity>
 		</CellHeterogeneities>		
 
 		<!-- 

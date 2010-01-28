@@ -422,7 +422,11 @@ public:
      */
     double GetEndoLayerFraction();
     
-     
+    /**
+     * @return the fraction of endocardial layer
+     */
+    double GetMidLayerFraction();
+        
     /**
      * Return a number of heterogeneous regions (Axis-aligned boxes)
      * \todo - do we assume the vectors are initially empty?
@@ -1011,7 +1015,11 @@ private:
      */ 
     double mEndoFraction;  
     
-
+    /**
+     * Fraction of midmyocardial layer
+     */ 
+    double mMidFraction;
+    
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
      * from the defaults/parameters files.  It checks if the first value  is present and (if not)
