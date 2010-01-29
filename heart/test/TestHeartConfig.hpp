@@ -122,9 +122,26 @@ public :
 
         TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0), -25500.0);
         TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0.6), 0.0);
+        
+        //covering the 2D case
+        std::vector<ChasteCuboid<2> > stimulated_areas_2D;
+        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied_2D;
+        HeartConfig::Instance()->GetStimuli(stimuli_applied_2D, stimulated_areas_2D);
+
+        TS_ASSERT_EQUALS(stimuli_applied_2D.size(), 2u);
+        TS_ASSERT_EQUALS(stimulated_areas_2D.size(), 2u);
+        
+        //covering the 1D case
+        std::vector<ChasteCuboid<1> > stimulated_areas_1D;
+        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied_1D;
+        HeartConfig::Instance()->GetStimuli(stimuli_applied_1D, stimulated_areas_1D);
+
+        TS_ASSERT_EQUALS(stimuli_applied_1D.size(), 2u);
+        TS_ASSERT_EQUALS(stimulated_areas_1D.size(), 2u);
 
         TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
         TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
+
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "ChasteResults");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "SimulationResults");
