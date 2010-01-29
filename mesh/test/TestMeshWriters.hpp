@@ -661,6 +661,32 @@ public:
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5 + 1);
         }
     }
+    void TestWritingBinaryFormat()
+    {
+        /*Read as ascii*/
+        TrianglesMeshReader<3,3> reader("mesh/test/data/simple_cube");
+
+        TrianglesMeshWriter<3,3> writer_from_reader("TestMeshWriter", "simple_cube_binary_from_reader", false);
+        writer_from_reader.SetWriteFilesAsBinary();
+        writer_from_reader.WriteFilesUsingMeshReader(reader);
+        
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+        TrianglesMeshWriter<3,3> writer_from_mesh("TestMeshWriter", "simple_cube_binary_from_mesh", false);
+        writer_from_mesh.SetWriteFilesAsBinary();
+        writer_from_mesh.WriteFilesUsingMesh(mesh);
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMeshWriter/";
+        
+        //This test is too stringent at the moment, but we'll do something better later
+        // -n options ensure that we don't get to the provenance data
+        TS_ASSERT_EQUALS(system(("cmp -n 264 " + results_dir + "/simple_cube_binary_from_reader.node mesh/test/data/simple_cube_binary.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 256 " + results_dir + "/simple_cube_binary_from_reader.ele mesh/test/data/simple_cube_binary.ele").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 230 " + results_dir + "/simple_cube_binary_from_reader.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 264 " + results_dir + "/simple_cube_binary_from_mesh.node mesh/test/data/simple_cube_binary.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 256 " + results_dir + "/simple_cube_binary_from_mesh.ele mesh/test/data/simple_cube_binary.ele").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 230 " + results_dir + "/simple_cube_binary_from_mesh.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
+    }
+ 
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_

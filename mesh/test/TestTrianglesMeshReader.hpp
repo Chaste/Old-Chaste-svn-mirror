@@ -426,6 +426,15 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[2], 16u);    //face 4
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 4u);  //face 5
     }
+
+    void TestReadingBinary() throw(Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/simple_cube_binary");
+
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 12u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 12u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 9u);
+    }
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

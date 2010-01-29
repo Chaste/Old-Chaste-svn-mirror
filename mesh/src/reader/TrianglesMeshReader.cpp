@@ -59,7 +59,8 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
       mOrderOfElements(orderOfElements),
       mOrderOfBoundaryElements(orderOfBoundaryElements),
       mEofException(false),
-      mReadContainingElementOfBoundaryElement(readContainingElementForBoundaryElements)
+      mReadContainingElementOfBoundaryElement(readContainingElementForBoundaryElements),
+      mFilesAreBinary(false)
 {
     // Only linear and quadratic elements
     assert(orderOfElements==1 || orderOfElements==2);
@@ -311,20 +312,27 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 {
     std::string buffer;
     GetNextLineFromStream(mNodesFile, buffer);
-    std::stringstream buffer_stream(buffer);
+    std::stringstream node_header_line(buffer);
     unsigned dimension;
-    buffer_stream >> mNumNodes >> dimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
+    node_header_line >> mNumNodes >> dimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
     if (SPACE_DIM != dimension)
     {
         EXCEPTION("SPACE_DIM  != dimension read from file ");
     }
-
+    //Is there anything else on the header line?
+    std::string extras;
+    node_header_line >> extras;
+    if (extras == "BIN")
+    {
+        mFilesAreBinary = true;
+    }
+    
     // Get the next line to see if it is indexed from zero or not
     GetNextLineFromStream(mNodesFile, buffer);
-    std::stringstream buffer_stream_ii(buffer);
+    std::stringstream node_first_line(buffer);
 
     unsigned first_index;
-    buffer_stream_ii >> first_index;
+    node_first_line >> first_index;
     assert(first_index == 0 || first_index == 1);
     mIndexFromZero = (first_index == 0);
 
@@ -333,13 +341,12 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     OpenNodeFile();
     GetNextLineFromStream(mNodesFile, buffer);
 
-    /// \todo: rename std::stringstream variables
     GetNextLineFromStream(mElementsFile, buffer);
-    std::stringstream buffer_stream2(buffer);
+    std::stringstream element_header_line(buffer);
 
     if (ELEMENT_DIM == SPACE_DIM)
     {
-        buffer_stream2 >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
+        element_header_line >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
 
         if ( mNumElementNodes != mNodesPerElement )
         {
@@ -352,10 +359,14 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     }
     else
     {
-        buffer_stream2 >> mNumElements >> mNumFaceAttributes;
+        element_header_line >> mNumElements >> mNumFaceAttributes;
 
         mNodesPerElement = ELEMENT_DIM+1;
     }
+    
+    //Double check for binaryness
+    element_header_line >> extras;
+    assert (mFilesAreBinary == (extras == "BIN"));
 
     if (ELEMENT_DIM == 1)
     {
@@ -365,12 +376,15 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     else
     {
         GetNextLineFromStream(mFacesFile, buffer);
-        std::stringstream buffer_stream3(buffer);
+        std::stringstream face_header_line(buffer);
 
-        buffer_stream3 >> mNumFaces >> mNumFaceAttributes;
+        face_header_line >> mNumFaces >> mNumFaceAttributes;
         assert(mNumFaceAttributes==0 || mNumFaceAttributes==1);
         // if mNumFaceAttributes=1 then loop over and set mNumFaces to be
         // the number of faces which are marked as boundary faces
+        //Double check for binaryness
+        face_header_line >> extras;
+        assert (mFilesAreBinary == (extras == "BIN"));
         if ((mNumFaceAttributes==1))
         {
             unsigned num_boundary_faces = 0;
@@ -506,9 +520,9 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
     std::vector<unsigned> node_count(mNumNodes);//Covers the case if it's indexed from 1
     for (unsigned element_index=0; element_index<mNumElements;element_index++)
     {
-        GetNextLineFromStream(mElementsFile, buffer);//Header
-        std::stringstream buffer_stream(buffer);
-        buffer_stream >> dummy >> node1 >> node2; //Maybe a region marker too
+        GetNextLineFromStream(mElementsFile, buffer);
+        std::stringstream element_line(buffer);
+        element_line >> dummy >> node1 >> node2; //Maybe a region marker too
         if (!mIndexFromZero)
         {
             //Adjust so we are indexing from zero

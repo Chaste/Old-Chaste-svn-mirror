@@ -39,7 +39,8 @@ TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshWriter(
     const std::string &rDirectory,
     const std::string &rBaseName,
     const bool clearOutputDir)
-        : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, clearOutputDir)
+        : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, clearOutputDir),
+          mFilesAreBinary(false)
 {
 }
 
@@ -47,6 +48,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::~TrianglesMeshWriter()
 {
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetWriteFilesAsBinary()
+{
+    mFilesAreBinary=true;
+} 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
@@ -65,7 +72,16 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     *p_node_file << num_nodes << "\t";
     *p_node_file << SPACE_DIM << "\t";
     *p_node_file << num_attr << "\t";
-    *p_node_file << max_bdy_marker << "\n";
+    *p_node_file << max_bdy_marker;
+    if (mFilesAreBinary)
+    {
+        *p_node_file << "\tBIN\n";
+    }
+    else
+    {
+        *p_node_file << "\n";
+    }
+    
     *p_node_file << std::setprecision(20);
 
     // Write each node's data
@@ -104,8 +120,16 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     *p_element_file << num_elements << "\t";
     *p_element_file << nodes_per_element << "\t";
-    *p_element_file << num_attr << "\n";
-
+    *p_element_file << num_attr;
+    if (mFilesAreBinary)
+    {
+        *p_element_file << "\tBIN\n";
+    }
+    else
+    {
+        *p_element_file << "\n";
+    }
+    
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
@@ -143,7 +167,15 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned num_faces = this->GetNumBoundaryFaces();
 
     *p_face_file << num_faces << "\t";
-    *p_face_file << max_bdy_marker << "\n";
+    *p_face_file << max_bdy_marker;
+    if (mFilesAreBinary)
+    {
+        *p_face_file << "\tBIN\n";
+    }
+    else
+    {
+        *p_face_file << "\n";
+    }
 
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
@@ -178,7 +210,15 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteElementsAsFaces()
 
     *p_element_file << num_elements << "\t";
     //*p_element_file << nodes_per_element << "\t";
-    *p_element_file << num_attr << "\n";
+    *p_element_file << num_attr;
+    if (mFilesAreBinary)
+    {
+        *p_element_file << "\tBIN\n";
+    }
+    else
+    {
+        *p_element_file << "\n";
+    }
 
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
@@ -213,8 +253,15 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     unsigned default_marker = 0;
 
     *p_face_file << num_faces << "\t";
-    *p_face_file << max_bdy_marker << "\n";
-
+    *p_face_file << max_bdy_marker;
+    if (mFilesAreBinary)
+    {
+        *p_face_file << "\tBIN\n";
+    }
+    else
+    {
+        *p_face_file << "\n";
+    }
     // Write each face's data
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
