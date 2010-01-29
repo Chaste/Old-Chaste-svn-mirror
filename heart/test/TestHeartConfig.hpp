@@ -399,6 +399,25 @@ public :
             TS_ASSERT_EQUALS(scale_factor_gks[0], 0.462);
             TS_ASSERT_EQUALS(scale_factor_ito[0], 0.0);
             TS_ASSERT_EQUALS(scale_factor_gkr[0], 1.0);
+            
+            //covering the case when the user specify transmural layers for conductivities (not supported and probably not worth considering)... 
+            std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
+            std::vector< c_vector<double,3> > intra_h_conductivities;
+            std::vector< c_vector<double,3> > extra_h_conductivities;
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
+                                                                intra_h_conductivities,
+                                                                extra_h_conductivities), "Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
+             
+             //covering the case when the user specify transmural layers for stimulated areas (not yet supported)... 
+            std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
+            std::vector<ChasteCuboid<3> > stimulated_area;
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area),"Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
+            
+            //covering the case when the user specify transmural layers for ionic model heterogeneities (not yet supported)... 
+            std::vector<ChasteCuboid<3> > ionic_model_regions;
+            std::vector<cp::ionic_models_available_type> ionic_models;
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
+                                                      ionic_models), "Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");                                                
         }
         //covers the case when the user supplies numbers that adds up to more than 1
         {

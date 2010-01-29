@@ -456,10 +456,16 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
                     NEVER_REACHED;
                     break;
             }
-
             
             ionicModels.push_back(ionic_model_region.IonicModel());
         }
+        else
+        {
+            if(ionic_model_region.Location().EpiLayer().present() || ionic_model_region.Location().MidLayer().present() || ionic_model_region.Location().EndoLayer().present() )   
+            {
+                EXCEPTION("Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
+            }
+        } 
     }
 }
 
@@ -685,9 +691,15 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
             boost::shared_ptr<SimpleStimulus> stim(new SimpleStimulus(stimulus.Strength(),
                                                                       stimulus.Duration(),
                                                                       stimulus.Delay()));
-            rStimuliApplied.push_back( stim );
-            
+            rStimuliApplied.push_back( stim );   
         }
+        else
+        {
+            if(stimulus.Location().EpiLayer().present() || stimulus.Location().MidLayer().present() || stimulus.Location().EndoLayer().present() )   
+            {
+                EXCEPTION("Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
+            }
+        }  
     }
 }
 
@@ -876,6 +888,13 @@ void HeartConfig::GetConductivityHeterogeneities(
 
             
         }
+        else
+        {
+            if(ht.Location().EpiLayer().present() || ht.Location().MidLayer().present() || ht.Location().EndoLayer().present() )   
+            {
+                EXCEPTION("Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
+            }
+        }  
 
         if (ht.IntracellularConductivities().present())
         {

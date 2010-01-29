@@ -399,7 +399,7 @@ public:
      * Return a number of heterogeneous regions for special gating variable changes
      * \todo - do we assume the vectors are initially empty?
      * The returned std::vectors are all of the same length
-     * @param rCellHeterogeneityAreas  cellHeterogeneityAreas[0] is the first region
+     * @param rCellHeterogeneityRegions  cellHeterogeneityAreas[0] is the first region
      * @param rScaleFactorGks  scaleFactorGks[0] is a scaling factor for the first region
      * @param rScaleFactorIto  scaleFactorIto[0] is a scaling factor for the first region
      * @param rScaleFactorGkr  scaleFactorGkr[0] is a scaling factor for the first region
