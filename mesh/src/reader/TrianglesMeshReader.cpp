@@ -328,20 +328,27 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         mFilesAreBinary = true;
     }
     
-    // Get the next line to see if it is indexed from zero or not
-    GetNextLineFromStream(mNodesFile, buffer);
-    std::stringstream node_first_line(buffer);
 
-    unsigned first_index;
-    node_first_line >> first_index;
-    assert(first_index == 0 || first_index == 1);
-    mIndexFromZero = (first_index == 0);
-
-    // Close, reopen, skip header
-    mNodesFile.close();
-    OpenNodeFile();
-    GetNextLineFromStream(mNodesFile, buffer);
-
+    if (mFilesAreBinary)
+    {
+        //We enforce that all binary files (written by Chaste) are indexed from zero
+        mIndexFromZero = true;
+    }
+    else
+    {
+        // Get the next line to see if it is indexed from zero or not
+        GetNextLineFromStream(mNodesFile, buffer);
+        std::stringstream node_first_line(buffer);
+        unsigned first_index;
+        node_first_line >> first_index;
+        assert(first_index == 0 || first_index == 1);
+        mIndexFromZero = (first_index == 0);
+        // Close, reopen, skip header
+        mNodesFile.close();
+        OpenNodeFile();
+        GetNextLineFromStream(mNodesFile, buffer);
+    }
+    
     GetNextLineFromStream(mElementsFile, buffer);
     std::stringstream element_header_line(buffer);
 
@@ -360,13 +367,13 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
                 mNodesPerBoundaryElement = 2;
             }
             if ( ELEMENT_DIM == 3 )
-	    {
+	        {
                 mNodesPerElement = 8;
                 mNodesPerBoundaryElement = 4;
             }
         }
         
-	if ( mNumElementNodes != mNodesPerElement )
+        if ( mNumElementNodes != mNodesPerElement )
         {
             std::stringstream error;
             error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "
@@ -482,35 +489,48 @@ template<class T>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber,
                                std::vector<T>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute)
 {
-    std::string buffer;
-    GetNextLineFromStream(fileStream,buffer);
-    std::stringstream buffer_stream(buffer);
-
-    unsigned item_index;
-    buffer_stream >> item_index;
-
-    // If we are indexing from zero our expected item number is one larger.
-    expectedItemNumber += mIndexFromZero ? 0 : 1;
-
-    if (item_index != expectedItemNumber)
+    if (mFilesAreBinary)
     {
-        std::stringstream error;
-        if (!mIndexFromZero)
-        { // To fix the exception message to agree with file format.
-            expectedItemNumber--;
+        fileStream.read((char*)rDataPacket.data(), rDataPacket.size()*sizeof(T));
+        if (rNumAttributes>0)
+        {
+            assert(rNumAttributes == 1);
+            fileStream.read((char*) &rAttribute, sizeof(unsigned));
         }
-        error << "Data for item " << expectedItemNumber << " missing";
-        EXCEPTION(error.str());
     }
-
-    for (unsigned i=0; i<rDataPacket.size(); i++)
+    else
     {
-        buffer_stream >> rDataPacket[i];
-    }
-
-    if (rNumAttributes>0)
-    {
-        buffer_stream >> rAttribute;
+        std::string buffer;
+        GetNextLineFromStream(fileStream,buffer);
+        std::stringstream buffer_stream(buffer);
+    
+        unsigned item_index;
+        buffer_stream >> item_index;
+    
+        // If we are indexing from zero our expected item number is one larger.
+        expectedItemNumber += mIndexFromZero ? 0 : 1;
+    
+        if (item_index != expectedItemNumber)
+        {
+            std::stringstream error;
+            if (!mIndexFromZero)
+            { // To fix the exception message to agree with file format.
+                expectedItemNumber--;
+            }
+            error << "Data for item " << expectedItemNumber << " missing";
+            EXCEPTION(error.str());
+        }
+    
+        for (unsigned i=0; i<rDataPacket.size(); i++)
+        {
+            buffer_stream >> rDataPacket[i];
+        }
+    
+        if (rNumAttributes>0)
+        {
+            assert(rNumAttributes == 1);
+            buffer_stream >> rAttribute;
+        }
     }
 }
 

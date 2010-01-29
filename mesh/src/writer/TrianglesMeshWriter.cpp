@@ -277,16 +277,30 @@ template<class T>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber,
                                                     const std::vector<T> &dataPacket, unsigned attribute)
 {
-    *pFile << itemNumber;
-    for (unsigned i=0; i<dataPacket.size(); i++)
+    if (mFilesAreBinary)
     {
-        *pFile << "\t" << dataPacket[i];
+        //No item numbers
+        //Write raw data out of std::vector into the file
+        pFile->write((char*)dataPacket.data(), dataPacket.size()*sizeof(T));
+        //Write raw attribute
+        if (attribute != UINT_MAX)
+        {
+            pFile->write((char*) &attribute, sizeof(attribute));
+        }
     }
-    if (attribute != UINT_MAX)
+    else
     {
-        *pFile << "\t" << attribute;
+        *pFile << itemNumber;
+        for (unsigned i=0; i<dataPacket.size(); i++)
+        {
+            *pFile << "\t" << dataPacket[i];
+        }
+        if (attribute != UINT_MAX)
+        {
+            *pFile << "\t" << attribute;
+        }
+        *pFile << "\n";
     }
-    *pFile << "\n";
 }
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
