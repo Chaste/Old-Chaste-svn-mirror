@@ -330,7 +330,7 @@ public:
         double duration = 1.9; // of the stimulus, in ms
 
         boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
+            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, 0.0, duration));
 
         // Cover an exception
         {
@@ -376,6 +376,110 @@ public:
         delete p_mesh;
     }
 
+    // This test will only pass if HYPRE 2.4 (PETSC 3.0) is available
+    void xTest2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
+    {
+        // Total execution time is 3 ms. Electrodes are on in [1.0, 2.0]
+
+#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
+        PetscOptionsSetValue("-ksp_monitor_true_residual", "");
+#else
+        PetscOptionsSetValue("-ksp_truemonitor", "");
+#endif        
+        PetscOptionsSetValue("-ksp_max_it", "100");        
+        PetscOptionsSetValue("-ksp_norm_type", "unpreconditioned");        
+        HeartConfig::Instance()->SetKSPPreconditioner("hypre");                                      
+        
+        HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dGroundedOnOff");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_grounded_on_off");
+
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms
+
+        // need to create a cell factory but don't want any intra stim, so magnitude
+        // of stim is zero.
+        c_vector<double,2> centre;
+        centre(0) = 0.05; // cm
+        centre(1) = 0.05; // cm
+        BathCellFactory<2> cell_factory( 0.0, centre);
+
+        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+
+        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+
+        //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+        double boundary_flux = 1e1;//-11.0e2;
+        double start_time = 1.0;
+        double duration = 1.0; // of the stimulus, in ms
+
+        boost::shared_ptr<Electrodes<2> > p_electrodes(
+            new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, start_time, duration));
+
+        bidomain_problem.SetElectrodes(p_electrodes);
+
+        bidomain_problem.SetMesh(p_mesh);
+        bidomain_problem.Initialise();
+
+        /*
+         *  While t in [0.0, 1.0) electrodes are off 
+         */
+        {
+            HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
+            bidomain_problem.Solve();
+    
+            /// \todo: you don't need a ReplicatbleVector here. Every processor can check locally
+            Vec sol = bidomain_problem.GetSolution();
+            ReplicatableVector sol_repl(sol);
+    
+            for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+            {
+                // test phi_e close to 0 for all bath nodes since electrodes are off
+                if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+                {
+                    TS_ASSERT_DELTA(sol_repl[2*i+1], 0.0, 0.5);
+                }
+            }
+            
+            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..            
+        }
+
+
+        /*
+         *  At the end of the simulation AP has been triggered
+         */
+        {
+            HeartConfig::Instance()->SetSimulationDuration(3.0);  //ms
+            bidomain_problem.Solve();
+    
+            Vec sol = bidomain_problem.GetSolution();
+            ReplicatableVector sol_repl(sol);
+    
+            bool ap_triggered = false;
+            /*
+             * We are checking the last time step. This test will only make sure that an upstroke is triggered.
+             * We ran longer simulation for 350 ms and a nice AP was observed.
+             */
+    
+            for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+            {
+                // test V = 0 for all bath nodes and that an AP is triggered in the tissue
+                if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+                {
+                    TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+                }
+                else if (sol_repl[2*i] > 0.0)//at the last time step
+                {
+                    ap_triggered = true;
+                }
+            }
+    
+            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
+            TS_ASSERT(ap_triggered);
+        }
+        
+        delete p_mesh;
+    }
+
     void TestMatrixBasedAssembledBath(void)
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
@@ -406,7 +510,7 @@ public:
             Timer::Reset();
 
             boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, duration));
+                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, 0.0, duration));
 
             matrix_based_bido.SetElectrodes(p_electrodes);
             matrix_based_bido.SetMesh(p_mesh);
@@ -428,7 +532,7 @@ public:
             Timer::Reset();
 
             boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, duration));
+                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, 0.0, duration));
 
             non_matrix_based_bido.SetElectrodes(p_electrodes);
             non_matrix_based_bido.SetMesh(p_mesh);
@@ -488,7 +592,7 @@ public:
             double duration = 1.9; // of the stimulus, in ms
     
             boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, duration));
+                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, 0.0, duration));
                  
             bidomain_problem.SetElectrodes(p_electrodes);
             bidomain_problem.SetMesh(p_mesh);

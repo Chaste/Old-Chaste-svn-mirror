@@ -45,15 +45,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestElectrodes : public CxxTest::TestSuite
 {
 public:
-    void TestElectrodeGrounded2dAndSwitchOff() throw (Exception)
+    void TestElectrodeGrounded2dAndSwitchOffSwitchOn() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ParallelTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double magnitude = 543.324;
+        double start_time = 1.0; //ms
         double duration = 2.0; //ms
-        Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,duration);
+        Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,start_time,duration);
 
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 
@@ -91,18 +92,30 @@ public:
 
         TS_ASSERT_EQUALS(num_grounded_nodes_reduced, 11u);
 
-        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,duration),
+        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,start_time,duration),
                 "Minimum value of coordinate is not the value given");
-        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,duration),
+        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,start_time,duration),
                 "Maximum value of coordinate is not the value given");
 
+        // Nothing at the beginning of the simulation
         TS_ASSERT_EQUALS(electrodes.SwitchOff(0.0), false); // t<end time
-        TS_ASSERT_EQUALS(electrodes.SwitchOff(1.0), false); // t<end time
-        TS_ASSERT_EQUALS(electrodes.SwitchOff(1.9), false); // t<end time
-        TS_ASSERT_EQUALS(electrodes.SwitchOff(1.99),false); // t<end time
-        TS_ASSERT_EQUALS(electrodes.SwitchOff(2.0+1e-12), true); // true as t>end_time
-        TS_ASSERT_EQUALS(electrodes.SwitchOff(2.1), false); // false as electrodes has been switched off
+        TS_ASSERT_EQUALS(electrodes.SwitchOn(0.0), false); // t<start time
+               
+        // Time to switch on
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(1.0), false); // false as t<end time
+        TS_ASSERT_EQUALS(electrodes.SwitchOn(1.0), true); // true as t>start time
+
+        // Implemented to switch off at times extrictly bigger than starting point + duration
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(3.0), false); // false as t<end time
+        TS_ASSERT_EQUALS(electrodes.SwitchOn(3.0),false); // false as electrode already switched on
+        
+        // Time to switch off
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(3.0+1e-12), true); // true as t>end_time
+        TS_ASSERT_EQUALS(electrodes.SwitchOn(3.0+1e-12), false); // false as electrode already switched on
+
+        // Everything is over now...
         TS_ASSERT_EQUALS(electrodes.SwitchOff(4.0), false); // false as electrodes has been switched off
+        TS_ASSERT_EQUALS(electrodes.SwitchOn(4.0), false); // false as electrodes has been switched on
     }
 
 
@@ -114,7 +127,7 @@ public:
 
         double magnitude = 543.324;
         double duration = 2.0;
-        Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,duration);
+        Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,0.0,duration);
 
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 
@@ -146,7 +159,7 @@ public:
 
         double magnitude = 543.324;
         double duration = 2.0;
-        Electrodes<3> electrodes(mesh,true,1,0,10,magnitude,duration);
+        Electrodes<3> electrodes(mesh,true,1,0,10,magnitude,0.0,duration);
 
         boost::shared_ptr<BoundaryConditionsContainer<3,3,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 
@@ -185,7 +198,7 @@ public:
 
         double magnitude = 543.324;
         double duration = 2.0;
-        Electrodes<3> electrodes(mesh,false,1,0,10,magnitude,duration);
+        Electrodes<3> electrodes(mesh,false,1,0,10,magnitude,0.0,duration);
 
         boost::shared_ptr<BoundaryConditionsContainer<3,3,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 
@@ -229,7 +242,7 @@ public:
             TetrahedralMesh<3,3> mesh;
             mesh.ConstructCuboid(10,10,10);
             // Create Electrodes class - the const is required to prevent boost errors on compilation.
-            Electrodes<3>* const p_electrodes = new Electrodes<3>(mesh,false,1,0,10,magnitude,duration);
+            Electrodes<3>* const p_electrodes = new Electrodes<3>(mesh,false,1,0,10,magnitude,0.0,duration);
             
             // Create output archive
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);

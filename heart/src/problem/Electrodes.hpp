@@ -65,6 +65,8 @@ private:
     bool mGroundSecondElectrode;
     /** The created bcc, which BidomainProblem will use */
     boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > mpBoundaryConditionsContainer;
+    /** The time the electrodes are switched on */
+    double mStartTime;
     /** The time the electrodes are switched off */
     double mEndTime;
     /** Whether the electrodes are currently switched on */
@@ -89,6 +91,7 @@ private:
     void save(Archive & archive, const unsigned int version) const
     {
         archive & mGroundSecondElectrode;
+        archive & mStartTime;
         archive & mEndTime;
         archive & mAreActive;
         archive & mpMesh;
@@ -104,6 +107,7 @@ private:
     void load(Archive & archive, const unsigned int version)
     {
         archive & mGroundSecondElectrode;
+        archive & mStartTime;
         archive & mEndTime;
         archive & mAreActive; 
         archive & mpMesh;
@@ -132,12 +136,13 @@ public:
      *  @param upperValue The value b when applying the electrodes to x_i=a and x_i=b (a<b) (should
      *    be the maximum value of x_i for the given mesh)
      *  @param magnitude Magnitude of the stimulus
-     *  @param duration Duration of the stimulus. Note, start time currently assumed to be zero.
+     *  @param startTime Switch on time
+     *  @param duration Duration of the stimulus. 
      */
     Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                bool groundSecondElectrode,
                unsigned index, double lowerValue, double upperValue,
-               double magnitude, double duration); // implemented in cpp
+               double magnitude, double startTime, double duration); // implemented in cpp
 
     /**
      *  Get the boundary conditions container in which is set up the Neumann
@@ -154,6 +159,16 @@ public:
      * @param time  the current time
      */
     bool SwitchOff(double time);
+
+    /**
+     *  Whether it is time to switch on the electrodes yet. THIS ONLY RETURNS
+     *  TRUE ONCE - the first appropriate time. After that the electrodes assume
+     *  they have been switched on and therefore this returns false.
+     * 
+     * @param time  the current time
+     */
+    bool SwitchOn(double time);
+
 };
 
 #include "TemplatedExport.hpp"

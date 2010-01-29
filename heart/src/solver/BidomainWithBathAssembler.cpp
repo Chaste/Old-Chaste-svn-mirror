@@ -121,8 +121,8 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             bool assembleVector, bool assembleMatrix)
 {
     // CG (default solver) won't work since the system is indefinite. Switch to SYMMLQ
-    this->mpLinearSystem->SetKspType("symmlq"); // Switches the solver
-    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.            
+//    this->mpLinearSystem->SetKspType("symmlq"); // Switches the solver
+//    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.            
 
     unsigned* is_node_bath = new unsigned[this->mpMesh->GetNumNodes()];
     for(unsigned i = 0; i < this->mpMesh->GetNumNodes(); ++i)

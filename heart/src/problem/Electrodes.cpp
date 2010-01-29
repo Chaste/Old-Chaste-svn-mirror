@@ -35,8 +35,10 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                        double lowerValue,
                        double upperValue,
                        double magnitude,
+                       double startTime,
                        double duration)
-    : mpMesh(&rMesh)
+    : mStartTime(startTime), 
+      mpMesh(&rMesh)            
 {
     /// \todo what on earth is this for???
     DistributedVectorFactory factory(mpMesh->GetDistributedVectorFactory()->GetProblemSize(), 
@@ -44,8 +46,8 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);
-    mEndTime = 0.0 + duration; // currently start time = 0 is hardcoded here
-    mAreActive = true; // switch electrodes on!
+    mEndTime = mStartTime + duration; // currently start time = 0 is hardcoded here
+    mAreActive = false; // consider electrodes initially switched off!
 
     // check min x_i = a and max x_i = b, where i = index
     double local_min = DBL_MAX;
@@ -134,7 +136,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
 template<unsigned DIM>
 boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > Electrodes<DIM>::GetBoundaryConditionsContainer()
 {
-    assert(mAreActive);
+    //assert(mAreActive);
     return mpBoundaryConditionsContainer;
 }
 
@@ -145,6 +147,18 @@ bool Electrodes<DIM>::SwitchOff(double time)
     if (mAreActive && time>mEndTime)
     {
         mAreActive = false;
+        return true;
+    }
+
+    return false;
+}
+
+template<unsigned DIM>
+bool Electrodes<DIM>::SwitchOn(double time)
+{
+    if (!mAreActive && time>=mStartTime && time<=mEndTime)
+    {
+        mAreActive = true;
         return true;
     }
 

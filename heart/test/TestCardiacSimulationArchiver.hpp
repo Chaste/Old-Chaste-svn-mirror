@@ -655,7 +655,7 @@ public:
         double duration = 1.9; // of the stimulus, in ms
         boost::shared_ptr<Electrodes<2> > p_electrodes(
             new Electrodes<2>(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
-                              boundary_flux, duration));
+                              boundary_flux, 0.0, duration));
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
         bidomain_problem.SetElectrodes(p_electrodes);
@@ -949,7 +949,7 @@ public:
         double duration = 1.9; // of the stimulus, in ms
         boost::shared_ptr<Electrodes<2> > p_electrodes(
             new Electrodes<2>(*p_mesh, true/*do ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
-                              boundary_flux, duration));
+                              boundary_flux, 0.0, duration));
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
         bidomain_problem.SetElectrodes(p_electrodes);
