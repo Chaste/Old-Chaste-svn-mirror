@@ -190,7 +190,7 @@ public:
         double duration = 2.5; //ms
 
         boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(mesh,true,0,0.0,0.1,boundary_flux, duration));
+            new Electrodes<2>(mesh,true,0,0.0,0.1,boundary_flux, 0.0, duration));
         bidomain_problem.SetElectrodes(p_electrodes);
 
         bidomain_problem.Solve();
@@ -261,7 +261,7 @@ public:
         double duration = 2.5; //ms
 
         boost::shared_ptr<Electrodes<3> > p_electrodes(
-            new Electrodes<3>(mesh,true,0,0.0,0.2,boundary_flux, duration));
+            new Electrodes<3>(mesh,true,0,0.0,0.2,boundary_flux, 0.0, duration));
         bidomain_problem.SetElectrodes(p_electrodes);
 
         bidomain_problem.Solve();

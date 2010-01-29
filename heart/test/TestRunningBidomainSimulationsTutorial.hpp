@@ -322,6 +322,7 @@ public:
          */
         //-1e4 is under thershold, -1.4e4 too high - crashes the cell model
         double magnitude = -1.1e4; // uA/cm^2
+        double start_time = 0.0;
         double duration = 2; //ms
 
         /* Electrodes work in two ways: the first electrode applies an input flux, and
@@ -333,7 +334,7 @@ public:
          * apply electrodes to the surfaces Z=0.0 and Z=0.1, etc).
          */
         boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(mesh, false, 0, 0.0, 0.1, magnitude, duration));
+            new Electrodes<2>(mesh, false, 0, 0.0, 0.1, magnitude, start_time, duration));
 
         /* Now create the problem class, using the cell factory and passing
          * in `true` as the second argument to indicate we are solving a bath
