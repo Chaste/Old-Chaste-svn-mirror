@@ -435,6 +435,21 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 12u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 9u);
     }
+
+    void TestReadingHexMesh() throw(Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader_2d("mesh/test/data/rectangle_608_hexa_elements");
+
+	TS_ASSERT_EQUALS(mesh_reader_2d.GetNumNodes(), 663u);
+	TS_ASSERT_EQUALS(mesh_reader_2d.GetNumElements(), 608u);
+	TS_ASSERT_EQUALS(mesh_reader_2d.GetNumFaces(), 108u);
+
+	TrianglesMeshReader<3,3> mesh_reader_3d("mesh/test/data/cuboid_140_hexa_elements");
+
+	TS_ASSERT_EQUALS(mesh_reader_3d.GetNumNodes(), 240u);
+        TS_ASSERT_EQUALS(mesh_reader_3d.GetNumElements(), 140u);
+        TS_ASSERT_EQUALS(mesh_reader_3d.GetNumFaces(), 166u);
+    }
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

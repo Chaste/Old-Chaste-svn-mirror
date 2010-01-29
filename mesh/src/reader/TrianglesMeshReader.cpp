@@ -60,7 +60,8 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
       mOrderOfBoundaryElements(orderOfBoundaryElements),
       mEofException(false),
       mReadContainingElementOfBoundaryElement(readContainingElementForBoundaryElements),
-      mFilesAreBinary(false)
+      mFilesAreBinary(false),
+      mMeshIsHexahedral(false)
 {
     // Only linear and quadratic elements
     assert(orderOfElements==1 || orderOfElements==2);
@@ -347,8 +348,25 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     if (ELEMENT_DIM == SPACE_DIM)
     {
         element_header_line >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
-
-        if ( mNumElementNodes != mNodesPerElement )
+        //Is there anything else on the header line?
+        std::string extras;
+        element_header_line >> extras;
+        if (extras == "HEX")
+        {
+            mMeshIsHexahedral = true;
+            if ( ELEMENT_DIM == 2 )
+            {
+                mNodesPerElement = 4;
+                mNodesPerBoundaryElement = 2;
+            }
+            if ( ELEMENT_DIM == 3 )
+	    {
+                mNodesPerElement = 8;
+                mNodesPerBoundaryElement = 4;
+            }
+        }
+        
+	if ( mNumElementNodes != mNodesPerElement )
         {
             std::stringstream error;
             error << "Number of nodes per elem, " << mNumElementNodes << ", does not match "

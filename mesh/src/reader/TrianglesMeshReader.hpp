@@ -79,6 +79,7 @@ private:
 
     bool mReadContainingElementOfBoundaryElement; /**< Whether to read containing element info for each boundary element (obtaining by doing tetgen with the -nn flag) */
     bool mFilesAreBinary; /**< Whether to read all data as binary (determined by a magic number in the node file header)*/
+    bool mMeshIsHexahedral; /**< Whether the mesh is hexahedral (determined by a magic number in the element file header) */
 
 //    /** The containing element for each boundary element (obtaining by doing tetgen with the -nn flag).
 //     *  In a std::vector rather than the struct to save space if not read.
