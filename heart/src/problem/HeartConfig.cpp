@@ -424,7 +424,7 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
          ++i)
     {
         cp::ionic_model_region_type ionic_model_region(*i);
-        if (ionic_model_region.Location().Cuboid())
+        if (ionic_model_region.Location().Cuboid().present())
         {
             cp::point_type point_a = ionic_model_region.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ionic_model_region.Location().Cuboid()->UpperCoordinates();
@@ -656,7 +656,7 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
          ++i)
     {
         cp::stimulus_type stimulus(*i);
-        if (stimulus.Location().Cuboid())
+        if (stimulus.Location().Cuboid().present())
         {
             cp::point_type point_a = stimulus.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = stimulus.Location().Cuboid()->UpperCoordinates();
@@ -721,7 +721,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
          ++i)
     {
         cp::cell_heterogeneity_type ht(*i);
-        if (ht.Location().Cuboid())
+        if (ht.Location().Cuboid().present())
         {
             
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
@@ -853,7 +853,7 @@ void HeartConfig::GetConductivityHeterogeneities(
          ++i)
     {
         cp::conductivity_heterogeneity_type ht(*i);
-        if (ht.Location().Cuboid())
+        if (ht.Location().Cuboid().present())
         {
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
