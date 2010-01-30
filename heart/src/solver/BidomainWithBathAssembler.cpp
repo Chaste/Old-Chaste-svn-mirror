@@ -120,6 +120,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             double time,
             bool assembleVector, bool assembleMatrix)
 {
+    /// \todo: #1215 this seems not to be an issue anymore. Document and remove code.
     // CG (default solver) won't work since the system is indefinite. Switch to SYMMLQ
 //    this->mpLinearSystem->SetKspType("symmlq"); // Switches the solver
 //    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.            

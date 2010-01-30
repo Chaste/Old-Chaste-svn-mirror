@@ -863,20 +863,19 @@ Vec LinearSystem::Solve(Vec lhsGuess)
     try
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
-        //Timer::Reset();
-        PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
-        //Timer::Print("Solve time:");
-        HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
-        // Check that solver converged and throw if not
-        KSPConvergedReason reason;
-        KSPGetConvergedReason(mKspSolver, &reason);
-        KSPEXCEPT(reason);
+#ifdef TRACE_KSP
+        Timer::Reset();
+#endif
+
+        PETSCEXCEPT(KSPSolve(mKspSolver, mRhsVector, lhs_vector));
+        HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_LINEAR_SYSTEM);
 
 #ifdef TRACE_KSP
         PetscInt num_it;
         KSPGetIterationNumber(mKspSolver, &num_it);
-        std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << std::endl << std::flush;
+        std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << " "; // don't add std::endl so we get Timer::Print output in the same line (better for grep-ing)
+        Timer::Print("Solve");
 
         mNumSolves++;
         mTotalNumIterations += num_it;
@@ -885,6 +884,13 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             mMaxNumIterations = num_it;
         }
 #endif
+
+
+        // Check that solver converged and throw if not
+        KSPConvergedReason reason;
+        KSPGetConvergedReason(mKspSolver, &reason);
+        KSPEXCEPT(reason);
+
 
     }
     catch (const Exception& e)
