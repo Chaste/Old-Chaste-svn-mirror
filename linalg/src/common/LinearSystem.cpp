@@ -760,6 +760,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
         else
         {
+#ifdef TRACE_KSP
+            Timer::Reset();
+#endif            
             if (mPcType == "blockdiagonal")
             {
                 mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
@@ -772,6 +775,9 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             {
                 PCSetType(prec, mPcType.c_str());
             }
+#ifdef TRACE_KSP
+            Timer::Print("Preconditioner creation");
+#endif            
         }
 
         if (mMatNullSpace)
