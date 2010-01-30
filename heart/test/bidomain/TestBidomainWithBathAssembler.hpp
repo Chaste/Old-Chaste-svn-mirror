@@ -376,23 +376,12 @@ public:
         delete p_mesh;
     }
 
-    // This test will only pass if HYPRE 2.4 (PETSC 3.0) is available
-    void xTest2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
+    /// \todo: #1215 This test doesn't pass if the electrodes are grounded. System solution diverges in the timestep the electrodes are switched on. Probably we will need to remove the null space from the system.
+    void Test2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
     {
-        // Total execution time is 3 ms. Electrodes are on in [1.0, 2.0]
-
-#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-        PetscOptionsSetValue("-ksp_monitor_true_residual", "");
-#else
-        PetscOptionsSetValue("-ksp_truemonitor", "");
-#endif        
-        PetscOptionsSetValue("-ksp_max_it", "100");        
-        PetscOptionsSetValue("-ksp_norm_type", "unpreconditioned");        
-        HeartConfig::Instance()->SetKSPPreconditioner("hypre");                                      
-        
+        // Total execution time is 5 ms. Electrodes are on in [1.0, 3.0]       
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dGroundedOnOff");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_grounded_on_off");
-
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms
 
         // need to create a cell factory but don't want any intra stim, so magnitude
@@ -408,12 +397,12 @@ public:
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 
         //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
-        double boundary_flux = 1e1;//-11.0e2;
+        double boundary_flux = -11.0e3;
         double start_time = 1.0;
-        double duration = 1.0; // of the stimulus, in ms
+        double duration = 2.0; // of the stimulus, in ms
 
         boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, start_time, duration));
+            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, start_time, duration));
 
         bidomain_problem.SetElectrodes(p_electrodes);
 
@@ -427,7 +416,7 @@ public:
             HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
             bidomain_problem.Solve();
     
-            /// \todo: you don't need a ReplicatbleVector here. Every processor can check locally
+            /// \todo: we don't need a ReplicatableVector here. Every processor can check locally
             Vec sol = bidomain_problem.GetSolution();
             ReplicatableVector sol_repl(sol);
     
@@ -448,7 +437,7 @@ public:
          *  At the end of the simulation AP has been triggered
          */
         {
-            HeartConfig::Instance()->SetSimulationDuration(3.0);  //ms
+            HeartConfig::Instance()->SetSimulationDuration(5.0);  //ms
             bidomain_problem.Solve();
     
             Vec sol = bidomain_problem.GetSolution();
@@ -476,7 +465,7 @@ public:
             TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT(ap_triggered);
         }
-        
+
         delete p_mesh;
     }
 
