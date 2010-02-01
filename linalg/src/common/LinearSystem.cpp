@@ -766,18 +766,22 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             if (mPcType == "blockdiagonal")
             {
                 mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
+#ifdef TRACE_KSP
+                Timer::Print("Purpose-build preconditioner creation");
+#endif            
+
             }
             else if (mPcType == "ldufactorisation")
             {
                 mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
+#ifdef TRACE_KSP
+                Timer::Print("Purpose-build preconditioner creation");
+#endif            
             }
             else
             {
                 PCSetType(prec, mPcType.c_str());
             }
-#ifdef TRACE_KSP
-            Timer::Print("Preconditioner creation");
-#endif            
         }
 
         if (mMatNullSpace)
@@ -794,7 +798,14 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         }
 
         KSPSetFromOptions(mKspSolver);
+
+#ifdef TRACE_KSP
+        Timer::Reset();
+#endif            
         KSPSetUp(mKspSolver);
+#ifdef TRACE_KSP
+        Timer::Print("KSPSetUP (contains preconditioner creation for PETSc preconditioners)");
+#endif            
 
         mKspIsSetup = true;
 
