@@ -327,7 +327,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     {
         mFilesAreBinary = true;
     }
-    
+
 
     if (mFilesAreBinary)
     {
@@ -348,7 +348,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         OpenNodeFile();
         GetNextLineFromStream(mNodesFile, buffer);
     }
-    
+
     GetNextLineFromStream(mElementsFile, buffer);
     std::stringstream element_header_line(buffer);
 
@@ -372,7 +372,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
                 mNodesPerBoundaryElement = 4;
             }
         }
-        
+
         if ( mNumElementNodes != mNodesPerElement )
         {
             std::stringstream error;
@@ -388,7 +388,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 
         mNodesPerElement = ELEMENT_DIM+1;
     }
-    
+
     //Double check for binaryness
     element_header_line >> extras;
     assert (mFilesAreBinary == (extras == "BIN"));
@@ -491,7 +491,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
 {
     if (mFilesAreBinary)
     {
-        fileStream.read((char*)rDataPacket.data(), rDataPacket.size()*sizeof(T));
+        fileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T));
         if (rNumAttributes>0)
         {
             assert(rNumAttributes == 1);
@@ -503,13 +503,13 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
         std::string buffer;
         GetNextLineFromStream(fileStream,buffer);
         std::stringstream buffer_stream(buffer);
-    
+
         unsigned item_index;
         buffer_stream >> item_index;
-    
+
         // If we are indexing from zero our expected item number is one larger.
         expectedItemNumber += mIndexFromZero ? 0 : 1;
-    
+
         if (item_index != expectedItemNumber)
         {
             std::stringstream error;
@@ -520,12 +520,12 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
             error << "Data for item " << expectedItemNumber << " missing";
             EXCEPTION(error.str());
         }
-    
+
         for (unsigned i=0; i<rDataPacket.size(); i++)
         {
             buffer_stream >> rDataPacket[i];
         }
-    
+
         if (rNumAttributes>0)
         {
             assert(rNumAttributes == 1);

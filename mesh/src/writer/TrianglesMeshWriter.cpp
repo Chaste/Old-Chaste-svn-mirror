@@ -53,7 +53,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetWriteFilesAsBinary()
 {
     mFilesAreBinary=true;
-} 
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
@@ -81,7 +81,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     {
         *p_node_file << "\n";
     }
-    
+
     *p_node_file << std::setprecision(20);
 
     // Write each node's data
@@ -129,7 +129,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     {
         *p_element_file << "\n";
     }
-    
+
     // Write each element's data
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
@@ -281,7 +281,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, u
     {
         //No item numbers
         //Write raw data out of std::vector into the file
-        pFile->write((char*)dataPacket.data(), dataPacket.size()*sizeof(T));
+        pFile->write((char*)&dataPacket[0], dataPacket.size()*sizeof(T));
         //Write raw attribute
         if (attribute != UINT_MAX)
         {
