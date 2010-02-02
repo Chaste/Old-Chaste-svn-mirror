@@ -70,7 +70,7 @@ TissueConfig::TissueConfig()
  * mWntTransitThreshold has no units
  * mWntStemThreshold has no units
  * mWntLabelledThreshold has no units
- * mTopOfLinearWntConcentration has no units (proportion of mCryptLength)
+ * mWntConcentrationParameter has no units (proportion of mCryptLength)
  * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
@@ -112,7 +112,7 @@ void TissueConfig::Reset()
     mWntStemThreshold = 0.8;
     mWntTransitThreshold = 0.65;
     mWntLabelledThreshold = 0.65;
-    mTopOfLinearWntConcentration = 1.0;
+    mWntConcentrationParameter = 1.0;
     mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
@@ -245,9 +245,9 @@ double TissueConfig::GetWntLabelledThreshold()
 {
     return mWntLabelledThreshold;
 }
-double TissueConfig::GetTopOfLinearWntConcentration()
+double TissueConfig::GetWntConcentrationParameter()
 {
-    return mTopOfLinearWntConcentration;
+    return mWntConcentrationParameter;
 }
 double TissueConfig::GetCriticalHypoxicDuration()
 {
@@ -468,11 +468,11 @@ void TissueConfig::SetWntLabelledThreshold(double wntThreshold)
     assert(wntThreshold>=0.0);
     mWntLabelledThreshold = wntThreshold;
 }
-void TissueConfig::SetTopOfLinearWntConcentration(double top)
+void TissueConfig::SetWntConcentrationParameter(double top)
 {
     assert(top > 0.0);
     assert(top <= 1.0);
-    mTopOfLinearWntConcentration = top;
+    mWntConcentrationParameter = top;
 }
 void TissueConfig::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
 {

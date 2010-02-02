@@ -145,22 +145,35 @@ void WntConcentration<DIM>::SetType(WntConcentrationType type)
 template<unsigned DIM>
 double WntConcentration<DIM>::GetWntLevel(double height)
 {
-    double wnt_level = -1.0;
-
     if (mWntType==NONE)
     {
-        wnt_level = 0.0;
+        return 0.0;
     }
+
+    double wnt_level = -1.0; // Test this is changed before leaving method.
+	double crypt_height = mpTissueConfig->GetCryptLength();
 
     // The first type of Wnt concentration to try
     if (mWntType==LINEAR || mWntType==RADIAL)
     {
-        double crypt_height = mpTissueConfig->GetCryptLength();
-        double top_of_wnt = mpTissueConfig->GetTopOfLinearWntConcentration(); // of crypt height.
-
+        double top_of_wnt = mpTissueConfig->GetWntConcentrationParameter(); // of crypt height.
         if ((height >= -1e-9) && (height < top_of_wnt*crypt_height))
         {
             wnt_level = 1.0 - height/(top_of_wnt*crypt_height);
+
+        }
+        else
+        {
+            wnt_level = 0.0;
+        }
+    }
+
+    if (mWntType==EXPONENTIAL)
+    {
+        double lambda = mpTissueConfig->GetWntConcentrationParameter(); // of crypt height.
+        if ((height >= -1e-9) && (height < crypt_height))
+        {
+            wnt_level = exp(- (height/crypt_height)/lambda);
         }
         else
         {
@@ -182,7 +195,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
     if (mWntType!=NONE)
     {
         double crypt_height = mpTissueConfig->GetCryptLength();
-        double top_of_wnt = mpTissueConfig->GetTopOfLinearWntConcentration(); // of crypt height.
+        double top_of_wnt = mpTissueConfig->GetWntConcentrationParameter(); // of crypt height.
 
         if (mWntType==LINEAR)
         {
@@ -191,7 +204,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
                 wnt_gradient[DIM-1] = -1.0/(top_of_wnt*crypt_height);
             }
         }
-        else // RADIAL Wnt concentration
+        else if (mWntType==RADIAL) // RADIAL Wnt concentration
         {
             double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
             double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
@@ -209,6 +222,10 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
             {
                 wnt_gradient[i] = rLocation[i]*dwdr/r;
             }
+        }
+        else
+        {
+        	EXCEPTION("No method to calculate gradient of this Wnt type");
         }
     }
     return wnt_gradient;

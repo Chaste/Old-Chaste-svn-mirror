@@ -117,6 +117,52 @@ public:
         WntConcentration<2>::Destroy();
     }
 
+    void TestExponentialWntConcentration() throw(Exception)
+    {
+        WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
+        p_wnt->SetType(EXPONENTIAL);
+
+        TS_ASSERT_EQUALS(TissueConfig::Instance()->GetWntConcentrationParameter(),1.0);
+
+        double height = 100;
+        double wnt_level = 0.0;
+        wnt_level = p_wnt->GetWntLevel(height);
+
+        double crypt_length = 22.0;
+        TS_ASSERT_DELTA(TissueConfig::Instance()->GetCryptLength(),crypt_length, 1e-9);
+        // For heights above the top of the crypt (no Wnt)
+        TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
+
+        height = -1e-12;    // for cells very close to 0 on negative side (very strong Wnt = 1.0);
+        wnt_level = p_wnt->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, 1.0, 1e-9);
+
+        // For normal 'in range' Wnt height
+        height = 21.0;
+        wnt_level = p_wnt->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, exp(-height/crypt_length), 1e-9);
+
+        // For a change in lambda
+        TissueConfig::Instance()->SetCryptLength(30.0);
+        crypt_length = 30.0;
+        TissueConfig::Instance()->SetWntConcentrationParameter(0.5);
+        wnt_level = p_wnt->GetWntLevel(height);
+        TS_ASSERT_DELTA(wnt_level, exp(-(height/crypt_length)/0.5), 1e-9);
+
+        // Test GetWntGradient() method
+
+        TissueConfig::Instance()->Reset();
+        c_vector<double,2> location;
+        location[0] = 1.5;
+        location[1] = 2.3;
+
+        TS_ASSERT_THROWS_THIS(p_wnt->GetWntGradient(location)[0],
+                              "No method to calculate gradient of this Wnt type");
+
+        WntConcentration<2>::Destroy();
+    }
+
 
     void TestOffsetLinearWntConcentration() throw(Exception)
     {
@@ -124,7 +170,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
         TissueConfig* p_params = TissueConfig::Instance();
-        p_params->SetTopOfLinearWntConcentration(1.0/3.0);
+        p_params->SetWntConcentrationParameter(1.0/3.0);
 
         double height = 100;
         double wnt_level = 0.0;

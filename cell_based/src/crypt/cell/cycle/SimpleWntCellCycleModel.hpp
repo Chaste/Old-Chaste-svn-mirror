@@ -65,7 +65,8 @@ private:
      * For use in SetG1Duration().
      */
     bool mUseCellProliferativeTypeDependentG1Duration;
-
+    
+protected:
     /**
      * The spatial dimension (needed by the templated class WntConcentration).
      */
@@ -81,8 +82,6 @@ private:
      * This affects how the cell cycle phase is updated.
      */
     WntConcentrationType GetWntType();
-
-protected:
 
     /**
      * Stochastically set the G1 duration. The G1 duration is taken
@@ -109,7 +108,7 @@ public:
     /**
      * Overridden UpdateCellCyclePhase() method.
      */
-    void UpdateCellCyclePhase();
+    virtual void UpdateCellCyclePhase();
 
     /**
      * Overridden ResetForDivision() method.
@@ -119,13 +118,13 @@ public:
     /**
      * Overridden InitialiseDaughterCell() method.
      */
-    void InitialiseDaughterCell();
+    virtual void InitialiseDaughterCell();
 
     /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */
-    AbstractCellCycleModel* CreateCellCycleModel();
+    virtual AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
      * Get the spatial dimension.

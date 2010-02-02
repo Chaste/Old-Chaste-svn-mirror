@@ -48,7 +48,8 @@ typedef enum WntConcentrationType_
 {
     NONE,
     LINEAR,
-    RADIAL
+    RADIAL,
+    EXPONENTIAL
 } WntConcentrationType;
 
 
@@ -69,8 +70,8 @@ private:
     /**
      * The type of WntConcentration current options are
      *  NONE - returns zero everywhere
-     *  LINEAR - decreases from 1 to zero at height specified by TissueConfig::mTopOfLinearWntConcentration
-     *  RADIAL - decreases from 1 to zero at height specified by TissueConfig::mTopOfLinearWntConcentration
+     *  LINEAR - decreases from 1 to zero at height specified by TissueConfig::mWntConcentrationParameter
+     *  RADIAL - decreases from 1 to zero at height specified by TissueConfig::mWntConcentrationParameter
      */
     WntConcentrationType mWntType;
 

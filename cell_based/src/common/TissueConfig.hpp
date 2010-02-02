@@ -150,9 +150,9 @@ public:
      */
     double GetWntLabelledThreshold();
     /**
-     * @return mTopOfLinearWntConcentration
+     * @return mWntConcentrationParameter
      */
-    double GetTopOfLinearWntConcentration();
+    double GetWntConcentrationParameter();
     /**
      * @return mCriticalHypoxicDuration
      */
@@ -339,9 +339,9 @@ public:
      */
     void SetWntLabelledThreshold(double);
     /**
-     * Set mTopOfLinearWntConcentration.
+     * Set mWntConcentrationParameter.
      */
-    void SetTopOfLinearWntConcentration(double);
+    void SetWntConcentrationParameter(double);
     /**
      * Set mCriticalHypoxicDuration.
      */
@@ -604,10 +604,15 @@ private:
     double mWntLabelledThreshold;
 
     /**
+     * For LINEAR or RADIAL
      * The proportion of the crypt that has a Wnt gradient.
-     * The Wnt concentration goes to zero at this height up the crypt.
+     * The Wnt concentration goes from one at the base to zero at this height up the crypt.
+     *
+     * For EXPONENTIAL
+     * The parameter lambda in the Wnt concentration
+     * Wnt = exp ( - height / lambda)
      */
-    double mTopOfLinearWntConcentration;
+    double mWntConcentrationParameter;
 
     /**
      * Non-dimensionalized critical hypoxic duration.
@@ -756,7 +761,7 @@ private:
         archive & mWntTransitThreshold;
         archive & mWntStemThreshold;
         archive & mWntLabelledThreshold;
-        archive & mTopOfLinearWntConcentration;
+        archive & mWntConcentrationParameter;
         archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;

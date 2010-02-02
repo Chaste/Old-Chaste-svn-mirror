@@ -124,7 +124,7 @@ public:
         TS_ASSERT_DELTA(p_inst->GetHepaOneCellQuiescentConcentration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetWntStemThreshold(), 0.8, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetWntTransitThreshold(), 0.65, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetTopOfLinearWntConcentration(), 1.0/3.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetWntConcentrationParameter(), 1.0/3.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCriticalHypoxicDuration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
