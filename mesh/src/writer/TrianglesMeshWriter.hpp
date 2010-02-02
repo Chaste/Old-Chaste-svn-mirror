@@ -41,7 +41,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TrianglesMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-    bool mFilesAreBinary;    
+    bool mFilesAreBinary;  /**< Whether all data is to be written as binary */  
 public:
 
     /**

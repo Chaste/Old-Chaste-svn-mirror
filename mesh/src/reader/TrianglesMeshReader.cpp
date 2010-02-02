@@ -551,24 +551,21 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
         return;
     }
 
-    std::string buffer;
-    unsigned dummy, node1, node2;
-
+    std::vector<unsigned> node_indices(2);
+    unsigned dummy_attribute;
     //Count how many times we see each node
     std::vector<unsigned> node_count(mNumNodes);//Covers the case if it's indexed from 1
     for (unsigned element_index=0; element_index<mNumElements;element_index++)
     {
-        GetNextLineFromStream(mElementsFile, buffer);
-        std::stringstream element_line(buffer);
-        element_line >> dummy >> node1 >> node2; //Maybe a region marker too
+        GetNextItemFromStream(mElementsFile, element_index, node_indices, 0, dummy_attribute);
         if (!mIndexFromZero)
         {
             //Adjust so we are indexing from zero
-            node1--;
-            node2--;
+            node_indices[0]--;
+            node_indices[1]--;
         }
-        node_count[node1]++;
-        node_count[node2]++;
+        node_count[node_indices[0]]++;
+        node_count[node_indices[1]]++;
     }
     //Find the ones which are terminals (only one mention)
     for (unsigned node_index=0; node_index<mNumNodes;node_index++)
@@ -583,6 +580,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
     mElementsFile.close();
     mElementsFile.clear(); // Older versions of gcc don't explicitly reset "fail" and "eof" flags in std::ifstream after calling close()
     OpenElementsFile();
+    std::string buffer;
     GetNextLineFromStream(mElementsFile, buffer);
 }
 

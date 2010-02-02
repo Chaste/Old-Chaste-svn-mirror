@@ -252,7 +252,7 @@ protected:
      *  Write the header part of a node file, depending on the dimension. Short helper method, 
      *  also called in CmguiDeformedSolutionsWriter. (Note, without the & below this method 
      *  seg faults).
-     *  @out_stream rpNodeFile reference to the out_stream used for the node file
+     *  @param rpNodeFile reference to the out_stream used for the node file
      */
     void WriteNodeFileHeader(out_stream& rpNodeFile);
     

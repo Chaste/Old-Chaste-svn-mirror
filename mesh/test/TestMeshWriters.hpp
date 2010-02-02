@@ -214,14 +214,15 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 0u);
     }
 
-    void TestTriangles1DMeshIn2DSpace()
+    void TestTriangles1DMeshIn2DSpaceBinary()
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
         TetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TrianglesMeshWriter<1,2> mesh_writer("", "1dMeshIn2dSpace");
-
+        mesh_writer.SetWriteFilesAsBinary();
+        
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
@@ -278,7 +279,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 0u);
     }
 
-    void Test2DMeshIn3DSpace()
+    void Test2DMeshIn3DSpaceBinary()
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
 
@@ -286,7 +287,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TrianglesMeshWriter<2,3> mesh_writer("", "2dMeshIn3dSpace");
-
+        mesh_writer.SetWriteFilesAsBinary();
+        
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
@@ -616,6 +618,7 @@ public:
         std::string output_dir = "element_attrs";
         std::string file_from_reader = "from_reader";
         std::string file_from_mesh = "from_mesh";
+        std::string file_from_mesh_bin = "from_mesh_binary";
         
         // Firstly, write directly from a mesh reader
         {
@@ -627,6 +630,7 @@ public:
             mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
         }
         
+
         // Next, write using a mesh object
         {
             TrianglesMeshReader<1,1> mesh_reader(source_mesh);
@@ -639,6 +643,20 @@ public:
             TrianglesMeshWriter<1,1> mesh_writer(output_dir, file_from_mesh, false);
             mesh_writer.WriteFilesUsingMesh(mesh);
         }
+
+        // Next, write using a mesh object in binary
+        {
+            TrianglesMeshReader<1,1> mesh_reader(source_mesh);
+            TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
+            TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
+            
+            TetrahedralMesh<1,1> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+            
+            TrianglesMeshWriter<1,1> mesh_writer(output_dir, file_from_mesh_bin, false);
+            mesh_writer.SetWriteFilesAsBinary();
+            mesh_writer.WriteFilesUsingMesh(mesh);
+        }
         
         // Now check the written meshes
         OutputFileHandler handler(output_dir, false);
@@ -648,6 +666,9 @@ public:
         TrianglesMeshReader<1,1> reader2(handler.GetOutputDirectoryFullPath() + file_from_mesh);
         TS_ASSERT_EQUALS(reader2.GetNumElements(), 10u);
         TS_ASSERT_EQUALS(reader2.GetNumElementAttributes(), 1u);
+        TrianglesMeshReader<1,1> reader3(handler.GetOutputDirectoryFullPath() + file_from_mesh_bin);
+        TS_ASSERT_EQUALS(reader3.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(reader3.GetNumElementAttributes(), 1u);
         for (unsigned i=0; i<10; i++)
         {
             ElementData next_element_info = reader1.GetNextElementData();
@@ -656,6 +677,11 @@ public:
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5 + 1);
             
             next_element_info = reader2.GetNextElementData();
+            nodes = next_element_info.NodeIndices;
+            TS_ASSERT_EQUALS(nodes.size(), 2u);
+            TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5 + 1);
+
+            next_element_info = reader3.GetNextElementData();
             nodes = next_element_info.NodeIndices;
             TS_ASSERT_EQUALS(nodes.size(), 2u);
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5 + 1);
