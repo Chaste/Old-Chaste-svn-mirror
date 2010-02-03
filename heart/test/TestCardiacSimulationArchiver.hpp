@@ -627,9 +627,9 @@ public:
     /**
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequentialWithBath.
      * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1_3"
-     * Then do
-        cd /tmp/chaste/testoutput/TestCreateArchiveForLoadAsSequentialWithBath
-        cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_with_bath/"
+     * 
+      scons build=GccOpt_hostconfig,boost=1-33-1_3 test_suite=heart/test/TestCardiacSimulationArchiver.hpp 
+      cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./heart/test/data/checkpoint_migration_with_bath/
      * 
      * Sets up a simulation and archives it without solving at all.
      * 
@@ -921,9 +921,9 @@ public:
     /**
      * Run this in sequential to create the archive for TestLoadFromSequentialWithBath.
      * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1"
-     * Then do
-        cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequentialWithBath
-        cp * "$HOME/eclipse/workspace/Chaste/heart/test/data/checkpoint_migration_from_seq_with_bath/"
+     * 
+        scons build=GccOpt_hostconfig,boost=1-33-1  test_suite=heart/test/TestCardiacSimulationArchiver.hpp
+        cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./heart/test/data/checkpoint_migration_from_seq_with_bath/
      * 
      * Sets up a simulation and archives it without solving at all.
      * 
