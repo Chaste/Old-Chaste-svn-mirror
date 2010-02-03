@@ -2484,6 +2484,7 @@ xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation of the templated functions
 /////////////////////////////////////////////////////////////////////
+#define COVERAGE_IGNORE //These methods are covered above with DIM=1,2,3 but the instantiations may fail spuriously
 template void HeartConfig::GetIonicModelRegions<3u>(std::vector<ChasteCuboid<3u> >& , std::vector<cp::ionic_models_available_type>&) const;
 template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<3u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
@@ -2498,4 +2499,5 @@ template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u>
 template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<1u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& );
 template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<ChasteCuboid<1u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+#undef COVERAGE_IGNORE //These methods are covered above with DIM=1,2,3 but the instantiations may fail spuriously
 
