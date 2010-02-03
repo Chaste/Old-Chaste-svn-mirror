@@ -87,6 +87,7 @@ public:
 
 };
 
-BOOST_CLASS_EXPORT(HeunIvpOdeSolver);
+#include "TemplatedExport.hpp"
+CHASTE_CLASS_EXPORT(HeunIvpOdeSolver);
 
 #endif //_HEUNIVPODESOLVER_HPP_
