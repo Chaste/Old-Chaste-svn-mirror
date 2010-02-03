@@ -77,6 +77,13 @@ public:
         // We are in the wrong dimension
         TS_ASSERT_THROWS_THIS( READER_2D reader("mesh/test/data/Memfem_slab"),
                 "You have asked to read non-3D data. All Memfem data is in 3D.");
+                
+        MemfemMeshReader<3,3> mesh_reader2("mesh/test/data/Memfem_slab");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNode(0), "Random access is only implemented in mesh readers for binary mesh files.");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetElementData(0), "Random access is only implemented in mesh readers for binary mesh files.");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetFaceData(0), "Random access is only implemented in mesh readers for binary mesh files.");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetEdgeData(0), "Random access is only implemented in mesh readers for binary mesh files.");
+      
     }
 
 };

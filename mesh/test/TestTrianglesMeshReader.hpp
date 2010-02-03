@@ -328,7 +328,13 @@ public:
         //Indexed quadratic faces
         TS_ASSERT_THROWS_THIS( READER_1D mesh_reader2("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", 2, 2, true),
                 "Boundary element file should not have containing element info if it is quadratic");
-
+                
+        //Exceptions due to unimplemented code
+        TrianglesMeshReader<3,3> mesh_reader3("mesh/test/data/simple_cube");
+        TS_ASSERT_THROWS_THIS(mesh_reader3.GetNode(0), "Random access is only implemented in mesh readers for binary mesh files.");
+        TS_ASSERT_THROWS_THIS(mesh_reader3.GetElementData(0), "Random access is only implemented in mesh readers for binary mesh files.");
+        TS_ASSERT_THROWS_THIS(mesh_reader3.GetFaceData(0), "Random access is only implemented in mesh readers for binary mesh files.");
+        TS_ASSERT_THROWS_THIS(mesh_reader3.GetEdgeData(0), "Random access is only implemented in mesh readers for binary mesh files.");
     }
 
     ////////////////////////////////////////////////////////

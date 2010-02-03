@@ -204,11 +204,6 @@ ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
     return ret;
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-ElementData AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeData()
-{
-    return GetNextFaceData();
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const

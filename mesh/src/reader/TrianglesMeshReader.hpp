@@ -136,9 +136,7 @@ public:
     /** Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
     ElementData GetNextFaceData();
 
-    /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()). */
-    ElementData GetNextEdgeData();
-
+ 
     /**
      * @return the expected order of the element file (1=linear, 2=quadratic)
      */

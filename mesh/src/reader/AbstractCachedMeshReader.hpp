@@ -120,15 +120,6 @@ public:
     ElementData GetNextElementData();
 
     /**
-     *  Returns a vector of the nodes of each edge in turn, starting with edge 0 the
-     *  first time it is called followed by edges 1, 2, ... , mNumFaces-1.
-     *
-     *  Is a synonym of GetNextFace(). The two functions can be used interchangeably,
-     *  i.e. they use the same iterator.
-     */
-    ElementData GetNextEdgeData();
-
-    /**
      *  Returns a vector of the nodes of each face in turn, starting with face 0 the
      *  first time it is called followed by faces 1, 2, ... , mNumFaces-1.
      *

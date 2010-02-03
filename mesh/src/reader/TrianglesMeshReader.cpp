@@ -225,12 +225,6 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeData()
-{
-    return GetNextFaceData();
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFiles()
 {
     OpenNodeFile();

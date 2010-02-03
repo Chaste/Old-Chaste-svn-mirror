@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 #include "AbstractMeshReader.hpp"
+#include "Exception.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -49,9 +49,34 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() cons
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
+ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeData()
 {
     return GetNextFaceData();
+}
+
+ 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
+{
+    EXCEPTION("Random access is only implemented in mesh readers for binary mesh files.");
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetElementData(unsigned index)
+{
+    EXCEPTION("Random access is only implemented in mesh readers for binary mesh files.");
+}
+    
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetFaceData(unsigned index)
+{
+    EXCEPTION("Random access is only implemented in mesh readers for binary mesh files.");
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetEdgeData(unsigned index)
+{
+    return GetFaceData(index);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

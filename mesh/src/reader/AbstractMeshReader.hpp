@@ -109,15 +109,48 @@ public:
     /** Resets pointers to beginning*/
     virtual void Reset()=0;
 
-    /** Returns a vector of the nodes of each element (and any attribute infomation, if there is any) in turn */
+    /** Returns a vector of the node indices of each element (and any attribute infomation, if there is any) in turn */
     virtual ElementData GetNextElementData()=0;
 
-    /** Returns a vector of the nodes of each face in turn (synonym of GetNextEdgeData()) */
+    /** Returns a vector of the node indices of each face (and any attribute/containment infomation, if there is any) in turn */
     virtual ElementData GetNextFaceData()=0;
 
-    /** Returns a vector of the nodes of each edge in turn (synonym of GetNextFaceData()) */
-    ElementData GetNextEdge();
+    /** Returns a vector of the node indices of each edge (and any attribute/containment infomation, if there is any) in turn (synonym of GetNextFaceData()) */
+    ElementData GetNextEdgeData();
 
+    
+    /** 
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
+     * 
+     * @param index  The global node index
+     * @return a vector of the coordinates of the node
+     */
+     virtual std::vector<double> GetNode(unsigned index);
+
+    /** 
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
+     * 
+     * @param index  The global element index
+     * @return a vector of the node indices of the element (and any attribute infomation, if there is any)
+     */ 
+    virtual ElementData GetElementData(unsigned index);
+    
+    /** 
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
+     * 
+     * @param index  The global face index
+     * @return a vector of the node indices of the face (and any attribute/containment infomation, if there is any)
+     */
+    virtual ElementData GetFaceData(unsigned index);
+
+    /** 
+     *  Synonym of GetFaceData(index)
+     * 
+     * @param index  The global edge index
+     * @return a vector of the node indices of the edge (and any attribute/containment infomation, if there is any)
+     */
+    ElementData GetEdgeData(unsigned index);
+     
     /**
      * Get method for mMeshFileBaseName.
      */
