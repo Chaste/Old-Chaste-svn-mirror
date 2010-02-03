@@ -471,7 +471,7 @@ void TissueConfig::SetWntLabelledThreshold(double wntThreshold)
 void TissueConfig::SetWntConcentrationParameter(double top)
 {
     assert(top > 0.0);
-    assert(top <= 1.0);
+    //assert(top <= 1.0); This doesn't apply for exponential Wnt gradients.
     mWntConcentrationParameter = top;
 }
 void TissueConfig::SetCriticalHypoxicDuration(double criticalHypoxicDuration)

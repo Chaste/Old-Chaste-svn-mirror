@@ -131,7 +131,6 @@ void TissueCell::InitialiseCellCycleModel()
     mpCellCycleModel->Initialise();
 }
 
-
 double TissueCell::GetAge() const
 {
     return mpCellCycleModel->GetAge();

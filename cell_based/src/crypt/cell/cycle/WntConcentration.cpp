@@ -173,7 +173,7 @@ double WntConcentration<DIM>::GetWntLevel(double height)
         double lambda = mpTissueConfig->GetWntConcentrationParameter(); // of crypt height.
         if ((height >= -1e-9) && (height < crypt_height))
         {
-            wnt_level = exp(- (height/crypt_height)/lambda);
+            wnt_level = exp(- height/(crypt_height*lambda));
         }
         else
         {
