@@ -78,7 +78,7 @@ private:
     /** List of intracellular current stimuli to apply (size matches that of mStimulatedAreas)*/
     std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
     
-    /** List of axis-aligned box regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)*/
+    /** List of regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)*/
     std::vector<AbstractChasteRegion<SPACE_DIM>* > mCellHeterogeneityAreas;
     /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGks;

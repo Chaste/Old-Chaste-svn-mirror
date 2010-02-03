@@ -56,6 +56,11 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
                                                         mScaleFactorGks,
                                                         mScaleFactorIto,
                                                         mScaleFactorGkr);
+        
+        if (HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested())
+        {
+            //FillInHeterogeneitiesAreas();
+        }
     }
     catch (Exception& e)
     {

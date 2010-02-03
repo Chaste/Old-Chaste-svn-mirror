@@ -117,6 +117,7 @@ HeartConfig::HeartConfig()
     mEpiFraction = -1.0;
     mEndoFraction =  -1.0;
     mMidFraction = -1.0;
+    mUserAskedForCellularTransmuralHeterogeneities=false;
 }
 
 HeartConfig::~HeartConfig()
@@ -716,6 +717,11 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                                                  "CellHeterogeneities")->get().CellHeterogeneity();
     
     bool user_suuplied_negative_value = false;
+    bool user_asking_for_transmural_layers = false;
+    unsigned counter_of_heterogeneities = 0;
+    unsigned index_epi = 0;
+    unsigned index_endo = 0;
+    
     for (XSD_ANON_ITERATOR_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity) i = cell_heterogeneity.begin();
          i != cell_heterogeneity.end();
          ++i)
@@ -757,41 +763,46 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
 
         }
         else                                                                                                                                                  
-        { 
+        {
+            
             if(ht.Location().EpiLayer().present())   
             {                                                                                                                                                                            
                 mEpiFraction  =  ht.Location().EpiLayer().get();
+                user_asking_for_transmural_layers = true;
                 if (mEpiFraction <0)
                 {
                     user_suuplied_negative_value=true;
                 }
-                
+                index_epi = counter_of_heterogeneities;
             }  
             if(ht.Location().EndoLayer().present())   
             {                                                                                                                                                                            
                 mEndoFraction  =  ht.Location().EndoLayer().get();
+                user_asking_for_transmural_layers = true;
                 if (mEndoFraction <0)
                 {
                     user_suuplied_negative_value=true;
                 }
-                
+                index_endo = counter_of_heterogeneities;
             }                                                                                                                              
             if(ht.Location().MidLayer().present())   
             {                                                                                                                                                                            
                 mMidFraction  =  ht.Location().MidLayer().get();
+                user_asking_for_transmural_layers = true;
                 if (mMidFraction <0)
                 {
                     user_suuplied_negative_value=true;
                 }               
-                
             }   
         }
-        
         rScaleFactorGks.push_back (ht.ScaleFactorGks());
         rScaleFactorIto.push_back (ht.ScaleFactorIto());
         rScaleFactorGkr.push_back (ht.ScaleFactorGkr());   
+        counter_of_heterogeneities++;
     }
     
+    //set the flag    
+     mUserAskedForCellularTransmuralHeterogeneities = user_asking_for_transmural_layers;
      if ((mEndoFraction+mMidFraction+mEpiFraction)>1)
      {
         EXCEPTION ("Summation of epicardial, midmyocardial and  endocardial fractions can't be greater than 1");
@@ -804,6 +815,10 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
     } 
 }           
 
+bool HeartConfig::AreCellularTransmuralHeterogeneitiesRequested()
+{
+    return mUserAskedForCellularTransmuralHeterogeneities;
+}
 
 double HeartConfig::GetEpiLayerFraction()
 {

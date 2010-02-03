@@ -266,6 +266,9 @@ public :
         std::vector<double> scale_factor_gks_3D;
         std::vector<double> scale_factor_ito_3D;
         std::vector<double> scale_factor_gkr_3D;  
+        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), false);
+        
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_3D,
                                                         scale_factor_gks_3D,
                                                         scale_factor_ito_3D,
@@ -404,12 +407,18 @@ public :
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
-    
+            
+            //before we call GetCellHeterogeneities, the flag should be false
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), false);
+            
             HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                             scale_factor_gks,
                                                             scale_factor_ito,
                                                             scale_factor_gkr);
                                                             
+            //now the flag for transmural cellular heterogeneities should be true
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), true);
+                                                          
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerFraction(),0.2);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerFraction(),0.3);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerFraction(),0.1);

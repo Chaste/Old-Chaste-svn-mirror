@@ -413,6 +413,11 @@ public:
     bool GetConductivityHeterogeneitiesProvided() const; /**< @return  true if there are conductivity heterogeneities for GetConductivityHeterogeneities to return*/
     
     /**
+     * @return the value of the flag that tells whether the user asked for cellular transmural heterogeneities
+     */
+    bool AreCellularTransmuralHeterogeneitiesRequested();
+    
+    /**
      * @return the fraction of epicardial layer
      */
     double GetEpiLayerFraction();
@@ -1019,6 +1024,11 @@ private:
      * Fraction of midmyocardial layer
      */ 
     double mMidFraction;
+    
+    /**
+     * Flag to check whether the user asked for cellular transmural heterogeneities
+     */    
+    bool mUserAskedForCellularTransmuralHeterogeneities;
     
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
