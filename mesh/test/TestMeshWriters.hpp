@@ -707,17 +707,17 @@ public:
         // -n options ensure that we don't get to the provenance data
         TS_ASSERT_EQUALS(system(("cmp -n 267 " + results_dir + "/simple_cube_binary_from_reader.node mesh/test/data/simple_cube_binary.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp -n 290 " + results_dir + "/simple_cube_binary_from_reader.ele mesh/test/data/simple_cube_binary.ele").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp -n 204 " + results_dir + "/simple_cube_binary_from_reader.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 192 " + results_dir + "/simple_cube_binary_from_reader.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
 
         TS_ASSERT_EQUALS(system(("cmp -n 267 " + results_dir + "/simple_cube_binary_from_mesh.node mesh/test/data/simple_cube_binary.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp -n 290 " + results_dir + "/simple_cube_binary_from_mesh.ele mesh/test/data/simple_cube_binary.ele").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp -n 204 " + results_dir + "/simple_cube_binary_from_mesh.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 192 " + results_dir + "/simple_cube_binary_from_mesh.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
         
         /* Looking for beginning of provenance line: "#Created by Chaste"
          *          Ascii   Binary
          *  .node   182     267
          *  .ele    196     290
-         *  .face   170     204
+         *  .face   170     192
          *
          * Files are bigger!  That's because "\t1" is 2 bytes, but an unsigned "1" takes up
          * 4 bytes in an element file and a double "1" takes 8 bytes in a node file.

@@ -178,7 +178,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     }
 
     // Write each face's data
-    default_marker = 0;
+    default_marker = UINT_MAX;
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
         WriteItem(p_face_file, item_num, this->mBoundaryFaceData[item_num], default_marker);
@@ -251,7 +251,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
     unsigned num_faces = this->GetNumBoundaryFaces();
 
     unsigned max_bdy_marker = 0;
-    unsigned default_marker = 0;
+    unsigned default_marker = UINT_MAX;
 
     *p_face_file << num_faces << "\t";
     *p_face_file << max_bdy_marker;

@@ -434,7 +434,7 @@ public:
     }
 
     void TestReadingBinary() throw(Exception)
-    {
+    {        
         TrianglesMeshReader<3,3> mesh_reader_ascii("mesh/test/data/squashed_cube");       
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/squashed_cube_binary");
 
@@ -444,33 +444,99 @@ public:
         TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumFaces(), 12u);
         TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumElements(), 12u);
         TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumNodes(), 9u);
-                
-        // Check node locations   
-        std::vector<double> ascii_location(3u);
-        std::vector<double> binary_location(3u);
-        for (unsigned i=0; i<9; i++)
-        {
-            // Sequential reading in
-            ascii_location = mesh_reader_ascii.GetNextNode();
-            binary_location = mesh_reader.GetNextNode();
-            TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
-            TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
-            TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
-        }
 
-        mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
-        for (unsigned i=0; i<9; i++)
-        {
-            // Random access
-            ascii_location = mesh_reader_ascii.GetNextNode();
-            binary_location = mesh_reader.GetNode(i);
-            TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
-            TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
-            TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
+        /*
+         * Check node locations
+         */
+        {   
+            std::vector<double> ascii_location(3u);
+            std::vector<double> binary_location(3u);
+            for (unsigned i=0; i<mesh_reader.GetNumNodes(); i++)
+            {
+                // Sequential reading in
+                ascii_location = mesh_reader_ascii.GetNextNode();
+                binary_location = mesh_reader.GetNextNode();
+                TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
+                TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
+                TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
+            }
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            for (unsigned i=0; i<mesh_reader.GetNumNodes(); i++)
+            {
+                // Random access
+                ascii_location = mesh_reader_ascii.GetNextNode();
+                binary_location = mesh_reader.GetNode(i);
+                TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
+                TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
+                TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
+            }
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.                    
+            mesh_reader.Reset(); // You wouldn't believe how important this line is.                    
         } 
 
-        TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices[2], 8u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[2], 1u);
+        /*
+         * Check elements
+         */   
+        {
+            ElementData ascii_node_indices;
+            ElementData binary_node_indices;
+            for (unsigned i=0; i<mesh_reader.GetNumElements(); i++)
+            {
+                // Sequential reading in
+                ascii_node_indices = mesh_reader_ascii.GetNextElementData();
+                binary_node_indices = mesh_reader.GetNextElementData();
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[0],binary_node_indices.NodeIndices[0]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[1],binary_node_indices.NodeIndices[1]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[2],binary_node_indices.NodeIndices[2]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[3],binary_node_indices.NodeIndices[3]);
+                TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
+            }
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            for (unsigned i=0; i<mesh_reader.GetNumElements(); i++)
+            {
+                // Sequential reading in
+                ascii_node_indices = mesh_reader_ascii.GetNextElementData();
+                binary_node_indices = mesh_reader.GetElementData(i);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[0],binary_node_indices.NodeIndices[0]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[1],binary_node_indices.NodeIndices[1]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[2],binary_node_indices.NodeIndices[2]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[3],binary_node_indices.NodeIndices[3]);
+                TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
+            }
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            mesh_reader.Reset(); // You wouldn't believe how important this line is.                    
+        }
+        
+        /*
+         * Check faces
+         */   
+        {
+            ElementData ascii_node_indices;
+            ElementData binary_node_indices;
+            for (unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
+            {
+                // Sequential reading in
+                ascii_node_indices = mesh_reader_ascii.GetNextFaceData();
+                binary_node_indices = mesh_reader.GetNextFaceData();
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[0],binary_node_indices.NodeIndices[0]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[1],binary_node_indices.NodeIndices[1]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[2],binary_node_indices.NodeIndices[2]);
+                TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
+            }
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            for (unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
+            {
+                // Sequential reading in
+                ascii_node_indices = mesh_reader_ascii.GetNextFaceData();
+                binary_node_indices = mesh_reader.GetFaceData(i);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[0],binary_node_indices.NodeIndices[0]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[1],binary_node_indices.NodeIndices[1]);
+                TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[2],binary_node_indices.NodeIndices[2]);
+                TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
+            }
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            mesh_reader.Reset(); // You wouldn't believe how important this line is.                    
+        }
         
         TS_ASSERT_THROWS_THIS(mesh_reader.GetNode(9u), "Node does not exist - not enough nodes.");
         TS_ASSERT_THROWS_THIS(mesh_reader.GetFaceData(12u), "Face does not exist - not enough faces.");

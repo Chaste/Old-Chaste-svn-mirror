@@ -55,6 +55,10 @@ private:
     std::ifstream mFacesFile;       /**< The faces (edges) file for the mesh. */
     std::streampos mNodeFileDataStart; /**< The start of the binary data*/
     std::streamoff mNodeItemWidth;  /**< The number of bytes in a line of the node file*/
+    std::streampos mElementFileDataStart; /**< The start of the binary element data*/
+    std::streamoff mElementItemWidth;  /**< The number of bytes in a line of the element file*/
+    std::streampos mFaceFileDataStart; /**< The start of the binary face data*/
+    std::streamoff mFaceItemWidth;  /**< The number of bytes in a line of the face file*/
 
     unsigned mNumNodes;             /**< Number of nodes in the mesh. */
     unsigned mNumElements;          /**< Number of elements in the mesh. */
