@@ -203,13 +203,6 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     }
 }
 
-
-void SimpleWntCellCycleModel::ResetForDivision()
-{
-    AbstractSimpleCellCycleModel::ResetForDivision();
-}
-
-
 void SimpleWntCellCycleModel::InitialiseDaughterCell()
 {
     WntConcentrationType wnt_type = GetWntType();

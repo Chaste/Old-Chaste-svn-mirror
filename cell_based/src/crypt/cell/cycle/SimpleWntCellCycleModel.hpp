@@ -65,7 +65,7 @@ private:
      * For use in SetG1Duration().
      */
     bool mUseCellProliferativeTypeDependentG1Duration;
-    
+
 protected:
     /**
      * The spatial dimension (needed by the templated class WntConcentration).
@@ -109,11 +109,6 @@ public:
      * Overridden UpdateCellCyclePhase() method.
      */
     virtual void UpdateCellCyclePhase();
-
-    /**
-     * Overridden ResetForDivision() method.
-     */
-    void ResetForDivision();
 
     /**
      * Overridden InitialiseDaughterCell() method.
