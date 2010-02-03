@@ -81,6 +81,7 @@ private:
     bool mFilesAreBinary; /**< Whether to read all data as binary (determined by a magic number in the node file header)*/
     bool mMeshIsHexahedral; /**< Whether the mesh is hexahedral (determined by a magic number in the element file header) */
 
+    
 //    /** The containing element for each boundary element (obtaining by doing tetgen with the -nn flag).
 //     *  In a std::vector rather than the struct to save space if not read.
 //     */
@@ -159,6 +160,30 @@ public:
     {
         return mReadContainingElementOfBoundaryElement;
     }
+    
+    /** 
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
+     * 
+     * @param index  The global node index
+     * @return a vector of the coordinates of the node
+     */
+    std::vector<double> GetNode(unsigned index);
+
+    /** 
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
+     * 
+     * @param index  The global element index
+     * @return a vector of the node indices of the element (and any attribute infomation, if there is any)
+     */ 
+    ElementData GetElementData(unsigned index);
+    
+    /** 
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
+     * 
+     * @param index  The global face index
+     * @return a vector of the node indices of the face (and any attribute/containment infomation, if there is any)
+     */
+    ElementData GetFaceData(unsigned index);
 
 private:
 

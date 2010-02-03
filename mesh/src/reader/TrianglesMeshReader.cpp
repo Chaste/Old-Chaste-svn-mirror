@@ -225,6 +225,52 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
+{
+    if (!mFilesAreBinary)
+    {
+        EXCEPTION("Random access is only implemented in mesh readers for binary mesh files.");
+    }
+    if (index >= mNumNodes)
+    {
+        EXCEPTION("Node does not exist - not enough nodes.");
+    }
+    std::vector<double> node_data(SPACE_DIM);
+    return node_data;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetElementData(unsigned index)
+{
+    if (!mFilesAreBinary)
+    {
+        EXCEPTION("Random access is only implemented in mesh readers for binary mesh files.");
+    }
+    if (index >=mNumElements)
+    {
+        EXCEPTION("Element does not exist - not enough elements.");
+    }
+    
+    ElementData data;
+    return data;
+}
+    
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetFaceData(unsigned index)
+{
+    if (!mFilesAreBinary)
+    {
+        EXCEPTION("Random access is only implemented in mesh readers for binary mesh files.");
+    }
+    if (index >=mNumFaces)
+    {
+        EXCEPTION("Face does not exist - not enough faces.");
+    }
+    ElementData data;
+    return data;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::OpenFiles()
 {
     OpenNodeFile();

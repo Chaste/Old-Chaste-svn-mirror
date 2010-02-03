@@ -85,7 +85,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     *p_node_file << std::setprecision(20);
 
     // Write each node's data
-    unsigned default_marker = 0;
+    unsigned default_marker = UINT_MAX;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         WriteItem(p_node_file, item_num, this->GetNextNode(), default_marker);
@@ -178,6 +178,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     }
 
     // Write each face's data
+    default_marker = 0;
     for (unsigned item_num=0; item_num<num_faces; item_num++)
     {
         WriteItem(p_face_file, item_num, this->mBoundaryFaceData[item_num], default_marker);

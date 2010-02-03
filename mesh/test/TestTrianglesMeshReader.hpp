@@ -435,15 +435,45 @@ public:
 
     void TestReadingBinary() throw(Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/simple_cube_binary");
+        TrianglesMeshReader<3,3> mesh_reader_ascii("mesh/test/data/squashed_cube");       
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/squashed_cube_binary");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 12u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 12u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 9u);
-        TS_ASSERT_DELTA(mesh_reader.GetNextNode()[2], 0.0, 1e-12);//Node 0: 0 0 0
-        TS_ASSERT_DELTA(mesh_reader.GetNextNode()[0], 0.0, 1e-12);//Node 1: 1 0 0
+        TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumFaces(), 12u);
+        TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumElements(), 12u);
+        TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumNodes(), 9u);
+                
+        // Check node locations   
+        std::vector<double> ascii_location(3u);
+        std::vector<double> binary_location(3u);
+        for (unsigned i=0; i<9; i++)
+        {
+            // Sequential reading in
+            ascii_location = mesh_reader_ascii.GetNextNode();
+            binary_location = mesh_reader.GetNextNode();
+            TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
+            TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
+            TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
+        }
+        
+        for (unsigned i=0; i<9; i++)
+        {
+//            // Random access
+//            ascii_location = mesh_reader_ascii.GetNextNode();
+//            binary_location = mesh_reader.GetNode(i);
+//            TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
+//            TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
+//            TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
+        } 
+
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices[2], 8u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[2], 1u);
+        
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetNode(9u), "Node does not exist - not enough nodes.");
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetFaceData(12u), "Face does not exist - not enough faces.");
+        TS_ASSERT_THROWS_THIS(mesh_reader.GetElementData(12u), "Element does not exist - not enough elements.");
     }
 
     void TestReadingHexMesh() throw(Exception)
