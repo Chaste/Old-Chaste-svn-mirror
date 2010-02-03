@@ -53,6 +53,8 @@ private:
     std::ifstream mNodesFile;       /**< The nodes file for the mesh. */
     std::ifstream mElementsFile;    /**< The elements file for the mesh. */
     std::ifstream mFacesFile;       /**< The faces (edges) file for the mesh. */
+    std::streampos mNodeFileDataStart; /**< The start of the binary data*/
+    std::streamoff mNodeItemWidth;  /**< The number of bytes in a line of the node file*/
 
     unsigned mNumNodes;             /**< Number of nodes in the mesh. */
     unsigned mNumElements;          /**< Number of elements in the mesh. */

@@ -47,6 +47,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
                                                                  unsigned orderOfBoundaryElements,
                                                                  bool readContainingElementForBoundaryElements)
     : mFilesBaseName(pathBaseName),
+      mNodeFileDataStart(0),
       mNumNodes(0),
       mNumElements(0),
       mNumFaces(0),
@@ -235,8 +236,10 @@ std::vector<double> TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigne
     {
         EXCEPTION("Node does not exist - not enough nodes.");
     }
-    std::vector<double> node_data(SPACE_DIM);
-    return node_data;
+    // Put the file stream pointer to the right location
+    mNodesFile.seekg(mNodeFileDataStart + mNodeItemWidth*index, std::ios_base::beg);
+    // Read the next item.
+    return GetNextNode();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -366,11 +369,8 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     if (extras == "BIN")
     {
         mFilesAreBinary = true;
-    }
-
-
-    if (mFilesAreBinary)
-    {
+        mNodeFileDataStart = mNodesFile.tellg(); // Record the position of the first byte after the header.
+        mNodeItemWidth = SPACE_DIM * sizeof(double); 
         //We enforce that all binary files (written by Chaste) are indexed from zero
         mIndexFromZero = true;
     }

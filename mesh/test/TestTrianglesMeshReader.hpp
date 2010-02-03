@@ -457,15 +457,16 @@ public:
             TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
             TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
         }
-        
+
+        mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
         for (unsigned i=0; i<9; i++)
         {
-//            // Random access
-//            ascii_location = mesh_reader_ascii.GetNextNode();
-//            binary_location = mesh_reader.GetNode(i);
-//            TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
-//            TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
-//            TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
+            // Random access
+            ascii_location = mesh_reader_ascii.GetNextNode();
+            binary_location = mesh_reader.GetNode(i);
+            TS_ASSERT_DELTA(ascii_location[0],binary_location[0],1e-12);
+            TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
+            TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
         } 
 
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices[2], 8u);
