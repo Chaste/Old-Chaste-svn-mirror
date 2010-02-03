@@ -431,6 +431,22 @@ public:
      * @return the fraction of endocardial layer
      */
     double GetMidLayerFraction();
+ 
+    /**
+     * @return the index with which the epicardial layer is supplied (i.e., the order it comes in the XML file)
+     */   
+    unsigned GetEpiLayerIndex();
+    
+    /**
+     * @return the index with which the endocardial layer is supplied (i.e., the order it comes in the XML file)
+     */ 
+    unsigned GetEndoLayerIndex();
+
+    /**
+     * @return the index with which the midmyocardial layer is supplied (i.e., the order it comes in the XML file)
+     */ 
+    unsigned GetMidLayerIndex();
+
         
     /**
      * Return a number of heterogeneous regions (Axis-aligned boxes)
@@ -1024,6 +1040,21 @@ private:
      * Fraction of midmyocardial layer
      */ 
     double mMidFraction;
+    
+    /**
+     * Order index in which the midmyocardial heterogeneities are supplied
+     */
+    unsigned mIndexMid;
+    
+    /**
+     * Order index in which the epicardial heterogeneities are supplied
+     */
+    unsigned mIndexEpi;
+    
+    /**
+     * Order index in which the endocardial heterogeneities are supplied
+     */
+    unsigned mIndexEndo;
     
     /**
      * Flag to check whether the user asked for cellular transmural heterogeneities

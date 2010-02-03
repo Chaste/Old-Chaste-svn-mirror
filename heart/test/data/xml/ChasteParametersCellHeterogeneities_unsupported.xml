@@ -24,6 +24,12 @@
 		-->
 		<IonicModels>
 			<Default>FaberRudy2000</Default>
+			<Region>
+				<IonicModel>LuoRudyI</IonicModel>
+					<Location unit="cm">
+							<EndoLayer unit="dimensionless">0.1</EndoLayer>
+					</Location>				
+			</Region>
 		</IonicModels>
 	
 	    <!-- 
@@ -34,12 +40,9 @@
 				<Strength unit="uA/cm^3">-25500.0</Strength>
 				<Duration unit="ms">0.5</Duration>
 				<Delay unit="ms">0</Delay>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="-2.0" y="-0.05" z="-1.0"/>
-						<UpperCoordinates x="-1.0" y="0.05"  z="1.0"/>
-					</Cuboid>
-				</Location>	
+					<Location unit="cm">
+							<EpiLayer unit="dimensionless">0.1</EpiLayer>
+					</Location>	
 			</Stimulus>	
 		</Stimuli>
 
@@ -78,10 +81,7 @@
 			    <IntracellularConductivities longi="2.75" trans="2.75" normal="2.75" unit="mS/cm"/>
 	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
 				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="-2.0" y="-0.05" z="-1.0"/>
-						<UpperCoordinates x="-1.0" y="0.05"  z="1.0"/>
-					</Cuboid>
+						<MidLayer unit="dimensionless">0.1</MidLayer>
 				</Location>		
 			</ConductivityHeterogeneity>	
 		</ConductivityHeterogeneities>
@@ -90,7 +90,7 @@
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
 
-		<OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
+		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
 				
 	</Simulation>
 	

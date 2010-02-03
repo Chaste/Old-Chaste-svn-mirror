@@ -401,7 +401,8 @@ public :
     void TestTransmuralHeterogeneities()
     {
         {
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities.xml");
+            //the _unsupporetd file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_unsupported.xml");
             
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
@@ -411,17 +412,28 @@ public :
             //before we call GetCellHeterogeneities, the flag should be false
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), false);
             
+            //and the indices with their initial values
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 10u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), 10u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), 10u);
+            
             HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                             scale_factor_gks,
                                                             scale_factor_ito,
                                                             scale_factor_gkr);
                                                             
+            //in this file, they are supplied as epi first, then endo, then mid
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 0u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), 2u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), 1u);
+            
+                                                                       
             //now the flag for transmural cellular heterogeneities should be true
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), true);
                                                           
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerFraction(),0.2);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerFraction(),0.3);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerFraction(),0.3);
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerFraction(),0.1);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerFraction(),0.4);
             TS_ASSERT_EQUALS(scale_factor_gks[0], 0.462);
             TS_ASSERT_EQUALS(scale_factor_ito[0], 0.0);
             TS_ASSERT_EQUALS(scale_factor_gkr[0], 1.0);
