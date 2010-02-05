@@ -1066,6 +1066,43 @@ public:
 
     }
 
+    void TestConsecutiveSolvesDifferentPreconditioner()
+    {
+            Mat system_matrix;
+            //Note that this test deadlocks if the file's not on the disk
+            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
+            
+            Vec system_rhs;
+            //Note that this test deadlocks if the file's not on the disk
+            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
+
+            LinearSystem ls = LinearSystem(system_rhs, system_matrix);
+            
+            ls.SetAbsoluteTolerance(1e-9);
+            ls.SetKspType("cg");
+
+            ls.SetPcType("bjacobi");                        
+            Vec solution = ls.Solve(/*no guess provided*/);
+            unsigned block_jacobi_its = ls.GetNumIterations();
+            VecDestroy(solution);
+
+            ls.SetPcType("ldufactorisation");                        
+            solution = ls.Solve(/*no guess provided*/);
+            unsigned ldu_its = ls.GetNumIterations();
+            VecDestroy(solution);
+
+            ls.SetPcType("bjacobi");                        
+            solution = ls.Solve(/*no guess provided*/);
+            unsigned second_block_jacobi_its = ls.GetNumIterations();
+            VecDestroy(solution);
+
+            TS_ASSERT_DIFFERS(block_jacobi_its, ldu_its)            
+            TS_ASSERT_DIFFERS(ldu_its, second_block_jacobi_its)
+            
+            MatDestroy(system_matrix);
+            VecDestroy(system_rhs);
+    }
+
 
     // this test should be the last in the suite
     void TestSetFromOptions()
