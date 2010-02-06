@@ -95,7 +95,7 @@ libpaths = []
 incpaths = []
 libraries = []
 
-def do_petsc(version, optimised, profile=False, production=False, includes_only=False):
+def DoPetsc(version, optimised, profile=False, production=False, includesOnly=False):
     """Determine PETSc include and library paths.
 
     The locations vary depending on the version of PETSc, and possibly
@@ -168,14 +168,14 @@ def do_petsc(version, optimised, profile=False, production=False, includes_only=
         libpath = os.path.join(petsc_base, build_name, 'lib')
         incpaths.append(os.path.join(petsc_base, build_name, 'include'))
     incpaths.append(os.path.join(petsc_base, 'include'))
-    if not includes_only:
+    if not includesOnly:
         libpaths.append(libpath)
         libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
                           'petscmat', 'petscvec', 'petsc'])
         if sys.platform == 'cygwin':
             libraries.extend(['gdi32', 'user32', 'advapi32', 'kernel32', 'dl'])
 
-def do_metis():
+def DoMetis():
     """Add METIS include and library paths."""
     if conf.metis_path is None:
         raise ValueError('METIS required, but no path given in the host config.')
@@ -185,7 +185,7 @@ def do_metis():
     incpaths.append(incpath)
     libraries.append('metis')
 
-def do_dealii(build):
+def DoDealii(build):
     """Add Deal.II include & library paths, and libraries.
 
     Deal.II uses different library *names* to distinguish optimised versions.
@@ -213,7 +213,7 @@ def do_dealii(build):
         libs = map(lambda s: s + '.g', libs)
     libraries.extend(libs)
 
-def optional_library_defines():
+def OptionalLibraryDefines():
     """
     Work out what optional libraries have been asked for,
     and return the appropriate #define flags, as a list.
@@ -228,8 +228,8 @@ def optional_library_defines():
 def configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
     if build.using_dealii:
-        do_dealii(build)
-        #do_metis()
+        DoDealii(build)
+        #DoMetis()
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
@@ -240,7 +240,7 @@ def configure(build):
             petsc_version = prefs['petsc'][:3]
         else:
             petsc_version = '3.0'
-        do_petsc(petsc_version, build.is_optimised, build.is_profile, build.is_production) # PETSc links against some objects defined in "other_libraries"
+        DoPetsc(petsc_version, build.is_optimised, build.is_profile, build.is_production) # PETSc links against some objects defined in "other_libraries"
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         if build.is_production:
             libraries.extend(conf.blas_lapack_production)
@@ -265,7 +265,7 @@ def configure(build):
         conf.ModifyBuild(build)
 
 def ccflags():
-    opt_lib_flags = optional_library_defines()
+    opt_lib_flags = OptionalLibraryDefines()
     conf_flags = getattr(conf, 'ccflags', '')
     return conf_flags + ' ' + ' '.join(opt_lib_flags)
 
