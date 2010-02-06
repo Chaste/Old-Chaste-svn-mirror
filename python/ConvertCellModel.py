@@ -91,7 +91,7 @@ def convert(model):
         cmd = command_base % {'opts': ' '.join(options),
                               'classname': class_name,
                               'model': model,
-                              'outfile': os.path.join(model_dir, model_base + '.hpp')}
+                              'outfile': os.path.join(model_dir, model_base + '.cpp')}
         print cmd
         os.system(cmd)
 
@@ -100,7 +100,7 @@ def convert(model):
             cmd = command_base % {'opts': ' '.join(['-p -l'] + options),
                                   'classname': class_name + 'Opt',
                                   'model': model,
-                                  'outfile': os.path.join(model_dir, model_base + 'Opt.hpp')}
+                                  'outfile': os.path.join(model_dir, model_base + 'Opt.cpp')}
             print cmd
             os.system(cmd)
     
@@ -108,7 +108,7 @@ def convert(model):
         cmd = command_base % {'opts': ' '.join(['-t CVODE'] + options),
                               'classname': class_name + 'Cvode',
                               'model': model,
-                              'outfile': os.path.join(model_dir, model_base + 'Cvode.hpp')}
+                              'outfile': os.path.join(model_dir, model_base + 'Cvode.cpp')}
         print cmd
         os.system(cmd)
 
@@ -117,7 +117,7 @@ def convert(model):
             cmd = command_base % {'opts': ' '.join(['-p -l', '-t CVODE'] + options),
                                   'classname': class_name + 'CvodeOpt',
                                   'model': model,
-                                  'outfile': os.path.join(model_dir, model_base + 'CvodeOpt.hpp')}
+                                  'outfile': os.path.join(model_dir, model_base + 'CvodeOpt.cpp')}
             print cmd
             os.system(cmd)
 

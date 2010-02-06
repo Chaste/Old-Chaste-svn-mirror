@@ -146,6 +146,12 @@ public:
     double GetVoltage();
 
     /**
+     * Set the transmembrane potential
+     * @param voltage  new value
+     */
+    void SetVoltage(double voltage);
+
+    /**
      * Get the value of the intracellular stimulus.
      * @param time  the time at which to evaluate the stimulus
      */

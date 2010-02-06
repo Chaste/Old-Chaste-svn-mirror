@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 /**
- * This class sets up the LuoRudyIModel1991OdeSystem system of equations, solved by Cvode.
+ * This class represents the Luo-Rudy 1991 system of equations, solved by Cvode.
  */
 class Lr91Cvode : public AbstractCvodeCell
 {

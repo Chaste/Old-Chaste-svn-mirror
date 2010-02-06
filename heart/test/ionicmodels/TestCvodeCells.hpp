@@ -112,6 +112,7 @@ public:
         // Make a model that uses Cvode directly:
         Lr91Cvode lr91_cvode_system(p_solver, p_stimulus);
         TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetVoltage(),"State variables not set yet.");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.SetVoltage(0.0),"State variables not set yet.");
         TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 4u);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
 
@@ -165,6 +166,11 @@ public:
         TS_ASSERT_DELTA(lr91_cvode_system.GetRelativeTolerance(), 1e-4, 1e-10);
         TS_ASSERT_DELTA(lr91_cvode_system.GetAbsoluteTolerance(), 1e-6, 1e-10);
         TS_ASSERT_DELTA(lr91_cvode_system.GetLastStepSize(), 1.0, 1e-4);
+        double old_v = lr91_cvode_system.GetVoltage();
+        const double new_v = -1000.0;
+        lr91_cvode_system.SetVoltage(new_v);
+        TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), new_v, 1e-12);
+        lr91_cvode_system.SetVoltage(old_v);
 
         // Cover errors
         std::cout << "Testing Error Handling...\n";

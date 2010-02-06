@@ -124,6 +124,14 @@ class CellMLTranslator(object):
     FALSE = 'false'
     PI = 'M_PI'
     E = 'M_E'
+    
+    # Whether the target language uses a subsidiary file, such as
+    # a header file in C/C++
+    USES_SUBSIDIARY_FILE = False
+    # Mapping from primary file extension to subsidiary file extension
+    FILE_EXTENSIONS = {'cpp': 'hpp',
+                       'c': 'h',
+                       'cxx': 'hxx'}
 
     def __init__(self, add_timestamp=True):
         """Create a translator."""
@@ -137,6 +145,8 @@ class CellMLTranslator(object):
         self.use_lookup_tables = True
         # Whether to add a timestamp comment to generated files
         self.add_timestamp = add_timestamp
+        # Main output goes to the main file by default
+        self._main_output_to_subsidiary = False
 
     def error(self, lines, xml=None):
         """Raise a translation error.
@@ -153,6 +163,7 @@ class CellMLTranslator(object):
         raise TranslationError('\n'.join(lines))
 
     def translate(self, doc, model_filename, output_filename=None,
+                  subsidiary_file_name=None,
                   class_name=None, v_variable=None,
                   continuation=None,
                   lookup_method_prefix='', row_lookup_method=False,
@@ -239,10 +250,14 @@ class CellMLTranslator(object):
         # Extra configuration hook
         self.final_configuration_hook()
 
-        # Open the output file
+        # Open the output file(s)
         if output_filename is None:
             output_filename = self.output_file_name(model_filename)
+        if self.USES_SUBSIDIARY_FILE:
+            output_filename, self.subsidiary_filename = self.subsidiary_file_name(output_filename)
         self.out = open_output_stream(output_filename)
+        if self.USES_SUBSIDIARY_FILE:
+            self.out2 = open_output_stream(self.subsidiary_filename)
 
         # Translate
         if continuation:
@@ -252,6 +267,8 @@ class CellMLTranslator(object):
             self.output_mathematics()
             self.output_bottom_boilerplate()
         close_output_stream(self.out)
+        if self.USES_SUBSIDIARY_FILE:
+            close_output_stream(self.out2)
         return
 
     def final_configuration_hook(self):
@@ -260,7 +277,43 @@ class CellMLTranslator(object):
 
     def output_file_name(self, model_filename):
         """Generate a name for our output file, based on the input file."""
-        return os.path.splitext(model_filename)[0] + '.hpp'
+        return os.path.splitext(model_filename)[0] + '.cpp'
+    
+    def subsidiary_file_name(self, output_filename):
+        """Generate a name for the subsidiary output file, based on the main one.
+        
+        Returns a pair (main_output_file_name, subsidiary_file_name).  This is in
+        case the user specifies (e.g.) a .hpp file as the main output - we consider
+        the main output to be the .cpp file.
+        """
+        base, ext = os.path.splitext(output_filename)
+        ext = ext[1:] # Remove the '.'
+        try:
+            new_ext = self.FILE_EXTENSIONS[ext]
+            swap = False
+        except KeyError:
+            swap = True
+            for key, val in self.FILE_EXTENSIONS:
+                if val == ext:
+                    new_ext = key
+                    break
+            else:
+                # Turn off usage of subsidiary file
+                self.USES_SUBSIDIARY_FILE = False
+                return output_filename, None
+        subsidiary_filename = base + '.' + new_ext
+        if swap:
+            output_filename, subsidiary_filename = subsidiary_filename, output_filename
+        return output_filename, subsidiary_filename
+
+    def send_main_output_to_subsidiary(self, to_subsidiary=True):
+        """Set subsequent main-file writes to go to the subsidiary file instead.
+        
+        Supplying a False argument reverts this setting.
+        
+        Has no effect if not using a subsidiary file.
+        """
+        self._main_output_to_subsidiary = to_subsidiary
 
     def writeln(self, *args, **kwargs):
         """Write a line to our output file.
@@ -274,7 +327,18 @@ class CellMLTranslator(object):
 
         If nl is set to False then a newline character will not be
         appended to the output.
+        
+        If subsidiary=True, then the line will be written to the subsidiary
+        output file instead of the main one.  An error will be raised if
+        there is no subsidiary output file.
         """
+        if kwargs.get('subsidiary', False) or self._main_output_to_subsidiary:
+            if not self.USES_SUBSIDIARY_FILE:
+                self.error('Tried to write to non-existent subsidiary file')
+            else:
+                target = self.out2
+        else:
+            target = self.out
         indent = kwargs.get('indent', True)
         nl = kwargs.get('nl', True)
         if indent:
@@ -284,10 +348,10 @@ class CellMLTranslator(object):
                 level = self.indent_level
             if kwargs.has_key('indent_offset'):
                 level += kwargs['indent_offset']
-            self.out.write(self.indent_char * self.indent_factor * level)
-        self.out.write(''.join(map(str, args)))
+            target.write(self.indent_char * self.indent_factor * level)
+        target.write(''.join(map(str, args)))
         if nl:
-            self.out.write('\n')
+            target.write('\n')
 
     def write(self, *args):
         """Write to our output file.
@@ -296,19 +360,19 @@ class CellMLTranslator(object):
         """
         self.writeln(indent=False, nl=False, *args)
 
-    def output_comment(self, *args):
+    def output_comment(self, *args, **kwargs):
         """Output a (multi-line) string as a comment."""
         comment = ''.join(map(str, args))
         lines = comment.split('\n')
         for line in lines:
-            self.writeln(self.COMMENT_START, line)
+            self.writeln(self.COMMENT_START, line, **kwargs)
 
-    def output_doxygen(self, *args):
+    def output_doxygen(self, *args, **kwargs):
         """Output a (multi-line) string as a Doxygen comment."""
         comment = ''.join(map(str, args))
         lines = comment.split('\n')
         for line in lines:
-            self.writeln(self.DOXYGEN_COMMENT_START, line)
+            self.writeln(self.DOXYGEN_COMMENT_START, line, **kwargs)
 
     def set_indent(self, level=None, offset=None):
         """Set the indentation level for subsequent writes.
@@ -341,10 +405,18 @@ class CellMLTranslator(object):
             name = prefix + var.xml_parent.name + '__' + var.name
         return name
 
+    @property
+    def include_guard(self):
+        """
+        Get the include guard (for C/C++ output) for this cell model,
+        based on the class name.
+        """
+        return self.class_name.upper() + '_HPP_'
+    
     def output_top_boilerplate(self):
         """Output top boilerplate."""
-        self.writeln('#ifndef _', self.class_name, '_')
-        self.writeln('#define _', self.class_name, '_\n')
+        self.writeln('#ifndef _', self.include_guard, '_')
+        self.writeln('#define _', self.include_guard, '_\n')
         self.output_comment('Model: ', self.model.name)
         self.output_comment(version_comment(self.add_timestamp))
         self.writeln()
@@ -711,16 +783,16 @@ class CellMLTranslator(object):
     def close_paren(self, paren):
         if paren: self.write(')')
 
-    def open_block(self):
+    def open_block(self, **kwargs):
         """Open a new code block and increase indent."""
-        self.writeln('{')
+        self.writeln('{', **kwargs)
         self.set_indent(offset=1)
-    def close_block(self, blank_line=True):
+    def close_block(self, blank_line=True, **kwargs):
         """Close a code block and decrease indent."""
         self.set_indent(offset=-1)
-        self.writeln('}')
+        self.writeln('}', **kwargs)
         if blank_line:
-            self.writeln()
+            self.writeln(**kwargs)
         return
 
     ##############################
@@ -790,6 +862,13 @@ class CellMLTranslator(object):
             self.output_assignment(expr)
         return
     
+    def get_var_units(self, varobj):
+        """Get the units for the given cellml_variable."""
+        assert isinstance(varobj, cellml_variable)
+        uname = varobj.units
+        units = varobj.component.get_units_by_name(uname)
+        return units
+
     def varobj(self, varname):
         """Return the variable object that has code_name varname."""
         if varname[0] == '(':
@@ -989,8 +1068,8 @@ class CellMLTranslator(object):
         """Output declarations for the lookup table indices."""
         self.output_comment('Lookup table indices')
         for key, idx in self.doc.lookup_table_indexes.iteritems():
-            self.writeln('unsigned _table_index_', idx, ';')
-            self.writeln('double _factor_', idx, ';')
+            self.writeln('unsigned _table_index_', idx, self.STMT_END)
+            self.writeln('double _factor_', idx, self.STMT_END)
         self.writeln()
         return
     
@@ -1124,9 +1203,17 @@ class CellMLToChasteTranslator(CellMLTranslator):
     backward Euler, if the appropriate analyses have been done on the
     model.  (See the -J and -j options to translate.py.)
     """
-    
+
+    # We want separate .cpp/.hpp files
+    USES_SUBSIDIARY_FILE = True
+
     # Type of a reference to the state variable vector
     TYPE_VECTOR_REF = 'std::vector<double>&'
+    
+    def writeln_hpp(self, *args, **kwargs):
+        """Convenience wrapper for writing to the header file."""
+        kwargs['subsidiary'] = True
+        self.writeln(*args, **kwargs)
 
     def translate(self, *args, **kwargs):
         """Generate code for the given model."""
@@ -1140,6 +1227,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             setattr(self, key, kwargs.get(key, default))
             if key in kwargs:
                 del kwargs[key]
+        # Last method's access specification
+        self._last_method_access = 'private'
         return super(CellMLToChasteTranslator, self).translate(*args, **kwargs)
 
     def final_configuration_hook(self):
@@ -1170,13 +1259,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             return 1
         return (units.get_multiplicative_factor() /
                 chaste_units.get_multiplicative_factor())
-
-    def get_var_units(self, varobj):
-        """Get the units for the given cellml_variable."""
-        assert isinstance(varobj, cellml_variable)
-        uname = varobj.units
-        units = varobj.component.get_units_by_name(uname)
-        return units
     
     def check_time_units(self):
         """Check if units conversions at the interfaces are required (#621).
@@ -1218,55 +1300,87 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.conversion_factor = None
         return
     
-    @property
-    def include_guard(self):
-        """Get the include guard for this cell model, based on the class name."""
-        return self.class_name.upper() + '_HPP_'
-    
     def output_includes(self, base_class=None):
-        """Output the start of the .hpp file.
+        """Output the start of each output file.
         
-        As well as the #include lines, it also outputs the include guard and
-        doxygen comment.
+        As well as the #include lines, it also outputs the include guard for
+        the .hpp file, and doxygen comment.
         
         If base_class is not None (and self.use_backward_euler isn't set)
         then includes that class' header instead of AbstractCardiacCell.
         
         Reads self.include_serialization and self.use_backward_euler.
-        Sets self.base_class_name
+        Sets self.base_class_name.
         """
-        self.writeln('#ifndef ', self.include_guard)
-        self.writeln('#define ', self.include_guard, '\n')
-        self.output_doxygen('@file\n\n',
-                            'This source file was generated from CellML.\n\n',
-                            'Model: ', self.model.name, '\n\n',
-                            version_comment(self.add_timestamp),
-                            '\n\n<autogenerated>')
-        self.writeln()
+        self.writeln_hpp('#ifndef ', self.include_guard)
+        self.writeln_hpp('#define ', self.include_guard, '\n')
+        for sub in [False, True]:
+            self.output_doxygen('@file\n\n',
+                                'This source file was generated from CellML.\n\n',
+                                'Model: ', self.model.name, '\n\n',
+                                version_comment(self.add_timestamp),
+                                '\n\n<autogenerated>',
+                                subsidiary=sub)
+            self.writeln(subsidiary=sub)
+        # .cpp should include .hpp
+        self.writeln('#include "', os.path.basename(self.subsidiary_filename), '"')
         if self.include_serialization:
-            self.writeln('#include <boost/serialization/access.hpp>')
-            self.writeln('#include <boost/serialization/base_object.hpp>')
+            self.writeln_hpp('#include <boost/serialization/access.hpp>')
+            self.writeln_hpp('#include <boost/serialization/base_object.hpp>')
         self.writeln('#include <cmath>')
         self.writeln('#include <cassert>')
         if self.use_backward_euler:
-            self.writeln('#include "AbstractBackwardEulerCardiacCell.hpp"')
+            self.writeln_hpp('#include "AbstractBackwardEulerCardiacCell.hpp"')
             self.writeln('#include "CardiacNewtonSolver.hpp"')
             self.base_class_name = 'AbstractBackwardEulerCardiacCell<' + \
                 str(self.nonlinear_system_size) + '>'
         elif base_class:
             self.base_class_name = base_class
-            self.writeln('#include "' + self.base_class_name + '.hpp"')
+            self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
         else:
             self.base_class_name = 'AbstractCardiacCell'
-            self.writeln('#include "' + self.base_class_name + '.hpp"')
+            self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
         if self.use_metadata:
-            self.writeln('#include "AbstractCardiacCellWithModifiers.hpp"')
+            self.writeln_hpp('#include "AbstractCardiacCellWithModifiers.hpp"')
             # Modify the base class name
             self.base_class_name = 'AbstractCardiacCellWithModifiers<' + self.base_class_name + ' >'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
-        self.writeln('#include "AbstractStimulusFunction.hpp"')
+        self.writeln_hpp('#include "AbstractStimulusFunction.hpp"')
         self.writeln()
+        self.writeln_hpp()
+        
+    def set_access(self, access):
+        """Set the access specification for subsequent output.
+        
+        We keep track of the last access set, either via this method or
+        output_method_start, and only output a new declaration to the
+        header file if it changes.
+        """
+        if access != self._last_method_access:
+            self._last_method_access = access
+            self.writeln_hpp()
+            self.writeln_hpp(access, ':', indent_offset=-1)
+
+    def output_method_start(self, method_name, args, ret_type, access=None):
+        """Output the start of a method declaration/definition.
+        
+        Will write to both the .hpp and .cpp file.
+        
+        We keep track of the access of the last method, and only output a new
+        declaration to the header file if it changes.  The default is to use
+        the same access specification as last time.
+        """
+        if access:
+            self.set_access(access)
+        if ret_type:
+            if ret_type[-1] != ' ':
+                ret_type = ret_type + ' '
+        else:
+            ret_type = ''
+        args_string = ', '.join(args)
+        self.writeln_hpp(ret_type, method_name, '(', args_string, ')', self.STMT_END)
+        self.writeln(ret_type, self.class_name, '::', method_name, '(', args_string, ')')
 
     def output_cell_parameters(self):
         """Output declarations, set & get methods for cell parameters.
@@ -1297,23 +1411,25 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.metadata_vars = set([])
 
         # Generate member variable declarations
-        self.writeln('private:', indent_offset=-1)
+        self.set_access('private')
         if kept_vars or self.metadata_vars:
-            self.output_comment('\nSettable parameters and readable variables\n')
+            self.output_comment('\nSettable parameters and readable variables\n',
+                                subsidiary=True)
         for var in kept_vars:
-            self.writeln(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
+            self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
         # Generate Set & Get methods
-        self.writeln('public:', indent_offset=-1)
+        self.set_access('public')
         for var in kept_vars:
             if var.get_type() == VarTypes.Constant:
                 # Generate a Set method
-                self.writeln('void Set_', self.code_name(var, prefix=''), '(',
-                             self.TYPE_CONST_DOUBLE, 'value)')
+                self.output_method_start('Set_' + self.code_name(var, prefix=''),
+                                         [self.TYPE_CONST_DOUBLE + 'value'],
+                                         'void')
                 self.open_block()
                 self.writeln(self.code_name(var), self.EQ_ASSIGN, 'value;')
                 self.close_block()
             # Generate Get method
-            self.writeln(self.TYPE_DOUBLE, 'Get_', self.code_name(var, prefix=''), '()')
+            self.output_method_start('Get_' + self.code_name(var, prefix=''), [], self.TYPE_DOUBLE)
             self.open_block()
             self.writeln('return ', self.code_name(var), ';')
             self.close_block()
@@ -1322,7 +1438,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if self.use_metadata:
             for var in self.metadata_vars:
                 if var.get_type() == VarTypes.Constant:
-                    self.writeln(self.TYPE_DOUBLE, 'Get_', var.oxmeta_name, '_constant()')
+                    self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
                     self.open_block()
                     self.output_comment('Constant value given in CellML')
                     self.writeln('return ', var.initial_value, self.STMT_END)
@@ -1369,29 +1485,31 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.output_lut_class()
 
         # Cell model class
-        self.writeln('class ', self.class_name,
-                     ' : public ', self.base_class_name)
-        self.open_block()
+        self.writeln_hpp('class ', self.class_name,
+                         ' : public ', self.base_class_name)
+        self.open_block(subsidiary=True)
         # Serialization
         if self.include_serialization:
-            self.writeln('friend class boost::serialization::access;')
-            self.writeln('template<class Archive>')
-            self.writeln('void serialize(Archive & archive, const unsigned int version)')
-            self.open_block()
-            self.writeln('archive & boost::serialization::base_object<', self.base_class_name,
-                         ' >(*this);')
-            self.close_block()
+            self.writeln_hpp('friend class boost::serialization::access;')
+            self.writeln_hpp('template<class Archive>')
+            self.writeln_hpp('void serialize(Archive & archive, const unsigned int version)')
+            self.open_block(subsidiary=True)
+            self.writeln_hpp('archive & boost::serialization::base_object<', self.base_class_name,
+                             ' >(*this);')
+            self.close_block(subsidiary=True)
         # Parameter declarations, and set & get methods (#666)
         param_vars = self.output_cell_parameters()
         # Constructor
+        self.set_access('public')
         self.output_constructor([solver1, 'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
                                 [solver2, len(self.state_vars), self.v_index, 'pIntracellularStimulus'])
         # Destructor
-        self.writeln('~', self.class_name, '(void)')
+        self.output_method_start('~'+self.class_name, [], '')
         self.open_block()
         self.close_block()
         # Lookup table declarations & methods
         if self.use_lookup_tables:
+            self.send_main_output_to_subsidiary()
             if self.separate_lut_class:
                 if self.use_backward_euler:
                     self.output_lut_indices()
@@ -1399,8 +1517,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.output_lut_declarations()
                 self.output_lut_row_lookup_memory()
                 self.output_lut_methods()
+            self.send_main_output_to_subsidiary(False)
         # Verify state variables method; empty at present
-        self.writeln('void VerifyStateVariables()')
+        self.output_method_start('VerifyStateVariables', [], 'void')
         self.writeln('{}\n')
         return
     
@@ -1414,11 +1533,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         base_class_params is a list of parameters to be supplied to the base class
         constructor.  Entries will be converted to strings.
         """
-        self.writeln(self.class_name, '(')
-        for i, param in enumerate(params):
-            if i == len(params)-1: comma = ')'
-            else: comma = ','
-            self.writeln(param, comma, indent_offset=2)
+        self.output_method_start(self.class_name, params, '', access='public')
         self.writeln('    : ', self.base_class_name, '(')
         for i, param in enumerate(base_class_params):
             if i == len(base_class_params)-1: comma = ')'
@@ -1440,7 +1555,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         return
 
     def output_lut_class(self):
-        """Output a separate class for lookup tables."""
+        """Output a separate class for lookup tables.
+        
+        This will live entirely in the .cpp file."""
         # Lookup tables class
         self.writeln('class ', self.lt_class_name)
         self.writeln('{')
@@ -1648,7 +1765,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """Output the GetIIonic method."""
         use_metadata = self.use_metadata
         self.use_metadata = False
-        self.writeln('double GetIIonic()')
+        self.output_method_start('GetIIonic', [], self.TYPE_DOUBLE, access='public')
         self.open_block()
         # Output mathematics to calculate ionic current, using
         # solver_info.ionic_current.
@@ -1698,14 +1815,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             nodeset = self.calculate_extended_dependencies(nodes)
         # Start code output
-        self.writeln('void ', method_name, '(')
-        self.writeln('        double ', self.code_name(self.free_vars[0]), ',')
-        self.writeln('        const ', self.TYPE_VECTOR_REF, ' rY,')
-        self.writeln('        ', self.TYPE_VECTOR_REF, ' rDY)')
+        self.output_method_start(method_name,
+                                 [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
+                                  'const ' + self.TYPE_VECTOR_REF + ' rY',
+                                  self.TYPE_VECTOR_REF + ' rDY'],
+                                 'void', access='public')
         self.open_block()
-        self.writeln(self.COMMENT_START, 'Inputs:')
-        self.writeln(self.COMMENT_START, 'Time units: ',
-                     self.free_vars[0].units)
+        self.output_comment('Inputs:')
+        self.output_comment('Time units: ', self.free_vars[0].units)
         #621: convert if free var is not in milliseconds
         if self.conversion_factor:
             self.writeln(self.code_name(self.free_vars[0]), ' *= ',
@@ -1738,9 +1855,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """
         # Residual
         ##########
-        self.writeln('void ComputeResidual(const double rCurrentGuess[',
-                     self.nonlinear_system_size, '], double rResidual[',
-                     self.nonlinear_system_size, '])')
+        argsize = '[' + str(self.nonlinear_system_size) + ']'
+        self.output_method_start('ComputeResidual',
+                                 [self.TYPE_CONST_DOUBLE + 'rCurrentGuess' + argsize,
+                                  self.TYPE_DOUBLE + 'rResidual' + argsize],
+                                 'void', access='public')
         self.open_block()
         # Output mathematics for computing du/dt for each nonlinear state var u
         nodes = map(lambda u: (self.varobj(u), self.free_vars[0]),
@@ -1770,10 +1889,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.close_block()
         # Jacobian
         ##########
-        self.writeln('void ComputeJacobian(const double rCurrentGuess[',
-                     self.nonlinear_system_size, '], double rJacobian[',
-                     self.nonlinear_system_size, '][',
-                     self.nonlinear_system_size, '])')
+        self.output_method_start('ComputeJacobian',
+                                 [self.TYPE_CONST_DOUBLE + 'rCurrentGuess' + argsize,
+                                  self.TYPE_DOUBLE + 'rJacobian' + argsize + argsize],
+                                 'void', access='public')
         self.open_block()
         # Mathematics that the Jacobian depends on
         used_vars = set()
@@ -1805,10 +1924,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('protected:', indent_offset=-1)
         # UpdateTransmembranePotential
         ##############################
-        self.writeln('void UpdateTransmembranePotential(double ',
-                     self.code_name(self.free_vars[0]), ')')
+        self.output_method_start('UpdateTransmembranePotential',
+                                 [self.TYPE_DOUBLE + self.code_name(self.free_vars[0])],
+                                 'void', access='public')
         self.open_block()
-        self.writeln('// Time units: ', self.free_vars[0].units)
+        self.output_comment('Time units: ', self.free_vars[0].units)
         #621: convert if free var is not in milliseconds
         if self.conversion_factor:
             self.writeln(self.code_name(self.free_vars[0]), ' *= ',
@@ -1835,8 +1955,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.close_block()
         # ComputeOneStepExceptVoltage
         ######################
-        self.writeln('void ComputeOneStepExceptVoltage(double ',
-                     self.code_name(self.free_vars[0]), ')')
+        self.output_method_start('ComputeOneStepExceptVoltage',
+                                 [self.TYPE_DOUBLE + self.code_name(self.free_vars[0])],
+                                 'void', access='public')
         self.open_block()
         self.writeln(self.COMMENT_START, 'Time units: ',
                      self.free_vars[0].units)
@@ -1926,12 +2047,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
     def output_bottom_boilerplate(self):
         """Output bottom boilerplate.
 
-        End class definition, output ODE system information and
-        serialization code, and end the file.
+        End class definition, output ODE system information (to .cpp) and
+        serialization code (to .hpp), and end the file.
         """
         # End main class
         self.set_indent(offset=-1)
-        self.writeln('};\n\n')
+        self.writeln_hpp('};\n\n')
         # ODE system information
         self.writeln('template<>')
         self.writeln('void OdeSystemInformation<', self.class_name,
@@ -1958,43 +2079,43 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln()
         # Serialization
         if self.include_serialization:
-            self.output_comment('Needs to be included last')
-            self.writeln('#include "TemplatedExport.hpp"')
-            self.writeln('CHASTE_CLASS_EXPORT(', self.class_name, ')')
-            self.writeln()
-            self.writeln('namespace boost')
-            self.open_block()
-            self.writeln('namespace serialization')
-            self.open_block()
+            self.output_comment('Needs to be included last', subsidiary=True)
+            self.writeln_hpp('#include "TemplatedExport.hpp"')
+            self.writeln_hpp('CHASTE_CLASS_EXPORT(', self.class_name, ')')
+            self.writeln_hpp()
+            self.writeln_hpp('namespace boost')
+            self.open_block(subsidiary=True)
+            self.writeln_hpp('namespace serialization')
+            self.open_block(subsidiary=True)
             # Save
-            self.writeln('template<class Archive>')
-            self.writeln('inline void save_construct_data(')
-            self.writeln('Archive & ar, const ', self.class_name,
-                         ' * t, const unsigned int fileVersion)',
-                         indent_offset=1)
-            self.open_block()
-            self.writeln('const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();')
-            self.writeln('const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();')
-            self.writeln('ar << p_solver;')
-            self.writeln('ar << p_stimulus;')
-            self.close_block()
+            self.writeln_hpp('template<class Archive>')
+            self.writeln_hpp('inline void save_construct_data(')
+            self.writeln_hpp('Archive & ar, const ', self.class_name,
+                             ' * t, const unsigned int fileVersion)',
+                             indent_offset=1)
+            self.open_block(subsidiary=True)
+            self.writeln_hpp('const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();')
+            self.writeln_hpp('const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();')
+            self.writeln_hpp('ar << p_solver;')
+            self.writeln_hpp('ar << p_stimulus;')
+            self.close_block(subsidiary=True)
             # Load
-            self.writeln('template<class Archive>')
-            self.writeln('inline void load_construct_data(')
-            self.writeln('Archive & ar, ', self.class_name,
-                         ' * t, const unsigned int fileVersion)',
-                         indent_offset=1)
-            self.open_block()
-            self.writeln('boost::shared_ptr<AbstractIvpOdeSolver> p_solver;')
-            self.writeln('boost::shared_ptr<AbstractStimulusFunction> p_stimulus;')
-            self.writeln('ar >> p_solver;')
-            self.writeln('ar >> p_stimulus;')
-            self.writeln('::new(t)', self.class_name, '(p_solver, p_stimulus);')
-            self.close_block()
-            self.close_block()
-            self.close_block()
+            self.writeln_hpp('template<class Archive>')
+            self.writeln_hpp('inline void load_construct_data(')
+            self.writeln_hpp('Archive & ar, ', self.class_name,
+                             ' * t, const unsigned int fileVersion)',
+                             indent_offset=1)
+            self.open_block(subsidiary=True)
+            self.writeln_hpp('boost::shared_ptr<AbstractIvpOdeSolver> p_solver;')
+            self.writeln_hpp('boost::shared_ptr<AbstractStimulusFunction> p_stimulus;')
+            self.writeln_hpp('ar >> p_solver;')
+            self.writeln_hpp('ar >> p_stimulus;')
+            self.writeln_hpp('::new(t)', self.class_name, '(p_solver, p_stimulus);')
+            self.close_block(subsidiary=True)
+            self.close_block(subsidiary=True)
+            self.close_block(subsidiary=True)
         # End file
-        self.writeln('#endif // ', self.include_guard)
+        self.writeln_hpp('#endif // ', self.include_guard)
         return
 
     def output_lhs(self, expr):
@@ -2057,8 +2178,8 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         if self.use_lookup_tables and self.separate_lut_class:
             self.output_lut_class()
         # Start cell model class
-        self.writeln('class ', self.class_name, ' : public ', self.base_class_name)
-        self.open_block()
+        self.writeln_hpp('class ', self.class_name, ' : public ', self.base_class_name)
+        self.open_block(subsidiary=True)
         # Parameter declarations, and set & get methods (#666)
         self.output_cell_parameters()
         # Constructor
@@ -2066,16 +2187,18 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
                                  'boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus'],
                                 ['pOdeSolver', len(self.state_vars), self.v_index, 'pIntracellularStimulus'])
         # Destructor
-        self.writeln('~', self.class_name, '(void)')
+        self.output_method_start('~'+self.class_name, [], '', access='public')
         self.open_block()
         self.close_block()
         # Lookup table declarations & methods
         if self.use_lookup_tables and not self.separate_lut_class:
+            self.send_main_output_to_subsidiary()
             self.output_lut_declarations()
             self.output_lut_row_lookup_memory()
             self.output_lut_methods()
+            self.send_main_output_to_subsidiary(False)
         # Verify state variables method; empty at present
-        self.writeln('void VerifyStateVariables()')
+        self.output_method_start('VerifyStateVariables', [], 'void', access='public')
         self.writeln('{}\n')
         return
 
@@ -4601,7 +4724,7 @@ def run():
             transargs['kept_vars_as_members'] = options.kept_vars_as_members
             transargs['use_metadata'] = options.use_metadata
         t = klass(**initargs)
-        t.translate(doc, model_file, output_filename, class_name, **transargs)
+        t.translate(doc, model_file, output_filename, class_name=class_name, **transargs)
     else:
         # Add a comment element
         comment = pycml.comment_base(

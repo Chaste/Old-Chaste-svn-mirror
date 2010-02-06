@@ -115,6 +115,15 @@ double AbstractCvodeCell::GetVoltage()
     return NV_Ith_S(mStateVariables, mVoltageIndex);
 }
 
+void AbstractCvodeCell::SetVoltage(double voltage)
+{
+    if (mStateVariables == NULL)
+    {
+        EXCEPTION("State variables not set yet.");
+    }
+    NV_Ith_S(mStateVariables, mVoltageIndex) = voltage;
+}
+
 double AbstractCvodeCell::GetStimulus(double time)
 {
     return mpIntracellularStimulus->GetStimulus(time);

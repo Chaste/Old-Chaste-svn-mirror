@@ -124,8 +124,10 @@ public:
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
         
         // Check that the tables exist!
-        Cellluo_rudy_1991FromCellMLOpt_LookupTables* p_tables = Cellluo_rudy_1991FromCellMLOpt_LookupTables::Instance();
-        p_tables = p_tables;
+        double v = opt.GetVoltage();
+        opt.SetVoltage(-100000);
+        TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "V outside lookup table range");
+        opt.SetVoltage(v);
         
 #ifdef CHASTE_CVODE
         // CVODE version
@@ -135,8 +137,10 @@ public:
         Cellluo_rudy_1991FromCellMLCvodeOpt cvode_opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(cvode_opt.GetVoltageIndex(), 0u);
         // Check that the tables exist!
-        Cellluo_rudy_1991FromCellMLCvodeOpt_LookupTables* p_cvode_tables = Cellluo_rudy_1991FromCellMLCvodeOpt_LookupTables::Instance();
-        p_cvode_tables = p_cvode_tables;
+        v = opt.GetVoltage();
+        cvode_opt.SetVoltage(-100000);
+        TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "V outside lookup table range");
+        cvode_opt.SetVoltage(v);
 #endif // CHASTE_CVODE
         
         // Test the archiving code too

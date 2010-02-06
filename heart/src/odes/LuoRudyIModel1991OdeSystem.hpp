@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 /**
- * This class sets up the LuoRudyIModel1991OdeSystem system of equations.
+ * This class represents the Luo-Rudy 1991 system of equations.
  */
 class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
 {
