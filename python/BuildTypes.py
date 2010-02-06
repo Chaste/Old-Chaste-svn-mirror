@@ -49,7 +49,7 @@ class BuildType(object):
         self.build_type = buildType
         self._compiler_type = 'gcc'
         self._cc_flags = ['-Wall', '-Werror']
-        self._link_flags = []
+        self._link_flags = ['-rdynamic']
         self._include_flag = ['-isystem']
         self._test_packs = ['Continuous']
         self._revision = ''

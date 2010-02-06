@@ -29,9 +29,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CHASTEBUILDROOT_HPP_
 #define CHASTEBUILDROOT_HPP_
 
+#include <string>
+
 /**
  * Get the path to the root directory of the Chaste source tree.
  */
 const char* ChasteBuildRootDir();
+
+/**
+ * Get the folder in which compiled files are placed for the given
+ * Chaste component.
+ *
+ * @param rComponent  e.g. global, heart, pde, ...
+ */
+std::string ChasteComponentBuildDir(const std::string& rComponent);
 
 #endif /*CHASTEBUILDROOT_HPP_*/

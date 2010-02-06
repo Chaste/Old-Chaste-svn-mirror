@@ -237,6 +237,7 @@ cpppath = map(lambda p: '#/'+p, cpppath)
 env.Replace(CPPPATH = cpppath)
 
 # Some state needed by our build system
+env['build'] = build
 env['buildsig'] = build.GetSignature()
 env['CHASTE_COMPONENTS'] = components + ['projects']
 env['CHASTE_OBJECTS'] = {}

@@ -87,7 +87,7 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
             source_files.append(file_node)
             # This one just contains the path to Chaste
             source_files.append(env.Command(os.path.join('src', 'ChasteBuildRoot.cpp'),
-                                            [Value(GetChasteBuildRootCpp())],
+                                            [Value(GetChasteBuildRootCpp(env))],
                                             GenerateCppFromValue)[0])
         return source_files, source_dirs
 
@@ -286,15 +286,21 @@ def GetVersionCpp(templateFilePath, env):
              'build_info': env['CHASTE_BUILD_INFO']}
     return open(templateFilePath).read() % subst
 
-def GetChasteBuildRootCpp():
+def GetChasteBuildRootCpp(env):
     """Return the contents of the ChasteBuildRoot.cpp source file."""
-    subst = {'chaste_root': Dir('#').abspath}
+    subst = {'chaste_root': Dir('#').abspath,
+             'build_dir': env['build'].build_dir}
     return """
 #include "ChasteBuildRoot.hpp" 
 
 const char* ChasteBuildRootDir() 
 { 
     return "%(chaste_root)s"; 
+}
+
+std::string ChasteComponentBuildDir(const std::string& rComponent)
+{
+    return std::string(ChasteBuildRootDir()) + "/" + rComponent + "/build/%(build_dir)s";
 }
 """ % subst
 
@@ -462,6 +468,8 @@ def DoComponentSConscript(component, otherVars):
     testsource, test_cpppath = FindSourceFiles(env, 'test',
                                                ignoreDirs=['data'],
                                                includeRoot=True)
+    # Find any source files that should get made into dynamically loadable modules.
+    dyn_source, _ = FindSourceFiles(env, 'dynamic')
     # Move back to the buid dir
     os.chdir(curdir)
 
@@ -483,6 +491,15 @@ def DoComponentSConscript(component, otherVars):
         # so updates in one env are reflected in all.
         newenv['CHASTE_OBJECTS'] = env['CHASTE_OBJECTS']
         env = newenv
+    
+    # Build any dynamically loadable modules
+    dyn_libs = []
+    for s in dyn_source:
+        so_name = os.path.splitext(s)[0] + '.so'
+        dyn_libs.append(env.SharedLibrary(so_name, s))
+    if dyn_source:
+        # Need to link against the dl library too
+        otherVars['other_libs'] = otherVars['other_libs'] + ['dl']
     
     # Build and install the library for this component
     if use_chaste_libs:
@@ -557,6 +574,9 @@ def DoComponentSConscript(component, otherVars):
                 env.Depends(log_file, lib_deps)
             else:
                 env.Depends(log_file, runner_dummy)
+            if dyn_libs:
+                # All tests should depend on dynamically loadable modules, just in case
+                env.Depends(log_file, dyn_libs)
             test_log_files.append(log_file)
             env.RunTest(log_file, runner_exe)
             if otherVars['force_test_runs']:
