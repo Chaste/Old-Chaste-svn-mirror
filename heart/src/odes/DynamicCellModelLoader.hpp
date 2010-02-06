@@ -64,7 +64,7 @@ public:
      * The caller takes responsibility for deleting the cell when it's finished with.
      *
      * @param pSolver  ODE solver used to simulate the cell
-     * @param pIntracellularStimulus  intracellular stimulus
+     * @param pStimulus  intracellular stimulus
      */
     AbstractCardiacCell* CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                     boost::shared_ptr<AbstractStimulusFunction> pStimulus);
@@ -73,7 +73,11 @@ private:
     /** Handle for the loaded .so file */
     void* mpDynamicModule;
 
-    /** Type of the cell creation function in the .so files */
+    /** Type of the cell creation function in the .so files 
+     *
+     * @param pSolver  ODE solver used to simulate the cell
+     * @param pStimulus  intracellular stimulus
+     */
     typedef AbstractCardiacCell* CellCreationFunctionType(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                                           boost::shared_ptr<AbstractStimulusFunction> pStimulus);
 

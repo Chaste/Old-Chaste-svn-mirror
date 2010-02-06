@@ -700,6 +700,10 @@ template class TrianglesMeshReader<2,3>;
 template class TrianglesMeshReader<3,3>;
 
 
+/**
+ * \cond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 template void TrianglesMeshReader<0,1>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
 template void TrianglesMeshReader<0,1>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
 template void TrianglesMeshReader<1,1>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
@@ -714,3 +718,8 @@ template void TrianglesMeshReader<2,3>::GetNextItemFromStream(std::ifstream&, un
 template void TrianglesMeshReader<2,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
 template void TrianglesMeshReader<3,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<unsigned>&, const unsigned&, unsigned&);
 template void TrianglesMeshReader<3,3>::GetNextItemFromStream(std::ifstream&, unsigned, std::vector<double>  &, const unsigned&, unsigned&);
+/**
+ * \endcond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
+   

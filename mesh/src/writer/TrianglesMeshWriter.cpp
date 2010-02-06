@@ -314,6 +314,10 @@ template class TrianglesMeshWriter<2,2>;
 template class TrianglesMeshWriter<2,3>;
 template class TrianglesMeshWriter<3,3>;
 
+/**
+ * \cond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 template void TrianglesMeshWriter<1, 1>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
 template void TrianglesMeshWriter<1, 1>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
 template void TrianglesMeshWriter<1, 2>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
@@ -326,3 +330,8 @@ template void TrianglesMeshWriter<2, 3>::WriteItem(out_stream &, unsigned, const
 template void TrianglesMeshWriter<2, 3>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
 template void TrianglesMeshWriter<3, 3>::WriteItem(out_stream &, unsigned, const std::vector<unsigned> &, unsigned );
 template void TrianglesMeshWriter<3, 3>::WriteItem(out_stream &, unsigned, const std::vector<double>   &, unsigned );
+/**
+ * \endcond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
+   
