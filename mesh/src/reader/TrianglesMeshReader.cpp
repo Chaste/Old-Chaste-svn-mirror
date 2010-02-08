@@ -722,4 +722,3 @@ template void TrianglesMeshReader<3,3>::GetNextItemFromStream(std::ifstream&, un
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
  */
-   

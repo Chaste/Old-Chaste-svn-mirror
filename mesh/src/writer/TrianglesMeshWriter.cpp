@@ -334,4 +334,3 @@ template void TrianglesMeshWriter<3, 3>::WriteItem(out_stream &, unsigned, const
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
  */
-   
