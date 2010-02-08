@@ -497,9 +497,6 @@ def DoComponentSConscript(component, otherVars):
     for s in dyn_source:
         so_name = os.path.splitext(s)[0] + '.so'
         dyn_libs.append(env.OriginalSharedLibrary(so_name, s))
-    if dyn_source:
-        # Need to link against the dl library too
-        otherVars['other_libs'] = otherVars['other_libs'] + ['dl']
     
     # Build and install the library for this component
     if use_chaste_libs:

@@ -336,7 +336,9 @@ def configure(build):
         intel_path = os.path.abspath(conf.intel_path)
         libpaths.append(os.path.join(intel_path, 'lib'))
     incpaths.extend(conf.other_includepaths)
-    libpaths.extend(map(os.path.abspath, conf.other_libpaths))    
+    libpaths.extend(map(os.path.abspath, conf.other_libpaths))
+    # Needed for dynamically loaded cell models
+    libraries.append('dl')
 
     build.tools.update(conf.tools)
 
