@@ -312,12 +312,14 @@ class BuildType(object):
         names are 'petsc', 'boost', 'hdf5' and 'xsd', but support from the
         machine-specific hostconfig file is needed too.  Prefered versions
         can be retrieved using GetPreferedVersions.
+        
+        Whether to use optional libraries can also be specified, with keys
+        of the form "use-lib".  Again support from the machine-specific
+        hostconfig is needed to make this work.  Possible libraries include
+        'use-cvode', 'use-vtk', and 'use-adaptivity'.
         """
         items = configString.split(',')
-        config = {'petsc': '2.3',
-                  'boost': '1.34',
-                  'hdf5': '1.6',
-                  'xsd': '3.2'}
+        config = {}
         for item in items:
             key, val = item.split('=')
             config[key] = val.replace('-', '.')

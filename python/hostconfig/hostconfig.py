@@ -66,8 +66,10 @@ set to True, then the appropriate paths (see below) should be specified, too.
 Any non-absolute paths will be considered relative to the root of the Chaste install.
 """
 
+import glob
 import os
 import sys
+import types
 
 # Do we have any machine-specific config?
 try:
@@ -94,6 +96,85 @@ except ImportError:
 libpaths = []
 incpaths = []
 libraries = []
+
+# The functions below are supplied to machine config files for their use
+
+def RemoveFromPath(pathList, searchString):
+    """Remove path entries from pathList that contain searchString."""
+    for path in pathList[:]:
+        if path.find(searchString) != -1:
+            pathList.remove(path)
+    return
+
+def AddBoost(basePath, version):
+    """Use Boost installed in a non-standard location.
+
+    Expects basePath to point to a folder containing include and lib folders,
+    and version to be of the form '1.36'.
+
+    Will automatically account for extended Boost library naming schemes.
+    Can also handle boost libraries already appearing in other_libpaths etc.
+    """
+    # Remove existing Boost libs
+    for lib in conf.other_libraries[:]:
+        if lib.startswith('boost_'):
+            conf.other_libraries.remove(lib)
+    RemoveFromPath(conf.other_includepaths, 'boost')
+    RemoveFromPath(conf.other_libpaths, 'boost')
+    # Add libs from new location
+    inc = 'boost-' + version.replace('.', '_')
+    conf.other_includepaths.append(os.path.join(basePath, 'include', inc))
+    libpath = os.path.join(basePath, 'lib')
+    conf.other_libpaths.append(libpath)
+    boost_libs = ['boost_serialization']
+    testlib = boost_libs[0]
+    base = os.path.join(libpath, 'lib' + testlib)
+    matches = glob.glob(base + '*.so')
+    if not matches:
+        raise ValueError('Boost library ' + testlib + ' not found in ' + basePath)
+    suffix = matches[0][len(base):-3]
+    for lib in boost_libs:
+        conf.other_libraries.append(lib + suffix)
+    return
+
+def AddHdf5(basePath):
+    """Use HDF5 from a non-standard location."""
+    # Remove existing paths
+    RemoveFromPath(conf.other_includepaths, 'hdf5')
+    RemoveFromPath(conf.other_libpaths, 'hdf5')
+    # Add new location
+    conf.other_includepaths.append(os.path.join(basePath, 'include'))
+    conf.other_libpaths.append(os.path.join(basePath, 'lib'))
+    if not 'hdf5' in conf.other_libraries:
+        conf.other_libraries.extend(['hdf5', 'z'])
+    return
+
+def AddXsd(basePath):
+    """Use CodeSynthesis XSD from a non-standard location."""
+    # Remove existing include path
+    RemoveFromPath(conf.other_includepaths, 'libxsd')
+    # Add new location
+    conf.other_includepaths.append(os.path.join(basePath, 'libxsd'))
+    conf.tools['xsd'] = os.path.join(basePath, 'bin', 'xsd')
+    # Make sure we re-run XSD
+    TryRemove('heart/src/io/ChasteParameters*.?pp')
+    return
+
+def TryRemove(pathGlob):
+    """Try to remove files matching the given glob pattern, ignoring errors."""
+    for path in glob.glob(pathGlob):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
+# Supply the above functions to the config module
+for name in dir():
+    if name[0] != '_':
+        exec "item = " + name
+        if type(item) == types.FunctionType:
+            exec "conf.%s = item" % name
+
 
 def DoPetsc(version, optimised, profile=False, production=False, includesOnly=False):
     """Determine PETSc include and library paths.
@@ -227,16 +308,21 @@ def OptionalLibraryDefines():
 
 def configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
+    prefs = build.GetPreferedVersions()
+    if hasattr(conf, 'Configure') and callable(conf.Configure):
+        # The machine config has a method to do its configuration, so call that first.
+        conf.Configure(prefs)
     if build.using_dealii:
         DoDealii(build)
         #DoMetis()
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
-        prefs = build.GetPreferedVersions()
         if prefs:
             if hasattr(conf, 'SetPreferedVersions') and callable(conf.SetPreferedVersions):
                 conf.SetPreferedVersions(prefs)
+            elif not (hasattr(conf, 'Configure') and callable(conf.Configure)):
+                raise ValueError('Machine configuration has no support for setting prefered library versions.')
             petsc_version = prefs['petsc'][:3]
         else:
             petsc_version = '3.0'
