@@ -34,44 +34,44 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # certainly possible, but would rely on the internal structure of SCons.
 
 def fasterSharedLibrary(env, library, sources, **args):
-	# SCons version compatibility
-	if type(library) != type([]):
-		library = [library]
-        # use the 'quicker' shallow copy method!
-        envContentSig=env.Copy()
-        envContentSig.TargetSignatures('content')
+    # SCons version compatibility
+    if type(library) != type([]):
+        library = [library]
+    # use the 'quicker' shallow copy method!
+    envContentSig=env.Copy()
+    envContentSig.TargetSignatures('content')
 
-        cat=env.OriginalSharedLibrary(library, sources)
+    cat=env.OriginalSharedLibrary(library, sources)
 
-        # copy all the latest libraries to ONE directory..
-        # for our convenience. Could modify the above to
-        # build directly to this dir instead.
-        catLib = env.Install('#lib', cat) #the CURRENT lib dir
+    # copy all the latest libraries to ONE directory..
+    # for our convenience. Could modify the above to
+    # build directly to this dir instead.
+    catLib = env.Install('#lib', cat) #the CURRENT lib dir
 
-        # now generate the 'interface' file, using the
-        # content signature for its target
-        catIF=envContentSig.Command(
-		'%s.if' % library[0],
-                catLib,
-                'nm --extern-only $SOURCES | cut -c 12- | sort > $TARGET')
+    # now generate the 'interface' file, using the
+    # content signature for its target
+    catIF=envContentSig.Command(
+        '%s.if' % library[0],
+        catLib,
+        'nm --extern-only $SOURCES | cut -c 12- | sort > $TARGET')
 
-        # install command to copy lib to shlib, where the link
-        # actually occurs.  Explicitly make this depend only on
-        # the IF file, which has a target content signature.
-        # ie only if the Global Symbol list changes, is copied and this the
-        # Programs it relinked.
-        catLink=env.Command(
-		'#linklib/${SHLIBPREFIX}%s${SHLIBSUFFIX}' % library[0],
-                '',
-                Copy('$TARGET', str(catLib[0])))
+    # install command to copy lib to shlib, where the link
+    # actually occurs.  Explicitly make this depend only on
+    # the IF file, which has a target content signature.
+    # ie only if the Global Symbol list changes, is copied and this the
+    # Programs it relinked.
+    catLink=env.Command(
+        '#linklib/${SHLIBPREFIX}%s${SHLIBSUFFIX}' % library[0],
+        '',
+        Copy('$TARGET', str(catLib[0])))
 
-        #Dir('#lib')
-        envContentSig.Depends(catLink, catIF)
+    #Dir('#lib')
+    envContentSig.Depends(catLink, catIF)
 
-        #global libs
-        #libs += catLib
+    #global libs
+    #libs += catLib
 
-        return cat
+    return cat
 
 # declaring OriginalSharedLibrary is a bit marginal.  Probably should use
 # a functor style object so we can store it in side the object?

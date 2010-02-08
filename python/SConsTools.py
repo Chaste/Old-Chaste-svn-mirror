@@ -496,7 +496,7 @@ def DoComponentSConscript(component, otherVars):
     dyn_libs = []
     for s in dyn_source:
         so_name = os.path.splitext(s)[0] + '.so'
-        dyn_libs.append(env.SharedLibrary(so_name, s))
+        dyn_libs.append(env.OriginalSharedLibrary(so_name, s))
     if dyn_source:
         # Need to link against the dl library too
         otherVars['other_libs'] = otherVars['other_libs'] + ['dl']
