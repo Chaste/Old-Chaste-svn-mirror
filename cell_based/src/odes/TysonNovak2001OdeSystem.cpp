@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TysonNovak2001OdeSystem.hpp"
 #include "OdeSystemInformation.hpp"
+#include "UblasCustomFunctions.hpp"
 
 TysonNovak2001OdeSystem::TysonNovak2001OdeSystem()
         : AbstractOdeSystemWithAnalyticJacobian(6)
@@ -59,7 +60,7 @@ void TysonNovak2001OdeSystem::Init()
     mK5dd = 0.2;
     mK6 = 0.1;
     mJ5 = 0.3;
-    mN = 4;
+    mN = 4u;
     mK7 = 1.0;
     mK8 = 0.5;
     mJ7 = 1e-3;
@@ -122,7 +123,7 @@ void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vecto
     temp2 = (mK4*x6*x1*x2)/(mJ4+x2);
     dx2 = temp1-temp2;
     
-    temp1 = mK5dd*(pow(x1*x6/mJ5,mN)/(1+pow(x1*x6/mJ5,mN)));
+    temp1 = mK5dd*(SmallPow(x1*x6/mJ5,mN)/(1+SmallPow(x1*x6/mJ5,mN)));
     temp2 = mK6*x3;
     dx3 = mK5d + temp1 - temp2;
     
@@ -163,8 +164,8 @@ void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double>& rSolut
     
     // f2
     double df2_dx1 = -mK4*x6*x2/(mJ4+x2);
-    double df2_dx2 = -mJ3*(mK3d + mK3dd*x4)/(pow((mJ3 + 1 - x2),2))
-                     -mJ4*mK4*x6*x1/(pow((mJ4+x2),2));
+    double df2_dx2 = -mJ3*(mK3d + mK3dd*x4)/(SmallPow((mJ3 + 1 - x2),2))
+                     -mJ4*mK4*x6*x1/(SmallPow((mJ4+x2),2));
     double df2_dx4 =  mK3dd*(1-x2)/(mJ3+1-x2);
     double df2_dx6 = -mK4*x1*x2/(mJ4+x2);
     
@@ -175,17 +176,17 @@ void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double>& rSolut
     
     //f3
     double z = x1*x6/mJ5;
-    double df3_dx1 = (mK5dd*x6/mJ5)*mN*pow(z,mN-1)/(pow((1-pow(z,mN)),2));
+    double df3_dx1 = (mK5dd*x6/mJ5)*mN*SmallPow(z,mN-1)/(SmallPow((1-SmallPow(z,mN)),2));
     double df3_dx3 = -mK6;
-    double df3_dx6 = (mK5dd*x1/mJ5)*mN*pow(z,mN-1)/(pow((1-pow(z,mN)),2));
+    double df3_dx6 = (mK5dd*x1/mJ5)*mN*SmallPow(z,mN-1)/(SmallPow((1-SmallPow(z,mN)),2));
     
     jacobian[2][0] = -timeStep*df3_dx1;
     jacobian[2][2] = 1-timeStep*df3_dx3;
     jacobian[2][5] = -timeStep*df3_dx6;
     
     // f4
-    double df4_dx3 =  mJ7*mK7*x5/(pow(mJ7+x3-x4,2));
-    double df4_dx4 = -mJ7*mK7*x5/(pow(mJ7+x3-x4,2)) - mK6 - mJ8*mK8*mMad/(pow(mJ8+x4,2));
+    double df4_dx3 =  mJ7*mK7*x5/(SmallPow(mJ7+x3-x4,2));
+    double df4_dx4 = -mJ7*mK7*x5/(SmallPow(mJ7+x3-x4,2)) - mK6 - mJ8*mK8*mMad/(SmallPow(mJ8+x4,2));
     double df4_dx5 =  mK7*(x3-x4)/(mJ7+x3-x4);
     
     jacobian[3][2] = -timeStep*df4_dx3;

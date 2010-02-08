@@ -76,7 +76,7 @@ private:
     /** Dimensionless parameter J_5. */
     double mJ5;
     /** Dimensionless parameter n. */
-    double mN;
+    unsigned mN;
     /** Dimensional parameter k_7. */
     double mK7;
     /** Dimensional parameter k_8. */

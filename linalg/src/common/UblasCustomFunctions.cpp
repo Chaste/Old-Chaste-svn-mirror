@@ -114,3 +114,42 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
 
     return output;
 }
+
+double SmallPow(double x, unsigned exponent)
+{
+    switch (exponent)
+    {
+        case 0:
+        {
+            return 1.0;
+        }
+        case 1:
+        {
+            return x;
+        }
+        case 2:
+        {
+            return x*x;
+        }
+        case 3:
+        {
+            return x*x*x;
+        }
+        default:
+        {
+            if (exponent % 2 == 0)
+            {
+                //Even power
+                double partial_answer=SmallPow(x, exponent/2);
+                return partial_answer*partial_answer;
+            }
+            else
+            {   //Odd power
+                return SmallPow(x, exponent-1)*x;
+            }
+        }
+        
+    }
+}
+    
+

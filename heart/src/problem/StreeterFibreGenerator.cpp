@@ -349,7 +349,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
          *    (1 - 2e)^3 scales it by a value in [-1, 1] defining the rotation of the fibre based
          *       on the position in the wall
          */
-        double alpha = GetFibreMaxAngle(elem_nodes_region) * pow( (1 - 2*element_averaged_thickness), 3 );
+        double alpha = GetFibreMaxAngle(elem_nodes_region) * SmallPow( (1 - 2*element_averaged_thickness), 3 );
 
         /*
          *  Apply alpha rotation about the u axis to the orthonormal basis

@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOdeSystem.hpp"
 #include "CryptCellMutationStates.hpp"
+#include "UblasCustomFunctions.hpp"
 
 /**
  * Represents the van Leeuwen et al. (2007) system of ODEs

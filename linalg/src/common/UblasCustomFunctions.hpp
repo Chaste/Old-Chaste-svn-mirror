@@ -48,6 +48,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 
+
+
 using namespace boost::numeric::ublas;
 /**
  * Get the determinant of a ublas matrix
@@ -80,6 +82,9 @@ template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,2,2>& rM)
 {
     using namespace boost::numeric::ublas;
+#define SMALL_POW(x, a)
+#define SMALL_POW(x, a)
+#define SMALL_POW(x, a)
 
     return rM(0,0)*rM(1,1) - rM(1,0)*rM(0,1);
 }
@@ -499,6 +504,15 @@ c_vector<double, 3> Create_c_vector(double x, double y, double z);
  * @return 3-vector corresponding to right-eigenvector in question
  */
 c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<double, 3, 3>& rA);
+
+/**
+ * Replacement "pow" function
+ * @param x  
+ * @param a  exponent
+ * @return x^a, x**a.
+ */
+double SmallPow(double x, unsigned exponent);
+
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/
 

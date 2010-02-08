@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "HoneycombMeshGenerator.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "UblasCustomFunctions.hpp"
 
 
 HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts, bool cylindrical, double scaleFactor)
@@ -228,7 +229,7 @@ void HoneycombMeshGenerator::Make2dPeriodicCryptMesh(double width, unsigned ghos
                     }
                 }
 
-                double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ pow(-1,i+1)));
+                double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ SmallPow(-1,i+1)));
                 double y = y0 + vertical_spacing*(double)i;
 
                 // Avoid floating point errors which upset CryptSimulation2d

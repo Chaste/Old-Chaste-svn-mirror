@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "GaussianQuadratureRule.hpp"
 #include "Exception.hpp"
+#include "UblasCustomFunctions.hpp"
 
 template<unsigned ELEMENT_DIM>
 const ChastePoint<ELEMENT_DIM>& GaussianQuadratureRule<ELEMENT_DIM>::rGetQuadPoint(unsigned index) const
@@ -54,7 +55,7 @@ unsigned GaussianQuadratureRule<ELEMENT_DIM>::GetNumQuadPoints() const
 template<unsigned ELEMENT_DIM>
 GaussianQuadratureRule<ELEMENT_DIM>::GaussianQuadratureRule(unsigned numPointsInEachDimension)
 {
-    mNumQuadPoints = (unsigned) pow((double) numPointsInEachDimension,(ELEMENT_DIM));
+    mNumQuadPoints = (unsigned) SmallPow((double) numPointsInEachDimension,(ELEMENT_DIM));
 
     mWeights.reserve(mNumQuadPoints);
     mPoints.reserve(mNumQuadPoints);

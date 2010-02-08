@@ -113,13 +113,13 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     double temp = (mSx*(d_d_hat+d_d_x_hat))/((1.0-sigma_D)*mSd*d_d_hat+d_x_hat*(d_d_hat+d_d_x_hat));
     SetInitialConditionsComponent(6, temp);  // Axin
 
-    double steady_Cf = ((mSc-mDc*mKd - mPu*steady_D)+sqrt(pow((mSc-mDc*mKd - mPu*steady_D),2) + (4.0*mSc*mDc*mKd)))/(2.0*mDc);
+    double steady_Cf = ((mSc-mDc*mKd - mPu*steady_D)+sqrt(SmallPow((mSc-mDc*mKd - mPu*steady_D),2) + (4.0*mSc*mDc*mKd)))/(2.0*mDc);
     temp = (mPu*steady_D*steady_Cf)/(mDu*(steady_Cf+mKd));
     SetInitialConditionsComponent(7, temp); // beta-catenin to be ubiquitinated
 
     double theta = mDc + (mPu*steady_D)/(steady_Cf + mKd);
 
-    double steady_Co = ( mSc - p_c_hat - theta*mKc + sqrt(4.0*mSc*theta*mKc + pow((mSc - p_c_hat - theta*mKc),2)) )/(2.0*theta);
+    double steady_Co = ( mSc - p_c_hat - theta*mKc + sqrt(4.0*mSc*theta*mKc + SmallPow((mSc - p_c_hat - theta*mKc),2)) )/(2.0*theta);
     SetInitialConditionsComponent(8, steady_Co); // Open form beta-catenin
 
     double steady_Cc = steady_Cf - steady_Co;

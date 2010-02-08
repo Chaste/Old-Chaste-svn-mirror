@@ -345,6 +345,15 @@ public:
         TS_ASSERT_DELTA( a_times_eigenvector[1], smallest_eigenvalue*eigenvector[1], delta);
         TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);
     }
+    void TestSmallPow() throw(Exception)
+    {
+        for (unsigned i=0; i<10; i++)
+        {
+            TS_ASSERT_DELTA( SmallPow(0.0, i), pow(0.0, double(i)), 1e-16);
+            TS_ASSERT_DELTA( SmallPow(-1.67e3, i), pow(-1.67e3, double(i)), 1e-16);
+            TS_ASSERT_DELTA( SmallPow(75.0, i), pow(75.0, double(i)), 1e-16);
+        }
+    }
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

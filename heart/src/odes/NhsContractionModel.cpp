@@ -28,6 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NhsContractionModel.hpp"
 #include "OdeSystemInformation.hpp"
 #include "EulerIvpOdeSolver.hpp"
+#include "UblasCustomFunctions.hpp"
+
 #include <cmath>
 
 
@@ -42,10 +44,10 @@ const double NhsContractionModel::mCalciumTroponinMax = 0.07;
 const double NhsContractionModel::mAlphaR1 = 0.002;
 const double NhsContractionModel::mAlphaR2 = 0.00175;
 const double NhsContractionModel::mKZ = 0.15;
-const double NhsContractionModel::mNr = 3;
+const unsigned NhsContractionModel::mNr = 3u;
 const double NhsContractionModel::mBeta1 = -4;
 const double NhsContractionModel::mAlpha0 = 0.008;
-const double NhsContractionModel::mN = 3;
+const unsigned NhsContractionModel::mN = 3u;
 const double NhsContractionModel::mZp = 0.85;
 const double NhsContractionModel::mCalcium50ref = 0.00105;
 const double NhsContractionModel::mTref = 56.2;
@@ -73,7 +75,7 @@ void NhsContractionModel::CalculateCalciumTrop50()
 
 double NhsContractionModel::CalculateT0(double z)
 {
-    double calcium_ratio_to_n = pow(mCalciumTrop50/mCalciumTroponinMax, mN);
+    double calcium_ratio_to_n = SmallPow(mCalciumTrop50/mCalciumTroponinMax, mN);
 
     double z_max = mAlpha0 - mK2*calcium_ratio_to_n;
     z_max /= mAlpha0 + (mAlphaR1 + mK1)*calcium_ratio_to_n;
@@ -100,13 +102,13 @@ NhsContractionModel::NhsContractionModel()
     // Initialise mCalciumTrop50!!
     CalculateCalciumTrop50();
 
-    double zp_to_n_plus_K_to_n = pow(mZp,mNr) + pow(mKZ,mNr);
+    double zp_to_n_plus_K_to_n = SmallPow(mZp,mNr) + SmallPow(mKZ,mNr);
 
-    mK1 = mAlphaR2 * pow(mZp,mNr-1) * mNr * pow(mKZ,mNr);
+    mK1 = mAlphaR2 * SmallPow(mZp,mNr-1) * mNr * SmallPow(mKZ,mNr);
     mK1 /= zp_to_n_plus_K_to_n * zp_to_n_plus_K_to_n;
 
-    mK2 = mAlphaR2 * pow(mZp,mNr)/zp_to_n_plus_K_to_n;
-    mK2 *= 1 - mNr*pow(mKZ,mNr)/zp_to_n_plus_K_to_n;
+    mK2 = mAlphaR2 * SmallPow(mZp,mNr)/zp_to_n_plus_K_to_n;
+    mK2 *= 1 - mNr*SmallPow(mKZ,mNr)/zp_to_n_plus_K_to_n;
 }
 
 void NhsContractionModel::SetStretchAndStretchRate(double lambda, double dlambdaDt)
@@ -181,11 +183,11 @@ void NhsContractionModel::EvaluateYDerivatives(double time,
     rDY[0] =   mKon * mCalciumI * ( mCalciumTroponinMax - calcium_troponin)
              - mKrefoff * (1-Ta/(mGamma*mTref)) * calcium_troponin;
 
-    double ca_trop_to_ca_trop50_ratio_to_n = pow(calcium_troponin/mCalciumTrop50, mN);
+    double ca_trop_to_ca_trop50_ratio_to_n = SmallPow(calcium_troponin/mCalciumTrop50, mN);
 
     rDY[1] =   mAlpha0 * ca_trop_to_ca_trop50_ratio_to_n * (1-z)
              - mAlphaR1 * z
-             - mAlphaR2 * pow(z,mNr) / (pow(z,mNr) + pow(mKZ,mNr));
+             - mAlphaR2 * SmallPow(z,mNr) / (SmallPow(z,mNr) + SmallPow(mKZ,mNr));
 
 
     rDY[2] = mA1 * mDLambdaDt - mAlpha1 * Q1;

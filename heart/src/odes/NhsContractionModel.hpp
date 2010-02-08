@@ -90,7 +90,7 @@ protected :
     static const double mKZ;
 
     /** See reference. Dimensionless */
-    static const double mNr;
+    static const unsigned mNr;
 
     /** See reference. Dimensionless */
     static const double mBeta1;
@@ -99,7 +99,7 @@ protected :
     static const double mAlpha0;
 
     /** See reference. Dimensionless */
-    static const double mN;
+    static const unsigned mN;
 
     /** See reference. Dimensionless */
     static const double mZp;
