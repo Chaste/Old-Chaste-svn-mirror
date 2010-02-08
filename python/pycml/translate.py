@@ -2170,6 +2170,9 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         This method outputs #includes, and the start of the cell class
         with constructor, destructor, and LT methods.
         """
+        # CVODE is optional in Chaste
+        self.writeln("#ifdef CHASTE_CVODE")
+        self.writeln_hpp("#ifdef CHASTE_CVODE")
         self.include_serialization = False
         self.use_backward_euler = False
         self.check_time_units()
@@ -2211,6 +2214,13 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         """
         self.output_get_i_ionic()
         self.output_evaluate_y_derivatives(method_name='EvaluateRhs')
+    
+    def output_bottom_boilerplate(self):
+        """Call superclass method, then end the CHASTE_CVODE guard."""
+        super(CellMLToCvodeTranslator, self).output_bottom_boilerplate()
+        # CVODE is optional in Chaste
+        self.writeln("#endif // CHASTE_CVODE")
+        self.writeln_hpp("#endif // CHASTE_CVODE")
 
 class CellMLToMapleTranslator(CellMLTranslator):
     """Translate a CellML model to Maple code."""

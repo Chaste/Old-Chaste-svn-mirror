@@ -299,13 +299,13 @@ for example: file:///home/scratch/chaste-code/testoutput/msc30.ecs.ox.ac.uk.GccO
 
 *IF* you want to create the standalone cardiac Chaste executable:
 
-The following command generates Chaste executable:
+The following command generates the Chaste executable:
 scons compile_only=1 chaste_libs=1 static=0 build=GccOpt exe=1 apps
 
-(The distributed stand-alone executable uses "static=1", but it requires a
+(The distributed stand-alone executable uses "static=1", but it requires
 making sure that all the dependencies are available as static libraries.)
 
-The executable Chaste can be found in the apps/src folder.
+The executable Chaste can then be found in the apps/src folder.
 
 To use the correct dynamic libraries you will need to add this to your
 environment (where [*PATH_TO_CHASTE*] is the location of your Chaste
@@ -324,4 +324,4 @@ Please note that the output directory specified in the ChasteParameters.xml file
 a directory defined by the environmental variable CHASTE_TEST_OUTPUT, as described above. If this
 variable is not set, results will be found relative to the 'testoutput' folder in the main 
 Chaste directory (unlike when scons is used to run tests). Add CHASTE_TEST_OUTPUT to the .bashrc 
-file as described above.
+file as described above, to change this location.
