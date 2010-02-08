@@ -80,7 +80,7 @@ public:
     /**
      * Get the number of nodes in the mesh.
      */
-    unsigned GetNumNodes();
+    virtual unsigned GetNumNodes();
 
     /**
      * Get the number of elements in the mesh.

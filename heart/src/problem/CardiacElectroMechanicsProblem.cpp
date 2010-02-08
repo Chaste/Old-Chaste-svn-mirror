@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraturePointsGroup.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "Hdf5ToMeshalyzerConverter.hpp"
+#include "Hdf5ToCmguiConverter.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "PetscTools.hpp"
 
@@ -415,7 +416,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         mpCardiacMechAssembler->SetWriteOutput();
         mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
 
-        p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/cmgui", "solution", *(this->mpMechanicsMesh));
+        p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/deformation/cmgui", "solution", *(this->mpMechanicsMesh));
+        std::vector<std::string> fields;
+        fields.push_back("V");
+        p_cmgui_writer->SetAdditionalFieldNames(fields);
         p_cmgui_writer->WriteInitialMesh();
 
 
@@ -581,7 +585,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         std::string input_dir = mOutputDirectory+"/electrics";
         std::string config_directory = HeartConfig::Instance()->GetOutputDirectory();
         HeartConfig::Instance()->SetOutputDirectory(input_dir);
-        Hdf5ToMeshalyzerConverter<DIM,DIM> converter(input_dir, "voltage", mpElectricsMesh);
+        Hdf5ToMeshalyzerConverter<DIM,DIM> meshalyzer_converter(input_dir, "voltage", mpElectricsMesh);
+        Hdf5ToCmguiConverter<DIM,DIM> cmgui_converter(input_dir,"voltage",mpElectricsMesh);
         
         // Write mesh in a suitable form for meshalyzer
         std::string output_directory =  mOutputDirectory + "/electrics/output";

@@ -4,6 +4,6 @@
 for ($i=0; $i<=2; $i++) { 
   gfx read node solution_$i time $i
 }
-gfx read ele solution_0
+gfx read ele solution_0 generate_faces_and_lines
 gfx cr win
 

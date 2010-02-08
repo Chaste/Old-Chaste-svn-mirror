@@ -58,6 +58,16 @@ private:
      */
     unsigned mFinalCounter;
 
+	/** 
+     *  Overridden GetNumNodes() just returns the number of vertices in the quadratic mesh,
+	 *  since (currently - perhaps not in the future) the cmgui element file assumes linear
+     *  interpolation in the elements and therefore we don't need to write the internal nodes
+     */
+    unsigned GetNumNodes()
+    {
+        return mpQuadraticMesh->GetNumVertices();
+    }
+
 public:
     /**
      *  Constructor 

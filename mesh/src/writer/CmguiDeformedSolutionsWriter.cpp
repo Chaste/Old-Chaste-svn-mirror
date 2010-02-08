@@ -66,9 +66,9 @@ void CmguiDeformedSolutionsWriter<DIM>::WriteDeformationPositions(std::vector<c_
     this->WriteNodeFileHeader(p_node_file);
 
     // Write each node's data
-    for (unsigned index=0; index<mpQuadraticMesh->GetNumNodes(); index++)
+    for (unsigned index=0; index<mpQuadraticMesh->GetNumVertices(); index++)
     {
-       *p_node_file << "Node:\t" << index+1 << "\t";
+        *p_node_file << "Node:\t" << index+1 << "\t";
 
         for (unsigned i=0; i<DIM; i++)
         {
@@ -87,7 +87,7 @@ void CmguiDeformedSolutionsWriter<DIM>::WriteCmguiScript()
                    << "for ($i=0; $i<=" << mFinalCounter << "; $i++) { \n"
                    << "  gfx read node " << this->mBaseName << "_$i time $i\n"
                    << "}\n"
-                   << "gfx read ele " << this->mBaseName << "_0\n"
+                   << "gfx read ele " << this->mBaseName << "_0 generate_faces_and_lines\n"
                    << "gfx cr win\n\n";        
     p_script_file->close();
 }
