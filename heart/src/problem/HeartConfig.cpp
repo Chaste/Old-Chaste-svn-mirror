@@ -1663,7 +1663,8 @@ void HeartConfig::SetDomain(cp::domain_type domain)
 
 void HeartConfig::SetDefaultIonicModel(cp::ionic_models_available_type ionicModel)
 {
-    mpUserParameters->Simulation().get().IonicModels().set(ionicModel);
+    cp::ionic_models_type container(ionicModel);
+    mpUserParameters->Simulation().get().IonicModels().set(container);
 }
 
 void HeartConfig::SetSlabDimensions(double x, double y, double z, double inter_node_space)
@@ -1718,27 +1719,26 @@ void HeartConfig::SetIonicModelRegions(std::vector<ChasteCuboid<3> >& definedReg
                                        std::vector<cp::ionic_models_available_type>& ionicModels) const
 {
     assert(definedRegions.size() == ionicModels.size());
+    ///\todo will this break if the user parameters don't include an IonicModels element?
     XSD_SEQUENCE_TYPE(cp::ionic_models_type::Region)&
-         regions =  mpUserParameters->Simulation().get().IonicModels().get().Region();
+        regions = mpUserParameters->Simulation().get().IonicModels().get().Region();
     regions.clear();
     for (unsigned region_index=0; region_index<definedRegions.size(); region_index++)
     {
         cp::point_type point_a(definedRegions[region_index].rGetLowerCorner()[0],
-                           definedRegions[region_index].rGetLowerCorner()[1],
-                           definedRegions[region_index].rGetLowerCorner()[2]);
+                               definedRegions[region_index].rGetLowerCorner()[1],
+                               definedRegions[region_index].rGetLowerCorner()[2]);
 
         cp::point_type point_b(definedRegions[region_index].rGetUpperCorner()[0],
-                           definedRegions[region_index].rGetUpperCorner()[1],
-                           definedRegions[region_index].rGetUpperCorner()[2]);
+                               definedRegions[region_index].rGetUpperCorner()[1],
+                               definedRegions[region_index].rGetUpperCorner()[2]);
 
         XSD_CREATE_WITH_FIXED_ATTR(cp::location_type, locn, "cm");
         locn.Cuboid().set(cp::box_type(point_a, point_b));
 
-
         cp::ionic_model_region_type region(ionicModels[region_index], locn);
         regions.push_back(region);
     }
-
 }
 
 void HeartConfig::SetConductivityHeterogeneities(std::vector<ChasteCuboid<3> >& conductivityAreas,
