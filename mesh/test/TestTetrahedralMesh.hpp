@@ -1489,31 +1489,25 @@ public:
     void TestCuboidMeshConstructors()
     {
         CuboidMeshConstructor<1> constructor1;
-
-        TrianglesMeshReader<1,1> mesh_reader1(constructor1.Construct(1, 1.0));
-        TS_ASSERT_EQUALS(constructor1.GetWidth(), 1.0);
-
         TetrahedralMesh<1,1> mesh1;
-        mesh1.ConstructFromMeshReader(mesh_reader1);
+        constructor1.Construct(mesh1, 1, 1.0);
+        TS_ASSERT_EQUALS(constructor1.GetWidth(), 1.0);
         TS_ASSERT_EQUALS(mesh1.GetNumNodes(), 9u);
         TS_ASSERT( mesh1.CheckIsConforming() );
 
         CuboidMeshConstructor<2> constructor2;
-        TrianglesMeshReader<2,2> mesh_reader2(constructor2.Construct(1, 1.0));
         TetrahedralMesh<2,2> mesh2;
-        mesh2.ConstructFromMeshReader(mesh_reader2);
+        constructor2.Construct(mesh2, 1, 1.0);
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 9u*9u);
 
         CuboidMeshConstructor<3> constructor3;
-        TrianglesMeshReader<3,3> mesh_reader3(constructor3.Construct(1, 1.0));
         TetrahedralMesh<3,3> mesh3;
-        mesh3.ConstructFromMeshReader(mesh_reader3);
+        constructor3.Construct(mesh3, 1, 1.0);
         TS_ASSERT_EQUALS(mesh3.GetNumNodes(), 9u*9u*9u);
         
         CuboidMeshConstructor<1,3> constructor4;
-        TrianglesMeshReader<1,3> mesh_reader4(constructor4.Construct(1, 1.0));
         TetrahedralMesh<1,3> mesh4;
-        mesh4.ConstructFromMeshReader(mesh_reader4);
+        constructor4.Construct(mesh4, 1, 1.0);
         TS_ASSERT_EQUALS(mesh4.GetNumNodes(), 9u);
     }
 

@@ -50,19 +50,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class PerformanceTester
 {
-private:
-    void ConstructHyperCube(TetrahedralMesh<1,1> &rMesh, unsigned width)
-    {
-        rMesh.ConstructLinearMesh(width);
-    }
-    void ConstructHyperCube(TetrahedralMesh<2,2> &rMesh, unsigned width)
-    {
-        rMesh.ConstructRectangularMesh(width, width);
-    }
-    void ConstructHyperCube(TetrahedralMesh<3,3> &rMesh, unsigned width)
-    {
-        rMesh.ConstructCuboid(width, width, width);
-    }
 protected:
     const static double mMeshWidth=0.2;//cm
 public:
@@ -84,18 +71,22 @@ public:
         HeartConfig::Instance()->SetUseAbsoluteTolerance(KspAtol);
 
         // Create the meshes on which the test will be based
-        const std::string mesh_dir = "ConvergenceMesh";
+        const std::string mesh_dir = "PerformanceMesh/";
         OutputFileHandler output_file_handler(mesh_dir);
 
         unsigned prev_mesh_num=9999;
-        std::string mesh_pathname;
-        std::string mesh_filename;
+        std::string mesh_filename="temp_mesh";
 
         CuboidMeshConstructor<DIM> constructor;
 
         if (MeshNum!=prev_mesh_num)
         {
-            mesh_pathname = constructor.Construct(MeshNum, mMeshWidth);
+            //Here we temporarily construct a mesh and write files out.
+            //This is so that performance metrics include the time to read in the mesh from disk
+            TetrahedralMesh<DIM,DIM> mesh;
+            constructor.Construct(mesh, MeshNum, mMeshWidth);
+            TrianglesMeshWriter<DIM,DIM> writer(mesh_dir, mesh_filename);
+            writer.WriteFilesUsingMesh(mesh);
             mNumElements = constructor.GetNumElements();
             mNumNodes = constructor.GetNumNodes();
             prev_mesh_num = MeshNum;
@@ -105,7 +96,7 @@ public:
         GeneralPlaneStimulusCellFactory<CELL, DIM> cell_factory(num_ele_across, mMeshWidth);
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
 
-        HeartConfig::Instance()->SetMeshFileName(mesh_pathname);
+        HeartConfig::Instance()->SetMeshFileName(output_file_handler.GetOutputDirectoryFullPath()+mesh_filename);
         HeartConfig::Instance()->SetOutputDirectory ("Convergence");
         HeartConfig::Instance()->SetOutputFilenamePrefix ("Results");
 

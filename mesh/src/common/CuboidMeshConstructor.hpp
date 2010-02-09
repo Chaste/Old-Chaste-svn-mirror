@@ -48,25 +48,25 @@ private:
      * Construct a one-dimensional linear mesh.
      *
      * @param rMesh  The mesh
-     * @param width  Width of the mesh
+     * @param width  Width of the mesh in terms of number of elements in each space dimension
      */
-    void ConstructHyperCube(TetrahedralMesh<1,SPACE_DIM>& rMesh, unsigned width);
+    void ConstructHyperCube(AbstractTetrahedralMesh<1,SPACE_DIM>& rMesh, unsigned width);
 
     /**
      * Construct a two-dimensional rectangular mesh.
      *
      * @param rMesh  The mesh
-     * @param width  Width of the mesh
+     * @param width  Width of the mesh in terms of number of elements in each space dimension
      */
-    void ConstructHyperCube(TetrahedralMesh<2,2>& rMesh, unsigned width);
+    void ConstructHyperCube(AbstractTetrahedralMesh<2,2>& rMesh, unsigned width);
 
     /**
      * Construct a three-dimensional cuboidal mesh.
      *
      * @param rMesh  The mesh
-     * @param width  Width of the mesh
+     * @param width  Width of the mesh in terms of number of elements in each space dimension
      */
-    void ConstructHyperCube(TetrahedralMesh<3,3>& rMesh, unsigned width);
+    void ConstructHyperCube(AbstractTetrahedralMesh<3,3>& rMesh, unsigned width);
 
     double mMeshWidth; /**< Width of the mesh.*/
     unsigned mNumElements; /**< Number of elements in the mesh. */
@@ -77,10 +77,14 @@ public:
     /**
      * Construct the mesh.
      *
-     * @param meshNum  Index for the mesh
-     * @param meshWidth  Width of the mesh
+     * @param rMesh  Input a blank mesh in which to construct the result
+     * @param meshRefinementNum  Index for the mesh starting at 0 (4 elements in each space dimension)
+     * @param meshWidth  Width of the mesh (in cm)
+     * 
+     * (used to return a path to the mesh stored on the disk)
+     * 
      */
-    std::string Construct(unsigned meshNum, double meshWidth);
+    void Construct(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, unsigned meshRefinementNum, double meshWidth);
 
     /**
      * Get the width of the mesh.

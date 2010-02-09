@@ -37,52 +37,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(TetrahedralMesh<1,SPACE_DIM>& rMesh, unsigned width)
+void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(AbstractTetrahedralMesh<1,SPACE_DIM>& rMesh, unsigned width)
 {
     rMesh.ConstructLinearMesh(width);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(TetrahedralMesh<2,2>& rMesh, unsigned width)
+void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(AbstractTetrahedralMesh<2,2>& rMesh, unsigned width)
 {
     rMesh.ConstructRectangularMesh(width, width);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(TetrahedralMesh<3,3>& rMesh, unsigned width)
+void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(AbstractTetrahedralMesh<3,3>& rMesh, unsigned width)
 {
     rMesh.ConstructCuboid(width, width, width);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::string CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(unsigned meshNum, double meshWidth)
+void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, unsigned meshRefinementNum, double meshWidth)
 {
     //The class has only been tested for ELEMENT_DIM == SPACE_DIM or ELEMENT_DIM == 1 && SPACE_DIM == 3
     assert(ELEMENT_DIM == SPACE_DIM || (ELEMENT_DIM == 1 && SPACE_DIM == 3));
 
     mMeshWidth = meshWidth;
-    assert(meshNum < 30); //Sanity
-    const std::string mesh_dir = "ConvergenceMesh";
-    OutputFileHandler output_file_handler(mesh_dir);
+    assert(meshRefinementNum < 30); //Sanity
 
     // Create the mesh
-    unsigned mesh_size = (unsigned) SmallPow(2, meshNum+2); // number of elements in each dimension
+    unsigned mesh_size = (unsigned) SmallPow(2, meshRefinementNum+2); // number of elements in each dimension
     double scaling = mMeshWidth/(double) mesh_size;
-    TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
-    ConstructHyperCube(mesh, mesh_size);
-    mesh.Scale(scaling, scaling, scaling);
-    mNumElements = mesh.GetNumElements();
-    mNumNodes = mesh.GetNumNodes();
-    std::stringstream file_name_stream;
-    file_name_stream << "cube_" << ELEMENT_DIM << "D_2mm_" << mNumElements << "_elements";
-    std::string mesh_filename = file_name_stream.str();
-
-    TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(mesh_dir, mesh_filename, false);
-    mesh_writer.WriteFilesUsingMesh(mesh);
-
-    std::string mesh_pathname = output_file_handler.GetOutputDirectoryFullPath() + mesh_filename;
-
-    return mesh_pathname;
+    ConstructHyperCube(rMesh, mesh_size);
+    rMesh.Scale(scaling, scaling, scaling);
+    mNumElements = rMesh.GetNumElements();
+    mNumNodes = rMesh.GetNumNodes();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

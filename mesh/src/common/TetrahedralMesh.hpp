@@ -248,36 +248,6 @@ public:
     void PermuteNodes(std::vector<unsigned>& perm);
 
     /**
-     * Construct a 1D linear grid on [0,width]
-     * 
-     * If SPACE_DIM > 1 then the y & z default to 0.0 for every node.
-     *
-     * @param width  width of the mesh (in the x-direction)
-     */
-    void ConstructLinearMesh(unsigned width);
-
-    /**
-     * Construct a 2D rectangular grid on [0,width]x[0,height].
-     *
-     * Diagonals can be staggered so that there is no preferred
-     * diffusion propagation direction.
-     *
-     * @param width  width of the mesh (in the x-direction)
-     * @param height  height of the mesh (in the y-direction)
-     * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
-     */
-    void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
-
-    /**
-     * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
-     *
-     * @param width  width of the mesh (in the x-direction)
-     * @param height  height of the mesh (in the y-direction)
-     * @param depth  depth of the mesh (in the z-direction)
-     */
-    void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
-
-    /**
      * Return the element index for the first element that contains a test point
      *
      * @param testPoint
