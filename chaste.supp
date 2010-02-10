@@ -310,6 +310,24 @@
    fun:_Z16PetscGetUserNamePc?
 }
 
+# dlopen
+{
+   dlopen-addr
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   fun:dlopen
+}
+
 #
 # HDF5 free lists (see http://hdf.ncsa.uiuc.edu/HDF5/faq/valgrind.html )
 #
