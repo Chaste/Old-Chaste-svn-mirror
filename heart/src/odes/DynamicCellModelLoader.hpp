@@ -48,6 +48,9 @@ public:
     /**
      * Create a cell model loader by opening a loadable module (.so file) containing
      * a cell model.
+     * 
+     * @note This loader object must remain alive for as long as you want to use cells
+     * created with it, or you'll get a segfault.
      *
      * @param rLoadableModulePath  path to .so file
      */
@@ -62,6 +65,9 @@ public:
      * Create a new cardiac cell from this dynamic module.
      *
      * The caller takes responsibility for deleting the cell when it's finished with.
+     * 
+     * @note This loader object must remain alive for as long as you want to use the cell,
+     * or you'll get a segfault.
      *
      * @param pSolver  ODE solver used to simulate the cell
      * @param pStimulus  intracellular stimulus

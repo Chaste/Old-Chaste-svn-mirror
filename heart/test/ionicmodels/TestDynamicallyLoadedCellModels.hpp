@@ -88,6 +88,19 @@ public:
         // Need to delete cell model
         delete p_cell;
     }
+    
+    void TestExceptions() throw(Exception)
+    {
+        // Try loading a .so that doesn't exist
+        std::string file_name = "non-existent-file-we-hope";
+        TS_ASSERT_THROWS_CONTAINS(DynamicCellModelLoader loader(file_name),
+                                  "Unable to load .so file '" + file_name + "':");
+
+        // Try loading a .so that doesn't define a cell model
+        file_name = "libNotACellModel.so";
+        TS_ASSERT_THROWS_CONTAINS(DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "/dynamic/" + file_name),
+                                  "Failed to load cell creation function from .so file");
+    }
 };
 
 #endif /* TESTDYNAMICALLYLOADEDCELLMODELS_HPP_ */

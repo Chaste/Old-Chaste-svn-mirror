@@ -88,17 +88,17 @@ for gcda_file in gcda_files:
         # gcda_file['dir'] should look something like mesh/build/coverage/src/reader
         # We then want to look in mesh/src/reader
         try:
-            start, end = gcda_file['dir'].split('src')
+            toplevel, rest = gcda_file['dir'].split('build')
         except:
             print gcda_file
             raise
-        toplevel, junk = start.split('build')
         # Get rid of slashes (or system equivalent)
         toplevel = os.path.dirname(toplevel)
-        if end: end = end.split(os.path.sep, 1)[1]
+        # Drop the '/coverage/'
+        rest = rest.split(os.path.sep, 2)[-1]
         # Run gcov
         os.system('gcov -o ' + gcda_file['dir'] + gcov_flags +
-                  os.path.join(toplevel, 'src', end, gcda_file['file'][:-4] + 'cpp'))
+                  os.path.join(toplevel, rest, gcda_file['file'][:-4] + 'cpp'))
 
 # Now find all our source files
 src_dirs = glob.glob('*/src')
