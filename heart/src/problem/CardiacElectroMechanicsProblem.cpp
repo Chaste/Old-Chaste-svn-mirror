@@ -256,7 +256,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mWatchedElectricsNodeIndex = UNSIGNED_UNSET;
     mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
     
-    mFibreDirectionsFile = "";
+    mFibreSheetDirectionsFile = "";
 }
 
 template<unsigned DIM>
@@ -320,9 +320,9 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");
     }
     
-    if(mFibreDirectionsFile!="")
+    if(mFibreSheetDirectionsFile!="")
     {
-       mpCardiacMechAssembler->SetVariableFibreDirections(mFibreDirectionsFile);
+       mpCardiacMechAssembler->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile);
     }
     
     // find the element nums and weights for each gauss point in the mechanics mesh
@@ -639,9 +639,9 @@ void CardiacElectroMechanicsProblem<DIM>::SetWatchedPosition(c_vector<double,DIM
 }
 
 template<unsigned DIM>
-void CardiacElectroMechanicsProblem<DIM>::SetVariableFibreDirectionsFile(std::string fibreDirectionsFile)
+void CardiacElectroMechanicsProblem<DIM>::SetVariableFibreSheetDirectionsFile(std::string fibreSheetDirectionsFile)
 {
-    mFibreDirectionsFile = fibreDirectionsFile;
+    mFibreSheetDirectionsFile = fibreSheetDirectionsFile;
 }
 
 template<unsigned DIM>

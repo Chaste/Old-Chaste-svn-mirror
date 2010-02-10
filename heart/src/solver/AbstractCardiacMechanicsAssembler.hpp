@@ -78,13 +78,14 @@ protected:
     /** Time used to integrate the contraction model */
     double mOdeTimestep;
     
-    /** The unit fibre direction, if a constant fibre direction is being used (defaults to (1,0,0), ie X-direction) */
-    c_vector<double,DIM> mConstantFibreDirection;
-    /** 
-     *  Pointer to a set of non-const fibre directions, one for each element. Only non-NULL if SetFibreDirections()
-     *  is called, if not mConstantFibreDirection is used instead
+    /** The fibre-sheet-normal directions (in a matrix), if constant (defaults to the identity, ie fibres in the X-direction, sheet in the XY plane) */
+    c_matrix<double,DIM,DIM> mConstantFibreSheetDirections;
+
+    /**
+	 *	The fibre-sheet-normal directions (matrices), one for each element. Only non-NULL if SetVariableFibreSheetDirections()
+     *  is called, if not mConstantFibreSheetDirections is used instead
      */
-    std::vector<c_vector<double,DIM> >* mpNonConstantFibreDirections;
+    std::vector<c_matrix<double,DIM,DIM> >* mpVariableFibreSheetDirections;
     
     
     /**
@@ -172,11 +173,14 @@ public:
         // initialise the store of fibre stretches
         mStretches.resize(mTotalQuadPoints, 1.0);
         
-        // initialise fibre direction to be (1,0,0), ie fibres in X-direction
-        mConstantFibreDirection = zero_vector<double>(DIM);
-        mConstantFibreDirection(0) = 1.0;
+		// initialise fibre/sheet direction matrix to be the identity, fibres in X-direction, and sheet in XY-plane
+        mConstantFibreSheetDirections = zero_matrix<double>(DIM,DIM);
+        for(unsigned i=0; i<DIM; i++)
+        {
+            mConstantFibreSheetDirections(i,i) = 1.0;
+        }
         
-        mpNonConstantFibreDirections = NULL;
+        mpVariableFibreSheetDirections = NULL;
     }
 
     /**
@@ -189,9 +193,10 @@ public:
             assert(this->mMaterialLaws.size()==1); // haven't implemented heterogeniety yet
             delete this->mMaterialLaws[0];
         }
-        if(mpNonConstantFibreDirections)
+
+        if(mpVariableFibreSheetDirections)
         {
-            delete mpNonConstantFibreDirections;
+            delete mpVariableFibreSheetDirections;
         }
     }
 
@@ -210,21 +215,25 @@ public:
     
     
     /**  
-     *  Set a constant fibre direction something other than the default (fibres in X-direction, ie (1,0,0)) 
-     *  is required. The given fibre direction does not have to be unit, it is normalised in this method.
-     *  @param rFibreDirection The fibre direction (ok if norm is not equal to one).
+	 *	Set a constant fibre-sheet-normal direction (a matrix) to something other than the default (fibres in X-direction, 
+	 *  sheet in the XY plane) 
+     *  @param rFibreSheetMatrix The fibre-sheet-normal matrix (fibre dir the first column, normal-to-fibre-in sheet in second
+     *  column, sheet-normal in third column).
      */
-    void SetConstantFibreDirection(const c_vector<double,DIM>& rFibreDirection)
+    void SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
     {
-        assert(norm_2(rFibreDirection)>1e-14);
-        mConstantFibreDirection = rFibreDirection/norm_2(rFibreDirection);
+        mConstantFibreSheetDirections = rFibreSheetMatrix; 
+// EMTODO:
+// CheckOrthogonality(mConstantFibreSheetDirections);
     }
     
     /** 
-     *  Set fibre directions for each element from a file. Note: the fibre directions will be re-normalised.
-     *  @param fibreDirectionsFile the file containing the fibre directions - currently must be a .axi file
+	 *	Set a variable fibre-sheet-normal direction (matrices), one for each element, from a file.
+     *  The file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir for that element).
+     *  The number of elements must match the number in the MECHANICS mesh!
+     *  @param orthoFile the file containing the fibre/sheet directions
      */
-    void SetVariableFibreDirections(std::string fibreDirectionsFile);
+    void SetVariableFibreSheetDirections(std::string orthoFile);
         
 
 
@@ -290,16 +299,16 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     double mech_dt = mNextTime - mCurrentTime;
 
     // set up the fibre direction for this element
+    c_matrix<double,DIM,DIM> r_fibre_sheet_matrix = mpVariableFibreSheetDirections ? (*mpVariableFibreSheetDirections)[rElement.GetIndex()] : mConstantFibreSheetDirections;
     c_vector<double,DIM> fibre_dir;
-    if(mpNonConstantFibreDirections)
+    for(unsigned i=0; i<DIM; i++)
     {
-        fibre_dir = (*mpNonConstantFibreDirections)[rElement.GetIndex()];
+        fibre_dir(i) = r_fibre_sheet_matrix(i,0);
     }
-    else
-    {
-        fibre_dir = mConstantFibreDirection;
-    }
-
+//r_fibre_sheet_matrix(0,0) = 1.0; 
+//r_fibre_sheet_matrix(0,1) = 0;
+//r_fibre_sheet_matrix(1,0) = 0;
+//r_fibre_sheet_matrix(1,1) = 1.0;
 
 
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
@@ -434,22 +443,52 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         /*****************************
          * The cardiac-specific code 
          *****************************/
-                 
+        
+        // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
+        // This is essentially a one-liner (p_material_law->ComputeStressAndStressDerivative()), but the material laws
+        // assume the fibre direction is (1,0,0) and sheet direction is (0,1,0), so we have to transform C,inv(C),and T.
+        // Let P be the change-of-basis matrix P = (\mathbf{m}_f, \mathbf{m}_s, \mathbf{m}_n). The transformed C for the
+        // fibre/sheet basis is C* = P^T C P. We then compute T* = T*(C*), and compute T = P T* P^T.
+
+ 
+        static c_matrix<double,DIM,DIM> C_transformed;
+        static c_matrix<double,DIM,DIM> invC_transformed;
+        static c_matrix<double,DIM,DIM> T_transformed;
+
+        C_transformed = prod(trans(r_fibre_sheet_matrix),(c_matrix<double,DIM,DIM>)prod(C,r_fibre_sheet_matrix));          // C*    = P^T C    P
+        invC_transformed = prod(trans(r_fibre_sheet_matrix),(c_matrix<double,DIM,DIM>)prod(inv_C,r_fibre_sheet_matrix));   // invC* = P^T invC P
+
+        p_material_law->ComputeStressAndStressDerivative(C_transformed,invC_transformed,pressure,T_transformed,this->dTdE /*transformed*/,assembleJacobian);
+        
+        T = prod(r_fibre_sheet_matrix, (c_matrix<double,DIM,DIM>)prod(T_transformed, trans(r_fibre_sheet_matrix)));  // T = P T* P^T 
+
+//std::cout << r_fibre_sheet_matrix << C << C_transformed << T_transformed << T <<"\n";
+
+
+        // compute un-transformed dTdE: dTdE_{MNPQ}  =   P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq} 
+        if(assembleJacobian)
+        {
+            static FourthOrderTensor<DIM> temp;
+            temp.SetAsProduct(this->dTdE, r_fibre_sheet_matrix, 0);
+            this->dTdE.SetAsProduct(temp, r_fibre_sheet_matrix, 1);
+            temp.SetAsProduct(this->dTdE, r_fibre_sheet_matrix, 2);
+            this->dTdE.SetAsProduct(temp, r_fibre_sheet_matrix, 3);
+        }
+
+        // 2. Compute the active tension and add to the stress and stress-derivative
+        // This is done in the original coordinate system (ie using lambda = m^T C m, where m is the fibre direction, 
+        // rather than lam = C(0,0)), so must be done after the passive part has been untransformed.
+
         double I4 = inner_prod(fibre_dir, prod(C, fibre_dir));
         double lambda = sqrt(I4);
 
         double active_tension = 0;
-        double d_act_tension_dlam = 0.0;     //Set and used if assembleJacobian==true
-        double d_act_tension_d_dlamdt = 0.0; //Set and used if assembleJacobian==true
+        double d_act_tension_dlam = 0.0;     // Set and used if assembleJacobian==true
+        double d_act_tension_d_dlamdt = 0.0; // Set and used if assembleJacobian==true
 
-
-        GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian, 
-                                         active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);  
-
-
-        p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
-
-
+        GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian,
+                                         active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);
+	
         // amend the stress and dTdE using the active tension
         double dTdE_coeff = -2*active_tension/(I4*I4); // note: I4*I4 = lam^4
         if(IsImplicitSolver())
@@ -637,50 +676,46 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreDirections(std::string fibreDirectionsFile)
+void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std::string orthoFile)
 {
-    if(fibreDirectionsFile.substr(fibreDirectionsFile.length()-4,fibreDirectionsFile.length()) != ".axi")
+    if((orthoFile.length()<7) || orthoFile.substr(orthoFile.length()-6,orthoFile.length()) != ".ortho")
     {
-        EXCEPTION("Fibre file must (currently) be a .axi file");
+        EXCEPTION("Fibre file must be a .ortho file");
     }
-    
 
-    std::ifstream ifs(fibreDirectionsFile.c_str());
+    std::ifstream ifs(orthoFile.c_str());
     if (!ifs.is_open())
     {
-        EXCEPTION("Could not open file: " + fibreDirectionsFile);
+        EXCEPTION("Could not open file: " + orthoFile);
     }
     
     unsigned num_elem_read_from_file;
     ifs >> num_elem_read_from_file;
     assert(num_elem_read_from_file == this->mpQuadMesh->GetNumElements());
     
-    mpNonConstantFibreDirections = new std::vector<c_vector<double,DIM> >(this->mpQuadMesh->GetNumElements(), zero_vector<double>(DIM));
+    mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(this->mpQuadMesh->GetNumElements(), zero_matrix<double>(DIM,DIM));
     for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
     {
-        for(unsigned j=0; j<3; j++) //  ***expect a full 3D vector, even in if DIM<3, to be consistent with .axi files*** 
+        for(unsigned j=0; j<DIM*DIM; j++) 
         {
             double data;
-            ifs >> data;
+            ifs >> data; 
             if(ifs.fail())
             {
                 std::stringstream error_message;
-                error_message << "Error occurred when reading file " << fibreDirectionsFile
+                error_message << "Error occurred when reading file " << orthoFile
                               << ". Expected " << this->mpQuadMesh->GetNumElements() << " rows and "
                               << "three (not DIM!) columns, ie three components for each fibre, whichever "
                               << "dimension you are in";
-                delete mpNonConstantFibreDirections;           
+                delete mpVariableFibreSheetDirections;           
                 EXCEPTION(error_message.str());
             }
-
-            if(j<DIM)
-            {
-                (*mpNonConstantFibreDirections)[elem_index](j) = data;
-            }
+            
+            (*mpVariableFibreSheetDirections)[elem_index](j/DIM,j%DIM) = data;
         }
-        
-        // normalise the fibre direction in case it wasn't normalised
-        (*mpNonConstantFibreDirections)[elem_index] /= norm_2((*mpNonConstantFibreDirections)[elem_index]);
+
+//EMTODO:
+//CheckOrthogonality((*mpVariableFibreSheetDirections)[elem_index]);
     }
    
     ifs.close();

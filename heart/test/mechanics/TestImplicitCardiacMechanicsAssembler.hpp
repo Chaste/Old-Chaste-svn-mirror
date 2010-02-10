@@ -256,17 +256,18 @@ public:
             
             if(run==1)
             {
-                c_vector<double,2> fibre_dir;
-                fibre_dir(0) = 0.0;
-                fibre_dir(1) = 2.0; // note, given (0,2) not (0,1) as the SetConstantFibreDirection() method is supposed to normalise
-                assembler.SetConstantFibreDirection(fibre_dir);
+            	// ortho matrix = [0 1; 1 0], ie fibres in Y direction
+                c_matrix<double,2,2> ortho_matrix = zero_matrix<double>(2,2);
+                ortho_matrix(0,1) = 1.0;
+                ortho_matrix(1,0) = 1.0;
+                assembler.SetConstantFibreSheetDirections(ortho_matrix);
             }
             else
             {
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreDirections("blah"), "Fibre file must (currently) be a .axi file");
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreDirections("blah.axi"), "Could not open file");
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreDirections("heart/test/data/bad_4by4mesh_fibres.axi"), "Error occurred when reading file");
-                assembler.SetVariableFibreDirections("heart/test/data/4by4mesh_fibres.axi");
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah"), "Fibre file must be a .ortho file");
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah.ortho"), "Could not open file");
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("heart/test/data/bad_4by4mesh_fibres.ortho"), "Error occurred when reading file");
+                assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho");
             }
             
             QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));

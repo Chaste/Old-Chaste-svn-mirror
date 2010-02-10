@@ -91,13 +91,13 @@ public:
         {
             double X = this->mpQuadMesh->GetElement(elem_index)->CalculateCentroid()[0];
             double theta = M_PI*X/4;
-            std::cout << cos(theta) << " " << sin(theta) << " 0\n" << std::flush;
+            std::cout << cos(theta) << " " << sin(theta) << " " << -sin(theta) << " " << cos(theta) << "\n" << std::flush;
         }
         assert(0);
         */
-        problem.SetVariableFibreDirectionsFile("heart/test/data/5by5mesh_curving_fibres.axi");
+        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/5by5mesh_curving_fibres.ortho");
 
-        problem.SetNoElectricsOutput();
+       // problem.SetNoElectricsOutput();
         problem.Solve();
 
         // test by checking the length of the tissue against hardcoded value

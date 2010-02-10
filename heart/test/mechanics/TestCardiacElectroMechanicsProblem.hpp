@@ -178,7 +178,7 @@ public:
                                                      "TestExplicitWithNash");
         
         // coverage, this file is just X-direction fibres
-        problem.SetVariableFibreDirectionsFile("heart/test/data/1by1mesh_fibres.axi");
+        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/1by1mesh_fibres.ortho");
 
 
         c_vector<double,2> pos;
