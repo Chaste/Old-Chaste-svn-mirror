@@ -153,8 +153,8 @@ private:
 
 protected:
     /**
-     * Compute the values of all state variables except the voltage, for one
-     * timestep from tStart.
+     * Compute the values of all state variables, except the voltage, using backward Euler, 
+     * for one timestep from tStart.
      *
      * \note This method must be provided by subclasses.
      *

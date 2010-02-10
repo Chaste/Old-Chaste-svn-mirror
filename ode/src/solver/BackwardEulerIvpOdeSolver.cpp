@@ -37,7 +37,7 @@ void BackwardEulerIvpOdeSolver::ComputeResidual(AbstractOdeSystem* pAbstractOdeS
                                                 std::vector<double>& rCurrentGuess)
 {
     std::vector<double> dy(mSizeOfOdeSystem); //For JC to optimize
-    pAbstractOdeSystem->EvaluateYDerivatives(time, rCurrentGuess, dy);
+    pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep, rCurrentGuess, dy);
     for (unsigned i=0; i<mSizeOfOdeSystem; i++)
     {
         mResidual[i] = rCurrentGuess[i] - timeStep * dy[i] - rCurrentYValues[i];
