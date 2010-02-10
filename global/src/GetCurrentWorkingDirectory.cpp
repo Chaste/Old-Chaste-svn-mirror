@@ -26,24 +26,46 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CHASTEBUILDROOT_HPP_
-#define CHASTEBUILDROOT_HPP_
+#include "GetCurrentWorkingDirectory.hpp"
 
-#include <string>
+#include <cstdlib>
+#include <cerrno>
 
-/**
- * Get the path to the root directory of the Chaste source tree.
- * Will always give you the absolute path with a trailing slash.
- */
-const char* ChasteBuildRootDir();
+#include "Exception.hpp"
 
-/**
- * Get the folder in which compiled files are placed for the given
- * Chaste component.
- * Will always give you the absolute path with a trailing slash.
- *
- * @param rComponent  e.g. global, heart, pde, ...
- */
-std::string ChasteComponentBuildDir(const std::string& rComponent);
-
-#endif /*CHASTEBUILDROOT_HPP_*/
+std::string GetCurrentWorkingDirectory()
+{
+    size_t bufsize = 1000;
+    char* p_buffer = NULL;
+    while (true)
+    {
+        p_buffer = (char*) malloc(bufsize);
+        if (!p_buffer)
+        {
+#define COVERAGE_IGNORE
+            // Rather a tricky one to cover...
+            EXCEPTION("Run out of memory to allocate CWD buffer");
+#undef COVERAGE_IGNORE
+        }
+        if (getcwd(p_buffer, bufsize) == p_buffer)
+        {
+            break;
+        }
+#define COVERAGE_IGNORE
+        // Also rather a tricky one to cover...
+        else
+        {
+            free(p_buffer);
+            if (errno != ERANGE)
+            {
+                EXCEPTION("Unable to determine current working directory");
+            }
+            bufsize *= 2;
+        }
+#undef COVERAGE_IGNORE
+    }
+    
+    std::string cwd(p_buffer);
+    free(p_buffer);
+    return cwd;
+}

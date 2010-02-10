@@ -61,7 +61,7 @@ public:
 
         // Load the cell model dynamically
         std::string model_name = "libDynamicallyLoadableLr91.so";
-        DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "/dynamic/" + model_name);
+        DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
         AbstractCardiacCell* p_cell = loader.CreateCell(p_solver, p_stimulus);
 
         // Simple sanity check
@@ -98,7 +98,7 @@ public:
 
         // Try loading a .so that doesn't define a cell model
         file_name = "libNotACellModel.so";
-        TS_ASSERT_THROWS_CONTAINS(DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "/dynamic/" + file_name),
+        TS_ASSERT_THROWS_CONTAINS(DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + file_name),
                                   "Failed to load cell creation function from .so file");
     }
 };

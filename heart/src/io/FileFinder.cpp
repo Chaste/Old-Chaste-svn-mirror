@@ -26,33 +26,55 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "FileFinder.hpp"
 
-#ifndef _TESTCWD_HPP_
-#define _TESTCWD_HPP_
-
-#include <cxxtest/TestSuite.h>
-
-#include <cstdlib>
-
-#include "PetscSetupAndFinalize.hpp"
 #include "ChasteBuildRoot.hpp"
+#include "OutputFileHandler.hpp"
+#include "Exception.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
+#include <fstream>
 
-/**
- * Test for a strange 'feature' of Debian sarge systems, where the
- * current working directory changes on PETSc initialisation.  There
- * is now code in PetscSetupAndFinalize.hpp to work around this.
- */
-class TestCwd : public CxxTest::TestSuite
+FileFinder::FileFinder(const cp::path_type& rPath)
 {
-public:
-    void TestShowCwd()
+    std::string leaf_path(rPath);
+    
+    switch (rPath.relative_to())
     {
-        TS_ASSERT_EQUALS(system("pwd"), 0);
-        TS_ASSERT_EQUALS(system("ls -l io/test/data"), 0);
-        std::string chaste_build_root(ChasteBuildRootDir());
-        TS_ASSERT_EQUALS(GetCurrentWorkingDirectory() + "/", chaste_build_root);
-    }
-};
+        case cp::relative_to_type::chaste_source_root:
+            mAbsPath = ChasteBuildRootDir() + leaf_path;
+            break;
+        
+        case cp::relative_to_type::chaste_test_output:
+            mAbsPath = OutputFileHandler::GetChasteTestOutputDirectory() + leaf_path;
+            break;
 
-#endif
+        case cp::relative_to_type::cwd:
+            mAbsPath = GetCurrentWorkingDirectory() + "/" + leaf_path;
+            break;
+
+        case cp::relative_to_type::absolute:
+            mAbsPath = leaf_path;
+            break;
+        
+        default:
+            // Getting here is impossible due to the schema
+            NEVER_REACHED;
+            break;
+    }
+}
+
+bool FileFinder::Exists()
+{
+    std::ifstream file(mAbsPath.c_str(), std::ifstream::in );
+    bool exists = file.is_open();
+    file.close();
+    
+    return exists;
+}
+    
+std::string FileFinder::GetAbsolutePath()
+{    
+    return mAbsPath;
+}
+
+

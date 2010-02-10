@@ -31,6 +31,7 @@ TestCheckpointing.hpp
 TestConductivityTensors.hpp
 TestDistanceMapCalculator.hpp
 TestElectrodes.hpp
+TestFileFinder.hpp
 TestHeartConfig.hpp
 TestHeartGeometryInformation.hpp
 TestHeterogeneousConductivities.hpp

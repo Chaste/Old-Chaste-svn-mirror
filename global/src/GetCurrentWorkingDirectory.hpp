@@ -26,24 +26,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CHASTEBUILDROOT_HPP_
-#define CHASTEBUILDROOT_HPP_
+#ifndef GETCURRENTWORKINGDIRECTORY_HPP_
+#define GETCURRENTWORKINGDIRECTORY_HPP_
 
 #include <string>
 
 /**
- * Get the path to the root directory of the Chaste source tree.
- * Will always give you the absolute path with a trailing slash.
+ * Get the current working directory.
+ * Will not include a trailing slash.
  */
-const char* ChasteBuildRootDir();
+std::string GetCurrentWorkingDirectory();
 
-/**
- * Get the folder in which compiled files are placed for the given
- * Chaste component.
- * Will always give you the absolute path with a trailing slash.
- *
- * @param rComponent  e.g. global, heart, pde, ...
- */
-std::string ChasteComponentBuildDir(const std::string& rComponent);
-
-#endif /*CHASTEBUILDROOT_HPP_*/
+#endif /*GETCURRENTWORKINGDIRECTORY_HPP_*/

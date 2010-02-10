@@ -26,24 +26,42 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CHASTEBUILDROOT_HPP_
-#define CHASTEBUILDROOT_HPP_
+#ifndef FILEFINDER_HPP_
+#define FILEFINDER_HPP_
 
 #include <string>
 
-/**
- * Get the path to the root directory of the Chaste source tree.
- * Will always give you the absolute path with a trailing slash.
- */
-const char* ChasteBuildRootDir();
+#include "HeartConfig.hpp"
 
 /**
- * Get the folder in which compiled files are placed for the given
- * Chaste component.
- * Will always give you the absolute path with a trailing slash.
- *
- * @param rComponent  e.g. global, heart, pde, ...
+ * A helper class for finding files, given paths which can be relative to various
+ * locations (e.g. the Chaste source tree root, the current directory, the Chaste
+ * test output directory, or an absolute path).
  */
-std::string ChasteComponentBuildDir(const std::string& rComponent);
+class FileFinder
+{
+private:
+    /** The absolute path to our file */
+    std::string mAbsPath;
+public:
+    /**
+     * Create a file finder for the given path.
+     * This type includes both a path name, and an attribute specifying how this
+     * should be interpreted.  See the XML schema for details.
+     * 
+     * @param rPath  the path to the file to find
+     */
+    FileFinder(const cp::path_type& rPath);
+    
+    /**
+     * Test whether our file exists.
+     */
+    bool Exists();
+    
+    /**
+     * Get the absolute path to this file.
+     */
+    std::string GetAbsolutePath();
+};
 
-#endif /*CHASTEBUILDROOT_HPP_*/
+#endif /*FILEFINDER_HPP_*/

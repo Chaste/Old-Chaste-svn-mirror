@@ -43,7 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/GlobalFixture.h>
 #include <petsc.h>
 #include <cstdlib>
-#include <cerrno>
 #include <cassert>
 #include <cstring>
 #include <unistd.h>
@@ -52,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscException.hpp"
 #include "PetscArguments.hpp"
 #include "ChasteBuildRoot.hpp"
+#include "GetCurrentWorkingDirectory.hpp"
 
 #ifdef TEST_FOR_FPE
 void FpeSignalToAbort(int sig_num, siginfo_t* info, void* context )
@@ -86,41 +86,16 @@ public:
                                     PETSC_NULL, PETSC_NULL) );
 
         // Check that the working directory is correct, or many tests will fail.
-        // This code is rather tricky to cover fully...
+        std::string cwd = GetCurrentWorkingDirectory();
+        if (strcmp(cwd.c_str(), ChasteBuildRootDir()) != 0)
+        {
 #define COVERAGE_IGNORE
-        size_t bufsize = 1000;
-        char* p_buffer = NULL;
-        while (true)
-        {
-            p_buffer = (char*) malloc(bufsize);
-            if (!p_buffer)
-            {
-                EXCEPTION("Run out of memory to allocate CWD buffer");
-            }
-            if (getcwd(p_buffer, bufsize) == p_buffer)
-            {
-                break;
-            }
-            else
-            {
-                free(p_buffer);
-                if (errno != ERANGE)
-                {
-                    EXCEPTION("Unable to determine current working directory");
-                }
-                bufsize *= 2;
-            }
-        }
-        assert(p_buffer != NULL);
-        if (strcmp(p_buffer, ChasteBuildRootDir()) != 0)
-        {
             // Change directory
-            std::cout << "Changing directory from '" << p_buffer << "' to '" << ChasteBuildRootDir() << "'." << std::endl;
+            std::cout << "Changing directory from '" << cwd << "' to '" << ChasteBuildRootDir() << "'." << std::endl;
             EXPECT0(chdir, ChasteBuildRootDir());
-            std::cout << "CWD now: " << getcwd(p_buffer, bufsize) << std::endl;
-        }
-        free(p_buffer);
+            std::cout << "CWD now: " << GetCurrentWorkingDirectory() << std::endl;
 #undef COVERAGE_IGNORE
+        }
        
 #ifdef TEST_FOR_FPE
         //Give all PETSc enabled tests the ability to trap for divide-by-zero

@@ -295,12 +295,12 @@ def GetChasteBuildRootCpp(env):
 
 const char* ChasteBuildRootDir() 
 { 
-    return "%(chaste_root)s"; 
+    return "%(chaste_root)s/"; 
 }
 
 std::string ChasteComponentBuildDir(const std::string& rComponent)
 {
-    return std::string(ChasteBuildRootDir()) + "/" + rComponent + "/build/%(build_dir)s";
+    return std::string(ChasteBuildRootDir()) + rComponent + "/build/%(build_dir)s/";
 }
 """ % subst
 

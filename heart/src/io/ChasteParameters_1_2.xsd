@@ -130,12 +130,12 @@
     <xs:annotation><xs:documentation xml:lang="en">
       An attribute for path_type elements that describes how to interpret the path value.
       It can be relative to the current working directory, relative to $CHASTE_TEST_OUTPUT,
-      relative to the parameters file, relative to the Chaste source code root, or an absolute path.
+      <!--relative to the parameters file, -->relative to the Chaste source code root, or an absolute path.
     </xs:documentation></xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="cwd"/>
       <xs:enumeration value="chaste_test_output"/>
-      <xs:enumeration value="this_file"/>
+      <!-- <xs:enumeration value="this_file"/> Rather difficult to implement... -->
       <xs:enumeration value="chaste_source_root"/>
       <xs:enumeration value="absolute"/>
     </xs:restriction>
