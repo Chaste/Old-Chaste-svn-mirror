@@ -293,6 +293,9 @@
   </xs:complexType>
 
   <xs:simpleType name="media_type">
+    <xs:annotation>
+      <xs:documentation>The conductivity media of the tissue.  This is taken from an enumeration: Orthotropic is for 3 orthogonal conductivity directions (fibre, sheet and normal); Axisymmetric is for fibre direction only; NoFibreOrientation is for isotropic conductivity.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="Orthotropic"/>
       <xs:enumeration value="Axisymmetric"/>
@@ -310,6 +313,9 @@
   </xs:complexType>
 
   <xs:complexType name="box_type">
+    <xs:annotation>
+      <xs:documentation>Axis-aligned bounding box defined by LowerCoordinates and UpperCoordinates attributes.</xs:documentation>
+    </xs:annotation>
     <xs:sequence>
       <xs:element name="LowerCoordinates" type="point_type">
         <xs:annotation>
@@ -325,20 +331,55 @@
   </xs:complexType>
 
   <xs:complexType name="stimulus_type">
+    <xs:annotation>
+      <xs:documentation>Defines a simple intra-cellular current stimulus which injects a square-wave current into all stimulated cells.</xs:documentation>
+    </xs:annotation>
     <xs:sequence>
-      <xs:element name="Strength" type="stimulus_strength_type"/>
-      <xs:element name="Duration" type="time_type"/>
-      <xs:element name="Delay" type="time_type"/>
-      <xs:element name="Location" type="location_type"/>
+      <xs:element name="Strength" type="stimulus_strength_type">
+        <xs:annotation>
+          <xs:documentation>The strength of the stimulus (current per unit volume measured in uA/cm^3).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Duration" type="time_type">
+        <xs:annotation>
+          <xs:documentation>Time for which to apply the stimulus (ms).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Delay" type="time_type">
+        <xs:annotation>
+          <xs:documentation>Delay is the time at which to start applying the stimulus.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Location" type="location_type">
+        <xs:annotation>
+          <xs:documentation>Location of the nodes at which to apply this stimulus.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="cell_heterogeneity_type">
     <xs:sequence>
-      <xs:element name="ScaleFactorGks" type="dimensionless_type"/>
-      <xs:element name="ScaleFactorIto" type="dimensionless_type"/>
-      <xs:element name="ScaleFactorGkr" type="dimensionless_type"/>
-      <xs:element name="Location" type="location_type"/>
+      <xs:element name="ScaleFactorGks" type="dimensionless_type">
+        <xs:annotation>
+          <xs:documentation>Scales the Gks slow delayed rectifier potassium current. (A value of 1.0 will reset to the default value in the CellML definition.)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ScaleFactorIto" type="dimensionless_type">
+        <xs:annotation>
+          <xs:documentation>Scales the Ito transient outward potassium current. (A value of 1.0 will reset to the default value in the CellML definition.)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ScaleFactorGkr" type="dimensionless_type">
+        <xs:annotation>
+          <xs:documentation>Scales the Gkr rapid delayed rectifier potassium current. (A value of 1.0 will reset to the default value in the CellML definition.)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Location" type="location_type">
+        <xs:annotation>
+          <xs:documentation>Location of nodes at which to apply these scale factors.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
