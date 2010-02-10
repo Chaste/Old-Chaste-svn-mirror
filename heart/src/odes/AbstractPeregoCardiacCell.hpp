@@ -72,11 +72,13 @@ public:
      * @param voltageIndex  the index of the variable representing the transmembrane
      *     potential within the state variable vector
      * @param pIntracellularStimulus  the intracellular stimulus function
+     * @param useAdaptTimestep For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually.
      */
     AbstractPeregoCardiacCell(
         unsigned numberOfStateVariables,
         unsigned voltageIndex,
-        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
+        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus,
+        bool useAdaptTimestep=true);
 
     /** Virtual destructor */
     virtual ~AbstractPeregoCardiacCell();
@@ -158,6 +160,8 @@ private:
 
 protected:
 
+    double mLocalTimeStep;
+    
     std::vector<unsigned> mGatingVariableIndices; /**< Indices of those variables associated with gates (not concentrations or voltages etc.) */
     std::vector<double> mSolutionAtPreviousTimeStep; /**< Cache of previous solution */
     //Nomenclature of variables is based on the paper (see class documentation for reference) 
@@ -185,7 +189,14 @@ protected:
     
     double mThetaP; /**< A numerical solver parameter which changes as dt does*/
     double mThetaC; /**< Another numerical solver parameter which changes as dt does*/
-
+    
+    std::vector<double> mWeightedErrorTolerances; /**< Vector of tolerances to error in each of the system variables, will be weighted by a small tolerance factor*/
+    
+    bool mUseAdaptTimestep; /**< For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually. */
+    bool IsThereTooMuchError(std::vector<double>& rErrors); /**< Return true if the error in any variable exceeds tolerances*/
+    bool mIsThereTooMuchError; /**< To hold the return value of IsThereTooMuchError as it is required multiple times.*/
+    void AdaptTimestep(std::vector<double>& rErrors); /**< Change the timestep size for the next step based upon the a posteriori errors*/ 
+double counter;
 };
 
 

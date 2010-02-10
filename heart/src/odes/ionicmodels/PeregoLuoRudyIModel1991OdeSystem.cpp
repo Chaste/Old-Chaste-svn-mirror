@@ -58,8 +58,9 @@ const double PeregoLuoRudyIModel1991OdeSystem::time_dependent_potassium_current_
  * Constructor
  */
 PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
-    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-        : AbstractPeregoCardiacCell(8, 4, pIntracellularStimulus)
+    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus,
+    bool useAdaptTimestep)
+        : AbstractPeregoCardiacCell(8, 4, pIntracellularStimulus, useAdaptTimestep)
 {
     assert(this->mGatingVariableIndices.size() == 0);
     this->mGatingVariableIndices.push_back(0);
@@ -82,6 +83,22 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     mb_predicted.resize(8);
     ma_error.resize(8);
     mb_error.resize(8);
+    mWeightedErrorTolerances.resize(8);
+
+    double tolerance_weight = 1e-2;
+    
+    mWeightedErrorTolerances[0] = 1 * tolerance_weight; // Gate h error
+    mWeightedErrorTolerances[1] = 1 * tolerance_weight; // Gate j error
+    mWeightedErrorTolerances[2] = 1 * tolerance_weight; // Gate m error
+    mWeightedErrorTolerances[3] = 7e-3 * tolerance_weight; // Calcium error
+    mWeightedErrorTolerances[4] = 84 * tolerance_weight; // Voltage error
+    mWeightedErrorTolerances[5] = 1 * tolerance_weight; // Gate d error
+    mWeightedErrorTolerances[6] = 1 * tolerance_weight; // Gate f error
+    mWeightedErrorTolerances[7] = 1 * tolerance_weight; // Gate X error
+    
+
+    
+    
     Init();
 }
 
@@ -104,7 +121,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     double time_dependent_potassium_current_X_gate_X = rY[7];
 
     
-    if (this->mIsTheCorrectorStep == false && this->mIsTheErrorEvaluationStep == false)
+    if (this->mIsTheCorrectorStep == false && this->mIsTheErrorEvaluationStep == false && this->mIsThereTooMuchError == false)
     {
         this->ma_previous = this->ma_current;
         this->mb_previous = this->mb_current;
@@ -217,14 +234,14 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     }
     else
     {
-        i_stim = GetStimulus(currentTime+this->mDt);
+        i_stim = GetStimulus(currentTime+this->mLocalTimeStep);
     };
     
 
     //calculate dV
     double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);
 
-
+    assert(!std::isnan(membrane_V_prime));
     
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
     if (mSetVoltageDerivativeToZero)
@@ -302,6 +319,8 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         // ...and add to ma_error the derivatives of the voltage and the calcium concentration    
         ma_error[4] = membrane_V_prime;
         ma_error[3] = intracellular_calcium_concentration_Cai_prime;
+        
+
         
         this->mIsTheErrorEvaluationStep=false;
     }

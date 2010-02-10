@@ -110,8 +110,9 @@ public:
      * Constructor
      * 
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
+     * @param useAdaptTimestep For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually.
      */
-    PeregoLuoRudyIModel1991OdeSystem(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
+    PeregoLuoRudyIModel1991OdeSystem(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus, bool useAdaptTimestep=true);
 
     /**
      * Destructor
