@@ -63,7 +63,6 @@ AbstractPeregoCardiacCell::AbstractPeregoCardiacCell(unsigned numberOfStateVaria
     mIsThereTooMuchError = false;
     
     mLocalTimeStep = this->mDt;
-    counter = 0;
 }
 
 
@@ -77,6 +76,8 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(const std::vector<doubl
         
     mSolutionAtPreviousTimeStep = rSolutionAtPreviousTime;
     //Compute parameters (done in the child class, will modify the member variables here)
+//    PRINT_3_VARIABLES(mIsTheCorrectorStep,mIsTheErrorEvaluationStep,mIsThereTooMuchError);
+//    assert(0);
     ComputeSystemParameters(rSolutionAtPreviousTime, currentTime);
 
     bool it_is_a_gating_variable =false;
@@ -284,7 +285,7 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
         
             AdaptTimestep(errors);
             mIsThereTooMuchError = IsThereTooMuchError(errors);
-
+//            MARK;
 //            if( ! IsThereTooMuchError(errors))
             if( ! mIsThereTooMuchError)
             {
@@ -294,6 +295,10 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
                 solutions.rGetSolutions().push_back(corrected_values);
                 solutions.rGetTimes().push_back(local_time);        
                 
+            }
+            else
+            {
+//                assert(0);   
             }
         }
         else

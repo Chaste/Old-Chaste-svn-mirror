@@ -48,7 +48,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class AbstractPeregoCardiacCell : public AbstractCardiacCell
 {
-    private:
+  private:
+    friend class TestPeregoCellModels;
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -63,27 +64,17 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
         // This calls serialize on the base class.
         archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
     }
-public:
-
-    /**
-     * Standard constructor for a cell.
-     *
-     * @param numberOfStateVariables  the size of the ODE system
-     * @param voltageIndex  the index of the variable representing the transmembrane
-     *     potential within the state variable vector
-     * @param pIntracellularStimulus  the intracellular stimulus function
-     * @param useAdaptTimestep For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually.
-     */
-    AbstractPeregoCardiacCell(
-        unsigned numberOfStateVariables,
-        unsigned voltageIndex,
-        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus,
-        bool useAdaptTimestep=true);
-
-    /** Virtual destructor */
-    virtual ~AbstractPeregoCardiacCell();
     
     /**
+     * This function should never be called - the cell class incorporates its own solver.
+     *
+     * @param time
+     * @param rY
+     * @param rDY
+     */
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
+    
+     /**
      * Computes the predictor step of the scheme
      *
      * @param rSolutionAtPreviousTime is the solution of the state variables at the previous time step
@@ -110,55 +101,9 @@ public:
      * @param currentTime is the current time
      */
     void EvaluateErrors(std::vector<double>& rErrors, const std::vector<double>& rPredictedSolution, const std::vector<double>& rCorrectedSolution, double currentTime);
-
     
-    /**
-     * Computes some parameters needed by the Perego Veneziani algorithm.
-     * Implemented in the child class. 
-     *
-     * @param stateVariablesAtPrevousTime is the solution of the state variables at the previous time step
-     * @param currentTime is the current time
-     */
-    virtual void ComputeSystemParameters(const std::vector<double>& stateVariablesAtPrevousTime, double currentTime)=0;
     
-    /**
-     * Overloaded Compute method.
-     * 
-     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep #mDt.
-     *
-     * @param tStart  beginning of the time interval to simulate
-     * @param tEnd  end of the time interval to simulate
-     */
-    OdeSolution Compute(double tStart, double tEnd);
-
-    /**
-     * Overloaded ComputeExceptVoltage method.
-     * 
-     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep #mDt, but does not update the voltage.
-     *
-     * @param tStart  beginning of the time interval to simulate
-     * @param tEnd  end of the time interval to simulate
-     */
-    void ComputeExceptVoltage(double tStart, double tEnd)
-    {
-        NEVER_REACHED;
-        // not tested in tissue yet
-    }
-    
-private:
-    /**
-     * This function should never be called - the cell class incorporates its own solver.
-     *
-     * @param time
-     * @param rY
-     * @param rDY
-     */
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-
-
-protected:
+  protected:
 
     double mLocalTimeStep;
     
@@ -196,7 +141,63 @@ protected:
     bool IsThereTooMuchError(std::vector<double>& rErrors); /**< Return true if the error in any variable exceeds tolerances*/
     bool mIsThereTooMuchError; /**< To hold the return value of IsThereTooMuchError as it is required multiple times.*/
     void AdaptTimestep(std::vector<double>& rErrors); /**< Change the timestep size for the next step based upon the a posteriori errors*/ 
-double counter;
+      
+    /**
+     * Computes some parameters needed by the Perego Veneziani algorithm.
+     * Implemented in the child class. 
+     *
+     * @param stateVariablesAtPrevousTime is the solution of the state variables at the previous time step
+     * @param currentTime is the current time
+     */
+    virtual void ComputeSystemParameters(const std::vector<double>& stateVariablesAtPrevousTime, double currentTime)=0;
+         
+public:
+
+    /**
+     * Standard constructor for a cell.
+     *
+     * @param numberOfStateVariables  the size of the ODE system
+     * @param voltageIndex  the index of the variable representing the transmembrane
+     *     potential within the state variable vector
+     * @param pIntracellularStimulus  the intracellular stimulus function
+     * @param useAdaptTimestep For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually.
+     */
+    AbstractPeregoCardiacCell(
+        unsigned numberOfStateVariables,
+        unsigned voltageIndex,
+        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus,
+        bool useAdaptTimestep=true);
+
+    /** Virtual destructor */
+    virtual ~AbstractPeregoCardiacCell();
+         
+
+    /**
+     * Overloaded Compute method.
+     * 
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep #mDt.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    OdeSolution Compute(double tStart, double tEnd);
+
+    /**
+     * Overloaded ComputeExceptVoltage method.
+     * 
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep #mDt, but does not update the voltage.
+     *
+     * @param tStart  beginning of the time interval to simulate
+     * @param tEnd  end of the time interval to simulate
+     */
+    void ComputeExceptVoltage(double tStart, double tEnd)
+    {
+        NEVER_REACHED;
+        // not tested in tissue yet
+    }
+    
 };
 
 

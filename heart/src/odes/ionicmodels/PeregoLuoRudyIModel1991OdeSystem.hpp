@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class PeregoLuoRudyIModel1991OdeSystem : public AbstractPeregoCardiacCell
 {
 private:
+    friend class TestPeregoCellModels;
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
