@@ -4,14 +4,24 @@
   xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" elementFormDefault="qualified">
 
   <xs:complexType name="time_type">
+    <xs:annotation>
+      <xs:documentation>Represents variables with dimensions of time. Measured in milliseconds.</xs:documentation>
+    </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
-        <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
+        <xs:attribute name="unit" type="xs:string" use="required" fixed="ms">
+          <xs:annotation>
+            <xs:documentation>Chaste time is measured in milliseconds</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
 
   <xs:complexType name="dimensionless_type">
+    <xs:annotation>
+      <xs:documentation>Used to represent dimensionless variables.</xs:documentation>
+    </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
         <xs:attribute name="unit" type="xs:string" use="required" fixed="dimensionless"/>
@@ -20,6 +30,9 @@
   </xs:complexType>
 
   <xs:complexType name="conductivity_type">
+    <xs:annotation>
+      <xs:documentation>Represents conductivity. Measured in mS/cm.</xs:documentation>
+    </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
         <xs:attribute name="unit" type="xs:string" use="required" fixed="mS/cm"/>
@@ -28,6 +41,9 @@
   </xs:complexType>
 
   <xs:complexType name="stimulus_strength_type">
+    <xs:annotation>
+      <xs:documentation>Represents the strength of stimulus per unit volume. Measured in uA/cm^3.</xs:documentation>
+    </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
         <xs:attribute name="unit" type="xs:string" use="required" fixed="uA/cm^3"/>
@@ -36,6 +52,9 @@
   </xs:complexType>
 
   <xs:complexType name="inverse_length_type">
+    <xs:annotation>
+      <xs:documentation>Used for variables with dimensions 1/length. Units of 1/cm.</xs:documentation>
+    </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
         <xs:attribute name="unit" type="xs:string" use="required" fixed="1/cm"/>
@@ -44,6 +63,9 @@
   </xs:complexType>
 
   <xs:complexType name="capacitance_type">
+    <xs:annotation>
+      <xs:documentation>Represents capacitance per unit area. Measured in uF/cm^2.</xs:documentation>
+    </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
         <xs:attribute name="unit" type="xs:string" use="required" fixed="uF/cm^2"/>
@@ -53,16 +75,38 @@
 
 
   <xs:complexType name="location_type">
+    <xs:annotation>
+      <xs:documentation>Defines a special region with different behaviour from elsewhere. This will be either an axis-aligned cuboid or a layer of the cardiac wall.</xs:documentation>
+    </xs:annotation>
     <xs:choice>
-      <xs:element name="Cuboid" type="box_type"/>
-      <xs:element name="EpiLayer" type="dimensionless_type"/>
-      <xs:element name="MidLayer" type="dimensionless_type"/>
-      <xs:element name="EndoLayer" type="dimensionless_type"/>
+      <xs:element name="Cuboid" type="box_type">
+        <xs:annotation>
+          <xs:documentation>Axis-aligned bounding box defined by LowerCoordinates and UpperCoordinates attributes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EpiLayer" type="dimensionless_type">
+        <xs:annotation>
+          <xs:documentation>Proportion of cardiac wall that is in the epicardium (outer wall). Value must be between 0 and 1. The sum of EpiLayer, MidLayer and EndoLayer should be 1.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MidLayer" type="dimensionless_type">
+        <xs:annotation>
+          <xs:documentation>Proportion of cardiac wall that is in the myocardium (middle). Value must be between 0 and 1. The sum of EpiLayer, MidLayer and EndoLayer should be 1.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EndoLayer" type="dimensionless_type">
+        <xs:annotation>
+          <xs:documentation>Proportion of cardiac wall that is in the endocardium (inner wall). Value must be between 0 and 1. The sum of EpiLayer, MidLayer and EndoLayer should be 1.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:choice>
     <xs:attribute name="unit" type="xs:string" use="required" fixed="cm"/>
   </xs:complexType>
 
   <xs:simpleType name="domain_type">
+    <xs:annotation>
+      <xs:documentation>Whether a monodomain or bidomain simulation will be run. Values restricted to "Mono" and "Bi".</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="Mono"/>
       <xs:enumeration value="Bi"/>
@@ -88,7 +132,7 @@
       <xs:enumeration value="Maleckar"/>
     </xs:restriction>
   </xs:simpleType>
-  
+
   <xs:complexType name="ionic_model_selection_type">
     <xs:annotation>
       <xs:documentation xml:lang="en">
@@ -102,36 +146,42 @@
       <xs:element name="Dynamic" type="dynamically_loaded_ionic_model_type"/>
     </xs:choice>
   </xs:complexType>
-  
+
   <xs:complexType name="dynamically_loaded_ionic_model_type">
-    <xs:annotation><xs:documentation xml:lang="en">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
       A dynamically loadable ionic model is (currently) specified just by given the
       path of the file to load.  At present this must be a .so file.  Eventually we
       will add the ability to specify a CellML file here, from which a .so will be
       created on the fly.
-    </xs:documentation></xs:annotation>
+    </xs:documentation>
+    </xs:annotation>
     <xs:sequence>
       <xs:element name="Path" type="path_type"/>
     </xs:sequence>
   </xs:complexType>
-  
+
   <xs:complexType name="path_type">
-    <xs:annotation><xs:documentation xml:lang="en">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
       A file path.
-    </xs:documentation></xs:annotation>
+    </xs:documentation>
+    </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute name="relative_to" type="relative_to_type" default="cwd"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
-  
+
   <xs:simpleType name="relative_to_type">
-    <xs:annotation><xs:documentation xml:lang="en">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
       An attribute for path_type elements that describes how to interpret the path value.
       It can be relative to the current working directory, relative to $CHASTE_TEST_OUTPUT,
       <!--relative to the parameters file, -->relative to the Chaste source code root, or an absolute path.
-    </xs:documentation></xs:annotation>
+    </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="cwd"/>
       <xs:enumeration value="chaste_test_output"/>
@@ -142,25 +192,29 @@
   </xs:simpleType>
 
   <xs:complexType name="ionic_model_region_type">
-    <xs:annotation><xs:documentation xml:lang="en">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
       Associates a region of the mesh with a particular ionic model.
-    </xs:documentation></xs:annotation>
+    </xs:documentation>
+    </xs:annotation>
     <xs:sequence>
       <xs:element name="IonicModel" type="ionic_models_available_type"/>
       <xs:element name="Location" type="location_type"/>
     </xs:sequence>
   </xs:complexType>
-  
+
   <xs:complexType name="ionic_model_region_type_new">
-    <xs:annotation><xs:documentation xml:lang="en">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
       Associates a region of the mesh with a particular ionic model.
-    </xs:documentation></xs:annotation>
+    </xs:documentation>
+    </xs:annotation>
     <xs:sequence>
       <xs:element name="IonicModel" type="ionic_model_selection_type"/>
       <xs:element name="Location" type="location_type"/>
     </xs:sequence>
   </xs:complexType>
-  
+
   <xs:complexType name="ionic_models_type_new">
     <xs:annotation>
       <xs:documentation xml:lang="en">
@@ -174,38 +228,67 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="Default" type="ionic_model_selection_type"/>
-      <xs:element name="Region" type="ionic_model_region_type_new" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Default" type="ionic_model_selection_type">
+        <xs:annotation>
+          <xs:documentation>Default ionic model type to be run everywhere. Can be overridden by specifying a region model type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Region" type="ionic_model_region_type_new" minOccurs="0"
+        maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Specifies an ionic model type in a region to be used instead of the default type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="ionic_models_type">
+    <xs:annotation>
+      <xs:documentation>Ionic model, taken from an enumeration of possible models.</xs:documentation>
+    </xs:annotation>
     <xs:sequence>
-      <xs:element name="Default" type="ionic_models_available_type"/>
-      <xs:element name="Region" type="ionic_model_region_type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Default" type="ionic_models_available_type">
+        <xs:annotation>
+          <xs:documentation>Default ionic model type to be run everywhere. Can be overridden by specifying a region model type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Region" type="ionic_model_region_type" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Specifies an ionic model type in a region to be used instead of the default type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="apd_map_type">
+    <xs:annotation>
+      <xs:documentation>Postprocessing type. Requests a sequence of action potential durations (in milliseconds) at each mesh node. Requires specification of repolarisation percentage (i.e. 90% for APD90, 20% for APD20 etc) and a threshold (a voltage used internally in Chaste code to determine the end of one action potential and prepare for the start of the next).</xs:documentation>
+    </xs:annotation>
     <xs:attribute name="repolarisation_percentage" type="xs:double" use="required"/>
     <xs:attribute name="threshold" type="xs:double" use="required"/>
     <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
   </xs:complexType>
 
   <xs:complexType name="upstrokes_map_type">
+    <xs:annotation>
+      <xs:documentation>Postprocessing type. Requests a sequence of the times of upstrokes (in milliseconds) at each mesh node. Requires specification of a threshold (a voltage used internally in Chaste code to determine the end of one action potential and prepare for the start of the next).</xs:documentation>
+    </xs:annotation>
     <xs:attribute name="threshold" type="xs:double" use="required"/>
     <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
   </xs:complexType>
 
   <xs:complexType name="max_upstrokes_velocity_map_type">
+    <xs:annotation>
+      <xs:documentation>Postprocessing type. Requests a sequence of the maximum upstroke velocity (in mV/ms) at each mesh node. Requires specification of a threshold (a voltage used internally in Chaste code to determine the end of one action potential and prepare for the start of the next).</xs:documentation>
+    </xs:annotation>
     <xs:attribute name="threshold" type="xs:double" use="required"/>
     <xs:attribute name="threshold_unit" type="xs:string" use="required" fixed="mV"/>
   </xs:complexType>
 
-  <!-- Type with no content or attributes -->
-  <xs:complexType name="empty_type"> </xs:complexType>
-
   <xs:complexType name="conduction_velocity_map_type">
+    <xs:annotation>
+      <xs:documentation>Postprocessing type. For each mesh node, computes the conduction velocity of an action potential relative to an origin node. The conduction velocity is the difference between the times of first upstroke divided by the distance between the nodes (measured as the shortest path within the mesh). Requires specification of the origin node index.</xs:documentation>
+    </xs:annotation>
     <xs:attribute name="origin_node" type="xs:nonNegativeInteger" use="required"/>
   </xs:complexType>
 
@@ -218,6 +301,9 @@
   </xs:simpleType>
 
   <xs:complexType name="point_type">
+    <xs:annotation>
+      <xs:documentation>Used to represent a point in space (up to 3d). Attributes x, y, z (all doubles) measured in cm.</xs:documentation>
+    </xs:annotation>
     <xs:attribute name="x" type="xs:double" use="required"/>
     <xs:attribute name="y" type="xs:double" use="required"/>
     <xs:attribute name="z" type="xs:double" use="required"/>
@@ -225,8 +311,16 @@
 
   <xs:complexType name="box_type">
     <xs:sequence>
-      <xs:element name="LowerCoordinates" type="point_type"/>
-      <xs:element name="UpperCoordinates" type="point_type"/>
+      <xs:element name="LowerCoordinates" type="point_type">
+        <xs:annotation>
+          <xs:documentation>Represents the vertex in the cuboid that has the most negative values of all coordinates.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UpperCoordinates" type="point_type">
+        <xs:annotation>
+          <xs:documentation>Represents the vertex in the cuboid that has the most positive values of all coordinates.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
