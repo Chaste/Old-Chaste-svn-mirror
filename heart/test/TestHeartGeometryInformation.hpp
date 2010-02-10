@@ -271,64 +271,6 @@ public:
         } 
     }
     
-    void TestWritingusefulMesh() throw (Exception)
-    {
-         TetrahedralMesh<3,3> mesh;
-        //This mesh will have 31 nodes per side, spaced by 1, it is a cube
-        mesh.ConstructCuboid(8, 8, 3);
-
-        std::vector<unsigned> epi_face;
-        std::vector<unsigned> lv_face;
-        std::vector<unsigned> rv_face;
-        
-        OutputFileHandler output_file_handler("useful_mesh", false);
-        out_stream p_file_epi=out_stream(NULL);
-        out_stream p_file_lv=out_stream(NULL);
-        out_stream p_file_rv=out_stream(NULL);
-        
-        std::stringstream stream_epi;
-        std::stringstream stream_lv;
-        std::stringstream stream_rv;
-        
-        stream_epi << "cuboid_8_by_8_by_3.epi";
-        stream_lv << "cuboid_8_by_8_by_3.lv";
-        stream_rv << "cuboid_8_by_8_by_3.rv";
-        
-        p_file_epi = output_file_handler.OpenOutputFile(stream_epi.str());
-        p_file_lv = output_file_handler.OpenOutputFile(stream_lv.str());
-        p_file_rv = output_file_handler.OpenOutputFile(stream_rv.str());
-        //Define three surfaces, epi, lv and rv.
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
-        {  
-            // Get the nodes at cube face considered to be epi (at both external faces)
-            if (  (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
-                ||(fabs(mesh.GetNode(index)->rGetLocation()[0]-8.0) < 1e-6))
-            {
-                epi_face.push_back(index);
-                *p_file_epi<<index<<std::endl;
-            }
-            // Get the nodes at cube face considered to be lv (at the plane defined by x=10)
-            if (fabs(mesh.GetNode(index)->rGetLocation()[0]-6.0) < 1e-6)
-            {
-                lv_face.push_back(index);
-                *p_file_lv<<index<<std::endl;
-            }
-            // Get the nodes at cube face considered to be rv (at the plane defined by x=20)
-            if (fabs(mesh.GetNode(index)->rGetLocation()[0]-4.0) < 1e-6)
-            {
-                rv_face.push_back(index);
-                *p_file_rv<<index<<std::endl;
-            }
-            
-        }  
-        p_file_rv->close();
-        p_file_lv->close();
-        p_file_epi->close();
-        
-        TrianglesMeshWriter<3,3> writer("useful_mesh","cuboid_8_by_8_by_3", false);
-        writer.WriteFilesUsingMesh(mesh);
-    }
-    
     void TestDetermineLayerForEachNodeWritingAndReading() throw (Exception)
     {
         TetrahedralMesh<3,3> mesh;
