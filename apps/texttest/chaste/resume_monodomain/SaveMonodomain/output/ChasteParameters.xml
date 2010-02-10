@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<cp12:ChasteParameters xmlns:cp12="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 /home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_2.xsd">
+<cp20:ChasteParameters xmlns:cp20="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 /home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_2_0.xsd">
 
-  <cp12:Simulation>
-    <cp12:SpaceDimension>2</cp12:SpaceDimension>
-    <cp12:SimulationDuration unit="ms">10</cp12:SimulationDuration>
-    <cp12:Domain>Mono</cp12:Domain>
-    <cp12:Mesh unit="cm">
-      <cp12:Sheet inter_node_space="0.01" x="0.2" y="0.2"/>
-    </cp12:Mesh>
-    <cp12:IonicModels>
-      <cp12:Default>Fox2002BackwardEuler</cp12:Default>
-    </cp12:IonicModels>
-    <cp12:Stimuli>
-      <cp12:Stimulus>
-        <cp12:Strength unit="uA/cm^3">-80000</cp12:Strength>
-        <cp12:Duration unit="ms">1</cp12:Duration>
-        <cp12:Delay unit="ms">0</cp12:Delay>
-        <cp12:Location unit="cm">
-          <cp12:Cuboid>
-            <cp12:LowerCoordinates x="0" y="0" z="0"/>
-            <cp12:UpperCoordinates x="0.1" y="1" z="1"/>
-          </cp12:Cuboid>
-        </cp12:Location>
-      </cp12:Stimulus>
-    </cp12:Stimuli>
-    <cp12:OutputDirectory>SaveMonodomain</cp12:OutputDirectory>
-    <cp12:OutputFilenamePrefix>MonodomainLR91_2d</cp12:OutputFilenamePrefix>
-    <cp12:CheckpointSimulation max_checkpoints_on_disk="3" timestep="2" unit="ms"/>
-  </cp12:Simulation>
+  <cp20:Simulation>
+    <cp20:SpaceDimension>2</cp20:SpaceDimension>
+    <cp20:SimulationDuration unit="ms">10</cp20:SimulationDuration>
+    <cp20:Domain>Mono</cp20:Domain>
+    <cp20:Mesh unit="cm">
+      <cp20:Sheet inter_node_space="0.01" x="0.2" y="0.2"/>
+    </cp20:Mesh>
+    <cp20:IonicModels>
+      <cp20:Default>Fox2002BackwardEuler</cp20:Default>
+    </cp20:IonicModels>
+    <cp20:Stimuli>
+      <cp20:Stimulus>
+        <cp20:Strength unit="uA/cm^3">-80000</cp20:Strength>
+        <cp20:Duration unit="ms">1</cp20:Duration>
+        <cp20:Delay unit="ms">0</cp20:Delay>
+        <cp20:Location unit="cm">
+          <cp20:Cuboid>
+            <cp20:LowerCoordinates x="0" y="0" z="0"/>
+            <cp20:UpperCoordinates x="0.1" y="1" z="1"/>
+          </cp20:Cuboid>
+        </cp20:Location>
+      </cp20:Stimulus>
+    </cp20:Stimuli>
+    <cp20:OutputDirectory>SaveMonodomain</cp20:OutputDirectory>
+    <cp20:OutputFilenamePrefix>MonodomainLR91_2d</cp20:OutputFilenamePrefix>
+    <cp20:CheckpointSimulation max_checkpoints_on_disk="3" timestep="2" unit="ms"/>
+  </cp20:Simulation>
 
-  <cp12:Physiological>
-    <cp12:IntracellularConductivities longi="1.75" normal="1.75" trans="1.75" unit="mS/cm"/>
-    <cp12:ExtracellularConductivities longi="7" normal="7" trans="7" unit="mS/cm"/>
-    <cp12:SurfaceAreaToVolumeRatio unit="1/cm">1400</cp12:SurfaceAreaToVolumeRatio>
-    <cp12:Capacitance unit="uF/cm^2">1</cp12:Capacitance>
-  </cp12:Physiological>
+  <cp20:Physiological>
+    <cp20:IntracellularConductivities longi="1.75" normal="1.75" trans="1.75" unit="mS/cm"/>
+    <cp20:ExtracellularConductivities longi="7" normal="7" trans="7" unit="mS/cm"/>
+    <cp20:SurfaceAreaToVolumeRatio unit="1/cm">1400</cp20:SurfaceAreaToVolumeRatio>
+    <cp20:Capacitance unit="uF/cm^2">1</cp20:Capacitance>
+  </cp20:Physiological>
 
-  <cp12:Numerical>
-    <cp12:TimeSteps ode="0.01" pde="0.1" printing="0.1" unit="ms"/>
-    <cp12:KSPTolerances>
-      <cp12:KSPAbsolute>1e-06</cp12:KSPAbsolute>
-    </cp12:KSPTolerances>
-    <cp12:KSPSolver>gmres</cp12:KSPSolver>
-    <cp12:KSPPreconditioner>jacobi</cp12:KSPPreconditioner>
-  </cp12:Numerical>
+  <cp20:Numerical>
+    <cp20:TimeSteps ode="0.01" pde="0.1" printing="0.1" unit="ms"/>
+    <cp20:KSPTolerances>
+      <cp20:KSPAbsolute>1e-06</cp20:KSPAbsolute>
+    </cp20:KSPTolerances>
+    <cp20:KSPSolver>gmres</cp20:KSPSolver>
+    <cp20:KSPPreconditioner>jacobi</cp20:KSPPreconditioner>
+  </cp20:Numerical>
 
-</cp12:ChasteParameters>
+</cp20:ChasteParameters>

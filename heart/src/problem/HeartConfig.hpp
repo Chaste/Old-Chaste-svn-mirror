@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchiveLocationInfo.hpp"
 //#include "ChasteParameters_1_1.hpp"
-#include "ChasteParameters_1_2.hpp"
+#include "ChasteParameters_2_0.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
 #include "AbstractTetrahedralMesh.hpp"
@@ -55,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Needs to be included last
 #include <boost/serialization/export.hpp>
 
-namespace cp = chaste::parameters::v1_2;
+namespace cp = chaste::parameters::v2_0;
 
 
 /**
@@ -233,6 +233,29 @@ private:
     xercesc::DOMElement* AddNamespace(xercesc::DOMDocument* pDocument,
                                       xercesc::DOMElement* pElement,
                                       const XMLCh* pNamespace);
+
+
+    /**
+     * Backwards compatibility transformation method: edits the DOM tree to wrap ionic model
+     * definitions from old (release 1 or 1.1) configuration files in a 'Hardcoded' element.
+     * 
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pRootElement  the root of the tree to be transformed
+     */
+    void TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,
+                                        xercesc::DOMElement* pRootElement);
+
+    /**
+     * Used by TransformIonicModelDefinitions to do the actual wrapping of an element's content.
+     * 
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pElement  the element whose content is to be wrapped
+     * @param pNewElementLocalName  the local name (i.e. without namespace prefix) of the wrapping element
+     *   (the namespace of pElement will be used).
+     */
+    void WrapContentInElement(xercesc::DOMDocument* pDocument,
+                              xercesc::DOMElement* pElement,
+                              const XMLCh* pNewElementLocalName);
 
 public:
     /**

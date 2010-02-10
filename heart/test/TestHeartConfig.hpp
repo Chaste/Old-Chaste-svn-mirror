@@ -72,10 +72,10 @@ public :
 
         TS_ASSERT(HeartConfig::Instance()->mpDefaultParameters->Simulation().present());
 
-        cp::ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().get().IonicModels().get().Default();
+        cp::ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().get().IonicModels().get().Default().Hardcoded().get();
         TS_ASSERT_EQUALS(default_ionic_model, cp::ionic_models_available_type::LuoRudyI);
 
-        cp::ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().get().IonicModels().get().Default();
+        cp::ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().get().IonicModels().get().Default().Hardcoded().get();
         TS_ASSERT_EQUALS(user_ionic_model, cp::ionic_models_available_type::FaberRudy2000);
 
         cp::ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
@@ -401,7 +401,7 @@ public :
     void TestTransmuralHeterogeneities()
     {
         {
-            //the _unsupporetd file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
+            //the _unsupported file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_unsupported.xml");
             
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;

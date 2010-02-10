@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0">
 
 	<Simulation>       
 		<!-- 
@@ -8,9 +8,9 @@
 	    <SimulationDuration unit="ms">0.1</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
-	    	<Default>tenTusscher2006</Default>
+	    	<Default><Hardcoded>tenTusscher2006</Hardcoded></Default>
 			<Region> <!-- REGION 1 -->
-                <IonicModel>KittenGorillaCell</IonicModel>
+                <IonicModel><Hardcoded>KittenGorillaCell</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.0" y="0.0" z="0.0"/>

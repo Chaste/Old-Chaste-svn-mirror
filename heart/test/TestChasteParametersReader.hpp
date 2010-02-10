@@ -32,9 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include <memory>
-#include "ChasteParameters_1_2.hpp"
+#include "ChasteParameters_2_0.hpp"
 
-namespace cp = chaste::parameters::v1_2;
+namespace cp = chaste::parameters::v2_0;
 
 using std::auto_ptr;
 
@@ -62,7 +62,7 @@ public:
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->z(), 2.0);
             TS_ASSERT_EQUALS(simulation_params.Mesh().get().Slab()->inter_node_space(), 0.1);
 
-            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), cp::ionic_models_available_type::FaberRudy2000);
+            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default().Hardcoded().get(), cp::ionic_models_available_type::FaberRudy2000);
 
             TS_ASSERT_EQUALS(simulation_params.OutputDirectory().get(), "ChasteResults");
 
@@ -96,7 +96,7 @@ public:
 
             TS_ASSERT_EQUALS(simulation_params.SimulationDuration().get(), 10.0);
             TS_ASSERT_EQUALS(simulation_params.Domain().get(), cp::domain_type::Mono);
-            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default(), cp::ionic_models_available_type::FaberRudy2000);
+            TS_ASSERT_EQUALS(simulation_params.IonicModels().get().Default().Hardcoded().get(), cp::ionic_models_available_type::FaberRudy2000);
 
             TS_ASSERT(simulation_params.Mesh().present());
             TS_ASSERT(simulation_params.Mesh().get().LoadMesh() != NULL);

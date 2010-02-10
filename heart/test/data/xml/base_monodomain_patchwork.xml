@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0">
 
 	<Simulation>       
 		<!-- 
@@ -8,9 +8,9 @@
 	    <SimulationDuration unit="ms">0.1</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
-	    	<Default>Fox2002BackwardEuler</Default>
+	    	<Default><Hardcoded>Fox2002BackwardEuler</Hardcoded></Default>
 			<Region> <!-- REGION 1 -->
-                <IonicModel>LuoRudyI</IonicModel>
+                <IonicModel><Hardcoded>LuoRudyI</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.0" y="0.0" z="0.0"/>
@@ -19,7 +19,7 @@
                 </Location>
             </Region><!-- REGION 1 -->
 			<Region> <!-- REGION 2 -->
-                <IonicModel>LuoRudyIBackwardEuler</IonicModel>
+                <IonicModel><Hardcoded>LuoRudyIBackwardEuler</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.1" y="0.0" z="0.0"/>
@@ -28,7 +28,7 @@
                 </Location>
             </Region><!-- REGION 2 -->
 			<Region> <!-- REGION 3 -->
-                <IonicModel>LuoRudyI</IonicModel>
+                <IonicModel><Hardcoded>LuoRudyI</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.2" y="0.0" z="0.0"/>
@@ -37,7 +37,7 @@
                 </Location>
             </Region><!-- REGION 3 -->
 			<Region> <!-- REGION 4 -->
-                <IonicModel>FaberRudy2000Optimised</IonicModel>
+                <IonicModel><Hardcoded>FaberRudy2000Optimised</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.3" y="0.0" z="0.0"/>
@@ -46,7 +46,7 @@
                 </Location>
             </Region><!-- REGION 4 -->
 			<Region> <!-- REGION 5 -->
-                <IonicModel>FaberRudy2000</IonicModel>
+                <IonicModel><Hardcoded>FaberRudy2000</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.4" y="0.0" z="0.0"/>
@@ -55,7 +55,7 @@
                 </Location>
             </Region><!-- REGION 5 -->
 			<Region> <!-- REGION 6 -->
-                <IonicModel>DifrancescoNoble</IonicModel>
+                <IonicModel><Hardcoded>DifrancescoNoble</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.5" y="0.0" z="0.0"/>
@@ -64,7 +64,7 @@
                 </Location>
             </Region><!-- REGION 6 -->
 			<Region> <!-- REGION 7 -->
-                <IonicModel>MahajanShiferaw</IonicModel>
+                <IonicModel><Hardcoded>MahajanShiferaw</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.6" y="0.0" z="0.0"/>
@@ -73,7 +73,7 @@
                 </Location>
             </Region><!-- REGION 7 -->
 			<Region> <!-- REGION 8 -->
-                <IonicModel>HodgkinHuxley</IonicModel>
+                <IonicModel><Hardcoded>HodgkinHuxley</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.7" y="0.0" z="0.0"/>
@@ -82,7 +82,7 @@
                 </Location>
             </Region><!-- REGION 8 -->
 			<Region> <!-- REGION 9 -->
-                <IonicModel>Maleckar</IonicModel>
+                <IonicModel><Hardcoded>Maleckar</Hardcoded></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.8" y="0.0" z="0.0"/>

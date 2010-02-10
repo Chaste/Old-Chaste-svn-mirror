@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0">
 
 	<Simulation>
 		<SpaceDimension>3</SpaceDimension>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
-	    	<Default>LuoRudyI</Default>
+	    	<Default><Hardcoded>LuoRudyI</Hardcoded></Default>
 	    </IonicModels>
 		<OutputDirectory>ChasteResults</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>

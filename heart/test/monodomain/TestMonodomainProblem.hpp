@@ -647,7 +647,7 @@ public:
             }
             else
             {
-                std::string compare_command = "diff --ignore-matching-lines=\"<cp12:ChasteParameters\" ";
+                std::string compare_command = "diff --ignore-matching-lines=\"<cp20:ChasteParameters\" ";
                 compare_command += handler.GetOutputDirectoryFullPath()+"/"+test_file_names[i];
                 compare_command += " ";
                 compare_command += "heart/test/data/Monodomain2d/";

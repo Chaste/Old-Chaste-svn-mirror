@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 
 #include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/QName.hpp>
 #include <xsd/cxx/tree/error-handler.hxx>
 
 // Coping with changes to XSD interface
@@ -175,8 +176,8 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     // Release 1.1 (and earlier) didn't use a namespace
     map[""].schema = absolute_path_to_xsd + "ChasteParameters_1_1.xsd";
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
-    map["cp12"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/1_2";
-    map["cp12"].schema = absolute_path_to_xsd + "ChasteParameters_1_2.xsd";
+    map["cp20"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_0";
+    map["cp20"].schema = absolute_path_to_xsd + "ChasteParameters_2_0.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
     cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
@@ -190,7 +191,7 @@ void HeartConfig::SetDefaultSchemaLocations()
     // Release 1.1 (and earlier) didn't use a namespace
     mSchemaLocations[""] = root_dir + "ChasteParameters_1_1.xsd";
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
-    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/1_2"] = root_dir + "ChasteParameters_1_2.xsd";
+    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"] = root_dir + "ChasteParameters_2_0.xsd";
 }
 
 void HeartConfig::SetFixedSchemaLocations(const SchemaLocationsMap& rSchemaLocations)
@@ -259,8 +260,10 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         std::string namespace_uri(xsd::cxx::xml::transcode<char>(p_root_elt->getNamespaceURI()));
         if (namespace_uri == "")
         {
-            // Pretend it's a version 1.2 file
-            AddNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/1_2");
+            // Pretend it's a version 2.0 file
+            AddNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_0");
+            // Change definitions of ionic models
+            TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
         }
         // Parse DOM to object model
         std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, ::xml_schema::flags::dont_initialize, props));
@@ -406,9 +409,10 @@ cp::ionic_models_available_type HeartConfig::GetDefaultIonicModel() const
 {
     CheckSimulationIsDefined("DefaultIonicModel");
 
+    ///\todo #1164 assumes using Hardcoded
     return DecideLocation( & mpUserParameters->Simulation().get().IonicModels(),
                            & mpDefaultParameters->Simulation().get().IonicModels(),
-                           "IonicModel")->get().Default();
+                           "IonicModel")->get().Default().Hardcoded().get();
 }
 
 template<unsigned DIM>
@@ -462,7 +466,8 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
                     break;
             }
             
-            ionicModels.push_back(ionic_model_region.IonicModel());
+            ///\todo #1164 assumes using Hardcoded
+            ionicModels.push_back(ionic_model_region.IonicModel().Hardcoded().get());
         }
         else
         {
@@ -1663,7 +1668,9 @@ void HeartConfig::SetDomain(cp::domain_type domain)
 
 void HeartConfig::SetDefaultIonicModel(cp::ionic_models_available_type ionicModel)
 {
-    cp::ionic_models_type container(ionicModel);
+    cp::ionic_model_selection_type ionic_model;
+    ionic_model.Hardcoded(ionicModel);
+    cp::ionic_models_type container(ionic_model);
     mpUserParameters->Simulation().get().IonicModels().set(container);
 }
 
@@ -1736,7 +1743,9 @@ void HeartConfig::SetIonicModelRegions(std::vector<ChasteCuboid<3> >& definedReg
         XSD_CREATE_WITH_FIXED_ATTR(cp::location_type, locn, "cm");
         locn.Cuboid().set(cp::box_type(point_a, point_b));
 
-        cp::ionic_model_region_type region(ionicModels[region_index], locn);
+        cp::ionic_model_selection_type ionic_model;
+        ionic_model.Hardcoded(ionicModels[region_index]);
+        cp::ionic_model_region_type region(ionic_model, locn);
         regions.push_back(region);
     }
 }
@@ -2479,6 +2488,105 @@ xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
                                                const std::string& rNamespace)
 {
     return AddNamespace(pDocument, pElement, xsd::cxx::xml::string(rNamespace).c_str());
+}
+
+/**
+ *  This is a simple class that lets us do easy (though not terribly efficient)
+ *  trancoding of char* data to XMLCh data.
+ * 
+ * Taken from Xerces-C samples/CreateDOMDocument/CreateDOMDocument.cpp
+ */
+class XStr
+{
+public :
+    /**
+     * Constructor.
+     * @param toTranscode  the C string to convert
+     */
+    XStr(const char* const toTranscode)
+    {
+        // Call the private transcoding method
+        mUnicodeForm = xercesc::XMLString::transcode(toTranscode);
+    }
+
+    /** Destructor */
+    ~XStr()
+    {
+        xercesc::XMLString::release(&mUnicodeForm);
+    }
+
+
+    /** Get the converted string */ 
+    const XMLCh* UnicodeForm() const
+    {
+        return mUnicodeForm;
+    }
+
+private :
+    /** This is the Unicode XMLCh format of the string. */
+    XMLCh* mUnicodeForm;
+};
+
+//#define X(str) XStr(str).UnicodeForm()
+#define X(str) xsd::cxx::xml::string(str).c_str()
+
+
+void HeartConfig::TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,
+                                                 xercesc::DOMElement* pRootElement)
+{
+    xercesc::DOMNodeList* p_sim_elt_list = pRootElement->getElementsByTagName(X("Simulation"));
+    if (p_sim_elt_list->getLength() > 0)
+    {
+        xercesc::DOMElement* p_sim_elt = static_cast<xercesc::DOMElement*>(p_sim_elt_list->item(0));
+        xercesc::DOMNodeList* p_ionic_models_elt_list = p_sim_elt->getElementsByTagName(X("IonicModels"));
+        if (p_ionic_models_elt_list->getLength() > 0)
+        {
+            xercesc::DOMElement* p_ionic_models_elt = static_cast<xercesc::DOMElement*>(p_ionic_models_elt_list->item(0));
+            // Do the default ionic model
+            xercesc::DOMNodeList* p_default_list = p_ionic_models_elt->getElementsByTagName(X("Default"));
+            assert(p_default_list->getLength() > 0); // Asserted by schema
+            xercesc::DOMElement* p_default_elt = static_cast<xercesc::DOMElement*>(p_default_list->item(0));
+            WrapContentInElement(pDocument, p_default_elt, X("Hardcoded"));
+            // Now do any region-specific definitions
+            xercesc::DOMNodeList* p_region_list = p_ionic_models_elt->getElementsByTagName(X("Region"));
+            for (unsigned i=0; i<p_region_list->getLength(); i++)
+            {
+                xercesc::DOMElement* p_region_elt = static_cast<xercesc::DOMElement*>(p_region_list->item(0));
+                xercesc::DOMNodeList* p_ionic_model_list = p_region_elt->getElementsByTagName(X("IonicModel"));
+                assert(p_ionic_model_list->getLength() > 0); // Asserted by schema
+                xercesc::DOMElement* p_ionic_model_elt = static_cast<xercesc::DOMElement*>(p_ionic_model_list->item(0));
+                WrapContentInElement(pDocument, p_ionic_model_elt, X("Hardcoded"));
+            }
+        }
+    }
+}
+
+void HeartConfig::WrapContentInElement(xercesc::DOMDocument* pDocument,
+                                       xercesc::DOMElement* pElement,
+                                       const XMLCh* pNewElementLocalName)
+{
+    const XMLCh* p_namespace_uri = pElement->getNamespaceURI();
+    const XMLCh* p_prefix = pElement->getPrefix();
+    const XMLCh* p_qualified_name;
+    if (p_prefix)
+    {
+        xercesc::QName qname(p_prefix, pNewElementLocalName, 0);
+        p_qualified_name = qname.getRawName();
+    }
+    else
+    {
+        p_qualified_name = pNewElementLocalName;
+    }
+    xercesc::DOMElement* p_wrapper_elt = pDocument->createElementNS(p_namespace_uri, p_qualified_name);
+    // Move all child nodes of pElement to be children of p_wrapper_elt
+    xercesc::DOMNodeList* p_children = pElement->getChildNodes();
+    for (unsigned i=0; i<p_children->getLength(); i++)
+    {
+        xercesc::DOMNode* p_child = pElement->removeChild(p_children->item(i));
+        p_wrapper_elt->appendChild(p_child);
+    }
+    // Add the wrapper as the sole child of pElement
+    pElement->appendChild(p_wrapper_elt);
 }
 
 /////////////////////////////////////////////////////////////////////

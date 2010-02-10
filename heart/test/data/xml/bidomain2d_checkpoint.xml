@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0">
 
 	<Simulation>       
 		<!-- 
@@ -9,7 +9,7 @@
 	    <Domain>Bi</Domain>
 	    <SpaceDimension>2</SpaceDimension>
 	    <IonicModels>
-	    	<Default>Fox2002BackwardEuler</Default>
+	    	<Default><Hardcoded>Fox2002BackwardEuler</Hardcoded></Default>
     	</IonicModels>
 	    
 		<!-- 

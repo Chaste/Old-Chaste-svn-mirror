@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
-       xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2"
+       xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2 heart/src/io/ChasteParameters_1_2.xsd">
+       xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 heart/src/io/ChasteParameters_2_0.xsd">
 
 	<Simulation>
 		<SpaceDimension>3</SpaceDimension>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
-	    	<Default>LuoRudyI</Default>
+	    	<Default><Hardcoded>LuoRudyI</Hardcoded></Default>
 	    </IonicModels>
 		<OutputDirectory>ChasteResults</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>

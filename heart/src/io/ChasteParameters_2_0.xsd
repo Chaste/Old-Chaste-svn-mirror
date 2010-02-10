@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2"
-  xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/1_2" elementFormDefault="qualified">
+  targetNamespace="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
+  xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" elementFormDefault="qualified">
 
   <xs:complexType name="time_type">
     <xs:annotation>
@@ -190,64 +190,26 @@
       <xs:enumeration value="absolute"/>
     </xs:restriction>
   </xs:simpleType>
-
+  
   <xs:complexType name="ionic_model_region_type">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">
+    <xs:annotation><xs:documentation xml:lang="en">
       Associates a region of the mesh with a particular ionic model.
-    </xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="IonicModel" type="ionic_models_available_type"/>
-      <xs:element name="Location" type="location_type"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="ionic_model_region_type_new">
-    <xs:annotation>
-      <xs:documentation xml:lang="en">
-      Associates a region of the mesh with a particular ionic model.
-    </xs:documentation>
-    </xs:annotation>
+    </xs:documentation></xs:annotation>
     <xs:sequence>
       <xs:element name="IonicModel" type="ionic_model_selection_type"/>
       <xs:element name="Location" type="location_type"/>
     </xs:sequence>
   </xs:complexType>
-
-  <xs:complexType name="ionic_models_type_new">
+  
+  <xs:complexType name="ionic_models_type">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        This is what we'd like to have as the ionic_models_type for the next Chaste release.
-        It changes the type used to specify a cell model from a simple enumeration to a more
-        complex structure that can also specify dynamically loaded models.
-        
-        The HeartConfig will need enhancing to convert old parameters files to the new schema,
-        however.  With a bit of luck we can do it with a function that does the transform at
-        the DOM level, called by HeartConfig::ReadFile, rather than including a full XSLT engine!
+        This element specified the ionic model(s) to use for simulation.  A default model
+        must be given, and can be overridden in particular regions.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element name="Default" type="ionic_model_selection_type">
-        <xs:annotation>
-          <xs:documentation>Default ionic model type to be run everywhere. Can be overridden by specifying a region model type.</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element name="Region" type="ionic_model_region_type_new" minOccurs="0"
-        maxOccurs="unbounded">
-        <xs:annotation>
-          <xs:documentation>Specifies an ionic model type in a region to be used instead of the default type.</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="ionic_models_type">
-    <xs:annotation>
-      <xs:documentation>Ionic model, taken from an enumeration of possible models.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="Default" type="ionic_models_available_type">
         <xs:annotation>
           <xs:documentation>Default ionic model type to be run everywhere. Can be overridden by specifying a region model type.</xs:documentation>
         </xs:annotation>
@@ -522,8 +484,6 @@
       <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>
 
       <xs:element name="IonicModels" type="ionic_models_type" minOccurs="0"/>
-      <!-- The new version will eventually replace that above -->
-      <xs:element name="IonicModelsNew" type="ionic_models_type_new" minOccurs="0"/>
 
       <xs:element name="Stimuli" minOccurs="0">
         <xs:complexType>
