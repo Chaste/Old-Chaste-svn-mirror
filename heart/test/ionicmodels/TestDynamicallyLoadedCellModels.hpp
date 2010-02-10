@@ -39,15 +39,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "DynamicCellModelLoader.hpp"
 #include "ChasteBuildRoot.hpp"
+#include "HeartConfig.hpp"
+#include "FileFinder.hpp"
 
 class TestDynamicallyLoadedCellModels : public CxxTest::TestSuite
 {
-public:
-    /**
-     * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
-     * TestIonicModels.hpp.
-     */
-    void TestDynamicallyLoadedLr91(void) throw(Exception)
+private:
+
+    void RunLr91Test(DynamicCellModelLoader& rLoader)
     {
         // Set stimulus
         double magnitude = -25.5;
@@ -58,11 +57,9 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         double end_time = 1000.0; //One second in milliseconds
-
+        
         // Load the cell model dynamically
-        std::string model_name = "libDynamicallyLoadableLr91.so";
-        DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
-        AbstractCardiacCell* p_cell = loader.CreateCell(p_solver, p_stimulus);
+        AbstractCardiacCell* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
 
         // Simple sanity check
         TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), 4u);
@@ -88,6 +85,18 @@ public:
         // Need to delete cell model
         delete p_cell;
     }
+public:
+    /**
+     * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
+     * TestIonicModels.hpp.
+     */
+    void TestDynamicallyLoadedLr91(void) throw(Exception)
+    {
+        // Load the cell model dynamically
+        std::string model_name = "libDynamicallyLoadableLr91.so";
+        DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
+        RunLr91Test(loader);
+    }
     
     void TestExceptions() throw(Exception)
     {
@@ -100,6 +109,30 @@ public:
         file_name = "libNotACellModel.so";
         TS_ASSERT_THROWS_CONTAINS(DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + file_name),
                                   "Failed to load cell creation function from .so file");
+    }
+    
+    void TestLoadingViaXml() throw(Exception)
+    {
+        // Fake content from an XML file.
+        // This could be tricky to really put in an XML file...
+        std::string model_name = "libDynamicallyLoadableLr91.so";
+        cp::path_type so_path(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
+        so_path.relative_to(cp::relative_to_type::absolute);
+        cp::dynamically_loaded_ionic_model_type dynamic_elt(so_path);
+        cp::ionic_model_selection_type ionic_model;
+        ionic_model.Dynamic(dynamic_elt);
+        
+        // Now mock up what HeartConfigRelatedCellFactory will have to do
+        TS_ASSERT(ionic_model.Dynamic().present());
+        if (ionic_model.Dynamic().present())
+        {
+            FileFinder file_finder(ionic_model.Dynamic()->Path());
+            TS_ASSERT(file_finder.Exists());
+            DynamicCellModelLoader loader(file_finder.GetAbsolutePath());
+            
+            RunLr91Test(loader);
+        }
+        // then 'else' what it currently does, more or less...
     }
 };
 
