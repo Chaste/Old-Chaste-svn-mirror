@@ -96,6 +96,10 @@ public:
         std::string model_name = "libDynamicallyLoadableLr91.so";
         DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
         RunLr91Test(loader);
+        
+        // The .so also gets copied into the source folder
+        DynamicCellModelLoader loader2(std::string(ChasteBuildRootDir()) + "heart/dynamic/" + model_name);
+        RunLr91Test(loader2);
     }
     
     void TestExceptions() throw(Exception)
@@ -114,10 +118,9 @@ public:
     void TestLoadingViaXml() throw(Exception)
     {
         // Fake content from an XML file.
-        // This could be tricky to really put in an XML file...
-        std::string model_name = "libDynamicallyLoadableLr91.so";
-        cp::path_type so_path(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
-        so_path.relative_to(cp::relative_to_type::absolute);
+        std::string model_name = "heart/dynamic/libDynamicallyLoadableLr91.so";
+        cp::path_type so_path(model_name);
+        so_path.relative_to(cp::relative_to_type::chaste_source_root);
         cp::dynamically_loaded_ionic_model_type dynamic_elt(so_path);
         cp::ionic_model_selection_type ionic_model;
         ionic_model.Dynamic(dynamic_elt);
