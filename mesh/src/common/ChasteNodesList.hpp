@@ -54,7 +54,7 @@ public:
      * 
      * @param rNodesList a standard vector of (pointer to) nodes
      */
-    ChasteNodesList(const std::vector<Node<SPACE_DIM>*>& rNodesList) :
+    ChasteNodesList(const std::vector<Node<SPACE_DIM>*> rNodesList) :
         mListOfNodes (rNodesList)
     {
     }

@@ -205,7 +205,13 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         }
     }
     mpCellFactory->SetMesh( mpMesh );
-
+    
+    // if the user requested transmural stuff, we fill in the mCellHeterogeneityAreas here.
+    if (HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested())
+    {
+        mpCellFactory->FillInCellularTransmuralAreas();
+    }
+    
     if (mNodesPerProcessorFilename != "")
     {
         mpMesh->ReadNodesPerProcessorFile(mNodesPerProcessorFilename);

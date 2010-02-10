@@ -110,6 +110,8 @@ public:
      */
     virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed,
                                       unsigned lo, unsigned hi);
+                                      
+    virtual void FillInCellularTransmuralAreas();
 
     /**
      * @return  The number of cells

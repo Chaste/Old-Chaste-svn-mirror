@@ -205,7 +205,16 @@ public:
     {
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_kirsten.xml");
     }
-
+    
+    void TestTransmuralCellularheterogeneities() throw(Exception)
+    {
+        EXIT_IF_PARALLEL;
+        CardiacSimulation simulation("heart/test/data/xml/ChasteParametersCellHeterogeneities.xml");
+        std::string foldername = "ChasteResults_heterogeneities";
+        
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "transmural_heterogeneities_results", false,
+                   foldername, "SimulationResults", true));
+    }
     void TestExceptions() throw(Exception)
     {
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/monodomain8d_small.xml"), "Monodomain space dimension not supported: should be 1, 2 or 3");

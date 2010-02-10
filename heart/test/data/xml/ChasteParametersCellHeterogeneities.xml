@@ -9,14 +9,14 @@
 			Problem definition 
 		-->
 		<SpaceDimension>3</SpaceDimension>
-	    <SimulationDuration unit="ms">10.0</SimulationDuration>
+	    <SimulationDuration unit="ms">0.2</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    
 		<!-- 
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
+			<LoadMesh name="mesh/test/data/cuboid_8_by_8_by_3" conductivity_media="NoFibreOrientation"/>    
 	  	</Mesh>
 	
 		<!--
@@ -31,9 +31,9 @@
 	   	-->
    		<Stimuli>
 		  	<Stimulus> <!-- #1 -->
-				<Strength unit="uA/cm^3">-25500.0</Strength>
+				<Strength unit="uA/cm^3">0</Strength>
 				<Duration unit="ms">0.5</Duration>
-				<Delay unit="ms">0</Delay>
+				<Delay unit="ms">25</Delay>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-2.0" y="-0.05" z="-1.0"/>
@@ -48,34 +48,34 @@
 	   	-->
 		<CellHeterogeneities>
 		  	<CellHeterogeneity> <!-- #1 -->
-				<ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
+				<ScaleFactorGks unit="dimensionless">0.0</ScaleFactorGks>
 				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
-				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
+				<ScaleFactorGkr unit="dimensionless">0.0</ScaleFactorGkr>
 				<Location unit="cm">
-						<EpiLayer unit="dimensionless">0.3</EpiLayer>
+						<EpiLayer unit="dimensionless">0.375</EpiLayer>
 				</Location>
 			</CellHeterogeneity>	
 		    <CellHeterogeneity> <!-- #2 -->
-				<ScaleFactorGks unit="dimensionless">0.5</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.1</ScaleFactorIto>
-				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
+				<ScaleFactorGks unit="dimensionless">1000</ScaleFactorGks>
+				<ScaleFactorIto unit="dimensionless">1000</ScaleFactorIto>
+				<ScaleFactorGkr unit="dimensionless">1000</ScaleFactorGkr>
 				<Location unit="cm">
-						<EndoLayer unit="dimensionless">0.3</EndoLayer>
+						<EndoLayer unit="dimensionless">0.375</EndoLayer>
 				</Location>
 			</CellHeterogeneity>	
 		   <CellHeterogeneity> <!-- #3 -->
-				<ScaleFactorGks unit="dimensionless">0.3</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.9</ScaleFactorIto>
-				<ScaleFactorGkr unit="dimensionless">2.0</ScaleFactorGkr>
+				<ScaleFactorGks unit="dimensionless">500</ScaleFactorGks>
+				<ScaleFactorIto unit="dimensionless">500</ScaleFactorIto>
+				<ScaleFactorGkr unit="dimensionless">500</ScaleFactorGkr>
 				<Location unit="cm">
-						<MidLayer unit="dimensionless">0.4</MidLayer>
+						<MidLayer unit="dimensionless">0.25</MidLayer>
 				</Location>
 			</CellHeterogeneity>
 		</CellHeterogeneities>		
 
 		<ConductivityHeterogeneities>
 			<ConductivityHeterogeneity> <!-- #1 -->
-			    <IntracellularConductivities longi="2.75" trans="2.75" normal="2.75" unit="mS/cm"/>
+			    <IntracellularConductivities longi="0.0" trans="0.0" normal="0.0" unit="mS/cm"/>
 	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
 				<Location unit="cm">
 					<Cuboid>
@@ -88,7 +88,7 @@
 		<!-- 
 			Output 
 		-->
-		<OutputDirectory>ChasteResults</OutputDirectory>
+		<OutputDirectory>ChasteResults_heterogeneities</OutputDirectory>
 
 		<OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
 				
@@ -98,7 +98,7 @@
 	    <!--
 	        Conductivities
 	    -->
-	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" unit="mS/cm"/>
+	    <IntracellularConductivities longi="0.0" trans="0.0" normal="0.0" unit="mS/cm"/>
 	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" unit="mS/cm"/>
 	    <BathConductivity unit="mS/cm"> 7.0 </BathConductivity>
 	    <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio>
@@ -106,13 +106,12 @@
 	</Physiological>
 
 	<Numerical>
-		<TimeSteps ode="0.025" pde="0.05" printing="1.0" unit="ms"/>
+		<TimeSteps ode="0.005" pde="0.01" printing="0.1" unit="ms"/>
 		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>ilu</KSPPreconditioner>
-		<AdaptivityParameters target_error="2.0" sigma="0.01" max_edge_length="0.04" min_edge_length="0.005" gradation="1.3" max_nodes="1000" num_sweeps="5" />
+		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
 
 </ChasteParameters>

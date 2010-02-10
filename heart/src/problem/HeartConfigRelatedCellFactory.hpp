@@ -86,6 +86,8 @@ private:
     std::vector<double> mScaleFactorIto;
     /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGkr;
+    
+
 
 public:
     /** Default constructor */
@@ -111,6 +113,11 @@ public:
      * @param nodeIndex is the global index within the mesh
      */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex);
+    
+    /**
+     * Helper method to calculate and fill in the heterogeneities areas (mCellHeterogeneityAreas)
+     */
+    void FillInCellularTransmuralAreas();
 
 };
 

@@ -52,6 +52,12 @@ void AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::FinaliseCellCreation(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::FillInCellularTransmuralAreas()
+{
+    //implemented in subclasses
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::GetNumberOfCells()
 {
     assert(mpMesh != NULL);
