@@ -328,7 +328,7 @@ public:
         //Indexed quadratic faces
         TS_ASSERT_THROWS_THIS( READER_1D mesh_reader2("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic", 2, 2, true),
                 "Boundary element file should not have containing element info if it is quadratic");
-                
+
         //Exceptions due to unimplemented code
         TrianglesMeshReader<3,3> mesh_reader3("mesh/test/data/simple_cube");
         TS_ASSERT_THROWS_THIS(mesh_reader3.GetNode(0), "Random access is only implemented in mesh readers for binary mesh files.");
@@ -434,8 +434,8 @@ public:
     }
 
     void TestReadingBinary() throw(Exception)
-    {        
-        TrianglesMeshReader<3,3> mesh_reader_ascii("mesh/test/data/squashed_cube");       
+    {
+        TrianglesMeshReader<3,3> mesh_reader_ascii("mesh/test/data/squashed_cube");
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/squashed_cube_binary");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 12u);
@@ -445,10 +445,13 @@ public:
         TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumElements(), 12u);
         TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumNodes(), 9u);
 
+        TS_ASSERT( mesh_reader.IsFileFormatBinary() );
+        TS_ASSERT( ! mesh_reader_ascii.IsFileFormatBinary() );
+
         /*
          * Check node locations
          */
-        {   
+        {
             std::vector<double> ascii_location(3u);
             std::vector<double> binary_location(3u);
             for (unsigned i=0; i<mesh_reader.GetNumNodes(); i++)
@@ -460,7 +463,7 @@ public:
                 TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
                 TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
             for (unsigned i=0; i<mesh_reader.GetNumNodes(); i++)
             {
                 // Random access
@@ -470,13 +473,13 @@ public:
                 TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
                 TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.                    
-            mesh_reader.Reset(); // You wouldn't believe how important this line is.                    
-        } 
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
+            mesh_reader.Reset(); // You wouldn't believe how important this line is.
+        }
 
         /*
          * Check elements
-         */   
+         */
         {
             ElementData ascii_node_indices;
             ElementData binary_node_indices;
@@ -491,7 +494,7 @@ public:
                 TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[3],binary_node_indices.NodeIndices[3]);
                 TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
             for (unsigned i=0; i<mesh_reader.GetNumElements(); i++)
             {
                 // Sequential reading in
@@ -503,13 +506,13 @@ public:
                 TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[3],binary_node_indices.NodeIndices[3]);
                 TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
-            mesh_reader.Reset(); // You wouldn't believe how important this line is.                    
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
+            mesh_reader.Reset(); // You wouldn't believe how important this line is.
         }
-        
+
         /*
          * Check faces
-         */   
+         */
         {
             ElementData ascii_node_indices;
             ElementData binary_node_indices;
@@ -523,7 +526,7 @@ public:
                 TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[2],binary_node_indices.NodeIndices[2]);
                 TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
             for (unsigned i=0; i<mesh_reader.GetNumFaces(); i++)
             {
                 // Sequential reading in
@@ -534,10 +537,10 @@ public:
                 TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[2],binary_node_indices.NodeIndices[2]);
                 TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.        
-            mesh_reader.Reset(); // You wouldn't believe how important this line is.                    
+            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
+            mesh_reader.Reset(); // You wouldn't believe how important this line is.
         }
-        
+
         TS_ASSERT_THROWS_THIS(mesh_reader.GetNode(9u), "Node does not exist - not enough nodes.");
         TS_ASSERT_THROWS_THIS(mesh_reader.GetFaceData(12u), "Face does not exist - not enough faces.");
         TS_ASSERT_THROWS_THIS(mesh_reader.GetElementData(12u), "Element does not exist - not enough elements.");

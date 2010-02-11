@@ -136,12 +136,19 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     std::vector<double> coords;
     for (unsigned node_index=0; node_index < mTotalNumNodes; node_index++)
     {
-        /// \todo: assert the node is not considered both owned and halo-owned. Remove continue statement few lines below then.
-        coords = rMeshReader.GetNextNode();
+        if ( ! rMeshReader.IsFileFormatBinary() )
+        {
+            /// \todo: assert the node is not considered both owned and halo-owned. Remove continue statement few lines below then.
+            coords = rMeshReader.GetNextNode();
+        }
 
         // The node is owned by the processor
         if (nodes_owned.find(node_index) != nodes_owned.end())
         {
+            if ( rMeshReader.IsFileFormatBinary() )
+            {
+                coords = rMeshReader.GetNode(node_index);
+            }
             RegisterNode(node_index);
             this->mNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
             continue;
@@ -150,6 +157,10 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         // The node is a halo node in this processor
         if (halo_nodes_owned.find(node_index) != halo_nodes_owned.end())
         {
+            if ( rMeshReader.IsFileFormatBinary() )
+            {
+                coords = rMeshReader.GetNode(node_index);
+            }
             RegisterHaloNode(node_index);
             mHaloNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
         }
@@ -158,11 +169,20 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     // Load the elements owned by the processor
     for (unsigned element_index=0; element_index < mTotalNumElements; element_index++)
     {
-        ElementData element_data = rMeshReader.GetNextElementData();
+        ElementData element_data;
+
+        if ( ! rMeshReader.IsFileFormatBinary() )
+        {
+            element_data = rMeshReader.GetNextElementData();
+        }
 
         // The element is owned by the processor
         if (elements_owned.find(element_index) != elements_owned.end())
         {
+            if ( rMeshReader.IsFileFormatBinary() )
+            {
+                element_data = rMeshReader.GetElementData(element_index);
+            }
             std::vector<Node<SPACE_DIM>*> nodes;
             unsigned node_local_index;
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
@@ -361,12 +381,12 @@ bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
     {
         unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0); // throws an exception if we don't own the element
         SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
-        return true;   
+        return true;
     }
     catch(Exception e)      // either we don't own the element or we don't own node 0 of a shared element
     {
         return false;
-    }        
+    }
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) const
@@ -375,12 +395,12 @@ bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
     {
         unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0); // throws an exception if we don't own the element
         SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
-        return true;   
+        return true;
     }
     catch(Exception e)      // either we don't own the element or we don't own node 0 of a shared element
     {
         return false;
-    }        
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -639,28 +659,28 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
     int nn = rMeshReader.GetNumNodes();
     idxtype* npart = new idxtype[nn];
     assert(npart != NULL);
- 
+
     //Only the master process will access the element data and perform the partitioning
     if (PetscTools::AmMaster())
     {
         int ne = rMeshReader.GetNumElements();
         idxtype* elmnts = new idxtype[ne * (ELEMENT_DIM+1)];
         assert(elmnts != NULL);
-    
+
         unsigned counter=0;
         for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
         {
             ElementData element_data = rMeshReader.GetNextElementData();
-    
+
             for (unsigned i=0; i<ELEMENT_DIM+1; i++)
             {
                 elmnts[counter++] = element_data.NodeIndices[i];
             }
         }
         rMeshReader.Reset();
-    
+
         int etype;
-    
+
         switch (ELEMENT_DIM)
         {
             case 2:
@@ -672,23 +692,23 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
             default:
                 NEVER_REACHED;
         }
-    
+
         int numflag = 0; //0 means C-style numbering is assumed
         int nparts = PetscTools::GetNumProcs();
         int edgecut;
         idxtype* epart = new idxtype[ne];
         assert(epart != NULL);
-    
+
         METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);
         delete[] elmnts;
         delete[] epart;
     }
-    
+
     //Here's the new bottle-neck: share all the node ownership data
     //idxtype is normally int (see metis-4.0/Lib/struct.h 17-22)
     assert(sizeof(idxtype) == sizeof(int));
     MPI_Bcast(npart /*data*/, nn /*size*/, MPI_INT, 0 /*From Master*/, PETSC_COMM_WORLD);
- 
+
     assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
     rProcessorsOffset.resize(PetscTools::GetNumProcs(), 0);
 
@@ -772,7 +792,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
     //Use dumb partition so that archiving doesn't permute anything
-    mMetisPartitioning=DUMB;   
+    mMetisPartitioning=DUMB;
     mTotalNumNodes=width+1;
     mTotalNumBoundaryElements=2u;
     mTotalNumElements=width;
@@ -810,7 +830,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
         {
             RegisterNode(node_index);
             this->mNodes.push_back(p_node); // create node
-        
+
             //A boundary face has to be wholely owned by the process
             //Since, when ELEMENT_DIM>1 we have *at least* boundary node as a non-halo
             if (node_index==0) // create left boundary node and boundary element
@@ -850,8 +870,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
     //Use dumb partition so that archiving doesn't permute anything
-    mMetisPartitioning=DUMB;   
-    
+    mMetisPartitioning=DUMB;
+
     mTotalNumNodes=(width+1)*(height+1);
     mTotalNumBoundaryElements=(width+height)*2;
     mTotalNumElements=width*height*2;
@@ -1015,8 +1035,8 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
     }
 
     //Use dumb partition so that archiving doesn't permute anything
-    mMetisPartitioning=DUMB;   
- 
+    mMetisPartitioning=DUMB;
+
     mTotalNumNodes=(width+1)*(height+1)*(depth+1);
     mTotalNumBoundaryElements=((width*height)+(width*depth)+(height*depth))*4;//*2 for top-bottom, *2 for tessellating each unit square
     mTotalNumElements=width*height*depth*6;

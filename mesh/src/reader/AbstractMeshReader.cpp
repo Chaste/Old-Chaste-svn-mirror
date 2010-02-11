@@ -54,7 +54,7 @@ ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeData()
     return GetNextFaceData();
 }
 
- 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
 {
@@ -66,7 +66,7 @@ ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetElementData(unsigned 
 {
     EXCEPTION("Random access is only implemented in mesh readers for binary mesh files.");
 }
-    
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetFaceData(unsigned index)
 {
@@ -83,6 +83,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::string AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMeshFileBaseName()
 {
     return "";
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::IsFileFormatBinary()
+{
+    return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

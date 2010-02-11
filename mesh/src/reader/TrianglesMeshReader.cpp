@@ -48,7 +48,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
                                                                  bool readContainingElementForBoundaryElements)
     : mFilesBaseName(pathBaseName),
       mNodeItemWidth(0),
-      mElementItemWidth(0), 
+      mElementItemWidth(0),
       mFaceItemWidth(0),
       mNumNodes(0),
       mNumElements(0),
@@ -261,7 +261,7 @@ ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetElementData(unsigned
     // Read the next item.
     return GetNextElementData();
 }
-    
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetFaceData(unsigned index)
 {
@@ -362,7 +362,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
 {
     /*
      *  Reading node file header
-     */    
+     */
     std::string buffer;
     GetNextLineFromStream(mNodesFile, buffer);
     std::stringstream node_header_line(buffer);
@@ -379,7 +379,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     {
         mFilesAreBinary = true;
         mNodeFileDataStart = mNodesFile.tellg(); // Record the position of the first byte after the header.
-        mNodeItemWidth = SPACE_DIM * sizeof(double); 
+        mNodeItemWidth = SPACE_DIM * sizeof(double);
         //We enforce that all binary files (written by Chaste) are indexed from zero
         mIndexFromZero = true;
     }
@@ -410,8 +410,8 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     {
         element_header_line >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
 
-        extra_attributes = mNumElementAttributes;     
-        
+        extra_attributes = mNumElementAttributes;
+
         //Is there anything else on the header line?
         std::string element_extras;
         element_header_line >> element_extras;
@@ -437,7 +437,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
         else
         {
             assert (element_extras == "");
-        }       
+        }
 
         if ( mNumElementNodes != mNodesPerElement )
         {
@@ -452,7 +452,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     {
         element_header_line >> mNumElements >> mNumFaceAttributes;
 
-        extra_attributes = mNumFaceAttributes;     
+        extra_attributes = mNumFaceAttributes;
 
         //Is there anything else on the header line?
         std::string element_extras;
@@ -471,7 +471,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
     {
         mElementFileDataStart = mElementsFile.tellg(); // Record the position of the first byte after the header.
         mElementItemWidth = (mNodesPerElement + extra_attributes) * sizeof(unsigned);
-    }        
+    }
 
     /*
      *  Reading face/edge file header
@@ -535,12 +535,12 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
             mBoundaryFacesRead = 0;
         }
     }
-    
+
     if (mFilesAreBinary)
     {
         mFaceFileDataStart = mFacesFile.tellg(); // Record the position of the first byte after the header.
         mFaceItemWidth = (ELEMENT_DIM + mNumFaceAttributes) * sizeof(unsigned);
-    }        
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -687,6 +687,13 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::EnsureIndexingFromZero(std::ve
     }
 
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::IsFileFormatBinary()
+{
+    return mFilesAreBinary;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

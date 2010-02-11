@@ -118,43 +118,51 @@ public:
     /** Returns a vector of the node indices of each edge (and any attribute/containment infomation, if there is any) in turn (synonym of GetNextFaceData()) */
     ElementData GetNextEdgeData();
 
-    
-    /** 
-     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
-     * 
+
+    /**
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.
+     *
      * @param index  The global node index
      * @return a vector of the coordinates of the node
      */
      virtual std::vector<double> GetNode(unsigned index);
 
-    /** 
-     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
-     * 
+    /**
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.
+     *
      * @param index  The global element index
      * @return a vector of the node indices of the element (and any attribute infomation, if there is any)
-     */ 
+     */
     virtual ElementData GetElementData(unsigned index);
-    
-    /** 
-     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files. 
-     * 
+
+    /**
+     *  Normally throws an exception.  Only implemented for tetrahedral mesh reader of binary files.
+     *
      * @param index  The global face index
      * @return a vector of the node indices of the face (and any attribute/containment infomation, if there is any)
      */
     virtual ElementData GetFaceData(unsigned index);
 
-    /** 
+    /**
      *  Synonym of GetFaceData(index)
-     * 
+     *
      * @param index  The global edge index
      * @return a vector of the node indices of the edge (and any attribute/containment infomation, if there is any)
      */
     ElementData GetEdgeData(unsigned index);
-     
+
     /**
      * Get method for mMeshFileBaseName.
      */
     virtual std::string GetMeshFileBaseName();
+
+    /**
+     * Returns true if reading binary files, false if reading ascii files.
+     *
+     * Note, this will always return false unless over-ridden by a derived class that is able to support binary file
+     * formats.
+     */
+    virtual bool IsFileFormatBinary();
 
 };
 
