@@ -850,6 +850,30 @@ class CrayGcc(BuildType):
     self._cc_flags.append('-g')
     self.build_dir = 'craygcc'
 
+class Pgi(BuildType):
+  "Portland compiler." 
+  def __init__(self, *args, **kwargs):
+    BuildType.__init__(self, *args, **kwargs)
+    self.build_dir = 'pgi'
+    self._include_flag = ['-I']
+    self._cc_flags = ['-g']
+    self._link_flags = ['']
+    self.build_dir = 'pgi'
+
+class PgiCray(Pgi):
+  "Portland compiler on Cray." 
+  def __init__(self, *args, **kwargs):
+    Pgi.__init__(self, *args, **kwargs)
+    self.tools['mpicxx'] = 'CC'
+    self.build_dir = 'pgicray'
+
+class PgiCrayOpt(PgiCray):
+  "Optimised Portland compiler on Cray."
+  def __init__(self, *args, **kwargs):
+    PgiCray.__init__(self, *args, **kwargs)
+    self._cc_flags.append('-fastsse')
+    self.build_dir = 'pgicrayopt'
+
 class Vacpp(BuildType):
   "IBM Visual Age C++ compiler"
   def __init__(self, *args, **kwargs):
