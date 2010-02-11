@@ -332,7 +332,6 @@ public:
 
 
             CARDIAC_PROBLEM cardiac_problem(p_cell_factory);
-            ///\todo this is a sequential mesh
             cardiac_problem.SetMesh(&mesh);
 
             // Calculate positions of nodes 1/4 and 3/4 through the mesh
@@ -381,16 +380,33 @@ public:
             SetConductivities(cardiac_problem);
 
             cardiac_problem.Initialise();
-
+///\todo We might as well remove this block...
 #ifndef NDEBUG
-            Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
-            Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
-            assert(fqn->rGetLocation()[0]==0.25*mesh_width);
-            assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
-            for (unsigned coord=1; coord<DIM; coord++)
+            try
             {
-                assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
-                assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
+                Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
+                assert(fqn->rGetLocation()[0]==0.25*mesh_width);
+                for (unsigned coord=1; coord<DIM; coord++)
+                {
+                    assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
+                }
+            }
+            catch (Exception &e)
+            {
+                //This node not owned by the current process -- assume it's checked elsewhere
+            }
+            try
+            {
+                Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
+                assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
+                for (unsigned coord=1; coord<DIM; coord++)
+                {
+                    assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
+                }
+            }
+            catch (Exception &e)
+            {
+                //This node not owned by the current process -- assume it's checked elsewhere
             }
 #endif
 
