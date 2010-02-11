@@ -104,7 +104,15 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     
     
   protected:
-
+    
+    /** 
+     * 
+     * The local time step
+     * Initially set to the mDt in the AbstractOdeSystem class.
+     * It is then adjusted in the adaptive part of the algorithm 
+     * and used to calculate the gates at the following time step
+     * 
+     * */
     double mLocalTimeStep;
     
     std::vector<unsigned> mGatingVariableIndices; /**< Indices of those variables associated with gates (not concentrations or voltages etc.) */
@@ -138,9 +146,24 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     std::vector<double> mWeightedErrorTolerances; /**< Vector of tolerances to error in each of the system variables, will be weighted by a small tolerance factor*/
     
     bool mUseAdaptTimestep; /**< For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually. */
-    bool IsThereTooMuchError(std::vector<double>& rErrors); /**< Return true if the error in any variable exceeds tolerances*/
+    
+    /**
+     * Return true if the error in any variable exceeds tolerances
+     * 
+     * @param rErrors vector of the errors that will be checked against teh tolerances
+     * 
+     */
+    bool IsThereTooMuchError(std::vector<double>& rErrors);
+     
     bool mIsThereTooMuchError; /**< To hold the return value of IsThereTooMuchError as it is required multiple times.*/
-    void AdaptTimestep(std::vector<double>& rErrors); /**< Change the timestep size for the next step based upon the a posteriori errors*/ 
+    
+    /** 
+     * Change the timestep size for the next step based upon the a posteriori errors
+     * 
+     * @param rErrors a vector of errors on which the error analysis to determine whether to adapt or not is performed
+     * 
+     */ 
+    void AdaptTimestep(std::vector<double>& rErrors); 
       
     /**
      * Computes some parameters needed by the Perego Veneziani algorithm.

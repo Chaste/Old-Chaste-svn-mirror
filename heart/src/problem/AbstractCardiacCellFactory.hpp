@@ -110,7 +110,11 @@ public:
      */
     virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed,
                                       unsigned lo, unsigned hi);
-                                      
+    
+    /**
+     * Method that fills in the vector of heterogeneity areas with the NodesLists 
+     * that correspond to a given layer (implemented in subclasses)
+     */                                 
     virtual void FillInCellularTransmuralAreas();
 
     /**
