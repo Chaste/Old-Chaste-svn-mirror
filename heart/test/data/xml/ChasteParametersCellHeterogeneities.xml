@@ -23,7 +23,7 @@
 			Ionic models	
 		-->
 		<IonicModels>
-			<Default>FaberRudy2000</Default>
+			<Default><Hardcoded>FaberRudy2000</Hardcoded></Default>
 		</IonicModels>
 	
 	    <!-- 

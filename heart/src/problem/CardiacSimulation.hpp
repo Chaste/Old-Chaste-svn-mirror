@@ -188,6 +188,8 @@ CardiacSimulation::CardiacSimulation(std::string parameterFileName)
 
 void CardiacSimulation::ReadParametersFromFile(std::string parameterFileName)
 {
+    // Ensure the singleton is in a clean state
+    HeartConfig::Reset();
     try
     {
         // Try the hardcoded schema location first
@@ -199,7 +201,7 @@ void CardiacSimulation::ReadParametersFromFile(std::string parameterFileName)
         if (e.CheckShortMessageContains("Missing file parsing configuration") == "")
         {
             // Try using the schema location given in the XML
-            HeartConfig::Instance()->Reset();
+            HeartConfig::Reset();
             HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
             HeartConfig::Instance()->SetParametersFile(parameterFileName);
         }
