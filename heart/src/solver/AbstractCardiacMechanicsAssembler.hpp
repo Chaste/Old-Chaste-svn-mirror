@@ -82,11 +82,36 @@ protected:
     c_matrix<double,DIM,DIM> mConstantFibreSheetDirections;
 
     /**
-	 *	The fibre-sheet-normal directions (matrices), one for each element. Only non-NULL if SetVariableFibreSheetDirections()
-     *  is called, if not mConstantFibreSheetDirections is used instead
+     * The fibre-sheet-normal directions (matrices), one for each element. Only non-NULL if SetVariableFibreSheetDirections()
+     * is called, if not mConstantFibreSheetDirections is used instead
      */
     std::vector<c_matrix<double,DIM,DIM> >* mpVariableFibreSheetDirections;
     
+    /** Check whether the given matrix is orthogonal, by computing A^T A and verifying whether each
+      * component matches the identity matrix, to a given tolerance.
+      * @param rOrthogonalMatrix reference to the matrix being tested
+      */
+    void CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
+    {
+        c_matrix<double,DIM,DIM>  temp = prod(trans(rMatrix),rMatrix);
+        double tol = 1e-6;
+        // check temp is equal to the identity
+        for(unsigned i=0; i<DIM; i++)
+        {
+            for(unsigned j=0; j<DIM; j++)
+            {
+                double val = (i==j ? 1.0 : 0.0);
+                if(fabs(temp(i,j)-val)>tol)
+	        {
+                    std::stringstream ss;
+                    ss << "The given fibre-sheet matrix, " << rMatrix << ", is not orthogonal"
+                       << " (A^T A not equal to I to tolerance " << tol << ")";
+                    EXCEPTION(ss.str());
+	        }
+            }
+        }
+    }
+
     
     /**
      *  Whether the solver is implicit or not (ie whether the contraction model depends on lambda (and depends on
@@ -215,20 +240,19 @@ public:
     
     
     /**  
-	 *	Set a constant fibre-sheet-normal direction (a matrix) to something other than the default (fibres in X-direction, 
-	 *  sheet in the XY plane) 
+     *	Set a constant fibre-sheet-normal direction (a matrix) to something other than the default (fibres in X-direction, 
+     *  sheet in the XY plane) 
      *  @param rFibreSheetMatrix The fibre-sheet-normal matrix (fibre dir the first column, normal-to-fibre-in sheet in second
      *  column, sheet-normal in third column).
      */
     void SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
     {
         mConstantFibreSheetDirections = rFibreSheetMatrix; 
-// EMTODO:
-// CheckOrthogonality(mConstantFibreSheetDirections);
+        CheckOrthogonality(mConstantFibreSheetDirections);
     }
     
     /** 
-	 *	Set a variable fibre-sheet-normal direction (matrices), one for each element, from a file.
+     *	Set a variable fibre-sheet-normal direction (matrices), one for each element, from a file.
      *  The file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir for that element).
      *  The number of elements must match the number in the MECHANICS mesh!
      *  @param orthoFile the file containing the fibre/sheet directions
@@ -713,12 +737,14 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std
             
             (*mpVariableFibreSheetDirections)[elem_index](j/DIM,j%DIM) = data;
         }
-
-//EMTODO:
-//CheckOrthogonality((*mpVariableFibreSheetDirections)[elem_index]);
     }
    
     ifs.close();
+
+    for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
+    {
+        CheckOrthogonality((*mpVariableFibreSheetDirections)[elem_index]);
+    }
 }
 
 

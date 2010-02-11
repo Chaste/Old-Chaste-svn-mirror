@@ -256,7 +256,11 @@ public:
             
             if(run==1)
             {
-            	// ortho matrix = [0 1; 1 0], ie fibres in Y direction
+                c_matrix<double,2,2> non_orthogonal_mat = zero_matrix<double>(2,2);
+                non_orthogonal_mat(0,0) = 1.0;
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetConstantFibreSheetDirections(non_orthogonal_mat), "not orthogonal");
+        
+                // ortho matrix = [0 1; 1 0], ie fibres in Y direction
                 c_matrix<double,2,2> ortho_matrix = zero_matrix<double>(2,2);
                 ortho_matrix(0,1) = 1.0;
                 ortho_matrix(1,0) = 1.0;

@@ -97,7 +97,7 @@ public:
         */
         problem.SetVariableFibreSheetDirectionsFile("heart/test/data/5by5mesh_curving_fibres.ortho");
 
-       // problem.SetNoElectricsOutput();
+        // problem.SetNoElectricsOutput();
         problem.Solve();
 
         // test by checking the length of the tissue against hardcoded value
