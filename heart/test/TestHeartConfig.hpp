@@ -423,6 +423,7 @@ public :
     void TestTransmuralHeterogeneities()
     {
         {
+            HeartConfig::Reset();
             //the _unsupported file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_unsupported.xml");
             
@@ -435,9 +436,9 @@ public :
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), false);
             
             //and the indices with their initial values
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 10u);
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), 10u);
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), 10u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), UINT_MAX-3u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), UINT_MAX-3u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), UINT_MAX-3u);
             
             HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                             scale_factor_gks,
@@ -515,7 +516,7 @@ public :
                                   "Fractions must be positive");
                                                             
         }
-        //covers the case when the user supplies only two layers and the summation of the fraction is correct
+        //covers the case when the user supplies only two layers
         {
             HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_incomplete.xml");
@@ -530,8 +531,32 @@ public :
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
                                   "Three specifications of layers must be supplied");
+            
+                     
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), true);           
+            //only epi and endo, in this order, are supplied in this file
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 0u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), UINT_MAX-3u);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), 1u);           
                                                             
         }
+        //cuboids and layers together are not yet supported
+        {
+            HeartConfig::Reset();
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_cuboids_and_layers.xml");
+            
+            std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
+            std::vector<double> scale_factor_gks;
+            std::vector<double> scale_factor_ito;
+            std::vector<double> scale_factor_gkr;
+            
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                                                  scale_factor_gks,
+                                                                                  scale_factor_ito,
+                                                                                  scale_factor_gkr),
+                                  "Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");          
+        }
+        
     }
     void Test2dProblems()
     {

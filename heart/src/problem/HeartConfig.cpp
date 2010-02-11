@@ -119,10 +119,13 @@ HeartConfig::HeartConfig()
     mEndoFraction =  -1.0;
     mMidFraction = -1.0;
     mUserAskedForCellularTransmuralHeterogeneities=false;
-    //initialise to senseless values (these should be only 1, 2 and 3)
-    mIndexMid = 10;
-    mIndexEpi = 10;
-    mIndexEndo = 10;
+    mUserAskedForCuboidsForCellularHeterogeneities=false;
+    // initialise to senseless values (these should be only 0, 1 and 2)
+    // note: the 'minus 3' is for checking purposes as we need to add 0, 1 or 2 to this initial value
+    // and UINT_MAX+1 seems to be 0
+    mIndexMid = UINT_MAX-3u;
+    mIndexEpi = UINT_MAX-3u;
+    mIndexEndo = UINT_MAX-3u;
 }
 
 HeartConfig::~HeartConfig()
@@ -732,9 +735,10 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
          ++i)
     {
         cp::cell_heterogeneity_type ht(*i);
+        
         if (ht.Location().Cuboid().present())
         {
-            
+            mUserAskedForCuboidsForCellularHeterogeneities = true;    
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
 
@@ -810,14 +814,19 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         counter_of_heterogeneities++;
     }
     
-    //set the flag    
+    //set the flag for request of transmural layers    
      mUserAskedForCellularTransmuralHeterogeneities = user_asking_for_transmural_layers;
      
+     // cuboids and layers at the same time are not yet supported
+     if (mUserAskedForCuboidsForCellularHeterogeneities && mUserAskedForCellularTransmuralHeterogeneities)
+     {
+        EXCEPTION ("Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
+     }
      //check the user input if the transmural heterogeneities have been requested
      if (mUserAskedForCellularTransmuralHeterogeneities)
      {
         //check that the user supplied all three layers, the indexes should be 0, 1 and 2. 
-        // As they are initialised to a higher value (10 at the moment), if their summation is higher than 3, 
+        // As they are initialised to a higher value, if their summation is higher than 3, 
         // one (or more) is missing
         if ((mIndexMid+mIndexEndo+mIndexEpi) > 3)
         {
@@ -837,6 +846,11 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
 bool HeartConfig::AreCellularTransmuralHeterogeneitiesRequested()
 {
     return mUserAskedForCellularTransmuralHeterogeneities;
+}
+
+bool HeartConfig::AreCellularlHeterogeneitiesSpecifiedByCuboids()
+{
+    return mUserAskedForCuboidsForCellularHeterogeneities;
 }
 
 double HeartConfig::GetEpiLayerFraction()

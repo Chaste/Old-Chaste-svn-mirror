@@ -444,6 +444,11 @@ public:
     bool AreCellularTransmuralHeterogeneitiesRequested();
     
     /**
+     * @return the value of the flag that tells whether the user asked for cellular heterogeneities with cuboids
+     */
+    bool AreCellularlHeterogeneitiesSpecifiedByCuboids();
+    
+    /**
      * @return the fraction of epicardial layer
      */
     double GetEpiLayerFraction();
@@ -1087,6 +1092,11 @@ private:
      * Flag to check whether the user asked for cellular transmural heterogeneities
      */    
     bool mUserAskedForCellularTransmuralHeterogeneities;
+    
+   /**
+     * Flag to check whether the user asked for cellular heterogeneities with cuboids
+     */    
+    bool mUserAskedForCuboidsForCellularHeterogeneities;
     
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
