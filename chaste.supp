@@ -312,7 +312,7 @@
 
 # dlopen
 {
-   dlopen-addr
+   dlopen-addr7
    Memcheck:Addr8
    obj:/lib/ld-*.so
    # can use "..." with later valgrinds (e.g. 3.5)
@@ -326,6 +326,74 @@
    obj:/lib/ld-*.so
    obj:/lib/libdl-*.so
    fun:dlopen
+}
+{
+   dlopen-addr6
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   fun:dlopen
+}
+{
+   dlopen-addr5
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   fun:dlopen
+}
+{
+   dlopen-addr4
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   fun:dlopen
+}
+{
+   dlopen-addr2
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   fun:dlopen
+}
+
+{
+   dlsym-addr
+   Memcheck:Addr8
+   obj:/lib/ld-*.so
+   # can use "..." with later valgrinds (e.g. 3.5)
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libc-*.so
+   obj:/lib/libdl-*.so
+   obj:/lib/ld-*.so
+   obj:/lib/libdl-*.so
+   fun:dlsym
 }
 
 #
