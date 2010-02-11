@@ -815,17 +815,25 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
     //set the flag    
      mUserAskedForCellularTransmuralHeterogeneities = user_asking_for_transmural_layers;
      
-     //some checking
-     if ((mEndoFraction+mMidFraction+mEpiFraction)>1)
+     //check the user input if the transmural heterogeneities have been requested
+     if (mUserAskedForCellularTransmuralHeterogeneities)
      {
-        EXCEPTION ("Summation of epicardial, midmyocardial and  endocardial fractions can't be greater than 1");
-     }   
-     
-                  
-    if (user_suuplied_negative_value)
-    {
-       EXCEPTION ("Fractions must be positive");
-    } 
+        //check that the user supplied all three layers, the indexes should be 0, 1 and 2. 
+        // As they are initialised to a higher value (10 at the moment), if their summation is higher than 3, 
+        // one (or more) is missing
+        if ((mIndexMid+mIndexEndo+mIndexEpi) > 3)
+        {
+            EXCEPTION ("Three specifications of layers must be supplied");
+        }
+        if (fabs((mEndoFraction+mMidFraction+mEpiFraction)-1)>1e-2)
+        { 
+            EXCEPTION ("Summation of epicardial, midmyocardial and  endocardial fractions should be 1");
+        }                 
+        if (user_suuplied_negative_value)
+        {
+           EXCEPTION ("Fractions must be positive");
+        }
+     } 
 }           
 
 bool HeartConfig::AreCellularTransmuralHeterogeneitiesRequested()

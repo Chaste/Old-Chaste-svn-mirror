@@ -401,6 +401,7 @@ public :
     void TestTransmuralHeterogeneities()
     {
         {
+            HeartConfig::Instance()->Reset();
             //the _unsupported file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_unsupported.xml");
             
@@ -457,8 +458,9 @@ public :
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models), "Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");                                                
         }
-        //covers the case when the user supplies numbers that adds up to more than 1
+        //covers the case when the user supplies numbers that do not add up to 1
         {
+            HeartConfig::Instance()->Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_inconsistent.xml");
             
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
@@ -469,11 +471,12 @@ public :
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                             scale_factor_gks,
                                                             scale_factor_ito,
-                                                            scale_factor_gkr), "Summation of epicardial, midmyocardial and  endocardial fractions can't be greater than 1");
+                                                            scale_factor_gkr), "Summation of epicardial, midmyocardial and  endocardial fractions should be 1");
                                                             
         }
         //covers the case when the user supplies negative numbers
         {
+            HeartConfig::Instance()->Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_negative.xml");
             
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
@@ -485,6 +488,22 @@ public :
                                                             scale_factor_gks,
                                                             scale_factor_ito,
                                                             scale_factor_gkr), "Fractions must be positive");
+                                                            
+        }
+        //covers the case when the user supplies only two layers and the summation of the fraction is correct
+        {
+            HeartConfig::Instance()->Reset();
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_incomplete.xml");
+            
+            std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
+            std::vector<double> scale_factor_gks;
+            std::vector<double> scale_factor_ito;
+            std::vector<double> scale_factor_gkr;
+            
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
+                                                            scale_factor_gks,
+                                                            scale_factor_ito,
+                                                            scale_factor_gkr), "Three specifications of layers must be supplied");
                                                             
         }
     }
