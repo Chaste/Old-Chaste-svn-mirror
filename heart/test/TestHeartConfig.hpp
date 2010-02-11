@@ -295,7 +295,8 @@ public :
                                                         scale_factor_gks_3D,
                                                         scale_factor_ito_3D,
                                                         scale_factor_gkr_3D);
-
+                                                        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
         TS_ASSERT(cell_heterogeneity_areas_3D[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks_3D[0], 0.462);
         TS_ASSERT_EQUALS(scale_factor_ito_3D[0], 0.0);
@@ -525,14 +526,14 @@ public :
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
-            
+
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
                                   "Three specifications of layers must be supplied");
             
-                     
+ 
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), true);           
             //only epi and endo, in this order, are supplied in this file
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 0u);
@@ -550,11 +551,14 @@ public :
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
             
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), false);        
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
-                                  "Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");          
+                                  "Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
+                                  
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);           
         }
         
     }
