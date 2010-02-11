@@ -714,11 +714,62 @@ public:
         TS_ASSERT_THROWS_CONTAINS(law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true), "strain unacceptably large");
     }
 
-    void TestDerivateInPoleZeroLaw2d() throw(Exception)
+    void TestNashHunterPoleZeroChangeOfBasis() throw(Exception)
     {
         NashHunterPoleZeroLaw<2> law;
 
-        //PoleZeroMaterialLaw<2> law(k,a,b);
+        c_matrix<double,2,2> C;
+        c_matrix<double,2,2> invC;
+        C(0,0) = 1.2;
+        C(0,1) = C(1,0) = 0.1;
+        C(1,1) = 1.1;
+        invC = Inverse(C);
+
+        c_matrix<double,2,2> T_Xfibres;
+        c_matrix<double,2,2> T_Yfibres;
+        FourthOrderTensor<2> dTdE_Xfibres;
+        FourthOrderTensor<2> dTdE_Yfibres;
+        
+        double p = 1.0;
+        law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
+
+        // now assume fibres in Y-dir. first set up equivalent C        
+        C(0,0) = 1.1;
+        C(1,1) = 1.2;
+        invC = Inverse(C);
+        
+        // change of basis matrix
+        c_matrix<double,2,2> P;
+        P(0,0) = P(1,1) = 0.0;
+        P(1,0) = P(0,1) = 1.0;
+        
+        law.SetChangeOfBasisMatrix(P);
+        law.ComputeStressAndStressDerivative(C,invC,p,T_Yfibres,dTdE_Yfibres,true);
+
+        TS_ASSERT_DELTA(T_Xfibres(0,0), T_Yfibres(1,1), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(1,1), T_Yfibres(0,0), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(0,1), T_Yfibres(1,0), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(1,0), T_Yfibres(0,1), 1e-8);
+
+        // dTdE_Xfibres(0,1,1,0) should be able to dTdE_Yfibres(1,0,0,1), etc
+        for (unsigned M=0; M<2; M++)
+        {
+            for (unsigned N=0; N<2; N++)
+            {
+                for (unsigned P=0; P<2; P++)
+                {
+                    for (unsigned Q=0; Q<2; Q++)
+                    {
+                        TS_ASSERT_DELTA(dTdE_Xfibres(M,N,P,Q), dTdE_Yfibres((M+1)%2,(N+1)%2,(P+1)%2,(Q+1)%2), 1e-8);
+                    }
+                }
+            }
+        }
+    }
+
+    void TestDerivateInPoleZeroLaw2d() throw(Exception)
+    {
+        NashHunterPoleZeroLaw<2> law;
 
         c_matrix<double,2,2> C;
         c_matrix<double,2,2> invC;
@@ -760,11 +811,9 @@ public:
                     TS_ASSERT_DELTA(2*dtdc, dTdE(P,Q,M,M), dTdE(P,Q,M,M)*1e-3);
                 }
             }
-
             C(M,M) -= h;
         }
     }
-
 
 
     void TestSchmidCostaExponentialLaw()
@@ -845,6 +894,59 @@ public:
         TS_ASSERT_DELTA(T_base(0,1), 0.0, 1e-9);
         TS_ASSERT_DELTA(T_base(1,1), 0.0, 1e-9);
     }
+    
+    void TestSchmidCostaChangeOfBasis() throw(Exception)
+    {
+        SchmidCostaExponentialLaw2d law;
+
+        c_matrix<double,2,2> C;
+        c_matrix<double,2,2> invC;
+        C(0,0) = 1.2;
+        C(0,1) = C(1,0) = 0.1;
+        C(1,1) = 1.1;
+        invC = Inverse(C);
+
+        c_matrix<double,2,2> T_Xfibres;
+        c_matrix<double,2,2> T_Yfibres;
+        FourthOrderTensor<2> dTdE_Xfibres;
+        FourthOrderTensor<2> dTdE_Yfibres;
+        
+        double p = 1.0;
+        law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
+
+        // now assume fibres in Y-dir. first set up equivalent C        
+        C(0,0) = 1.1;
+        C(1,1) = 1.2;
+        invC = Inverse(C);
+        
+        // change of basis matrix
+        c_matrix<double,2,2> P;
+        P(0,0) = P(1,1) = 0.0;
+        P(1,0) = P(0,1) = 1.0;
+        
+        law.SetChangeOfBasisMatrix(P);
+        law.ComputeStressAndStressDerivative(C,invC,p,T_Yfibres,dTdE_Yfibres,true);
+
+        TS_ASSERT_DELTA(T_Xfibres(0,0), T_Yfibres(1,1), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(1,1), T_Yfibres(0,0), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(0,1), T_Yfibres(1,0), 1e-8);
+        TS_ASSERT_DELTA(T_Xfibres(1,0), T_Yfibres(0,1), 1e-8);
+
+        // dTdE_Xfibres(0,1,1,0) should be able to dTdE_Yfibres(1,0,0,1), etc
+        for (unsigned M=0; M<2; M++)
+        {
+            for (unsigned N=0; N<2; N++)
+            {
+                for (unsigned P=0; P<2; P++)
+                {
+                    for (unsigned Q=0; Q<2; Q++)
+                    {
+                        TS_ASSERT_DELTA(dTdE_Xfibres(M,N,P,Q), dTdE_Yfibres((M+1)%2,(N+1)%2,(P+1)%2,(Q+1)%2), 1e-8);
+                    }
+                }
+            }
+        }
+    }    
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/

@@ -102,12 +102,12 @@ protected:
             {
                 double val = (i==j ? 1.0 : 0.0);
                 if(fabs(temp(i,j)-val)>tol)
-	        {
+    	        {
                     std::stringstream ss;
                     ss << "The given fibre-sheet matrix, " << rMatrix << ", is not orthogonal"
                        << " (A^T A not equal to I to tolerance " << tol << ")";
                     EXCEPTION(ss.str());
-	        }
+                }
             }
         }
     }
@@ -329,11 +329,6 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     {
         fibre_dir(i) = r_fibre_sheet_matrix(i,0);
     }
-//r_fibre_sheet_matrix(0,0) = 1.0; 
-//r_fibre_sheet_matrix(0,1) = 0;
-//r_fibre_sheet_matrix(1,0) = 0;
-//r_fibre_sheet_matrix(1,1) = 1.0;
-
 
     c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
     double jacobian_determinant;
@@ -469,40 +464,10 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
          *****************************/
         
         // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
-        // This is essentially a one-liner (p_material_law->ComputeStressAndStressDerivative()), but the material laws
-        // assume the fibre direction is (1,0,0) and sheet direction is (0,1,0), so we have to transform C,inv(C),and T.
-        // Let P be the change-of-basis matrix P = (\mathbf{m}_f, \mathbf{m}_s, \mathbf{m}_n). The transformed C for the
-        // fibre/sheet basis is C* = P^T C P. We then compute T* = T*(C*), and compute T = P T* P^T.
-
- 
-        static c_matrix<double,DIM,DIM> C_transformed;
-        static c_matrix<double,DIM,DIM> invC_transformed;
-        static c_matrix<double,DIM,DIM> T_transformed;
-
-        C_transformed = prod(trans(r_fibre_sheet_matrix),(c_matrix<double,DIM,DIM>)prod(C,r_fibre_sheet_matrix));          // C*    = P^T C    P
-        invC_transformed = prod(trans(r_fibre_sheet_matrix),(c_matrix<double,DIM,DIM>)prod(inv_C,r_fibre_sheet_matrix));   // invC* = P^T invC P
-
-        p_material_law->ComputeStressAndStressDerivative(C_transformed,invC_transformed,pressure,T_transformed,this->dTdE /*transformed*/,assembleJacobian);
-        
-        T = prod(r_fibre_sheet_matrix, (c_matrix<double,DIM,DIM>)prod(T_transformed, trans(r_fibre_sheet_matrix)));  // T = P T* P^T 
-
-//std::cout << r_fibre_sheet_matrix << C << C_transformed << T_transformed << T <<"\n";
-
-
-        // compute un-transformed dTdE: dTdE_{MNPQ}  =   P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq} 
-        if(assembleJacobian)
-        {
-            static FourthOrderTensor<DIM> temp;
-            temp.SetAsProduct(this->dTdE, r_fibre_sheet_matrix, 0);
-            this->dTdE.SetAsProduct(temp, r_fibre_sheet_matrix, 1);
-            temp.SetAsProduct(this->dTdE, r_fibre_sheet_matrix, 2);
-            this->dTdE.SetAsProduct(temp, r_fibre_sheet_matrix, 3);
-        }
+        p_material_law->SetChangeOfBasisMatrix(r_fibre_sheet_matrix);
+        p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
 
         // 2. Compute the active tension and add to the stress and stress-derivative
-        // This is done in the original coordinate system (ie using lambda = m^T C m, where m is the fibre direction, 
-        // rather than lam = C(0,0)), so must be done after the passive part has been untransformed.
-
         double I4 = inner_prod(fibre_dir, prod(C, fibre_dir));
         double lambda = sqrt(I4);
 

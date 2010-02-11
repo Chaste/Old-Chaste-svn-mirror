@@ -368,57 +368,57 @@ public:
 
 
 
-    //
-    // This test compares the implicit solver with the old dead explicit solver in 
-    // dealii. It was written before the explicit chaste solver. It fails in parallel and 
-    // can be deleted really, but I'm keeping it here (without ever running it) precisely 
-    // because of the strange behaviour in parallel.
-    //
-    // This passes in sequential and fails in parallel (newton failing to converge), and 
-    // appears to be because of the first linear system not being solved correctly in parallel.
-    // In sequential 75 iters are reported on the linear system, in parallel 10000 iters (the max)
-    // are reported (but no divergence reported?!) (using PCBJACOBI). So something bad goes 
-    // wrong in parallel. In fact, with PCJACOBI, 10000 iters are reported for sequential.
-    // It seems to be related to the fixed nodes: changing the fixed nodes from the 5 set below 
-    // to the entire X=0 edge makes it runs in sequential (~60 iters PCBJACOBI) and parallel
-    // (~400 iters PCBJACOBI).  
-    //
-    void strangefailingbehaviourinparallelTestCompareWithDeadExplicitSolver() throw(Exception)
-    {
-        // note 8 elements is assumed in the fixed nodes
-        QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
-        MooneyRivlinMaterialLaw<2> law(0.02);
-
-        // fix all nodes on elements containing the origin (as was done in
-        // dealii test)
-        /* THESE CAUSE PROBLEMS.... */
-        std::vector<unsigned> fixed_nodes;
-        fixed_nodes.push_back(0);
-        fixed_nodes.push_back(82);
-        fixed_nodes.push_back(9);
-        fixed_nodes.push_back(1);
-        fixed_nodes.push_back(81);
-
-//        /* ....WHEREAS DOING WOULD BE OK */
-//        std::vector<unsigned> fixed_nodes
-//          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
-
-        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
-
-        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
-        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
-        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
-        assembler.Solve(0,0.01,0.01);
-
-
-        // Visually compared results, they are identical to the dealii results
-        // Hardcoded value for (1,1) node
-        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](0),  0.98822 /*dealii*/, 5e-4);
-        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](1),  1.01177 /*dealii*/, 3e-4);
-        // Hardcoded value for (0,1) node
-        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](0), -0.00465 /*dealii*/, 4e-4);
-        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](1),  1.00666 /*dealii*/, 1e-4);
-    }
+//    //
+//    // This test compares the implicit solver with the old dead explicit solver in 
+//    // dealii. It was written before the explicit chaste solver. It fails in parallel and 
+//    // can be deleted really, but I'm keeping it here (without ever running it) precisely 
+//    // because of the strange behaviour in parallel.
+//    //
+//    // This passes in sequential and fails in parallel (newton failing to converge), and 
+//    // appears to be because of the first linear system not being solved correctly in parallel.
+//    // In sequential 75 iters are reported on the linear system, in parallel 10000 iters (the max)
+//    // are reported (but no divergence reported?!) (using PCBJACOBI). So something bad goes 
+//    // wrong in parallel. In fact, with PCJACOBI, 10000 iters are reported for sequential.
+//    // It seems to be related to the fixed nodes: changing the fixed nodes from the 5 set below 
+//    // to the entire X=0 edge makes it runs in sequential (~60 iters PCBJACOBI) and parallel
+//    // (~400 iters PCBJACOBI).  
+//    //
+//    void strangefailingbehaviourinparallelTestCompareWithDeadExplicitSolver() throw(Exception)
+//    {
+//        // note 8 elements is assumed in the fixed nodes
+//        QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
+//        MooneyRivlinMaterialLaw<2> law(0.02);
+//
+//        // fix all nodes on elements containing the origin (as was done in
+//        // dealii test)
+//        /* THESE CAUSE PROBLEMS.... */
+//        std::vector<unsigned> fixed_nodes;
+//        fixed_nodes.push_back(0);
+//        fixed_nodes.push_back(82);
+//        fixed_nodes.push_back(9);
+//        fixed_nodes.push_back(1);
+//        fixed_nodes.push_back(81);
+//
+////        /* ....WHEREAS DOING WOULD BE OK */
+////        std::vector<unsigned> fixed_nodes
+////          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
+//
+//        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
+//
+//        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
+//        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+//        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+//        assembler.Solve(0,0.01,0.01);
+//
+//
+//        // Visually compared results, they are identical to the dealii results
+//        // Hardcoded value for (1,1) node
+//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](0),  0.98822 /*dealii*/, 5e-4);
+//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](1),  1.01177 /*dealii*/, 3e-4);
+//        // Hardcoded value for (0,1) node
+//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](0), -0.00465 /*dealii*/, 4e-4);
+//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](1),  1.00666 /*dealii*/, 1e-4);
+//    }
 };
 
 #endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/

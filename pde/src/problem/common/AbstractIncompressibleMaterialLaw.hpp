@@ -56,10 +56,10 @@ public :
      *  NOTE: the strain E is not expected to be passed in, instead the Lagrangian
      *  deformation tensor C is required (recall, E = 0.5(C-I))
      *
-     *  dT/dE is a fourth-order tensor, where dT/dE[M][N][P][Q] = dT^{MN}/dE_{PQ}
+     *  dTdE is a fourth-order tensor, where dTdE(M,N,P,Q) = dT^{MN}/dE_{PQ}
      *
      *  @param rC The Lagrangian deformation tensor (F^T F)
-     *  @param rInvC The inverse of C. Should be computed by the user. (Change this?)
+     *  @param rInvC The inverse of C. Should be computed by the user. 
      *  @param pressure the current pressure
      *  @param rT the stress will be returned in this parameter
      *  @param rDTdE the stress derivative will be returned in this parameter, assuming
@@ -147,6 +147,17 @@ public :
      *  @param scaleFactor  the scale factor
      */
     virtual void ScaleMaterialParameters(double scaleFactor);
+    
+    /**
+     *  Some material laws (eg pole-zero) may have prefered directions (eg fibre direction), 
+     *  but be implemented to assume the prefered directions are parallel to the X-axis etc. 
+     *  Call this with the change of basis matrix and C will be transformed from the Euclidean
+     *  coordinate system to the appropriate coordinate system before used to calculate T, which
+     *  will then be transformed from the appropriate coordinate system back to the Euclidean
+     *  coordinate system before being returned, as will dTdE
+     *  @param rChangeOfBasisMatrix Change of basis matrix.
+     */
+    virtual void SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)=0;
 };
 
 #endif /*ABSTRACTINCOMPRESSIBLEMATERIALLAW_HPP_*/

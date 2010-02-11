@@ -141,6 +141,18 @@ public :
      *  this is equal to 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3) in 3D
      */
     double GetZeroStrainPressure();
+    
+    
+    /**
+     *  See documentation in AbstractIncompressibleMaterialLaw.
+     *  Isotropic materials have no preferred directions so this method does not
+     *  need to do anything.
+     *  @param rChangeOfBasisMatrix Change of basis matrix.
+     */
+    void SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)
+    {
+    }
+    
 };
 
 #endif /*ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_*/

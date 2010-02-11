@@ -31,12 +31,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 PoleZeroMaterialLaw<DIM>::PoleZeroMaterialLaw()
 {
+    mpChangeOfBasisMatrix = NULL;
 }
 
 template<unsigned DIM>
 void PoleZeroMaterialLaw<DIM>::SetParameters(std::vector<std::vector<double> > k,
-                       std::vector<std::vector<double> > a,
-                       std::vector<std::vector<double> > b)
+                                             std::vector<std::vector<double> > a,
+                                             std::vector<std::vector<double> > b)
 {
     if (DIM!=2 && DIM !=3)
     {
@@ -76,23 +77,47 @@ void PoleZeroMaterialLaw<DIM>::SetParameters(std::vector<std::vector<double> > k
 
 template<unsigned DIM>
 PoleZeroMaterialLaw<DIM>::PoleZeroMaterialLaw(std::vector<std::vector<double> > k,
-                         std::vector<std::vector<double> > a,
-                         std::vector<std::vector<double> > b)
+                                              std::vector<std::vector<double> > a,
+                                              std::vector<std::vector<double> > b)
 {
     SetParameters(k,a,b);
+    mpChangeOfBasisMatrix = NULL;
 }
+
 
 template<unsigned DIM>
 void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,DIM,DIM>& rC,
-                                          c_matrix<double,DIM,DIM>& rInvC,
-                                          double                    pressure,
-                                          c_matrix<double,DIM,DIM>& rT,
-                                          FourthOrderTensor<DIM>&   rDTdE,
-                                          bool                      computeDTdE)
+                                                                c_matrix<double,DIM,DIM>& rInvC,
+                                                                double                    pressure,
+                                                                c_matrix<double,DIM,DIM>& rT,
+                                                                FourthOrderTensor<DIM>&   rDTdE,
+                                                                bool                      computeDTdE)
 {
-    assert(fabs(rC(0,1) - rC(1,0)) < 1e-6);
+    // EMTODO: can factor out change of basis code? as repeated in SchmidCosta.
+    static c_matrix<double,DIM,DIM> C_transformed;
+    static c_matrix<double,DIM,DIM> invC_transformed;
 
-    c_matrix<double,DIM,DIM> E = 0.5*(rC - mIdentity);
+    // The material law parameters are set up assuming the fibre direction is (1,0,0)
+    // and sheet direction is (0,1,0), so we have to transform C,inv(C),and T.
+    // Let P be the change-of-basis matrix P = (\mathbf{m}_f, \mathbf{m}_s, \mathbf{m}_n). 
+    // The transformed C for the fibre/sheet basis is C* = P^T C P. 
+    // We then compute T* = T*(C*), and then compute T = P T* P^T.
+ 
+    if(mpChangeOfBasisMatrix)
+    {
+        // C* = P^T C P, and ditto inv(C)
+        C_transformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,DIM,DIM>)prod(rC,*mpChangeOfBasisMatrix));          // C*    = P^T C    P
+        invC_transformed = prod(trans(*mpChangeOfBasisMatrix),(c_matrix<double,DIM,DIM>)prod(rInvC,*mpChangeOfBasisMatrix));   // invC* = P^T invC P
+    }
+    else
+    {
+        C_transformed = rC;
+        invC_transformed = rInvC;
+    }
+        
+    // compute T*    
+    
+    c_matrix<double,DIM,DIM> E = 0.5*(C_transformed - mIdentity);
 
     for (unsigned M=0; M<DIM; M++)
     {
@@ -115,7 +140,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                           * e
                           * (2*(a-e) + b*e)
                           * pow(a-e,-b-1)
-                          - pressure*rInvC(M,N);
+                          - pressure*invC_transformed(M,N);
             }
 //                else
 //                {
@@ -134,7 +159,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                 {
                     for (unsigned Q=0; Q<DIM; Q++)
                     {
-                        rDTdE(M,N,P,Q) = 2 * pressure * rInvC(M,P) * rInvC(Q,N);
+                        rDTdE(M,N,P,Q) = 2 * pressure * invC_transformed(M,P) * invC_transformed(Q,N);
                     }
                 }
 
@@ -146,16 +171,37 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                     double k = mK[M][N];
 
                     rDTdE(M,N,M,N) +=   k
-                                     * pow(a-e, -b-2)
-                                     * (
-                                          2*(a-e)*(a-e)
-                                        + 4*b*e*(a-e)
-                                        + b*(b+1)*e*e
-                                       );
+                                      * pow(a-e, -b-2)
+                                      * (
+                                           2*(a-e)*(a-e)
+                                         + 4*b*e*(a-e)
+                                         + b*(b+1)*e*e
+                                        );
                 }
             }
         }
     }
+    
+    
+    // now do:   T = P T* P^T   and   dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
+    if(mpChangeOfBasisMatrix)
+    {
+        static c_matrix<double,DIM,DIM> T_transformed_times_Ptrans;
+        T_transformed_times_Ptrans = prod(rT, trans(*mpChangeOfBasisMatrix));
+        
+        rT = prod(*mpChangeOfBasisMatrix, T_transformed_times_Ptrans);  // T = P T* P^T
+
+        // dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}     
+        if (computeDTdE)
+        {
+            static FourthOrderTensor<DIM> temp;
+            temp.SetAsProduct(rDTdE, *mpChangeOfBasisMatrix, 0);
+            rDTdE.SetAsProduct(temp, *mpChangeOfBasisMatrix, 1);
+            temp.SetAsProduct(rDTdE, *mpChangeOfBasisMatrix, 2);
+            rDTdE.SetAsProduct(temp, *mpChangeOfBasisMatrix, 3);
+        }
+    } 
+    
 }
 
 template<unsigned DIM>
