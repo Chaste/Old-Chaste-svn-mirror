@@ -37,6 +37,7 @@
 		</Stimuli>
 		
 		<OutputDirectory>SaveBi2DCheckPoint</OutputDirectory>
+		<OutputFilenamePrefix>bidomain2d</OutputFilenamePrefix>
 		<CheckpointSimulation timestep="0.1" unit="ms" max_checkpoints_on_disk="3"/>
 	</Simulation>
 	

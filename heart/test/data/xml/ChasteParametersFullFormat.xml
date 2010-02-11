@@ -25,7 +25,11 @@
 		<IonicModels>
 			<Default><Hardcoded>FaberRudy2000</Hardcoded></Default>
 			<Region>
-				<IonicModel><Hardcoded>LuoRudyI</Hardcoded></IonicModel>
+				<IonicModel>
+					<Dynamic>
+						<Path relative_to="chaste_source_root">heart/dynamic/libDynamicallyLoadableLr91.so</Path>
+					</Dynamic>
+				</IonicModel>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-2.0" y="-0.05" z="-1.0"/>

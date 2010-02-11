@@ -37,6 +37,7 @@
 		</Stimuli>
 		
 		<OutputDirectory>SaveBi2DCheckPointCompare</OutputDirectory>
+		<OutputFilenamePrefix>bidomain2d</OutputFilenamePrefix>
 	</Simulation>
 	
 

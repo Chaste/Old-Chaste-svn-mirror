@@ -97,7 +97,7 @@ public:
 
     void TestCheckpointingGeneratesMultipleDirectories() throw(Exception)
     {
-        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_checkpoint.xml");                
+        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_checkpoint.xml");
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 0.2);
         TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
@@ -123,14 +123,14 @@ public:
     
     void TestCheckpointingGeneratesSameResults()
     {
-        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_checkpoint.xml");                
+        CardiacSimulation simulation("heart/test/data/xml/bidomain2d_checkpoint.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "SaveBi2DCheckPoint");
 
         CardiacSimulation simulation_compare("heart/test/data/xml/bidomain2d_compare_with_checkpoint.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "SaveBi2DCheckPointCompare");
         
-        TS_ASSERT( CompareFilesViaHdf5DataReader("SaveBi2DCheckPoint", "bidomain3d", true,
-           "SaveBi2DCheckPointCompare", "bidomain3d", true));
+        TS_ASSERT( CompareFilesViaHdf5DataReader("SaveBi2DCheckPoint", "bidomain2d", true,
+                                                 "SaveBi2DCheckPointCompare", "bidomain2d", true));
     }    
 };
 
