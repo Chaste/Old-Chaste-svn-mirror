@@ -51,6 +51,13 @@ public:
     {}
     
     /**
+     * Virtual functions, so virtual destructor.
+     */
+    virtual ~AbstractChasteRegion()
+    {
+    }
+
+    /**
      * Checks whether the Chaste point is contained in the region. implemented in the concrete classes
      * 
      * @param rPointToCheck Point to be checked to be contained in the region
@@ -58,8 +65,6 @@ public:
      */
 
     virtual bool DoesContain(const ChastePoint<SPACE_DIM>& rPointToCheck) const = 0;
-
-
 
 };
 #endif /*ABSTRACTCHASTEREGION_HPP_*/

@@ -80,7 +80,8 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
         boost::shared_ptr<AbstractStimulusFunction> intracellularStimulus,
         unsigned nodeIndex)
 {
-    cp::ionic_models_available_type ionic_model = mDefaultIonicModel;
+    assert(mDefaultIonicModel.Hardcoded().present());
+    cp::ionic_models_available_type ionic_model = mDefaultIonicModel.Hardcoded().get();
 
     for (unsigned ionic_model_region_index = 0;
          ionic_model_region_index < mIonicModelRegions.size();
@@ -88,7 +89,8 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     {
         if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
         {
-            ionic_model = mIonicModelsDefined[ionic_model_region_index];
+            assert(mIonicModelsDefined[ionic_model_region_index].Hardcoded().present());
+            ionic_model = mIonicModelsDefined[ionic_model_region_index].Hardcoded().get();
             break;
         }
     }

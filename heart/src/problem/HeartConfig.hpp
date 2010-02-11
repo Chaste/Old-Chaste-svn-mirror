@@ -336,47 +336,50 @@ public:
     // Simulation
     unsigned GetSpaceDimension() const; /**< @return space dimension 1, 2 or 3.*/
     double GetSimulationDuration() const; /**< @return duration of the simulation (ms)*/
+
     /**
      * domain_type is an xsd convenience class type
      *
      * @return domain type of simulation bi- mono-domain
      */
     cp::domain_type GetDomain() const;
+
     /**
      * Default cardiac cell model to use at all mesh nodes
-     * (unless otherwise specified by IonicModelRegions)
-     * ionic_models_available_type is an xsd convenience class type
+     * (unless otherwise specified by IonicModelRegions).
+     * ionic_model_selection_type is generated automatically from the XML Schema.
      *
      * @return  type of model
      */
-    cp::ionic_models_available_type GetDefaultIonicModel() const;
+    cp::ionic_model_selection_type GetDefaultIonicModel() const;
 
     /**
-     * Regions where we need to use a different cell model (think infarction)
-     * ionic_models_available_type is an xsd convenience class type.
+     * Regions where we need to use a different cell model (think infarction).
+     * ionic_model_selection_type is generated automatically from the XML Schema.
      *
-     * Any content in the vectors is destroyed
-     * The standard vectors returned are of the same length (one entry per region)
+     * The supplied vectors are first cleared, then filled in with the information from the
+     * parameters files.  On return, both vectors will be the same length (one entry per region).
      *
-     * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
-     * @param ionicModels vector of models (one per cellular heterogeneity)
+     * @param rDefinedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
+     * @param rIonicModels vector of models (one per cellular heterogeneity)
      */
      template<unsigned DIM>
-     void GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedRegions,
-                               std::vector<cp::ionic_models_available_type>& ionicModels) const;
+     void GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& rDefinedRegions,
+                               std::vector<cp::ionic_model_selection_type>& rIonicModels) const;
 
     /**
-     * Regions where we need to use a different cell model (think infarction)
-     * ionic_models_available_type is an xsd convenience class type.
+     * Set the regions where we need to use a different cell model (think infarction).
+     * Unlike the get method, this is currently only supported in 3d.
+     * ionic_model_selection_type is generated automatically from the XML Schema.
      *
-     * The input standard vectors are of the same length (one entry per region)
-     * otherwise the method throws
+     * The input standard vectors must be of the same length (one entry per region)
+     * otherwise the method throws.
      *
-     * @param definedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
-     * @param ionicModels vector of models (one per cellular heterogeneity)
+     * @param rDefinedRegions vector of axis-aligned box regions (one per cellular heterogeneity)
+     * @param rIonicModels vector of models (one per cellular heterogeneity)
      */
-     void SetIonicModelRegions(std::vector<ChasteCuboid<3> >& definedRegions,
-                               std::vector<cp::ionic_models_available_type>& ionicModels) const;
+     void SetIonicModelRegions(std::vector<ChasteCuboid<3> >& rDefinedRegions,
+                               std::vector<cp::ionic_model_selection_type>& rIonicModels) const;
 
     bool IsMeshProvided() const; /**< @return true if a mesh file name is given.  (Otherwise it's assumed that this is a cuboid simulation.)*/
     bool GetCreateMesh() const; /**< @return true if it's a cuboid simulation (no mesh on disk)*/
@@ -498,7 +501,7 @@ public:
     std::string GetOutputFilenamePrefix() const;
 
     /**
-     * @return true any extra output variables have been requested
+     * @return true iff any extra output variables have been requested
      */
     bool GetOutputVariablesProvided() const;
 
@@ -721,17 +724,18 @@ public:
      * Set the configuration to run mono or bidomain
      * domain_type is an xsd convenience class type
      *
-     * @param domain type of simulation bi- mono-domain
+     * @param rDomain type of simulation bi- mono-domain
      */
-    void SetDomain(cp::domain_type domain);
+    void SetDomain(const cp::domain_type& rDomain);
+
     /**
      * Set the configuration to place the given cardiac cell models at all mesh nodes
-     * (unless otherwise specified by IonicModelRegions)
-     * ionic_models_available_type is an xsd convenience class type
+     * (unless otherwise specified by SetIonicModelRegions).
+     * ionic_models_available_type is generated automatically from the XML Schema.
      *
-     * @param ionicModel  type of model
+     * @param rIonicModel  type of model
      */
-    void SetDefaultIonicModel(cp::ionic_models_available_type ionicModel);
+    void SetDefaultIonicModel(const cp::ionic_models_available_type& rIonicModel);
 
     /**
      * Set dimensions of simulation for use with a cuboid mesh generated on the fly.  3-D.

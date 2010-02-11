@@ -206,7 +206,8 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMeshName(),
                          "mesh/test/data/cube_1626_elements");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(),
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveBidomain");
@@ -270,7 +271,8 @@ public:
         HeartConfig::Instance()->SetParametersFile("apps/texttest/chaste/save_monodomain/ChasteParameters.xml");
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(),
                          cp::ionic_models_available_type::Fox2002BackwardEuler);
 
         HeartConfig::Instance()->SetOutputDirectory("SaveMonodomain");

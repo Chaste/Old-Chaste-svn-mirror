@@ -45,6 +45,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
+private:
+    void setUp()
+    {
+        HeartConfig::Reset();
+    }
 public :
     void TestHeartConfigBasic()
     {
@@ -71,14 +76,21 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
         TS_ASSERT(HeartConfig::Instance()->mpDefaultParameters->Simulation().present());
+        cp::simulation_type default_sim_elt = HeartConfig::Instance()->mpDefaultParameters->Simulation().get();
 
-        cp::ionic_models_available_type default_ionic_model = HeartConfig::Instance()->mpDefaultParameters->Simulation().get().IonicModels().get().Default().Hardcoded().get();
+        TS_ASSERT(default_sim_elt.IonicModels().present());
+        TS_ASSERT(default_sim_elt.IonicModels().get().Default().Hardcoded().present());
+        cp::ionic_models_available_type default_ionic_model = default_sim_elt.IonicModels().get().Default().Hardcoded().get();
         TS_ASSERT_EQUALS(default_ionic_model, cp::ionic_models_available_type::LuoRudyI);
 
-        cp::ionic_models_available_type user_ionic_model = HeartConfig::Instance()->mpUserParameters->Simulation().get().IonicModels().get().Default().Hardcoded().get();
+        TS_ASSERT(HeartConfig::Instance()->mpUserParameters->Simulation().present());
+        cp::simulation_type user_sim_elt = HeartConfig::Instance()->mpUserParameters->Simulation().get();
+        TS_ASSERT(user_sim_elt.IonicModels().present());
+        TS_ASSERT(user_sim_elt.IonicModels().get().Default().Hardcoded().present());
+        cp::ionic_models_available_type user_ionic_model = user_sim_elt.IonicModels().get().Default().Hardcoded().get();
         TS_ASSERT_EQUALS(user_ionic_model, cp::ionic_models_available_type::FaberRudy2000);
 
-        cp::ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel();
+        cp::ionic_models_available_type get_ionic_model = HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get();
         TS_ASSERT_EQUALS(user_ionic_model, get_ionic_model);
 
      }
@@ -96,7 +108,8 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(),
                          cp::domain_type::Mono);
 
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(),
                          cp::ionic_models_available_type::FaberRudy2000);
         
         
@@ -211,7 +224,6 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
-        HeartConfig::Instance()->Reset();
     }
     
     void TestGetHeterogeneities()
@@ -221,7 +233,7 @@ public :
         //ionic models
         //////////////
         std::vector<ChasteCuboid<3> > ionic_model_regions;
-        std::vector<cp::ionic_models_available_type> ionic_models_defined;
+        std::vector<cp::ionic_model_selection_type> ionic_models_defined;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models_defined);
 
@@ -229,12 +241,16 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined.size(), 2u);
 
         TS_ASSERT(ionic_model_regions[0].DoesContain(ChastePoint<3>(-1.95, 0, 0)));
-        TS_ASSERT_EQUALS(ionic_models_defined[0], cp::ionic_models_available_type::LuoRudyI);
-        TS_ASSERT_EQUALS(ionic_models_defined[1], cp::ionic_models_available_type::DifrancescoNoble);
+        std::string model_zero("heart/dynamic/libDynamicallyLoadableLr91.so");
+        TS_ASSERT(ionic_models_defined[0].Dynamic().present());
+        TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic().get().Path(), model_zero);
+        TS_ASSERT(ionic_models_defined[1].Hardcoded().present());
+        TS_ASSERT_EQUALS(ionic_models_defined[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
 
         //cover the 2D case
         std::vector<ChasteCuboid<2> > ionic_model_regions_2D;
-        std::vector<cp::ionic_models_available_type> ionic_models_defined_2D;
+        std::vector<cp::ionic_model_selection_type> ionic_models_defined_2D;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions_2D,
                                                       ionic_models_defined_2D);
 
@@ -242,12 +258,15 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined_2D.size(), 2u);
 
         TS_ASSERT(ionic_model_regions_2D[0].DoesContain(ChastePoint<2>(-1.95, 0)));
-        TS_ASSERT_EQUALS(ionic_models_defined_2D[0], cp::ionic_models_available_type::LuoRudyI);
-        TS_ASSERT_EQUALS(ionic_models_defined_2D[1], cp::ionic_models_available_type::DifrancescoNoble);
+        TS_ASSERT(ionic_models_defined_2D[0].Dynamic().present());
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path(), model_zero);
+        TS_ASSERT(ionic_models_defined_2D[1].Hardcoded().present());
+        TS_ASSERT_EQUALS(ionic_models_defined_2D[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
         
         //cover the 1D case
         std::vector<ChasteCuboid<1> > ionic_model_regions_1D;
-        std::vector<cp::ionic_models_available_type> ionic_models_defined_1D;
+        std::vector<cp::ionic_model_selection_type> ionic_models_defined_1D;
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions_1D,
                                                       ionic_models_defined_1D);
 
@@ -255,8 +274,11 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined_1D.size(), 2u);
 
         TS_ASSERT(ionic_model_regions_1D[0].DoesContain(ChastePoint<1>(-1.95)));
-        TS_ASSERT_EQUALS(ionic_models_defined_1D[0], cp::ionic_models_available_type::LuoRudyI);
-        TS_ASSERT_EQUALS(ionic_models_defined_1D[1], cp::ionic_models_available_type::DifrancescoNoble);
+        TS_ASSERT(ionic_models_defined_1D[0].Dynamic().present());
+        TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic().get().Path().relative_to(), cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic().get().Path(), model_zero);
+        TS_ASSERT(ionic_models_defined_1D[1].Hardcoded().present());
+        TS_ASSERT_EQUALS(ionic_models_defined_1D[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
         
         ///////////////
         //Cell heterogeneities
@@ -401,7 +423,6 @@ public :
     void TestTransmuralHeterogeneities()
     {
         {
-            HeartConfig::Instance()->Reset();
             //the _unsupported file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_unsupported.xml");
             
@@ -444,23 +465,25 @@ public :
             std::vector< c_vector<double,3> > intra_h_conductivities;
             std::vector< c_vector<double,3> > extra_h_conductivities;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
-                                                                intra_h_conductivities,
-                                                                extra_h_conductivities), "Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
+                                                                                          intra_h_conductivities,
+                                                                                          extra_h_conductivities),
+                                  "Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
              
              //covering the case when the user specify transmural layers for stimulated areas (not yet supported)... 
             std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
             std::vector<ChasteCuboid<3> > stimulated_area;
-            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area),"Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area),
+                                  "Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
             
             //covering the case when the user specify transmural layers for ionic model heterogeneities (not yet supported)... 
             std::vector<ChasteCuboid<3> > ionic_model_regions;
-            std::vector<cp::ionic_models_available_type> ionic_models;
-            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
-                                                      ionic_models), "Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");                                                
+            std::vector<cp::ionic_model_selection_type> ionic_models;
+            TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions, ionic_models),
+                                  "Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
         }
         //covers the case when the user supplies numbers that do not add up to 1
         {
-            HeartConfig::Instance()->Reset();
+            HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_inconsistent.xml");
             
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
@@ -469,14 +492,15 @@ public :
             std::vector<double> scale_factor_gkr;
             
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
-                                                            scale_factor_gks,
-                                                            scale_factor_ito,
-                                                            scale_factor_gkr), "Summation of epicardial, midmyocardial and  endocardial fractions should be 1");
+                                                                                  scale_factor_gks,
+                                                                                  scale_factor_ito,
+                                                                                  scale_factor_gkr),
+                                  "Summation of epicardial, midmyocardial and endocardial fractions should be 1");
                                                             
         }
         //covers the case when the user supplies negative numbers
         {
-            HeartConfig::Instance()->Reset();
+            HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_negative.xml");
             
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
@@ -485,14 +509,15 @@ public :
             std::vector<double> scale_factor_gkr;
             
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
-                                                            scale_factor_gks,
-                                                            scale_factor_ito,
-                                                            scale_factor_gkr), "Fractions must be positive");
+                                                                                  scale_factor_gks,
+                                                                                  scale_factor_ito,
+                                                                                  scale_factor_gkr),
+                                  "Fractions must be positive");
                                                             
         }
         //covers the case when the user supplies only two layers and the summation of the fraction is correct
         {
-            HeartConfig::Instance()->Reset();
+            HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_incomplete.xml");
             
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
@@ -501,9 +526,10 @@ public :
             std::vector<double> scale_factor_gkr;
             
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
-                                                            scale_factor_gks,
-                                                            scale_factor_ito,
-                                                            scale_factor_gkr), "Three specifications of layers must be supplied");
+                                                                                  scale_factor_gks,
+                                                                                  scale_factor_ito,
+                                                                                  scale_factor_gkr),
+                                  "Three specifications of layers must be supplied");
                                                             
         }
     }
@@ -513,27 +539,6 @@ public :
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSpaceDimension(),
                          2u);
-
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(),
-//                         10.0);
-//
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(),
-//                         domain_type::Mono);
-//
-//        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(),
-//                          ionic_models_available_type::FaberRudy2000);
-//
-//        std::vector<ChasteCuboid<3> > ionic_model_regions;
-//        std::vector<ionic_models_available_type> ionic_models_defined;
-//        HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
-//                                                      ionic_models_defined);
-//
-//        TS_ASSERT_EQUALS(ionic_model_regions.size(), 2u);
-//        TS_ASSERT_EQUALS(ionic_models_defined.size(), 2u);
-//
-//        TS_ASSERT(ionic_model_regions[0].DoesContain(ChastePoint<3>(-1.95, 0, 0)));
-//        TS_ASSERT_EQUALS(ionic_models_defined[0], ionic_models_available_type::LuoRudyI);
-//        TS_ASSERT_EQUALS(ionic_models_defined[1], ionic_models_available_type::DifrancescoNoble);
 
         TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
@@ -584,7 +589,6 @@ public :
 
     void TestSetFunctions() throw(Exception)
     {
-        HeartConfig::Instance()->Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         HeartConfig::Instance()->SetSimulationDuration(35.0);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 35.0);
@@ -593,19 +597,24 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDomain(), cp::domain_type::Bi);
 
         HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::LuoRudyIBackwardEuler);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::LuoRudyIBackwardEuler);
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(), cp::ionic_models_available_type::LuoRudyIBackwardEuler);
 
         HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::MahajanShiferaw);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::MahajanShiferaw);
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(), cp::ionic_models_available_type::MahajanShiferaw);
 
         HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::HodgkinHuxley);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::HodgkinHuxley);
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(), cp::ionic_models_available_type::HodgkinHuxley);
 
         HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::tenTusscher2006);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::tenTusscher2006);
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(), cp::ionic_models_available_type::tenTusscher2006);
 
         HeartConfig::Instance()->SetDefaultIonicModel(cp::ionic_models_available_type::DifrancescoNoble);
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel(), cp::ionic_models_available_type::DifrancescoNoble);
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
 
         TS_ASSERT(!HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
@@ -650,7 +659,7 @@ public :
 
 
         std::vector<ChasteCuboid<3> > ionic_model_regions;
-        std::vector<cp::ionic_models_available_type> ionic_models;
+        std::vector<cp::ionic_model_selection_type> ionic_models;
 
         //No ionic model regions
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
@@ -658,15 +667,28 @@ public :
         TS_ASSERT_EQUALS(ionic_model_regions.size(), 0u);
 
         //Set ionic regions
-        std::vector<cp::ionic_models_available_type> input_ionic_models;
-        input_ionic_models.push_back(cp::ionic_models_available_type::HodgkinHuxley);
-        input_ionic_models.push_back(cp::ionic_models_available_type::tenTusscher2006);
+        std::vector<cp::ionic_model_selection_type> input_ionic_models;
+        cp::ionic_model_selection_type model1;
+        cp::ionic_models_available_type model1_type = cp::ionic_models_available_type::HodgkinHuxley;
+        model1.Hardcoded(model1_type);
+        input_ionic_models.push_back(model1);
+        cp::ionic_model_selection_type model2;
+        std::string model2_path_str("made-up-path");
+        cp::path_type model2_path(model2_path_str);
+        model2.Dynamic(model2_path);
+        input_ionic_models.push_back(model2);
         HeartConfig::Instance()->SetIonicModelRegions(input_areas, input_ionic_models);
 
-        //No there are 2 ionic model regions
+        //Now there are 2 ionic model regions
         HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions,
                                                       ionic_models);
         TS_ASSERT_EQUALS(ionic_model_regions.size(), 2u);
+        // Check they were set correctly
+        TS_ASSERT(ionic_models[0].Hardcoded().present());
+        TS_ASSERT_EQUALS(ionic_models[0].Hardcoded().get(), model1_type);
+        TS_ASSERT(ionic_models[1].Dynamic().present());
+        TS_ASSERT_EQUALS(ionic_models[1].Dynamic().get().Path(), model2_path_str);
+        TS_ASSERT_EQUALS(ionic_models[1].Dynamic().get().Path().relative_to(), cp::relative_to_type::cwd);
 
         HeartConfig::Instance()->SetOutputDirectory("NewOuputDirectory");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "NewOuputDirectory");
@@ -873,7 +895,6 @@ public :
     void TestWrite() throw(Exception)
     {
         OutputFileHandler output_file_handler("Xml/output", true);
-        HeartConfig::Reset();
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(1.1,2.2,4.4);
@@ -896,10 +917,10 @@ public :
         handler.SetArchiveDirectory();
         archive_filename = handler.GetOutputDirectoryFullPath() + "heart_config.arch";
 
-        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
-        cp::ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel();
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        cp::ionic_models_available_type user_ionic = HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get();
         TS_ASSERT( user_ionic == cp::ionic_models_available_type::FaberRudy2000 );
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
 
@@ -910,9 +931,10 @@ public :
 
         ofs.close();
 
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
 
-        TS_ASSERT( HeartConfig::Instance()->GetDefaultIonicModel() == cp::ionic_models_available_type::LuoRudyI );
+        TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(), cp::ionic_models_available_type::LuoRudyI);
 
         // We split the two load attempts into their own scopes to avoid a
         // memory leak (uninitialised value).
@@ -933,7 +955,8 @@ public :
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
             input_arch >> (*p_heart_config);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
-            TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
+            TS_ASSERT(p_heart_config->GetDefaultIonicModel().Hardcoded().present());
+            TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel().Hardcoded().get());
         }
         
         {
@@ -944,23 +967,23 @@ public :
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationWithoutCheckpointing.xml");
             input_arch >> (*p_heart_config);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
-            TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel());
+            TS_ASSERT(p_heart_config->GetDefaultIonicModel().Hardcoded().present());
+            TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel().Hardcoded().get());
             TS_ASSERT(!HeartConfig::Instance()->GetCheckpointSimulation());
         }
     }
 
     void TestExceptions() throw (Exception)
     {
-        HeartConfig::Instance()->Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"),
                 "Missing file parsing configuration file: DoesNotExist.xml");
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteInconsistent.xml"),
                 "Ode time-step should not be greater than pde time-step");
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"),
                 "Ode time-step should not be greater than pde time-step");
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistentCheckpointTimestep.xml"),
                 "Checkpoint time-step should be a multiple of printing time step");
 
@@ -977,7 +1000,7 @@ public :
         rmdir(command.c_str());
 
         // A non-parsing exception, for coverage. Very hard to get in practice!
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/EmptyRoot.xml"),
                               "XML parsing error in configuration file: heart/test/data/xml/EmptyRoot.xml");
@@ -989,7 +1012,6 @@ public :
      */
     void TestChasteParametersFile() throw (Exception)
     {
-        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetParametersFile("ChasteParameters.xml");
     }
 
@@ -999,23 +1021,22 @@ public :
     void TestVersioning()
     {
         // Broken schema should throw
-        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"),
                 "XML parsing error in configuration file: heart/test/data/xml/BrokenSchema.xml");
         // But if we use the fixed schema location, it should be OK.
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         TS_ASSERT_THROWS_NOTHING(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"));
 
         // Can release 1 xml be loaded with release 1 schema?
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
 
         // Check that release 1 xml can be loaded with release 1.1 schema
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::SchemaLocationsMap schema_locations;
         schema_locations[""] = std::string(ChasteBuildInfo::GetRootDir()) + "/heart/test/data/xml/ChasteParametersRelease1_1.xsd";
         HeartConfig::Instance()->SetFixedSchemaLocations(schema_locations);
@@ -1023,7 +1044,7 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
 
         // Check that release 1 xml can be loaded with latest schema
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
@@ -1031,20 +1052,18 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
 
         // Check that release 1.1 xml can be loaded with release 1.1 schema
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1_1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
 
         // Check that release 1.1 xml can be loaded with latest schema
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1_1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
-
-        HeartConfig::Instance()->Reset();
     }
 
     /**
@@ -1054,13 +1073,12 @@ public :
      */
     void TestSpacesInPath()
     {
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::SchemaLocationsMap schema_locations;
         schema_locations[""] = std::string(ChasteBuildInfo::GetRootDir()) + "/heart/test/data/xml/schema with spaces.xsd";
         HeartConfig::Instance()->SetFixedSchemaLocations(schema_locations);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1_1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
-        HeartConfig::Instance()->Reset();
     }
 
     void TestGetOuputVariablesFromXML()
@@ -1091,9 +1109,6 @@ public :
 
     void TestSetAndGetOuputVariables()
     {
-        // Get the singleton in a clean state
-        HeartConfig::Instance()->Reset();
-
         // Set the variables we are interested in writing.
         std::vector<std::string> output_variables;
         output_variables.push_back("CaI");
@@ -1125,9 +1140,6 @@ public :
 
     void TestSetAndGetArchivingStuff()
     {
-        // Get the singleton in a clean state
-        HeartConfig::Instance()->Reset();
-
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         TS_ASSERT(HeartConfig::Instance()->IsSimulationDefined());
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationResumed());
@@ -1146,7 +1158,7 @@ public :
                               "GetArchivedSimulationDir information is not available in a standard (non-resumed) simulation.");
 
         // Get the singleton in a clean state
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
 
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationDefined());
@@ -1161,7 +1173,7 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")
 
         std::vector<ChasteCuboid<3> > definedRegions;
-        std::vector<cp::ionic_models_available_type> ionic_models;
+        std::vector<cp::ionic_model_selection_type> ionic_models;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(definedRegions,ionic_models),
                               "IonicModelRegions information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->IsMeshProvided(), "Mesh information is not available in a resumed simulation.");
@@ -1224,8 +1236,6 @@ public :
 
     void TestOutputVisualizerSettings()
     {
-        HeartConfig::Instance()->Reset();
-
         // Defaults file doesn't have the OutputVisualizer element
         TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Simulation().get().OutputVisualizer().present());
 
@@ -1261,7 +1271,7 @@ public :
         TS_ASSERT( ! HeartConfig::Instance()->GetVisualizeWithMeshalyzer() );
 
         // Parameters file which does specify OutputVisualizer
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
         // Now the element exists...
@@ -1280,8 +1290,6 @@ public :
 
     void TestAdaptivityVariables()
     {
-        HeartConfig::Instance()->Reset();
-
         // Defaults file doesn't have the AdaptivityParameters element
         TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Numerical().AdaptivityParameters().present() );
 
@@ -1301,7 +1309,7 @@ public :
         TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->GetNumberOfAdaptiveSweeps() );
 
         // Parameters file that does specify AdaptivityParameters
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
         // Verify that the element is present
@@ -1332,7 +1340,7 @@ public :
         HeartConfig::Instance()->SetMaxEdgeLengthForAdaptivity(0.1);
         HeartConfig::Instance()->SetMinEdgeLengthForAdaptivity(0.001);
         HeartConfig::Instance()->SetGradationForAdaptivity(1.5);
-        HeartConfig::Instance()->SetMaxNodesForAdaptivity(1e6);
+        HeartConfig::Instance()->SetMaxNodesForAdaptivity(1000000u);
         HeartConfig::Instance()->SetNumberOfAdaptiveSweeps(3);
 
         TS_ASSERT_DELTA( HeartConfig::Instance()->GetTargetErrorForAdaptivity(), 1.0, 1e-6 );
@@ -1346,7 +1354,7 @@ public :
         TS_ASSERT_THROWS_ANYTHING( HeartConfig::Instance()->SetMinEdgeLengthForAdaptivity(1.0); );
 
         // Verify that if AdaptivityParameters element is not present then we can create it
-        HeartConfig::Instance()->Reset();
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
 
         TS_ASSERT( ! HeartConfig::Instance()->mpUserParameters->Numerical().AdaptivityParameters().present() );

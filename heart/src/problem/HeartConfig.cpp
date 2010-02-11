@@ -405,19 +405,18 @@ cp::domain_type HeartConfig::GetDomain() const
     }
 }
 
-cp::ionic_models_available_type HeartConfig::GetDefaultIonicModel() const
+cp::ionic_model_selection_type HeartConfig::GetDefaultIonicModel() const
 {
     CheckSimulationIsDefined("DefaultIonicModel");
 
-    ///\todo #1164 assumes using Hardcoded
     return DecideLocation( & mpUserParameters->Simulation().get().IonicModels(),
                            & mpDefaultParameters->Simulation().get().IonicModels(),
-                           "IonicModel")->get().Default().Hardcoded().get();
+                           "IonicModel")->get().Default();
 }
 
 template<unsigned DIM>
 void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedRegions,
-                                       std::vector<cp::ionic_models_available_type>& ionicModels) const
+                                       std::vector<cp::ionic_model_selection_type>& ionicModels) const
 {
     CheckSimulationIsDefined("IonicModelRegions");
     definedRegions.clear();
@@ -466,8 +465,7 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
                     break;
             }
             
-            ///\todo #1164 assumes using Hardcoded
-            ionicModels.push_back(ionic_model_region.IonicModel().Hardcoded().get());
+            ionicModels.push_back(ionic_model_region.IonicModel());
         }
         else
         {
@@ -827,7 +825,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         }
         if (fabs((mEndoFraction+mMidFraction+mEpiFraction)-1)>1e-2)
         { 
-            EXCEPTION ("Summation of epicardial, midmyocardial and  endocardial fractions should be 1");
+            EXCEPTION ("Summation of epicardial, midmyocardial and endocardial fractions should be 1");
         }                 
         if (user_suuplied_negative_value)
         {
@@ -1669,15 +1667,15 @@ void HeartConfig::SetSimulationDuration(double simulationDuration)
     mpUserParameters->Simulation().get().SimulationDuration().set(time);
 }
 
-void HeartConfig::SetDomain(cp::domain_type domain)
+void HeartConfig::SetDomain(const cp::domain_type& rDomain)
 {
-    mpUserParameters->Simulation().get().Domain().set(domain);
+    mpUserParameters->Simulation().get().Domain().set(rDomain);
 }
 
-void HeartConfig::SetDefaultIonicModel(cp::ionic_models_available_type ionicModel)
+void HeartConfig::SetDefaultIonicModel(const cp::ionic_models_available_type& rIonicModel)
 {
     cp::ionic_model_selection_type ionic_model;
-    ionic_model.Hardcoded(ionicModel);
+    ionic_model.Hardcoded(rIonicModel);
     cp::ionic_models_type container(ionic_model);
     mpUserParameters->Simulation().get().IonicModels().set(container);
 }
@@ -1730,30 +1728,28 @@ void HeartConfig::SetMeshFileName(std::string meshPrefix, cp::media_type fibreDe
     mpUserParameters->Simulation().get().Mesh().get().LoadMesh().set(mesh_prefix);
 }
 
-void HeartConfig::SetIonicModelRegions(std::vector<ChasteCuboid<3> >& definedRegions,
-                                       std::vector<cp::ionic_models_available_type>& ionicModels) const
+void HeartConfig::SetIonicModelRegions(std::vector<ChasteCuboid<3> >& rDefinedRegions,
+                                       std::vector<cp::ionic_model_selection_type>& rIonicModels) const
 {
-    assert(definedRegions.size() == ionicModels.size());
+    assert(rDefinedRegions.size() == rIonicModels.size());
     ///\todo will this break if the user parameters don't include an IonicModels element?
     XSD_SEQUENCE_TYPE(cp::ionic_models_type::Region)&
         regions = mpUserParameters->Simulation().get().IonicModels().get().Region();
     regions.clear();
-    for (unsigned region_index=0; region_index<definedRegions.size(); region_index++)
+    for (unsigned region_index=0; region_index<rDefinedRegions.size(); region_index++)
     {
-        cp::point_type point_a(definedRegions[region_index].rGetLowerCorner()[0],
-                               definedRegions[region_index].rGetLowerCorner()[1],
-                               definedRegions[region_index].rGetLowerCorner()[2]);
+        cp::point_type point_a(rDefinedRegions[region_index].rGetLowerCorner()[0],
+                               rDefinedRegions[region_index].rGetLowerCorner()[1],
+                               rDefinedRegions[region_index].rGetLowerCorner()[2]);
 
-        cp::point_type point_b(definedRegions[region_index].rGetUpperCorner()[0],
-                               definedRegions[region_index].rGetUpperCorner()[1],
-                               definedRegions[region_index].rGetUpperCorner()[2]);
+        cp::point_type point_b(rDefinedRegions[region_index].rGetUpperCorner()[0],
+                               rDefinedRegions[region_index].rGetUpperCorner()[1],
+                               rDefinedRegions[region_index].rGetUpperCorner()[2]);
 
         XSD_CREATE_WITH_FIXED_ATTR(cp::location_type, locn, "cm");
         locn.Cuboid().set(cp::box_type(point_a, point_b));
 
-        cp::ionic_model_selection_type ionic_model;
-        ionic_model.Hardcoded(ionicModels[region_index]);
-        cp::ionic_model_region_type region(ionic_model, locn);
+        cp::ionic_model_region_type region(rIonicModels[region_index], locn);
         regions.push_back(region);
     }
 }
@@ -1852,7 +1848,6 @@ void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpoint
         // Make sure values for the optional parameters have been provided
         assert(checkpointTimestep!=-1.0 && maxCheckpointsOnDisk!=UINT_MAX);
         
-        /// \todo: not sure if the attributes will be passed in the correct order with xsd<3.0
         XSD_CREATE_WITH_FIXED_ATTR2(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation),
                                     cs,
                                     checkpointTimestep,
@@ -2605,17 +2600,17 @@ void HeartConfig::WrapContentInElement(xercesc::DOMDocument* pDocument,
  * \cond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
  */
-template void HeartConfig::GetIonicModelRegions<3u>(std::vector<ChasteCuboid<3u> >& , std::vector<cp::ionic_models_available_type>&) const;
+template void HeartConfig::GetIonicModelRegions<3u>(std::vector<ChasteCuboid<3u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<3u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
 template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<ChasteCuboid<3u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
-template void HeartConfig::GetIonicModelRegions<2u>(std::vector<ChasteCuboid<2u> >& , std::vector<cp::ionic_models_available_type>&) const;
+template void HeartConfig::GetIonicModelRegions<2u>(std::vector<ChasteCuboid<2u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<2u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<2u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
 template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<ChasteCuboid<2u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
-template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u> >& , std::vector<cp::ionic_models_available_type>&) const;
+template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<1u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& );
 template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<ChasteCuboid<1u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;

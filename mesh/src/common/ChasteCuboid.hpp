@@ -58,9 +58,9 @@ public:
      * @param rLowerPoint Lower vertex of the cuboid.
      * @param rUpperPoint Upper vertex of the cuboid.
      */
-    ChasteCuboid(ChastePoint<SPACE_DIM>& rLowerPoint, ChastePoint<SPACE_DIM>& rUpperPoint):
-     mLowerCorner(rLowerPoint), 
-     mUpperCorner(rUpperPoint)
+    ChasteCuboid(ChastePoint<SPACE_DIM>& rLowerPoint, ChastePoint<SPACE_DIM>& rUpperPoint)
+        : mLowerCorner(rLowerPoint),
+          mUpperCorner(rUpperPoint)
     {
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
         {

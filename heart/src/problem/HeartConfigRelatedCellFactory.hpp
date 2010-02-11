@@ -67,11 +67,11 @@ class HeartConfigRelatedCellFactory : public AbstractCardiacCellFactory<SPACE_DI
 {
 private:
     /** Default cardiac cell model to be used in all tissue (except heterogeneous regions)*/
-    cp::ionic_models_available_type mDefaultIonicModel;
+    cp::ionic_model_selection_type mDefaultIonicModel;
     /** List of axis-aligned box regions which contain heterogeneous cardiac ionic model types*/
     std::vector<ChasteCuboid<SPACE_DIM> > mIonicModelRegions;
     /** List of ionic model (size matches that of mIonicModelRegions)*/
-    std::vector<cp::ionic_models_available_type> mIonicModelsDefined;
+    std::vector<cp::ionic_model_selection_type> mIonicModelsDefined;
     
     /** List of axis-aligned box regions which represent areas to stimulate*/
     std::vector<ChasteCuboid<SPACE_DIM> > mStimulatedAreas;

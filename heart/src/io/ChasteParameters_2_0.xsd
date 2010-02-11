@@ -3,6 +3,12 @@
   targetNamespace="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
   xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" elementFormDefault="qualified">
 
+  <!-- Note to developers:
+        If you add functionality to the schema, please also edit
+        heart/test/data/xml/ChasteParametersFullFormat.xml
+        to give an example of its use.
+    -->
+
   <xs:complexType name="time_type">
     <xs:annotation>
       <xs:documentation>Represents variables with dimensions of time. Measured in milliseconds.</xs:documentation>
@@ -150,7 +156,7 @@
   <xs:complexType name="dynamically_loaded_ionic_model_type">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-      A dynamically loadable ionic model is (currently) specified just by given the
+      A dynamically loadable ionic model is (currently) specified just by giving the
       path of the file to load.  At present this must be a .so file.  Eventually we
       will add the ability to specify a CellML file here, from which a .so will be
       created on the fly.
@@ -204,7 +210,7 @@
   <xs:complexType name="ionic_models_type">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        This element specified the ionic model(s) to use for simulation.  A default model
+        This element specifies the ionic model(s) to use for simulation.  A default model
         must be given, and can be overridden in particular regions.
       </xs:documentation>
     </xs:annotation>
