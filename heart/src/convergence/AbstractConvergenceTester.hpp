@@ -380,35 +380,6 @@ public:
             SetConductivities(cardiac_problem);
 
             cardiac_problem.Initialise();
-///\todo We might as well remove this block...
-#ifndef NDEBUG
-            try
-            {
-                Node<DIM>* fqn = cardiac_problem.rGetMesh().GetNode(first_quadrant_node);
-                assert(fqn->rGetLocation()[0]==0.25*mesh_width);
-                for (unsigned coord=1; coord<DIM; coord++)
-                {
-                    assert(fqn->rGetLocation()[coord]==0.5*mesh_width);
-                }
-            }
-            catch (Exception &e)
-            {
-                //This node not owned by the current process -- assume it's checked elsewhere
-            }
-            try
-            {
-                Node<DIM>* tqn = cardiac_problem.rGetMesh().GetNode(third_quadrant_node);
-                assert(fabs(tqn->rGetLocation()[0] - 0.75*mesh_width) < 1e-10);
-                for (unsigned coord=1; coord<DIM; coord++)
-                {
-                    assert(tqn->rGetLocation()[coord]==0.5*mesh_width);
-                }
-            }
-            catch (Exception &e)
-            {
-                //This node not owned by the current process -- assume it's checked elsewhere
-            }
-#endif
 
             boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM> > p_bcc(new BoundaryConditionsContainer<DIM,DIM,PROBLEM_DIM>);
             SimpleStimulus stim(NeumannStimulus, 0.5);
