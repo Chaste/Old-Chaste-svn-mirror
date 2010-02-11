@@ -150,7 +150,7 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     /**
      * Return true if the error in any variable exceeds tolerances
      * 
-     * @param rErrors vector of the errors that will be checked against teh tolerances
+     * @param rErrors vector of the errors that will be checked against the tolerances
      * 
      */
     bool IsThereTooMuchError(std::vector<double>& rErrors);
