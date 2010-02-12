@@ -73,18 +73,6 @@
 			</CellHeterogeneity>
 		</CellHeterogeneities>		
 
-		<ConductivityHeterogeneities>
-			<ConductivityHeterogeneity> <!-- #1 -->
-			    <IntracellularConductivities longi="0.0" trans="0.0" normal="0.0" unit="mS/cm"/>
-	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="-2.0" y="-0.05" z="-1.0"/>
-						<UpperCoordinates x="-1.0" y="0.05"  z="1.0"/>
-					</Cuboid>
-				</Location>		
-			</ConductivityHeterogeneity>	
-		</ConductivityHeterogeneities>
 		<!-- 
 			Output 
 		-->

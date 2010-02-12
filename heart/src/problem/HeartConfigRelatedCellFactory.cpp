@@ -312,45 +312,51 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         //create the list of (pointer to object) nodes in each layer from the heterogeneities vector that was just filled in
         for (unsigned node_index = 0; node_index < this->GetMesh()->GetNumNodes(); node_index++)
         {
+            //initialise to the unpermuted index in case the simulation is sequential (because the for loop below will be executed only in parallel)
             unsigned int unpermuted_index = node_index;
+            
             //now get the old, unpermuted node (this is because the endo_node_list needs it as it will be used in sequential).           
             for (unsigned index=0; index < this->GetMesh()->rGetNodePermutation().size(); index++)
             {
               if (this->GetMesh()->rGetNodePermutation()[index] == node_index)
               {
                 unpermuted_index = index;
-                //assert(0);
                 break;
               }
             }
-            //unsigned permuted_index = this->GetMesh()->rGetNodePermutation()[node_index]  ;
-//            std::cout<<heterogeneity_node_list[unpermuted_index]<<std::endl;
-            switch (heterogeneity_node_list[node_index])
+            try
             {
-                //epi
-                case 2u:
+                switch (heterogeneity_node_list[unpermuted_index])
                 {
-                    epi_nodes.push_back(this->GetMesh()->GetNode(unpermuted_index));
-                    break;
+                    //epi
+                    case 2u:
+                    {
+                        epi_nodes.push_back(this->GetMesh()->GetNode(node_index));
+                        break;
+                    }
+                    //mid
+                    case 1u:
+                    {
+                        mid_nodes.push_back(this->GetMesh()->GetNode(node_index));
+                        break;
+                    }
+                    //endo
+                    case 0u:
+                    {
+                        endo_nodes.push_back(this->GetMesh()->GetNode(node_index));
+                        break;
+                    }
+                    default:
+                    NEVER_REACHED;  
                 }
-                //mid
-                case 1u:
-                {
-                    mid_nodes.push_back(this->GetMesh()->GetNode(unpermuted_index));
-                    break;
-                }
-                //endo
-                case 0u:
-                {
-                    endo_nodes.push_back(this->GetMesh()->GetNode(unpermuted_index));
-                    break;
-                }
-                default:
-                NEVER_REACHED;  
             }
-                    
+            catch (Exception& e)
+            {
+                //the node is not local
+            }
+                        
         }
-        assert((endo_nodes.size()+epi_nodes.size()+mid_nodes.size())==this->GetMesh()->GetNumNodes());
+        //assert((endo_nodes.size()+epi_nodes.size()+mid_nodes.size())==this->GetMesh()->GetNumNodes());
         
         // now the 3 list of pointer to nodes need to be pushed into the mCellHeterogeneityAreas vector, 
         // IN THE ORDER PRESCRIBED BY THE USER IN THE XML FILE! 
