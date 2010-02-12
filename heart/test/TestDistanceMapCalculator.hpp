@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TrianglesMeshReader.hpp"
 #include "DistanceMapCalculator.hpp"
+#include "TetrahedralMesh.hpp"
 
 class TestDistanceMapCalculator : public CxxTest::TestSuite
 {

@@ -29,9 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define DISTANCEMAPCALCULATOR_HPP_
 
 #include <vector>
+#include <queue>
 
 #include "UblasIncludes.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 
 /**
  * This class provides functionalities to compute a distance map in a given mesh
@@ -46,7 +47,7 @@ class DistanceMapCalculator
 private:
 
     /** The mesh*/
-    TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& mrMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& mrMesh;
     /** Number of nodes in the mesh*/
     unsigned mNumNodes;
 
@@ -67,14 +68,22 @@ private:
     inline double CartToEucliDistance(c_vector<double, SPACE_DIM>& cartDistance) const;
 
 
+    /**
+     * Work on the Queue of node indices (grass-fire across the mesh)
+     * 
+     * @param activeNodeIndexQueue  The queue of node indices
+     * @param cartDistances  An list of the minimum distance of each node to the source
+     */  
+     void WorkOnLocalQueue(std::queue<unsigned>& activeNodeIndexQueue, std::vector< c_vector<double, SPACE_DIM> >& cartDistances );
+
 public:
 
     /**
      * Constructor
      * 
-     * @param rMesh the mesh to compute maps for
+     * @param rMesh the mesh for which to compute maps
      */
-    DistanceMapCalculator(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    DistanceMapCalculator(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
     /**
      *  Generates a distance map of all the nodes of the mesh to the given surface
