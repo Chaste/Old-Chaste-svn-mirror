@@ -78,7 +78,17 @@ private:
     /** List of intracellular current stimuli to apply (size matches that of mStimulatedAreas)*/
     std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
     
-    /** List of regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)*/
+    /** 
+     *  List of regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)
+     *  This vector will be filled in by the HeartConfig::GetCellHeterogeneity method if the user requested
+     *  to specify the heterogeneity areas by cuboids, or, alternatively, by the FillInCellularTransmuralAreas method
+     *  in the cell factory called by the problem class AFTER setting the mesh 
+     *  (which is needed for the calculations of the distance maps for the calculations of heterogeneities).
+     *  
+     *  When creating a cardiac cell for each node (CreateCardiacCellForTissueNode) the code will check whether 
+     *  that node is contained in the heterogeneity area or not. 
+     * 
+     */
     std::vector<AbstractChasteRegion<SPACE_DIM>* > mCellHeterogeneityAreas;
     /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGks;
