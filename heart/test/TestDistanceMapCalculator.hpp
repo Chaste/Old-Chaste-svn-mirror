@@ -93,25 +93,26 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
-
-
-        std::vector<unsigned> map_origin;
-        map_origin.push_back(0u);
+        
+        unsigned far_index=9260u;
+        c_vector<double,3> far_corner=mesh.GetNode(far_index)->rGetLocation();
+        TS_ASSERT_DELTA( far_corner[0], 0.25, 1e-11);
+        TS_ASSERT_DELTA( far_corner[1], 0.25, 1e-11);
+        TS_ASSERT_DELTA( far_corner[2], 0.25, 1e-11);
+        
+        std::vector<unsigned> map_far_corner;
+        map_far_corner.push_back(far_index);
 
         DistanceMapCalculator<3,3> distance_calculator(mesh);
         std::vector<double> distances;
-        distance_calculator.ComputeDistanceMap(map_origin, distances);
+        distance_calculator.ComputeDistanceMap(map_far_corner, distances);
 
-        c_vector<double, 3> origin_node = mesh.GetNode(0)->rGetLocation();
-
+ 
         for (unsigned index=0; index<distances.size(); index++)
         {
             c_vector<double, 3> node = mesh.GetNode(index)->rGetLocation();
 
-            double dist = sqrt(  (origin_node(0)-node(0))*(origin_node(0)-node(0))
-                               + (origin_node(1)-node(1))*(origin_node(1)-node(1))
-                               + (origin_node(2)-node(2))*(origin_node(2)-node(2))
-                              );
+            double dist = norm_2(far_corner - node);
 
             TS_ASSERT_DELTA(distances[index], dist, 1e-11);
         }
