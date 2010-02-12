@@ -12,13 +12,22 @@
 	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default>FaberRudy2000</Default>
+			<Region>
+				<IonicModel>FaberRudy2000</IonicModel>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
+						<UpperCoordinates x="2.0" y="0.1" z="1.0"/>
+					</Cuboid>
+				</Location>				
+			</Region>
     	</IonicModels>
 	    
 		<!-- 
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
+			<Slab x="4.0" y="0.2" z="2.0" inter_node_space="0.1"/>    
 	  	</Mesh>
 	
 	    <!-- 

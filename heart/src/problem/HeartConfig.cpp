@@ -2592,8 +2592,12 @@ void HeartConfig::WrapContentInElement(xercesc::DOMDocument* pDocument,
     const XMLCh* p_qualified_name;
     if (p_prefix)
     {
+#define COVERAGE_IGNORE
+        // We can't actually cover this code, since previous versions of the parameters file didn't use a namespace,
+        // so can't have a namespace prefix!
         xercesc::QName qname(p_prefix, pNewElementLocalName, 0);
         p_qualified_name = qname.getRawName();
+#undef COVERAGE_IGNORE
     }
     else
     {
