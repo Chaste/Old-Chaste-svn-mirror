@@ -52,29 +52,15 @@ private:
     unsigned mNumNodes;
 
     /**
-     *  Computes the euclidean distance of two given points
-     *
-     *  @param pointA First point
-     *  @param pointB Second point
-     */
-    inline double EuclideanDistanceTwoPoints(const c_vector<double, SPACE_DIM>& pointA,
-                                             const c_vector<double, SPACE_DIM>& pointB) const;
-
-    /**
-     *  Given a cartesian distance, computes the associated euclidean distance
-     *
-     *  @param cartDistance Cartesian distance of a given point
-     */
-    inline double CartToEucliDistance(c_vector<double, SPACE_DIM>& cartDistance) const;
-
-
-    /**
      * Work on the Queue of node indices (grass-fire across the mesh)
      * 
      * @param activeNodeIndexQueue  The queue of node indices
      * @param cartDistances  An list of the minimum distance of each node to the source
+     * @param rNodeDistances distance map computed
      */  
-     void WorkOnLocalQueue(std::queue<unsigned>& activeNodeIndexQueue, std::vector< c_vector<double, SPACE_DIM> >& cartDistances );
+     void WorkOnLocalQueue(std::queue<unsigned>& activeNodeIndexQueue, 
+                          std::vector< c_vector<double, SPACE_DIM> >& cartDistances,
+                          std::vector<double>& rNodeDistances);
 
 public:
 

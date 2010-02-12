@@ -66,6 +66,9 @@ DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local
     : mPetscStatusKnown(false),
       mpOriginalFactory(NULL)
 {
+#ifndef NDEBUG
+    CheckForPetsc();
+#endif
     Vec vec;
     VecCreate(PETSC_COMM_WORLD, &vec);
     VecSetSizes(vec, local, size);
