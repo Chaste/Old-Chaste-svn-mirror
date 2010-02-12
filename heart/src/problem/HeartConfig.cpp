@@ -820,6 +820,11 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
      // cuboids and layers at the same time are not yet supported
      if (mUserAskedForCuboidsForCellularHeterogeneities && mUserAskedForCellularTransmuralHeterogeneities)
      {
+         // free the pointers before throwing the exception
+        for (unsigned index=0;index < rCellHeterogeneityRegions.size(); index++)
+        {
+            delete rCellHeterogeneityRegions[index];
+        }    
         EXCEPTION ("Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
      }
      //check the user input if the transmural heterogeneities have been requested
