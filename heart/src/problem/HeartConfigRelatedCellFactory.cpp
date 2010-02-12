@@ -30,6 +30,48 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartGeometryInformation.hpp"
 #include "ChasteNodesList.hpp"
 #include "NonCachedTetrahedralMesh.hpp"
+#include "FileFinder.hpp"
+#include "DynamicCellModelLoader.hpp"
+
+/**
+ * When loading cell models dynamically, the loader object needs to be alive for as long
+ * as cells created by it are alive.  Unfortunately, the HeartConfigRelatedCellFactory
+ * is typically destroyed as soon as the cells have been created, prior to the simulation.
+ * Hence, this class provides a static registry to keep track of the model loaders used.
+ * It also ensures we don't load a given .so more than once.
+ */
+class DynamicModelLoaderRegistry
+{
+public:
+    /**
+     * Get the loader for the given .so file
+     * @param rPath  absolute path to the .so
+     */
+    static DynamicCellModelLoader* GetLoader(const std::string& rPath)
+    {
+        // Have we opened this library already?
+        std::map<std::string, DynamicCellModelLoader*>::iterator it = mLoaders.find(rPath);
+        if (it == mLoaders.end())
+        {
+            // No
+            mLoaders[rPath] = new DynamicCellModelLoader(rPath);
+        }
+        return mLoaders[rPath];
+    }
+    
+private:
+    /**
+     * Loaders for shared-library cell models.
+     * Map is from absolute path of the library, to loader object.
+     */
+    static std::map<std::string, DynamicCellModelLoader*> mLoaders;
+};
+
+/** The loader registry data */
+std::map<std::string, DynamicCellModelLoader*> DynamicModelLoaderRegistry::mLoaders;
+
+
+
 
 template<unsigned SPACE_DIM>
 HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
@@ -80,8 +122,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
         boost::shared_ptr<AbstractStimulusFunction> intracellularStimulus,
         unsigned nodeIndex)
 {
-    assert(mDefaultIonicModel.Hardcoded().present());
-    cp::ionic_models_available_type ionic_model = mDefaultIonicModel.Hardcoded().get();
+    cp::ionic_model_selection_type ionic_model = mDefaultIonicModel;
 
     for (unsigned ionic_model_region_index = 0;
          ionic_model_region_index < mIonicModelRegions.size();
@@ -89,121 +130,137 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     {
         if ( mIonicModelRegions[ionic_model_region_index].DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
         {
-            assert(mIonicModelsDefined[ionic_model_region_index].Hardcoded().present());
-            ionic_model = mIonicModelsDefined[ionic_model_region_index].Hardcoded().get();
+            ionic_model = mIonicModelsDefined[ionic_model_region_index];
             break;
         }
     }
 
-    switch(ionic_model)
+    if (ionic_model.Dynamic().present())
     {
-        case(cp::ionic_models_available_type::LuoRudyI):
+        // Load model from shared library
+        FileFinder file_finder(ionic_model.Dynamic()->Path());
+        std::string path = file_finder.GetAbsolutePath();
+        if (!file_finder.Exists())
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
-            break;
+            EXCEPTION("Dynamically loadable cell model '" + path + "' does not exist.");
         }
-
-        case(cp::ionic_models_available_type::LuoRudyIBackwardEuler):
+        DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::GetLoader(path);
+        return p_loader->CreateCell(this->mpSolver, intracellularStimulus);
+    }
+    else
+    {
+        assert(ionic_model.Hardcoded().present());
+        switch(ionic_model.Hardcoded().get())
         {
-            return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
-            break;
-        }
-
-        case(cp::ionic_models_available_type::Fox2002BackwardEuler):
-        {
-            return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
-            break;
-        }
-
-        case(cp::ionic_models_available_type::DifrancescoNoble):
-        {
-            return new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
-            break;
-        }
-
-        case(cp::ionic_models_available_type::MahajanShiferaw):
-        {
-            return new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
-            break;
-        }
-
-        case(cp::ionic_models_available_type::tenTusscher2006):
-        {
-            TenTusscher2006OdeSystem*  p_tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
-
-            for (unsigned ht_index = 0;
-                 ht_index < mCellHeterogeneityAreas.size();
-                 ++ht_index)
+            case(cp::ionic_models_available_type::LuoRudyI):
             {
-                if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                {
-                    p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                    p_tt06_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                    p_tt06_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                }
+                return new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
+                break;
             }
 
-            return p_tt06_instance;
-            break;
-        }
-        
-        case(cp::ionic_models_available_type::Maleckar):
-        {
-             Maleckar2009OdeSystem*  p_maleckar_instance = new Maleckar2009OdeSystem(this->mpSolver, intracellularStimulus);
-
-            for (unsigned ht_index = 0;
-                 ht_index < mCellHeterogeneityAreas.size();
-                 ++ht_index)
+            case(cp::ionic_models_available_type::LuoRudyIBackwardEuler):
             {
-                if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                {
-                    p_maleckar_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                    p_maleckar_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                    p_maleckar_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                }
+                return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
+                break;
             }
 
-            return p_maleckar_instance;
-            break;
-        }
-        
-        case(cp::ionic_models_available_type::HodgkinHuxley):
-        {
-            return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
-            break;
-        }
-
-        case(cp::ionic_models_available_type::FaberRudy2000):
-        {
-            FaberRudy2000Version3*  p_faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
-            for (unsigned ht_index = 0;
-                 ht_index < mCellHeterogeneityAreas.size();
-                 ++ht_index)
+            case(cp::ionic_models_available_type::Fox2002BackwardEuler):
             {
-                if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                {
-                    p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                    p_faber_rudy_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                    p_faber_rudy_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                }
+                return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
+                break;
             }
 
-            return p_faber_rudy_instance;
-            break;
-        }
+            case(cp::ionic_models_available_type::DifrancescoNoble):
+            {
+                return new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
+                break;
+            }
 
-        case(cp::ionic_models_available_type::FaberRudy2000Optimised):
-        {
-            return new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
-            break;
-        }
+            case(cp::ionic_models_available_type::MahajanShiferaw):
+            {
+                return new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
+                break;
+            }
 
-        default:
-        {
-           //If the ionic model is not in the current enumeration then the XML parser will have picked it up before now!
-           NEVER_REACHED;
+            case(cp::ionic_models_available_type::tenTusscher2006):
+            {
+                TenTusscher2006OdeSystem*  p_tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
+
+                for (unsigned ht_index = 0;
+                     ht_index < mCellHeterogeneityAreas.size();
+                     ++ht_index)
+                {
+                    if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+                    {
+                        p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
+                        p_tt06_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
+                        p_tt06_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
+                    }
+                }
+
+                return p_tt06_instance;
+                break;
+            }
+
+            case(cp::ionic_models_available_type::Maleckar):
+            {
+                 Maleckar2009OdeSystem*  p_maleckar_instance = new Maleckar2009OdeSystem(this->mpSolver, intracellularStimulus);
+
+                for (unsigned ht_index = 0;
+                     ht_index < mCellHeterogeneityAreas.size();
+                     ++ht_index)
+                {
+                    if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+                    {
+                        p_maleckar_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
+                        p_maleckar_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
+                        p_maleckar_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
+                    }
+                }
+
+                return p_maleckar_instance;
+                break;
+            }
+
+            case(cp::ionic_models_available_type::HodgkinHuxley):
+            {
+                return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
+                break;
+            }
+
+            case(cp::ionic_models_available_type::FaberRudy2000):
+            {
+                FaberRudy2000Version3*  p_faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
+                for (unsigned ht_index = 0;
+                     ht_index < mCellHeterogeneityAreas.size();
+                     ++ht_index)
+                {
+                    if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+                    {
+                        p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
+                        p_faber_rudy_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
+                        p_faber_rudy_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
+                    }
+                }
+
+                return p_faber_rudy_instance;
+                break;
+            }
+
+            case(cp::ionic_models_available_type::FaberRudy2000Optimised):
+            {
+                return new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
+                break;
+            }
+
+            default:
+            {
+               //If the ionic model is not in the current enumeration then the XML parser will have picked it up before now!
+               NEVER_REACHED;
+            }
         }
     }
+    NEVER_REACHED;
 
     return NULL;
 }

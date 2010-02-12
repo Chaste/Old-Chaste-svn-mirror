@@ -14,7 +14,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.0" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.0" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.0" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 1 -->
@@ -23,7 +23,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.1" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.1" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.1" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 2 -->
@@ -32,7 +32,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.2" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.2" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.2" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 3 -->
@@ -41,7 +41,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.3" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.3" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.3" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 4 -->
@@ -50,7 +50,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.4" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.4" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.4" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 5 -->
@@ -59,7 +59,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.5" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.5" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.5" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 6 -->
@@ -68,7 +68,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.6" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.6" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.6" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 7 -->
@@ -77,7 +77,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.7" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.7" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.7" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 8 -->
@@ -86,17 +86,28 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="0.8" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="0.8" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="0.8" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 9 -->
+            <Region> <!-- REGION 10 -->
+                <IonicModel><Dynamic>
+                    <Path relative_to="chaste_source_root">heart/dynamic/libDynamicallyLoadableLr91.so</Path>
+                </Dynamic></IonicModel>
+                <Location unit="cm">
+                    <Cuboid>
+                        <LowerCoordinates x="0.9" y="0.0" z="0.0"/>
+                        <UpperCoordinates x="1.0" y="0.0" z="0.0"/>
+                    </Cuboid>
+                </Location>
+            </Region>
         </IonicModels>
 	    
 		<!-- 
 			Mesh definition 
 		-->    
 		<Mesh unit="cm">
-			<Slab x="1" y="0.1" z="0.1" inter_node_space="0.1"/>
+			<Slab x="1.5" y="0.1" z="0.1" inter_node_space="0.1"/>
 	  	</Mesh>
 		    
 	    <!-- 

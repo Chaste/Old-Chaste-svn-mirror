@@ -197,9 +197,9 @@ public:
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_patchwork.xml");
         std::string foldername = "Patchwork";
         
-       // compare the files, using the CompareFilesViaHdf5DataReader() method  
-        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
-                   foldername, "SimulationResults", true));
+        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+        TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
+                                                foldername, "SimulationResults", true));
     }
     void TestCardiacSimulationKirsten() throw(Exception)
     {

@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define HEARTCONFIGRELATEDCELLFACTORY_HPP_
 
 #include <vector>
+#include <map>
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractCardiacCellFactory.hpp"
@@ -97,8 +98,6 @@ private:
     /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGkr;
     
-
-
 public:
     /** Default constructor */
     HeartConfigRelatedCellFactory();
