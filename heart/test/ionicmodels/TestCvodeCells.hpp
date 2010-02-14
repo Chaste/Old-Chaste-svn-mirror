@@ -130,8 +130,8 @@ public:
 
         unsigned step_per_row_chaste = 100u;
         bool clean_dir = false;
-        solution_cvode.WriteToFile("TestCvodeCells","lr91_cvode",&lr91_ode_system,"ms",1,clean_dir);
-        solution_chaste.WriteToFile("TestCvodeCells","lr91_chaste",&lr91_ode_system,"ms",step_per_row_chaste,clean_dir);
+        solution_cvode.WriteToFile("TestCvodeCells","lr91_cvode","ms",1,clean_dir);
+        solution_chaste.WriteToFile("TestCvodeCells","lr91_chaste","ms",step_per_row_chaste,clean_dir);
 
         double tolerance = 2e-1;
         bool voltage_only = false;
@@ -233,16 +233,16 @@ public:
 
         unsigned step_per_row_chaste = 1000u;
         bool clean_dir = false;
-        solution_cvode.WriteToFile("TestCvodeCells","sh04_cvode",&sh04_ode_system,"ms",1,clean_dir);
-        solution_chaste.WriteToFile("TestCvodeCells","sh04_chaste",&sh04_ode_system,"ms",step_per_row_chaste,clean_dir);
-    
+        solution_cvode.WriteToFile("TestCvodeCells","sh04_cvode","ms",1,clean_dir);
+        solution_chaste.WriteToFile("TestCvodeCells","sh04_chaste","ms",step_per_row_chaste,clean_dir);
+
         double tolerance = 3e-2;
         bool voltage_only = false;
         CompareCellModelResults("sh04_cvode", "sh04_chaste",tolerance, voltage_only, "TestCvodeCells");
-    
+
         // Coverage of GetIIonic method.
         TS_ASSERT_DELTA(sh04_ode_system.GetIIonic(),0.0006,1e-4);
-    
+
         // Clamping
         sh04_cvode_system.SetVoltageDerivativeToZero();
         solution_cvode = sh04_cvode_system.Solve(end_time, end_time+100.0, max_timestep, sampling_time);
@@ -252,10 +252,10 @@ public:
             TS_ASSERT_EQUALS(voltages[i], sh04_cvode_system.GetVoltage());
         }
         sh04_cvode_system.SetVoltageDerivativeToZero(false);
-        
+
         // Coverage of mSetVoltageDerivativeToZero in non-CVODE class
         sh04_ode_system.ComputeExceptVoltage(end_time,end_time+0.01);
-        
+
 #endif // CHASTE_CVODE
     }
 };

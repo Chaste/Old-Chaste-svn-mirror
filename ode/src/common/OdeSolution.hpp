@@ -32,8 +32,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 #include <sstream>
+#include <boost/shared_ptr.hpp>
+
 #include "ColumnDataWriter.hpp"
-#include "AbstractOdeSystem.hpp"
+#include "AbstractOdeSystemInformation.hpp"
 
 /**
  * An OdeSolution class that that allows us to save the output data to file.
@@ -51,7 +53,19 @@ private:
     /** Solutions for each variable at each timestep. */
     std::vector<std::vector<double> > mSolutions;
 
+    /**
+     * Information about the concrete ODE system class.
+     *
+     * Used to get names and units into the file output.
+     */
+    boost::shared_ptr<const AbstractOdeSystemInformation> mpOdeSystemInformation;
+
 public:
+
+    /**
+     * Public constructor - ensures data is empty to start with.
+     */
+    OdeSolution();
 
     /**
      * Get the number of timesteps.
@@ -66,6 +80,13 @@ public:
      * @param numTimeSteps the number of timesteps to use
      */
     void SetNumberOfTimeSteps(unsigned numTimeSteps);
+
+    /**
+     * Set the ODE system information
+     *
+     * @param pOdeSystemInfo  ODE system information (used to get the names and units of variables).
+     */
+    void SetOdeSystemInformation(boost::shared_ptr<const AbstractOdeSystemInformation> pOdeSystemInfo);
 
     /**
      * Get the values of a state variable with a given index in
@@ -94,7 +115,7 @@ public:
      *
      * @param directoryName  the directory in which to write the data to file
      * @param baseResultsFilename  the name of the file in which to write the data
-     * @param pOdeSystem  pointer to the ODE system solved to obtain these results
+     * @param pOdeSystem  pointer to the ODE system's information
      *                     (needed for state variable names and units)
      * @param timeUnits  name of the units of time used
      * @param stepsPerRow  the solution to the ODE system is written to file every
@@ -106,7 +127,6 @@ public:
      */
     void WriteToFile(std::string directoryName,
                      std::string baseResultsFilename,
-                     AbstractOdeSystem* pOdeSystem,
                      std::string timeUnits,
                      unsigned stepsPerRow=1,
                      bool cleanDirectory=true,

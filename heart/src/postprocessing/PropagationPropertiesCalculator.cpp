@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include "PropagationPropertiesCalculator.hpp"
 #include "CellProperties.hpp"
+#include "Exception.hpp"
 #include <sstream>
 
 PropagationPropertiesCalculator::PropagationPropertiesCalculator(Hdf5DataReader* pDataReader,
@@ -42,7 +43,7 @@ PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
     // We don't own the data reader, so we don't destroy it.
 }
 
-/// \todo the following helper method, when used, causes seg faults. Mend it and use to reduce 
+/// \todo the following helper method, when used, causes seg faults. Mend it and use to reduce
 /// repeated code.
 //CellProperties PropagationPropertiesCalculator::GetCellProperties(unsigned globalNodeIndex)
 //{
@@ -157,7 +158,7 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
     {
         // globalNearNodeIndex and globalFarNodeIndex are the same node, preventing a 0/0
         // or
-        // AP number i is happening at the same time at nodes globalNearNodeIndex and globalFarNodeIndex        
+        // AP number i is happening at the same time at nodes globalNearNodeIndex and globalFarNodeIndex
         return 0.0;
     }
     else
@@ -165,7 +166,7 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned glo
         return euclideanDistance / (t_far - t_near);
     }
 
-    
+
 }
 
 std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVelocities(unsigned globalNearNodeIndex,
@@ -184,15 +185,15 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
 
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
-    
+
     t_near = near_cell_props.GetTimesAtMaxUpstrokeVelocity();
     t_far = far_cell_props.GetTimesAtMaxUpstrokeVelocity();
-    
-    //exception should have been thrown within the GetTimesAtMaxUpstrokeVelocity method if the threshold is never reached 
-    //and these vectors are empty    
+
+    //exception should have been thrown within the GetTimesAtMaxUpstrokeVelocity method if the threshold is never reached
+    //and these vectors are empty
     assert(t_near.size() !=0);
     assert(t_far.size() !=0);
-    
+
     //Check the node where the least number of aps is reached.
     //We will calculate only where AP reached both nodes
     if (t_near.size() > t_far.size())
@@ -204,14 +205,14 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
        number_of_aps=t_near.size();
     }
     //now fill the vector
-    
+
     if (globalNearNodeIndex == globalFarNodeIndex)
     {
         // globalNearNodeIndex and globalFarNodeIndex are the same node, preventing a 0/0
         for (unsigned i = 0 ; i < number_of_aps;i++)
         {
             conduction_velocities.push_back(0.0);
-        }        
+        }
     }
     else
     {
@@ -228,6 +229,6 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllConductionVeloc
             }
         }
     }
-    
+
     return conduction_velocities;
 }

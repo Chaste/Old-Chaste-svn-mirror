@@ -56,6 +56,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     solutions.SetNumberOfTimeSteps(stepper.EstimateTimeSteps());
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
+    solutions.SetOdeSystemInformation(pOdeSystem->GetSystemInformation());
 
     mWorkingMemory.resize(rYValues.size());
 

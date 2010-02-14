@@ -26,9 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "OdeSolution.hpp"
 #include "PetscTools.hpp"
+
+OdeSolution::OdeSolution()
+   : mNumberOfTimeSteps(0u),
+     mpOdeSystemInformation()
+{
+}
 
 unsigned OdeSolution::GetNumberOfTimeSteps()
 {
@@ -40,6 +45,11 @@ void OdeSolution::SetNumberOfTimeSteps(unsigned numTimeSteps)
     mNumberOfTimeSteps = numTimeSteps;
     mTimes.reserve(numTimeSteps+1);
     mSolutions.reserve(numTimeSteps);
+}
+
+void OdeSolution::SetOdeSystemInformation(boost::shared_ptr<const AbstractOdeSystemInformation> pOdeSystemInfo)
+{
+    mpOdeSystemInformation = pOdeSystemInfo;
 }
 
 std::vector<double> OdeSolution::GetVariableAtIndex(unsigned index)
@@ -65,7 +75,6 @@ std::vector<std::vector<double> >& OdeSolution::rGetSolutions()
 
 void OdeSolution::WriteToFile(std::string directoryName,
                               std::string baseResultsFilename,
-                              AbstractOdeSystem* pOdeSystem,
                               std::string timeUnits,
                               unsigned stepsPerRow,
                               bool cleanDirectory,
@@ -74,10 +83,11 @@ void OdeSolution::WriteToFile(std::string directoryName,
     assert(stepsPerRow > 0);
     assert(mTimes.size() > 0);
     assert(mTimes.size() == mSolutions.size());
+    assert(mpOdeSystemInformation.get() != NULL);
 
     // Write data to a file using ColumnDataWriter
     ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory, precision);
-    
+
     if (!PetscTools::AmMaster())
     {
         //Only the master actually writes to file
@@ -88,19 +98,19 @@ void OdeSolution::WriteToFile(std::string directoryName,
 
     // Either: the ODE system should have no names&units defined, or it should
     // the same number as the number of solutions per timestep.
-    assert( pOdeSystem->rGetVariableNames().size()==0 ||
-            (pOdeSystem->rGetVariableNames().size()==mSolutions[0].size()) );
+    assert( mpOdeSystemInformation->rGetVariableNames().size()==0 ||
+            (mpOdeSystemInformation->rGetVariableNames().size()==mSolutions[0].size()) );
 
     unsigned num_vars = mSolutions[0].size();
 
     std::vector<int> var_ids;
     var_ids.reserve(num_vars);
-    if (pOdeSystem->rGetVariableNames().size() > 0)
+    if (mpOdeSystemInformation->rGetVariableNames().size() > 0)
     {
         for (unsigned i=0; i<num_vars; i++)
         {
-            var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
-                                                    pOdeSystem->rGetVariableUnits()[i]));
+            var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetVariableNames()[i],
+                                                    mpOdeSystemInformation->rGetVariableUnits()[i]));
         }
     }
     else

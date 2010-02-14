@@ -228,6 +228,7 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     solutions.SetNumberOfTimeSteps(stepper.EstimateTimeSteps());
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
+    solutions.SetOdeSystemInformation(pOdeSystem->GetSystemInformation());
 
     // Main time sampling loop
     while (!stepper.IsTimeAtEnd() && !mStoppingEventOccurred)

@@ -237,10 +237,8 @@ public:
         }
 
         /* Alternatively, we can print the solution directly to a file, using the {{{WriteToFile}}}
-         * method on the {{{OdeSolution}}} class. (To do this, we need to provide the
-         * ODE system, so a header line containing the names and units of the variable can be written,
-         * and also the units of time). */
-        solutions.WriteToFile("SolvingOdesTutorial", "ode1.txt", &my_ode, "sec");
+         * method on the {{{OdeSolution}}} class. */
+        solutions.WriteToFile("SolvingOdesTutorial", "ode1.txt", "sec");
 
         /* We can see from the printed out results that y goes above 2.5 somewhere just
          * before 0.6. To solve only up until y=2.5, we can solve the ODE that has the

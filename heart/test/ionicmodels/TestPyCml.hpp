@@ -91,13 +91,13 @@ public:
      /**
       * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
       * and gives expected results.
-      * 
+      *
       * To generate the cell model C++ code, use:
       *     cdchaste
       *     ./python/ConvertCellModel.py --normal --opt --cvode heart/src/odes/cellml/luo_rudy_1991.cellml
       * Or, if you don't have CVODE:
       *     ./python/ConvertCellModel.py heart/src/odes/cellml/luo_rudy_1991.cellml
-      * 
+      *
       * \todo #1030 run PyCml automatically, rather than having to generate the .hpp files by hand.
       */
      void TestPyCmlCodeGeneration() throw(Exception)
@@ -122,13 +122,13 @@ public:
         // Optimised model
         Cellluo_rudy_1991FromCellMLOpt opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
-        
+
         // Check that the tables exist!
         double v = opt.GetVoltage();
         opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "V outside lookup table range");
         opt.SetVoltage(v);
-        
+
 #ifdef CHASTE_CVODE
         // CVODE version
         Cellluo_rudy_1991FromCellMLCvode cvode_cell(p_solver, p_stimulus);
@@ -142,7 +142,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "V outside lookup table range");
         cvode_opt.SetVoltage(v);
 #endif // CHASTE_CVODE
-        
+
         // Test the archiving code too
         OutputFileHandler handler("archive", false);
         ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
@@ -163,7 +163,7 @@ public:
         //
         // Solve and write to file
         //
-        
+
         // Normal
         ck_start = clock();
         RunOdeSolverWithIonicModel(&normal,
@@ -195,13 +195,13 @@ public:
                                    i_ionic_end_time,
                                    "Lr91GetIIonicOpt", 1000, false);
         TS_ASSERT_DELTA( opt.GetIIonic(), normal.GetIIonic(), 1e-3);
-        
+
 #ifdef CHASTE_CVODE
         // CVODE
         double max_dt = 1.0; //ms
         ck_start = clock();
         OdeSolution cvode_solution = cvode_cell.Solve(0.0, end_time, max_dt, max_dt);
-        cvode_solution.WriteToFile("TestIonicModels","Lr91FromPyCmlCvode",&normal,"ms",1,false);
+        cvode_solution.WriteToFile("TestIonicModels","Lr91FromPyCmlCvode","ms",1,false);
         ck_end = clock();
         double cvode_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tCVODE: " << cvode_time << std::endl;
@@ -216,11 +216,11 @@ public:
         cvode_cell.SetStateVariables(cvode_cell.GetInitialConditions());
         cvode_cell.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_cell.GetIIonic(), normal.GetIIonic(), 1e-1);
-        
+
         // CVODE Optimised
         ck_start = clock();
         cvode_solution = cvode_opt.Solve(0.0, end_time, max_dt, max_dt);
-        cvode_solution.WriteToFile("TestIonicModels","Lr91FromPyCmlCvodeOpt",&opt,"ms",1,false);
+        cvode_solution.WriteToFile("TestIonicModels","Lr91FromPyCmlCvodeOpt","ms",1,false);
         ck_end = clock();
         double cvode_opt_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tCVODE Optimised: " << cvode_opt_time << std::endl;
@@ -236,7 +236,7 @@ public:
         cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_opt.GetIIonic(), cvode_cell.GetIIonic(), 1e-1);
 #endif // CHASTE_CVODE
-        
+
         // Load and check simulation results still match
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -254,7 +254,7 @@ public:
                                        end_time,
                                        "Lr91FromPyCmlAfterArchive");
             CheckCellModelResults("Lr91FromPyCmlAfterArchive", "Lr91DelayedStim");
-            
+
             RunOdeSolverWithIonicModel(p_opt_cell,
                                        end_time,
                                        "Lr91FromPyCmlOptAfterArchive");

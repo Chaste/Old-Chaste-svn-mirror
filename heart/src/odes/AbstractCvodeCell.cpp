@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Callback function provided to CVODE to allow it to 'call' C++ member functions
  * (in particular, AbstractCvodeCell::EvaluateRhs).
- * 
+ *
  * @param t  current time
  * @param y  state variable vector
  * @param ydot  derivatives vector to be filled in
@@ -224,6 +224,7 @@ OdeSolution AbstractCvodeCell::Solve(realtype tStart,
     solutions.SetNumberOfTimeSteps(stepper.EstimateTimeSteps());
     solutions.rGetSolutions().push_back(MakeStdVec(mStateVariables));
     solutions.rGetTimes().push_back(tStart);
+    solutions.SetOdeSystemInformation(mpSystemInfo);
 
     // Main time sampling loop
     while (!stepper.IsTimeAtEnd())
@@ -244,9 +245,9 @@ OdeSolution AbstractCvodeCell::Solve(realtype tStart,
         if (ierr<0) CvodeError(ierr, "CVODE failed to solve system");
         // Not root finding, so should have reached requested time
         assert(fabs(cvode_stopped_at - stepper.GetNextTime()) < DBL_EPSILON);
-    
+
         VerifyStateVariables();
-        
+
         // Store solution
         solutions.rGetSolutions().push_back(MakeStdVec(mStateVariables));
         solutions.rGetTimes().push_back(cvode_stopped_at);
@@ -289,7 +290,7 @@ void AbstractCvodeCell::Solve(realtype tStart,
     ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
     assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
     FreeCvodeMemory();
-    
+
     VerifyStateVariables();
 }
 
@@ -335,7 +336,7 @@ void AbstractCvodeCell::SetupCvode(N_Vector initialConditions,
         SetStateVariables(GetInitialConditions());
         initialConditions = mStateVariables;
     }
-    
+
     assert(NV_LENGTH_S(initialConditions) == GetNumberOfStateVariables());
     assert(maxDt > 0.0);
 

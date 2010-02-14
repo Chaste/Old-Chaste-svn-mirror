@@ -113,7 +113,7 @@ public:
 
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
 
-        solution.WriteToFile("", __FUNCTION__, &lr91_ode_system, "ms");
+        solution.WriteToFile("", __FUNCTION__, "ms");
 
 
         // Now calculate the properties

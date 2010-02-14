@@ -171,9 +171,9 @@ public:
         solutions = solver.Solve(&ode_system, state_variables, 0.0, 0.1, 0.1, 0.1);
 
         // Write
-        solutions.WriteToFile("OdeSolution", "Ode2_8", &ode_system, "time");
+        solutions.WriteToFile("OdeSolution", "Ode2_8", "time");
         // Write at lower precision
-        solutions.WriteToFile("OdeSolution", "Ode2_4", &ode_system, "time", 1, false, 4);
+        solutions.WriteToFile("OdeSolution", "Ode2_4", "time", 1, false, 4);
     }
 
     void TestEulerSolver() throw (Exception)
