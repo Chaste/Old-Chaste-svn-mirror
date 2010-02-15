@@ -1,3 +1,4 @@
+TestBoxCollection.hpp
 TestChasteRegions.hpp
 TestChastePoint.hpp
 TestDistanceMapCalculator.hpp

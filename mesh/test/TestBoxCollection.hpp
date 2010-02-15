@@ -25,26 +25,22 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTNODEBOXCOLLECTION_HPP_
-#define TESTNODEBOXCOLLECTION_HPP_
+#ifndef TESTBOXCOLLECTION_HPP_
+#define TESTBOXCOLLECTION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-#include "MutableMesh.hpp"
-#include "NodeBasedTissue.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
-#include "AbstractCellBasedTestSuite.hpp"
+#include "BoxCollection.hpp"
+#include "TrianglesMeshReader.hpp"
 
-class TestNodeBoxCollection : public AbstractCellBasedTestSuite
+class TestBoxCollection : public CxxTest::TestSuite
 {
 public:
-
-    void TestNodeBox() throw (Exception)
+    void TestBox() throw (Exception)
     {
         c_vector<double, 2*2> box_size;
         box_size(0) = -0.1; // min x
@@ -52,7 +48,7 @@ public:
         box_size(2) = -0.1; // min y
         box_size(3) = 1.1; // max y
 
-        NodeBox<2> test_box(box_size);
+        Box<2> test_box(box_size);
         c_vector<double, 2*2> returned_min_max_values = test_box.rGetMinAndMaxValues();
         for (unsigned i=0; i<4; i++)
         {
@@ -80,36 +76,28 @@ public:
     void TestBoxGeneration1d() throw (Exception)
     {
         // Create a mesh
-        MutableMesh<1,1> mesh;
+        TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(20);
 
-        // Set up cells
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        // Create a tissue
-        NodeBasedTissue<1> node_based_tissue(mesh, cells);
-
         double cut_off_length = 5.0;
-
         c_vector<double, 2> domain_size;
         domain_size(0) = -0.1;
         domain_size(1) = 20.15;
 
-        node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
-
-        TS_ASSERT_EQUALS(node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(), 5u);
-
-        for (unsigned i=0; i<node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(); i++)
+        BoxCollection<1> box_collection(cut_off_length, domain_size);
+    
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            std::set< Node<1>* > nodes_in_box = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetNodesContained();
-            c_vector<double, 2> box_min_max_values = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetMinAndMaxValues();
+            unsigned box_index = box_collection.CalculateContainingBox(mesh.GetNode(i));
+            box_collection.rGetBox(box_index).AddNode(mesh.GetNode(i));
+        }
+
+        TS_ASSERT_EQUALS(box_collection.GetNumBoxes(), 5u);
+
+        for (unsigned i=0; i<box_collection.GetNumBoxes(); i++)
+        {
+            std::set< Node<1>* > nodes_in_box = box_collection.rGetBox(i).rGetNodesContained();
+            c_vector<double, 2> box_min_max_values = box_collection.rGetBox(i).rGetMinAndMaxValues();
 
             for (std::set< Node<1>* >::iterator it_nodes_in_box = nodes_in_box.begin();
                  it_nodes_in_box != nodes_in_box.end();
@@ -125,25 +113,58 @@ public:
             }
         }
 
-        std::set<unsigned> local_boxes_to_box_0 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(0);
+        std::set<unsigned> local_boxes_to_box_0 = box_collection.GetLocalBoxes(0);
         std::set<unsigned> correct_answer_0;
         correct_answer_0.insert(0);
         correct_answer_0.insert(1);
         TS_ASSERT_EQUALS(local_boxes_to_box_0, correct_answer_0);
 
-        std::set<unsigned> local_boxes_to_box_1 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(1);
+        std::set<unsigned> local_boxes_to_box_1 = box_collection.GetLocalBoxes(1);
         std::set<unsigned> correct_answer_1;
         correct_answer_1.insert(1);
         correct_answer_1.insert(2);
         TS_ASSERT_EQUALS(local_boxes_to_box_1, correct_answer_1);
 
-        std::set<unsigned> local_boxes_to_box_4 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(4);
+        std::set<unsigned> local_boxes_to_box_4 = box_collection.GetLocalBoxes(4);
         std::set<unsigned> correct_answer_4;
         correct_answer_4.insert(4);
         TS_ASSERT_EQUALS(local_boxes_to_box_4, correct_answer_4);
+        
+        c_vector<double,1> miles_away;
+        miles_away(0) = 47323854;
+        TS_ASSERT_THROWS_CONTAINS(box_collection.CalculateContainingBox(miles_away), "The point provided in outside all of the boxes");        
     }
 
+    // very simple test
+    void TestAddElement() throw(Exception)
+    {
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(2);
+        mesh.Scale(0.5);
 
+        double width = 0.4;
+        c_vector<double, 2> domain_size;
+        domain_size(0) = 0.0;
+        domain_size(1) = 1.0;
+
+        BoxCollection<1> box_collection(width, domain_size);
+        box_collection.rGetBox(0).AddElement(mesh.GetElement(0));
+        TS_ASSERT_EQUALS(box_collection.rGetBox(0).rGetElementsContained().size(), 1u);
+        TS_ASSERT_EQUALS(box_collection.rGetBox(1).rGetElementsContained().size(), 0u);
+        TS_ASSERT_EQUALS(box_collection.rGetBox(2).rGetElementsContained().size(), 0u);
+        TS_ASSERT_EQUALS(*(box_collection.rGetBox(0).rGetElementsContained().begin()), mesh.GetElement(0));
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Cancer/cell_based tests
+    //  The following are tests written from this BoxCollection used to be
+    //  cell_based/src/tissue/NodeBoxCollection and test the cancer related 
+    //  functionality
+    //  
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
     void TestPairsReturned1d() throw (Exception)
     {
         std::vector< ChastePoint<1>* > points(5);
@@ -159,18 +180,22 @@ public:
             nodes.push_back(new Node<1>(i, *(points[i]), false));
         }
 
-        NodeBasedTissue<1> node_based_tissue(nodes);
-
         double cut_off_length = 1.0;
 
         c_vector<double, 2> domain_size;
         domain_size(0) = 0.0;
         domain_size(1) = 7.0;
 
-        node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
+        BoxCollection<1> box_collection(cut_off_length, domain_size);
+    
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            unsigned box_index = box_collection.CalculateContainingBox(nodes[i]);
+            box_collection.rGetBox(box_index).AddNode(nodes[i]);
+        }
 
         std::set< std::pair<Node<1>*, Node<1>* > > pairs_returned;
-        node_based_tissue.GetNodeBoxCollection()->CalculateNodePairs(nodes,pairs_returned);
+        box_collection.CalculateNodePairs(nodes,pairs_returned);
 
         std::set< std::pair<Node<1>*, Node<1>* > > pairs_should_be;
         pairs_should_be.insert(std::pair<Node<1>*, Node<1>*>(nodes[0],nodes[1]));
@@ -182,7 +207,6 @@ public:
 
         for (unsigned i=0; i<points.size(); i++)
         {
-            // Tissue deletes the nodes
             delete points[i];
         }
     }
@@ -194,19 +218,6 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Set up cells
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        // Create a tissue
-        NodeBasedTissue<2> node_based_tissue(mesh, cells);
-
         double cut_off_length = 0.2;
 
         c_vector<double, 2*2> domain_size;
@@ -215,14 +226,20 @@ public:
         domain_size(2) = -0.1;
         domain_size(3) = 1.15;
 
-        node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
-
-        TS_ASSERT_EQUALS(node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(), 49u);
-
-        for (unsigned i=0; i<node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(); i++)
+        BoxCollection<2> box_collection(cut_off_length, domain_size);
+    
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            std::set< Node<2>* > nodes_in_box = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetNodesContained();
-            c_vector<double, 2*2> box_min_max_values = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetMinAndMaxValues();
+            unsigned box_index = box_collection.CalculateContainingBox(mesh.GetNode(i));
+            box_collection.rGetBox(box_index).AddNode(mesh.GetNode(i));
+        }
+
+        TS_ASSERT_EQUALS(box_collection.GetNumBoxes(), 49u);
+
+        for (unsigned i=0; i<box_collection.GetNumBoxes(); i++)
+        {
+            std::set< Node<2>* > nodes_in_box = box_collection.rGetBox(i).rGetNodesContained();
+            c_vector<double, 2*2> box_min_max_values = box_collection.rGetBox(i).rGetMinAndMaxValues();
 
             for (std::set< Node<2>* >::iterator it_nodes_in_box = nodes_in_box.begin();
                  it_nodes_in_box != nodes_in_box.end();
@@ -243,7 +260,7 @@ public:
 
         // Have checked that all the local boxes are calculated correctly on a 5 by 6 grid - here we
         // hardcode a few checks on the 7 by 7 grid.
-        std::set<unsigned> local_boxes_to_box_0 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(0);
+        std::set<unsigned> local_boxes_to_box_0 = box_collection.GetLocalBoxes(0);
         std::set<unsigned> correct_answer_0;
         correct_answer_0.insert(0);
         correct_answer_0.insert(1);
@@ -251,7 +268,7 @@ public:
         correct_answer_0.insert(8);
         TS_ASSERT_EQUALS(local_boxes_to_box_0, correct_answer_0);
 
-        std::set<unsigned> local_boxes_to_box_4 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(4);
+        std::set<unsigned> local_boxes_to_box_4 = box_collection.GetLocalBoxes(4);
         std::set<unsigned> correct_answer_4;
         correct_answer_4.insert(4);
         correct_answer_4.insert(5);
@@ -260,7 +277,7 @@ public:
         correct_answer_4.insert(12);
         TS_ASSERT_EQUALS(local_boxes_to_box_4, correct_answer_4);
 
-        std::set<unsigned> local_boxes_to_box_10 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(10);
+        std::set<unsigned> local_boxes_to_box_10 = box_collection.GetLocalBoxes(10);
         std::set<unsigned> correct_answer_10;
         correct_answer_10.insert(10);
         correct_answer_10.insert(11);
@@ -269,7 +286,7 @@ public:
         correct_answer_10.insert(18);
         TS_ASSERT_EQUALS(local_boxes_to_box_10, correct_answer_10);
 
-        std::set<unsigned> local_boxes_to_box_48 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(48);
+        std::set<unsigned> local_boxes_to_box_48 = box_collection.GetLocalBoxes(48);
         std::set<unsigned> correct_answer_48;
         correct_answer_48.insert(48);
         TS_ASSERT_EQUALS(local_boxes_to_box_48, correct_answer_48);
@@ -295,8 +312,6 @@ public:
             nodes.push_back(new Node<2>(i, *(points[i]), false));
         }
 
-        NodeBasedTissue<2> node_based_tissue(nodes);
-
         double cut_off_length = 1.0;
 
         c_vector<double, 2*2> domain_size;
@@ -305,10 +320,16 @@ public:
         domain_size(2) = 0.0;
         domain_size(3) = 4.0;
 
-        node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
-
+        BoxCollection<2> box_collection(cut_off_length, domain_size);
+    
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            unsigned box_index = box_collection.CalculateContainingBox(nodes[i]);
+            box_collection.rGetBox(box_index).AddNode(nodes[i]);
+        }
+        
         std::set< std::pair<Node<2>*, Node<2>* > > pairs_returned;
-        node_based_tissue.GetNodeBoxCollection()->CalculateNodePairs(nodes,pairs_returned);
+        box_collection.CalculateNodePairs(nodes,pairs_returned);
 
         std::set< std::pair<Node<2>*, Node<2>* > > pairs_should_be;
         pairs_should_be.insert(std::pair<Node<2>*, Node<2>*>(nodes[0],nodes[1]));
@@ -335,7 +356,6 @@ public:
 
         for (unsigned i=0; i<points.size(); i++)
         {
-            // Tissue deletes the nodes
             delete points[i];
         }
     }
@@ -344,21 +364,8 @@ public:
     void TestBoxGeneration3d() throw (Exception)
     {
         // Create a mesh
-        MutableMesh<3,3> mesh;
+        TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(4,5,6);
-
-        // Set up cells
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
-            double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-
-        // Create a tissue
-        NodeBasedTissue<3> node_based_tissue(mesh, cells);
 
         double cut_off_length = 2.0;
 
@@ -370,14 +377,21 @@ public:
         domain_size(4) = -0.1;
         domain_size(5) = 6.15;
 
-        node_based_tissue.SplitUpIntoBoxes(cut_off_length, domain_size);
 
-        TS_ASSERT_EQUALS(node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(), 36u);
-
-        for (unsigned i=0; i<node_based_tissue.GetNodeBoxCollection()->GetNumBoxes(); i++)
+        BoxCollection<3> box_collection(cut_off_length, domain_size);
+    
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            std::set< Node<3>* > nodes_in_box = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetNodesContained();
-            c_vector<double, 2*3> box_min_max_values = node_based_tissue.GetNodeBoxCollection()->rGetBox(i).rGetMinAndMaxValues();
+            unsigned box_index = box_collection.CalculateContainingBox(mesh.GetNode(i));
+            box_collection.rGetBox(box_index).AddNode(mesh.GetNode(i));
+        }
+
+        TS_ASSERT_EQUALS(box_collection.GetNumBoxes(), 36u);
+
+        for (unsigned i=0; i<box_collection.GetNumBoxes(); i++)
+        {
+            std::set< Node<3>* > nodes_in_box = box_collection.rGetBox(i).rGetNodesContained();
+            c_vector<double, 2*3> box_min_max_values = box_collection.rGetBox(i).rGetMinAndMaxValues();
 
             for (std::set< Node<3>* >::iterator it_nodes_in_box = nodes_in_box.begin();
                  it_nodes_in_box != nodes_in_box.end();
@@ -399,7 +413,7 @@ public:
             }
         }
 
-        std::set<unsigned> local_boxes_to_box_0 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(0);
+        std::set<unsigned> local_boxes_to_box_0 = box_collection.GetLocalBoxes(0);
         std::set<unsigned> correct_answer_0;
         correct_answer_0.insert(0);
         correct_answer_0.insert(1);
@@ -411,7 +425,7 @@ public:
         correct_answer_0.insert(13);
         TS_ASSERT_EQUALS(local_boxes_to_box_0, correct_answer_0);
 
-        std::set<unsigned> local_boxes_to_box_13 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(13);
+        std::set<unsigned> local_boxes_to_box_13 = box_collection.GetLocalBoxes(13);
         std::set<unsigned> correct_answer_13;
         correct_answer_13.insert(4);
         correct_answer_13.insert(5);
@@ -430,7 +444,7 @@ public:
         correct_answer_13.insert(26);
         TS_ASSERT_EQUALS(local_boxes_to_box_13, correct_answer_13);
 
-        std::set<unsigned> local_boxes_to_box_34 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(34);
+        std::set<unsigned> local_boxes_to_box_34 = box_collection.GetLocalBoxes(34);
         std::set<unsigned> correct_answer_34;
         correct_answer_34.insert(25);
         correct_answer_34.insert(26);
@@ -438,7 +452,7 @@ public:
         correct_answer_34.insert(35);
         TS_ASSERT_EQUALS(local_boxes_to_box_34, correct_answer_34);
 
-        std::set<unsigned> local_boxes_to_box_35 = node_based_tissue.GetNodeBoxCollection()->GetLocalBoxes(35);
+        std::set<unsigned> local_boxes_to_box_35 = box_collection.GetLocalBoxes(35);
         std::set<unsigned> correct_answer_35;
         correct_answer_35.insert(26);
         correct_answer_35.insert(35);
@@ -446,4 +460,4 @@ public:
     }
 };
 
-#endif /*TESTNODEBOXCOLLECTION_HPP_*/
+#endif /*TESTBOXCOLLECTION_HPP_*/

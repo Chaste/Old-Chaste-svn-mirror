@@ -127,7 +127,7 @@ public:
         TS_ASSERT(min_distance_between_cells > 1e-3);
     }
 
-    void TestSimulationWithNodeBoxes() throw (Exception)
+    void TestSimulationWithBoxes() throw (Exception)
     {
         // Create a simple mesh
         int num_cells_depth = 5;

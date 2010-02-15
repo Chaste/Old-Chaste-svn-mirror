@@ -36,7 +36,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
     : AbstractCellCentreBasedTissue<DIM>(rCells, locationIndices),
       mNodes(nodes.begin(), nodes.end()),
       mAddedNodes(true),
-      mpNodeBoxCollection(NULL),
+      mpBoxCollection(NULL),
       mDeleteNodes(deleteNodes)
 {
     Validate();
@@ -48,7 +48,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool
     : AbstractCellCentreBasedTissue<DIM>(),
       mNodes(nodes.begin(), nodes.end()),
       mAddedNodes(true),
-      mpNodeBoxCollection(NULL),
+      mpBoxCollection(NULL),
       mDeleteNodes(deleteNodes)
 {
     // No Validate() because the cells are not associated with the tissue yet in archiving
@@ -60,7 +60,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
                                       const std::vector<TissueCell>& rCells)
     : AbstractCellCentreBasedTissue<DIM>(rCells),
       mAddedNodes(false),
-      mpNodeBoxCollection(NULL),
+      mpBoxCollection(NULL),
       mDeleteNodes(true)
 {
     mNodes.reserve(rMesh.GetNumNodes());
@@ -93,8 +93,8 @@ NodeBasedTissue<DIM>::~NodeBasedTissue()
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::Clear()
 {
-    delete mpNodeBoxCollection;
-    mpNodeBoxCollection = NULL;
+    delete mpBoxCollection;
+    mpBoxCollection = NULL;
     mNodePairs.clear();
     mDeletedNodeIndices.clear();
     mAddedNodes = false;
@@ -145,12 +145,12 @@ const std::vector<Node<DIM>* >& NodeBasedTissue<DIM>::rGetNodes() const
 template<unsigned DIM>
 void NodeBasedTissue<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize)
 {
-    mpNodeBoxCollection = new NodeBoxCollection<DIM>(cutOffLength, domainSize);
+    mpBoxCollection = new BoxCollection<DIM>(cutOffLength, domainSize);
 
     for (unsigned i=0; i<mNodes.size(); i++)
     {
-        unsigned box_index = mpNodeBoxCollection->CalculateContainingBox(mNodes[i]);
-        mpNodeBoxCollection->rGetBox(box_index).AddNode(mNodes[i]);
+        unsigned box_index = mpBoxCollection->CalculateContainingBox(mNodes[i]);
+        mpBoxCollection->rGetBox(box_index).AddNode(mNodes[i]);
     }
 }
 
@@ -257,9 +257,9 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         Validate();
     }
 
-    if (mpNodeBoxCollection!=NULL)
+    if (mpBoxCollection!=NULL)
     {
-        delete mpNodeBoxCollection;
+        delete mpBoxCollection;
     }
 
     FindMaxAndMin();
@@ -282,10 +282,10 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     }
 
     // Add this parameter and suggest that mechanics systems set it.
-    // Allocates memory for mpNodeBoxCollection and does the splitting and putting nodes into boxes
+    // Allocates memory for mpBoxCollection and does the splitting and putting nodes into boxes
     SplitUpIntoBoxes(TissueConfig::Instance()->GetMechanicsCutOffLength(), domain_size);
 
-    mpNodeBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
+    mpBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
 
     //assert(mNodePairs.size() > 0); // should be possible to have nodes with no connections 
 }
@@ -343,9 +343,9 @@ unsigned NodeBasedTissue<DIM>::GetNumNodes()
 
 
 template<unsigned DIM>
-NodeBoxCollection<DIM>* NodeBasedTissue<DIM>::GetNodeBoxCollection()
+BoxCollection<DIM>* NodeBasedTissue<DIM>::GetBoxCollection()
 {
-    return mpNodeBoxCollection;
+    return mpBoxCollection;
 }
 
 

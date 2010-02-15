@@ -110,6 +110,9 @@ public:
         TS_ASSERT_EQUALS(mesh_pair.mCounters[1], 0u);
         TS_ASSERT_EQUALS(mesh_pair.mCounters[2], 0u);
         mesh_pair.PrintStatistics();
+        
+        mesh_pair.DeleteBoxCollection();
+        TS_ASSERT(mesh_pair.mpFineMeshBoxCollection==NULL);
     }
 
     void TestWithCoarseSlightlyOutsideFine() throw(Exception)

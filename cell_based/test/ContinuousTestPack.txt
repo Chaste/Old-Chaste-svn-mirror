@@ -24,4 +24,3 @@ tissue/TestForces.hpp
 tissue/TestMeshBasedTissue.hpp
 tissue/TestMeshBasedTissueWithGhostNodes.hpp
 tissue/TestNodeBasedTissue.hpp
-tissue/TestNodeBoxCollection.hpp

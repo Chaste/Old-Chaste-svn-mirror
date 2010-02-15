@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellCentreBasedTissue.hpp"
 #include "AbstractTetrahedralMesh.hpp" // for constructor which takes in a mesh
-#include "NodeBoxCollection.hpp"
+#include "BoxCollection.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
@@ -45,7 +45,7 @@ template<unsigned DIM>
 class NodeBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
     friend class TestNodeBasedTissue;
-    friend class TestNodeBoxCollection;
+    friend class TestBoxCollection;
     
 protected:
 
@@ -61,7 +61,7 @@ protected:
 private:
 
     /** Pointer to a Node box collection */
-    NodeBoxCollection<DIM>* mpNodeBoxCollection;
+    BoxCollection<DIM>* mpBoxCollection;
 
     /** Vector of minimal spatial positions in each dimension */
     c_vector<double, DIM> mMinSpatialPositions;
@@ -207,7 +207,7 @@ public:
 
     /**
      * Reset the member variables #mDeletedNodeIndices, #mAddedNodes, #mNodePairs, and
-     * #mpNodeBoxCollection.
+     * #mpBoxCollection.
      */
     void Clear();
 
@@ -235,7 +235,7 @@ public:
     /**
      * @return pointer to a node box collection.
      */
-    NodeBoxCollection<DIM>* GetNodeBoxCollection();
+    BoxCollection<DIM>* GetBoxCollection();
 
     /**
      * @return Node pairs for force calculation.
