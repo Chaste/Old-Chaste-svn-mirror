@@ -27,17 +27,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DistanceMapCalculator.hpp"
-#include "TetrahedralMesh.hpp" //For dynamic cast
+#include "ParallelTetrahedralMesh.hpp" //For dynamic cast
 //#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
-    : mrMesh(rMesh)
+    : mrMesh(rMesh),
+      mWorkOnEntireMesh(true),
+      mNumHalosPerProcess(NULL)
 {
     mNumNodes = mrMesh.GetNumNodes();
-    ///\This is because we want the non-distributed mesh to be worked on in its entirety
-    if ( dynamic_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh) != NULL)
+
+    ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_parallel_mesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
+    if ( PetscTools::IsSequential() || p_parallel_mesh == NULL)
     {
         //It's a non-distributed mesh...
         mLo=0;
@@ -45,9 +48,17 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
     }
     else
     {
-        //It's a parallel (distributed) mesh
+        //It's a parallel (distributed) mesh (p_parallel_mesh is non-null and we are running in parallel)
+        mWorkOnEntireMesh=false;
         mLo = mrMesh.GetDistributedVectorFactory()->GetLow();
         mHi = mrMesh.GetDistributedVectorFactory()->GetHigh();
+        //Get local halo information
+        p_parallel_mesh->GetHaloNodeIndices(mHaloNodeIndices);
+        //Share information on the number of halo nodes
+        unsigned my_size=mHaloNodeIndices.size();
+        mNumHalosPerProcess=new unsigned[PetscTools::GetNumProcs()];
+        MPI_Alltoall(&my_size, 1, MPI_UNSIGNED, 
+                     mNumHalosPerProcess, 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
     }
 }
 
@@ -64,10 +75,6 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     for (unsigned index=0; index<mNumNodes; index++)
     {
         rNodeDistances[index] = DBL_MAX;
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
-        {
-            cart_distances[index][dim] = DBL_MAX;
-        }
     }
 
     for (unsigned index=0; index<rOriginSurface.size(); index++)
@@ -83,7 +90,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
 
     WorkOnLocalQueue(cart_distances, rNodeDistances);
 
-    if (!PetscTools::IsSequential())
+    if (mWorkOnEntireMesh==false)
     {
         //Work out how to take non-local updates
         std::vector<double> best_distances(mNumNodes);

@@ -186,6 +186,12 @@ public:
     unsigned GetNumBoundaryElements() const;
 
     /**
+     * Utility method to give the functionality of iterating through the halo nodes of a process
+     * @param rHaloIndices  A vector to fill with the global indices of the nodes which are locally halos 
+     */
+    void GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const;
+
+    /**
      * Sets the ownership of each element according to which nodes are owned by the
      * process.
      *

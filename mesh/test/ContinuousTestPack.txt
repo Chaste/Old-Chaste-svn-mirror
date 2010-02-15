@@ -1,5 +1,6 @@
 TestChasteRegions.hpp
 TestChastePoint.hpp
+TestDistanceMapCalculator.hpp
 TestElement.hpp
 TestFace.hpp
 TestFemlabMeshReader.hpp

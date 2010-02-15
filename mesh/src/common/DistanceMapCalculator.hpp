@@ -54,6 +54,13 @@ private:
     unsigned mLo;
     /** Local cache of the nodes owned by this process, from mesh's DistributedVectorFactory*/
     unsigned mHi;
+    /** Whether we should work on the entire mesh.  True if sequential.  True is the mesh is a plain TetrahedralMesh.*/
+    bool mWorkOnEntireMesh;
+    /** (Only used when mWorkOnEntrireMesh == false).  This forms an array of with the number of halo nodes known by each process.*/
+    unsigned *mNumHalosPerProcess;
+    /** (Only used when mWorkOnEntrireMesh == false).  This is a local cache of halo node indices.*/
+    std::vector<unsigned> mHaloNodeIndices;
+    
     /*
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
      */
@@ -72,7 +79,7 @@ private:
     /**
      * Push a node index onto the queue.  In the parallel case this will only push a
      * locally-owned (not halo) node.  Halo nodes will be updated, but never pushed to the local queue
-     * 
+     * @param nodeIndex  A global node index.
      */
      void PushLocal(unsigned nodeIndex)
     {
@@ -91,6 +98,13 @@ public:
      * @param rMesh the mesh for which to compute maps
      */
     DistanceMapCalculator(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+     /**
+     * Destructor - cleans up mNumHalosPerProcess (which is normally set to NULL anyway).
+     */
+    ~DistanceMapCalculator()
+    {
+        delete [] mNumHalosPerProcess;
+    }
 
     /**
      *  Generates a distance map of all the nodes of the mesh to the given surface

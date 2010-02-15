@@ -29,7 +29,6 @@ TestCardiacUneven.hpp
 TestChasteParametersReader.hpp
 TestCheckpointing.hpp
 TestConductivityTensors.hpp
-TestDistanceMapCalculator.hpp
 TestElectrodes.hpp
 TestFileFinder.hpp
 TestHeartConfig.hpp

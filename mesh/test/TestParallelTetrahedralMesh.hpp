@@ -794,6 +794,19 @@ public:
             TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 2u);
             //See logic in earlier test
             unsigned expected_elements=owned+1;
+            std::vector<unsigned> halo_indices;
+            small_mesh.GetHaloNodeIndices(halo_indices);
+            /**
+             * 1 Proc:
+             * p0:  0 Ow 1 Ow 2 Ow
+             * 2 Proc:
+             * p0:  0 Ow 1 Ow 2 Ha
+             * p1:       1 Ha 2 Ow
+             * 3 Proc:
+             * p0:  0 Ow 1 Ha
+             * p1:  0 Ha 1 Ow 2 Ha
+             * p2:       2 Ha 3 Ow
+             */ 
             if (PetscTools::AmMaster())
             {
                 expected_elements--;
@@ -801,12 +814,27 @@ public:
                 TS_ASSERT_EQUALS(small_mesh.GetNode(0),small_mesh.GetAnyNode(0));
                 TS_ASSERT_DELTA(small_mesh.GetAnyNode(0)->rGetLocation()[0], 0.0, 1e-5);
                 TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
+                if (PetscTools::IsSequential())
+                {
+                    TS_ASSERT_EQUALS(halo_indices.size(), 0u);
+                }
+                else
+                {
+                    TS_ASSERT_EQUALS(halo_indices.size(), 1u);
+                    TS_ASSERT_DELTA(halo_indices[0], 1u, 1u);//Halo is at index 1 (3 procs) or index 2 (2 procs)
+                }
             }
             if (PetscTools::AmTopMost())
             {
                 expected_elements--;
-                if (!PetscTools::IsSequential())
+                if (PetscTools::IsSequential())
                 {
+                    TS_ASSERT_EQUALS(halo_indices.size(), 0u);
+                }
+                else
+                {
+                    TS_ASSERT_EQUALS(halo_indices.size(), 1u);
+                    TS_ASSERT_EQUALS(halo_indices[0], 1u); //Halo is at index 1 (2 or 3 procs)
                     TS_ASSERT_THROWS_CONTAINS(small_mesh.GetAnyNode(0), "Requested node/halo");
                     //Right processor has  node 1 as halo
                     TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNode(1), "does not belong to processor");

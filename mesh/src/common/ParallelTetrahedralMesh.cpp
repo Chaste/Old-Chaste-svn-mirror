@@ -359,6 +359,17 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements
     return mTotalNumBoundaryElements;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const
+{
+    //Make sure the output vector is empty
+    rHaloIndices.clear();
+    for (unsigned i=0; i<mHaloNodes.size(); i++)
+    {
+        rHaloIndices.push_back(mHaloNodes[i]->GetIndex());
+    }
+}
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
