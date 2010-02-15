@@ -324,36 +324,13 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     {
        mpCardiacMechAssembler->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile);
     }
-    
-    // find the element nums and weights for each gauss point in the mechanics mesh
-    mElementAndWeightsForQuadPoints.resize(mpCardiacMechAssembler->GetTotalNumQuadPoints());
 
-    // get the quad point positions in the mechanics assembler
-    QuadraturePointsGroup<DIM> quad_point_posns(*mpMechanicsMesh, *(mpCardiacMechAssembler->GetQuadratureRule()));
-
-    // find the electrics element and weight for each quad point in the mechanics mesh,
-    // and store
-    unsigned last_element = 0;
-    for(unsigned i=0; i<quad_point_posns.Size(); i++)
-    {
-    	//// this can be slow with certains pairs of mesh? #1198
-		//std::cout << "\r " << i << " of " << quad_point_posns.Size();
-        
-        ChastePoint<DIM> point;
-
-        for(unsigned j=0; j<DIM; j++)
-        {
-            point.rGetLocation()[j]=quad_point_posns.Get(i)[j];
-        }
-
-        unsigned elem_index = mpElectricsMesh->GetContainingElementIndexWithInitialGuess(point, last_element);
-        last_element = elem_index;
-        
-        c_vector<double,DIM+1> weight = mpElectricsMesh->GetElement(elem_index)->CalculateInterpolationWeights(point);
-
-        mElementAndWeightsForQuadPoints[i].ElementNum = elem_index;
-        mElementAndWeightsForQuadPoints[i].Weights = weight;
-    }
+    // set up mesh pair and determine the fine mesh elements and corresponding weights for each
+    // quadrature point in the coarse mesh
+    mpMeshPair = new FineCoarseMeshPair<DIM>(*mpElectricsMesh, *mpMechanicsMesh);
+    mpMeshPair->SetUpBoxesOnFineMesh();
+    mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechAssembler->GetQuadratureRule()));
+    mpMeshPair->DeleteBoxCollection();
 
     if(mWriteOutput)
     {
@@ -491,18 +468,18 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         calcium_repl.Replicate(lo,hi);
         
         
-        for(unsigned i=0; i<mElementAndWeightsForQuadPoints.size(); i++)
+        for(unsigned i=0; i<mpMeshPair->rGetElementsAndWeights().size(); i++)
         {
             double interpolated_CaI = 0;
             double interpolated_voltage = 0;
 
-            Element<DIM,DIM>& element = *(mpElectricsMesh->GetElement(mElementAndWeightsForQuadPoints[i].ElementNum));
+            Element<DIM,DIM>& element = *(mpElectricsMesh->GetElement(mpMeshPair->rGetElementsAndWeights()[i].ElementNum));
             for(unsigned node_index = 0; node_index<element.GetNumNodes(); node_index++)
             {
                 unsigned global_node_index = element.GetNodeGlobalIndex(node_index);
                 double CaI_at_node =  calcium_repl[global_node_index]; 
-                interpolated_CaI += CaI_at_node*mElementAndWeightsForQuadPoints[i].Weights(node_index);
-                interpolated_voltage += voltage_repl[global_node_index]*mElementAndWeightsForQuadPoints[i].Weights(node_index);
+                interpolated_CaI += CaI_at_node*mpMeshPair->rGetElementsAndWeights()[i].Weights(node_index);
+                interpolated_voltage += voltage_repl[global_node_index]*mpMeshPair->rGetElementsAndWeights()[i].Weights(node_index);
             }
 
             interpolated_calcium_concs[i] = interpolated_CaI;

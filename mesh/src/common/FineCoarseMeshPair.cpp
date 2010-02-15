@@ -101,6 +101,10 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
         min_and_max(2*i+1) = mMaxValuesFine(i) + 0.05*fabs(mMaxValuesFine(i));
     }
     
+    if(boxWidth < 0)
+    {
+        boxWidth = (min_and_max(1) - min_and_max(0))/9; // BoxCollection creates an extra box so divide by 9 not 10
+    }
     mpFineMeshBoxCollection = new BoxCollection<DIM>(boxWidth, min_and_max);
 
     // for each element, if ANY of its nodes are physically in a box, put that element 

@@ -166,30 +166,21 @@ public:
         mesh_pair.PrintStatistics();
     }
 
-
-    void xxxTestExperiment() throw(Exception)
+    void TestWithDefaultBoxWidth() throw(Exception)
     {
-        TetrahedralMesh<3,3> electrics_mesh;
-        QuadraticMesh<3> mechanics_mesh;
+        // fine mesh is has h=0.1, on unit cube (so 6000 elements)
+        TetrahedralMesh<3,3> fine_mesh;
+        fine_mesh.ConstructCuboid(10,10,10);
+        fine_mesh.Scale(0.1, 0.1, 0.1);
 
-        {
-            TrianglesMeshReader<3,3> reader1("projects/pras/test/data/Rat/rat_d1");
-            electrics_mesh.ConstructFromMeshReader(reader1);
-
-            TrianglesMeshReader<3,3> reader2("/home/chaste/Desktop/rat_8125nodes_quadratic",2,2);
-            mechanics_mesh.ConstructFromMeshReader(reader2);
-        }
+        // coarse mesh is has h=1 on unit cube (so 6 elements)
+        QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1, 1, 1);
         
-        FineCoarseMeshPair<3> mesh_pair(electrics_mesh,mechanics_mesh);
+        FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
         
-        std::cout << mesh_pair.mMinValuesFine(0) << " " << mesh_pair.mMaxValuesFine(0) << "\n";
-
-        mesh_pair.SetUpBoxesOnFineMesh(0.1);
-        std::cout << mesh_pair.mpFineMeshBoxCollection->GetNumBoxes() << "\n";
-        GaussianQuadratureRule<3> quad_rule(3);
-        mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule);
+        mesh_pair.SetUpBoxesOnFineMesh();
         
-        mesh_pair.PrintStatistics();
+        TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 10*10*10u);
     }
 };
 

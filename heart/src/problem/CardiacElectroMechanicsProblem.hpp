@@ -40,28 +40,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include "AbstractOdeBasedContractionModel.hpp"
 #include "AbstractCardiacMechanicsAssembler.hpp"
+#include "FineCoarseMeshPair.hpp"
 
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
-
-
-// EMTODO: make elements and weights safer?
-
-
-
-/**
- *  At the beginning of a two mesh simulation we need to figure out and store
- *  which (electrics-mesh) element each (mechanics-mesh) gauss point is in, and
- *  what the weight of that gauss point for that particular element is. This struct
- *  just contains this two pieces of data
- */
-template<unsigned DIM>
-struct ElementAndWeights
-{
-    unsigned ElementNum; /**< Which element*/
-    c_vector<double,DIM+1> Weights; /**<Gauss weights for this element*/
-};
-
 
 
 /**
@@ -123,12 +105,8 @@ protected :
     /** The mesh for the mechanics */
     QuadraticMesh<DIM>* mpMechanicsMesh;
 
-    /**
-     *  The (electrics-mesh) element numbers saying which element each
-     *  (mechanics-mesh) gauss point is in, and the weight of that gauss point
-     *  for that particular element.
-     */
-    std::vector<ElementAndWeights<DIM> > mElementAndWeightsForQuadPoints;
+    /** Class wrapping both meshes, useful for transferring information */
+    FineCoarseMeshPair<DIM>* mpMeshPair;
 
     /** Output directory, relative to TEST_OUTPUT */
     std::string mOutputDirectory;

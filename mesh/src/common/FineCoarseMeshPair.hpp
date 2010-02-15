@@ -113,10 +113,13 @@ public:
      *  Set up boxes on fine mesh. The elements contained in each box is stored, which makes
      *  finding the containing element for a given point much faster.
      *  This should be called before ComputeFineElementsAndWeightsForCoarseQuadPoints() etc
+     * 
      *  @param boxWidth width to use for the boxes (which will be cubes). Note that a domain
-     *  which is a touch larger than the smallest containing cuboid of the fine mesh is used.
+     *    which is a touch larger than the smallest containing cuboid of the fine mesh is used.
+     *    boxWidth defaults to a negative value, in which case a box width such that there are
+     *    approximately 10 boxes in the x-direction.
      */
-    void SetUpBoxesOnFineMesh(double boxWidth);
+    void SetUpBoxesOnFineMesh(double boxWidth = -1);
     
     /**
      * Set up the containing (fine) elements and corresponding weights for all the  
