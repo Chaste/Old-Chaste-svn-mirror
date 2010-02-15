@@ -117,7 +117,7 @@ public:
      *  @param boxWidth width to use for the boxes (which will be cubes). Note that a domain
      *    which is a touch larger than the smallest containing cuboid of the fine mesh is used.
      *    boxWidth defaults to a negative value, in which case a box width such that there are
-     *    approximately 10 boxes in the x-direction.
+     *    approximately 15 boxes in the x-direction.
      */
     void SetUpBoxesOnFineMesh(double boxWidth = -1);
     
