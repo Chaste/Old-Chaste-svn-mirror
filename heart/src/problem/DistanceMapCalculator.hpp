@@ -50,17 +50,38 @@ private:
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& mrMesh;
     /** Number of nodes in the mesh*/
     unsigned mNumNodes;
-
+    /** Local cache of the nodes owned by this process, from mesh's DistributedVectorFactory*/
+    unsigned mLo;
+    /** Local cache of the nodes owned by this process, from mesh's DistributedVectorFactory*/
+    unsigned mHi;
+    /*
+     * Queue of nodes to be processed (initialised with the nodes defining the surface)
+     */
+    std::queue<unsigned> mActiveNodeIndexQueue;
+ 
     /**
      * Work on the Queue of node indices (grass-fire across the mesh)
      * 
-     * @param activeNodeIndexQueue  The queue of node indices
      * @param cartDistances  An list of the minimum distance of each node to the source
      * @param rNodeDistances distance map computed
      */  
-     void WorkOnLocalQueue(std::queue<unsigned>& activeNodeIndexQueue, 
-                          std::vector< c_vector<double, SPACE_DIM> >& cartDistances,
+    void WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& cartDistances,
                           std::vector<double>& rNodeDistances);
+                          
+    
+    /**
+     * Push a node index onto the queue.  In the parallel case this will only push a
+     * locally-owned (not halo) node.  Halo nodes will be updated, but never pushed to the local queue
+     * 
+     */
+     void PushLocal(unsigned nodeIndex)
+    {
+       
+        if (mLo<=nodeIndex && nodeIndex<mHi)
+        {
+            mActiveNodeIndexQueue.push(nodeIndex);
+        }
+    }                           
 
 public:
 

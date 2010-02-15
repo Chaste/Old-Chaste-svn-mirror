@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DistanceMapCalculator.hpp"
+#include "TetrahedralMesh.hpp" //For dynamic cast
 //#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -35,6 +36,19 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
     : mrMesh(rMesh)
 {
     mNumNodes = mrMesh.GetNumNodes();
+    ///\This is because we want the non-distributed mesh to be worked on in its entirety
+    if ( dynamic_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh) != NULL)
+    {
+        //It's a non-distributed mesh...
+        mLo=0;
+        mHi=mNumNodes;
+    }
+    else
+    {
+        //It's a parallel (distributed) mesh
+        mLo = mrMesh.GetDistributedVectorFactory()->GetLow();
+        mHi = mrMesh.GetDistributedVectorFactory()->GetHigh();
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -56,13 +70,9 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         }
     }
 
-    /*
-     * Queue of nodes to be processed (initialised with the nodes defining the surface)
-     */
-    std::queue<unsigned> active_nodes;
     for (unsigned index=0; index<rOriginSurface.size(); index++)
     {
-        active_nodes.push(rOriginSurface[index]);
+        PushLocal(rOriginSurface[index]);
         rNodeDistances[rOriginSurface[index]] = 0.0;
 
         for (unsigned dim=0; dim<SPACE_DIM; dim++)
@@ -71,32 +81,39 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         }
     }
 
-    WorkOnLocalQueue(active_nodes, cart_distances, rNodeDistances);
-    
-    //Finish up -- check data invariant (in non-parallel cases)
-    for (unsigned index=0; index<mNumNodes; index++)
-    {
-        if (rNodeDistances[index] != DBL_MAX)
-        {
-            assert(fabs(rNodeDistances[index] - norm_2(cart_distances[index])) < 1e-13);
-        }
-        //PRINT_3_VARIABLES(fabs(rNodeDistances[index]-norm_2(cart_distances[index])), rNodeDistances[index], norm_2(cart_distances[index]))
-    }
+    WorkOnLocalQueue(cart_distances, rNodeDistances);
 
+    if (!PetscTools::IsSequential())
+    {
+        //Work out how to take non-local updates
+        std::vector<double> best_distances(mNumNodes);
+        MPI_Allreduce(&rNodeDistances[0], &best_distances[0], mNumNodes, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
+        for (unsigned index=0;index<mNumNodes;index++)
+        {
+            if (best_distances[index] < rNodeDistances[index])
+            {
+                PushLocal(index);
+                rNodeDistances[index]=best_distances[index];
+            }
+        }
+        if (!mActiveNodeIndexQueue.empty())
+        {
+            std::cout<<mActiveNodeIndexQueue.size()<<"\n";
+        }
+    }
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::queue<unsigned>& activeNodeIndexQueue, 
-                                                                     std::vector< c_vector<double, SPACE_DIM> >& cartDistances,
+void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& cartDistances,
                                                                      std::vector<double>& rNodeDistances)
 {
-   while (!activeNodeIndexQueue.empty())
+   while (!mActiveNodeIndexQueue.empty())
     {
         // Get a pointer to the next node in the queue
-        unsigned current_node_index = activeNodeIndexQueue.front();
+        unsigned current_node_index = mActiveNodeIndexQueue.front();
         //PRINT_VARIABLES(activeNodeIndexQueue.size(), current_node_index);
-        activeNodeIndexQueue.pop();
+        mActiveNodeIndexQueue.pop();
         
         try 
         {
@@ -115,6 +132,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::queue<
                    node_local_index<p_containing_element->GetNumNodes();
                    node_local_index++)
                {
+                    ///\todo - This line is dangerous if it throws
                     Node<SPACE_DIM>* p_neighbour_node = p_containing_element->GetNode(node_local_index);
                     unsigned neighbour_node_index = p_neighbour_node->GetIndex();
     
@@ -130,7 +148,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::queue<
                                                                    + (p_current_node->rGetLocation() - p_neighbour_node->rGetLocation());
                             //This will save some sqrts later...
                             rNodeDistances[neighbour_node_index] = norm_2(cartDistances[neighbour_node_index]);                                      
-                            activeNodeIndexQueue.push(neighbour_node_index);
+                            PushLocal(neighbour_node_index);
                         }
                     }
                }//Node
@@ -139,6 +157,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::queue<
         catch (Exception &e)
         {
             //Node in the queue doesn't belong to process
+            NEVER_REACHED;
         }
 
     }
