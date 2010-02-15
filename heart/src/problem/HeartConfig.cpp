@@ -726,7 +726,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                                                  & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
                                                  "CellHeterogeneities")->get().CellHeterogeneity();
     
-    bool user_suuplied_negative_value = false;
+    bool user_supplied_negative_value = false;
     bool user_asking_for_transmural_layers = false;
     unsigned counter_of_heterogeneities = 0;
     
@@ -781,7 +781,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                 user_asking_for_transmural_layers = true;
                 if (mEpiFraction <0)
                 {
-                    user_suuplied_negative_value=true;
+                    user_supplied_negative_value=true;
                 }
                 mIndexEpi = counter_of_heterogeneities;
             }  
@@ -792,7 +792,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                 user_asking_for_transmural_layers = true;
                 if (mEndoFraction <0)
                 {
-                    user_suuplied_negative_value=true;
+                    user_supplied_negative_value=true;
                 }
                 mIndexEndo = counter_of_heterogeneities;
             }                                                                                                                              
@@ -803,7 +803,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                 user_asking_for_transmural_layers = true;
                 if (mMidFraction <0)
                 {
-                    user_suuplied_negative_value=true;
+                    user_supplied_negative_value=true;
                 }  
                 mIndexMid =  counter_of_heterogeneities;
             }   
@@ -841,7 +841,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         { 
             EXCEPTION ("Summation of epicardial, midmyocardial and endocardial fractions should be 1");
         }                 
-        if (user_suuplied_negative_value)
+        if (user_supplied_negative_value)
         {
            EXCEPTION ("Fractions must be positive");
         }
