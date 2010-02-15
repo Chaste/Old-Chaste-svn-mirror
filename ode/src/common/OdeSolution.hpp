@@ -115,8 +115,6 @@ public:
      *
      * @param directoryName  the directory in which to write the data to file
      * @param baseResultsFilename  the name of the file in which to write the data
-     * @param pOdeSystem  pointer to the ODE system's information
-     *                     (needed for state variable names and units)
      * @param timeUnits  name of the units of time used
      * @param stepsPerRow  the solution to the ODE system is written to file every
      *                    this number of timesteps (defaults to 1)
