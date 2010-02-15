@@ -255,8 +255,14 @@ public:
      *      not on an edge/face/vertex (default = not strict)
      * @param testElements  a set of guesses for the element (a set of element indices), to be checked
      *      first for potential efficiency improvements. (default = empty set)
+     * @param onlyTryWithElements Do not continue with other elements after trying the with testElements
+     *      (for cases where you know the testPoint must be in the set of test elements or maybe outside 
+     *      the mesh).  
      */
-    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict=false, std::set<unsigned> testElements=std::set<unsigned>());
+    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, 
+                                       bool strict=false, 
+                                       std::set<unsigned> testElements=std::set<unsigned>(),
+                                       bool onlyTryWithTestElements = false);
 
 
     /**

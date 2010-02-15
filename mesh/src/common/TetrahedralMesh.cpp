@@ -617,7 +617,10 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, bool strict, std::set<unsigned> testElements)
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, 
+                                                                            bool strict, 
+                                                                            std::set<unsigned> testElements,
+                                                                            bool onlyTryWithTestElements)
 {
     for (std::set<unsigned>::iterator iter=testElements.begin(); iter!=testElements.end(); iter++)
     {
@@ -629,14 +632,16 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
         }
     }
 
-    ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
-    ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
-    for (unsigned i=0; i<this->mElements.size(); i++)
+    if(!onlyTryWithTestElements)
     {
-        ///\todo What if the element is deleted?
-        if (this->mElements[i]->IncludesPoint(testPoint, strict))
+        ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
+        for (unsigned i=0; i<this->mElements.size(); i++)
         {
-            return i;
+            ///\todo What if the element is deleted?
+            if (this->mElements[i]->IncludesPoint(testPoint, strict))
+            {
+                return i;
+            }
         }
     }
 
@@ -647,7 +652,15 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
     {
         ss << testPoint[j] << ",";
     }
-    ss << testPoint[SPACE_DIM-1] << "] is not in mesh - all elements tested";
+    ss << testPoint[SPACE_DIM-1] << "] is not in ";
+    if(!onlyTryWithTestElements)
+    {
+        ss << "mesh - all elements tested";
+    }
+    else
+    {
+        ss << "set of elements given";
+    }
     EXCEPTION(ss.str());
 }
 
