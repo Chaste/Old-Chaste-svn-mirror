@@ -93,18 +93,18 @@ private:
     template<class Problem, unsigned SPACE_DIM>
     void CreateAndRun()
     {
-        Problem* p_problem;
+        std::auto_ptr<Problem> p_problem;
 
         if (HeartConfig::Instance()->IsSimulationDefined())
         {
             HeartConfigRelatedCellFactory<SPACE_DIM> cell_factory;
-            p_problem = new Problem(&cell_factory);
+            p_problem.reset(new Problem(&cell_factory));
 
             p_problem->Initialise();
         }
         else // (HeartConfig::Instance()->IsSimulationResumed())
         {
-            p_problem = CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir());
+            p_problem.reset(CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir()));
         }
 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
@@ -128,7 +128,7 @@ private:
                 // Archive simulation (in a subdirectory of checkpoint_dir_basename).
                 std::stringstream archive_foldername;
                 archive_foldername << HeartConfig::Instance()->GetOutputDirectory() << "_" << HeartConfig::Instance()->GetSimulationDuration() << "ms";
-                CardiacSimulationArchiver<Problem>::Save(*p_problem, checkpoint_dir_basename + archive_foldername.str(), false);
+                CardiacSimulationArchiver<Problem>::Save(*(p_problem.get()), checkpoint_dir_basename + archive_foldername.str(), false);
 
                 // Put a copy of the partial results aside (in a subdirectory of checkpoint_dir_basename).
                 OutputFileHandler checkpoint_dir_basename_handler(checkpoint_dir_basename, false);
@@ -146,8 +146,6 @@ private:
         {
             p_problem->Solve();
         }
-
-        delete p_problem;
     }
 
     /**

@@ -56,6 +56,11 @@ public:
             TS_ASSERT(file_finder2.Exists());
             // Check the path is as expected
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
+            
+            // Alternative constructor
+            FileFinder file_finder3(file_name, cp::relative_to_type::chaste_source_root);
+            TS_ASSERT(file_finder3.Exists());
+            TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
         }
         
         {
@@ -81,6 +86,11 @@ public:
             FileFinder file_finder2(path_abs);
             TS_ASSERT(file_finder2.Exists());
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
+            
+            // Alternative constructor
+            FileFinder file_finder3(abs_path, cp::relative_to_type::absolute);
+            TS_ASSERT(file_finder3.Exists());
+            TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
         }
     }    
 };

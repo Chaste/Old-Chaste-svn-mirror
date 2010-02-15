@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 #include "CompareHdf5ResultsFiles.hpp"
+#include "FileFinder.hpp"
 
 class TestCardiacSimulation : public CxxTest::TestSuite
 {
@@ -246,14 +247,21 @@ public:
     }
     void TestExceptions() throw(Exception)
     {
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/monodomain8d_small.xml"), "Monodomain space dimension not supported: should be 1, 2 or 3");
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain8d_small.xml"), "Bidomain space dimension not supported: should be 1, 2 or 3");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/monodomain8d_small.xml"),
+                              "Monodomain space dimension not supported: should be 1, 2 or 3");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain8d_small.xml"),
+                              "Bidomain space dimension not supported: should be 1, 2 or 3");
 
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/base_monodomain_frankenstein.xml"),
-          "XML parsing error in configuration file: heart/test/data/xml/base_monodomain_frankenstein.xml");
+                              "XML parsing error in configuration file: heart/test/data/xml/base_monodomain_frankenstein.xml");
         
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("no file"),"Missing file parsing configuration file: no file");
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(""),"No XML file name given");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("no file"),
+                              "Missing file parsing configuration file: no file");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(""), "No XML file name given");
+        
+        FileFinder model("file_does_not_exist.so", cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
+                              "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");
     }
 };
 

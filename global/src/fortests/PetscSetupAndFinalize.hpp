@@ -86,12 +86,12 @@ public:
                                     PETSC_NULL, PETSC_NULL) );
 
         // Check that the working directory is correct, or many tests will fail.
-        std::string cwd = GetCurrentWorkingDirectory();
+        std::string cwd = GetCurrentWorkingDirectory() + "/";
         if (strcmp(cwd.c_str(), ChasteBuildRootDir()) != 0)
         {
 #define COVERAGE_IGNORE
             // Change directory
-            std::cout << "Changing directory from '" << cwd << "' to '" << ChasteBuildRootDir() << "'." << std::endl;
+            std::cout << std::endl << "Changing directory from '" << cwd << "' to '" << ChasteBuildRootDir() << "'." << std::endl;
             EXPECT0(chdir, ChasteBuildRootDir());
             std::cout << "CWD now: " << GetCurrentWorkingDirectory() << std::endl;
 #undef COVERAGE_IGNORE

@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <memory>
+
 #include "HeartConfigRelatedCellFactory.hpp"
 #include "HeartGeometryInformation.hpp"
 #include "ChasteNodesList.hpp"
@@ -44,10 +46,22 @@ class DynamicModelLoaderRegistry
 {
 public:
     /**
-     * Get the loader for the given .so file
+     * Get the single instance of the registry.
+     */
+    static DynamicModelLoaderRegistry* Instance()
+    {
+        if (!mpInstance.get())
+        {
+            mpInstance.reset(new DynamicModelLoaderRegistry());
+        }
+        return mpInstance.get();
+    }
+    
+    /**
+     * Get the loader for the given .so file.
      * @param rPath  absolute path to the .so
      */
-    static DynamicCellModelLoader* GetLoader(const std::string& rPath)
+    DynamicCellModelLoader* GetLoader(const std::string& rPath)
     {
         // Have we opened this library already?
         std::map<std::string, DynamicCellModelLoader*>::iterator it = mLoaders.find(rPath);
@@ -59,16 +73,59 @@ public:
         return mLoaders[rPath];
     }
     
+    /**
+     * Get the loader for the given .so file.
+     * @param rFileFinder  finder for the .so file
+     */
+    DynamicCellModelLoader* GetLoader(const FileFinder& rFileFinder)
+    {
+        return GetLoader(rFileFinder.GetAbsolutePath());
+    }
+    
+    /**
+     * Destructor closes all loaded .so files.
+     */
+    ~DynamicModelLoaderRegistry()
+    {
+        for (std::map<std::string, DynamicCellModelLoader*>::iterator it=mLoaders.begin();
+             it != mLoaders.end();
+             ++it)
+        {
+            delete (it->second);
+        }
+    }
+
 private:
     /**
      * Loaders for shared-library cell models.
      * Map is from absolute path of the library, to loader object.
      */
-    static std::map<std::string, DynamicCellModelLoader*> mLoaders;
+    std::map<std::string, DynamicCellModelLoader*> mLoaders;
+    
+    /** The single instance of this class. */
+    static std::auto_ptr<DynamicModelLoaderRegistry> mpInstance;
+    
+    /**
+     * Private constructor; all access should be via Instance().
+     */
+    DynamicModelLoaderRegistry()
+    {
+    }
+
+    /**
+     * Copy constructor.
+     */
+    DynamicModelLoaderRegistry(const DynamicModelLoaderRegistry&);
+
+    /**
+     * Overloaded assignment operator.
+     */
+    DynamicModelLoaderRegistry& operator= (const DynamicModelLoaderRegistry&);
+    
 };
 
-/** The loader registry data */
-std::map<std::string, DynamicCellModelLoader*> DynamicModelLoaderRegistry::mLoaders;
+/** The loader registry instance */
+std::auto_ptr<DynamicModelLoaderRegistry> DynamicModelLoaderRegistry::mpInstance;
 
 
 
@@ -139,12 +196,12 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     {
         // Load model from shared library
         FileFinder file_finder(ionic_model.Dynamic()->Path());
-        std::string path = file_finder.GetAbsolutePath();
         if (!file_finder.Exists())
         {
+            std::string path = file_finder.GetAbsolutePath();
             EXCEPTION("Dynamically loadable cell model '" + path + "' does not exist.");
         }
-        DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::GetLoader(path);
+        DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(file_finder);
         return p_loader->CreateCell(this->mpSolver, intracellularStimulus);
     }
     else

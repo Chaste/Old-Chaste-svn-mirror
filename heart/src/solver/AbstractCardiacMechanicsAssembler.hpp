@@ -89,7 +89,7 @@ protected:
     
     /** Check whether the given matrix is orthogonal, by computing A^T A and verifying whether each
       * component matches the identity matrix, to a given tolerance.
-      * @param rOrthogonalMatrix reference to the matrix being tested
+      * @param rMatrix reference to the matrix being tested
       */
     void CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
     {

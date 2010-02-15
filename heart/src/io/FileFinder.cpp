@@ -36,6 +36,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 FileFinder::FileFinder(const cp::path_type& rPath)
 {
+    SetAbsolutePath(rPath);
+}
+
+FileFinder::FileFinder(const std::string& rPath, cp::relative_to_type relativeTo)
+{
+    cp::path_type path(rPath);
+    path.relative_to(relativeTo);
+    SetAbsolutePath(path);
+}
+
+
+void FileFinder::SetAbsolutePath(const cp::path_type& rPath)
+{
     std::string leaf_path(rPath);
     
     switch (rPath.relative_to())
@@ -63,16 +76,16 @@ FileFinder::FileFinder(const cp::path_type& rPath)
     }
 }
 
-bool FileFinder::Exists()
+bool FileFinder::Exists() const
 {
-    std::ifstream file(mAbsPath.c_str(), std::ifstream::in );
+    std::ifstream file(mAbsPath.c_str());
     bool exists = file.is_open();
     file.close();
     
     return exists;
 }
     
-std::string FileFinder::GetAbsolutePath()
+std::string FileFinder::GetAbsolutePath() const
 {    
     return mAbsPath;
 }
