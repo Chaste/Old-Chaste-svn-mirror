@@ -147,7 +147,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
 
     for(unsigned i=0; i<quad_point_posns.Size(); i++)
     {
-        std::cout << "\r " << i << " of " << quad_point_posns.Size();
+        //std::cout << "\r " << i << " of " << quad_point_posns.Size();
         // get the box this point is in
         unsigned box_for_this_point = mpFineMeshBoxCollection->CalculateContainingBox( quad_point_posns.Get(i) );
         
