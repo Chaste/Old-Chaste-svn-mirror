@@ -5,7 +5,6 @@ TestDistanceMapCalculator.hpp
 TestElement.hpp
 TestFace.hpp
 TestFemlabMeshReader.hpp
-TestFineCoarseMeshPair.hpp
 TestInventorVoronoiWriter.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp

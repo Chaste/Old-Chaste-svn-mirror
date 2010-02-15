@@ -2,6 +2,7 @@ Test1D3DLinearEllipticAssembler.hpp
 TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
 TestConstBoundaryCondition.hpp
+TestFineCoarseMeshPair.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
