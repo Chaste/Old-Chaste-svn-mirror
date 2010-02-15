@@ -60,7 +60,17 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
     for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
     {
         unsigned global_index = ownership_range_low + local_index;
-        mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+        try
+        {
+            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+        }
+        catch (const Exception& e)
+        {
+            // Free already created cells before re-throwing
+            mCellsDistributed.resize(local_index);
+            DeleteCells(mMeshUnarchived);
+            throw e;
+        }
     }
 
     pCellFactory->FinaliseCellCreation(&mCellsDistributed,
@@ -94,7 +104,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
+void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool deleteFakeCells)
 {
     std::set<FakeBathCell*> fake_cells;
     for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
@@ -112,13 +122,9 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
             fake_cells.insert(p_fake);
         }
     }
-
-    delete mpIntracellularConductivityTensors;
     
-    // If the mesh was unarchived we need to free it explicitly.
-    if (mMeshUnarchived)
+    if (deleteFakeCells)
     {
-        delete mpMesh;
         // Likewise for fake cells
         for (std::set<FakeBathCell*>::iterator it = fake_cells.begin();
              it != fake_cells.end();
@@ -126,6 +132,20 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
         {
             delete (*it);
         }
+    }
+}
+
+template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
+AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
+{
+    DeleteCells(mMeshUnarchived);
+
+    delete mpIntracellularConductivityTensors;
+    
+    // If the mesh was unarchived we need to free it explicitly.
+    if (mMeshUnarchived)
+    {
+        delete mpMesh;
     }
 }
 

@@ -2003,7 +2003,7 @@ void HeartConfig::CheckTimeSteps() const
 
     if (GetPdeTimeStep()>GetPrintingTimeStep())
     {
-        EXCEPTION("Printing time-step should not be smaller than PDE time step");
+        EXCEPTION("Printing time-step should not be smaller than PDE time-step");
     }
 
     //If pde divides printing then the floating remainder ought to be close to
@@ -2017,14 +2017,14 @@ void HeartConfig::CheckTimeSteps() const
 
     if ( GetOdeTimeStep() > GetPdeTimeStep() )
     {
-        EXCEPTION("Ode time-step should not be greater than pde time-step");
+        EXCEPTION("Ode time-step should not be greater than PDE time-step");
     }
 
     if (GetCheckpointSimulation())
     {
         if (GetCheckpointTimestep() <= 0.0)
         {
-            EXCEPTION("Printing time-step should be positive");
+            EXCEPTION("Checkpoint time-step should be positive");
         }
 
         //If printing divides checkpoint then the floating remainder ought to be close to
@@ -2034,7 +2034,7 @@ void HeartConfig::CheckTimeSteps() const
         // I (migb) had to scale DBL_EPSILON because the comparison wasn't working properly with GetCheckpointTimestep()=10.0 GetPrintingTimeStep()=0.1
         if ( remainder_checkpoint_over_printing > DBL_EPSILON && remainder_checkpoint_over_printing < GetPrintingTimeStep()-DBL_EPSILON*(1/GetPrintingTimeStep()))
         {
-            EXCEPTION("Checkpoint time-step should be a multiple of printing time step");
+            EXCEPTION("Checkpoint time-step should be a multiple of printing time-step");
         }
     }
 }

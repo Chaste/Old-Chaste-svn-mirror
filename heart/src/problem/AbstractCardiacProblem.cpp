@@ -221,6 +221,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     ///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
     delete mpCardiacPde; // In case we're called twice
     mpCardiacPde = CreateCardiacPde();
+    ///\todo The above line isn't accounted for by the event handler, and can be expensive (e.g. conductivity tensors)
 
     // Delete any previous solution, so we get a fresh initial condition
     if (mSolution)

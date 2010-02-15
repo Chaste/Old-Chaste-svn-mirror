@@ -243,7 +243,9 @@ public:
                 TS_ASSERT(fabs(data1_norm-data2_norm) < 1e-10);
             }
         }
-
+        
+        VecDestroy(data1);
+        VecDestroy(data2);
     }
     void TestExceptions() throw(Exception)
     {

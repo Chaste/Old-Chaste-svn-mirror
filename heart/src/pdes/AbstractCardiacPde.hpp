@@ -173,6 +173,12 @@ protected:
      * Whether the mesh was unarchived or got from elsewhere.
      */
     bool mMeshUnarchived;
+    
+    /**
+     * Helper method for destructor.
+     * @param deleteFakeCells  whether to delete fake bath cells
+     */
+    void DeleteCells(bool deleteFakeCells);
 
 public:
     /**
