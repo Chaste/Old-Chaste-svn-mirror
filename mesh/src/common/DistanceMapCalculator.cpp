@@ -89,7 +89,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     }
 
     bool non_empty_queue=true;
-    unsigned round_counter;
+    unsigned round_counter=0;
     while (non_empty_queue)
     {
         WorkOnLocalQueue(cart_distances, rNodeDistances);
