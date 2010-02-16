@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::PostProcessingWriter(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute)
+PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::PostProcessingWriter(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute)
                                 : mrMesh(rMesh)
 {
     mpDataReader = new Hdf5DataReader(directory, hdf5File, makeAbsolute);
@@ -141,6 +141,8 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
         }
         p_file->close();
     }
+    PetscTools::Barrier();
+    
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -174,6 +176,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double t
         }
         p_file->close();
     }
+    PetscTools::Barrier();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -207,6 +210,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(d
          }
          p_file->close();
     }
+    PetscTools::Barrier();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -241,6 +245,8 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(un
          }
          p_file->close();
     }
+    PetscTools::Barrier();
+    
 }
 
 /////////////////////////////////////////////////////////////////////

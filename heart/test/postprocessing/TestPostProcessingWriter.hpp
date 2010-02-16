@@ -40,7 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistanceMapCalculator.hpp"
 #include "HeartConfig.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "TetrahedralMesh.hpp"
+#include "ParallelTetrahedralMesh.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestPostProcessingWriter : public CxxTest::TestSuite
 {
@@ -56,7 +57,7 @@ public:
     void TestWriterMethods() throw(Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements"); 
-        TetrahedralMesh<1,1> mesh;
+        ParallelTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
@@ -100,7 +101,7 @@ public:
     void TestApdWritingWithNoApdsPresent() throw(Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements"); 
-        TetrahedralMesh<1,1> mesh;
+        ParallelTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
@@ -117,7 +118,7 @@ public:
     void TestPostProcessWriting() throw (Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements"); 
-        TetrahedralMesh<1,1> mesh;
+        ParallelTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         std::vector<std::pair<double,double> > apd_maps;

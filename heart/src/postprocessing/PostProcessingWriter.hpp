@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Hdf5DataReader.hpp"
 #include "PropagationPropertiesCalculator.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include <string>
 
 /**
@@ -42,9 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * - Upstroke Velocity map
  * - Conduction Velocity map
  * 
- * If you want to use this class after doing a ParallelTetrahedralMesh simulation then you have
- * to re-read the mesh as a NonCachedTetrahedralMesh (sequential low-memory representation), and pass
- * that to this class instead. 
  */ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class PostProcessingWriter
@@ -56,7 +53,7 @@ private:
     Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to build the PropagationPropertiesCalculator */
     PropagationPropertiesCalculator* mpCalculator; /**< PropagationPropertiesCalculator based on HDF5 data reader*/
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
-    TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used to calculate the distance map to pass to the conduction velocity calculator*/
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used to calculate the distance map to pass to the conduction velocity calculator*/
 
 public:
     /**
@@ -67,7 +64,7 @@ public:
      * @param hdf5File The file the data is in.
      * @param makeAbsolute Whether to convert the path to absolute using the OutputFileHandler (via the HdfDataReader)
      */
-    PostProcessingWriter(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute);
+    PostProcessingWriter(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, std::string directory, std::string hdf5File, bool makeAbsolute);
 
     /**
      *  Write out data files. The data that is written depends on which maps have been requested using
