@@ -95,14 +95,12 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         WorkOnLocalQueue(cart_distances, rNodeDistances);
         non_empty_queue=UpdateQueueFromRemote(cart_distances, rNodeDistances);
         //Sanity - check that we aren't doing this very many times
-        assert(round_counter++ <= PetscTools::GetNumProcs());
+        assert(round_counter++ <= PetscTools::GetNumProcs()+2);
     }
 
 
     if (mWorkOnEntireMesh==false)
     {
-        assert(round_counter>1);
-        PRINT_VARIABLE(round_counter);
         //Update all processes with the best values from everywhere
         //Take a local copy
         std::vector<double> local_distances=rNodeDistances;
@@ -140,6 +138,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
                 index_exchange[index] = (double) mHaloNodeIndices[index]; 
             }
         }
+
         //Broadcast - this is can be done by casting indices to double and packing everything
         //into a single array.  That would be better for latency, but this is probably more readable.
         MPI_Bcast(cart_exchange, (SPACE_DIM) * mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
@@ -151,7 +150,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
         if (PetscTools::GetMyRank() != bcast_process)
         {
             //Receiving process take updates
-            for (unsigned index=0; index<mHaloNodeIndices.size();index++)
+            for (unsigned index=0; index<mNumHalosPerProcess[bcast_process];index++)
             {
                 unsigned global_index=index_exchange[index];
                 //Is it a better answer?
@@ -183,9 +182,8 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
 {
    while (!mActiveNodeIndexQueue.empty())
     {
-        // Get a pointer to the next node in the queue
+        // Get the next index in the queue
         unsigned current_node_index = mActiveNodeIndexQueue.front();
-        //PRINT_VARIABLES(activeNodeIndexQueue.size(), current_node_index);
         mActiveNodeIndexQueue.pop();
         
         try 
