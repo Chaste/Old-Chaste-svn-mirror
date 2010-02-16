@@ -444,7 +444,7 @@ private:
                                                       unsigned numVars,
                                                       double endTime=0.0)
     {
-        // Simulate this problem
+      // Simulate this problem
         SetOutputDirAndEndTime(rArchiveDirectory, rRefArchiveDir, "mig1", endTime);
         pProblem->Solve();
         // Copy the results vector
@@ -663,11 +663,16 @@ public:
         bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
         
-        bidomain_problem.Initialise();
         
-	bidomain_problem.Solve(); // We solve for a small period of time so BCC are created (next test wants to check it)
+	// We solve for a small period of time so BCCs are created (next test wants to check it)
+        HeartConfig::Instance()->SetSimulationDuration(0.1);
+        bidomain_problem.Initialise();
+        bidomain_problem.Solve();  
 
-        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory);
+	// We increase the simulation time so next test finds something left to simulate in the archive
+        HeartConfig::Instance()->SetSimulationDuration(0.2);
+
+        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
         
         delete p_mesh;
     }
@@ -688,7 +693,7 @@ public:
         BidomainProblem<2>* p_problem;
         // Do the migration to sequential
         const unsigned num_cells = 221u;
-        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, false, 0.2);
+        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, false, 0.1);
 
         // All cells should have no stimulus.
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -841,7 +846,7 @@ private:
 public:
     /**
      * Run this in sequential to create the archive for TestLoadFromSequential.
-     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1_3"
+     * NB: Produce archives with "scons build=GccOpt_hostconfig,boost=1-33-1"
      * 
      * Then do
         cd /tmp/chaste/testoutput/TestCreateArchiveForLoadFromSequential
@@ -963,11 +968,15 @@ public:
         bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
         
+	// We solve for a small period of time so BCCs are created (next test wants to check it)
+        HeartConfig::Instance()->SetSimulationDuration(0.1);
         bidomain_problem.Initialise();
+        bidomain_problem.Solve();  
 
-        bidomain_problem.Solve();  // We solve for a small period of time so BCC are created (next test wants to check it)
-        
-        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory);
+	// We increase the simulation time so next test finds something left to simulate in the archive
+        HeartConfig::Instance()->SetSimulationDuration(0.2);
+
+        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
         
         delete p_mesh;
     }
@@ -988,7 +997,7 @@ public:
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
         const unsigned num_cells = 221u;
-        BidomainProblem<2>* p_problem = DoMigrateFromSequentialAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, num_cells, true, 0.2);
+        BidomainProblem<2>* p_problem = DoMigrateFromSequentialAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, num_cells, true, 0.1);
 
         // All cells should have a ZeroStimulus.
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -1064,7 +1073,7 @@ public:
             TS_ASSERT(!p_bcc->HasDirichletBoundaryCondition(p_node, 0));
         }
         
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2); 
     }
     
     /**
