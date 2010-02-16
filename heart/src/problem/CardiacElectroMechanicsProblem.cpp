@@ -176,7 +176,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
             double electricsPdeTimeStep,
             unsigned numElecTimeStepsPerMechTimestep,
             double contractionModelOdeTimeStep,
-            std::string outputDirectory = "")
+            std::string outputDirectory = "") :
+        mpMeshPair(NULL)
 {
     // Start-up mechanics event handler..
     MechanicsEventHandler::Reset();
@@ -275,6 +276,8 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
     delete mpMonodomainProblem;
 
     delete mpCardiacMechAssembler;
+    
+    delete mpMeshPair;
 
     LogFile::Close();
 }

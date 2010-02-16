@@ -791,7 +791,7 @@ private:
             TS_ASSERT(p_par_mesh == NULL);
         }
 
-	if (currentTime = 0.0)
+	if (currentTime == 0.0)
 	{
             // All cells should be at initial conditions.
 	    if (p_factory->GetHigh() > p_factory->GetLow())

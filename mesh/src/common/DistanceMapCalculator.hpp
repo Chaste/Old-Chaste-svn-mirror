@@ -61,7 +61,7 @@ private:
     /** (Only used when mWorkOnEntrireMesh == false).  This is a local cache of halo node indices.*/
     std::vector<unsigned> mHaloNodeIndices;
     
-    /*
+    /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
      */
     std::queue<unsigned> mActiveNodeIndexQueue;

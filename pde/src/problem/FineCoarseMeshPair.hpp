@@ -127,7 +127,7 @@ public:
      * with the index of the quad point (=the index of the quad point in a QuadraturePointsGroup=
      * the index if the quad points were listed by looping over all the element and then
      * looping over all the quad points). 
-     * @rQuadRule The quadrature rule, used to determine the number of quadrature points per element.
+     * @param rQuadRule The quadrature rule, used to determine the number of quadrature points per element.
      */
     void ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule);
     
@@ -138,6 +138,9 @@ public:
      */
     void PrintStatistics();
     
+    /**
+     * @return  A reference to the elements/weights information
+     */ 
     std::vector<ElementAndWeights<DIM> >& rGetElementsAndWeights()
     {
         return mElementsAndWeights;
