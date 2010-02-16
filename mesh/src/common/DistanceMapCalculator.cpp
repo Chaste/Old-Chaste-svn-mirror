@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "DistanceMapCalculator.hpp"
 #include "ParallelTetrahedralMesh.hpp" //For dynamic cast
-//#include "Debug.hpp"
+#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
@@ -57,7 +57,7 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
         //Share information on the number of halo nodes
         unsigned my_size=mHaloNodeIndices.size();
         mNumHalosPerProcess=new unsigned[PetscTools::GetNumProcs()];
-        MPI_Alltoall(&my_size, 1, MPI_UNSIGNED, 
+        MPI_Allgather(&my_size, 1, MPI_UNSIGNED, 
                      mNumHalosPerProcess, 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
     }
 }
@@ -89,30 +89,82 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     }
 
     WorkOnLocalQueue(cart_distances, rNodeDistances);
-
     if (mWorkOnEntireMesh==false)
     {
-        //Work out how to take non-local updates
-        std::vector<double> best_distances(mNumNodes);
-        MPI_Allreduce(&rNodeDistances[0], &best_distances[0], mNumNodes, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
-        for (unsigned index=0;index<mNumNodes;index++)
-        {
-            if (best_distances[index] < rNodeDistances[index])
-            {
-                PushLocal(index);
-                rNodeDistances[index]=best_distances[index];
-            }
-        }
-        if (!mActiveNodeIndexQueue.empty())
-        {
-            std::cout<<mActiveNodeIndexQueue.size()<<"\n";
-        }
+        assert(UpdateQueueFromRemote(cart_distances, rNodeDistances));
+    
+        //Update all processes with the best values from everywhere
+        //Take a local copy
+        std::vector<double> local_distances=rNodeDistances;
+        MPI_Allreduce( &local_distances[0], &rNodeDistances[0], mNumNodes, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
+        //PRINT_VECTOR(local_distances);
+        //PRINT_VECTOR(rNodeDistances);
     }
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& cartDistances,
+bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
+                                                                     std::vector<double>& rNodeDistances)
+{
+    for (unsigned bcast_process=0; bcast_process<PetscTools::GetNumProcs(); bcast_process++)
+    {
+        //Process packs cart0/cart1/...euclid/index into a 1-d array
+        double* cart_exchange = new double[ SPACE_DIM * mNumHalosPerProcess[bcast_process] ];
+        double* dist_exchange = new double[  mNumHalosPerProcess[bcast_process] ];
+        unsigned* index_exchange = new unsigned[  mNumHalosPerProcess[bcast_process] ];
+        if (PetscTools::GetMyRank() == bcast_process)
+        {
+            //Broadcaster fills the array
+            for (unsigned index=0; index<mHaloNodeIndices.size();index++)
+            {
+                for (unsigned j=0; j<SPACE_DIM; j++)
+                {
+                    cart_exchange[ index*(SPACE_DIM) + j] =  rCartDistances[mHaloNodeIndices[index]][j];
+                }
+                dist_exchange[index] = rNodeDistances[mHaloNodeIndices[index]];
+                index_exchange[index] = (double) mHaloNodeIndices[index]; 
+            }
+        }
+        //Broadcast - this is can be done by casting indices to double and packing everything
+        //into a single array.  That would be better for latency, but this is probably more readable.
+        MPI_Bcast(cart_exchange, (SPACE_DIM) * mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
+                  bcast_process, PETSC_COMM_WORLD);
+        MPI_Bcast(dist_exchange, mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
+                  bcast_process, PETSC_COMM_WORLD);
+        MPI_Bcast(index_exchange, mNumHalosPerProcess[bcast_process], MPI_UNSIGNED, 
+                  bcast_process, PETSC_COMM_WORLD);
+        if (PetscTools::GetMyRank() != bcast_process)
+        {
+            //Receiving process take updates
+            for (unsigned index=0; index<mHaloNodeIndices.size();index++)
+            {
+                unsigned global_index=index_exchange[index];
+                //Is it a better answer?
+                if (dist_exchange[index] < rNodeDistances[global_index])
+                {
+                    //Copy across - this may be unnecessary when PushLocal isn't going to push because it's not local.
+                    rNodeDistances[global_index] = dist_exchange[index];
+                    for (unsigned j=0; j<SPACE_DIM; j++)
+                    {
+                         rCartDistances[global_index][j] = cart_exchange[ index*(SPACE_DIM) + j];
+                    }
+                    PushLocal(global_index);
+                }
+            }
+        }
+        delete [] cart_exchange;
+        delete [] dist_exchange;
+        delete [] index_exchange;
+    }
+    //Is any queue non-empty?
+    bool non_empty_queue=PetscTools::ReplicateBool(!mActiveNodeIndexQueue.empty());
+    return(non_empty_queue);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
                                                                      std::vector<double>& rNodeDistances)
 {
    while (!mActiveNodeIndexQueue.empty())
@@ -139,7 +191,6 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                    node_local_index<p_containing_element->GetNumNodes();
                    node_local_index++)
                {
-                    ///\todo - This line is dangerous if it throws
                     Node<SPACE_DIM>* p_neighbour_node = p_containing_element->GetNode(node_local_index);
                     unsigned neighbour_node_index = p_neighbour_node->GetIndex();
     
@@ -151,10 +202,10 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                             + norm_2(p_current_node->rGetLocation() - p_neighbour_node->rGetLocation()))
                             < rNodeDistances[neighbour_node_index]*(1.0 - DBL_EPSILON) )
                         {
-                            cartDistances[neighbour_node_index] = cartDistances[current_node_index]
+                            rCartDistances[neighbour_node_index] = rCartDistances[current_node_index]
                                                                    + (p_current_node->rGetLocation() - p_neighbour_node->rGetLocation());
                             //This will save some sqrts later...
-                            rNodeDistances[neighbour_node_index] = norm_2(cartDistances[neighbour_node_index]);                                      
+                            rNodeDistances[neighbour_node_index] = norm_2(rCartDistances[neighbour_node_index]);                                      
                             PushLocal(neighbour_node_index);
                         }
                     }

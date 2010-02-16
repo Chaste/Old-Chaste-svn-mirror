@@ -69,19 +69,29 @@ private:
     /**
      * Work on the Queue of node indices (grass-fire across the mesh)
      * 
-     * @param cartDistances  An list of the minimum distance of each node to the source
+     * @param rCartDistances  An list of the minimum distance of each node to the source
      * @param rNodeDistances distance map computed
      */  
-    void WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& cartDistances,
+    void WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
                           std::vector<double>& rNodeDistances);
                           
+    /**
+     * Update the local Queue of node indices using data that are from the halo nodes of remote processes.
+     * 
+     * @param rCartDistances  An list of the minimum distance of each node to the source
+     * @param rNodeDistances distance map computed
+     * 
+     * @return true when this update was active => there are non-empty queues left to work on
+     */  
+    bool UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
+                               std::vector<double>& rNodeDistances);
     
     /**
      * Push a node index onto the queue.  In the parallel case this will only push a
      * locally-owned (not halo) node.  Halo nodes will be updated, but never pushed to the local queue
      * @param nodeIndex  A global node index.
      */
-     void PushLocal(unsigned nodeIndex)
+    void PushLocal(unsigned nodeIndex)
     {
        
         if (mLo<=nodeIndex && nodeIndex<mHi)
