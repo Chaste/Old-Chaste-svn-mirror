@@ -665,6 +665,8 @@ public:
         
         bidomain_problem.Initialise();
         
+	bidomain_problem.Solve(); // We solve for a small period of time so BCC are created (next test wants to check it)
+
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory);
         
         delete p_mesh;
@@ -686,7 +688,7 @@ public:
         BidomainProblem<2>* p_problem;
         // Do the migration to sequential
         const unsigned num_cells = 221u;
-        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells);
+        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, false, 0.2);
 
         // All cells should have no stimulus.
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -701,8 +703,8 @@ public:
         }
 
         // Test bccs
-        TS_ASSERT( ! p_problem->mpDefaultBoundaryConditionsContainer); // Electrodes haven't switched off yet
-        TS_ASSERT(p_problem->mpBoundaryConditionsContainer);
+        TS_ASSERT( p_problem->mpDefaultBoundaryConditionsContainer); /// \todo: see todo in BidomainProblem.cpp:344
+        TS_ASSERT( p_problem->mpBoundaryConditionsContainer); // BC will be created first time BidomainProblem::Solve() is called
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
         // We have neumann boundary conditions from the electrodes
         TS_ASSERT(p_bcc->AnyNonZeroNeumannConditions());
@@ -750,7 +752,7 @@ public:
             TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,0), 0, 1e-10);
         }
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2);
     }
 
 private:
@@ -759,7 +761,8 @@ private:
             const std::string& rArchiveDirectory,
             const std::string& rRefArchiveDir,
             const unsigned totalNumCells,
-            bool isParallelMesh)
+            bool isParallelMesh,
+	    double currentTime=0.0)
     {
         // Do the migration
         Problem* p_problem = CardiacSimulationArchiver<Problem>::Migrate(rArchiveDirectory);
@@ -768,7 +771,7 @@ private:
         TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
         TS_ASSERT_EQUALS(p_problem->mPrintOutput, true);
         TS_ASSERT_EQUALS(p_problem->mNodesToOutput.size(), 0u);
-        TS_ASSERT_EQUALS(p_problem->mCurrentTime, 0.0);
+        TS_ASSERT_EQUALS(p_problem->mCurrentTime, currentTime);
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
         TS_ASSERT(p_factory->GetOriginalFactory());
         TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), totalNumCells);
@@ -788,29 +791,32 @@ private:
             TS_ASSERT(p_par_mesh == NULL);
         }
 
-        // All cells should be at initial conditions.
-        if (p_factory->GetHigh() > p_factory->GetLow())
-        {
-            std::vector<double> inits;
-            for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
-            {
-                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-                FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
-                if (p_fake_cell == NULL)
-                {
-                    if (inits.empty())
-                    {
-                        inits = p_cell->GetInitialConditions();
-                    }
-                    std::vector<double>& r_state = p_cell->rGetStateVariables();
-                    TS_ASSERT_EQUALS(r_state.size(), inits.size());
-                    for (unsigned j=0; j<r_state.size(); j++)
-                    {
-                        TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
-                    }
-                }
-            }
-        }
+	if (currentTime = 0.0)
+	{
+            // All cells should be at initial conditions.
+	    if (p_factory->GetHigh() > p_factory->GetLow())
+	    {
+	        std::vector<double> inits;
+		for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+		{
+		    AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+		    FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
+		    if (p_fake_cell == NULL)
+		    {
+		        if (inits.empty())
+			{
+			    inits = p_cell->GetInitialConditions();
+			}
+			std::vector<double>& r_state = p_cell->rGetStateVariables();
+			TS_ASSERT_EQUALS(r_state.size(), inits.size());
+			for (unsigned j=0; j<r_state.size(); j++)
+			{
+			    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+			}
+		    }
+		}
+	    }
+	}
 
         // Save it to a normal archive
         CardiacSimulationArchiver<Problem>::Save(*p_problem, rArchiveDirectory + "/new_archive");
@@ -958,6 +964,8 @@ public:
         bidomain_problem.SetMesh(p_mesh);
         
         bidomain_problem.Initialise();
+
+        bidomain_problem.Solve();  // We solve for a small period of time so BCC are created (next test wants to check it)
         
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory);
         
@@ -980,7 +988,7 @@ public:
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
         const unsigned num_cells = 221u;
-        BidomainProblem<2>* p_problem = DoMigrateFromSequentialAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, num_cells, true);
+        BidomainProblem<2>* p_problem = DoMigrateFromSequentialAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, num_cells, true, 0.2);
 
         // All cells should have a ZeroStimulus.
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -995,7 +1003,7 @@ public:
         }
         
         // Test bccs
-        TS_ASSERT( ! p_problem->mpDefaultBoundaryConditionsContainer); // Electrodes haven't switched off yet
+        TS_ASSERT(p_problem->mpDefaultBoundaryConditionsContainer); /// \todo: see todo in BidomainProblem.cpp:344
         TS_ASSERT(p_problem->mpBoundaryConditionsContainer);
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
         // We have neumann and dirichlet boundary conditions from the electrodes (at least on some processes)
@@ -1056,7 +1064,7 @@ public:
             TS_ASSERT(!p_bcc->HasDirichletBoundaryCondition(p_node, 0));
         }
         
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2);
     }
     
     /**

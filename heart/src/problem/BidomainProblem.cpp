@@ -336,11 +336,13 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
         // Note, no point calling this->SetBoundaryConditionsContainer() as the
         // assembler has already been created..
         mpAssembler->SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());
-        // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
+
+        // ..but we set mpBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
-        this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();
-        
-        //this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;        
+        this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();        
+
+	/// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
+        this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;        
     }
 }
 
