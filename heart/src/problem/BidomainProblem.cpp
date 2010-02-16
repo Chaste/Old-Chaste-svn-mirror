@@ -322,20 +322,11 @@ void BidomainProblem<DIM>::SetElectrodes(boost::shared_ptr<Electrodes<DIM> > pEl
     }
 
     mpElectrodes = pElectrodes;
-
-    // Do electrodes switch on at the beginning of the simulation?
-    if ( mpElectrodes && mpElectrodes->SwitchOn(0.0) )
-    {    
-        SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer());
-    }
 }
 
-
 template<unsigned DIM>
-void BidomainProblem<DIM>::OnEndOfTimestep(double time)
+void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 {
-    /// \todo: #1215 I don't know if it makes sense to keep separated mpBoundaryConditionsContainer and mpDefaultBoundaryConditionsContainer anymore
-    
     if ( mpElectrodes && mpElectrodes->SwitchOn(time) )
     {
         // At the moment mpBcc and mpDefaultBcc point to a set default BC
@@ -348,10 +339,14 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
         this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();
-        this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;
+        
+        //this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;        
     }
+}
 
-
+template<unsigned DIM>
+void BidomainProblem<DIM>::OnEndOfTimestep(double time)
+{
     if ( mpElectrodes && mpElectrodes->SwitchOff(time) )
     {
         // At the moment mpBcc should exist and therefore
@@ -372,7 +367,7 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
-        this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;
+        this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;        
     }
 }
 

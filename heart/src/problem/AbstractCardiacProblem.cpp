@@ -430,6 +430,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
         mpAssembler->SetInitialCondition( initial_condition );
 
+        AtBeginningOfTimestep(stepper.GetTime());
+
         try
         {
             mSolution = mpAssembler->Solve();

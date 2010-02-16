@@ -557,6 +557,16 @@ public:
     void UseMatrixBasedRhsAssembly(bool usematrix=true);
 
     /**
+     *  Called at beginning of each time step in the main time-loop in
+     *  Solve(). Empty implementation but can be overloaded by child
+     *  classes.
+     * 
+     * @param time  the current time
+     */
+    virtual void AtBeginningOfTimestep(double time)
+    {}
+
+    /**
      *  Called at end of each time step in the main time-loop in
      *  Solve(). Empty implementation but can be overloaded by child
      *  classes.

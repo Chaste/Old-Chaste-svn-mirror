@@ -228,6 +228,15 @@ public:
     void SetElectrodes(boost::shared_ptr<Electrodes<DIM> > pElectrodes);
 
     /**
+     *  Called at beginning of each time step in the main time-loop in
+     *  AbstractCardiacProblem::Solve(). Overloaded here to switch on
+     *  the electrodes (if there are any).
+     * 
+     * @param time  the current time
+     */
+    void AtBeginningOfTimestep(double time);
+
+    /**
      *  Called at end of each time step in the main time-loop in
      *  AbstractCardiacProblem::Solve(). Overloaded here to switch off
      *  the electrodes (if there are any).

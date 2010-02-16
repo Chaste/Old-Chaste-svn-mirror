@@ -327,10 +327,11 @@ public:
 
         //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
         double boundary_flux = -11.0e3;
+        double start_time = 0.5;
         double duration = 1.9; // of the stimulus, in ms
 
         boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, 0.0, duration));
+            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, start_time, duration));
 
         // Cover an exception
         {
