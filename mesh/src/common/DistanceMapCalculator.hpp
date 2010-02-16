@@ -82,6 +82,8 @@ private:
      * @param rNodeDistances distance map computed
      * 
      * @return true when this update was active => there are non-empty queues left to work on
+     * @return false without working or side-effects if we don't have a true distributed mesh
+     * 
      */  
     bool UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
                                std::vector<double>& rNodeDistances);

@@ -88,17 +88,26 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         }
     }
 
-    WorkOnLocalQueue(cart_distances, rNodeDistances);
+    bool non_empty_queue=true;
+    unsigned round_counter;
+    while (non_empty_queue)
+    {
+        WorkOnLocalQueue(cart_distances, rNodeDistances);
+        non_empty_queue=UpdateQueueFromRemote(cart_distances, rNodeDistances);
+        //Sanity - check that we aren't doing this very many times
+        assert(round_counter++ <= PetscTools::GetNumProcs());
+    }
+
+
     if (mWorkOnEntireMesh==false)
     {
-        assert(UpdateQueueFromRemote(cart_distances, rNodeDistances));
-    
+        assert(round_counter>1);
+        PRINT_VARIABLE(round_counter);
         //Update all processes with the best values from everywhere
         //Take a local copy
         std::vector<double> local_distances=rNodeDistances;
+        //Share it back into the vector
         MPI_Allreduce( &local_distances[0], &rNodeDistances[0], mNumNodes, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
-        //PRINT_VECTOR(local_distances);
-        //PRINT_VECTOR(rNodeDistances);
     }
 }
 
@@ -107,6 +116,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
                                                                      std::vector<double>& rNodeDistances)
 {
+    if (mWorkOnEntireMesh)
+    {
+        //This update does nowt.
+        return false;
+    }
     for (unsigned bcast_process=0; bcast_process<PetscTools::GetNumProcs(); bcast_process++)
     {
         //Process packs cart0/cart1/...euclid/index into a 1-d array
@@ -141,7 +155,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
             {
                 unsigned global_index=index_exchange[index];
                 //Is it a better answer?
-                if (dist_exchange[index] < rNodeDistances[global_index])
+                if (dist_exchange[index] < rNodeDistances[global_index]*(1.0-DBL_EPSILON))
                 {
                     //Copy across - this may be unnecessary when PushLocal isn't going to push because it's not local.
                     rNodeDistances[global_index] = dist_exchange[index];

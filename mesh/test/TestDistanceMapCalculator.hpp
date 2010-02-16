@@ -74,7 +74,7 @@ public:
             {
                 c_vector<double, 1> node = parallel_mesh.GetNode(index)->rGetLocation(); //throws if not owned 
                 TS_ASSERT_DELTA(distances_serial[index], node(0), 1e-12);
-                //TS_ASSERT_DELTA(distances_parallel[index], node(0), 1e-12);
+                TS_ASSERT_DELTA(distances_parallel[index], node(0), 1e-12);
             }
             catch (Exception &e)
             {
@@ -89,10 +89,16 @@ public:
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
+
+//        mesh_reader.Reset();
+//        ParallelTetrahedralMesh<3,3> parallel_mesh;
+//        parallel_mesh.ConstructFromMeshReader(mesh_reader);
+//        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
+//        TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
+//        TS_ASSERT_EQUALS(parallel_mesh.GetNumBoundaryElements(), 4800u);
         
         unsigned far_index=9260u;
         c_vector<double,3> far_corner=mesh.GetNode(far_index)->rGetLocation();
@@ -106,6 +112,10 @@ public:
         DistanceMapCalculator<3,3> distance_calculator(mesh);
         std::vector<double> distances;
         distance_calculator.ComputeDistanceMap(map_far_corner, distances);
+        
+//        DistanceMapCalculator<3,3> parallel_distance_calculator(parallel_mesh);
+//        std::vector<double> parallel_distances;
+//        parallel_distance_calculator.ComputeDistanceMap(map_far_corner, parallel_distances);
 
  
         for (unsigned index=0; index<distances.size(); index++)
@@ -115,6 +125,7 @@ public:
             double dist = norm_2(far_corner - node);
 
             TS_ASSERT_DELTA(distances[index], dist, 1e-11);
+//            TS_ASSERT_DELTA(parallel_distances[index], dist, 1e-11);
         }
     }
 
@@ -129,28 +140,40 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        DistanceMapCalculator<3,3> distance_calculator(mesh);
+//        mesh_reader.Reset();
+//        ParallelTetrahedralMesh<3,3> parallel_mesh;
+//        parallel_mesh.ConstructFromMeshReader(mesh_reader);
+//        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
+//        TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
+//        TS_ASSERT_EQUALS(parallel_mesh.GetNumBoundaryElements(), 4800u);
 
-        std::vector<unsigned> map_origin;
+
+        std::vector<unsigned> map_left;
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
             // Get the nodes at the left face of the cube
             if (mesh.GetNode(index)->rGetLocation()[0] + 0.25 < 1e-6)
             {
-                map_origin.push_back(index);
+                map_left.push_back(index);
             }
         }
 
-        assert(map_origin.size() == 21*21);
+        assert(map_left.size() == 21*21);
 
+        DistanceMapCalculator<3,3> distance_calculator(mesh);
         std::vector<double> distances;
-        distance_calculator.ComputeDistanceMap(map_origin, distances);
-
+        distance_calculator.ComputeDistanceMap(map_left, distances);
+//
+//        DistanceMapCalculator<3,3> parallel_distance_calculator(parallel_mesh);
+//        std::vector<double> parallel_distances;
+//        parallel_distance_calculator.ComputeDistanceMap(map_left, parallel_distances);
+// 
         for (unsigned index=0; index<distances.size(); index++)
         {
             // The distance should be equal to the x-coordinate of the point (minus the offset of the left face of the cube)
             c_vector<double, 3> node = mesh.GetNode(index)->rGetLocation();
             TS_ASSERT_DELTA(distances[index], node[0]+0.25,1e-11);
+//            TS_ASSERT_DELTA(parallel_distances[index], node[0]+0.25,1e-11);
         }
     }
 };
