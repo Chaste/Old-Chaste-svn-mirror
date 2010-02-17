@@ -169,9 +169,9 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
         // if this failed during assembling the residual, the stretches are too large, so we just
         // set the active tension to infinity so that the residual will be infinite
         rActiveTension = DBL_MAX;
-        std::cout << "WARNING: could solve contraction model with this stretch and stretch rate. "
+        std::cout << "WARNING: could not solve contraction model with this stretch and stretch rate. "
                   << "Setting active tension to infinity (DBL_MAX) so that the residual(-norm) is also infinite\n" << std::flush; 
-        assert(0); // just to see if we get here, can be removed..
+        assert(0); // just to see if we ever get here, can be removed..
         return;
         #undef COVERAGE_IGNORE
     }

@@ -524,15 +524,18 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 template<unsigned DIM>
 void AbstractNonlinearElasticityAssembler<DIM>::PrintLineSearchResult(double s, double residNorm)
 {
+    #ifdef MECH_VERBOSE
     std::cout << "\tTesting s = " << s << ", |f| = " << residNorm << "\n" << std::flush;
+    #endif
 }
 
 template<unsigned DIM>
 double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(Vec solution)
 {
     double initial_norm_resid = CalculateResidualNorm();
+    #ifdef MECH_VERBOSE
     std::cout << "\tInitial |f| [corresponding to s=0] is " << initial_norm_resid << "\n"  << std::flush;
-
+    #endif
 
     ReplicatableVector update(solution);
 
@@ -611,7 +614,9 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
         #undef COVERAGE_IGNORE
     }
 
+    #ifdef MECH_VERBOSE
     std::cout << "\tBest s = " << damping_values[best_index] << "\n"  << std::flush;
+    #endif
     VectorSum(old_solution, update, -damping_values[best_index], mCurrentSolution);
  
     return current_resid_norm;
@@ -751,7 +756,9 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
 
     // compute residual
     double norm_resid = this->ComputeResidualAndGetNorm();
+    #ifdef MECH_VERBOSE
     std::cout << "\nNorm of residual is " << norm_resid << "\n";
+    #endif
 
     mNumNewtonIterations = 0;
     unsigned counter = 1;
@@ -772,18 +779,24 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
         #undef COVERAGE_IGNORE
     }
 
+    #ifdef MECH_VERBOSE
     std::cout << "Solving with tolerance " << tol << "\n";
+    #endif
 
     while (norm_resid > tol && counter<=maxNumNewtonIterations)
     {
+        #ifdef MECH_VERBOSE
         std::cout <<  "\n-------------------\n"
                   <<   "Newton iteration " << counter
                   << ":\n-------------------\n";
+        #endif
 
         // take newton step (and get returned residual)
         norm_resid = TakeNewtonStep();
 
+        #ifdef MECH_VERBOSE
         std::cout << "Norm of residual is " << norm_resid << "\n";
+        #endif        
         if (mWriteOutput)
         {
             WriteOutput(counter+offset);

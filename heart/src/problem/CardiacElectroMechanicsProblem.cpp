@@ -90,7 +90,7 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
     }
     else
     {
-        LOG_AND_COUT(2,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
+        LOG(2,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
         mWatchedElectricsNodeIndex = node_index;
     }
 
@@ -130,7 +130,7 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
     }
     else
     {
-        LOG_AND_COUT(2,"Chosen electrics node "<<node_index<<" at location " << pos << " to be watched");
+        LOG(2,"Chosen mechanics node "<<node_index<<" at location " << pos << " to be watched");
         mWatchedMechanicsNodeIndex = node_index;
     }
 
@@ -418,7 +418,6 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     while (!stepper.IsTimeAtEnd())
     {
         LOG(2, "\nCurrent time = " << stepper.GetTime());
-        std::cout << "\n\n ** Current time = " << stepper.GetTime() << "\n";
 
         LOG(2, "  Solving electrics");
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::NON_MECH);
