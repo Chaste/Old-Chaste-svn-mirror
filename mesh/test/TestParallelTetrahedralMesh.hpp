@@ -270,7 +270,6 @@ public:
             // I don't own this boundary element do I?
         }
 
-        mesh_reader.Reset();
         TetrahedralMesh<2,2> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -330,7 +329,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 96u);
 
-        mesh_reader.Reset();
         TetrahedralMesh<3,3> seq_mesh;
         seq_mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -409,11 +407,13 @@ public:
             TS_ASSERT_EQUALS(element_index, p_ascii_element->GetIndex());
             for (unsigned node_local_index=0; node_local_index < iter->GetNumNodes(); node_local_index++)
             {
-                for (unsigned dim=0; dim<3; dim++)
-                {
-                    TS_ASSERT_EQUALS(iter->GetNode(node_local_index)->GetPoint()[dim],
-                                     p_ascii_element->GetNode(node_local_index)->GetPoint()[dim]);
-                }
+//                for (unsigned dim=0; dim<3; dim++)
+//                {
+//                    TS_ASSERT_EQUALS(iter->GetNode(node_local_index)->GetPoint()[dim],
+//                                     p_ascii_element->GetNode(node_local_index)->GetPoint()[dim]);
+//                }
+                TS_ASSERT_DELTA( norm_2( iter->GetNode(node_local_index)->rGetLocation() - 
+                                     p_ascii_element->GetNode(node_local_index)->rGetLocation() ), 0.0, 1e-10 );
             }
         }
 
@@ -1020,7 +1020,6 @@ public:
 
         ParallelTetrahedralMesh<1,1> parallel_mesh(ParallelTetrahedralMesh<1,1>::DUMB); //Makes sure that there is no permutation
         AbstractTetrahedralMesh<1,1> *p_parallel_mesh = &parallel_mesh; //Hide the fact that it's parallel from the compiler
-        reader.Reset();
         parallel_mesh.ConstructFromMeshReader(reader);
         TrianglesMeshWriter<1,1> mesh_writer2("TestParallelMeshWriter", "par_line_10_elements", false);
         mesh_writer2.WriteFilesUsingMesh(*p_parallel_mesh);
@@ -1047,7 +1046,7 @@ public:
 
         ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); //Makes sure that there is no permutation
         AbstractTetrahedralMesh<3,3> *p_parallel_mesh = &parallel_mesh; //Hide the fact that it's parallel from the compiler
-        reader.Reset();
+
         parallel_mesh.ConstructFromMeshReader(reader);
         TrianglesMeshWriter<3,3> mesh_writer2("TestParallelMeshWriter", "par_cube_2mm_12_elements", false);
         mesh_writer2.WriteFilesUsingMesh(*p_parallel_mesh);

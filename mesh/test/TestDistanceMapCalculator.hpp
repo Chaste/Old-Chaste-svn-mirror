@@ -54,7 +54,6 @@ public:
             DistanceMapCalculator<1,1> distance_calculator_serial(serial_mesh);
             distance_calculator_serial.ComputeDistanceMap(map_origin, distances_serial);
         }
-        mesh_reader.Reset();
         
         ParallelTetrahedralMesh<1,1> parallel_mesh;
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
@@ -181,7 +180,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        mesh_reader.Reset();
         ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); // No reordering;
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
@@ -241,7 +239,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        mesh_reader.Reset();
         ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); // No reordering
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes

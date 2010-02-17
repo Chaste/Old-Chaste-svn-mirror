@@ -160,6 +160,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     }
 
     RefreshJacobianCachedData();
+    rMeshReader.Reset();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

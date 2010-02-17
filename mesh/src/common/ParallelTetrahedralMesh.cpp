@@ -131,38 +131,50 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     // Reserve memory
     this->mElements.reserve(elements_owned.size());
     this->mNodes.reserve(nodes_owned.size());
-
-    // Load the nodes owned by the processor
-    std::vector<double> coords;
-    for (unsigned node_index=0; node_index < mTotalNumNodes; node_index++)
+    
+    if ( rMeshReader.IsFileFormatBinary() )
     {
-        if ( ! rMeshReader.IsFileFormatBinary() )
+        std::vector<double> coords;
+        // Binary : load only the nodes which are needed
+        for (std::set<unsigned>::const_iterator it=nodes_owned.begin(); it!=nodes_owned.end(); it++)
+        { 
+            //Loop over wholey-owned nodes
+            unsigned global_node_index=*it;
+            coords = rMeshReader.GetNode(global_node_index);
+            RegisterNode(global_node_index);
+            this->mNodes.push_back(new Node<SPACE_DIM>(global_node_index, coords, false));
+        }
+        for (std::set<unsigned>::const_iterator it=halo_nodes_owned.begin(); it!=halo_nodes_owned.end(); it++)
+        { 
+            //Loop over halo-owned nodes
+            unsigned global_node_index=*it;
+            coords = rMeshReader.GetNode(global_node_index);
+            RegisterHaloNode(global_node_index);
+            mHaloNodes.push_back(new Node<SPACE_DIM>(global_node_index, coords, false));
+        }
+    }
+    else
+    {
+        // Ascii : Sequentially load all the nodes and store those owned (or halo-owned) by the process
+        for (unsigned node_index=0; node_index < mTotalNumNodes; node_index++)
         {
+            std::vector<double> coords;
             /// \todo: assert the node is not considered both owned and halo-owned. Remove continue statement few lines below then.
             coords = rMeshReader.GetNextNode();
-        }
-
-        // The node is owned by the processor
-        if (nodes_owned.find(node_index) != nodes_owned.end())
-        {
-            if ( rMeshReader.IsFileFormatBinary() )
+    
+            // The node is owned by the processor
+            if (nodes_owned.find(node_index) != nodes_owned.end())
             {
-                coords = rMeshReader.GetNode(node_index);
+                RegisterNode(node_index);
+                this->mNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
             }
-            RegisterNode(node_index);
-            this->mNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
-            continue;
-        }
-
-        // The node is a halo node in this processor
-        if (halo_nodes_owned.find(node_index) != halo_nodes_owned.end())
-        {
-            if ( rMeshReader.IsFileFormatBinary() )
+    
+            // The node is a halo node in this processor
+            if (halo_nodes_owned.find(node_index) != halo_nodes_owned.end())
             {
-                coords = rMeshReader.GetNode(node_index);
+                RegisterHaloNode(node_index);
+                mHaloNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
             }
-            RegisterHaloNode(node_index);
-            mHaloNodes.push_back(new Node<SPACE_DIM>(node_index, coords, false));
         }
     }
 
@@ -315,6 +327,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         // Dumb or sequential partition
         assert(this->mpDistributedVectorFactory);
     }
+    rMeshReader.Reset();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

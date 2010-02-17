@@ -473,8 +473,6 @@ public:
                 TS_ASSERT_DELTA(ascii_location[1],binary_location[1],1e-12);
                 TS_ASSERT_DELTA(ascii_location[2],binary_location[2],1e-12);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
-            mesh_reader.Reset(); // You wouldn't believe how important this line is.
         }
 
         /*
@@ -506,8 +504,6 @@ public:
                 TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[3],binary_node_indices.NodeIndices[3]);
                 TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
-            mesh_reader.Reset(); // You wouldn't believe how important this line is.
         }
 
         /*
@@ -537,8 +533,6 @@ public:
                 TS_ASSERT_EQUALS(ascii_node_indices.NodeIndices[2],binary_node_indices.NodeIndices[2]);
                 TS_ASSERT_EQUALS(ascii_node_indices.AttributeValue,binary_node_indices.AttributeValue);
             }
-            mesh_reader_ascii.Reset(); // You wouldn't believe how important this line is.
-            mesh_reader.Reset(); // You wouldn't believe how important this line is.
         }
 
         TS_ASSERT_THROWS_THIS(mesh_reader.GetNode(9u), "Node does not exist - not enough nodes.");
