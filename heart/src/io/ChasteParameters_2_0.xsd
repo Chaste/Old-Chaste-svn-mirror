@@ -144,7 +144,8 @@
       <xs:documentation xml:lang="en">
         Ionic models may be specified in 2 ways: either through a model hardcoded
         into Chaste, and chosen from a list, or through a model dynamically loaded
-        from a shared library (.so file).
+        from a shared library (.so file).  In the latter case, this shared library
+        can be created from a CellML file on the fly, subject to a few caveats.
       </xs:documentation>
     </xs:annotation>
     <xs:choice>
@@ -157,9 +158,16 @@
     <xs:annotation>
       <xs:documentation xml:lang="en">
       A dynamically loadable ionic model is (currently) specified just by giving the
-      path of the file to load.  At present this must be a .so file.  Eventually we
-      will add the ability to specify a CellML file here, from which a .so will be
-      created on the fly.
+      path of the file to load.  This must be either a .so file, which can be loaded
+      directly, or a .cellml file, which will first be compiled to a .so on the fly.
+      The compiled .so will be stored in the same folder as the .cellml file (so the
+      master process needs write access to this folder).
+      
+      Note that doing so requires that the Chaste source tree which created the
+      running program must exist on the master process' machine, since this source
+      tree is used to perform the compilation.  Also note that, if running in parallel,
+      all processes which own cells created from this CellML file must be able to read
+      the folder in which it is located, as this is where the .so will be placed.
     </xs:documentation>
     </xs:annotation>
     <xs:sequence>
