@@ -40,7 +40,6 @@ AbstractPeregoCardiacCell::AbstractPeregoCardiacCell(unsigned numberOfStateVaria
                               pIntracellularStimulus),
           mUseAdaptTimestep(useAdaptTimestep)
 {
-    PRINT_VARIABLE(mUseAdaptTimestep);
     mIsTheCorrectorStep = false;
     mIsTheFirstStep = true;
     mIsTheErrorEvaluationStep = false;
@@ -76,8 +75,6 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(const std::vector<doubl
         
     mSolutionAtPreviousTimeStep = rSolutionAtPreviousTime;
     //Compute parameters (done in the child class, will modify the member variables here)
-//    PRINT_3_VARIABLES(mIsTheCorrectorStep,mIsTheErrorEvaluationStep,mIsThereTooMuchError);
-//    assert(0);
     ComputeSystemParameters(rSolutionAtPreviousTime, currentTime);
 
     bool it_is_a_gating_variable =false;
@@ -182,7 +179,7 @@ void  AbstractPeregoCardiacCell::EvaluateErrors(std::vector<double>& rErrors, co
                 it_is_a_gating_variable = true;
             }
         }
-        
+
         if (it_is_a_gating_variable)
         {
             rErrors[i] =  fabs(error_weight_factor * ( rCorrectedSolution[i] - rPredictedSolution[i]) + (1.0/12.0) * (ma_error[i] * mb_current[i] - ma_current[i] * mb_error[i]) * mLocalTimeStep * mLocalTimeStep);
@@ -192,7 +189,7 @@ void  AbstractPeregoCardiacCell::EvaluateErrors(std::vector<double>& rErrors, co
         {
             rErrors[i] = fabs( error_weight_factor * ( rCorrectedSolution[i] - rPredictedSolution[i] ) );
         }
-
+//        PRINT_VECTOR(rErrors);
         
     }
 
@@ -285,8 +282,7 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
         
             AdaptTimestep(errors);
             mIsThereTooMuchError = IsThereTooMuchError(errors);
-//            MARK;
-//            if( ! IsThereTooMuchError(errors))
+
             if( ! mIsThereTooMuchError)
             {
                 // Initialise the previous state variables to be a copy of the current state variables
@@ -298,7 +294,8 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
             }
             else
             {
-//                assert(0);   
+//                assert(0);
+                
             }
         }
         else
@@ -310,6 +307,7 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
         }
         if (local_time + mLocalTimeStep + 1e-10 < endTime)
         {
+//            PRINT_VARIABLE(local_time);
             local_time += mLocalTimeStep;
         }
         else

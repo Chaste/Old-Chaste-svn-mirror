@@ -283,7 +283,7 @@ public:
 //        solutions_perego.WriteToFile("TestPeregoLr91Compare","lr91_perego","ms", 1, false);
     }
 
-    void xTestEvaluateErrors(void) throw(Exception)
+    void TestEvaluateErrors(void) throw(Exception)
     {
         // Set stimulus
         double magnitude = -25.5;
@@ -298,24 +298,39 @@ public:
         std::vector<double> predicted_solution(8);
         std::vector<double> corrected_solution(8);
 
-        predicted_solution[0] = 0.98045;
-        predicted_solution[1] = 0.98767;
-        predicted_solution[2] = 0.00196;
-        predicted_solution[3] = 1.99903e-4;
-        predicted_solution[4] = -81.91631;
-        predicted_solution[5] = 0.00316;
-        predicted_solution[6] = 0.99429;
-        predicted_solution[7] = 0.16642;
+        std::vector<double> previous_corrected_solution(8);
 
-        corrected_solution[0] = 0.98041;
-        corrected_solution[1] = 0.98766;
-        corrected_solution[2] = 0.00219;
-        corrected_solution[3] = 1.99902e-4;
-        corrected_solution[4] = -81.92968;
-        corrected_solution[5] = 0.00317;
-        corrected_solution[6] = 0.99429;
-        corrected_solution[7] = 0.16642;
+        predicted_solution[0] = 0.980452408227077;
+        predicted_solution[1] = 0.987668868231472;
+        predicted_solution[2] = 0.001957111536055;
+        predicted_solution[3] = 1.999029977193713e-4;
+        predicted_solution[4] = -81.916308145968557;
+        predicted_solution[5] = 0.003164107621352;
+        predicted_solution[6] = 0.994286712717492;
+        predicted_solution[7] = 0.166424185294100;
 
+        corrected_solution[0] = 0.980408224875755;
+        corrected_solution[1] = 0.987661246226870;
+        corrected_solution[2] = 0.002189916542301;
+        corrected_solution[3] = 1.99901905229788e-4;
+        corrected_solution[4] = -81.929678049406846;
+        corrected_solution[5] = 0.003165648122979;
+        corrected_solution[6] = 0.994286670014978;
+        corrected_solution[7] = 0.166424998680492;
+
+        previous_corrected_solution[0] = 0.980470316683752;
+        previous_corrected_solution[1] = 0.987671157351160;
+        previous_corrected_solution[2] = 0.001896834011472;
+        previous_corrected_solution[3] = 0.199901905229788e-3;
+        previous_corrected_solution[4] = -83.598370438354308;
+        previous_corrected_solution[5] = 0.003163567176509;
+        previous_corrected_solution[6] = 0.994279658014422;
+        previous_corrected_solution[7] = 0.166470067496488;
+        
+//        lr91_perego.mThetaP = -3.309930740729620;
+//        lr91_perego.mThetaC = -0.134988456788270;
+//        lr91_perego.mLocalTimeStep = 0.066198614814592;
+        
         double current_time = 0.02;
 
         // These need to be set correctly (usually by previous run)
@@ -324,7 +339,8 @@ public:
         lr91_perego.mIsTheCorrectorStep=false;
         lr91_perego.mIsTheErrorEvaluationStep=false;
         //Compute parameters (done in the child class, will modify the member variables here)
-        lr91_perego.ComputeSystemParameters(corrected_solution, current_time);
+//        lr91_perego.ComputeSystemParameters(corrected_solution, current_time);
+        lr91_perego.ComputeSystemParameters(previous_corrected_solution, current_time);
 
         lr91_perego.mIsTheErrorEvaluationStep = true;
         //Compute parameters (done in the child class, will modify the member variables here)
@@ -335,16 +351,50 @@ public:
         TS_ASSERT_DELTA(lr91_perego.ma_error[0], -0.18480, 1e-5);
         TS_ASSERT_DELTA(lr91_perego.ma_current[0], -0.23399, 1e-5);
 
-        lr91_perego.mThetaP = -3.30993074;
-        lr91_perego.mThetaC = -0.13498845;
+        TS_ASSERT_EQUALS(lr91_perego.ma_error.size(), lr91_perego.ma_current.size());
+        
+        std::vector<double> matlab_ma_error(8);
+        std::vector<double> matlab_ma_current(8);
+        matlab_ma_error[0] = -0.18480;
+        matlab_ma_error[1] = -0.0478996;
+        matlab_ma_error[2] = -1.376890822e2;
+        matlab_ma_error[3] = 0; //not a gating variable
+        matlab_ma_error[4] = 0; //not a gating variable
+        matlab_ma_error[5] = -0.11642;
+        matlab_ma_error[6] = -0.01847;
+        matlab_ma_error[7] = -0.00417;
+        
+        matlab_ma_current[0] = -0.23399;
+        matlab_ma_current[1] = -0.05668;
+        matlab_ma_current[2] = -1.60144412e2;
+        matlab_ma_current[3] = 0; //not a gating variable
+        matlab_ma_current[4] = 0; //not a gating variable
+        matlab_ma_current[5] = -0.12097;
+        matlab_ma_current[6] = -0.01872;
+        matlab_ma_current[7] = -0.00433;       
+        
+        
+        for(unsigned i=0; i<lr91_perego.ma_error.size();i++)
+        {
+            if(i!=3 && i!=4) // test is only run the gating variables; 3=calcium, 4=voltage
+            {
+//                PRINT_VARIABLE(i);
+                TS_ASSERT_DELTA(lr91_perego.ma_error[i], matlab_ma_error[i], 1e-5);
+                TS_ASSERT_DELTA(lr91_perego.ma_current[i], matlab_ma_current[i], 1e-5);
+            }
+        }
+        
+        lr91_perego.mThetaP = -3.309930740729620;
+        lr91_perego.mThetaC = -0.134988456788270;
+        lr91_perego.mLocalTimeStep = 0.066198614814592;
         lr91_perego.EvaluateErrors(errors,predicted_solution,corrected_solution,current_time);
 
         std::vector<double> matlab_errors(8);
         matlab_errors[0] = 6.66198e-6;
         matlab_errors[1] = 1.13020e-6;
-        matlab_errors[2] = 0.00503;
+        matlab_errors[2] = 0.0050271;
         matlab_errors[3] = 1.61148e-10;
-        matlab_errors[4] = 0.00197;
+        matlab_errors[4] = 0.00197213;
         matlab_errors[5] = 2.29757e-7;
         matlab_errors[6] = 6.29993e-9;
         matlab_errors[7] = 1.19986e-7;
@@ -354,13 +404,14 @@ public:
 
         for (unsigned i=0; i<errors.size(); i++)
         {
-            std::cout << errors[i] << "\n";
+//            std::cout << errors[i] << "\n";
+//            std::cout << matlab_errors[i] << " matlab" << "\n";
             TS_ASSERT_DELTA(errors[i],matlab_errors[i],(1e-4)*matlab_errors[i]);
         }
 
     }
 
-    void xTestAdaptiveTimesteps(void) throw(Exception)
+    void TestAdaptiveTimesteps(void) throw(Exception)
     {
         // Set stimulus
         double magnitude = -25.5;
@@ -369,7 +420,7 @@ public:
 
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
-        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 0.01);
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Compute the solution with the Perego nonadaptive predictor-corrector scheme
         // Create a luo Rudy cell set up for Perego-like solving
@@ -382,15 +433,15 @@ public:
 
 
         matlab_timesteps[0] = 0.00;
-        matlab_timesteps[1] = 0.06619;
-        matlab_timesteps[2] = 0.06660;
-        matlab_timesteps[3] = 0.06808;
-        matlab_timesteps[4] = 0.06927;
-        matlab_timesteps[5] = 0.07050;
-        matlab_timesteps[6] = 0.07177;
-        matlab_timesteps[7] = 0.07309;
-        matlab_timesteps[8] = 0.07448;
-        matlab_timesteps[9] = 0.07598;
+        matlab_timesteps[1] = 0.066198614814592;
+        matlab_timesteps[2] = 0.066603712934993;
+        matlab_timesteps[3] = 0.068085035666819;
+        matlab_timesteps[4] = 0.069279542552099;
+        matlab_timesteps[5] = 0.070507181748773;
+        matlab_timesteps[6] = 0.071772602703771;
+        matlab_timesteps[7] = 0.073092397564555;
+        matlab_timesteps[8] = 0.074486709902735;
+        matlab_timesteps[9] = 0.075980375254532;
 
         for(unsigned i=0; i<matlab_timesteps.size(); i++)
         {
@@ -398,10 +449,21 @@ public:
             {   // Sum up the times
                 matlab_timesteps[i] += matlab_timesteps[i-1];
             }
+//            std::cout << "i\n";
+//            std::cout << matlab_timesteps[i] << " matlab" << "\n";
+//            std::cout << solutions_perego.rGetTimes()[i] << " solution" << "\n";
             TS_ASSERT_DELTA(matlab_timesteps[i],solutions_perego.rGetTimes()[i],1e-5);
         }
         TS_ASSERT_DELTA(solutions_perego.rGetTimes().back(),10.0,1e-9);
+        
+//        PRINT_VARIABLE(solutions_perego.rGetTimes().back());
+        
     }
+//    void TestFullPeregoAfterTenMilliseconds throw(Exception)
+//    {
+//        
+//    }
+    
 
 
 };
