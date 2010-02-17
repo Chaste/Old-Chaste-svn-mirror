@@ -59,6 +59,13 @@ Export('SConsTools')
 sys.path.append('python/hostconfig')
 import hostconfig
 
+# If building a loadable module at run-time
+dyn_libs_only = ARGUMENTS.get('dyn_libs_only', 0)
+if dyn_libs_only:
+    # Set some other options
+    ARGUMENTS['test_summary'] = 0
+    ARGUMENTS['do_inf_tests'] = 0
+
 # The type of build to perform (see python/BuildTypes.py for options)
 build_type = ARGUMENTS.get('build', 'default')
 build = BuildTypes.GetBuildType(build_type)
@@ -142,11 +149,15 @@ if use_chaste_libs and static_libs:
 
 # Use a single file to store signatures.
 # Forwards-compatible with SCons 0.97, and nicer for svn ignore.
-if sys.platform == 'cygwin':
-    SConsignFile('.sconsign-cygwin')
+if not dyn_libs_only:
+    if sys.platform == 'cygwin':
+        SConsignFile('.sconsign-cygwin')
+    else:
+        SConsignFile('.sconsign')
 else:
-    SConsignFile('.sconsign')
-
+    # Use a .sconsign file in the folder we're building
+    assert(len(COMMAND_LINE_TARGETS) == 1)
+    SConsignFile(os.path.join(COMMAND_LINE_TARGETS[0], '.sconsign'))
 
 # Chaste components (top level dirs).
 # We hard code dependencies between them, and use this to work out the
@@ -178,15 +189,9 @@ Alias('core', Split('global io linalg mesh ode pde'))
 # Set extra paths to search for libraries and include files.
 # Paths to PETSc, and any other external libraries, should be set here.
 # The three variables exported are:
-#  other_libs: names of libraries to link against.  Do not include PETSc
-#              libraries.  Do not include the 'lib' prefix or any suffixes
-#              in the library name (e.g. f2cblas not libf2cblas.a)
-#  other_libpaths: paths to search for libraries to link against.  These
-#                  should all be absolute paths, for safety.  Do include
-#                  the path to PETSc libraries (unless they're in a standard
-#                  system location).
-#  other_includepaths: paths to search for header files.  Do include the
-#                      path to PETSc headers (unless it's standard).
+#   other_libs: names of libraries to link against.
+#   other_libpaths: paths to search for libraries to link against.
+#   other_includepaths: paths to search for header files.
 # This is now done by the hostconfig subsystem.
 hostconfig.configure(build)
 other_libs = hostconfig.libraries
