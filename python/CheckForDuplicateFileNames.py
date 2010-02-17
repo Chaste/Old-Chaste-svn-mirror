@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # that have the same name.
 
 exts = ['.cpp', '.hpp']
-dir_ignores = ['build']
+dir_ignores = ['build','dynamic']
 chaste_dir = '.'
 
 import os
