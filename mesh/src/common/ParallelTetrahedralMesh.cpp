@@ -255,6 +255,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             if (mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
             {
                 own = true;
+                break;
             }
         }
 
