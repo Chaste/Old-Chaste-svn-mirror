@@ -29,13 +29,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define NUMERICFILECOMPARISON_HPP_
 
 #include "OutputFileHandler.hpp"
-
+#define A_WORD DBL_MAX
+#define NOTHING_TO_READ DBL_MIN
 /**
  * Compare files of numbers to see if they match to within a given tolerance.
  */
 class NumericFileComparison
 {
 private:
+    std::string mFilename1; /**< First filename */
+    std::string mFilename2; /**< Second filename */
+
     std::ifstream* mpFile1; /**< First file */
     std::ifstream* mpFile2; /**< Second file */
 public:
@@ -46,7 +50,9 @@ public:
      * @param fileName1  first file
      * @param fileName2  second file
      */
-    NumericFileComparison(std::string fileName1, std::string fileName2)
+    NumericFileComparison(std::string fileName1, std::string fileName2):
+        mFilename1(fileName1),
+        mFilename2(fileName2)
     {
         mpFile1 = new std::ifstream(fileName1.c_str());
         // If it doesn't exist - throw exception
@@ -86,18 +92,59 @@ public:
      * Compare the files.
      * 
      * @param absTolerance  absolute tolerance on difference between numbers.
+     * @param ignoreFirstFewLines  How many lines to ignore from the comparison
+     * 
      */
-    bool CompareFiles(double absTolerance=DBL_EPSILON)
+    bool CompareFiles(double absTolerance=DBL_EPSILON, unsigned ignoreFirstFewLines=0)
     {
-        double data1, data2;
+        double data1;
+        double data2;
         unsigned failures = 0;
         double max_error = 0.0;
         unsigned max_failures = 10;
-        bool empty_files = true;
         
-        while (*mpFile1>>data1 && *mpFile2>>data2)
+        for (unsigned line_number=0; line_number<ignoreFirstFewLines; line_number++)
         {
-            empty_files = false;
+            char buffer[256];
+            mpFile1->getline(buffer, 256);
+            mpFile2->getline(buffer, 256);
+            TS_ASSERT(!mpFile1->fail()); //Here we are assuming that there a least "ignoreFirstFewLines" lines
+            TS_ASSERT(!mpFile2->fail()); // and that they are lines of no more than 256 characters
+        }
+        
+        do 
+        {
+            if (!(*mpFile1>>data1))
+            {
+                //Cannot read the next token from file as a number, so try a word instead
+                std::string word;
+                mpFile1->clear();//reset the "failbit"
+                if (*mpFile1>>word)
+                {
+                    data1=A_WORD;
+                }
+                else
+                {
+                    mpFile1->clear();//reset the "failbit"
+                    data1=NOTHING_TO_READ;          
+                }
+            }
+            if (!(*mpFile2>>data2))
+            {
+                //Cannot read the next token from file as a number, so try a word instead
+                std::string word;
+                mpFile2->clear();//reset the "failbit"
+                if (*mpFile2>>word)
+                {
+                    data2=A_WORD;
+                }
+                else
+                {
+                    mpFile2->clear();//reset the "failbit"
+                    data2=NOTHING_TO_READ;          
+                }
+            }
+            
             double error = fabs(data1 - data2);
             if ( error > absTolerance )
             {
@@ -114,15 +161,19 @@ public:
                 break; // Don't clog the screen
             }
         }
-        // Can we read any more?
-        if (*mpFile1>>data1 || *mpFile2>>data2)
-        {
-            EXCEPTION("Files have different lengths");
-        }
+        while (data1 != NOTHING_TO_READ && data2 != NOTHING_TO_READ); //If either is a NOTHING_TO_READ, then it means that there's nothing to read from the file
+
         // Force CxxTest error if there were any major differences
         TS_ASSERT_LESS_THAN(max_error, absTolerance);
-        TS_ASSERT(!empty_files);
-        return (failures==0 && !empty_files);
+        //If that assertion tripped...
+        if (max_error >= absTolerance)
+        {
+#define COVERAGE_IGNORE            
+            //Report the paths to the files
+            TS_TRACE("Files " + mFilename1 + " and " + mFilename2 + " numerically differ.");
+#undef COVERAGE_IGNORE            
+        }
+        return (failures==0);
     }
 };
 

@@ -9,6 +9,7 @@ TestException.hpp
 TestGenericEventHandler.hpp
 TestHeartEventHandler.hpp
 TestLogFile.hpp
+TestNumericFileComparison.hpp
 TestOutputDirectoryFifoQueue.hpp
 TestOutputFileHandler.hpp
 TestPetscEvents.hpp
