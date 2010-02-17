@@ -102,7 +102,7 @@ public:
 
         // test by checking the length of the tissue against hardcoded value
         std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
-        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.8993, 2e-3); // visualised, looks good
+        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.9017, 2e-3); // visualised, looks good
         //IntelProduction differs by about 1.6e-3...
         
         MechanicsEventHandler::Headings();
