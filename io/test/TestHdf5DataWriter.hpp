@@ -298,13 +298,15 @@ public:
 //
 //            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_column_dumped.txt").c_str()), 0);
 //        }
-
+    
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_multi_column", true,
             "io/test/data", "hdf5_test_multi_column", false));
         
+        // We make sure that the comparison returns the same result with the weaker method
         TS_ASSERT(CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_test_multi_column", true,
             "io/test/data", "hdf5_test_multi_column", false));
             
+        // We make that the comparison fails if the files are different
         TS_ASSERT(!CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_test_multi_column", true,
             "io/test/data", "hdf5_test_full_format_extended", false));
         

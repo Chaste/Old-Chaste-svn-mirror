@@ -212,40 +212,10 @@ public:
         CardiacSimulation simulation("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities.xml");
         std::string foldername = "ChasteResults_heterogeneities";
         
-//        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "transmural_heterogeneities_results", false,
-//                   foldername, "SimulationResults", true));
+        TS_ASSERT( CompareFilesViaHdf5DataReaderGlobalNorm("heart/test/data/cardiac_simulations", "transmural_heterogeneities_results", false,
+                   foldername, "SimulationResults", true));
 
-        Hdf5DataReader reader1("heart/test/data/cardiac_simulations", "transmural_heterogeneities_results", false);
-        Hdf5DataReader reader2(foldername, "SimulationResults", true);
         
-        unsigned number_nodes1 = reader1.GetNumberOfRows();
-        
-        std::vector<std::string> variable_names1 = reader1.GetVariableNames();
-        std::vector<std::string> variable_names2 = reader2.GetVariableNames();
-        std::vector<double> times1 = reader1.GetUnlimitedDimensionValues();
-        unsigned num_vars = variable_names1.size();
-        DistributedVectorFactory factory(number_nodes1);
-
-        Vec data1 = factory.CreateVec();
-        Vec data2 = factory.CreateVec();
-        
-        for (unsigned timestep=0; timestep<times1.size(); timestep++)
-        {
-            for (unsigned var=0; var<num_vars; var++)
-            {
-                reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
-                reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
-                
-                PetscReal data1_norm;
-                PetscReal data2_norm;
-                VecNorm(data1, NORM_2, &data1_norm);
-                VecNorm(data2, NORM_2, &data2_norm);
-                TS_ASSERT(fabs(data1_norm-data2_norm) < 1e-10);
-            }
-        }
-        
-        VecDestroy(data1);
-        VecDestroy(data2);
     }
     void TestExceptions() throw(Exception)
     {
