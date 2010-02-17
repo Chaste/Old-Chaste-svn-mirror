@@ -214,7 +214,10 @@ public:
         DistanceMapCalculator<3,3> parallel_distance_calculator(parallel_mesh);
         std::vector<double> parallel_distances;
         parallel_distance_calculator.ComputeDistanceMap(map_far_corner, parallel_distances);
-
+        
+        TS_ASSERT_EQUALS(distance_calculator.mRoundCounter, 1u);
+        //Nodes in mesh are order such that a dumb partitioning will give a sequential handover from proc0 to proc1...
+        TS_ASSERT_EQUALS(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs());
  
         for (unsigned index=0; index<distances.size(); index++)
         {
@@ -266,6 +269,9 @@ public:
         std::vector<double> parallel_distances;
         parallel_distance_calculator.ComputeDistanceMap(map_left, parallel_distances);
  
+        TS_ASSERT_EQUALS(distance_calculator.mRoundCounter, 1u);
+        TS_ASSERT_DELTA(parallel_distance_calculator.mRoundCounter, 2u, 1u);// 1 2 or 3 
+
         for (unsigned index=0; index<distances.size(); index++)
         {
             // The distance should be equal to the x-coordinate of the point (minus the offset of the left face of the cube)

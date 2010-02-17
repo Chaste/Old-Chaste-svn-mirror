@@ -45,7 +45,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class DistanceMapCalculator
 {
 private:
-
+    friend class TestDistanceMapCalculator;
+    
     /** The mesh*/
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& mrMesh;
     /** Number of nodes in the mesh*/
@@ -60,6 +61,8 @@ private:
     unsigned *mNumHalosPerProcess;
     /** (Only used when mWorkOnEntrireMesh == false).  This is a local cache of halo node indices.*/
     std::vector<unsigned> mHaloNodeIndices;
+    /** Used to check parallel implementation*/
+    unsigned mRoundCounter;
     
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)

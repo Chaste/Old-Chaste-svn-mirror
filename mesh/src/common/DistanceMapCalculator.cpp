@@ -35,7 +35,8 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
     : mrMesh(rMesh),
       mWorkOnEntireMesh(true),
-      mNumHalosPerProcess(NULL)
+      mNumHalosPerProcess(NULL),
+      mRoundCounter(0u)
 {
     mNumNodes = mrMesh.GetNumNodes();
 
@@ -89,13 +90,16 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     }
 
     bool non_empty_queue=true;
-    unsigned round_counter=0;
+    mRoundCounter=0;
     while (non_empty_queue)
     {
         WorkOnLocalQueue(cart_distances, rNodeDistances);
         non_empty_queue=UpdateQueueFromRemote(cart_distances, rNodeDistances);
         //Sanity - check that we aren't doing this very many times
-        assert(round_counter++ <= PetscTools::GetNumProcs()+2);
+        if (mRoundCounter++ > PetscTools::GetNumProcs())
+        {
+            NEVER_REACHED;
+        }
     }
 
 
