@@ -55,6 +55,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Electrodes.hpp"
 #include "SimpleBathProblemSetup.hpp"
 
+#include "NumericFileComparison.hpp"
+
 /// For checkpoint migration tests
 #define ABS_TOL 1e-6
 
@@ -397,6 +399,7 @@ private:
             // (one per original process which had them).
             //EXPECT0(system, "diff " + ref_archive + ".0 " + my_archive + ".0");
             // If this fails you probably just need to copy a new reference_0_archive file from "my_archive.0",
+            // (running with Boost 1.34 - this code isn't executed otherwise!)
             // but do check that's the case!
 //            EXPECT0(system, "diff -I 'serialization::archive' " + rSourceDir + "reference_0_archive " + my_archive + ".0");
             EXPECT0(system, "diff " + rSourceDir + "reference_0_archive " + my_archive + ".0");
@@ -837,7 +840,16 @@ private:
             std::stringstream proc_id;
             proc_id << i;
             std::string suffix = "." + proc_id.str();
-            EXPECT0(system, "diff -I 'serialization::archive' " + ref_archive + suffix + " " + my_archive + suffix);
+            // We can't do a straight diff:
+            //EXPECT0(system, "diff -I 'serialization::archive' " + ref_archive + suffix + " " + my_archive + suffix);
+            // because we may have done a little simulation already, so there may be differences
+            // between serial and parallel results, below the numerical solver tolerance.
+                        
+            std::string file1 = ref_archive + suffix;
+            std::string file2 = my_archive + suffix;
+            
+            NumericFileComparison same_data(file1, file2);
+            TS_ASSERT(same_data.CompareFiles(1e-4, 1));
         }
         
         return p_problem;
