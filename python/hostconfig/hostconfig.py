@@ -323,7 +323,7 @@ def configure(build):
                 conf.SetPreferedVersions(prefs)
             elif not (hasattr(conf, 'Configure') and callable(conf.Configure)):
                 raise ValueError('Machine configuration has no support for setting prefered library versions.')
-            petsc_version = prefs['petsc'][:3]
+            petsc_version = prefs.get('petsc', '3.0')[:3]
         else:
             petsc_version = '3.0'
         DoPetsc(petsc_version, build.is_optimised, build.is_profile, build.is_production) # PETSc links against some objects defined in "other_libraries"
