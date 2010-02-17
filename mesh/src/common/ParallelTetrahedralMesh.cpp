@@ -177,50 +177,65 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             }
         }
     }
-
-    // Load the elements owned by the processor
-    for (unsigned element_index=0; element_index < mTotalNumElements; element_index++)
+    
+    if ( rMeshReader.IsFileFormatBinary() )
     {
-        ElementData element_data;
-
-        if ( ! rMeshReader.IsFileFormatBinary() )
+        // Binary format, we loop only over the elements we have been assigned
+        for (std::set<unsigned>::const_iterator elem_it=elements_owned.begin(); elem_it!=elements_owned.end(); elem_it++)
         {
-            element_data = rMeshReader.GetNextElementData();
-        }
-
-        // The element is owned by the processor
-        if (elements_owned.find(element_index) != elements_owned.end())
-        {
-            if ( rMeshReader.IsFileFormatBinary() )
-            {
-                element_data = rMeshReader.GetElementData(element_index);
-            }
+            unsigned global_element_index=*elem_it;
+            ElementData element_data;   
+            element_data = rMeshReader.GetElementData(global_element_index);
+            
             std::vector<Node<SPACE_DIM>*> nodes;
-            unsigned node_local_index;
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
-                if (nodes_owned.find(element_data.NodeIndices[j]) != nodes_owned.end())
-                {
-                    node_local_index = SolveNodeMapping(element_data.NodeIndices[j]);
-                    nodes.push_back(this->mNodes[node_local_index]);
-                }
-                else
-                {
-                    node_local_index = SolveHaloNodeMapping(element_data.NodeIndices[j]);
-                    nodes.push_back(this->mHaloNodes[node_local_index]);
-                }
+                //because we have populated mNodes and mHaloNodes above, we can now use this method, which should never throw
+                nodes.push_back(this->GetAnyNode(element_data.NodeIndices[j]));
             }
 
-            RegisterElement(element_index);
-
-            Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
+            RegisterElement(global_element_index);
+            Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(global_element_index, nodes);
             this->mElements.push_back(p_element);
-
+            
             if (rMeshReader.GetNumElementAttributes() > 0)
             {
                 assert(rMeshReader.GetNumElementAttributes() == 1);
                 unsigned attribute_value = element_data.AttributeValue;
                 p_element->SetRegion(attribute_value);
+            }
+        }
+    }
+    else
+    {
+        // Load the elements owned by the processor
+        for (unsigned element_index=0; element_index < mTotalNumElements; element_index++)
+        {
+            ElementData element_data;
+    
+            element_data = rMeshReader.GetNextElementData();
+            
+            // The element is owned by the processor
+            if (elements_owned.find(element_index) != elements_owned.end())
+            {
+                std::vector<Node<SPACE_DIM>*> nodes;
+                for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+                {
+                    //because we have populated mNodes and mHaloNodes above, we can now use this method, which should never throw
+                    nodes.push_back(this->GetAnyNode(element_data.NodeIndices[j]));
+                }
+    
+                RegisterElement(element_index);
+    
+                Element<ELEMENT_DIM,SPACE_DIM>* p_element = new Element<ELEMENT_DIM,SPACE_DIM>(element_index, nodes);
+                this->mElements.push_back(p_element);
+    
+                if (rMeshReader.GetNumElementAttributes() > 0)
+                {
+                    assert(rMeshReader.GetNumElementAttributes() == 1);
+                    unsigned attribute_value = element_data.AttributeValue;
+                    p_element->SetRegion(attribute_value);
+                }
             }
         }
     }
@@ -249,63 +264,45 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             continue;
         }
 
-        bool is_boundary_face = true;
-
         // Determine if this is a boundary face
         std::set<unsigned> containing_element_indices; // Elements that contain this face
         std::vector<Node<SPACE_DIM>*> nodes;
 
         for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
         {
-            // if I own this node
-            if (mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
-            {
-                // Add Node pointer to list for creating an element
-                unsigned node_local_index = SolveNodeMapping(node_indices[node_index]);
-                nodes.push_back(this->mNodes[node_local_index]);
-            }
-
-            // if I halo-own this node
-            if (mHaloNodesMapping.find(node_indices[node_index]) != mHaloNodesMapping.end())
-            {
-                // Add Node pointer to list for creating an element
-                unsigned node_local_index = SolveHaloNodeMapping(node_indices[node_index]);
-                nodes.push_back(this->mHaloNodes[node_local_index]);
-            }
+            //because we have populated mNodes and mHaloNodes above, we can now use this method, which should never throw
+            nodes.push_back(this->GetAnyNode(node_indices[node_index]));
         }
-
-        if (is_boundary_face)
+        // This is a boundary face
+        // Ensure all its nodes are marked as boundary nodes
+        for (unsigned j=0; j<nodes.size(); j++)
         {
-            // This is a boundary face
-            // Ensure all its nodes are marked as boundary nodes
-            for (unsigned j=0; j<nodes.size(); j++)
+            if (!nodes[j]->IsBoundaryNode())
             {
-                if (!nodes[j]->IsBoundaryNode())
-                {
-                    nodes[j]->SetAsBoundaryNode();
-                    this->mBoundaryNodes.push_back(nodes[j]);
-                }
-                // Register the index that this bounday element will have with the node
-                nodes[j]->AddBoundaryElement(actual_face_index);
+                nodes[j]->SetAsBoundaryNode();
+                this->mBoundaryNodes.push_back(nodes[j]);
             }
-
-            RegisterBoundaryElement(actual_face_index);
-            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
-            this->mBoundaryElements.push_back(p_boundary_element);
-
-            if (rMeshReader.GetNumFaceAttributes() > 0)
-            {
-                assert(rMeshReader.GetNumFaceAttributes() == 1);
-                unsigned attribute_value = face_data.AttributeValue;
-                p_boundary_element->SetRegion(attribute_value);
-            }
-            actual_face_index++;
+            // Register the index that this boundary element will have with the node
+            nodes[j]->AddBoundaryElement(actual_face_index);
         }
+
+        RegisterBoundaryElement(actual_face_index);
+        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
+        this->mBoundaryElements.push_back(p_boundary_element);
+
+        if (rMeshReader.GetNumFaceAttributes() > 0)
+        {
+            assert(rMeshReader.GetNumFaceAttributes() == 1);
+            unsigned attribute_value = face_data.AttributeValue;
+            p_boundary_element->SetRegion(attribute_value);
+        }
+        actual_face_index++;
     }
 
     if (mMetisPartitioning != DUMB && !PetscTools::IsSequential())
     {
         assert(this->mNodesPermutation.size() != 0);
+        // We reorder so that each process owns a contiguous set of the indices and we can then build a distributed vector factory. 
         ReorderNodes(this->mNodesPermutation);
 
         unsigned num_owned;
