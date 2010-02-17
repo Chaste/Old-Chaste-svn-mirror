@@ -32,5 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
                                    std::string pathname2, std::string filename2, bool makeAbsolute2);
+                                   
+bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string filename1, bool makeAbsolute1,
+                                             std::string pathname2, std::string filename2, bool makeAbsolute2);
 
 #endif /*COMPAREHDF5RESULTSFILES_HPP_*/

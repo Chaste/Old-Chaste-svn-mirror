@@ -301,7 +301,13 @@ public:
 
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_multi_column", true,
             "io/test/data", "hdf5_test_multi_column", false));
-
+        
+        TS_ASSERT(CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_test_multi_column", true,
+            "io/test/data", "hdf5_test_multi_column", false));
+            
+        TS_ASSERT(!CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_test_multi_column", true,
+            "io/test/data", "hdf5_test_full_format_extended", false));
+        
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
     }
