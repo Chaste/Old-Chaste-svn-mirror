@@ -195,6 +195,15 @@ public:
     
     void TestCardiacSimulationPatchwork() throw(Exception)
     {
+        OutputFileHandler handler("DynamicallyLoadedModel");
+        if (PetscTools::AmMaster())
+        {
+            // Copy CellML file into output dir
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
+            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
+        }
+        PetscTools::Barrier("TestCardiacSimulationPatchwork");
+        
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_patchwork.xml");
         std::string foldername = "Patchwork";
         

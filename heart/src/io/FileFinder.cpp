@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
 #include <fstream>
+#include <sys/stat.h>
 
 FileFinder::FileFinder(const cp::path_type& rPath)
 {
@@ -90,4 +91,12 @@ std::string FileFinder::GetAbsolutePath() const
     return mAbsPath;
 }
 
-
+bool FileFinder::IsNewerThan(const FileFinder& rOtherFile) const
+{
+    assert(Exists());
+    assert(rOtherFile.Exists());
+    struct stat our_stats, other_stats;
+    stat(GetAbsolutePath().c_str(), &our_stats);
+    stat(rOtherFile.GetAbsolutePath().c_str(), &other_stats);
+    return our_stats.st_mtime > other_stats.st_mtime;
+}

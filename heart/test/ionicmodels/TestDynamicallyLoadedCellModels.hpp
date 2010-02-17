@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteBuildRoot.hpp"
 #include "HeartConfig.hpp"
 #include "FileFinder.hpp"
+#include "CellMLToSharedLibraryConverter.hpp"
 
 class TestDynamicallyLoadedCellModels : public CxxTest::TestSuite
 {
@@ -154,6 +155,50 @@ public:
             RunLr91Test(loader);
         }
         // then 'else' what it currently does, more or less...
+    }
+    
+    void TestCellmlConverter() throw(Exception)
+    {
+        // Copy CellML file into output dir
+        std::string dirname = "TestCellmlConverter";
+        OutputFileHandler handler(dirname);
+        if (PetscTools::AmMaster())
+        {
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
+            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
+        }
+        PetscTools::Barrier("TestCellmlConverter");
+        
+        CellMLToSharedLibraryConverter converter;
+        // Convert a real CellML file
+        FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", cp::relative_to_type::chaste_test_output);
+        TS_ASSERT(cellml_file.Exists());
+        FileFinder so_file(dirname + "/libluo_rudy_1991.so", cp::relative_to_type::chaste_test_output);
+        TS_ASSERT(!so_file.Exists());
+        DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
+        TS_ASSERT(so_file.Exists());
+        TS_ASSERT(so_file.IsNewerThan(cellml_file));
+        // Converting a .so should be a "no-op"
+        DynamicCellModelLoader* p_loader2 = converter.Convert(so_file);
+        TS_ASSERT(p_loader2 == p_loader);
+        
+        // Cover exceptions
+        std::string file_name = "test";
+        FileFinder no_ext(dirname + "/" + file_name, cp::relative_to_type::chaste_test_output);
+        TS_ASSERT_THROWS_THIS(converter.Convert(no_ext), "Dynamically loadable cell model '"
+                              + no_ext.GetAbsolutePath() + "' does not exist.");
+        
+        out_stream fp = handler.OpenOutputFile(file_name);
+        fp->close();
+        TS_ASSERT_THROWS_THIS(converter.Convert(no_ext), "File does not have an extension: " + no_ext.GetAbsolutePath());
+        FileFinder unsupp_ext("heart/src/io/FileFinder.hpp", cp::relative_to_type::chaste_source_root);
+        TS_ASSERT_THROWS_THIS(converter.Convert(unsupp_ext), "Unsupported extension '.hpp' of file '"
+                              + unsupp_ext.GetAbsolutePath() + "'; must be .so or .cellml");
+        
+        EXPECT0(chdir,"heart"); // The ConvertCellModel.py script in ConvertCellmlToSo() should only work from chaste source directory.
+        EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make it re-run 
+        TS_ASSERT_THROWS_CONTAINS(p_loader = converter.Convert(cellml_file),"Conversion of cellML to Chaste shared object failed.");
+        EXPECT0(chdir,"../");                              
     }
 };
 

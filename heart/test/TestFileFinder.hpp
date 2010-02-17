@@ -92,7 +92,21 @@ public:
             TS_ASSERT(file_finder3.Exists());
             TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
         }
-    }    
+    }
+    
+    void TestNewer()
+    {
+        FileFinder file("heart/src/io/FileFinder.hpp", cp::relative_to_type::chaste_source_root);
+        // A file can't be newer than itself
+        TS_ASSERT(!file.IsNewerThan(file));
+        // A newly created file better be newer than ourself!
+        OutputFileHandler handler("TestFileFinder");
+        out_stream fp = handler.OpenOutputFile("new_file");
+        fp->close();
+        FileFinder new_file("TestFileFinder/new_file", cp::relative_to_type::chaste_test_output);
+        TS_ASSERT(new_file.IsNewerThan(file));
+        TS_ASSERT(!file.IsNewerThan(new_file));
+    }
 };
 
 #endif /*TESTFILEFINDER_HPP_*/

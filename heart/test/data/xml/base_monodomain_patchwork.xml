@@ -101,6 +101,17 @@
                     </Cuboid>
                 </Location>
             </Region>
+            <Region> <!-- REGION 11 -->
+                <IonicModel><Dynamic>
+                    <Path relative_to="chaste_test_output">DynamicallyLoadedModel/luo_rudy_1991.cellml</Path>
+                </Dynamic></IonicModel>
+                <Location unit="cm">
+                    <Cuboid>
+                        <LowerCoordinates x="1.1" y="0.0" z="0.0"/>
+                        <UpperCoordinates x="1.2" y="0.0" z="0.0"/>
+                    </Cuboid>
+                </Location>
+            </Region>
         </IonicModels>
 	    
 		<!-- 

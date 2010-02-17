@@ -77,6 +77,13 @@ public:
      * Get the absolute path to this file.
      */
     std::string GetAbsolutePath() const;
+    
+    /**
+     * Test whether this file is newer than another file.
+     * Compares modification times.
+     * @param rOtherFile  the file to test against.
+     */
+    bool IsNewerThan(const FileFinder& rOtherFile) const;
 };
 
 #endif /*FILEFINDER_HPP_*/
