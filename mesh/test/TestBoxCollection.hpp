@@ -207,6 +207,7 @@ public:
 
         for (unsigned i=0; i<points.size(); i++)
         {
+            delete nodes[i];
             delete points[i];
         }
     }
@@ -356,6 +357,7 @@ public:
 
         for (unsigned i=0; i<points.size(); i++)
         {
+            delete nodes[i];
             delete points[i];
         }
     }
