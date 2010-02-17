@@ -30,10 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # Check, apply or modify the copyright notice
 import os, sys
 exts = ['.cpp', '.hpp', '.py', '.java']
-dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects']
+dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects', '_local']
 exclusions = ['python/pycml/enum.py', 'python/pycml/pyparsing.py', 'python/pycml/schematron.py']
 
-apply_update =  '-update' in sys.argv
+apply_update = '-update' in sys.argv
 apply_new = '-new' in sys.argv
 
 chaste_dir = '.'

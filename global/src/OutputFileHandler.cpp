@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "Exception.hpp"
 #include "ArchiveLocationInfo.hpp"
+#include "GetCurrentWorkingDirectory.hpp"
 
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
@@ -77,11 +78,19 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
     if (chaste_test_output == NULL || *chaste_test_output == 0)
     {
         // Default to 'testoutput' folder within the current directory
-        directory_root = "./testoutput/";
+        directory_root = GetCurrentWorkingDirectory() + "/testoutput/";
     }
     else
     {
-        directory_root = std::string(chaste_test_output);
+        if (*chaste_test_output != '/')
+        {
+            // It's a relative path; prepend with the CWD
+            directory_root = GetCurrentWorkingDirectory() + "/" + chaste_test_output;
+        }
+        else
+        {
+            directory_root = std::string(chaste_test_output);
+        }
     }
     AddTrailingSlash(directory_root);
 

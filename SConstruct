@@ -310,8 +310,12 @@ del vg_path
 # Record key build info for the provenance system
 SConsTools.RecordBuildInfo(env, build_type, static_libs, use_chaste_libs)
 
+# We need different linker flags when compiling dynamically loadable modules
+dynenv = env.Copy()
+env.Append(LINKFLAGS=' '+build.rdynamic_link_flag)
+
 # Export the build environment to SConscript files
-Export('env')
+Export('env', 'dynenv')
 
 # Test log files to summarise
 test_log_files = []

@@ -92,10 +92,14 @@ public:
 
     /**
      *  Static method for getting the test output directory (the directory where
-     *  chaste stores test out, which is the environment variable CHASTE_TESTOUTPUT
+     *  chaste stores test output).  This is set from the environment variable
+     *  CHASTE_TESTOUTPUT, and defaults to "./testoutput" if it is not set.
+     *
+     *  Attempts to return an absolute path, but may get confused by odd setups.
+     *  Eventually we'll move to using boost::filesystem, which would be more robust.
      *
      *  Static so an output file handler does not have to be created if the test output
-     *  directory is wanted for, say, reading a file
+     *  directory is wanted for, say, reading a file.
      */
     static std::string GetChasteTestOutputDirectory();
 

@@ -496,9 +496,9 @@ def DoComponentSConscript(component, otherVars):
     dyn_libs = []
     for s in dyn_source:
         so_name = os.path.splitext(s)[0] + '.so'
-        so_lib = env.OriginalSharedLibrary(so_name, s)
+        so_lib = otherVars['dynenv'].OriginalSharedLibrary(so_name, s)
         so_dir = os.path.abspath(os.path.join(curdir, '..', '..', os.path.dirname(s)))
-        dyn_libs.append(env.Install(so_dir, so_lib))
+        dyn_libs.append(otherVars['dynenv'].Install(so_dir, so_lib))
     
     # Build and install the library for this component
     if use_chaste_libs:

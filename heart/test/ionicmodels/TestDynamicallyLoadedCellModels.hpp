@@ -161,7 +161,7 @@ public:
     {
         // Copy CellML file into output dir
         std::string dirname = "TestCellmlConverter";
-        OutputFileHandler handler(dirname,true); // We need a clean output directory for this test.
+        OutputFileHandler handler(dirname);
         if (PetscTools::AmMaster())
         {
             FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
@@ -171,13 +171,6 @@ public:
         
         CellMLToSharedLibraryConverter converter;
         
-        // Exception covering here...
-        EXPECT0(chdir,"heart"); // The ConvertCellModel.py script in ConvertCellmlToSo() should only work from chaste source directory.
-        EXPECT0(system, "rm dynamic/libluo_rudy_1991*.so"); // Make it re-run 
-        FileFinder cellml_file2("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
-        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file2),"Conversion of cellML to Chaste shared object failed.");
-        EXPECT0(chdir,"../");  
-
         // Convert a real CellML file
         FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", cp::relative_to_type::chaste_test_output);
         TS_ASSERT(cellml_file.Exists());
@@ -188,7 +181,9 @@ public:
         TS_ASSERT(so_file.IsNewerThan(cellml_file));
         // Converting a .so should be a "no-op"
         DynamicCellModelLoader* p_loader2 = converter.Convert(so_file);
+        TS_ASSERT(so_file.Exists());
         TS_ASSERT(p_loader2 == p_loader);
+        RunLr91Test(*p_loader, 0u);
         
         // Cover exceptions
         std::string file_name = "test";
@@ -202,7 +197,12 @@ public:
         FileFinder unsupp_ext("heart/src/io/FileFinder.hpp", cp::relative_to_type::chaste_source_root);
         TS_ASSERT_THROWS_THIS(converter.Convert(unsupp_ext), "Unsupported extension '.hpp' of file '"
                               + unsupp_ext.GetAbsolutePath() + "'; must be .so or .cellml");
-                              
+
+        EXPECT0(chdir, "heart"); // The ConvertCellModel.py script in ConvertCellmlToSo() should only work from chaste source directory.
+        // Having the 'rm' after the 'chdir' cunningly double-checks that the FileFinder has really given us an absolute path
+        EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),"Conversion of cellML to Chaste shared object failed.");
+        EXPECT0(chdir, "..");
     }
 };
 
