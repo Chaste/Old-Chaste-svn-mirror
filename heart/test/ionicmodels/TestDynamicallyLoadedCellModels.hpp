@@ -46,7 +46,8 @@ class TestDynamicallyLoadedCellModels : public CxxTest::TestSuite
 {
 private:
 
-    void RunLr91Test(DynamicCellModelLoader& rLoader)
+    void RunLr91Test(DynamicCellModelLoader& rLoader,
+                     unsigned v_index=4u)
     {
         // Set stimulus
         double magnitude = -25.5;
@@ -62,7 +63,7 @@ private:
         AbstractCardiacCell* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
 
         // Simple sanity check
-        TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), 4u);
+        TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), v_index);
 
         // Solve and write to file
         clock_t ck_start = clock();
@@ -90,7 +91,7 @@ public:
      * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
      * TestIonicModels.hpp.
      */
-    void TestDynamicallyLoadedLr91(void) throw(Exception)
+    void TestDynamicallyLoadedLr91() throw(Exception)
     {
         // Load the cell model dynamically
         std::string model_name = "libDynamicallyLoadableLr91.so";
@@ -100,6 +101,23 @@ public:
         // The .so also gets copied into the source folder
         DynamicCellModelLoader loader2(std::string(ChasteBuildRootDir()) + "heart/dynamic/" + model_name);
         RunLr91Test(loader2);
+    }
+    
+    /**
+     * Currently the build system will not automatically regenerate the C++ code from CellML, so you
+     * need to do that step manually:
+     *     cdchaste
+     *     ./python/ConvertCellModel.py -y heart/dynamic/luo_rudy_1991.cellml
+     */
+    void TestLr91FromCellML() throw(Exception)
+    {
+        FileFinder model("heart/dynamic/libluo_rudy_1991.so", cp::relative_to_type::chaste_source_root);
+        DynamicCellModelLoader loader(model.GetAbsolutePath());
+        RunLr91Test(loader, 0u);
+        
+        FileFinder model_opt("heart/dynamic/libluo_rudy_1991Opt.so", cp::relative_to_type::chaste_source_root);
+        DynamicCellModelLoader loader_opt(model_opt.GetAbsolutePath());
+        RunLr91Test(loader_opt, 0u);
     }
     
     void TestExceptions() throw(Exception)

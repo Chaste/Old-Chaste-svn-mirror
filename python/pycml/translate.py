@@ -1221,7 +1221,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                       'separate_lut_class': True,
                       'convert_interfaces': False,
                       'kept_vars_as_members': True,
-                      'use_metadata': False
+                      'use_metadata': False,
+                      'dynamically_loadable': False
                       }
         for key, default in our_kwargs.iteritems():
             setattr(self, key, kwargs.get(key, default))
@@ -2114,6 +2115,17 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block(subsidiary=True)
             self.close_block(subsidiary=True)
             self.close_block(subsidiary=True)
+        if self.dynamically_loadable:
+            # Write the C function to create instances of this cell model
+            self.writeln('extern "C"')
+            self.open_block()
+            self.writeln('AbstractCardiacCell* MakeCardiacCell(')
+            self.writeln('boost::shared_ptr<AbstractIvpOdeSolver> pSolver,', indent_offset=2)
+            self.writeln('boost::shared_ptr<AbstractStimulusFunction> pStimulus)', indent_offset=2)
+            self.open_block()
+            self.writeln('return new ', self.class_name, '(pSolver, pStimulus);')
+            self.close_block()
+            self.close_block()
         # End file
         self.writeln_hpp('#endif // ', self.include_guard)
         return
@@ -4590,6 +4602,11 @@ def get_options(args):
                       dest='use_metadata', action='store_true', default=False,
                       help="obtain variable names from metadata embedded within "
                       "the CellML file, rather than config.xml")
+    parser.add_option('-y', '--dll', '--dynamically-loadable',
+                      dest='dynamically_loadable',
+                      action='store_true', default=False,
+                      help="add code to allow the model to be compiled to a "
+                      "shared library and dynamically loaded")
 
     options, args = parser.parse_args(args)
     if len(args) != 1:
@@ -4733,6 +4750,7 @@ def run():
             transargs['convert_interfaces'] = options.convert_interfaces
             transargs['kept_vars_as_members'] = options.kept_vars_as_members
             transargs['use_metadata'] = options.use_metadata
+            transargs['dynamically_loadable'] = options.dynamically_loadable
         t = klass(**initargs)
         t.translate(doc, model_file, output_filename, class_name=class_name, **transargs)
     else:
