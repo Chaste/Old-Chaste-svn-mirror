@@ -1453,7 +1453,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         class, and also lookup table declarations and lookup methods.
         It also outputs a blank VerifyStateVariables method.
         """
-        self.include_serialization = not self.use_metadata # TODO: Implement
+        self.include_serialization = not (self.use_metadata or self.dynamically_loadable) # TODO: Implement
         self.check_time_units()
         # Check if we're generating a Backward Euler model
         if hasattr(self.model, u'solver_info') and \
