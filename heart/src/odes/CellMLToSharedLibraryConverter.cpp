@@ -80,7 +80,7 @@ DynamicCellModelLoader* CellMLToSharedLibraryConverter::Convert(const FileFinder
     {
         EXCEPTION("Unsupported extension '." + extension + "' of file '" + absolute_path + "'; must be .so or .cellml");
     }
-  
+
     return p_loader;
 }
 
@@ -97,7 +97,10 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             // Create a temporary folder within heart/dynamic
             folder_name << ChasteBuildRootDir() << "heart/dynamic/tmp_" << getpid() << "_" << time(NULL);
             int ret = mkdir(folder_name.str().c_str(), 0700);
-            assert(ret == 0);
+            if (ret != 0)
+            { // Some optimised builds see ret as unused if this line is just assert(ret ==0);
+                NEVER_REACHED;
+            }
             // Copy the .cellml file into the temporary folder
             EXPECT0(system, "cp " + rCellmlFullPath + " " + folder_name.str());
             // Run PyCml to generate C++ code
