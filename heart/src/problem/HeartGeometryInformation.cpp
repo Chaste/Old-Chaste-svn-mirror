@@ -86,37 +86,6 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedr
     mNumberOfSurfacesProvided = 3;
 }
 
-template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                                                               std::vector<unsigned>& rNodesAtEpi,
-                                                               std::vector<unsigned>& rNodesAtEndo)
-    : mpMesh(&rMesh)
-
-{
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
-
-    // Compute the distance map of each surface
-    distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
-    distance_calculator.ComputeDistanceMap(rNodesAtEndo, mDistMapEndocardium);
-
-    mNumberOfSurfacesProvided = 2;
-}
-
-template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                                                               std::vector<unsigned>& rNodesAtEpi,
-                                                               std::vector<unsigned>& rNodesAtLv,
-                                                               std::vector<unsigned>& rNodesAtRv)
-    : mpMesh(&rMesh)
-{
-    DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
-
-    // Compute the distance map of each surface
-    distance_calculator.ComputeDistanceMap(rNodesAtEpi, mDistMapEpicardium);
-    distance_calculator.ComputeDistanceMap(rNodesAtLv, mDistMapLeftVentricle);
-    distance_calculator.ComputeDistanceMap(rNodesAtRv, mDistMapRightVentricle);
-    mNumberOfSurfacesProvided = 3;
-}
 
 template<unsigned SPACE_DIM>
 HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeHeterogeneityFileName)
@@ -174,24 +143,14 @@ template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
         const std::string& line, std::set<unsigned>& surfaceNodeIndexSet, unsigned offset) const
 {
-    unsigned num_nodes = 0;
     std::stringstream line_stream(line);
-
     while (!line_stream.eof())
     {
         unsigned item;
         line_stream >> item;
         // If offset==1 then shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
         surfaceNodeIndexSet.insert(item-offset);
-
-        num_nodes++;
     }
-
-    if (num_nodes != SPACE_DIM)
-    {
-        EXCEPTION("Wrong file format");
-    }
-
 }
 
 

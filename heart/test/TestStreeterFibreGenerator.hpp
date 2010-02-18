@@ -77,12 +77,6 @@ public:
         TS_ASSERT_THROWS_THIS(fibre_generator.SetSurfaceFiles("wrong_name", "wrong_name", "wrong_name"),
                 "Wrong surface definition file name wrong_name");
 
-        // Wrong surface format
-        std::string wrong_face_file = "heart/test/data/box_shaped_heart/wrong_format.tri";
-        TS_ASSERT_THROWS_THIS(fibre_generator.SetSurfaceFiles(wrong_face_file, wrong_face_file, wrong_face_file),
-                "Wrong file format");
-
-
     }
 };
 

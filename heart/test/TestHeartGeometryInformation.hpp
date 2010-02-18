@@ -100,26 +100,10 @@ public:
             }
             
         }           
-MARK;
-        HeartGeometryInformation<2> info(mesh, left_face, right_face);
-
-MARK;
-        for (unsigned index=low_index; index<high_index; index++)
-        {
-            double x = mesh.GetNode(index)->rGetLocation()[0];
-            TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
-            TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
-            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
-        } 
-        
         // Write our fake face files
         std::string output_dir = "HeartGeom2d";
-
-MARK;
         WriteFakeFaceFile(output_dir, "epi.tri", left_face, 2u);
         WriteFakeFaceFile(output_dir, "endo.tri", right_face, 2u);
-MARK;
-MARK;
 
         PetscTools::Barrier(); // Make sure files are written
 
@@ -127,26 +111,16 @@ MARK;
         OutputFileHandler handler(output_dir, false);
         std::string dir_path = handler.GetOutputDirectoryFullPath();
         //call the constructor that takes in the surface files...
-        HeartGeometryInformation<2> info2(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
-MARK;
+        HeartGeometryInformation<2> info(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
 
-//        //first we test the get methods for the nodes on the surfaces
-//        std::vector<unsigned> nodes_on_endo = info2.rGetNodesOnEndoSurface();
-//        std::vector<unsigned> nodes_on_epi = info2.rGetNodesOnEpiSurface();
-//        TS_ASSERT_EQUALS(nodes_on_endo.size(),left_face.size());
-//        TS_ASSERT_EQUALS(nodes_on_epi.size(),right_face.size());
-//        //check that the vectors filled in by the constructor are the same as the original ones
-//        for (unsigned i = 0; i < left_face.size();i++)
-//        {
-//            TS_ASSERT_EQUALS(nodes_on_endo[i],right_face[i]);
-//            TS_ASSERT_EQUALS(nodes_on_epi[i],left_face[i]);
-//        }
         
         //and then we test the method to evaluate the position in the wall (again)
-         for (unsigned index=low_index; index<high_index; index++)
+        for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
-            TS_ASSERT_EQUALS(info2.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
+            TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
         } 
     }
 
@@ -172,8 +146,14 @@ MARK;
                 right_face.push_back(index);
             }
             
-        }           
-        HeartGeometryInformation<3> info(mesh, left_face, right_face);
+        }
+        std::string output_dir = "HeartGeom3d";
+        WriteFakeFaceFile(output_dir, "epi.tri", left_face, 3u);
+        WriteFakeFaceFile(output_dir, "endo.tri", right_face, 3u);          
+        OutputFileHandler handler(output_dir, false);
+        std::string dir_path = handler.GetOutputDirectoryFullPath();
+        //call the constructor that takes in the surface files...
+        HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
         
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
@@ -212,35 +192,7 @@ MARK;
             }
             
         }           
-
-        HeartGeometryInformation<3> info(mesh, epi_face, lv_face, rv_face);
         
-        //check that the method returns expected value in this case
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
-        {
-            double x = mesh.GetNode(index)->rGetLocation()[0];
-            //in the lv...
-            if (x<=3)
-            {
-                TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(3.0-x)/3.0);
-                TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
-                TS_ASSERT_EQUALS(info.rGetDistanceMapRightVentricle()[index],5.0-x);
-                TS_ASSERT_EQUALS(info.rGetDistanceMapLeftVentricle()[index],3.0-x);
-            }
-            //..in the septum...
-            else if ((x>3)&&(x<5))
-            {
-                TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index), 1.0/5.0);
-            }
-            //...and in the rv.
-            else if (x>=5)
-            {
-                TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(x-5.0)/3.0);
-                TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],8.0-x);
-                TS_ASSERT_EQUALS(info.rGetDistanceMapRightVentricle()[index],x-5.0);
-                TS_ASSERT_EQUALS(info.rGetDistanceMapLeftVentricle()[index],x-3.0);
-            }
-        } 
         
         // Write our fake face files
         std::string output_dir = "HeartGeom3d";
@@ -253,12 +205,12 @@ MARK;
         // Read in
         OutputFileHandler handler(output_dir, false);
         std::string dir_path = handler.GetOutputDirectoryFullPath();
-        HeartGeometryInformation<3> info2(mesh, dir_path + "/epi.tri", dir_path + "/lv.tri", dir_path + "/rv.tri", false);
+        HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/lv.tri", dir_path + "/rv.tri", false);
         
         //first we test the get methods for the nodes on the surfaces
-        std::vector<unsigned> nodes_on_lv = info2.rGetNodesOnLVSurface();
-        std::vector<unsigned> nodes_on_rv = info2.rGetNodesOnRVSurface();
-        std::vector<unsigned> nodes_on_epi = info2.rGetNodesOnEpiSurface();
+        std::vector<unsigned> nodes_on_lv = info.rGetNodesOnLVSurface();
+        std::vector<unsigned> nodes_on_rv = info.rGetNodesOnRVSurface();
+        std::vector<unsigned> nodes_on_epi = info.rGetNodesOnEpiSurface();
         TS_ASSERT_EQUALS(nodes_on_lv.size(),lv_face.size());
         TS_ASSERT_EQUALS(nodes_on_rv.size(),rv_face.size());
         TS_ASSERT_EQUALS(nodes_on_epi.size(),epi_face.size());
@@ -323,8 +275,19 @@ MARK;
             
         }  
         
-        HeartGeometryInformation<3> info(mesh, epi_face, lv_face, rv_face);   
-        
+        // Write our fake face files
+        std::string output_dir = "HeartGeom3d";
+        WriteFakeFaceFile(output_dir, "epi.tri", epi_face, 3u);
+        WriteFakeFaceFile(output_dir, "lv.tri", lv_face, 3u);
+        WriteFakeFaceFile(output_dir, "rv.tri", rv_face, 3u);
+
+        PetscTools::Barrier(); // Make sure files are written
+
+        // Read in
+        OutputFileHandler handler(output_dir, false);
+        std::string dir_path = handler.GetOutputDirectoryFullPath();
+        HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/lv.tri", dir_path + "/rv.tri", false);
+
         //covering exceptions
         TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(0.9, 0.9), "The sum of fractions of epicardial and endocardial layers must be lesser than 1");
         TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(0.9, -1.0), "A fraction of a layer must be positive");
@@ -388,49 +351,14 @@ MARK;
         std::string lv_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.lv";
         std::string rv_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.rv";
 
-        std::vector<unsigned> epi_nodes;        
-        std::vector<unsigned> lv_nodes;
-        std::vector<unsigned> rv_nodes;
-        
-        //since, at the moment, our reader is expecting a proper triangulation file
-        //we need to create the vectors to be passed to the HeartGeometryInformation 
-        std::ifstream file_epi;
-        file_epi.open(epi_surface.c_str());
-        do
-        {
-            unsigned value;
-            file_epi >> value;
-            epi_nodes.push_back(value);            
-        }
-        while(!file_epi.eof());
-
-        std::ifstream file_lv;
-        file_lv.open(lv_surface.c_str());
-        do
-        {
-            unsigned value;
-            file_lv >> value;
-            lv_nodes.push_back(value);            
-        }
-        while(!file_lv.eof());
-
-        std::ifstream file_rv;
-        file_rv.open(rv_surface.c_str());
-        do
-        {
-            unsigned value;
-            file_rv >> value;
-            rv_nodes.push_back(value);            
-        }
-        while(!file_rv.eof());
-        
+               
         //read in the mesh
         TrianglesMeshReader<3,3> mesh_reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         //calculate the geometry informations
-        HeartGeometryInformation<3> info(mesh, epi_nodes, lv_nodes, rv_nodes);
+        HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, rv_surface, true);
         info.DetermineLayerForEachNode(0.25,0.375);
         //and write them out to file
         OutputFileHandler results_handler("CellularHeterogeneity", false);

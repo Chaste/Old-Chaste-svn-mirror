@@ -257,46 +257,6 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         std::string lv_surface = mesh_file_name + ".lv";
         std::string rv_surface = mesh_file_name + ".rv";
         
-        //these vectors will filled and then passed to the HeartGeometryinformation object
-        std::vector<unsigned> epi_indices;        
-        std::vector<unsigned> lv_indices;
-        std::vector<unsigned> rv_indices;
-        
-        //since, at the moment, our reader is expecting a proper triangulation file
-        //we need to create the vectors to be passed to the HeartGeometryInformation 
-        ///\todo implement a reader of this type of files in the HeartGeometryinformation class instead of this messy code
-        std::ifstream file_epi;
-        file_epi.open(epi_surface.c_str());
-        assert(file_epi.is_open());
-        do
-        {
-            unsigned value;
-            file_epi >> value;
-            epi_indices.push_back(value);            
-        }
-        while(!file_epi.eof());
-
-        std::ifstream file_lv;
-        file_lv.open(lv_surface.c_str());
-        assert(file_lv.is_open());
-        do
-        {
-            unsigned value;
-            file_lv >> value;
-            lv_indices.push_back(value);            
-        }
-        while(!file_lv.eof());
-
-        std::ifstream file_rv;
-        file_rv.open(rv_surface.c_str());
-        assert(file_rv.is_open());
-        do
-        {
-            unsigned value;
-            file_rv >> value;
-            rv_indices.push_back(value);            
-        }
-        while(!file_rv.eof());
         
         TrianglesMeshReader<3,3> mesh_reader(mesh_file_name);
         //TetrahedralMesh<3u,3u>* p_mesh = dynamic_cast<TetrahedralMesh<3u,3u>*> (this->GetMesh());
@@ -304,7 +264,7 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         mesh.ConstructFromMeshReader(mesh_reader);
         
         //create the HeartGeometryInformation object
-        HeartGeometryInformation<3u> info(mesh, epi_indices, lv_indices, rv_indices);
+        HeartGeometryInformation<3u> info(mesh, epi_surface, lv_surface, rv_surface, true);
         
         //We need the fractions of epi and endo layer supplied by the user
         double epi_fraction = HeartConfig::Instance()->GetEpiLayerFraction();

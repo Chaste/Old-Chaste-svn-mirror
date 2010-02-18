@@ -157,30 +157,6 @@ public:
                               const std::string& rRVFile,
                               bool indexFromZero);
 
-    /** Constructor which takes in the nodes indices for each surface (mainly for testing or 
-     *  simple geometries) - 2 surface version
-     * 
-     * @param rMesh: reference to the mesh
-     * @param rNodesAtEpi: indices of the nodes in the epicardial surface
-     * @param rNodesAtEndo: indices of the nodes in the endocardial surface
-     */                     
-    HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                              std::vector<unsigned>& rNodesAtEpi,
-                              std::vector<unsigned>& rNodesAtEndo);
-
-    /** Constructor which takes in the nodes indices for each surface (mainly for testing or 
-     *  simple geometries) - 3 surface version
-     * 
-     * @param rMesh: reference to the mesh
-     * @param rNodesAtEpi: indices of the nodes in the epicardial surface
-     * @param rNodesAtLv: indices of the nodes in the lv surface
-     * @param rNodesAtRv: indices of the nodes in the rv surface
-     */                     
-    HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                              std::vector<unsigned>& rNodesAtEpi,
-                              std::vector<unsigned>& rNodesAtLv,
-                              std::vector<unsigned>& rNodesAtRv);
-                             
     /**
      * Alternative constructor that takes in the file containing a list of numbers (as many as the number of nodes).
      * Each number specifies the layer for the corresponding node.

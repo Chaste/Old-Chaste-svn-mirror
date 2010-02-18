@@ -82,28 +82,35 @@ public:
     }
     void TestHeartGeometryIntoCellFactory() throw(Exception)
     {
-         TetrahedralMesh<2,2> mesh;
+        TetrahedralMesh<2,2> mesh;
         //This mesh will have 6 nodes per face, spaced by 1
         mesh.ConstructRectangularMesh(5, 5);
 
-        std::vector<unsigned> left_face;
-        std::vector<unsigned> right_face;
-
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
-        {  
-            // Get the nodes at the left face of the square
-            if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
-            {
-                left_face.push_back(index);
+        OutputFileHandler handler("CellFactory", false);
+        std::string left_file="left";
+        std::string right_file="right";
+        if (PetscTools::AmMaster())
+        {
+            out_stream p_left_file = handler.OpenOutputFile(left_file);
+            out_stream p_right_file = handler.OpenOutputFile(right_file);
+ 
+            for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+            {  
+                // Get the nodes at the left face of the square
+                if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
+                {
+                    *p_left_file<< index <<"\n";
+                }
+                // Get the nodes at the right face of the square
+                if (fabs(mesh.GetNode(index)->rGetLocation()[0]-5.0) < 1e-6)
+                {
+                    *p_right_file<< index <<"\n";
+                }
+                
             }
-            // Get the nodes at the right face of the square
-            if (fabs(mesh.GetNode(index)->rGetLocation()[0]-5.0) < 1e-6)
-            {
-                right_face.push_back(index);
-            }
-            
         }           
-        HeartGeometryInformation<2> info(mesh, left_face, right_face);
+        
+        HeartGeometryInformation<2> info(mesh, handler.GetOutputDirectoryFullPath()+left_file, handler.GetOutputDirectoryFullPath()+right_file, true);
         
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory_1;
         
