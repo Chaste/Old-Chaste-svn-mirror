@@ -5,7 +5,7 @@
 		<!-- 
 			Problem definition 
 		-->    
-	    <SimulationDuration unit="ms">0.1</SimulationDuration>
+	    <SimulationDuration unit="ms">1.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default><Hardcoded>LuoRudyI</Hardcoded></Default>
@@ -35,7 +35,7 @@
 			<Stimulus> <!-- #1 -->
 				<Strength unit="uA/cm^3">0.0</Strength> <!-- It's not really stimulated -->
 				<Duration unit="ms">1.0</Duration>
-				<Delay unit="ms">2.0</Delay>
+				<Delay unit="ms">0.2</Delay>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-0.05" y="-0.05" z="-0.05"/>

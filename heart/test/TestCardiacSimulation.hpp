@@ -214,6 +214,9 @@ public:
     void TestCardiacSimulationKirsten() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_kirsten.xml");
+        std::string foldername = "Kirsten";
+        TS_ASSERT(CompareFilesViaHdf5DataReaderGlobalNorm("heart/test/data/cardiac_simulations", "Kirsten", false,
+                                                foldername, "SimulationResults", true));
     }
     
     void TestTransmuralCellularheterogeneities() throw(Exception)
