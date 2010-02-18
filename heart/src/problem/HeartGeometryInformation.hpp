@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <set>
 #include "DistanceMapCalculator.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "HeartRegionCodes.hpp"
 
 /** Names for layers in the heart wall */
@@ -77,15 +77,17 @@ private:
      * 
      *  @param surfaceFile The surface file
      *  @param rSurfaceNodes The returned vector of nodes indices on this surface
+     *  @param indexFromZero  true for native triangles files. false for Memfem files which are indexed from 1.
      */ 
-    void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& rSurfaceNodes) const;
+    void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& rSurfaceNodes, bool indexFromZero=true) const;
 
     /**
      *  Helper function for GetNodesAtSurface
      *  @param line A line in a surface file
      *  @param surfaceNodeIndexSet The nodes in the element corresponding to this line
+     *  @param offset is the lowest index of a node in the original mesh (0 for native triangles or 1 for MEMFEM)
      */
-    void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const;
+    void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet, unsigned offset) const;
     
     /**
      * Helper method to calculate the distance between the node and the Endocardial surface
@@ -105,7 +107,7 @@ private:
     double GetDistanceToEpi(unsigned nodeIndex);
 
     /** The mesh of the problem*/
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
     
     /** Vector to store the distance map to epicardium*/
     std::vector<double> mDistMapEpicardium;
@@ -130,26 +132,30 @@ public:
      * Constructor for a two surface mesh
      * 
      * @param rMesh: reference to the mesh
-     * @param mEpiFile: file of elements on the epicardial surface
-     * @param mEndoFile: file of elements on the endocardial surface
+     * @param rEpiFile: file of elements on the epicardial surface
+     * @param rEndoFile: file of elements on the endocardial surface
+     * @param indexFromZero  true for native triangles files. false for Memfem files which are indexed from 1.
      */
-    HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                              std::string mEpiFile,
-                              std::string mEndoFile);
+    HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                              const std::string& rEpiFile,
+                              const std::string& rEndoFile,
+                              bool indexFromZero);
 
 
     /**
      * Constructor for a three surface mesh
      * 
      * @param rMesh: reference to the mesh
-     * @param mEpiFile: file of elements on the epicardial surface
-     * @param mRVFile: file of elements on the endocardial right ventricular surface
-     * @param mLVFile: file of elements on the endocardial left ventricular surface
+     * @param rEpiFile: file of elements on the epicardial surface
+     * @param rRVFile: file of elements on the endocardial right ventricular surface
+     * @param rLVFile: file of elements on the endocardial left ventricular surface
+     * @param indexFromZero  true for native triangles files. false for Memfem files which are indexed from 1.
      */
-    HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                              std::string mEpiFile,
-                              std::string mLVFile,
-                              std::string mRVFile);
+    HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                              const std::string& rEpiFile,
+                              const std::string& rLVFile,
+                              const std::string& rRVFile,
+                              bool indexFromZero);
 
     /** Constructor which takes in the nodes indices for each surface (mainly for testing or 
      *  simple geometries) - 2 surface version
@@ -158,19 +164,19 @@ public:
      * @param rNodesAtEpi: indices of the nodes in the epicardial surface
      * @param rNodesAtEndo: indices of the nodes in the endocardial surface
      */                     
-    HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+    HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                               std::vector<unsigned>& rNodesAtEpi,
                               std::vector<unsigned>& rNodesAtEndo);
 
     /** Constructor which takes in the nodes indices for each surface (mainly for testing or 
-     *  simple geometries)
+     *  simple geometries) - 3 surface version
      * 
      * @param rMesh: reference to the mesh
      * @param rNodesAtEpi: indices of the nodes in the epicardial surface
      * @param rNodesAtLv: indices of the nodes in the lv surface
      * @param rNodesAtRv: indices of the nodes in the rv surface
      */                     
-    HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+    HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                               std::vector<unsigned>& rNodesAtEpi,
                               std::vector<unsigned>& rNodesAtLv,
                               std::vector<unsigned>& rNodesAtRv);

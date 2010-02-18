@@ -32,8 +32,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartGeometryInformation.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
-#include "MeshalyzerMeshWriter.hpp" //temporal
+#include "ParallelTetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp"  //temporary
+//#include "MeshalyzerMeshWriter.hpp" //temporary
 #include "PetscSetupAndFinalize.hpp"
+#include "Debug.hpp" //temporary
 
 class TestHeartGeometryInformation : public CxxTest::TestSuite
 {
@@ -47,32 +50,43 @@ private:
         if (PetscTools::AmMaster())
         {
             out_stream p_file = handler.OpenOutputFile(rFilename);
-            
-            assert(rNodeLayers.size()>0);
-            for (unsigned i=0; i<rNodeLayers.size(); i++)
-            {
-                for (unsigned j=0; j<spaceDim; j++)
-                {
-                   * p_file << (j == 0 ? "" : "  ") << (1+rNodeLayers[i]);
-                }
-               * p_file << std::endl;
-            }
-            
             p_file->close();
+        }
+        //Each process may have a small number of the nodes
+        for (unsigned proc_turn=0; proc_turn<PetscTools::GetNumProcs(); proc_turn++)
+        {    
+            if (PetscTools::GetMyRank()==proc_turn)
+            {
+                out_stream p_file = handler.OpenOutputFile(rFilename, std::ios::app);
+                
+                for (unsigned i=0; i<rNodeLayers.size(); i++)
+                {
+                    for (unsigned j=0; j<spaceDim; j++)
+                    {
+                       * p_file << (j == 0 ? "" : "  ") << (1+rNodeLayers[i]);
+                    }
+                   * p_file << std::endl;
+                }
+                p_file->close();
+            }
+            PetscTools::Barrier();
         }
     }
 
 public:
     void TestCalculateRelativeWallPositionSimple2dMesh() throw(Exception)
     {   
-        TetrahedralMesh<2,2> mesh;
+        ParallelTetrahedralMesh<2,2> mesh;
         //This mesh will have 6 nodes per face, spaced by 1
         mesh.ConstructRectangularMesh(5, 5);
 
         std::vector<unsigned> left_face;
         std::vector<unsigned> right_face;
-
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        
+        unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
+        unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
+        
+        for (unsigned index=low_index; index<high_index; index++)
         {  
             // Get the nodes at the left face of the square
             if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
@@ -86,9 +100,11 @@ public:
             }
             
         }           
+MARK;
         HeartGeometryInformation<2> info(mesh, left_face, right_face);
 
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+MARK;
+        for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
@@ -98,8 +114,12 @@ public:
         
         // Write our fake face files
         std::string output_dir = "HeartGeom2d";
+
+MARK;
         WriteFakeFaceFile(output_dir, "epi.tri", left_face, 2u);
         WriteFakeFaceFile(output_dir, "endo.tri", right_face, 2u);
+MARK;
+MARK;
 
         PetscTools::Barrier(); // Make sure files are written
 
@@ -107,22 +127,23 @@ public:
         OutputFileHandler handler(output_dir, false);
         std::string dir_path = handler.GetOutputDirectoryFullPath();
         //call the constructor that takes in the surface files...
-        HeartGeometryInformation<2> info2(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri");
+        HeartGeometryInformation<2> info2(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
+MARK;
 
-        //first we test the get methods for the nodes on the surfaces
-        std::vector<unsigned> nodes_on_endo = info2.rGetNodesOnEndoSurface();
-        std::vector<unsigned> nodes_on_epi = info2.rGetNodesOnEpiSurface();
-        TS_ASSERT_EQUALS(nodes_on_endo.size(),left_face.size());
-        TS_ASSERT_EQUALS(nodes_on_epi.size(),right_face.size());
-        //check that the vectors filled in by the constructor are the same as the original ones
-        for (unsigned i = 0; i < left_face.size();i++)
-        {
-            TS_ASSERT_EQUALS(nodes_on_endo[i],right_face[i]);
-            TS_ASSERT_EQUALS(nodes_on_epi[i],left_face[i]);
-        }
+//        //first we test the get methods for the nodes on the surfaces
+//        std::vector<unsigned> nodes_on_endo = info2.rGetNodesOnEndoSurface();
+//        std::vector<unsigned> nodes_on_epi = info2.rGetNodesOnEpiSurface();
+//        TS_ASSERT_EQUALS(nodes_on_endo.size(),left_face.size());
+//        TS_ASSERT_EQUALS(nodes_on_epi.size(),right_face.size());
+//        //check that the vectors filled in by the constructor are the same as the original ones
+//        for (unsigned i = 0; i < left_face.size();i++)
+//        {
+//            TS_ASSERT_EQUALS(nodes_on_endo[i],right_face[i]);
+//            TS_ASSERT_EQUALS(nodes_on_epi[i],left_face[i]);
+//        }
         
         //and then we test the method to evaluate the position in the wall (again)
-         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+         for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             TS_ASSERT_EQUALS(info2.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
@@ -232,7 +253,7 @@ public:
         // Read in
         OutputFileHandler handler(output_dir, false);
         std::string dir_path = handler.GetOutputDirectoryFullPath();
-        HeartGeometryInformation<3> info2(mesh, dir_path + "/epi.tri", dir_path + "/lv.tri", dir_path + "/rv.tri");
+        HeartGeometryInformation<3> info2(mesh, dir_path + "/epi.tri", dir_path + "/lv.tri", dir_path + "/rv.tri", false);
         
         //first we test the get methods for the nodes on the surfaces
         std::vector<unsigned> nodes_on_lv = info2.rGetNodesOnLVSurface();

@@ -799,32 +799,32 @@ private:
             TS_ASSERT(p_par_mesh == NULL);
         }
 
-	if (currentTime == 0.0)
-	{
+	   if (currentTime == 0.0)
+	   {
             // All cells should be at initial conditions.
-	    if (p_factory->GetHigh() > p_factory->GetLow())
-	    {
-	        std::vector<double> inits;
-		for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
-		{
-		    AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-		    FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
-		    if (p_fake_cell == NULL)
-		    {
-		        if (inits.empty())
-			{
-			    inits = p_cell->GetInitialConditions();
-			}
-			std::vector<double>& r_state = p_cell->rGetStateVariables();
-			TS_ASSERT_EQUALS(r_state.size(), inits.size());
-			for (unsigned j=0; j<r_state.size(); j++)
-			{
-			    TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
-			}
-		    }
-		}
-	    }
-	}
+    	    if (p_factory->GetHigh() > p_factory->GetLow())
+    	    {
+    	        std::vector<double> inits;
+        		for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+        		{
+        		    AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+        		    FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
+        		    if (p_fake_cell == NULL)
+                    {
+        		        if (inits.empty())
+        			    {
+                            inits = p_cell->GetInitialConditions();
+                        }
+                        std::vector<double>& r_state = p_cell->rGetStateVariables();
+                        TS_ASSERT_EQUALS(r_state.size(), inits.size());
+                        for (unsigned j=0; j<r_state.size(); j++)
+                        {
+                            TS_ASSERT_DELTA(r_state[j], inits[j], 1e-10);
+                        }
+                    }
+                }
+    	    }
+    	}
 
         // Save it to a normal archive
         CardiacSimulationArchiver<Problem>::Save(*p_problem, rArchiveDirectory + "/new_archive");
@@ -849,7 +849,7 @@ private:
             std::string file2 = my_archive + suffix;
             
             NumericFileComparison same_data(file1, file2);
-            TS_ASSERT(same_data.CompareFiles(1e-4, 1));
+            TS_ASSERT(same_data.CompareFiles(ABS_TOL, 1)); //Tolerance of comparison.  Ignore first line (first 1 lines).
         }
         
         return p_problem;

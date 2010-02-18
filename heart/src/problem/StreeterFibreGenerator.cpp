@@ -143,7 +143,7 @@ void StreeterFibreGenerator<SPACE_DIM>::SetSurfaceFiles(
             const std::string &leftVentricleFile)
 {
     // Compute the distance map of each surface
-     mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, epicardiumFile, leftVentricleFile, rightVentricleFile);
+     mpGeometryInfo = new HeartGeometryInformation<SPACE_DIM>(mrMesh, epicardiumFile, leftVentricleFile, rightVentricleFile, false);
 }
 
 template<unsigned SPACE_DIM>

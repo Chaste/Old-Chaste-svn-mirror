@@ -118,6 +118,6 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
     {
         // Delete the temporary folder
         EXPECT0(system, "rm -r " + folder_name.str());
-        EXCEPTION("Conversion of cellML to Chaste shared object failed. Error was: " + e.GetMessage());
+        EXCEPTION("Conversion of CellML to Chaste shared object failed. Error was: " + e.GetMessage());
     }
 }

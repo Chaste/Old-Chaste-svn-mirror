@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 #include "PetscTools.hpp"
-
+//#include "Debug.hpp"
 
 // Area of the septum considered to belong to the each ventricle (relative to 1)
 template<unsigned SPACE_DIM>
@@ -44,37 +44,39 @@ template<unsigned SPACE_DIM>
 const double HeartGeometryInformation<SPACE_DIM>::RIGHT_SEPTUM_SIZE = 1.0/3.0;
 
 template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                                                              std::string mEpiFile,
-                                                              std::string mEndoFile)
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                                                              const std::string& rEpiFile,
+                                                              const std::string& rEndoFile,
+                                                              bool indexFromZero)
    : mpMesh(&rMesh)
 {
     DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
 
     // Get nodes defining each surface
-    GetNodesAtSurface(mEpiFile, mEpiSurface);
-    GetNodesAtSurface(mEndoFile, mEndoSurface);
+    GetNodesAtSurface(rEpiFile, mEpiSurface, indexFromZero);
+    GetNodesAtSurface(rEndoFile, mEndoSurface, indexFromZero);
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
     distance_calculator.ComputeDistanceMap(mEndoSurface, mDistMapEndocardium);
-
     mNumberOfSurfacesProvided = 2;
 }
 
 template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
-                                                               std::string mEpiFile,
-                                                               std::string mLVFile,
-                                                               std::string mRVFile)
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+                                                               const std::string& rEpiFile,
+                                                               const std::string& rLVFile,
+                                                               const std::string& rRVFile,
+                                                               bool indexFromZero)
     : mpMesh(&rMesh)
 {
     DistanceMapCalculator<SPACE_DIM, SPACE_DIM> distance_calculator(*mpMesh);
 
     // Get nodes defining each surface
-    GetNodesAtSurface(mEpiFile, mEpiSurface);
-    GetNodesAtSurface(mLVFile, mLVSurface);
-    GetNodesAtSurface(mRVFile, mRVSurface);
+
+    GetNodesAtSurface(rEpiFile, mEpiSurface, indexFromZero);
+    GetNodesAtSurface(rLVFile, mLVSurface, indexFromZero);
+    GetNodesAtSurface(rRVFile, mRVSurface, indexFromZero);
 
     // Compute the distance map of each surface
     distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
@@ -85,7 +87,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
 }
 
 template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                                                                std::vector<unsigned>& rNodesAtEpi,
                                                                std::vector<unsigned>& rNodesAtEndo)
     : mpMesh(&rMesh)
@@ -101,7 +103,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<S
 }
 
 template<unsigned SPACE_DIM>
-HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
+HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh,
                                                                std::vector<unsigned>& rNodesAtEpi,
                                                                std::vector<unsigned>& rNodesAtLv,
                                                                std::vector<unsigned>& rNodesAtRv)
@@ -170,7 +172,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeH
 
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
-        const std::string& line, std::set<unsigned>& surfaceNodeIndexSet) const
+        const std::string& line, std::set<unsigned>& surfaceNodeIndexSet, unsigned offset) const
 {
     unsigned num_nodes = 0;
     std::stringstream line_stream(line);
@@ -179,8 +181,8 @@ void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
     {
         unsigned item;
         line_stream >> item;
-        // Shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
-        surfaceNodeIndexSet.insert(item-1);
+        // If offset==1 then shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
+        surfaceNodeIndexSet.insert(item-offset);
 
         num_nodes++;
     }
@@ -195,10 +197,16 @@ void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
 
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
-        const std::string& surfaceFile, std::vector<unsigned>& rSurfaceNodes) const
+        const std::string& surfaceFile, std::vector<unsigned>& rSurfaceNodes, bool indexFromZero) const
 {
     // Open the file defining the surface
     std::ifstream file_stream;
+    unsigned offset=0;
+    if (indexFromZero == false)
+    {
+        offset=1;
+    }
+    
     file_stream.open(surfaceFile.c_str());
     if (!file_stream.is_open())
     {
@@ -213,7 +221,7 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     getline(file_stream, line);
     do
     {
-        ProcessLine(line, surface_node_index_set);
+        ProcessLine(line, surface_node_index_set, offset);
 
         getline(file_stream, line);
     }

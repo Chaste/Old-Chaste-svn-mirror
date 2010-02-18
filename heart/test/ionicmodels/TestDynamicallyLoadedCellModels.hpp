@@ -201,7 +201,7 @@ public:
         EXPECT0(chdir, "heart"); // The ConvertCellModel.py script in ConvertCellmlToSo() should only work from chaste source directory.
         // Having the 'rm' after the 'chdir' cunningly double-checks that the FileFinder has really given us an absolute path
         EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
-        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),"Conversion of cellML to Chaste shared object failed.");
+        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),"Conversion of CellML to Chaste shared object failed.");
         EXPECT0(chdir, "..");
     }
 };
