@@ -112,12 +112,15 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             // Delete the temporary folder
             EXPECT0(system, "rm -r " + folder_name.str());
         }
-        PetscTools::Barrier("CellMLToSharedLibraryConverter::ConvertCellmlToSo");
     }
     catch (Exception& e)
     {
+        PetscTools::ReplicateException(true);
         // Delete the temporary folder
         EXPECT0(system, "rm -r " + folder_name.str());
         EXCEPTION("Conversion of CellML to Chaste shared object failed. Error was: " + e.GetMessage());
     }
+    // This also has the effect of a barrier, ensuring all processes wait for the
+    // shared library to be created.
+    PetscTools::ReplicateException(false);
 }
