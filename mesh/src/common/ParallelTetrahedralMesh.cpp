@@ -270,21 +270,13 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
         for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
         {
-            // if I own this node
-            if (mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
+            //because we have populated mNodes and mHaloNodes above, we can now use this method, 
+            //which SHOULD never throw (but it does).
+            try
             {
-                // Add Node pointer to list for creating an element
-                unsigned node_local_index = SolveNodeMapping(node_indices[node_index]);
-                nodes.push_back(this->mNodes[node_local_index]);
+                nodes.push_back(this->GetAnyNode(node_indices[node_index]));
             }
-            // if I halo-own this node
-            else if (mHaloNodesMapping.find(node_indices[node_index]) != mHaloNodesMapping.end())
-            {
-                // Add Node pointer to list for creating an element
-                unsigned node_local_index = SolveHaloNodeMapping(node_indices[node_index]);
-                nodes.push_back(this->mHaloNodes[node_local_index]);
-            }
-            else
+            catch (Exception &e)
             {
                 ///\todo This ought to be NEVER_REACHED;
             }
