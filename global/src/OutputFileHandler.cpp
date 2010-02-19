@@ -89,7 +89,10 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
         }
         else
         {
+#define COVERAGE_IGNORE
+            // This branch is never taken on the build machines, because CHASTE_TEST_OUTPUT is set to a relative path.
             directory_root = std::string(chaste_test_output);
+#undef COVERAGE_IGNORE
         }
     }
     AddTrailingSlash(directory_root);
