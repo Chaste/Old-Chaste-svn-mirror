@@ -264,8 +264,6 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             continue;
         }
 
-        bool is_boundary_face = true;
-
         // Determine if this is a boundary face
         std::set<unsigned> containing_element_indices; // Elements that contain this face
         std::vector<Node<SPACE_DIM>*> nodes;
@@ -279,43 +277,43 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                 unsigned node_local_index = SolveNodeMapping(node_indices[node_index]);
                 nodes.push_back(this->mNodes[node_local_index]);
             }
-
             // if I halo-own this node
-            if (mHaloNodesMapping.find(node_indices[node_index]) != mHaloNodesMapping.end())
+            else if (mHaloNodesMapping.find(node_indices[node_index]) != mHaloNodesMapping.end())
             {
                 // Add Node pointer to list for creating an element
                 unsigned node_local_index = SolveHaloNodeMapping(node_indices[node_index]);
                 nodes.push_back(this->mHaloNodes[node_local_index]);
             }
+            else
+            {
+                ///\todo This ought to be NEVER_REACHED;
+            }
         }
 
-        if (is_boundary_face)
+        // This is a boundary face
+        // Ensure all its nodes are marked as boundary nodes
+        for (unsigned j=0; j<nodes.size(); j++)
         {
-            // This is a boundary face
-            // Ensure all its nodes are marked as boundary nodes
-            for (unsigned j=0; j<nodes.size(); j++)
+            if (!nodes[j]->IsBoundaryNode())
             {
-                if (!nodes[j]->IsBoundaryNode())
-                {
-                    nodes[j]->SetAsBoundaryNode();
-                    this->mBoundaryNodes.push_back(nodes[j]);
-                }
-                // Register the index that this bounday element will have with the node
-                nodes[j]->AddBoundaryElement(actual_face_index);
+                nodes[j]->SetAsBoundaryNode();
+                this->mBoundaryNodes.push_back(nodes[j]);
             }
-
-            RegisterBoundaryElement(actual_face_index);
-            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
-            this->mBoundaryElements.push_back(p_boundary_element);
-
-            if (rMeshReader.GetNumFaceAttributes() > 0)
-            {
-                assert(rMeshReader.GetNumFaceAttributes() == 1);
-                unsigned attribute_value = face_data.AttributeValue;
-                p_boundary_element->SetRegion(attribute_value);
-            }
-            actual_face_index++;
+            // Register the index that this bounday element will have with the node
+            nodes[j]->AddBoundaryElement(actual_face_index);
         }
+
+        RegisterBoundaryElement(actual_face_index);
+        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
+        this->mBoundaryElements.push_back(p_boundary_element);
+
+        if (rMeshReader.GetNumFaceAttributes() > 0)
+        {
+            assert(rMeshReader.GetNumFaceAttributes() == 1);
+            unsigned attribute_value = face_data.AttributeValue;
+            p_boundary_element->SetRegion(attribute_value);
+        }
+        actual_face_index++;
     }
 
     if (mMetisPartitioning != DUMB && !PetscTools::IsSequential())
