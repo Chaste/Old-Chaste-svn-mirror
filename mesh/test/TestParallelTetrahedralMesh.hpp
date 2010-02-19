@@ -1169,6 +1169,18 @@ public:
         }
         delete p_mesh;
     }
+    
+    void TestSimpleLoad() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
+
+
+        ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); // No reordering;
+        parallel_mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
+        TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
+        TS_ASSERT_EQUALS(parallel_mesh.GetNumBoundaryElements(), 4800u);
+    }    
 
 };
 #endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/
