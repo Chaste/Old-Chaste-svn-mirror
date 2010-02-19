@@ -41,6 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleStimulus.hpp"
 
 #include "ChasteCuboid.hpp"
+#include "AbstractChasteRegion.hpp"
+
+#include "DynamicCellModelLoader.hpp"
 
 /*
  * Even though these classes are only used in the .cpp file, they need to be
@@ -58,7 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006OdeSystem.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "Maleckar2009OdeSystem.hpp"
-#include "AbstractChasteRegion.hpp"
+
 
 /**
  *  \todo: dox, coverage, maybe own tests
@@ -98,8 +101,28 @@ private:
     /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGkr;
     
+    /**
+     * Called by the constructor to convert any CellML files used as dynamically loaded cell models to shared libraries.
+     * This is necessary since the conversion process must be done collectively.
+     * 
+     * @note Must be called collectively.
+     */
+    void PreconvertCellmlFiles();
+    
+    /**
+     * Get a loader for the given (dynamically loadable) cell model.
+     * @param rModel  model to load
+     * @param isCollective  whether we are being called collectively
+     */
+    DynamicCellModelLoader* LoadDynamicModel(const cp::ionic_model_selection_type& rModel,
+                                             bool isCollective);
+    
 public:
-    /** Default constructor */
+    /**
+     * Constructor reads settings from the configuration file.
+     * 
+     * @note Must be called collectively.
+     */
     HeartConfigRelatedCellFactory();
     
     /** Destructor*/

@@ -43,6 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+
 class TestDynamicallyLoadedCellModels : public CxxTest::TestSuite
 {
 private:
@@ -167,7 +169,7 @@ public:
             FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
             EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
-        PetscTools::Barrier("TestCellmlConverter");
+        PetscTools::Barrier("TestCellmlConverter_cp");
         
         CellMLToSharedLibraryConverter converter;
         
@@ -190,17 +192,29 @@ public:
         FileFinder no_ext(dirname + "/" + file_name, cp::relative_to_type::chaste_test_output);
         TS_ASSERT_THROWS_THIS(converter.Convert(no_ext), "Dynamically loadable cell model '"
                               + no_ext.GetAbsolutePath() + "' does not exist.");
-        
-        out_stream fp = handler.OpenOutputFile(file_name);
-        fp->close();
+
+        PetscTools::Barrier("TestCellmlConverter_pre_touch");
+        if (PetscTools::AmMaster())
+        {
+            out_stream fp = handler.OpenOutputFile(file_name);
+            fp->close();
+        }
+        PetscTools::Barrier("TestCellmlConverter_post_touch");
+
         TS_ASSERT_THROWS_THIS(converter.Convert(no_ext), "File does not have an extension: " + no_ext.GetAbsolutePath());
         FileFinder unsupp_ext("heart/src/io/FileFinder.hpp", cp::relative_to_type::chaste_source_root);
         TS_ASSERT_THROWS_THIS(converter.Convert(unsupp_ext), "Unsupported extension '.hpp' of file '"
                               + unsupp_ext.GetAbsolutePath() + "'; must be .so or .cellml");
 
         EXPECT0(chdir, "heart"); // The ConvertCellModel.py script in ConvertCellmlToSo() should only work from chaste source directory.
-        // Having the 'rm' after the 'chdir' cunningly double-checks that the FileFinder has really given us an absolute path
-        EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+        if (PetscTools::AmMaster())
+        {
+            // Having the 'rm' after the 'chdir' cunningly double-checks that the FileFinder has really given us an absolute path
+            EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+        }
+        PetscTools::Barrier("TestCellmlConverter_rm");
+        TS_ASSERT_THROWS_THIS(converter.Convert(cellml_file, false),
+                              "Unable to convert .cellml to .so unless called collectively, due to possible race conditions.");
         TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),"Conversion of CellML to Chaste shared object failed.");
         EXPECT0(chdir, "..");
     }

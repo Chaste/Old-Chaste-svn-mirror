@@ -67,6 +67,35 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
         // No cell heterogeneities provided
     }
     
+    // Do we need to convert any CellML files?
+    PreconvertCellmlFiles();
+}
+
+template<unsigned SPACE_DIM>
+void HeartConfigRelatedCellFactory<SPACE_DIM>::PreconvertCellmlFiles()
+{
+    if (mDefaultIonicModel.Dynamic().present())
+    {
+        LoadDynamicModel(mDefaultIonicModel, true);
+    }
+    for (unsigned i=0; i<mIonicModelsDefined.size(); i++)
+    {
+        if (mIonicModelsDefined[i].Dynamic().present())
+        {
+            LoadDynamicModel(mIonicModelsDefined[i], true);
+        }
+    }
+}
+
+template<unsigned SPACE_DIM>
+DynamicCellModelLoader* HeartConfigRelatedCellFactory<SPACE_DIM>::LoadDynamicModel(
+        const cp::ionic_model_selection_type& rModel,
+        bool isCollective)
+{
+    assert(rModel.Dynamic().present());
+    FileFinder file_finder(rModel.Dynamic()->Path());
+    CellMLToSharedLibraryConverter converter;
+    return converter.Convert(file_finder, isCollective);
 }
 
 template<unsigned SPACE_DIM>
@@ -99,9 +128,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     if (ionic_model.Dynamic().present())
     {
         // Load model from shared library
-        FileFinder file_finder(ionic_model.Dynamic()->Path());
-        CellMLToSharedLibraryConverter converter;
-        DynamicCellModelLoader* p_loader = converter.Convert(file_finder);
+        DynamicCellModelLoader* p_loader = LoadDynamicModel(ionic_model, false);
         return p_loader->CreateCell(this->mpSolver, intracellularStimulus);
     }
     else

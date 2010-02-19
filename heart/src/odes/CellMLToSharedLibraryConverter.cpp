@@ -38,7 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "DynamicModelLoaderRegistry.hpp"
 
-DynamicCellModelLoader* CellMLToSharedLibraryConverter::Convert(const FileFinder& rFilePath)
+DynamicCellModelLoader* CellMLToSharedLibraryConverter::Convert(const FileFinder& rFilePath,
+                                                                bool isCollective)
 {
     DynamicCellModelLoader* p_loader;
     std::string absolute_path = rFilePath.GetAbsolutePath();
@@ -66,6 +67,10 @@ DynamicCellModelLoader* CellMLToSharedLibraryConverter::Convert(const FileFinder
         FileFinder so_file(so_path, cp::relative_to_type::absolute);
         if (!so_file.Exists() || rFilePath.IsNewerThan(so_file))
         {
+            if (!isCollective)
+            {
+                EXCEPTION("Unable to convert .cellml to .so unless called collectively, due to possible race conditions.");
+            }
             ConvertCellmlToSo(absolute_path, folder, leaf);
         }
         // Load the .so
@@ -88,36 +93,41 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
                                                        const std::string& rCellmlFolder,
                                                        const std::string& rModelLeafName)
 {
-    std::stringstream folder_name;
+    std::string tmp_folder, build_folder;
     try
     {
         // Need to create a .so file from the CellML...
         if (PetscTools::AmMaster())
         {
             // Create a temporary folder within heart/dynamic
-            folder_name << ChasteBuildRootDir() << "heart/dynamic/tmp_" << getpid() << "_" << time(NULL);
-            int ret = mkdir(folder_name.str().c_str(), 0700);
+            std::stringstream folder_name;
+            folder_name << "dynamic/tmp_" << getpid() << "_" << time(NULL);
+            tmp_folder = std::string(ChasteBuildRootDir()) + "heart/" + folder_name.str();
+            build_folder = ChasteComponentBuildDir("heart") + folder_name.str();
+            int ret = mkdir(tmp_folder.c_str(), 0700);
             if (ret != 0)
             { // Some optimised builds see ret as unused if this line is just assert(ret ==0);
                 NEVER_REACHED;
             }
             // Copy the .cellml file into the temporary folder
-            EXPECT0(system, "cp " + rCellmlFullPath + " " + folder_name.str());
+            EXPECT0(system, "cp " + rCellmlFullPath + " " + tmp_folder);
             // Run PyCml to generate C++ code
-            EXPECT0(system, "./python/ConvertCellModel.py -y --normal " + folder_name.str() + "/" + rModelLeafName + "cellml");
+            EXPECT0(system, "./python/ConvertCellModel.py -y --normal " + tmp_folder + "/" + rModelLeafName + "cellml");
             // Run scons to compile it to a .so
-            EXPECT0(system, "scons dyn_libs_only=1 " + folder_name.str());
+            EXPECT0(system, "scons dyn_libs_only=1 " + tmp_folder);
             // Copy the .so to the same folder as the original .cellml file
-            EXPECT0(system, "cp " + folder_name.str() + "/lib" + rModelLeafName + "so " + rCellmlFolder);
-            // Delete the temporary folder
-            EXPECT0(system, "rm -r " + folder_name.str());
+            EXPECT0(system, "cp " + tmp_folder + "/lib" + rModelLeafName + "so " + rCellmlFolder);
+            // Delete the temporary folders
+            EXPECT0(system, "rm -r " + build_folder);
+            EXPECT0(system, "rm -r " + tmp_folder);
         }
     }
     catch (Exception& e)
     {
         PetscTools::ReplicateException(true);
-        // Delete the temporary folder
-        EXPECT0(system, "rm -r " + folder_name.str());
+        // Delete the temporary folders
+        EXPECT0(system, "rm -rf " + build_folder); // -f because folder might not exist
+        EXPECT0(system, "rm -r " + tmp_folder);
         EXCEPTION("Conversion of CellML to Chaste shared object failed. Error was: " + e.GetMessage());
     }
     // This also has the effect of a barrier, ensuring all processes wait for the
