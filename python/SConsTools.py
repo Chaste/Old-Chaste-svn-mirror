@@ -283,12 +283,15 @@ def GetVersionCpp(templateFilePath, env):
              'time_size': len(build_time)+1,
              'build_time': build_time,
              'uname': ' '.join(os.uname()),
+             'build_type': env['build'].build_type,
+             'build_dir': env['build'].build_dir,
              'build_info': env['CHASTE_BUILD_INFO']}
     return open(templateFilePath).read() % subst
 
 def GetChasteBuildRootCpp(env):
     """Return the contents of the ChasteBuildRoot.cpp source file."""
     subst = {'chaste_root': Dir('#').abspath,
+             'build_type': env['build'].build_type,
              'build_dir': env['build'].build_dir}
     return """
 #include "ChasteBuildRoot.hpp" 
@@ -302,6 +305,17 @@ std::string ChasteComponentBuildDir(const std::string& rComponent)
 {
     return std::string(ChasteBuildRootDir()) + rComponent + "/build/%(build_dir)s/";
 }
+
+std::string ChasteBuildDirName()
+{
+    return "%(build_dir)s";
+}
+
+std::string ChasteBuildType()
+{
+    return "%(build_type)s";
+}
+
 """ % subst
 
 def _GenerateCppFromValue(env, target, source):

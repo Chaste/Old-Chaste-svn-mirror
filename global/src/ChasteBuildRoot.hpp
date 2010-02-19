@@ -46,4 +46,15 @@ const char* ChasteBuildRootDir();
  */
 std::string ChasteComponentBuildDir(const std::string& rComponent);
 
+/**
+ * Get the name of the folder within the 'build' dir of a component
+ * that contains the compiled files.
+ */
+std::string ChasteBuildDirName();
+
+/**
+ * Get the build type string used in building Chaste.
+ */
+std::string ChasteBuildType();
+
 #endif /*CHASTEBUILDROOT_HPP_*/

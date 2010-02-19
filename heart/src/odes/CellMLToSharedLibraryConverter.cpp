@@ -103,7 +103,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             std::stringstream folder_name;
             folder_name << "dynamic/tmp_" << getpid() << "_" << time(NULL);
             tmp_folder = std::string(ChasteBuildRootDir()) + "heart/" + folder_name.str();
-            build_folder = ChasteComponentBuildDir("heart") + folder_name.str();
+            build_folder = std::string(ChasteBuildRootDir()) + "heart/build/" + ChasteBuildDirName() + "/" + folder_name.str();
             int ret = mkdir(tmp_folder.c_str(), 0700);
             if (ret != 0)
             { // Some optimised builds see ret as unused if this line is just assert(ret ==0);
@@ -114,7 +114,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             // Run PyCml to generate C++ code
             EXPECT0(system, "./python/ConvertCellModel.py -y --normal " + tmp_folder + "/" + rModelLeafName + "cellml");
             // Run scons to compile it to a .so
-            EXPECT0(system, "scons dyn_libs_only=1 " + tmp_folder);
+            EXPECT0(system, "scons dyn_libs_only=1 build=" + ChasteBuildType() + " " + tmp_folder);
             // Copy the .so to the same folder as the original .cellml file
             EXPECT0(system, "cp " + tmp_folder + "/lib" + rModelLeafName + "so " + rCellmlFolder);
             // Delete the temporary folders
