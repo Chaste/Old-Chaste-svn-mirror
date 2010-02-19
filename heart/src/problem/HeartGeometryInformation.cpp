@@ -141,7 +141,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeH
 
 template<unsigned SPACE_DIM>
 void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
-        const std::string& line, std::set<unsigned>& surfaceNodeIndexSet, unsigned offset) const
+        const std::string& line, std::set<unsigned>& rSurfaceNodeIndexSet, unsigned offset) const
 {
     std::stringstream line_stream(line);
     while (!line_stream.eof())
@@ -149,7 +149,7 @@ void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
         unsigned item;
         line_stream >> item;
         // If offset==1 then shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
-        surfaceNodeIndexSet.insert(item-offset);
+        rSurfaceNodeIndexSet.insert(item-offset);
     }
 }
 
@@ -173,31 +173,44 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     }
 
     // Temporary storage for the nodes, helps discarding repeated values
-    std::set<unsigned> surface_node_index_set;
+    std::set<unsigned> surface_original_node_index_set;
 
     // Loop over all the triangles and add node indexes to the set
     std::string line;
     getline(file_stream, line);
     do
     {
-        ProcessLine(line, surface_node_index_set, offset);
+        ProcessLine(line, surface_original_node_index_set, offset);
 
         getline(file_stream, line);
     }
     while(!file_stream.eof());
+    file_stream.close();
 
     // Make vector big enough
-    rSurfaceNodes.reserve(surface_node_index_set.size());
+    rSurfaceNodes.reserve(surface_original_node_index_set.size());
 
-    // Copy the node indexes from the set to the vector
-    for(std::set<unsigned>::iterator node_index_it=surface_node_index_set.begin();
-        node_index_it != surface_node_index_set.end();
-        node_index_it++)
+    if (mpMesh->rGetNodePermutation().empty())
     {
-        rSurfaceNodes.push_back(*node_index_it);
+        // Copy the node indexes from the set to the vector as they are
+        for(std::set<unsigned>::iterator node_index_it=surface_original_node_index_set.begin();
+            node_index_it != surface_original_node_index_set.end();
+            node_index_it++)
+        {
+            rSurfaceNodes.push_back(*node_index_it);
+        }
     }
-
-    file_stream.close();
+    else
+    {
+        NEVER_REACHED;
+//        // Copy the original node indices from the set to the vector applying the permutation
+//        for(std::set<unsigned>::iterator node_index_it=surface_original_node_index_set.begin();
+//            node_index_it != surface_original_node_index_set.end();
+//            node_index_it++)
+//        {
+//            rSurfaceNodes.push_back(mpMesh->rGetNodePermutation()[*node_index_it]);
+//        }
+    }
 }
 
 

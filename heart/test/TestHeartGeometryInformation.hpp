@@ -126,14 +126,16 @@ public:
 
     void TestCalculateRelativeWallPositionSimple3dMesh() throw(Exception)
     {
-        TetrahedralMesh<3,3> mesh;
+        ParallelTetrahedralMesh<3,3> mesh;
         //This mesh will have 6 nodes per face, spaced by 1
         mesh.ConstructCuboid(5, 5, 5);
 
         std::vector<unsigned> left_face;
         std::vector<unsigned> right_face;
 
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
+        unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
+        for (unsigned index=low_index; index<high_index; index++)
         {  
             // Get the nodes at the left face of the cube
             if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
@@ -155,16 +157,18 @@ public:
         //call the constructor that takes in the surface files...
         HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
         
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5-x)/5);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
         } 
     }
     
-    void TestCalculateRelativeWallPositionWithSurfaces() throw(Exception)
+    void TestCalculateRelativeWallPositionWithThreeSurfaces() throw(Exception)
     {
-        TetrahedralMesh<3,3> mesh;
+        ParallelTetrahedralMesh<3,3> mesh;
         //This mesh will have 9 nodes per side, spaced by 1, it is a cube
         mesh.ConstructCuboid(8, 8, 8);
 
@@ -172,7 +176,9 @@ public:
         std::vector<unsigned> lv_face;
         std::vector<unsigned> rv_face;
         //Define three surfaces, epi, lv and rv.
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
+        unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
+        for (unsigned index=low_index; index<high_index; index++)
         {  
             // Get the nodes at cube face considered to be epi (at both external faces)
             if (  (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
@@ -211,19 +217,12 @@ public:
         std::vector<unsigned> nodes_on_lv = info.rGetNodesOnLVSurface();
         std::vector<unsigned> nodes_on_rv = info.rGetNodesOnRVSurface();
         std::vector<unsigned> nodes_on_epi = info.rGetNodesOnEpiSurface();
-        TS_ASSERT_EQUALS(nodes_on_lv.size(),lv_face.size());
-        TS_ASSERT_EQUALS(nodes_on_rv.size(),rv_face.size());
-        TS_ASSERT_EQUALS(nodes_on_epi.size(),epi_face.size());
-        //check that the vectors filled in by the constructor are the same as the original ones
-        for (unsigned i = 0; i < lv_face.size();i++)
-        {
-            TS_ASSERT_EQUALS(nodes_on_lv[i],lv_face[i]);
-            TS_ASSERT_EQUALS(nodes_on_rv[i],rv_face[i]);
-            TS_ASSERT_EQUALS(nodes_on_epi[i],epi_face[i]);
-        }
+        TS_ASSERT_EQUALS(nodes_on_lv.size(),  81u);
+        TS_ASSERT_EQUALS(nodes_on_rv.size(), 81u);
+        TS_ASSERT_EQUALS(nodes_on_epi.size(), 162u);
 
         //and then we test the method to evaluate the position in the wall (again)
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             //in the lv...
@@ -246,15 +245,17 @@ public:
     
     void TestDetermineLayerForEachNodeWritingAndReading() throw (Exception)
     {
-        TetrahedralMesh<3,3> mesh;
+        ParallelTetrahedralMesh<3,3> mesh;
         //This mesh will have 31 nodes per side, spaced by 1, it is a cube
         mesh.ConstructCuboid(30, 30, 30);
 
+        unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
+        unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
         std::vector<unsigned> epi_face;
         std::vector<unsigned> lv_face;
         std::vector<unsigned> rv_face;
         //Define three surfaces, epi, lv and rv.
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index=low_index; index<high_index; index++)
         {  
             // Get the nodes at cube face considered to be epi (at both external faces)
             if (  (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
@@ -293,11 +294,11 @@ public:
         TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(0.9, -1.0), "A fraction of a layer must be positive");
         TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(-2.0, 1.0), "A fraction of a layer must be positive");
         
-        info.DetermineLayerForEachNode(0.29, 0.51);
 
+        info.DetermineLayerForEachNode(0.29, 0.51);
         info.WriteLayerForEachNode("TestHeartGeom","layers.het");
         
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             
@@ -321,7 +322,7 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), info_2.rGetLayerForEachNode().size());
         
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             
@@ -344,7 +345,7 @@ public:
         TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info_bad_file("heart/test/data/ValidPseudoEcg1D.dat"), "A value in the heterogeneities file (heart/test/data/ValidPseudoEcg1D.dat) is out of range (or not an integer). It should be epi = 0, mid = 1, endo = 2");
     }
     
-    void TestHeartGeometryTakingFiles() throw (Exception)
+    void TestHeartGeometryTakingMeshFromFile() throw (Exception)
     {
         //files containing list of nodes on each surface
         std::string epi_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.epi";
@@ -354,6 +355,7 @@ public:
                
         //read in the mesh
         TrianglesMeshReader<3,3> mesh_reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
+        //ParallelTetrahedralMesh<3,3> mesh;
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -370,6 +372,7 @@ public:
             {
                 (*p_file)<<info.rGetLayerForEachNode()[index]<<std::endl;
             }
+            p_file->close();
             //since we visually checked that the output file is correct,
             //we check that the data in the file match the calculated one.
             EXPECT0(system, "diff " + results_handler.GetOutputDirectoryFullPath() + "/distances.dat " + "heart/test/data/heart_geometry_layers.dat");

@@ -84,10 +84,10 @@ private:
     /**
      *  Helper function for GetNodesAtSurface
      *  @param line A line in a surface file
-     *  @param surfaceNodeIndexSet The nodes in the element corresponding to this line
+     *  @param rSurfaceNodeIndexSet The nodes in the element corresponding to this line
      *  @param offset is the lowest index of a node in the original mesh (0 for native triangles or 1 for MEMFEM)
      */
-    void ProcessLine(const std::string& line, std::set<unsigned>& surfaceNodeIndexSet, unsigned offset) const;
+    void ProcessLine(const std::string& line, std::set<unsigned>& rSurfaceNodeIndexSet, unsigned offset) const;
     
     /**
      * Helper method to calculate the distance between the node and the Endocardial surface

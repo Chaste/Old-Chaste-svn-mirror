@@ -338,16 +338,13 @@ private:
      * @param rHaloNodesOwned is a set to be filled with the indices of halo nodes owned by this process
      * @param rElementsOwned is a set to be filled with the indices of elements owned by this process
      * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-     * @param rNodePermutation a vector to be filled with the permutation applied to the node numbering by the partitioning method
-     * \todo Make it clear which way the permutation applies
      *  
      */
     void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                  std::set<unsigned>& rNodesOwned,
                                  std::set<unsigned>& rHaloNodesOwned,
                                  std::set<unsigned>& rElementsOwned,
-                                 std::vector<unsigned>& rProcessorsOffset,
-                                 std::vector<unsigned>& rNodePermutation);
+                                 std::vector<unsigned>& rProcessorsOffset);
 
     /**
      * Specialised method to compute a parallel partitioning of a given mesh
@@ -366,13 +363,11 @@ private:
      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
      * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
      * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-     * @param rNodePermutation a vector to be filled with the permutation applied to the node numberig by the partitioning method
      * 
      */
     void MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                      std::set<unsigned>& rNodesOwned, 
-                                     std::vector<unsigned>& rProcessorsOffset,
-                                     std::vector<unsigned>& rNodePermutation);
+                                     std::vector<unsigned>& rProcessorsOffset);
 
     /**
      * Specialised method to compute a parallel partitioning of a given mesh
@@ -381,20 +376,19 @@ private:
      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
      * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
      * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-     * @param rNodePermutation a vector to be filled with the permutation applied to the node numberig by the partitioning method
      * 
      */
     void MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                       std::set<unsigned>& rNodesOwned, 
-                                      std::vector<unsigned>& rProcessorsOffset,
-                                      std::vector<unsigned>& rNodePermutation);
+                                      std::vector<unsigned>& rProcessorsOffset);
 
     /**
-     * Reorder the node indices in this mesh by applying a given permutation
+     * Reorder the node indices in this mesh by applying the permutation
+     * give in mNodesPermutation.
      * 
-     * @param rNodePermutation the index permutation to apply
+     * The node indexed with "i" will be re-assigned with the new indice mNodesPermutation[i]
      */
-    void ReorderNodes(std::vector<unsigned>& rNodePermutation);
+    void ReorderNodes();
 };
 
 #include "TemplatedExport.hpp"

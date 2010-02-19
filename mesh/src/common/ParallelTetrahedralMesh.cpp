@@ -65,18 +65,17 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
     std::set<unsigned>& rNodesOwned,
     std::set<unsigned>& rHaloNodesOwned,
     std::set<unsigned>& rElementsOwned,
-    std::vector<unsigned>& rProcessorsOffset,
-    std::vector<unsigned>& rNodePermutation)
+    std::vector<unsigned>& rProcessorsOffset)
 {
     ///\todo: add a timing event for the partitioning
 
     if (mMetisPartitioning==METIS_BINARY && !PetscTools::IsSequential())
     {
-        MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);
+        MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
     }
     else if (mMetisPartitioning==METIS_LIBRARY && !PetscTools::IsSequential())
     {
-        MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset, rNodePermutation);
+        MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
     }
     else
     {
@@ -126,7 +125,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     std::set<unsigned> elements_owned;
     std::vector<unsigned> proc_offsets;//(PetscTools::GetNumProcs());
 
-    ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets, this->mNodesPermutation);
+    ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets);
 
     // Reserve memory
     this->mElements.reserve(elements_owned.size());
@@ -304,7 +303,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     {
         assert(this->mNodesPermutation.size() != 0);
         // We reorder so that each process owns a contiguous set of the indices and we can then build a distributed vector factory. 
-        ReorderNodes(this->mNodesPermutation);
+        ReorderNodes();
 
         unsigned num_owned;
         unsigned rank = PetscTools::GetMyRank();
@@ -536,8 +535,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned,
-                                                                                  std::vector<unsigned>& rProcessorsOffset,
-                                                                                  std::vector<unsigned>& rNodePermutation)
+                                                                                  std::vector<unsigned>& rProcessorsOffset)
 {
     assert(!PetscTools::IsSequential());
     #define COVERAGE_IGNORE
@@ -651,7 +649,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     partition_stream.seekg (0, std::ios::beg);
 
     std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
-    rNodePermutation.resize(this->GetNumNodes());
+    this->mNodesPermutation.resize(this->GetNumNodes());
 
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
@@ -659,7 +657,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
 
         partition_stream >> part_read;
 
-        rNodePermutation[node_index] = rProcessorsOffset[part_read] + local_index[part_read];
+        this->mNodesPermutation[node_index] = rProcessorsOffset[part_read] + local_index[part_read];
 
         local_index[part_read]++;
     }
@@ -671,8 +669,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned,
-                                                                                  std::vector<unsigned>& rProcessorsOffset,
-                                                                                  std::vector<unsigned>& rNodePermutation)
+                                                                                  std::vector<unsigned>& rProcessorsOffset)
 {
     assert(!PetscTools::IsSequential());
 
@@ -758,24 +755,22 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
      */
     std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
 
-    rNodePermutation.resize(this->GetNumNodes());
+    this->mNodesPermutation.resize(this->GetNumNodes());
 
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         unsigned part_read = npart[node_index];
 
-        rNodePermutation[node_index] = rProcessorsOffset[part_read] + local_index[part_read];
+        this->mNodesPermutation[node_index] = rProcessorsOffset[part_read] + local_index[part_read];
 
         local_index[part_read]++;
     }
-    //std::cout << rNodePermutation.size() << std::endl;
-    //std::cout << this->mNodesPermutation.size() << std::endl;
 
     delete[] npart;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<unsigned>& rNodePermutation)
+void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes()
 {
     assert(!PetscTools::IsSequential());
 
@@ -787,7 +782,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<u
     for (unsigned index=0; index<this->mNodes.size(); index++)
     {
         unsigned old_index = this->mNodes[index]->GetIndex();
-        unsigned new_index = rNodePermutation[old_index];
+        unsigned new_index = this->mNodesPermutation[old_index];
 
         this->mNodes[index]->SetIndex(new_index);
         mNodesMapping[new_index] = index;
@@ -796,7 +791,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes(std::vector<u
     for (unsigned index=0; index<mHaloNodes.size(); index++)
     {
         unsigned old_index = mHaloNodes[index]->GetIndex();
-        unsigned new_index = rNodePermutation[old_index];
+        unsigned new_index = this->mNodesPermutation[old_index];
 
         mHaloNodes[index]->SetIndex(new_index);
         mHaloNodesMapping[new_index] = index;
