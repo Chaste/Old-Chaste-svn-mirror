@@ -4756,6 +4756,7 @@ def run():
             transargs['dynamically_loadable'] = options.dynamically_loadable
         t = klass(**initargs)
         t.translate(doc, model_file, output_filename, class_name=class_name, **transargs)
+        cellml_metadata.remove_model(doc.model)
     else:
         # Add a comment element
         comment = pycml.comment_base(

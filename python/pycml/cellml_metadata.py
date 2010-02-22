@@ -63,6 +63,12 @@ def _get_rdf_from_model(cellml_model):
         _models[cellml_model] = m
     return _models[cellml_model]
 
+def remove_model(cellml_model):
+    """The given model is being deleted / no longer needed."""
+    if cellml_model in _models:
+        del _models[cellml_model]
+        _debug('Clearing RDF state for model', cellml_model.name)
+
 def update_serialized_rdf(cellml_model):
     """Ensure the RDF serialized into the given CellML model is up-to-date.
     
@@ -81,7 +87,7 @@ def update_serialized_rdf(cellml_model):
         rdf_doc = pycml.amara.parse(rdf_text)
         cellml_model.xml_append(rdf_doc.RDF)
         # Remove the RDF model
-        del _models[cellml_model]
+        remove_model(cellml_model)
 
 def create_rdf_node(node_content=None, fragment_id=None):
     """Create an RDF node.

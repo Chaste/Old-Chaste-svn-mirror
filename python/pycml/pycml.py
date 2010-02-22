@@ -475,6 +475,10 @@ class cellml_model(element_base):
         # Topologically sorted component list
         self._cml_sorted_components = []
         self._cml_assignments = []
+    
+    def __del__(self):
+        """Try to get the RDF library to clean up nicely."""
+        cellml_metadata.remove_model(self)
 
     def get_component_by_name(self, compname):
         """Return the component object that has name `compname'."""
